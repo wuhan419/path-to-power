@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POTUS · 配图预览（事件卡里的照片层）</title>
+<link rel="stylesheet" href="../engine/style.css">
+<style>
+  .pv-legend{font-size:13px;color:var(--muted);border-bottom:1px dashed var(--line);
+    padding-bottom:8px;margin:14px 0 4px}
+  .pv-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.pv-2col{grid-template-columns:1fr}}
+  .pv-note{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="masthead">
+    <div class="title">配图预览</div>
+    <div class="meta">事件卡里的「照片层」长什么样<br>content/09-photo-art.js · assets/events/</div>
+  </div>
+  <p class="pv-legend">
+    这个页面用<b>真的引擎渲染器</b>（<code>P.artSVG</code>）+ <b>真的样式表</b>（engine/style.css）铺出
+    <code>.news</code> 事件卡，只是把正文换成了占位文字。改了照片或 CSS 之后刷新这里就能看到结果，
+    不用真的开局。<br>
+    列宽与游戏内一致（<code>#app</code> 980px、<code>.grid</code> 1fr + 260px、<code>.news</code> 内边距 16px）。
+  </p>
+  <div class="grid">
+    <div>
+      <h3 style="margin:6px 0">全部类型（有照片出照片，没登记的照片安静退回程序化 SVG）</h3>
+      <div id="cards"></div>
+      <h3 style="margin:22px 0 6px">加载失败时的样子</h3>
+      <p class="pv-note">照片文件缺失 / 改名时，卡片会自曝成「破图态」：把底下垫着的程序化 SVG 翻出来顶上。
+        下面这张是人为加上 <code>.art-photo-broken</code> 的效果。</p>
+      <div id="broken"></div>
+    </div>
+    <div class="panel">
+      <h3>怎么用</h3>
+      <p style="font-size:12.5px">换图：把新图命名成 <code>&lt;类型 key&gt;.jpg</code> 覆盖
+        <code>assets/events/</code> 下的同名文件即可，不用改代码。</p>
+      <p style="font-size:12.5px">单个事件换图：<code>ev.photo = "my-shot.jpg"</code>。</p>
+      <p style="font-size:12.5px">单个事件不要照片：<code>ev.photo = false</code>。</p>
+      <p style="font-size:12.5px">加新类型：在 <code>content/05-categories.js</code> 加一条 category，
+        在 <code>content/09-photo-art.js</code> 的 files 里加一行，再把图丢进 assets/events/。</p>
+      <div id="stat"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 只加载配图相关的引擎与内容，不 boot（不需要标题屏 / 存档） -->
+<script src="../engine/core.js"></script>
+<script src="../engine/art.js"></script>
+<script src="../content/05-categories.js"></script>
+<script src="../content/09-photo-art.js"></script>
+<script>
+(function () {
+  var P = POTUS;
+  /* 照片目录在游戏里是「相对 index.html」的 assets/events/；
+     本页在 tools/ 下，所以往上一级 —— 这正好演示了 dir 是可配的。 */
+  P.reg.photo.dir = "../" + P.reg.photo.dir;
+
+  var MAIN = "这是一个占位的事件正文段落，用来撑出真实卡片的排版与列宽。" +
+    "配图在标题下方、正文上方 —— 你在这里看到的就是玩家在游戏里看到的位置。";
+
+  function card(catKey, forceBroken) {
+    var ev = { title: P.category(catKey).name + "事件", category: catKey, body: MAIN };
+    var photo = (P.reg.photo.files || {})[catKey];
+    var cls = "news" + (forceBroken ? " pv-broken" : "");
+    return '<div class="' + cls + '">' +
+      '<div class="dateline"><span class="dt">1968 年 3 月 12 日</span>' +
+      '<span class="gchip g-mid">中事件</span>' +
+      '<span class="cchip">' + P.category(catKey).name + "</span></div>" +
+      "<h2>" + P.category(catKey).name + "事件</h2>" +
+      P.artSVG(ev) +
+      '<div class="body">' + MAIN + "</div>" +
+      '<p class="pv-note">类型 <code>' + catKey + "</code> ｜ " +
+      (photo ? "照片 <code>" + photo + "</code>" : "无照片 → 程序化 SVG") + "</p>" +
+      "</div>";
+  }
+
+  var keys = Object.keys(P.reg.category);
+  var html = keys.map(function (k) { return card(k, false); }).join("");
+  document.getElementById("cards").innerHTML = html;
+
+  /* 破图态：只演给"危机"这一张看，避免整页都是垫片 */
+  var holder = document.getElementById("broken");
+  holder.innerHTML = card("crisis", true);
+  var img = holder.querySelector(".art-photo img");
+  if (img) img.dispatchEvent(new Event("error"));
+
+  /* 右侧面板顺带报一下当前登记情况 */
+  var files = P.reg.photo.files || {};
+  var fk = Object.keys(files);
+  document.getElementById("stat").innerHTML =
+    '<p style="font-size:12.5px;margin-top:8px">当前登记 <b>' + fk.length + "</b> 张照片 ｜ 目录 <code>" +
+    P.reg.photo.dir + "</code><br>有照片：" + fk.join("、") +
+    "<br>无照片（走 SVG）：" + keys.filter(function (k) { return !files[k]; }).join("、") + "</p>";
+})();
+</script>
+</body>
+</html>

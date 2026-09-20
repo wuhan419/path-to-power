@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POTUS · 一个美国小伙的从政之路</title>
+<link rel="stylesheet" href="engine/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<!-- ==========================================================================
+     引擎（稳定，一般不需要改动）
+     ======================================================================= -->
+<script src="engine/core.js"></script>
+<!-- 统一的声明式条件求值器：事件门槛 / 结局规则 / 静好片段 / 主线 gate 共用这一套词汇 -->
+<script src="engine/when.js"></script>
+<script src="engine/dice.js"></script>
+<script src="engine/effects.js"></script>
+<script src="engine/events.js"></script>
+<!-- 时间：年 → 月 → 档期（一个月一回合、时代压力、大/中/小事量级） -->
+<script src="engine/time.js"></script>
+<!-- 主线：这个人这一辈子主要在过哪一条命（单线制，可换线；只加权不硬塞） -->
+<script src="engine/arc.js"></script>
+<!-- 静好岁月：没有事件的月份，主角的日子与"按部就班"的成长 -->
+<script src="engine/vignette.js"></script>
+<!-- 可选的大模型适配层：离线优先、超时降级、结果缓存（不接也完全能玩） -->
+<script src="engine/llm.js"></script>
+<script src="engine/progression.js"></script>
+<script src="engine/art.js"></script>
+<script src="engine/render.js"></script>
+
+<!-- ==========================================================================
+     内容包清单 —— 新增内容只改这一块（加一行 <script src>）
+     顺序无所谓；引擎通过注册表自动发现。
+     ======================================================================= -->
+<!-- 配置：平衡参数 / 派系 / 轨道 / 党派 / 姿态 -->
+<script src="content/01-config.js"></script>
+<!-- 事件类型（category）+ 量级（grade）：每个类型自带默认配图与配色 -->
+<script src="content/05-categories.js"></script>
+<!-- 时代媒介时间轴：报纸/广播/电视/互联网/短视频… 哪些年在，哪些年不在 -->
+<script src="content/06-media.js"></script>
+<!-- 人脉登记表：这一局里能反复出场的那些"人"（事件用 req.contact / effects.contact 引用） -->
+<script src="content/07-contacts.js"></script>
+<!-- 静好岁月素材库：没有事件的月份里，主角的日子（时令/世相/案头/日常/心绪/收束） -->
+<script src="content/08-vignettes.js"></script>
+<!-- 事件配图的照片层：类型 → assets/events/<key>.jpg，缺图自动退回程序化 SVG -->
+<script src="content/09-photo-art.js"></script>
+<!-- 建角：出身 / 天赋 / 起点路径 -->
+<script src="content/10-characters.js"></script>
+<!-- 主线：一个人这一辈子在过哪条命。只编排已有事件（事件 id 是**延迟解析**的，
+     所以这个文件排在事件库前面没问题；id 写错由 tools/validate.js 抓） -->
+<script src="content/11-arcs.js"></script>
+<!-- 出生州：当地选民的政治倾向（顺风/逆风/摇摆，影响起点派系与事件倾斜） -->
+<script src="content/12-states.js"></script>
+<!-- 年终随笔：把这一年写成三段人话（做了什么/得失/处境）的素材库 -->
+<script src="content/13-year-tales.js"></script>
+<!-- 职位名表：状态面板"职位卡"的 轨道×层级 → 真实职位名 -->
+<script src="content/14-offices.js"></script>
+<!-- 时代锚点 + 黑天鹅 -->
+<script src="content/20-eras.js"></script>
+<!-- 填充模板（事件池耗尽时兜底，保证永不枯竭） -->
+<script src="content/30-fillers.js"></script>
+<!-- 结局规则（声明式） -->
+<script src="content/40-endings.js"></script>
+
+<!-- 事件库：按时代/主题分文件。新增事件直接在此登记。
+     建议命名：<序号>-<分类>.js，数字控制加载顺序。 -->
+<script src="content/events/50-era-2008.js"></script>
+<script src="content/events/51-era-1960.js"></script>
+<script src="content/events/52-era-1974.js"></script>
+<!-- 时代浪潮：真实历史事件按主角层级分化（征兵/表决、游行/登记、帐篷/听证），
+     低层级可「投入浪潮」换政治资本；大事件 critfail 可挂下野/硬结局 -->
+<script src="content/events/54-era-waves.js"></script>
+<!-- 媒介时间轴事件：同一件事，广播时代/电视时代/短视频时代各长出不同版本 -->
+<script src="content/events/55-media-timeline.js"></script>
+<script src="content/events/60-progression.js"></script>
+<!-- 路线抉择：参选 vs 幕僚、NGO vs 体制、州参议院 vs 联邦众议员、竞选团队 vs 州长。
+     选项用 setTrack 改轨道，用 cross_* 标记给后续倾斜 -->
+<script src="content/events/62-crossroads.js"></script>
+<!-- 州联动事件：深州的逆风党、摇摆州的最后一周、深蓝州的温和派生存术 -->
+<script src="content/events/64-states.js"></script>
+<!-- 机制演示包：展示 cost（资源代价）与 stake（D&D 式投入加码）。正式内容稳定后可删。 -->
+<script src="content/events/70-demo-resources.js"></script>
+<!-- 灰产线：不靠党内机器，靠"别人不敢说的事"往上走（把柄 / 人脉 / 单次生效） -->
+<script src="content/events/80-shady.js"></script>
+<!-- 媒体即武器：借笔 → 挡笔 → 用笔 → 拥有笔 -->
+<script src="content/events/82-press.js"></script>
+<!-- 事件链样板：一份档案的四幕（拿到 → 被反噬 → 摊牌 → 了结），靠 ev.after 跨月/跨年续接 -->
+<script src="content/events/84-archive.js"></script>
+<!-- 族群飞地与街头政治：讲台 / 商户公所 / 双语选票 / 巡逻队 / "你是我们的人" -->
+<script src="content/events/86-enclave.js"></script>
+<!-- 例：新增 2016 时代
+     <script src="content/events/53-era-2016.js"></script>
+     并在 content/20-eras.js 里补上该时代的 era 定义 -->
+
+<script>POTUS.boot();</script>
+</body>
+</html>

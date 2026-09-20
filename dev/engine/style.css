@@ -1,0 +1,327 @@
+/* POTUS ENGINE · style.css —— 界面样式（引擎侧，内容一般不修改） */
+:root{
+    --ink:#1a1a1a; --paper:#f4efe3; --paper2:#e9e1cf; --line:#3a342a;
+    --accent:#7a1f1f; --muted:#6b6354; --good:#2f6b3a; --bad:#9c2b2b;
+    --era1:#3a4a63; --era2:#7a1f1f; --era3:#caa53a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
+    line-height:1.7; font-size:16px;
+  }
+  #app{max-width:980px;margin:0 auto;padding:18px 18px 60px}
+  /* masthead */
+  .masthead{border-bottom:3px double var(--line);padding-bottom:6px;margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
+  .masthead .title{font-size:26px;font-weight:700;letter-spacing:2px}
+  .masthead .meta{font-size:13px;color:var(--muted);text-align:right}
+  /* era skin */
+  body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
+  body.era-1960_CAMELOT{--era1:#3a4a63;--era2:#5a6f9c;--era3:#caa53a;--accent:#3a4a63}
+  body.era-1974_WATERGATE{--era1:#4a3a2a;--era2:#7a1f1f;--era3:#b08a3a;--accent:#7a1f1f}
+  /* newspaper card */
+  .news{border:1px solid var(--line);background:#fbf7ec;padding:14px 16px;margin:10px 0;
+    box-shadow:2px 2px 0 rgba(0,0,0,.08)}
+  .news h2{margin:0 0 4px;font-size:21px}
+  .news .dateline{font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);
+    padding-bottom:4px;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
+  .news .body{font-size:15.5px;white-space:pre-wrap}
+  /* layout */
+  .grid{display:grid;grid-template-columns:1fr 260px;gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  /* stats panel */
+  .panel{border:1px solid var(--line);background:#fbf7ec;padding:10px 12px;font-size:13.5px}
+  .panel h3{margin:0 0 6px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:4px}
+  .bar{height:8px;background:#d9d0bb;margin:2px 0 6px;position:relative}
+  .bar>i{display:block;height:100%;background:var(--accent)}
+  .fac{display:flex;justify-content:space-between;font-size:12.5px;margin:1px 0}
+  .ct{display:flex;justify-content:space-between;font-size:12.5px;margin:1px 0}
+  .ct i{font-style:normal;color:var(--muted);font-size:11.5px;margin-left:5px}
+  .ct b{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700}
+  .ct b.good{color:#2f6b2f}
+  .ct b.bad{color:#9c2b2b}
+  .levrow{font-size:12.5px}
+  .levrow.has{color:#6b2d6b;font-weight:700}
+  .levrow .muted{font-weight:400;font-size:11.5px;margin-left:4px}
+  .tag{display:inline-block;background:#e9dfc7;border:1px solid var(--line);border-radius:10px;
+    padding:1px 8px;font-size:11.5px;margin:2px 3px 0 0}
+  /* 事件链的「前情」条：告诉玩家这一幕接的是哪条线 */
+  .chain{display:flex;align-items:baseline;gap:8px;margin:6px 0 0;padding:5px 9px;
+    background:#f2ecdc;border-left:3px solid var(--accent);font-size:12.5px}
+  .chain .chain-tag{flex:none;font-size:11px;letter-spacing:2px;color:var(--accent);font-weight:700}
+  .chain .chain-body{color:#5a5344}
+  /* choices */
+  .choices{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+  .choice{border:1px solid var(--line);background:#fff;padding:10px 13px;cursor:pointer;
+    font-size:15px;transition:.12s;text-align:left;font-family:inherit;color:var(--ink)}
+  .choice:hover:not(:disabled){background:var(--era3);color:#1a1a1a;transform:translateX(3px)}
+  .choice:disabled{opacity:.45;cursor:not-allowed}
+  .choice .hint{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+  .choice .req{display:block;font-size:11.5px;color:var(--bad);margin-top:2px}
+  /* 保底选项：所有选项都被资源/门槛堵死时，引擎放行的那一个 */
+  .choice.forced{border-color:#b8860b;background:#fdf8ea}
+  .choice.forced:hover{background:#f7edd2;color:#1a1a1a}
+  .choice .req.forced-tag{color:#8a6100;font-weight:700}
+  /* buttons */
+  button.btn{font-family:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:8px 14px;cursor:pointer;font-size:14px;transition:.12s}
+  button.btn:hover:not(:disabled){background:var(--line);color:#fff}
+  button.btn:disabled{opacity:.35;cursor:not-allowed}
+  button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .toolbar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);
+    padding:8px 0;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;z-index:5}
+  /* create screen */
+  .create{max-width:680px;margin:0 auto}
+  .opt{border:1px solid var(--line);padding:8px 10px;margin:6px 0;cursor:pointer;background:#fbf7ec}
+  .opt.sel{background:var(--era3);font-weight:700}
+  .opt small{display:block;color:var(--muted);font-weight:400}
+  select,input[type=text]{font-family:inherit;font-size:14px;padding:6px;border:1px solid var(--line);background:#fff}
+  /* dice */
+  .dice{font-size:40px;text-align:center;padding:14px;letter-spacing:6px}
+  .result{font-size:18px;border-left:4px solid var(--line);padding:6px 12px;margin:10px 0;background:#fbf7ec}
+  .result.crit{border-color:var(--era3);color:#7a5a00}
+  .result.ok{border-color:var(--good)}
+  .result.meh{border-color:var(--muted)}
+  .result.fail{border-color:var(--bad)}
+  .result.critfail{border-color:#000;background:#2a2a2a;color:#fff}
+  .fade{animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .log{font-size:12.5px;color:var(--muted);max-height:240px;overflow:auto;border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+  .log div{padding:2px 0;border-bottom:1px dotted #cfc6ad}
+  .hintline{font-size:12px;color:var(--muted);font-style:italic;margin:4px 0}
+  .center{text-align:center}
+  .muted{color:var(--muted)}
+  .art{width:100%;height:120px;border:1px solid var(--line);margin:8px 0;background:#fff}
+  /* 事件配图的「照片层」（表在 content/09-photo-art.js；缺图时自动翻出 .art-back 里的 SVG） */
+  .art-photo{position:relative;display:block;isolation:isolate;padding:0;height:auto;
+    aspect-ratio:16/9;max-height:260px;overflow:hidden;background:#1a1a1a}
+  .art-photo img{display:block;width:100%;height:100%;object-fit:cover;
+    filter:saturate(.94) contrast(1.03)}
+  /* 压一层时代主色的淡色罩，让照片与报纸版式同一个调子 */
+  .art-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:var(--era1);opacity:.10;mix-blend-mode:multiply}
+  .art-photo .art-tag{position:absolute;left:0;bottom:0;z-index:2;background:var(--ink);
+    color:#f4efe3;font-size:11px;letter-spacing:2px;padding:2px 9px;opacity:.86}
+  /* 兜底垫片：默认不显示，照片加载失败时才翻出来 */
+  .art-photo .art-back{display:none;position:absolute;inset:0;z-index:1}
+  .art-photo .art-back svg{width:100%;height:100%}
+  .art-photo-broken img{display:none}
+  .art-photo-broken::after{display:none}
+  .art-photo-broken .art-back{display:block}
+  a.link{color:var(--accent)}
+  /* ending */
+  .ending{border:3px double var(--line);padding:18px;background:#fbf7ec}
+  .ending h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .grade{text-align:center;font-size:60px;font-weight:700;color:var(--accent);margin:8px 0}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:20}
+  .modal .box{background:var(--paper);border:1px solid var(--line);padding:18px;max-width:520px;width:92%}
+  .hidden{display:none}
+  /* 资源代价标签（选项内） */
+  .choice .costtag{display:inline-block;font-size:11.5px;color:#7a5a00;background:#f3e6c4;
+    border:1px solid #d8c48a;padding:1px 7px;margin-top:4px}
+  /* 资源投注面板（D&D 式加码） */
+  .stake{border:1px dashed var(--accent);background:#fbf7ec;padding:12px 14px;margin:12px 0;
+    animation:fade .35s ease}
+  .stake h3{margin:0 0 8px;font-size:16px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .stake-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dotted #cfc6ad;
+    flex-wrap:wrap;font-size:14px}
+  .stake-row>b{width:44px;flex:none}
+  .stake-row .btn{padding:2px 10px;font-size:15px;line-height:1.2}
+  .stake-row.off{opacity:.45}
+  .stake-row.off .stake-note{color:var(--bad)}
+  .stake-row .btn:disabled{opacity:.3}
+  .stake-val{display:inline-block;min-width:64px;text-align:center;font-weight:700;
+    font-family:"SF Mono",Menlo,Consolas,monospace}
+  .stake-note{font-size:11.5px;color:var(--muted)}
+  .stake-check{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13.5px}
+  .stake-check input{cursor:pointer}
+  .check-preview{margin-top:10px;font-size:13px;font-weight:700}
+  .check-preview span{display:inline-block;font-weight:400;color:var(--muted);margin-left:8px;font-size:12px}
+  .stake-actions{margin-top:10px;display:flex;gap:8px}
+  /* D&D 判定明细 */
+  .check{border:1px solid var(--line);background:#f7f2e4;padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .check .check-line{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:14px}
+  .check .mods{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:12px;color:var(--muted)}
+  .check .mods span{border-bottom:1px dotted #cfc6ad}
+  .check .paid{margin-top:5px;font-size:12px;color:#7a5a00}
+  /* 时间：报头与状态面板 */
+  .dateline .dt{font-weight:700;color:var(--ink);letter-spacing:1px}
+  .panel .nowdate{font-weight:700;color:var(--accent);border-bottom:1px dotted var(--line);
+    padding-bottom:4px;margin-bottom:6px;letter-spacing:1px}
+  /* 读档列表的存档条目：名称 + MC 简要状态 */
+  .saveline{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 10px}
+  .saveline b{display:block;font-size:14px}
+  .saveline small{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:400}
+  .saveline:hover small{color:#f4efe3}
+  /* 状态词条的悬停说明（data-tip 气泡）：原生 title 延迟一秒且不显眼，
+     自定义气泡即时出现；带说明的词条加虚线下划线提示"可悬停" */
+  .hastip{position:relative;cursor:help;text-decoration:underline dotted #a99aba;text-underline-offset:3px}
+  .hastip::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:30;
+    display:none;width:240px;padding:8px 10px;background:#1a1a1a;color:#f4efe3;font-size:12px;
+    line-height:1.6;text-align:left;border:1px solid #a99aba;box-shadow:3px 3px 0 rgba(0,0,0,.25);
+    white-space:normal;font-weight:400;letter-spacing:0;text-decoration:none}
+  .hastip:hover::after{display:block}
+  .hastip:hover{z-index:31}
+  /* 晋升进度条（职位卡内） */
+  .progrow{margin-top:6px;padding-top:6px;border-top:1px dotted var(--line)}
+  .progline{display:flex;align-items:center;gap:7px}
+  .prog-label{flex:none;font-size:11.5px;letter-spacing:1px;color:var(--muted)}
+  .progrow.ready .prog-label{color:var(--accent);font-weight:700}
+  .progbar{flex:1;position:relative;height:9px;background:#d9d0bb;border:1px solid var(--line)}
+  .progbar i{display:block;height:100%;background:var(--muted);transition:width .3s}
+  .progrow.ready .progbar i{background:var(--accent)}
+  .progbar em{position:absolute;top:-3px;bottom:-3px;width:1px;background:#7a1f1f;left:60%}
+  .prog-pct{flex:none;font-size:12px;font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700}
+  .prog-note{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic}
+  .progrow.ready .prog-note{color:#7a1f1f}
+  /* 平静月的月卡（v0.5.2：一个月一个月手动过） */
+  .quietwork{display:flex;gap:8px;align-items:baseline;margin:10px 0 4px;font-size:14.5px;line-height:1.8}
+  .quietwork .qw-tag{flex:none;font-size:11px;letter-spacing:2px;color:var(--accent);font-weight:700;
+    border:1px solid var(--accent);padding:1px 7px;border-radius:9px}
+  .quietwork .qw-text{color:#2a251c}
+  .quietcard .mlabel.quiet{margin-bottom:2px}
+  .quietcard .vig{margin-top:10px}
+  /* 职位卡：状态面板顶部的"我现在是谁"（职务/选区/基本盘/光谱） */
+  .officecard{border:1px solid var(--line);border-left:3px solid var(--accent);background:#f7f3e8;
+    padding:6px 9px;margin:6px 0;font-size:12.5px;line-height:1.65}
+  .officecard b{font-size:13.5px}
+  /* 背景卡的位置容器：放在选项下面，独立成框（v0.5.2 应用户要求） */
+  .brief-slot{margin-top:14px}
+  .brief-slot .brief{margin:0}
+  /* 背景卡（折叠 / 展开）—— 主角视角的认知边界 */
+  .brief{border:1px dashed var(--line);background:#f7f3e8;margin:8px 0}
+  .brief-head{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink);background:none;border:0;padding:8px 12px}
+  .brief-head:hover{background:#efe8d6}
+  .brief-head .caret{flex:none;width:0;height:0;border-left:5px solid var(--muted);
+    border-top:4px solid transparent;border-bottom:4px solid transparent;transition:.15s;
+    transform:rotate(90deg)}
+  .brief.collapsed .brief-head .caret{transform:rotate(0)}
+  .brief-head .brief-title{font-weight:700;flex:none}
+  .brief-head .brief-lede{color:var(--muted);font-size:12.5px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .brief.collapsed .brief-head .brief-lede{flex:1}
+  .brief-body{padding:0 12px 10px;border-top:1px dotted var(--line)}
+  .brief.collapsed .brief-body{display:none}
+  .brief-sec{padding:8px 0 0}
+  .brief-sec h4{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:1px}
+  .brief-sec ul{margin:0;padding-left:18px}
+  .brief-sec li{font-size:13px;line-height:1.6;margin:2px 0}
+  .brief-sec.known h4{color:#0f5132}
+  .brief-sec.rumor h4{color:#854f0b}
+  .brief-sec.rumor{border-left:2px solid #e3cfa0;padding-left:10px;margin-left:2px;
+    background:#fdf9ef}
+  .brief-sec.unknown h4{color:#7a1f1f}
+  .brief-sec.unknown li{color:#5a4340;font-style:italic}
+  .brief-sec.terms{border-top:1px dotted #cfc6ad;margin-top:8px}
+  .brief-sec.terms h4{color:var(--muted)}
+  .brief-sec .term{font-size:12.5px;line-height:1.55;margin:3px 0;color:#4a4437}
+  .brief-sec .term b{color:var(--ink);margin-right:6px}
+  /* ==========================================================================
+     月度回合 / 事件量级 / 事件类型 —— 这一块由 content/05-categories.js 与
+     content/06-media.js 驱动，配色可随内容调整
+     ======================================================================== */
+  /* 量级徽章：大事件 / 中事件 / 小事 */
+  .gchip{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;
+    border:1px solid var(--line);margin:0 4px 0 0;letter-spacing:.5px;vertical-align:1px}
+  .gchip.g-major{background:#7a1f1f;color:#fff;border-color:#7a1f1f;font-weight:700}
+  .gchip.g-mid{background:#c9a227;color:#231c07;border-color:#a9871c;font-weight:700}
+  .gchip.g-minor{background:#e9dfc7;color:#4a4437}
+  /* 类型徽章（综合 / 舆论 / 丑闻 …）与媒介徽章 */
+  .cchip{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;
+    border:1px dotted var(--muted);color:var(--muted);margin:0 4px 0 0;vertical-align:1px}
+  .cchip.medium{border-style:solid;color:#3a4a63;border-color:#9aa6bd;background:#eef1f7}
+  /* 时代压力配色 */
+  .calm{color:#2f6b3a}.uneasy{color:#6b6b1f}.tense{color:#9a6412}
+  .storm{color:#a3371f}.abyss{color:#000;text-shadow:0 0 6px rgba(0,0,0,.25)}
+  /* 年 / 月卡上的信息条 */
+  .yearbar{margin-top:8px;border-left:3px solid var(--line);padding:2px 0 2px 10px;
+    font-size:12.5px;color:var(--muted)}
+  .yearbar div{margin:1px 0}
+  .yearbar b{color:var(--ink)}
+  .sechead{font-size:14px;margin:12px 0 2px}
+  .heads{margin:0;padding-left:18px}
+  .heads li{font-size:12.5px;color:#4a4437;margin:2px 0}
+  .bs{border:1px solid #9c2b2b;background:#fbf1f0;padding:8px 10px;margin:10px 0}
+  .bs h2{margin:2px 0 4px;font-size:17px}
+  /* 月历条：把"平静过去的月份"和"这个月"排成一条时间线 */
+  .mstrip{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .mlabel{display:flex;align-items:center;gap:6px;border:1px solid var(--line);
+    padding:3px 9px;font-size:12.5px;background:#f3ecdc}
+  .mlabel b{font-weight:700}
+  .mlabel.quiet{opacity:.6;border-style:dotted}
+  .mlabel.now{background:#fff;border-width:2px;box-shadow:2px 2px 0 rgba(0,0,0,.1);font-size:13.5px}
+  .mlabel .gchip{margin:0}
+  /* ==========================================================================
+     静好岁月 —— 没有事件发生的月份，主角的日子与成长
+     刻意做成"日记页"的样子：纸质偏暖、左侧一道竖线、正文用衬线体
+     ======================================================================== */
+  .vig{border:1px solid var(--line);border-left:4px solid var(--era3);background:#fdfaf1;
+    padding:12px 15px;margin:12px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+  .vig-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    border-bottom:1px dotted var(--line);padding-bottom:5px;margin-bottom:8px;flex-wrap:wrap}
+  .vig-title{font-weight:700;font-size:14.5px;letter-spacing:3px;color:var(--accent)}
+  .vig-range{font-size:12px;color:var(--muted);font-family:"SF Mono",Menlo,Consolas,monospace}
+  .vig-body{font-size:15px;line-height:1.95;color:#2a251c}
+  .vig-p{margin:0 0 10px;text-indent:2em}
+  .vig-p:last-child{margin-bottom:0}
+  .vig-more{font-size:12.5px;font-style:italic;text-indent:2em;margin:0}
+  .vig-growth{margin-top:10px;padding-top:8px;border-top:1px dotted #cfc6ad;font-size:12.5px;color:#5a5344}
+  .vig-gtag{display:inline-block;background:#efe3c4;border:1px solid #d8c48a;color:#7a5a00;
+    font-size:11px;padding:1px 7px;margin-right:8px;letter-spacing:1px}
+  .vig-act{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .vig-status{margin-top:6px;font-size:11.5px;font-style:italic}
+  button.btn.tiny{padding:3px 10px;font-size:12px}
+  /* 大模型设置面板（可选功能，样式跟着 modal 走） */
+  .airow{display:block;margin:8px 0;font-size:13.5px}
+  .airow input[type=text],.airow input[type=password]{width:100%;margin-top:3px}
+  .airow input[type=checkbox]{margin-right:6px}
+  .airow code{background:#e9dfc7;padding:1px 5px;font-size:12px}
+  button.btn.ai{border-style:dashed}
+  button.btn.ai.on{border-style:solid;border-color:var(--accent);color:var(--accent);font-weight:700}
+
+  /* ==========================================================================
+     v0.5 · 建角掷骰 / 收益结算 / 年终随笔 / 选项说明
+     ======================================================================== */
+  /* 定命一掷：四张属性牌 */
+  .rollgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:8px 0}
+  .rattr{border:1px solid var(--line);background:#fbf7ec;padding:8px 10px;display:flex;
+    align-items:center;gap:8px;flex-wrap:wrap}
+  .rattr b{width:34px;flex:none}
+  .rval{font-size:22px;font-weight:700;font-family:"SF Mono",Menlo,Consolas,monospace;
+    color:var(--accent);min-width:40px;text-align:center}
+  .rspent{font-style:normal;font-size:12px;color:#7a5a00;background:#f3e6c4;border:1px solid #d8c48a;
+    padding:1px 6px;border-radius:9px}
+  .rctrl{display:inline-flex;gap:4px;margin-left:auto}
+  .rleft{font-size:13px;color:var(--muted);margin:2px 0 6px}
+  .rleft.done{color:var(--good);font-weight:700}
+  .viprow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
+  .viprow input[type=text]{width:220px}
+  /* 收益结算：结果正文下方的一排筹码 */
+  .gainbox{margin:8px 0;padding:7px 10px;border:1px dotted var(--line);background:#f7f3e8;
+    display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .gainbox .gtag{font-size:11px;letter-spacing:2px;color:var(--muted);margin-right:4px;flex:none}
+  .gchip2{display:inline-block;font-size:12.5px;padding:1px 9px;border-radius:9px;border:1px solid var(--line);
+    background:#fff;font-weight:600}
+  .gchip2.good{color:#2f6b3a;border-color:#8fae94;background:#eef5ee}
+  .gchip2.bad{color:#9c2b2b;border-color:#c49a9a;background:#f8eeee}
+  .gchip2.gflag{color:#5a4a6b;border-color:#a99aba;background:#f2eef6;font-weight:400}
+  /* 年终随笔：三段人话，衬线、首行缩进、上边一道双线 */
+  .ytales{border-top:1px double var(--line);border-bottom:1px double var(--line);
+    margin:10px 0;padding:10px 2px;background:transparent}
+  .ytale-p{margin:0 0 10px;text-indent:2em;line-height:2;color:#2a251c}
+  .ytale-p:last-child{margin-bottom:0}
+  /* 选项说明：按钮内嵌的折叠块（点说明不触发选择） */
+  .choice .chnote{margin-top:6px;border-top:1px dotted #cfc6ad;padding-top:4px}
+  .choice .chnote summary{font-size:11.5px;color:var(--muted);cursor:pointer;user-select:none;
+    letter-spacing:1px;list-style-position:inside}
+  .choice .chnote summary:hover{color:var(--accent)}
+  .choice .chnote div{font-size:13px;color:#4a4437;line-height:1.7;margin-top:4px}
+  /* 判定明细改为 details 后的微调 */
+  details.check{padding:6px 12px}
+  details.check summary{cursor:pointer;font-size:13px;color:var(--muted);user-select:none}
+  details.check summary:hover{color:var(--ink)}
+  details.check[open] .check-line{margin-top:5px}
