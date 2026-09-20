@@ -649,7 +649,13 @@
     }
     if (eff.funMul != null) {
       const pct = Math.round(eff.funMul * 100);
-      out.push({ k: "资金", v: (pct >= 0 ? "+" : "") + pct + "%", sign: eff.funMul });
+      const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
+      const amt = base != null ? Math.round(base * eff.funMul / 1000) : null;
+      out.push({
+        k: "资金",
+        v: (pct >= 0 ? "+" : "") + pct + "%（本金）" + (amt != null ? (amt >= 0 ? " ≈+$" : " ≈-$") + Math.abs(amt) + "k" : ""),
+        sign: eff.funMul
+      });
     }
     if (eff.fav != null) out.push({ k: "人情", v: eff.fav, sign: eff.fav });
     if (eff.ap != null) out.push({ k: "精力", v: eff.ap, sign: eff.ap });
@@ -721,9 +727,11 @@
       "<h2>" + (ev.title || "") + "</h2>" +
       '<div class="body">' + (ev.body || "") + "</div>" +
       P.artSVG(ev) +
-      '<div class="choices" id="choices"></div>' +
-      /* 背景卡放最后（选项下面）：先把选择读完，想细看的人再展开"你此刻知道多少" */
-      '<div class="brief-slot">' + P.briefHTML(ev) + "</div></div>";
+      '<div class="choices" id="choices"></div></div>' +
+      /* 背景卡彻底移出事件框：挂在事件卡后面（选项下面），独立成框——
+         结算结果（.result/.gainbox/check）append 在 #main 里,出现在事件框之后,
+         背景卡在它们更下面,永远不会挡住结算(v0.5.3 用户要求) */
+      '<div class="brief-slot">' + P.briefHTML(ev) + "</div>";
     const cbox = P.$("#choices");
     const chs = ev.choices || [];
     /* 保底机制：如果所有选项都被堵死（没钱 / 没声望 / 没层级），放行一个，
@@ -866,36 +874,53 @@
     const fav = P.$("#stFav"); if (fav) fav.onchange = P.stakeToggleFav;
   };
 
+  /* funMul 的本金基数（investment base）：
+     结算前写入，applyEffects 用，结算完清零。 */
+  function G_stakeBase(v) { P.G.__stakeBase = v; }
+
+  /* 结算元素插入位置：事件框之后、背景卡之前——结算结果永远不被背景卡挡住 */
+  function mainInsert(el) {
+    const main = P.$("#main");
+    if (!main) return;
+    const briefSlot = main.querySelector(".brief-slot");
+    if (briefSlot) main.insertBefore(el, briefSlot);
+    else main.appendChild(el);
+  }
+
   /* ---------------- 判定与结算 ---------------- */
   P.resolveChoice = function (ev, ch, st) {
     const info = st ? P.stakeInfo(ch, st) : null;
     const r = P.computeP(ch, info);
     const res = P.rollTierAdv(r.P, !!(info && info.reroll));
     const out = ch.outcomes[res.tier] || ch.outcomes.ok || {};
+    /* 投资本金基数：选项 cost + 投注的资金 —— funMul 按它算回报（不是总余额） */
+    G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
     const main = P.$("#main");
-    const dice = document.createElement("div"); dice.className = "dice"; dice.textContent = "🎲";
-    main.appendChild(dice);
+    const dice = document.createElement("div"); dice.className = "dicebar";
+    dice.innerHTML = '<span class="db-tag">掷骰</span><b>🎲</b>';
+    mainInsert(dice);
     let n = 0;
     const iv = setInterval(function () {
-      dice.textContent = P.rint(1, 100);
+      const db = dice.querySelector("b"); if (db) db.textContent = P.rint(1, 100);
       if (++n <= 10) return;
       clearInterval(iv);
-      dice.textContent = res.roll;
+      const db2 = dice.querySelector("b"); if (db2) db2.textContent = res.roll;
       P.applyEffects(out.effects);
+      P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
       const label = P.TIER_LABEL[res.tier] || res.tier;
       // 主次分明：结果正文（叙事）→ 收益结算（对账）→ 判定明细（折叠，给较真的人）
       const div = document.createElement("div");
       div.className = "result " + res.tier + " fade";
       div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
-      main.appendChild(div);
+      mainInsert(div);
       const gainHTML = gainBoxHTML(out.effects);
       if (gainHTML) {
         const gb = document.createElement("div");
         gb.className = "fade";
         gb.innerHTML = gainHTML;
-        main.appendChild(gb);
+        mainInsert(gb);
       }
       // D&D 式判定明细（默认收起）
       const check = document.createElement("details");
@@ -907,7 +932,7 @@
           return "<span>" + b.label + " " + (b.pct >= 0 ? "+" : "") + b.pct.toFixed(1) + "</span>";
         }).join("") + "</div>" +
         (Object.keys(paid).length ? '<div class="paid">已消耗：' + resText(paid) + "</div>" : "");
-      main.appendChild(check);
+      mainInsert(check);
       const eff = out.effects || {};
       const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
       if (newScandal || out.news) {
@@ -917,13 +942,13 @@
         P.pushLog("头条：" + headline);
         const nv = document.createElement("div"); nv.className = "news fade";
         nv.innerHTML = '<div class="dateline">突发</div><div class="body">' + headline + "</div>";
-        main.appendChild(nv);
+        mainInsert(nv);
       }
       P.pushLog("[" + (ev.title || "") + "] " + label + "（目标" + r.target + "，d100=" + res.roll + "）");
       const btn = document.createElement("button");
       btn.className = "btn primary"; btn.style.marginTop = "10px"; btn.textContent = "继续 →";
       btn.onclick = function () { P.afterEvent(); };
-      main.appendChild(btn);
+      mainInsert(btn);
       const sp = document.querySelector(".panel");
       if (sp) sp.outerHTML = P.statPanel();
       P.autosave();
@@ -954,11 +979,11 @@
           '<div class="body">办公室的灯还亮着，但已经不是为你亮的了。你交出钥匙、名单和那些「回头再说」的承诺，' +
           "从台阶上退了下来。支持你的人散了一半，记得你的人却一个没少。\n\n" +
           "这不是结局。这个国家见过太多从谷底爬回来的人 —— 只要政治生命还在，台阶就还在。</div>";
-        main.appendChild(fb);
+        mainInsert(fb);
         const cbtn = document.createElement("button");
         cbtn.className = "btn primary"; cbtn.style.marginTop = "10px"; cbtn.textContent = "继续 →";
         cbtn.onclick = function () { P.nextSlot(); };
-        main.appendChild(cbtn);
+        mainInsert(cbtn);
         const sp0 = document.querySelector(".panel");
         if (sp0) sp0.outerHTML = P.statPanel();
         P.autosave();

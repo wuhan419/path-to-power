@@ -78,8 +78,12 @@
   .opt.sel{background:var(--era3);font-weight:700}
   .opt small{display:block;color:var(--muted);font-weight:400}
   select,input[type=text]{font-family:inherit;font-size:14px;padding:6px;border:1px solid var(--line);background:#fff}
-  /* dice */
-  .dice{font-size:40px;text-align:center;padding:14px;letter-spacing:6px}
+  /* dice（v0.5.3 紧凑版：一条醒目的徽章，不再是大字块） */
+  .dicebar{display:flex;align-items:center;gap:10px;justify-content:center;margin:10px 0;
+    padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff}
+  .dicebar .db-tag{font-size:11px;letter-spacing:3px;opacity:.85}
+  .dicebar b{font-size:22px;font-family:"SF Mono",Menlo,Consolas,monospace;letter-spacing:2px;
+    min-width:64px;text-align:center;background:rgba(255,255,255,.14);padding:2px 10px}
   .result{font-size:18px;border-left:4px solid var(--line);padding:6px 12px;margin:10px 0;background:#fbf7ec}
   .result.crit{border-color:var(--era3);color:#7a5a00}
   .result.ok{border-color:var(--good)}

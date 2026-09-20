@@ -12,10 +12,15 @@
     attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = P.clamp(G.attr[k] + v[k], 0, 100); },
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
     fun: function (v, G) { G.fun += v; },
-    /* 按比例的资金变动：funMul: 0.5 = 资金×1.5；funMul: -0.3 = 资金×0.7。
-       投资型事件的回报用它——投入 100k 的人赚 50%，投入 2M 的人也赚 50%，
-       不会再出现「押上全部本金，赚回 15k」的空账。 */
-    funMul: function (v, G) { G.fun += Math.round(G.fun * v); },
+    /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
+       funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
+       本金 = 选项 cost.fun + 投注的 stake 资金 —— 结算前由 render.js 写进
+       G.__stakeBase（applyEffects 按它计算）。没有本金声明时退化为按余额
+       （旧语义兼容，但内容侧不应该再这样用）。 */
+    funMul: function (v, G) {
+      const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : Math.max(0, G.fun);
+      G.fun += Math.round(base * v);
+    },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
     hp: function (v, G) { G.hp = P.clamp(G.hp + v, 0, 100); },
     ap: function (v, G) { const b = P.balance(); G.ap = P.clamp(G.ap + v, b.apMin == null ? 0 : b.apMin, b.apMax || 12); },

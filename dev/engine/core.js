@@ -44,7 +44,20 @@ POTUS.define = function (kind, payload) {
   if (payload == null) return;
   if (kind === "event") { POTUS.events = POTUS.events.concat([].concat(payload)); return; }
   if (kind === "ending") { POTUS.reg.ending = POTUS.reg.ending.concat([].concat(payload)); return; }
-  if (kind === "balance") { Object.assign(POTUS.reg.balance, payload); return; }
+  if (kind === "balance") {
+    /* 词典类的键（tagNames）要**深合并**而不是整键覆盖——
+       多个事件包各自登记自己的状态词条时，覆盖会把别人的词条全吃掉（踩过：
+       writer 的 tagNames 把主配置的 fallen 等 60+ 词条整个顶掉了）。 */
+    const DICT_KEYS = ["tagNames"];
+    for (const dk of DICT_KEYS) {
+      if (payload[dk] && typeof payload[dk] === "object") {
+        POTUS.reg.balance[dk] = Object.assign(POTUS.reg.balance[dk] || {}, payload[dk]);
+        delete payload[dk];
+      }
+    }
+    Object.assign(POTUS.reg.balance, payload);
+    return;
+  }
   if (kind === "news") { Object.assign(POTUS.reg.newsOutlets, payload); return; }
   /* 静好岁月的片段是"累加"而不是"覆盖"——允许多个内容文件各自添一段人生 */
   if (kind === "vignette") {
