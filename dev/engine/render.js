@@ -378,7 +378,7 @@
     P.app().innerHTML =
       '<div class="masthead"><div class="title">' + era.name + '</div><div class="meta"></div></div>' +
       P.toolbarHTML() +
-      '<div class="grid"><div id="main"><div class="news fade"><div class="dateline">' + era.name +
+      '<div class="grid"><aside class="col-left">' + P.statPanel() + '</aside><div id="main"><div class="news fade"><div class="dateline">' + era.name +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
       '<div class="body">' + brief + "</div>" +
       '<div class="yearbar">' +
@@ -388,7 +388,7 @@
       '</div><button class="btn primary" style="margin-top:10px" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +
       (resume ? "回到 " + (G.month || 1) + " 月 →" : "进入 1 月 →") + "</button>" +
-      "</div>" + P.statPanel() + "</div>";
+      "</div></div><aside class=\"col-right\" id=\"actbar\"></aside></div>";
     P.tickDate();
   };
 
@@ -448,11 +448,12 @@
       (entry && entry.text ? '<div class="vig"><div class="vig-body">' +
         entry.text.split(/\n\n+/).map(function (p) { return '<p class="vig-p">' + p + "</p>"; }).join("") +
         "</div></div>" : "") +
-      '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b></div></div>" +
-      '<button class="btn primary" style="margin-top:10px" onclick="POTUS.nextMonth()">继续 →</button></div>';
+      '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b></div></div></div>";
+    /* 继续按钮 → 右栏 */
+    actClear();
+    actAppend('<div class="acthead">这个月过完了</div><button class="btn primary actbtn" onclick="POTUS.nextMonth()">继续 →</button>');
     P.tickDate();
-    const sp = document.querySelector(".panel");
-    if (sp) sp.outerHTML = P.statPanel();
+    P.refreshPanel();
   };
 
   /* 平静月的"这个月做了什么"：从素材表里按 轨道×层级 抽一条具体工作。
@@ -535,11 +536,12 @@
       '<div class="mstrip">' + strip + "</div>" +
       (quiet.html || "") +
       '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b>" +
-      (media ? "　·　媒介：" + media : "") + "</div></div>" +
-      '<button class="btn primary" style="margin-top:10px" onclick="POTUS.nextSlot()">继续 →</button></div>';
+      (media ? "　·　媒介：" + media : "") + "</div></div></div>";
+    /* 继续按钮 → 右栏 */
+    actClear();
+    actAppend('<div class="acthead">本月</div><button class="btn primary actbtn" onclick="POTUS.nextSlot()">继续 →</button>');
     P.tickDate();
-    const sp = document.querySelector(".panel");
-    if (sp) sp.outerHTML = P.statPanel();
+    P.refreshPanel();
   };
 
   /* 选项前置条件：返回 null 表示满足，否则返回提示文本 */
@@ -727,12 +729,20 @@
       "<h2>" + (ev.title || "") + "</h2>" +
       '<div class="body">' + (ev.body || "") + "</div>" +
       P.artSVG(ev) +
-      '<div class="choices" id="choices"></div></div>' +
-      /* 背景卡彻底移出事件框：挂在事件卡后面（选项下面），独立成框——
-         结算结果（.result/.gainbox/check）append 在 #main 里,出现在事件框之后,
-         背景卡在它们更下面,永远不会挡住结算(v0.5.3 用户要求) */
+      '</div>' +
+      /* 背景卡在事件框下面（中栏底部）：想细看的人展开，不挡任何东西 */
       '<div class="brief-slot">' + P.briefHTML(ev) + "</div>";
-    const cbox = P.$("#choices");
+    /* v0.5.3 三栏布局：选项进右栏（#actbar），与掷骰/结算/继续按钮同栏 */
+    const cbox = document.getElementById("actbar");
+    let choicesHost = null;
+    if (cbox) {
+      choicesHost = document.createElement("div");
+      choicesHost.className = "choices act-choices";
+      choicesHost.id = "choices";
+      cbox.innerHTML = '<div class="acthead">你的选择</div>';
+      cbox.appendChild(choicesHost);
+    }
+    const cTarget = choicesHost || P.$("#choices");
     const chs = ev.choices || [];
     /* 保底机制：如果所有选项都被堵死（没钱 / 没声望 / 没层级），放行一个，
        免得玩家卡在一个点不动的事件上。正常情况下不该触发（校验器强制每个事件
@@ -765,11 +775,10 @@
         if (e && e.target && e.target.closest && e.target.closest(".chnote")) return;  // 点说明不选选项
         P.choose(ev, ch);
       };
-      cbox.appendChild(btn);
+      cTarget.appendChild(btn);
     });
     /* 状态面板同步当前日期（否则要等到本次结算后才会刷新） */
-    const sp = document.querySelector(".panel");
-    if (sp) sp.outerHTML = P.statPanel();
+    P.refreshPanel();
   };
 
   /* ---------------- 资源投注面板（D&D 式加码） ---------------- */
@@ -878,14 +887,30 @@
      结算前写入，applyEffects 用，结算完清零。 */
   function G_stakeBase(v) { P.G.__stakeBase = v; }
 
-  /* 结算元素插入位置：事件框之后、背景卡之前——结算结果永远不被背景卡挡住 */
-  function mainInsert(el) {
+  /* 状态面板刷新：v0.5.3 三栏布局后 .panel 在左栏（.col-left）里，
+     这里统一替换它的 innerHTML 而不是 outerHTML（保持左栏结构不动）。 */
+  P.refreshPanel = function () {
+    const col = document.querySelector(".col-left");
+    if (col) col.innerHTML = P.statPanel();
+    else {
+      P.refreshPanel();          // 旧布局兼容（标题/建角等无三栏的页面）
+    }
+  };
+
+  /* 右栏（#actbar）的两个 HTML 快捷操作 */
+  function actClear() { const bar = document.getElementById("actbar"); if (bar) bar.innerHTML = ""; }
+  function actAppend(html) { const bar = document.getElementById("actbar"); if (bar) { const d = document.createElement("div"); d.innerHTML = html; while (d.firstChild) bar.appendChild(d.firstChild); } }
+
+  /* 操作元素（选项/掷骰/结算/继续按钮）的归宿：右栏 #actbar。
+     没有右栏的页面（标题/建角/年终）退回 #main 尾部——单栏兼容。 */
+  function actInsert(el) {
+    const bar = document.getElementById("actbar");
+    if (bar) { bar.appendChild(el); return; }
     const main = P.$("#main");
-    if (!main) return;
-    const briefSlot = main.querySelector(".brief-slot");
-    if (briefSlot) main.insertBefore(el, briefSlot);
-    else main.appendChild(el);
+    if (main) main.appendChild(el);
   }
+  /* 旧名兼容（投注面板等历史调用点） */
+  function mainInsert(el) { actInsert(el); }
 
   /* ---------------- 判定与结算 ---------------- */
   P.resolveChoice = function (ev, ch, st) {
@@ -949,8 +974,7 @@
       btn.className = "btn primary"; btn.style.marginTop = "10px"; btn.textContent = "继续 →";
       btn.onclick = function () { P.afterEvent(); };
       mainInsert(btn);
-      const sp = document.querySelector(".panel");
-      if (sp) sp.outerHTML = P.statPanel();
+      P.refreshPanel();
       P.autosave();
     }, 45);
   };
@@ -984,8 +1008,7 @@
         cbtn.className = "btn primary"; cbtn.style.marginTop = "10px"; cbtn.textContent = "继续 →";
         cbtn.onclick = function () { P.nextSlot(); };
         mainInsert(cbtn);
-        const sp0 = document.querySelector(".panel");
-        if (sp0) sp0.outerHTML = P.statPanel();
+        P.refreshPanel();
         P.autosave();
         return;
       }
@@ -1064,8 +1087,7 @@
       bsHTML +
       '<button class="btn primary" style="margin-top:10px" onclick="POTUS.nextYear()">进入 ' + (G.year + 1) + " 年 →</button></div>";
     P.tickDate();
-    const sp = document.querySelector(".panel");
-    if (sp) sp.outerHTML = P.statPanel();
+    P.refreshPanel();
   };
 
   P.nextYear = function () { P.G.year++; P.startYear(); };

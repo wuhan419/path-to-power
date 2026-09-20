@@ -28,8 +28,23 @@
   .news .dateline{font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);
     padding-bottom:4px;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
   .news .body{font-size:15.5px;white-space:pre-wrap}
-  /* layout */
-  .grid{display:grid;grid-template-columns:1fr 260px;gap:16px}
+  /* layout（v0.5.3 三栏：左状态 · 中事件 · 右操作——充分利用宽屏） */
+  .grid{display:grid;grid-template-columns:250px minmax(0,1fr) 320px;gap:18px;align-items:start}
+  .col-left{position:sticky;top:56px;max-height:calc(100vh - 70px);overflow:auto}
+  .col-right{position:sticky;top:56px;max-height:calc(100vh - 70px);overflow:auto}
+  .acthead{font-size:12px;letter-spacing:3px;color:var(--accent);font-weight:700;
+    border-bottom:2px solid var(--accent);padding-bottom:4px;margin-bottom:10px}
+  .actbtn{width:100%;margin-top:12px;padding:12px}
+  .col-right .choices{margin-top:4px}
+  .col-right .choice{font-size:14px;padding:10px 12px}
+  .col-right .stake,.col-right .check,.col-right .result,.col-right .dicebar{margin:0 0 12px}
+  /* 中栏没有右栏的页面（年终/静好旧渲染）时 grid 自动塌成两栏 */
+  .grid.two-col{grid-template-columns:250px minmax(0,1fr)}
+  @media(max-width:1150px){
+    .grid{grid-template-columns:220px minmax(0,1fr)}
+    .col-right{grid-column:1 / -1;position:static;max-height:none}
+    .col-left{position:static;max-height:none}
+  }
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
   /* stats panel */
   .panel{border:1px solid var(--line);background:#fbf7ec;padding:10px 12px;font-size:13.5px}
