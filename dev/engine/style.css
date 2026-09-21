@@ -172,6 +172,9 @@
   .stake-note{font-size:11.5px;color:var(--muted)}
   .stake-check{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13.5px}
   .stake-check input{cursor:pointer}
+  /* v0.7：汇率说明 —— 每档价码随「身位 × 事件钱量级」变，面板必须交代清楚依据 */
+  .stake-rate{margin-top:8px;padding:6px 8px;border-left:2px solid var(--accent);
+    background:#f4eede;font-size:11.5px;line-height:1.5;color:#5a5346}
   .check-preview{margin-top:10px;font-size:13px;font-weight:700}
   .check-preview span{display:inline-block;font-weight:400;color:var(--muted);margin-left:8px;font-size:12px}
   .stake-actions{margin-top:10px;display:flex;gap:8px}

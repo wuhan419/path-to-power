@@ -188,7 +188,9 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const floorBtn = chBtns[0];
   check(floorBtn.disabled, "$750k 的选项在只有 $50k 时被禁用");
   check(floorBtn.textContent.indexOf("缺少资金") >= 0, "并给出「缺少资金」提示");
-  check(chBtns[1].textContent.indexOf("代价：资金 $120k") >= 0, "付得起的选项显示代价标签：代价：资金 $120k");
+  /* 代价标签的金额从内容算，不写死 —— 内容调价（$120k → $150k）不该弄坏 UI 测试 */
+  const costLabel = "代价：资金 $" + (gala.choices[1].cost.fun / 1000).toFixed(0) + "k";
+  check(chBtns[1].textContent.indexOf(costLabel) >= 0, "付得起的选项显示代价标签：" + costLabel);
   check(chBtns[1].textContent.indexOf("可投入资源") >= 0, "带 stake 的选项标注「可投入资源」");
 
   /* ---------- 投注面板 ---------- */
@@ -217,7 +219,12 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   console.log("\n== 投注上限护栏 ==");
   const rowOf = (lbl) => [...w.document.querySelectorAll(".stake-row")].find(r => r.querySelector("b").textContent === lbl);
   const valOf = (lbl) => parseInt(rowOf(lbl).querySelector(".stake-val").textContent.replace(/[^0-9]/g, ""), 10);
+  /* 面板上的金额既可能是 "$24k" 也可能是 "$1.5M"（v0.7 动态汇率），解析成美元再比 */
+  const moneyOf = (lbl) => { const t = rowOf(lbl).querySelector(".stake-val").textContent.trim();
+    const m = /^\$([0-9.]+)([kM]?)$/.exec(t);
+    return m ? Math.round(parseFloat(m[1]) * (m[2] === "k" ? 1000 : m[2] === "M" ? 1000000 : 1)) : NaN; };
   const openStake = () => { w.document.querySelectorAll(".choice")[idx].click(); };
+  const perFun = () => P.stakeSpec(allIn).fun.per;      /* v0.7：每档金额按身位 × 事件钱量级动态算 */
 
   /* 精力：每点 +3%、上限 +9% → 只能投 3 点。过去能一路 + 到 12 点，第 4 点起纯属白花。 */
   w.document.getElementById("stBack").click();
@@ -233,12 +240,13 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
 
   /* 资金：一档都投不起时，过去是"点了没反应" —— 现在置灰 + 说明原因 */
   w.document.getElementById("stBack").click();
-  P.G.fun = 1000;
+  const per0 = perFun();
+  P.G.fun = Math.max(0, per0 - 1);
   openStake();
-  check(P.stakeMax("fun", allIn) === 0, "钱不够一档（$250k）时资金上限为 0");
+  check(P.stakeMax("fun", allIn) === 0, "钱不够一档（" + P.fmtUsd(per0) + "）时资金上限为 0");
   check(w.document.getElementById("stFunPlus").disabled, "资金 ＋ 被置灰");
-  check(rowOf("资金").textContent.indexOf("资金不足") >= 0, "并说明原因：资金不足，每档需 $250k");
-  check(valOf("资金") === 0, "未投入任何资金");
+  check(rowOf("资金").textContent.indexOf("资金不足") >= 0, "并说明原因：" + rowOf("资金").querySelector(".stake-note").textContent);
+  check(moneyOf("资金") === 0, "未投入任何资金");
 
   /* 资金：够钱时上限也被 cap÷w 夹住，不会花光全部家当买 0 收益 */
   w.document.getElementById("stBack").click();
@@ -246,9 +254,27 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   openStake();
   const richMax = P.stakeMax("fun", allIn);
   for (let i = 0; i < 40; i++) { const b = w.document.getElementById("stFunPlus"); if (b && !b.disabled) b.click(); }
-  check(valOf("资金") === richMax * 250, "连按 40 次 ＋ 后停在 " + (richMax * 250) + "k（= " + richMax + " 档 × $250k），而不是全部家当");
+  check(moneyOf("资金") === richMax * per0, "连按 40 次 ＋ 后停在 " + P.fmtUsd(richMax * per0) + "（= " + richMax + " 档 × " + P.fmtUsd(per0) + "），而不是全部家当");
   check(w.document.getElementById("stFunPlus").disabled, "资金到顶后 ＋ 同样置灰");
   check(P.stakeInfo(allIn, { fun: 40 }).bonus <= 0.3000001, "资金加成不超过上限 +30%");
+
+  /* ---------- v0.7 动态汇率：同样的选项，身位不同价码不同，且面板交代得清 ---------- */
+  console.log("\n== 动态投注汇率（身位 × 事件钱量级）==");
+  const noteOn = () => (w.document.getElementById("stake").querySelector(".stake-rate") || {}).textContent || "";
+  const perAt = (track, tier) => { P.G.track = track; P.G.tier = tier; return perFun(); };
+  const p0 = perAt("electoral", 0), p5 = perAt("electoral", 5);
+  check(p5 > p0, "同一选项：T5 的每档价码高于 T0（" + P.fmtUsd(p0) + " → " + P.fmtUsd(p5) + "）");
+  const pWealth = perAt("wealth", 5);
+  check(pWealth >= p5, "同层级下财富轨道（月薪更高）不便宜于选举轨道（" + P.fmtUsd(p5) + " vs " + P.fmtUsd(pWealth) + "）");
+  P.G.track = "electoral"; P.G.tier = 1; P.G.fun = 3000000;
+  w.document.getElementById("stBack").click();
+  openStake();
+  check(noteOn().indexOf("月薪") >= 0 && noteOn().indexOf("身位基准") >= 0, "面板给出汇率依据：" + noteOn());
+  check(!!w.document.querySelector("#stake .stake-rate"), "面板渲染出 .stake-rate 说明条");
+
+  /* 用户报的核心 bug 已修：小兵（家底 $10k）至少投得起一档 */
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
+  check(P.stakeMax("fun", allIn) >= 1, "T0 家底 $10k 至少投得起 1 档（旧版固定 $250k 时恒为 0）");
 
   /* ---------- 死局保护：所有选项都点不动时，必须留一条路 ---------- */
   console.log("\n== 死局保护 ==");

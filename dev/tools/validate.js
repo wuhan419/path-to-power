@@ -391,10 +391,11 @@ console.log("\n== 资源经济 / 投注 ==");
   };
   P.G.fun = 2000000; P.G.ap = 8; P.G.fav = 2;
   const noStake = P.computeP(tChoice).P;
+  const tPer = P.stakeSpec(tChoice).fun.per;      /* v0.7：每档金额是动态的，从引擎取 */
   const st = P.stakeInfo(tChoice, { fun: 2, ap: 2, fav: 1 });
   const withStake = P.computeP(tChoice, st);
   check(withStake.P > noStake, "投注资金/精力后胜算应提高（" + noStake + " → " + withStake.P + "）");
-  check(st.cost.fun === 500000 && st.cost.ap === 2 && st.cost.fav === 1, "投注花费计算错误：" + JSON.stringify(st.cost));
+  check(st.cost.fun === 2 * tPer && st.cost.ap === 2 && st.cost.fav === 1, "投注花费计算错误：" + JSON.stringify(st.cost));
   check(st.reroll === true, "投入人情应获得重投（advantage）");
   check(withStake.breakdown.some(b => b.label.indexOf("投入") === 0), "判定明细应包含『投入·』条目");
   check(withStake.target === Math.round(withStake.P * 100), "target 应与胜算一致");
@@ -446,21 +447,23 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(overAp.cost.ap === 3, "狂点精力也不该多扣：应只扣 3 点，实际 " + overAp.cost.ap);
   check(Math.abs(overAp.bonus - 0.09) < 1e-9, "精力加成应正好封顶 +9%，实际 +" + (overAp.bonus * 100).toFixed(1) + "%");
 
-  /* 资金：每 $250k 一档 +4%、上限 +30% → 吃满上限需要 8 档 */
+  /* 资金：每档 +4%、上限 +30% → 吃满上限需要 8 档（档数由 cap÷w 决定，与每档金额无关） */
   const funCh = { id: "__fun", text: "t", base: 0.4, stake: { fun: true }, outcomes: {} };
+  const per = P.stakeSpec(funCh).fun.per;         /* v0.7：每档金额按 身位 × 事件钱量级 动态算 */
+  console.log("  资金：每档 " + P.fmtUsd(per) + " → +4%、上限 +30%");
   P.G.fun = 999999999;
   const funMaxRich = P.stakeMax("fun", funCh);
-  console.log("  资金：每 $250k 一档 +4%、上限 +30% → 最多 " + funMaxRich + " 档");
+  console.log("  资金：每档 +4%、上限 +30% → 最多 " + funMaxRich + " 档");
   check(Math.abs(funMaxRich * 0.04 - 0.30) < 0.05, "资金满档应能吃到接近 +30% 的上限，实际 +" + (funMaxRich * 0.04 * 100).toFixed(0) + "%");
-  check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= funMaxRich * 250000, "资金扣款不该超过上限允许的档数");
+  check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= funMaxRich * per, "资金扣款不该超过上限允许的档数");
 
-  /* 余额是第二道闸：只有 $1.25M（5 档）时就该被夹到 5 档 */
-  P.G.fun = 1250000;
+  /* 余额是第二道闸：钱只够 5 档时就该被夹到 5 档 */
+  P.G.fun = per * 5;
   check(P.stakeMax("fun", funCh) === 5, "钱只够 5 档时应被余额夹到 5，实际 " + P.stakeMax("fun", funCh));
-  check(P.stakeInfo(funCh, { fun: 5 }).cost.fun === 1250000, "扣款应等于档数×汇率");
+  check(P.stakeInfo(funCh, { fun: 5 }).cost.fun === per * 5, "扣款应等于档数×汇率");
 
   /* 一档都投不起 → 上限必须是 0（界面据此把 ＋ 置灰并说明原因，而不是"点了没反应"） */
-  P.G.fun = 1000; P.G.ap = 0; P.G.fav = 0;
+  P.G.fun = per - 1; P.G.ap = 0; P.G.fav = 0;
   const favCh = { id: "__fav", text: "t", base: 0.4, stake: { fav: true }, outcomes: {} };
   check(P.stakeMax("fun", funCh) === 0, "钱不够一档时资金上限应为 0（正是『资金＋点了没用』的成因）");
   check(P.stakeMax("ap", apCh) === 0, "精力为 0 时精力上限应为 0");
@@ -476,8 +479,91 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   }
   check(mono, "资金投注加成必须单调不减，且永不超过 +30%");
   check(P.stakeMax("fav", favCh) === 1 || P.G.fav === 0, "有人情时人情应可投 1 点");
+}
 
-  /* 死局保护：全被堵死 → 必须放行恰好一个；本来就有的选 → 不干预 */
+/* ---------- 动态投注汇率（v0.7） ----------
+ * 用户实测反馈的 bug：过去每档固定 $250k，于是
+ *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏形同虚设；
+ *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码与事情的钱量级脱钩。
+ * 现在 per = min(√(身位锚 × 事件锚), 事件锚)，身位锚 = 职位月薪 × 3 × gradeMul，
+ * 事件锚 = 事件钱量级 × 0.25（同时是总投入硬顶：8 档 ≤ 2× 事件钱量级）。 */
+console.log("\n== 动态投注汇率（身位 × 事件金额）==");
+{
+  P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "汇率测试" };
+  P.confirmCreate();
+  const CL = (cost, oc) => ({ id: "__r", text: "t", base: 0.4, cost: cost, stake: { fun: true }, outcomes: oc || {} });
+  const smallCh = CL({ fun: 400000 });                       // 有钱量级
+  const nomoneyCh = CL({ ap: 1 });                           // 没有钱量级
+  const tinyCh = CL({ ap: 1 }, { ok: { effects: { fun: 50000 } } });
+
+  /* ① 身位轴：同一个选项，职位越高每档越贵 */
+  const byTier = [];
+  for (let t = 0; t <= P.balance().tierMax; t++) {
+    P.G.tier = t; P.G.track = "electoral";
+    byTier.push(P.stakeFunPer(smallCh).per);
+  }
+  console.log("  同一个选项各身位每档价码：" + byTier.map((v, i) => "T" + i + " " + P.fmtUsd(v)).join(" / "));
+  check(byTier.every((v, i) => i === 0 || v >= byTier[i - 1]), "每档金额必须随身位单调不降");
+  check(byTier[byTier.length - 1] > byTier[0], "最高身位的价码必须显著高于最低身位（" + P.fmtUsd(byTier[0]) + " → " + P.fmtUsd(byTier[byTier.length - 1]) + "）");
+  check(P.stakeSpec(smallCh).fun.per === byTier[P.G.tier], "stakeSpec 必须把动态价码写进 spec.fun.per");
+
+  /* ② 事件轴：事件的钱量级越大，每档越贵 */
+  P.G.tier = 3; P.G.track = "electoral";
+  const perOf = (c) => P.stakeFunPer(c).per;
+  check(perOf(tinyCh) < perOf(smallCh), "事件钱量级越大，每档应越贵（" + P.fmtUsd(perOf(tinyCh)) + " < " + P.fmtUsd(perOf(smallCh)) + "）");
+  check(perOf(nomoneyCh) > 0, "没写钱的选项也必须给出价码（退回身位锚）");
+  check(P.stakePot(nomoneyCh) === 0 && P.stakePot(smallCh) === 400000, "stakePot 应认出选项的钱量级");
+  check(P.stakePot(CL({ fun: 30000 }, { ok: { effects: { funMul: 2 } } })) === 60000, "funMul 应折算回美元（$30k × 2.0 = $60k）");
+
+  /* ③ 硬顶：8 档总投入 ≤ 2 × 事件钱量级 —— 杜绝"花 $250k 搏 $50k" */
+  let worstRatio = 0;
+  for (const c of [tinyCh, smallCh, CL({ fun: 2000000 })]) {
+    for (const t of [0, 3, P.balance().tierMax]) {
+      P.G.tier = t; P.G.track = "wealth";
+      const pot = P.stakePot(c), per = P.stakeFunPer(c).per;
+      worstRatio = Math.max(worstRatio, per * 8 / pot);
+    }
+  }
+  console.log("  8 档总投入 ÷ 事件钱量级 的最坏比值：" + worstRatio.toFixed(2) + "×");
+  check(worstRatio <= 2 + 1e-9, "8 档总投入永远不得超过事件钱量级的 2 倍，实际 " + worstRatio.toFixed(2) + "×");
+
+  /* ④ 用户报的核心 bug 已修：小兵也投得起第一档 */
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;    // 开局家底
+  check(P.stakeMax("fun", nomoneyCh) >= 1, "T0 家底 $10k 至少要投得起 1 档（旧版恒为 0）");
+  P.G.fun = 3000;
+  check(P.stakeMax("fun", CL({ fun: 14000 })) >= 0, "极小钱量级的事件不该报错");
+
+  /* ⑤ 内容写死 per 时以内容为准（不参与动态换算） */
+  const fixedCh = { id: "__f", text: "t", base: 0.4, cost: { fun: 400000 }, stake: { fun: { per: 777000, w: 0.05, cap: 0.25 } }, outcomes: {} };
+  const fixedSpec = P.stakeSpec(fixedCh);
+  check(fixedSpec.fun.per === 777000, "写死的 per 必须原样保留，实际 " + fixedSpec.fun.per);
+  check(fixedSpec.fun.__rate.source === "content", "写死 per 的汇率来源应标为 content");
+
+  /* ⑥ 抹零与边界：每档金额是好读的整数，且仍落在事件锚之下 */
+  P.G.tier = 2;
+  const rp = P.stakeFunPer(smallCh);
+  check(rp.per % 500 === 0, "每档金额应是 500 的整数倍（" + rp.per + "）");
+  check(rp.per >= (P.balance().stakeRates.fun.perMin) && rp.per <= P.balance().stakeRates.fun.perMax, "每档金额应落在 [perMin, perMax] 内");
+  check(rp.per <= rp.ceiling + 1e-9, "抹零不得把价码抬到事件锚之上");
+
+  /* ⑦ 界面文案必须说得清价码来源（动态汇率不能是新的黑箱） */
+  const note = P.stakeRateNote(smallCh, "mid");
+  check(note.indexOf("月薪") >= 0 && note.indexOf("钱量级") >= 0, "汇率说明应同时交代身位与事件金额：" + note);
+  check(P.stakeRateNote(nomoneyCh, "mid").indexOf("没写钱") >= 0, "没写钱的事件应说明『只按身位算』");
+  check(P.stakeRateNote(fixedCh, "mid").indexOf("剧情写定") >= 0, "写死 per 的事件应说明『价码由剧情写定』");
+  check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
+    "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
+
+  /* ⑧ 工资与投注同源：officeSalary 是唯一口径 */
+  P.G.tier = 3; P.G.track = "electoral";
+  check(P.officeSalary() === P.reg.officeSalary["electoral_3"], "officeSalary 应取 reg.officeSalary 的表值");
+  P.G.track = "__none__";
+  check(P.officeSalary() === P.reg.officeSalary["*_3"], "轨道 miss 应退到 *_tier 通配");
+}
+
+/* ---------- 死局保护 ---------- */
+console.log("\n== 死局保护 ==");
+{
   P.G.fun = 0; P.G.rep = 0;
   const dead = [
     { id: "a", text: "A", base: 0.4, req: { fun: 99999999 }, outcomes: {} },

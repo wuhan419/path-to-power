@@ -480,10 +480,9 @@
   P.quietAccount = function (m, gain) {
     const G = P.G, b = P.balance();
     const q = b.quietAccount || {};
-    const officeTable = (P.reg.officeSalary || {});
-    let salary = officeTable[G.track + "_" + G.tier];
-    if (salary == null) salary = officeTable["*_" + G.tier];
-    if (salary == null) salary = Math.round((q.salaryBase == null ? 2000 : q.salaryBase) * (1 + G.tier * (q.salaryPerTier == null ? 2.2 : q.salaryPerTier)));
+    /* 工资只从 P.officeSalary() 取（reg.officeSalary → "*_tier" → 公式）。
+       v0.7 起投注的资金汇率也走同一个口径 —— "身份决定钱"只有一个来源。 */
+    const salary = P.officeSalary();
     const living = P.rint((q.livingMin == null ? 800 : q.livingMin), (q.livingMax == null ? 2200 : q.livingMax)) * (1 + G.tier * 0.6);
     const net = salary - Math.round(living);
     G.fun += net;                                    /* 账当场入存档（平静月出卡即结算） */
@@ -823,25 +822,50 @@
     P.resolveChoice(s.ev, s.ch, s.st);
   };
 
+  /* 面板上那句话：这个价是怎么来的。
+     v0.7 汇率变成动态的（身位 × 事件钱量级），玩家必须看得见依据 ——
+     否则"上次同样的选项是 $250k，这次怎么 $6k"就成了新的黑箱。 */
+  P.stakeRateNote = function (choice, grade) {
+    const d = (P.balance().stakeRates || {}).fun || {};
+    const f = (P.stakeSpec(choice, grade) || {}).fun;
+    if (!f || !f.__rate) return "";
+    const r = f.__rate, per = f.per;
+    const g = grade || (P.G && P.G.__curGrade) || "mid";
+    if (r.source === "content") return "每档 " + P.fmtUsd(per) + " —— 这一注的价码由剧情写定。";
+    const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
+    const gm = (d.gradeMul || {})[g];
+    const tierSide = "身位基准 " + P.fmtUsd(r.anchor) + "（月薪 " + P.fmtUsd(P.officeSalary()) + " × " + months + " 个月" +
+      (gm != null && gm !== 1 ? " × 事件量级 " + gm : "") + "）";
+    if (r.pot > 0) {
+      const matterSide = "事情价码 " + P.fmtUsd(r.ceiling) + "（事件钱量级 " + P.fmtUsd(r.pot) + " 的 " +
+        Math.round((d.potShare == null ? 0.25 : d.potShare) * 100) + "%）";
+      return "每档 " + P.fmtUsd(per) + "：" + tierSide + "，" + matterSide +
+        (r.source === "pot"
+          ? " —— 事情比你的手笔小，价码按事情封顶（投满也花不到这件事的两倍）。"
+          : " —— 取两者之间：位子越高越贵，但不会超过这件事本身值多少。");
+    }
+    return "每档 " + P.fmtUsd(per) + "：" + tierSide + "。这件事没写钱，只按身位算。";
+  };
+
   P.renderStake = function () {
     const s = _stake; if (!s) return;
     const ch = s.ch, st = s.st;
-    const spec = P.stakeSpec(ch);
+    const spec = P.stakeSpec(ch, s.ev && s.ev.grade);
     const info = P.stakeInfo(ch, st);
     const r = P.computeP(ch, info);
     const prev = P.$("#stake"); if (prev) prev.remove();
     const rows = [];
     if (spec.fun) {
-      const per = spec.fun.per || 250000, w = (spec.fun.w || 0.04) * 100, cap = (spec.fun.cap || 0.30) * 100;
+      const per = Math.max(1, spec.fun.per || 0), w = (spec.fun.w || 0.04) * 100, cap = (spec.fun.cap || 0.30) * 100;
       const mx = P.stakeMax("fun", ch), atMax = st.fun >= mx;
       const note = mx === 0
-        ? "资金不足：每档需 $" + (per / 1000).toFixed(0) + "k，你现在只有 $" + (P.G.fun / 1000).toFixed(0) + "k"
+        ? "资金不足：每档需 " + P.fmtUsd(per) + "，你现在只有 " + P.fmtUsd(P.G.fun)
         : (atMax
           ? "已达上限 +" + cap + "%（最多 " + mx + " 档）"
-          : "每 $" + (per / 1000).toFixed(0) + "k → +" + w + "%，上限 +" + cap + "%，还可投 " + (mx - st.fun) + " 档（余额 $" + (P.G.fun / 1000).toFixed(0) + "k）");
+          : "每 " + P.fmtUsd(per) + " → +" + w + "%，上限 +" + cap + "%，还可投 " + (mx - st.fun) + " 档（余额 " + P.fmtUsd(P.G.fun) + "）");
       rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>资金</b>' +
         '<button class="btn" id="stFunMinus"' + (st.fun <= 0 ? " disabled" : "") + '>−</button>' +
-        '<span class="stake-val">$' + (st.fun * per / 1000).toFixed(0) + "k</span>" +
+        '<span class="stake-val">' + P.fmtUsd(st.fun * per) + "</span>" +
         '<button class="btn" id="stFunPlus"' + (atMax ? " disabled" : "") + '>＋</button>' +
         '<span class="stake-note">' + note + "</span></div>");
     }
@@ -868,10 +892,12 @@
     const bd = r.breakdown.map(function (b) {
       return "<span>" + b.label + " " + (b.pct >= 0 ? "+" : "") + b.pct.toFixed(1) + "</span>";
     }).join("");
+    const rateNote = P.stakeRateNote(ch, s.ev && s.ev.grade);
     const box = document.createElement("div");
     box.className = "stake"; box.id = "stake";
     box.innerHTML = "<h3>投入资源，提高胜算</h3>" +
       '<div class="stake-note" style="margin:-4px 0 6px;font-size:11.5px;color:var(--muted)">加码只提高这一判定的胜算，不增加事件本身的回报 —— 量力而行。</div>' + rows.join("") +
+      (rateNote ? '<div class="stake-rate">' + rateNote + "</div>" : "") +
       '<div class="check-preview">判定目标值 <b>' + r.target + "</b>%　" + bd + "</div>" +
       '<div class="stake-actions"><button class="btn primary" id="stGo">确认判定</button>' +
       '<button class="btn" id="stBack">返回</button></div>';
