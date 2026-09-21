@@ -25,8 +25,28 @@
     if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: "姿态·" + m.key }; }
     if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: "层级 T" + G.tier }; }
     if (m.src === "res" && m.key === "fun") { const v = G.fun >= (m.min || 0) ? m.w : 0; return { v: v, label: "资金充足" }; }
+    /* v0.6 选民底气：voterEdge() ∈ [-1,1]（自然均衡点处为 0）。
+       内容可以用 mods: [{ src: "voters", w: 0.08 }] 显式声明，
+       晋升/连任类选项则由 computeP 自动附加（见下）。 */
+    if (m.src === "voters") {
+      const e = P.voterEdge ? P.voterEdge() : 0;
+      const w = m.w == null ? 0.06 : m.w;
+      return { v: e * w, label: "选民底气 " + P.electionStrength().pct + "%" };
+    }
     return { v: 0, label: null };
   }
+
+  /* 这个选项是不是"交给选民裁决"的（晋升/连任）：任一档位的成功效果里含 tier +1。
+   * 用于 computeP 自动附加选民底气修正 —— 内容不用逐条改就能吃到"选民影响晋升"。 */
+  P.isContestChoice = function (ch) {
+    if (!ch || !ch.outcomes) return false;
+    const oc = ch.outcomes;
+    for (const k in oc) {
+      const eff = oc[k] && oc[k].effects;
+      if (eff && typeof eff.tier === "number" && eff.tier > 0) return true;
+    }
+    return false;
+  };
 
   /* ---------- 资源投注（D&D 式"加码"） ----------
    * 选项里声明 stake 即开启投注面板：
@@ -120,6 +140,14 @@
     (choice.mods || []).forEach(apply);
     const tal = P.reg.talent[P.G.talent];
     if (tal && tal.mods) tal.mods.forEach(apply);
+    /* v0.6：晋升/连任类选项自动吃「选民底气」修正（±contestW）。
+       这一条让"选民"真的影响晋升：票仓不稳的人在晋升判定上会吃亏，
+       票仓扎实的人更容易抓住机会。中心点对齐自然均衡点，故不推翻既有平衡。
+       政策推进类由内容显式声明 mods: [{ src: "voters", w: 0.08 }]。 */
+    const vdyn = P.balance().voterDynamic || {};
+    if (vdyn.enabled !== false && P.isContestChoice(choice)) {
+      apply({ src: "voters", w: vdyn.contestW == null ? 0.08 : vdyn.contestW });
+    }
     if (stake && stake.bonus) { p += stake.bonus; (stake.parts || []).forEach(function (x) { if (x.pct) bd.push({ label: "投入·" + x.label, pct: x.pct }); }); }
     const Pv = P.clamp(p, 0.05, 0.95);
     return { P: Pv, target: Math.round(Pv * 100), breakdown: bd };

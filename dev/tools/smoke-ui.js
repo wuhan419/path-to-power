@@ -639,6 +639,37 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   tipAnchor.dispatchEvent(new w.MouseEvent("mouseout", { bubbles: true, relatedTarget: w.document.body }));
   check(!!tip && !tip.classList.contains("on"), "移开后气泡收起");
 
+  /* ---------- 选民动态（v0.6）：会自己动 + 影响晋升，且玩家看得见 ---------- */
+  console.log("\n== 选民动态（自然增减 / 影响晋升 / 界面可见） ==");
+  const vG = P.G;
+  vG.tier = 1;                                     /* 选区 6 万 */
+  vG.voters = { warm: 0, diehard: 0, oppose: 0 };
+  vG.rep = 30; vG.track = "electoral";
+  check(!!w.document.querySelector(".topstat .officecard"), "职位卡在顶部状态条内");
+  /* 推进若干平静月：选民应当自己长起来（这是"没实装"的直接反证） */
+  for (let i = 0; i < 24; i++) P.voterDrift();
+  const vpNow = P.voterPools();
+  check(vpNow.warm > 0 && vpNow.diehard > 0 && vpNow.oppose > 0,
+    "24 个平静月后三档都不再是 0（" + vpNow.warm + "/" + vpNow.diehard + "/" + vpNow.oppose + "）");
+  check(vpNow.warm > vpNow.oppose, "「有好感」涨得比「反对」多（自然增长是正收益）");
+  P.refreshPanel();
+  const ocTxt = (w.document.querySelector(".topstat .officecard") || {}).textContent || "";
+  check(/死忠 \d/.test(ocTxt) && /有好感 \d/.test(ocTxt) && /反对 \d/.test(ocTxt),
+    "职位卡把三档人数显示出来了");
+  check(/选举底气 \d+\/100/.test(ocTxt), "职位卡显示选举底气读数：" + (ocTxt.match(/选举底气 \d+\/100/) || [""])[0]);
+  /* 月卡成长行 */
+  const vgRow = P.vignetteGrowth(3);
+  check(vgRow.notes.some(n => /好感选民/.test(n)), "月卡成长行报出选民变化：" + vgRow.notes.filter(n => /选民/.test(n)).join(" / "));
+  /* 晋升类选项吃选民修正（判定明细则在真实结算里显示） */
+  const contestCh = { base: 0.5, outcomes: { ok: { effects: { tier: 1 } } } };
+  check(P.isContestChoice(contestCh), "晋升类选项被识别（会自动吃选民底气修正）");
+  vG.voters = { warm: 60000, diehard: 20000, oppose: 1000 };
+  const pHi3 = P.computeP(contestCh);
+  vG.voters = { warm: 0, diehard: 0, oppose: 0 };
+  const pLo3 = P.computeP(contestCh);
+  check(pHi3.P > pLo3.P, "票仓扎实时晋升胜算更高（" + pLo3.P.toFixed(3) + " → " + pHi3.P.toFixed(3) + "）");
+  check(pHi3.breakdown.some(b => /选民底气/.test(b.label)), "判定明细含「选民底气」一行");
+
   console.log("\n" + (fail === 0 ? "=== UI 冒烟全部通过 ===" : "=== UI 冒烟 " + fail + " 项失败 ==="));
   w.close();
   process.exit(fail === 0 ? 0 : 1);

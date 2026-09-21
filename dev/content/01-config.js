@@ -260,6 +260,58 @@ POTUS.define("balance", {
     winShare: 0.08
   },
 
+  /* ---------- 选民动态（v0.6） ----------
+   * 背景：v0.5.2 只做了"选民池的数据结构与显示"，选民除了少数几个写死
+   * effects.voters 的事件之外**不会动**——不主动做选民事件的人，三档永远是 0，
+   * 看起来就像没实装（用户实测反馈）。
+   *
+   * 这一块把选民变成"会呼吸的东西"，三件事：
+   *   ① 自然增减：每个平静月朝"该层级正常在任者应有的基本盘"收敛（日常工作攒口碑，
+   *      在任也会有人不满）。均值回归 —— 天然有上限，挂机不会挂满。
+   *   ② 事件增减：所有事件的成败按 量级×档位×事件类型 自动给选民增减。
+   *      内容显式写了 effects.voters 的，以内容为准（作者说了算）。
+   *   ③ 反噬：选民底气 voterEdge() 作为判定修正，影响 晋升 / 连任 / 政策推进。
+   *
+   * 调参前务必跑 node tools/validate.js，看 300 局的层级分布与结局分布有没有被推歪。 */
+  voterDynamic: {
+    enabled: true,
+
+    /* ① 自然增减（每平静月）：delta = (目标 - 当前) × monthly × 轨道系数 × 声望系数 */
+    monthly: 0.05,             /* 每月收敛 5% 差额：从 0 到目标约需 5 年到位 */
+    targetShare: 0.08,         /* 目标「有好感」= 选区规模 × 8%（与当选份额同一语义） */
+    diehardTargetShare: 0.02,  /* 目标「死忠」= 规模 × 2%：自然只出"有好感"，死忠要靠打赢事件 */
+    opposeTargetShare: 0.04,   /* 目标「反对」= 规模 × 4%：你做了决定就会有人不满 */
+    repWeight: 0.6,            /* 声望系数 = repWeight + 声望/100（声望越高，自然吸粉越快） */
+    /* 轨道系数：选举的人天天见人，钱人在办公室数钱——只有搞选举的最能把露面变成票 */
+    track: { electoral: 1.5, celebrity: 1.3, appointment: 0.9, operative: 0.8, wealth: 0.7 },
+
+    /* ② 事件成败（每次结算一次）
+       base = 选区规模 × eventBase[量级]；再乘 byOutcome[判定档位] × categoryMul[事件类型]。
+       档位表里负数=流失/反噬（失败时反对者涨得比好感掉得快——骂声比掌声传得远）。 */
+    eventBase: { major: 0.006, mid: 0.0025, minor: 0.0008 },
+    byOutcome: {
+      crit:     { warm:  2.00, diehard: 0.45, oppose: 0.45 },
+      ok:       { warm:  1.00, diehard: 0.18, oppose: 0.22 },
+      meh:      { warm:  0.30, diehard: 0.05, oppose: 0.15 },
+      fail:     { warm: -0.35, diehard: -0.10, oppose: 0.55 },
+      critfail: { warm: -0.80, diehard: -0.25, oppose: 1.00 }
+    },
+    /* 事件类型系数：上媒体/政治/丑闻的事选民看得见；家里的、恋爱的、纯粹技术性的看不见 */
+    categoryMul: {
+      media: 1.3, political: 1.2, scandal: 1.1, civil: 1.0, crisis: 1.0, foreign: 0.8,
+      career: 0.7, demo: 0.6, shady: 0.6, finance: 0.5, general: 0.5, romance: 0.15
+    },
+
+    /* ③ 反噬：voterEdge() ∈ [-1,1] 作为判定修正（乘 contestW 后是 ±8% 胜算）
+       · edgeCenter 对齐"自然均衡点"（约 27%）—— 那里修正=0，所以不改动既有 300 局平衡；
+         低于中心扣分、高于中心加分，鼓励玩家真的去经营选民。
+       · 晋升/连任类选项（任一档位含 tier+1）自动吃这个修正；
+         政策推进类由内容显式声明 mods: [{ src: "voters", w: 0.08 }]。 */
+    contestW: 0.08,
+    edgeCenter: 27,
+    edgeSpan: 35
+  },
+
   /* 资源投注汇率（D&D 式加码的默认值；单个选项可覆盖）
    * fun：每 per 美元 +w 胜算，最多 +cap ／ ap：每 1 点 +w，最多 +cap ／ fav：花 1 点换一次重投取优 */
   stakeRates: {

@@ -640,6 +640,7 @@
     if (abs >= 1000) return (n / 1000).toFixed(1) + " 千";
     return String(n);
   }
+  P.fmtVoterNum = fmtVoterNum;      /* v0.6：月卡（vignette.js）也要按同样口径显示选民变化 */
   P.gainSummary = function (eff) {
     const P_ = window.POTUS, G = P_.G;
     const out = [];
@@ -704,6 +705,8 @@
   P.presentEvent = function (ev, slot) {
     P.tickDate();
     const grade = (slot && slot.grade) || P.gradeOf(ev);
+    /* v0.6：把本次量级记在状态上，结算时（resolveChoice）算"事件自动选民增减"要用 */
+    P.G.__curGrade = grade;
     const gdef = P.reg.grade[grade] || {};
     const catName = ev.category ? P.categoryName(ev.category) : "";
     const medName = ev.medium ? [].concat(ev.medium).map(P.mediumName).join(" / ") : "";
@@ -922,6 +925,12 @@
     const r = P.computeP(ch, info);
     const res = P.rollTierAdv(r.P, !!(info && info.reroll));
     const out = ch.outcomes[res.tier] || ch.outcomes.ok || {};
+    /* v0.6 选民动态：所有事件的成败都自动给选民增减（量级 × 判定档位 × 事件类型），
+       内容显式写了 effects.voters / 或本次改变身位的，以内容为准。
+       合成一个 effFinal 给「应用到状态」和「收益结算显示」共用——账面上写的和实际扣的一致。 */
+    const effFinal = P.withEventVoters
+      ? P.withEventVoters(out.effects, ev, ch, out, res.tier)
+      : (out.effects || {});
     /* 投资本金基数：选项 cost + 投注的资金 —— funMul 按它算回报（不是总余额） */
     G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
     const paid = payCost(ch, info && info.cost);
@@ -936,7 +945,7 @@
       if (++n <= 10) return;
       clearInterval(iv);
       const db2 = dice.querySelector("b"); if (db2) db2.textContent = res.roll;
-      P.applyEffects(out.effects);
+      P.applyEffects(effFinal);
       P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
       const label = P.TIER_LABEL[res.tier] || res.tier;
       // 主次分明：结果正文（叙事）→ 收益结算（对账）→ 判定明细（折叠，给较真的人）
@@ -944,7 +953,7 @@
       div.className = "result " + res.tier + " fade";
       div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
       mainInsert(div);   // v0.5.4：结算结果进右栏 #actbar
-      const gainHTML = gainBoxHTML(out.effects);
+      const gainHTML = gainBoxHTML(effFinal);
       if (gainHTML) {
         const gb = document.createElement("div");
         gb.className = "fade";
@@ -962,7 +971,7 @@
         }).join("") + "</div>" +
         (Object.keys(paid).length ? '<div class="paid">已消耗：' + resText(paid) + "</div>" : "");
       mainInsert(check);
-      const eff = out.effects || {};
+      const eff = effFinal || {};
       const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
       if (newScandal || out.news) {
         const headline = P.makeNews(out.news || ("陷入争议：" + String(out.body || "").slice(0, 24)));

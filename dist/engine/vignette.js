@@ -100,7 +100,7 @@
     const G = P.G, b = P.balance();
     const v = b.vignette || {};
     const n = months || 0;
-    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0 };
+    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0, voters: {} };
     if (v.enabled === false || n <= 0 || !G) return { notes: [], n: n, tally: tally };
 
     const startAge = b.startAge == null ? 24 : b.startAge;
@@ -196,6 +196,13 @@
         G.fav = P.clamp(G.fav + 1, 0, 20);
         tally.fav = (tally.fav || 0) + 1;
       }
+      /* 选民（v0.6）：平静的日子里你也在见人、办事、被人议论 —— 在任本身就会攒下
+         "有好感"，也会攒下"反对"，只是比事件慢得多。数值由 core.js 的 voterDrift()
+         按选区规模向目标均值回归算出（挂机不会挂满，事件赢来的超额支持会缓慢回落）。 */
+      if (P.voterDrift) {
+        const vd = P.voterDrift();
+        if (vd) for (const vk in vd) tally.voters[vk] = (tally.voters[vk] || 0) + vd[vk];
+      }
     }
 
     /* 显示名与状态栏对齐：属性一律中文名（魅力/智力/手腕/诚信），人脉好感不再叫"人情往来" */
@@ -211,6 +218,16 @@
     }
     if (tally.ap) notes.push("精力 +" + tally.ap);
     if (tally.fav) notes.push("人情 +" + tally.fav);
+    /* 选民（v0.6）：有变化才写进月卡 —— 让玩家看见"我什么都没干，但选民在动" */
+    if (tally.voters) {
+      const VCN = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
+      const fmt = P.fmtVoterNum || function (x) { return String(x); };
+      ["warm", "diehard", "oppose"].forEach(function (vk) {
+        const n = tally.voters[vk];
+        if (!n) return;
+        notes.push(VCN[vk] + " " + (n > 0 ? "+" : "") + fmt(n));
+      });
+    }
     return { notes: notes, n: n, tally: tally };
   };
 
@@ -261,12 +278,13 @@
     const leftover = entries.length - shown.length;
 
     /* 把这一批的成长合并成一行（按类别求和，而不是罗列每个月） */
-    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0 };
+    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0, voters: {} };
     entries.forEach(function (e) {
       const g = e.gain || {};
       for (const k in (g.attr || {})) tally.attr[k] = (tally.attr[k] || 0) + g.attr[k];
       tally.hp += g.hp || 0; tally.rep += g.rep || 0; tally.contact += g.contact || 0;
       tally.fun += g.fun || 0; tally.ap += g.ap || 0; tally.fav += g.fav || 0;
+      for (const vk in (g.voters || {})) tally.voters[vk] = (tally.voters[vk] || 0) + g.voters[vk];
     });
     const ATTR_CN2 = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
     const notes = [];
@@ -280,6 +298,14 @@
     }
     if (tally.ap) notes.push("精力 +" + tally.ap);
     if (tally.fav) notes.push("人情 +" + tally.fav);
+    /* 选民（v0.6）：把这几个月的选民净变化也报出来 */
+    const _VCN2 = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
+    const _fmtV = P.fmtVoterNum || function (x) { return String(x); };
+    ["warm", "diehard", "oppose"].forEach(function (vk) {
+      const n = tally.voters[vk];
+      if (!n) return;
+      notes.push(_VCN2[vk] + " " + (n > 0 ? "+" : "") + _fmtV(n));
+    });
 
     const id = "vig" + (++_seq);
     const y = G.year;

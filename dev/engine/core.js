@@ -442,6 +442,107 @@ POTUS.electionStrength = function () {
   return { mine: mine, theirs: theirs, rest: rest, size: size, pct: Math.round(Math.min(100, mine / Math.max(1, total) * 100)) };
 };
 
+/* ---------- 选民动态（v0.6）----------
+ * 见 content/01-config.js 的 voterDynamic 注释。这里只放三件事：
+ *   voterTargets()    该层级"自然状态下"的目标基本盘（drift 朝它收敛）
+ *   voterDrift()      平静月的自然增减（日常工作攒口碑 / 在任必然有人不满）
+ *   voterEdge()       选民底气 → 判定修正（-1..+1），晋升/连任/政策推进共用
+ *   eventVoterDelta() 事件成败 → 选民增减（内容显式写了 voters 就交还给内容）
+ * 全部参数读 balance.voterDynamic，内容侧可调、不用改引擎。 */
+POTUS.voterTargets = function () {
+  const b = POTUS.balance(), d = b.voterDynamic || {};
+  const size = POTUS.electorateSize();
+  const num = function (x, dflt) { return size * (x == null ? dflt : x); };
+  return {
+    size: size,
+    warm: Math.round(num(d.targetShare, 0.08)),
+    diehard: Math.round(num(d.diehardTargetShare, 0.02)),
+    oppose: Math.round(num(d.opposeTargetShare, 0.04))
+  };
+};
+
+/* 平静月的自然增减：向目标均值回归。
+   delta = (目标 - 当前) × monthly × 轨道系数 × 声望系数
+   低于目标就涨、高于目标就慢慢掉 —— 天然有界（挂机也不会满池），
+   且事件赢来的超额支持会随时间缓慢回落（注意力是要不断续费的）。
+   返回本月实际增减（没有变化时返回 null），供月卡显示。 */
+POTUS.voterDrift = function () {
+  const G = POTUS.G;
+  const b = POTUS.balance(), d = b.voterDynamic || {};
+  if (!G || d.enabled === false) return null;
+  const t = POTUS.voterTargets();
+  const monthly = d.monthly == null ? 0.05 : d.monthly;
+  const trackMul = (d.track && d.track[G.track] != null) ? d.track[G.track] : 1;
+  const repMul = (d.repWeight == null ? 0.6 : d.repWeight) + (G.rep || 0) / 100;
+  const k = monthly * trackMul * repMul;
+  const cur = POTUS.voterPools();
+  const out = {};
+  ["warm", "diehard", "oppose"].forEach(function (key) {
+    const delta = Math.round((t[key] - (cur[key] || 0)) * k);
+    if (delta) out[key] = delta;
+  });
+  if (!Object.keys(out).length) return null;
+  POTUS.applyVoters(out);
+  return out;
+};
+
+/* 选民底气 → 判定修正 ∈ [-1, 1]。
+   中心对齐"自然均衡点"（edgeCenter，默认 27%）：那里修正为 0，
+   所以既不奖励也不惩罚"正常经营"的玩家（300 局平衡不被推翻）；
+   明显低于均衡点扣分、明显高于加分 —— 选民不是背景板，是你能不能继续往上走的本钱。 */
+POTUS.voterEdge = function () {
+  const b = POTUS.balance(), d = b.voterDynamic || {};
+  if (d.enabled === false) return 0;
+  const center = d.edgeCenter == null ? 27 : d.edgeCenter;
+  const span = d.edgeSpan == null ? 35 : d.edgeSpan;
+  const pct = POTUS.electionStrength().pct;
+  return POTUS.clamp((pct - center) / span, -1, 1);
+};
+
+/* 事件成败 → 选民自动增减。tierName 是本次判定档位（crit/ok/meh/fail/critfail）。
+   规则：内容显式写了 effects.voters → 返回 null（作者说了算）；
+        事件本身改变身位（tier/fall/hardEnd）→ 返回 null（当选基本盘由 effects.tier 单独发放，
+        避免和"当选自带基本盘"重复计一次）。
+   返回 {warm,diehard,oppose} 或 null（无变化）。 */
+POTUS.eventVoterDelta = function (ev, choice, outcome, tierName) {
+  const G = POTUS.G;
+  const b = POTUS.balance(), d = b.voterDynamic || {};
+  if (!G || d.enabled === false) return null;
+  const eff = (outcome && outcome.effects) || {};
+  if (eff.voters || eff.tier || eff.fall || eff.hardEnd) return null;
+  const mul = (d.byOutcome || {})[tierName];
+  if (!mul) return null;
+  const grade = G.__curGrade || POTUS.gradeOf(ev);
+  const base = POTUS.electorateSize() * ((d.eventBase || {})[grade] == null ? 0 : d.eventBase[grade]);
+  if (!base) return null;
+  const catMul = (d.categoryMul || {})[ev && ev.category];
+  const cm = catMul == null ? 1 : catMul;
+  const out = {};
+  ["warm", "diehard", "oppose"].forEach(function (k) {
+    const w = mul[k];
+    if (!w) return;
+    const n = Math.round(base * w * cm);
+    if (n) out[k] = n;
+  });
+  return Object.keys(out).length ? out : null;
+};
+
+/* 把「事件自动选民增减」并进 effects，返回**新的** effects 对象（不改动内容包原件）。
+   结算与显示都走这一个对象，保证"账面上写的"和"实际扣的"永远一致。
+   内容已显式声明 voters、或本次无变化时原样返回。 */
+POTUS.withEventVoters = function (effects, ev, choice, outcome, tierName) {
+  const base = effects || {};
+  const add = POTUS.eventVoterDelta(ev, choice, outcome, tierName);
+  if (!add) return base;
+  const merged = {};
+  for (const k in base) merged[k] = base[k];
+  const v = {};
+  for (const k in (base.voters || {})) v[k] = base.voters[k];
+  for (const k in add) v[k] = (v[k] || 0) + add[k];
+  merged.voters = v;
+  return merged;
+};
+
 POTUS.stamp = function (eventId) {
   const G = POTUS.G;
   if (!G) return;

@@ -1531,6 +1531,89 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(prog.pct >= 0 && prog.pct <= 100 && typeof prog.note === "string", "晋升进度应有 0-100 读数与提示");
     check(P.promotionProgress().ready === (P.promotionProgress().pct >= 60), "ready 应与 pct≥60 一致");
     console.log("  ok：选民池（三档人数/选区夹取/升位稀释/效果键）｜ 晋升进度（60 机会区间）");
+
+    /* --- v0.6 选民动态：自然增减 / 事件自动增减 / 反噬判定 ---
+       * 用户反馈「这套选民系统好像还没有实装」：v0.5.2 只做了数据结构与显示，
+       *   除了少数写死 effects.voters 的事件，选民永远静止。这里锁住新加的三件事。 */
+    check(typeof P.voterTargets === "function" && typeof P.voterDrift === "function" &&
+      typeof P.voterEdge === "function" && typeof P.eventVoterDelta === "function" &&
+      typeof P.withEventVoters === "function",
+      "选民动态 API 应存在（voterTargets/voterDrift/voterEdge/eventVoterDelta/withEventVoters）");
+    const vdyn = P.balance().voterDynamic || {};
+    check(vdyn.enabled === true, "balance.voterDynamic 默认开启");
+
+    /* ① 自然增减：从 0 起向目标收敛，且有界 */
+    P.G.tier = 1;                                   /* 选区 6 万 */
+    P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
+    P.G.rep = 30; P.G.track = "electoral";
+    const tgt = P.voterTargets();
+    check(tgt.size === 60000 && tgt.warm === 4800 && tgt.diehard === 1200 && tgt.oppose === 2400,
+      "T1 目标基本盘按选区规模算（" + tgt.warm + "/" + tgt.diehard + "/" + tgt.oppose + "）");
+    const d0 = P.voterDrift();
+    check(!!d0 && d0.warm > 0 && d0.oppose > 0, "首个平静月：好感与反对同时净增（在任就会攒名声也攒怨气）");
+    for (let i = 0; i < 400; i++) P.voterDrift();
+    const vp0 = P.voterPools();
+    check(Math.abs(vp0.warm - tgt.warm) <= tgt.warm * 0.15,
+      "长期收敛到目标附近（warm " + vp0.warm + " ≈ " + tgt.warm + "）—— 挂机不会满池");
+    check(vp0.warm + vp0.diehard + vp0.oppose <= tgt.size, "三档之和不超过选区规模（有界）");
+    P.G.voters = { warm: 20000, diehard: 4000, oppose: 2000 };
+    for (let i = 0; i < 24; i++) P.voterDrift();
+    check(P.voterPools().warm < 20000,
+      "高于目标的超额支持会随时间回落（20000 → " + P.voterPools().warm + "）—— 注意力要续费");
+
+    /* ② 事件成败 → 选民自动增减 */
+    P.G.tier = 1; P.G.voters = { warm: 4800, diehard: 1200, oppose: 2400 }; P.G.__curGrade = "major";
+    const evX = { id: "vtest", category: "political" };
+    const dC = P.eventVoterDelta(evX, {}, { effects: { rep: 5 } }, "crit");
+    const dF = P.eventVoterDelta(evX, {}, { effects: { rep: -5 } }, "fail");
+    const dCF = P.eventVoterDelta(evX, {}, { effects: { rep: -8 } }, "critfail");
+    check(!!dC && dC.warm > 0 && dC.oppose > 0, "大成功：好感↑ 反对↑（" + JSON.stringify(dC) + "）");
+    check(!!dF && dF.warm < 0 && dF.oppose > 0, "失败：好感↓ 反对↑（" + JSON.stringify(dF) + "）");
+    check(dCF.oppose > dF.oppose, "大失败的反对者涨得比失败多（" + dCF.oppose + " > " + dF.oppose + "）—— 骂声传得远");
+    check(P.eventVoterDelta(evX, {}, { effects: { voters: { warm: 999 } } }, "crit") === null,
+      "内容显式写 voters 时不再自动附加（作者说了算）");
+    check(P.eventVoterDelta(evX, {}, { effects: { tier: 1 } }, "crit") === null,
+      "升位类事件不自动附加（当选基本盘单独发，避免重复计一次）");
+    const evRom = { id: "vrom", category: "romance" };
+    const dRom = P.eventVoterDelta(evRom, {}, { effects: { rep: 5 } }, "crit");
+    check(!dRom || !dRom.warm || Math.abs(dRom.warm) < Math.abs(dC.warm),
+      "恋爱类事件对选民影响远小于政治类（类型系数生效）");
+    const merged2 = P.withEventVoters({ rep: 3 }, evX, {}, { effects: { rep: 5 } }, "crit");
+    check(!!merged2.voters && merged2.rep === 3, "withEventVoters 合并选民增减且保留原有其他效果");
+
+    /* ③ 反噬：均衡态修正为 0、有界、单调 */
+    P.G.voters = { warm: 4800, diehard: 1200, oppose: 2400 };
+    const esMid = P.electionStrength().pct, eMid2 = P.voterEdge();
+    check(Math.abs(eMid2) < 1e-9,
+      "自然均衡态（pct=" + esMid + "%）选民修正正好为 0 —— 不推翻既有 300 局平衡");
+    P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
+    const eLo2 = P.voterEdge();
+    P.G.voters = { warm: 30000, diehard: 12000, oppose: 500 };
+    const eHi2 = P.voterEdge();
+    check(eLo2 < 0 && eHi2 > 0 && eLo2 >= -1 && eHi2 <= 1,
+      "选民修正有界且单调（" + eLo2.toFixed(2) + " .. " + eHi2.toFixed(2) + "）");
+    const contestC = { base: 0.5, outcomes: { ok: { effects: { tier: 1 } } } };
+    check(P.isContestChoice(contestC) === true, "能识别晋升/连任类选项（成功档含 tier+1）");
+    check(P.isContestChoice({ base: 0.5, outcomes: { ok: { effects: { rep: 5 } } } }) === false,
+      "普通事件不被误判为晋升类");
+    P.G.voters = { warm: 30000, diehard: 12000, oppose: 500 };
+    const pHi2 = P.computeP(contestC);
+    P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
+    const pLo2 = P.computeP(contestC);
+    check(pHi2.P > pLo2.P,
+      "票仓扎实时晋升胜算更高（" + pLo2.P.toFixed(3) + " < " + pHi2.P.toFixed(3) + "）");
+    check(pHi2.breakdown.some(function (b) { return /选民底气/.test(b.label); }),
+      "判定明细里出现「选民底气」一项");
+    const policyC = { base: 0.5, mods: [{ src: "voters", w: 0.12 }], outcomes: { ok: { effects: { rep: 3 } } } };
+    check(P.computeP(policyC).breakdown.some(function (b) { return /选民底气/.test(b.label); }),
+      "内容可用 mods:[{src:\"voters\"}] 显式为政策推进类选项声明选民修正");
+
+    /* ④ 月卡要报出选民变化（否则玩家看不见"我什么都没干，但选民在动"） */
+    P.G.tier = 1; P.G.voters = { warm: 0, diehard: 0, oppose: 0 }; P.G.rep = 30;
+    const vg = P.vignetteGrowth(3);
+    check(!!vg.tally.voters && Object.keys(vg.tally.voters).length > 0, "静好结算里含选民变化（tally.voters）");
+    check(vg.notes.some(function (n) { return /选民/.test(n); }), "月卡成长行会报出选民变化");
+    console.log("  ok：选民动态（自然增减有界/事件自动增减/显式优先/底气修正中心归零）");
   }
 
   /* --- 事件经济（v0.5.2）：投入≥$50k 的选项，ok 档要么回本 30%+，要么拿非钱资产，要么按比例（funMul） ---
