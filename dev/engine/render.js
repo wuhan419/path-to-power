@@ -377,6 +377,7 @@
     const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
     P.app().innerHTML =
       '<div class="masthead"><div class="title">' + era.name + '</div><div class="meta"></div></div>' +
+      '<div class="topstat">' + P.topStatus() + '</div>' +
       P.toolbarHTML() +
       '<div class="grid"><aside class="col-left">' + P.statPanel() + '</aside><div id="main"><div class="news fade"><div class="dateline">' + era.name +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
@@ -385,10 +386,11 @@
       "<div>时代压力：<b class=\"" + pl.cls + '">' + pl.text + "</b>（" + P.pressure().toFixed(1) + "／6）　·　压力越高，风波越多、越大。</div>" +
       (media ? "<div>此刻存在的媒介：" + media + "</div>" : "") +
       "</div>" +
-      '</div><button class="btn primary" style="margin-top:10px" onclick="POTUS.' +
+      '</div></div></div><aside class="col-right" id="actbar"></aside></div>';
+    // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
+    actAppend('<div class="acthead">进入新的一年</div><button class="btn primary actbtn" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +
-      (resume ? "回到 " + (G.month || 1) + " 月 →" : "进入 1 月 →") + "</button>" +
-      "</div></div><aside class=\"col-right\" id=\"actbar\"></aside></div>";
+      (resume ? "回到 " + (G.month || 1) + " 月 →" : "进入 1 月 →") + "</button>");
     P.tickDate();
   };
 
@@ -872,7 +874,10 @@
       '<div class="check-preview">判定目标值 <b>' + r.target + "</b>%　" + bd + "</div>" +
       '<div class="stake-actions"><button class="btn primary" id="stGo">确认判定</button>' +
       '<button class="btn" id="stBack">返回</button></div>';
-    P.$("#main").appendChild(box);
+    /* v0.5.x 修正：判定栏（投注面板）归入右栏（#actbar）顶部，与「操作在右栏」的三栏设计一致，
+       也满足「判定栏在提示栏（选项胜算）之上」——而不是错误地塞进中栏、落在背景卡下面 */
+    const _bar = document.getElementById("actbar");
+    if (_bar) _bar.insertBefore(box, _bar.firstChild); else P.$("#main").appendChild(box);
     const wire = function (id, fn) { const el = P.$("#" + id); if (el) el.onclick = fn; };
     wire("stFunPlus", function () { P.stakeStep("fun", 1); });
     wire("stFunMinus", function () { P.stakeStep("fun", -1); });
@@ -892,6 +897,8 @@
   P.refreshPanel = function () {
     const col = document.querySelector(".col-left");
     if (col) col.innerHTML = P.statPanel();
+    const ts = document.querySelector(".topstat");
+    if (ts) ts.innerHTML = P.topStatus();
     else {
       P.refreshPanel();          // 旧布局兼容（标题/建角等无三栏的页面）
     }
@@ -925,7 +932,7 @@
     const main = P.$("#main");
     const dice = document.createElement("div"); dice.className = "dicebar";
     dice.innerHTML = '<span class="db-tag">掷骰</span><b>🎲</b>';
-    mainInsert(dice);
+    mainInsert(dice);   // v0.5.4：掷骰进右栏 #actbar，操作不滚动中栏
     let n = 0;
     const iv = setInterval(function () {
       const db = dice.querySelector("b"); if (db) db.textContent = P.rint(1, 100);
@@ -939,13 +946,13 @@
       const div = document.createElement("div");
       div.className = "result " + res.tier + " fade";
       div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
-      mainInsert(div);
+      mainInsert(div);   // v0.5.4：结算结果进右栏 #actbar
       const gainHTML = gainBoxHTML(out.effects);
       if (gainHTML) {
         const gb = document.createElement("div");
         gb.className = "fade";
         gb.innerHTML = gainHTML;
-        mainInsert(gb);
+        mainInsert(gb);   // v0.5.4：收益结算进右栏 #actbar
       }
       // D&D 式判定明细（默认收起）
       const check = document.createElement("details");
@@ -1085,7 +1092,10 @@
       (tailVig.html || "") +
       (heads ? '<h3 class="sechead">这一年的头条</h3><ul class="heads">' + heads + "</ul>" : "") +
       bsHTML +
-      '<button class="btn primary" style="margin-top:10px" onclick="POTUS.nextYear()">进入 ' + (G.year + 1) + " 年 →</button></div>";
+      '</div>';
+    // v0.5.4：年终「进入 N 年 →」继续按钮进右栏 #actbar（清理上一事件残留结算，操作不滚动中栏）
+    actClear();
+    actAppend('<button class="btn primary actbtn" onclick="POTUS.nextYear()">进入 ' + (G.year + 1) + " 年 →</button>");
     P.tickDate();
     P.refreshPanel();
   };
@@ -1113,7 +1123,10 @@
   P.promotionProgress = function () {
     const G = P.G, b = P.balance();
     if (G.tier >= b.tierMax) return { pct: 100, ready: true, note: "已在顶点" };
-    const needTenure = 36;                                  /* 三年视为"熬够了"（满分的在位分） */
+    /* 熬的年数按下一级职位加权：T1→T2 要 3 年，T3→T4 要 5 年，T4→T5 要 7 年
+       （v0.5.4 用户实测反馈：28 岁干 5 年就州长太快）。 */
+    const NEED = [30, 36, 36, 48, 60, 84];
+    const needTenure = NEED[Math.min(G.tier, NEED.length - 1)];
     const tenureScore = Math.min(1, P.monthsAtTier() / needTenure);
     const repScore = Math.min(1, G.rep / 60);
     const es = P.electionStrength();
@@ -1181,11 +1194,10 @@
       const v = G.faction[k] || 0;
       if (v !== 0) fac += '<div class="fac"><span>' + P.factionName(k) + "</span><span>" + (v > 0 ? "+" : "") + v + "</span></div>";
     }
-    const tagNames = P.balance().tagNames || {};
     const tags = G.flags.filter(function (f) {
       if (f.indexOf("scandal_") === 0 || f.indexOf("bs_") === 0) return false;
       const ti = P.tagInfo(f);
-      return ti.name && ti.name !== f;             // 没登记词条的 flag 不显示原文，宁缺毋滥
+      return ti.name && ti.name !== f;
     })
       .slice(0, 8).map(function (f) {
         const tip = P.tagTooltip(f);
@@ -1193,31 +1205,43 @@
           P.tagInfo(f).name + "</span>";
       }).join("");
     const sc = P.scandalLevel();
-    /* 人脉：只显示最"深"的几位，避免二十年的交情把面板撑成通讯录 */
     const cts = P.myContacts().slice(0, 6);
     const ctHTML = cts.map(function (c) {
       return '<div class="ct"><span>' + c.name + (c.role ? '<i>' + c.role + "</i>" : "") + "</span>" +
         '<b class="' + (c.favor >= 30 ? "good" : c.favor <= -20 ? "bad" : "") + '">' + (c.favor > 0 ? "+" : "") + c.favor + "</b></div>";
     }).join("");
-    const tenure = P.monthsAtTier();
-    return '<div class="panel"><h3>状态 · ' + G.name + "</h3>" +
-      '<div class="nowdate">' + P.dateText() + "　·　" + (G.age) + " 岁" +
-      (G.state ? "　·　" + P.stateName(G.state) : "") + "</div>" +
+    return '<div class="panel"><h3>状态</h3>' +
       P.officeCard() +
       "<div>魅力 " + a.CHA + "</div>" + bar(a.CHA) +
       "<div>智力 " + a.INT + "</div>" + bar(a.INT) +
       "<div>手腕 " + a.CUN + "</div>" + bar(a.CUN) + "<hr>" +
-      /* 公信力（INTG）不是"能力"而是"社会对你的信任"——和声望放一行。
-         它不设门槛挡选项，只在需要公信的判定里加分（吹哨/证词/改革）。 */
-      '<div title="公信力：公众对你的信任。不决定你能选什么，决定「你出面说话」的分量——吹哨、作证、推动改革这类判定的胜算。它只能被你的选择改变。">声望 ' + G.rep + ' · <b>公信力 ' + a.INTG + "</b> · 资金 $" + (G.fun / 1000).toFixed(0) + "k</div>" +
-      "<div>健康 " + G.hp + " · 精力 " + G.ap + " · 人情 " + G.fav + "</div>" +
-      "<div>" + P.officeName() + ' <span class="muted" style="font-size:11px">（T' + G.tier + "）</span> · 在位 " + tenure + " 个月</div>" +
       '<div class="levrow' + (G.lev ? " has" : "") + '">把柄 ' + (G.lev || 0) + " 份" +
       ((G.lev || 0) > 0 ? '<span class="muted">（攥着别人的秘密，也用掉得掉）</span>' : "") + "</div>" +
       "<div>" + (sc ? "丑闻 Lv" + sc : "无丑闻") + "</div>" +
       '<div style="margin-top:6px">' + tags + "</div><hr><h3>派系好感</h3>" + (fac || '<div class="muted">—</div>') +
       "<h3>人脉</h3>" + (ctHTML || '<div class="muted">—</div>') +
       '<div class="log">' + G.log.map(function (x) { return "<div>" + x + "</div>"; }).join("") + "</div></div>";
+  };
+
+  /* 顶部状态条：把“我是谁 / 关键资源”从左侧长边栏提到页面顶端，边栏只留能力+人脉+记忆 */
+  P.topStatus = function () {
+    const G = P.G, a = G.attr;
+    const chip = function (k, v, cls) {
+      return '<span class="tchip' + (cls ? ' ' + cls : '') + '"><span class="tk">' + k + '</span><b>' + v + '</b></span>';
+    };
+    return '<span class="tname">' + G.name + '</span>' +
+      chip('日期', P.dateText()) +
+      chip('职务', P.officeName() + ' · T' + G.tier) +
+      chip('在位', P.monthsAtTier() + '月') +
+      '<span class="tsep"></span>' +
+      chip('声望', G.rep) +
+      chip('公信力', a.INTG) +
+      chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k') +
+      '<span class="tsep"></span>' +
+      chip('健康', G.hp, G.hp <= 30 ? 'bad' : '') +
+      chip('精力', G.ap, G.ap <= 1 ? 'bad' : '') +
+      chip('人情', G.fav) +
+      (G.state ? '<span class="tsep"></span>' + chip('状态', P.stateName(G.state)) : '');
   };
 
   P.toolbarHTML = function () {
@@ -1248,8 +1272,63 @@
     el.className = "btn ai" + (on ? " on" : "");
   };
 
+  /* ---------------- 悬浮说明气泡（固定层，避免被边栏 overflow 裁切） ----------------
+     见 style.css #tipbox 注释。要点：
+     · 气泡挂在 <body>、position:fixed —— 不被任何祖先的 overflow 裁掉，恒在最顶层；
+     · 横向位置夹在「悬浮元素所属栏」（.col-left/.col-right；不属于任何栏则退到视口）
+       之内，保证不越出边栏；下方放不下时自动翻到元素上方。 */
+  function tipLayer() {
+    let el = document.getElementById("tipbox");
+    if (!el) { el = document.createElement("div"); el.id = "tipbox"; document.body.appendChild(el); }
+    return el;
+  }
+  function showTip(anchor) {
+    const text = anchor.getAttribute("data-tip");
+    if (!text) return;
+    const el = tipLayer();
+    el.textContent = text;                 // 用 textContent，天然免疫注入
+    el.classList.add("on");
+    const ar = anchor.getBoundingClientRect();
+    /* 横向夹取边界：优先所属栏，其次视口 */
+    let cl = 8, cr = window.innerWidth - 8;
+    const col = anchor.closest ? anchor.closest(".col-left,.col-right") : null;
+    if (col) { const r = col.getBoundingClientRect(); cl = r.left + 4; cr = r.right - 4; }
+    el.style.maxWidth = Math.min(300, Math.max(140, cr - cl)) + "px";
+    const tr = el.getBoundingClientRect();  // 定宽后再量，尺寸才准
+    let left = ar.left;
+    if (left + tr.width > cr) left = cr - tr.width;
+    if (left < cl) left = cl;
+    const gap = 6;
+    let top = ar.bottom + gap;
+    if (top + tr.height > window.innerHeight - 4) top = ar.top - gap - tr.height;  // 下方放不下 → 翻上方
+    if (top < 4) top = 4;
+    el.style.left = Math.round(left) + "px";
+    el.style.top = Math.round(top) + "px";
+  }
+  function hideTip() {
+    const el = document.getElementById("tipbox");
+    if (el) el.classList.remove("on");
+  }
+  function bindTooltip() {
+    /* 事件委托：内容动态重渲染也不需要重新绑 */
+    document.addEventListener("mouseover", function (e) {
+      const t = e.target && e.target.closest ? e.target.closest("[data-tip]") : null;
+      if (t) showTip(t);
+    });
+    document.addEventListener("mouseout", function (e) {
+      const t = e.target && e.target.closest ? e.target.closest("[data-tip]") : null;
+      if (!t) return;
+      const to = e.relatedTarget;
+      if (to && t.contains && t.contains(to)) return;   // 只是移到了子节点，不收起
+      hideTip();
+    });
+    window.addEventListener("scroll", hideTip, true);   // 栏内滚动 / 页面滚动都收起，避免错位
+    window.addEventListener("resize", hideTip);
+  }
+
   /* ---------------- 启动 ---------------- */
   P.boot = function () {
+    bindTooltip();
     if (!Object.keys(P.reg.era).length) {
       P.app().innerHTML = '<div class="center" style="padding:40px"><h2>未加载任何内容包</h2><p class="muted">请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。</p></div>';
       return;

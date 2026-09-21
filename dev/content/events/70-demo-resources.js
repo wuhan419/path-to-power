@@ -250,9 +250,10 @@ POTUS.define("event", [
     choices: [
       {
         id: "buy_floor",
-        text: "自己办一场对标晚宴，把这些人请到你的场子（花 $750k 场地与排场）",
+        text: "自己办一场答谢酒会，把这些人请到你的场子（花 $150k 场地与餐饮）",
+        note: "你是主人，他们是你请来的客人——这场酒会本质是「我值得投资」的展示。现实对标：地方级筹款活动成本五位数起，全国级六位数。",
         base: 0.75,
-        cost: { fun: 750000 },
+        cost: { fun: 150000 },
         stake: { fun: true },
         mods: [{ src: "fac", key: "commercial", w: 0.4 }],
         outcomes: {
@@ -265,8 +266,8 @@ POTUS.define("event", [
             effects: { rep: 5, fun: 300000, fac: { commercial: 12 } }
           },
           meh: {
-            body: "场子很豪华，但没人记得你是为了什么来的。",
-            effects: { rep: 1, fun: -150000, fac: { commercial: 4 } }
+            body: "场子办得不错，酒会顺利结束——只是没有人当场承诺什么。你的名片留在了三十个口袋里，未来再说。",
+            effects: { rep: 2, fac: { commercial: 5 } }
           },
           fail: {
             body: "有人把「候选人自费包场」捅给了记者。",
@@ -280,9 +281,9 @@ POTUS.define("event", [
       },
       {
         id: "gift",
-        text: "给当晚的主宾各备一份见面礼（花 $120k）——进了这个圈子的规矩",
+        text: "给当晚的主宾各备一份得体的见面礼（花 $30k）——进了这个圈子的规矩",
         base: 0.58,
-        cost: { fun: 120000 },
+        cost: { fun: 30000 },
         stake: { fun: true, fav: true },
         outcomes: {
           crit: {

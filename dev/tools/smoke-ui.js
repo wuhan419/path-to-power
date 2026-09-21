@@ -80,7 +80,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(P.G.month >= 1 && P.G.month <= 12, "月份落在 1-12：" + P.G.month);
   check(/\d{4} 年 \d+ 月/.test(w.document.querySelector(".masthead .meta").textContent),
     "报头显示当前年月：" + w.document.querySelector(".masthead .meta").textContent.split("　")[0]);
-  check(!!w.document.querySelector(".panel .nowdate"), "状态面板顶部显示当前日期");
+  check(!!w.document.querySelector(".topstat") && /\d+ 年 \d+ 月/.test(w.document.querySelector(".topstat").textContent), "顶部状态条显示当前日期");
   const sBtn = btn("继续");
   check(!!sBtn, "年卡上有「继续 →」按钮");
   sBtn.click();
@@ -99,7 +99,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!dt && dt.textContent === "2008 年 9 月 24 日", "事件卡顶部显示精确日期：" + (dt && dt.textContent));
   check(!!w.document.querySelector(".dateline .gchip.g-major"), "事件卡标出量级徽章「大事件」");
   check(/危机/.test(w.document.querySelector(".dateline").textContent), "事件卡标出类型「危机」");
-  check(w.document.querySelector(".panel .nowdate").textContent.indexOf("2008 年 9 月") >= 0, "状态面板同步当前日期");
+  check(!!w.document.querySelector(".topstat") && w.document.querySelector(".topstat").textContent.indexOf("2008 年 9 月") >= 0, "顶部状态条同步当前日期");
   P.setMonth({ month: 3, day: 12 });
   check(P.G.month === 9, "更早的月份不应让时间回退（当前月仍为 9）");
 
@@ -501,7 +501,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!goBtn2 && !goBtn2.disabled, "掷骰+选州+选满后「进入」按钮解禁");
   goBtn2.click();
   check(!!P.G && P.G.state !== "", "开局成功且记录了出生州");
-  check(w.document.querySelector(".panel .nowdate").textContent.length > 0, "状态面板显示日期");
+  check(!!w.document.querySelector(".topstat") && /\d+ 年 \d+ 月/.test(w.document.querySelector(".topstat").textContent), "顶部状态条显示日期");
   check(!!P.G.yearStartSnap, "年初快照已建立（年终叙事的对比基准）");
 
   /* ---------- 收益结算面板 + 判定明细折叠 ---------- */
@@ -579,6 +579,25 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(/平静的月份/.test(text()), "年终结算卡统计了平静的月份数");
   check(text().indexOf("平静的月份") >= 0, "年终卡统计了平静的月份数（文字已逐月出过，不再重复）");
   check(!!btn("进入"), "年终结算卡上有进入下一年的按钮");
+
+  /* ---------- 悬浮说明气泡：必须挂在滚动边栏之外，才不会被 overflow:auto 裁切 ---------- */
+  console.log("\n== 悬浮说明气泡（不越出边栏 / 不被裁切） ==");
+  const tipAnchor = w.document.createElement("span");
+  tipAnchor.className = "tag hastip";
+  tipAnchor.setAttribute("data-tip", "这是一段足够长的悬浮说明，用来验证气泡既不会越出边栏，也不会被滚动容器裁掉。");
+  const colLeft = w.document.querySelector(".col-left") || w.document.getElementById("app");
+  colLeft.appendChild(tipAnchor);
+  tipAnchor.dispatchEvent(new w.MouseEvent("mouseover", { bubbles: true }));
+  const tip = w.document.getElementById("tipbox");
+  check(!!tip, "悬停带 data-tip 的词条后创建了气泡 #tipbox");
+  check(!!tip && tip.classList.contains("on"), "气泡已显示（.on）");
+  check(!!tip && tip.textContent === tipAnchor.getAttribute("data-tip"), "气泡文字取自 data-tip");
+  /* 关键回归：气泡必须挂在 <body>（#app 之外），不是 .col-left/.col-right 滚动容器里
+     的后代 —— 否则会被 overflow:auto 裁掉（旧 ::after 方案就是栽在这里）。 */
+  check(!!tip && tip.parentNode === w.document.body, "气泡挂在 <body> 上（在 #app / 边栏之外）");
+  check(!!tip && !(tip.closest && tip.closest(".col-left,.col-right")), "气泡不在任何滚动边栏内（结构上免疫 overflow 裁切）");
+  tipAnchor.dispatchEvent(new w.MouseEvent("mouseout", { bubbles: true, relatedTarget: w.document.body }));
+  check(!!tip && !tip.classList.contains("on"), "移开后气泡收起");
 
   console.log("\n" + (fail === 0 ? "=== UI 冒烟全部通过 ===" : "=== UI 冒烟 " + fail + " 项失败 ==="));
   w.close();

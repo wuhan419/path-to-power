@@ -11,12 +11,21 @@
     font-family:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
     line-height:1.7; font-size:16px;
   }
-  #app{max-width:980px;margin:0 auto;padding:18px 18px 60px}
+  #app{max-width:1600px;margin:0 auto;padding:18px 22px 60px}
   /* masthead */
   .masthead{border-bottom:3px double var(--line);padding-bottom:6px;margin-bottom:14px;
     display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
   .masthead .title{font-size:26px;font-weight:700;letter-spacing:2px}
   .masthead .meta{font-size:13px;color:var(--muted);text-align:right}
+  /* 顶部状态条：把"我是谁 / 关键资源"从左侧长边栏提到页面顶端，边栏只留能力+人脉+记忆 */
+  .topstat{border:1px solid var(--line);background:#fbf7ec;padding:8px 12px;margin:0 0 12px;
+    display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;font-size:13px}
+  .topstat .tname{font-weight:700;font-size:15px;color:var(--accent);letter-spacing:1px}
+  .topstat .tsep{width:1px;align-self:stretch;background:var(--line);opacity:.5}
+  .topstat .tchip{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+  .topstat .tchip .tk{color:var(--muted);font-size:11.5px}
+  .topstat .tchip b{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;font-size:14px}
+  .topstat .tchip.bad b{color:var(--bad)}
   /* era skin */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   body.era-1960_CAMELOT{--era1:#3a4a63;--era2:#5a6f9c;--era3:#caa53a;--accent:#3a4a63}
@@ -170,20 +179,29 @@
   .dateline .dt{font-weight:700;color:var(--ink);letter-spacing:1px}
   .panel .nowdate{font-weight:700;color:var(--accent);border-bottom:1px dotted var(--line);
     padding-bottom:4px;margin-bottom:6px;letter-spacing:1px}
-  /* 读档列表的存档条目：名称 + MC 简要状态 */
-  .saveline{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 10px}
+  /* 存档系统 v0.5.4：条目 + 行布局 + 删除按钮 + 时间标注 */
+  .savemodal .box{max-width:560px}
+  .saverow{display:flex;gap:6px;align-items:stretch;margin:6px 0}
+  .saveline{display:block;flex:1;min-width:0;text-align:left;padding:8px 10px}
   .saveline b{display:block;font-size:14px}
+  .saveline b .ago{font-style:normal;font-weight:400;font-size:11px;color:#8a6100;margin-left:6px}
   .saveline small{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:400}
   .saveline:hover small{color:#f4efe3}
-  /* 状态词条的悬停说明（data-tip 气泡）：原生 title 延迟一秒且不显眼，
-     自定义气泡即时出现；带说明的词条加虚线下划线提示"可悬停" */
-  .hastip{position:relative;cursor:help;text-decoration:underline dotted #a99aba;text-underline-offset:3px}
-  .hastip::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:30;
-    display:none;width:240px;padding:8px 10px;background:#1a1a1a;color:#f4efe3;font-size:12px;
-    line-height:1.6;text-align:left;border:1px solid #a99aba;box-shadow:3px 3px 0 rgba(0,0,0,.25);
-    white-space:normal;font-weight:400;letter-spacing:0;text-decoration:none}
-  .hastip:hover::after{display:block}
-  .hastip:hover{z-index:31}
+  .svdel{flex:none;width:34px;font-size:16px;color:#9c2b2b;border-color:#c49a9a}
+  .svdel:hover{background:#9c2b2b;color:#fff}
+  .svdel.danger{background:#9c2b2b;color:#fff;font-size:11px}
+  /* 状态词条的悬停说明（data-tip 气泡）：原生 title 延迟一秒且不显眼，自定义气泡即时出现。
+     关键：左右边栏 .col-left/.col-right 是 overflow:auto 的滚动容器，若沿用 ::after 绝
+     对定位，气泡一旦超出栏宽就会被裁掉（截图里文字被切）。改为挂在 <body> 上的 fixed 层
+     #tipbox —— 不受任何祖先 overflow 裁剪、恒在最顶层；横向位置由 JS 夹在所属栏内，
+     绝不越出边栏，空间不够时自动翻到元素上方。带说明的词条加虚线下划线提示"可悬停"。 */
+  .hastip{cursor:help;text-decoration:underline dotted #a99aba;text-underline-offset:3px}
+  #tipbox{position:fixed;z-index:9999;left:0;top:0;display:none;max-width:300px;
+    padding:8px 10px;background:#1a1a1a;color:#f4efe3;font-size:12px;line-height:1.6;
+    text-align:left;border:1px solid #a99aba;box-shadow:3px 3px 0 rgba(0,0,0,.25);
+    white-space:normal;overflow-wrap:break-word;font-weight:400;letter-spacing:0;
+    text-decoration:none;pointer-events:none}
+  #tipbox.on{display:block}
   /* 晋升进度条（职位卡内） */
   .progrow{margin-top:6px;padding-top:6px;border-top:1px dotted var(--line)}
   .progline{display:flex;align-items:center;gap:7px}

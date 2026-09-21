@@ -44,7 +44,20 @@ POTUS.define = function (kind, payload) {
   if (payload == null) return;
   if (kind === "event") { POTUS.events = POTUS.events.concat([].concat(payload)); return; }
   if (kind === "ending") { POTUS.reg.ending = POTUS.reg.ending.concat([].concat(payload)); return; }
-  if (kind === "balance") { Object.assign(POTUS.reg.balance, payload); return; }
+  if (kind === "balance") {
+    /* 词典类的键（tagNames）要**深合并**而不是整键覆盖——
+       多个事件包各自登记自己的状态词条时，覆盖会把别人的词条全吃掉（踩过：
+       writer 的 tagNames 把主配置的 fallen 等 60+ 词条整个顶掉了）。 */
+    const DICT_KEYS = ["tagNames"];
+    for (const dk of DICT_KEYS) {
+      if (payload[dk] && typeof payload[dk] === "object") {
+        POTUS.reg.balance[dk] = Object.assign(POTUS.reg.balance[dk] || {}, payload[dk]);
+        delete payload[dk];
+      }
+    }
+    Object.assign(POTUS.reg.balance, payload);
+    return;
+  }
   if (kind === "news") { Object.assign(POTUS.reg.newsOutlets, payload); return; }
   /* 静好岁月的片段是"累加"而不是"覆盖"——允许多个内容文件各自添一段人生 */
   if (kind === "vignette") {
@@ -477,18 +490,145 @@ POTUS.migrate = function (G) {
 };
 
 POTUS.autosave = function () { try { localStorage.setItem(SAVE_KEY + "_auto", POTUS.serialize()); } catch (e) { } };
+
+/* ---------- v0.5.4 存档系统重做 ----------
+ * 痛点（用户反馈+自查）：prompt 丑、同名静默覆盖、无删除、保存时间没展示、默认名没信息量。
+ * 新方案：
+ *   key   = SAVE_KEY + "_" + saveAt 时间戳（永不碰撞；改名不改 key）
+ *   索引  = saveNames {key: {name, at}}——列表排序、展示全走它
+ *   默认名 = 「{年}年{月}月 · {职位}」——一眼认出这是哪个时期的档
+ *   删除  = 每档一个 ×（防误删：先变成"确认删除"再点一次生效） */
+function saveIndex() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY + "_names") || "{}") || {}; } catch (e) { return {}; }
+}
+function writeSaveIndex(idx) {
+  try { localStorage.setItem(SAVE_KEY + "_names", JSON.stringify(idx)); } catch (e) { }
+}
+function fmtAgo(at) {
+  if (!at) return "";
+  const s = Math.max(0, Math.floor((Date.now() - at) / 1000));
+  if (s < 60) return "刚刚";
+  if (s < 3600) return Math.floor(s / 60) + " 分钟前";
+  if (s < 86400) return Math.floor(s / 3600) + " 小时前";
+  if (s < 86400 * 30) return Math.floor(s / 86400) + " 天前";
+  return new Date(at).toLocaleDateString();
+}
+
+/* 保存对话框（modal 版，替掉原生 prompt） */
 POTUS.quickSave = function () {
-  try {
-    const name = prompt("存档名称：", "存档 " + new Date().toLocaleString());
-    if (name) { localStorage.setItem(SAVE_KEY + "_" + btoa(unescape(encodeURIComponent(name))).slice(0, 20), POTUS.serialize()); alert("已保存：" + name); }
-  } catch (e) { alert("保存失败：" + e.message); }
+  const old = document.querySelector(".modal"); if (old) old.remove();
+  const G = POTUS.G;
+  /* 默认名带时期信息：玩家存十个档也能分清 */
+  const oName = (function () {
+    const oTable = POTUS.reg.office || {};
+    const fb = POTUS.balance().officeFallback || [];
+    const hit = oTable[(G.track || "*") + "_" + G.tier] || oTable["*_" + G.tier];
+    return hit ? (typeof hit === "string" ? hit : hit.name) : (fb[G.tier] || "");
+  })();
+  const defName = G.year + "年" + (G.month || 1) + "月 · " + G.name + (oName ? "（" + oName + "）" : "");
+  const m = document.createElement("div");
+  m.className = "modal";
+  m.onclick = function (e) { if (e.target === m) m.remove(); };
+  m.innerHTML = '<div class="box"><h3>保存存档</h3>' +
+    '<label class="airow">存档名称<input type="text" id="svName" value="' + defName.replace(/"/g, "&quot;") + '" maxlength="40"></label>' +
+    '<div class="airow" style="display:flex;gap:8px"><button class="btn primary" id="svGo">保存</button>' +
+    '<button class="btn" id="svCancel">取消</button></div>' +
+    '<p class="hintline" id="svMsg"></p></div>';
+  document.body.appendChild(m);
+  const inp = document.getElementById("svName");
+  if (inp) { inp.focus(); inp.select(); }
+  const cancel = document.getElementById("svCancel");
+  if (cancel) cancel.onclick = function () { m.remove(); };
+  const go = document.getElementById("svGo");
+  if (go) go.onclick = function () {
+    const name = (document.getElementById("svName").value || "").trim() || defName;
+    try {
+      const at = Date.now();
+      G.saveName = name; G.saveAt = at;
+      const key = SAVE_KEY + "_" + at;
+      localStorage.setItem(key, POTUS.serialize());
+      const idx = saveIndex(); idx[key] = { name: name, at: at };
+      writeSaveIndex(idx);
+      POTUS.autosave();                            // 手动保存同时刷新自动档
+      const msg = document.getElementById("svMsg");
+      if (msg) msg.textContent = "已保存「" + name + "」";
+      setTimeout(function () { m.remove(); }, 650);
+    } catch (e) {
+      const msg = document.getElementById("svMsg");
+      if (msg) msg.textContent = "保存失败：" + e.message;
+    }
+  };
+  if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") go.click(); };
 };
+
+/* 存档的简要状态（读档列表用）——解析失败返回 null */
+POTUS.saveBrief = function (raw) {
+  try {
+    const G = JSON.parse(raw);
+    const era = (POTUS.reg.era[G.era] || {}).name || G.era || "";
+    const oTable = POTUS.reg.office || {};
+    const fb = POTUS.balance().officeFallback || [];
+    const oHit = oTable[(G.track || "*") + "_" + (G.tier || 0)] || oTable["*_" + (G.tier || 0)];
+    const oName = oHit ? (typeof oHit === "string" ? oHit : oHit.name) : (fb[G.tier || 0] || "");
+    const party = (POTUS.reg.party[G.party] || {}).name || "";
+    const st = G.state ? (POTUS.stateName ? POTUS.stateName(G.state) : G.state) : "";
+    return {
+      name: G.saveName || "未命名",
+      line: era + " " + (G.year || "") + "年" + (G.month || 1) + "月 · " + (G.age || "?") + "岁" +
+        (oName ? " · " + oName : "") +
+        (party ? " · " + party : "") + (st ? " · " + st : ""),
+      line2: "声望 " + (G.rep || 0) + " · 资金 $" + ((G.fun || 0) / 1000).toFixed(0) + "k · 健康 " + (G.hp || 0) +
+        (G.voters ? " · 死忠 " + (G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard) : ""),
+      at: G.saveAt
+    };
+  } catch (e) { return null; }
+};
+
+/* 删除存档（两段确认防误删） */
+POTUS.delSave = function (key, btn) {
+  if (btn.dataset.armed !== "1") {
+    btn.dataset.armed = "1";
+    btn.textContent = "确认删";
+    btn.classList.add("danger");
+    setTimeout(function () { btn.dataset.armed = ""; btn.textContent = "×"; btn.classList.remove("danger"); }, 2500);
+    return;
+  }
+  try { localStorage.removeItem(key); } catch (e) { }
+  const idx = saveIndex(); delete idx[key]; writeSaveIndex(idx);
+  POTUS.openLoad();                                 // 重开列表
+};
+
 POTUS.openLoad = function () {
-  let html = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box"><h3>读取存档</h3>';
-  html += '<button class="btn" onclick="POTUS.doLoad(\'auto\')">自动存档</button> ';
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(SAVE_KEY + "_") === 0 && k !== SAVE_KEY + "_auto") keys.push(k); }
-  keys.forEach(function (k) { html += '<button class="btn" onclick="POTUS.doLoad(\'' + k + '\')">' + k.replace(SAVE_KEY + "_", "") + "</button> "; });
+  const old = document.querySelector(".modal"); if (old) old.remove();
+  /* 收集（key → brief），按保存时间倒序：最新的在最上 */
+  const entries = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || k.indexOf(SAVE_KEY + "_") !== 0) continue;
+    if (k === SAVE_KEY + "_names") continue;
+    const brief = POTUS.saveBrief(localStorage.getItem(k) || "");
+    entries.push({ key: k, brief: brief, auto: k === SAVE_KEY + "_auto" });
+  }
+  entries.sort(function (a, b) {
+    if (a.auto) return -1;
+    if (b.auto) return 1;
+    return (b.brief && b.brief.at || 0) - (a.brief && a.brief.at || 0);
+  });
+  let html = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box savemodal"><h3>读取存档</h3>';
+  if (!entries.length) html += '<p class="muted">还没有任何存档。</p>';
+  entries.forEach(function (e) {
+    const b = e.brief;
+    const nm = e.auto ? "自动存档" : (b ? b.name : e.key.replace(SAVE_KEY + "_", "档 "));
+    const ago = b && b.at ? fmtAgo(b.at) : (e.auto ? "实时" : "");
+    html += '<div class="saverow">' +
+      '<button class="btn saveline" onclick="POTUS.doLoad(\'' + e.key + '\')">' +
+      "<b>" + nm + (ago ? ' <i class="ago">' + ago + "</i>" : "") + "</b>" +
+      "<small>" + (b ? b.line : "（无法读取）") + "</small>" +
+      (b ? "<small>" + b.line2 + "</small>" : "") +
+      "</button>" +
+      (e.auto ? "" : '<button class="btn svdel" onclick="POTUS.delSave(\'' + e.key + '\',this)">×</button>') +
+      "</div>";
+  });
   html += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div></div>';
   const m = document.createElement("div"); m.innerHTML = html; document.body.appendChild(m.firstElementChild);
 };

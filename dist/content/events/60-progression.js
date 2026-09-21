@@ -17,7 +17,7 @@ POTUS.define("event", [
     ],
     "tierMin": 0,
     "tierMax": 1,
-    "minTenure": 24,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
     "weight": 20,
     "brief": {
       "lede": "第一次有人要认真地对你说：把你的名字印在选票上。",
@@ -57,7 +57,7 @@ POTUS.define("event", [
       {
         "id": "doorknock",
         "text": "逐门逐户敲门，靠双腿跑票",
-        "base": 0.55,
+        "base": 0.45,
         "mods": [
           {
             "src": "attr",
@@ -129,7 +129,7 @@ POTUS.define("event", [
         "req": {
           "fun": 50000
         },
-        "base": 0.6,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -206,7 +206,7 @@ POTUS.define("event", [
     ],
     "tierMin": 1,
     "tierMax": 2,
-    "minTenure": 24,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
       "lede": "州议会的席位空了出来。有人劝你去填。",
@@ -320,7 +320,7 @@ POTUS.define("event", [
       {
         "id": "wait",
         "text": "让位，换党内一个承诺",
-        "base": 0.65,
+        "base": 0.48,
         "mods": [
           {
             "src": "fac",
@@ -385,7 +385,7 @@ POTUS.define("event", [
     ],
     "tierMin": 2,
     "tierMax": 3,
-    "minTenure": 24,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
     "weight": 15,
     "brief": {
       "lede": "联邦众议院的门开着一条缝。你要挤进去。",
@@ -560,7 +560,7 @@ POTUS.define("event", [
     ],
     "tierMin": 3,
     "tierMax": 4,
-    "minTenure": 48,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 60,        // 在当前层级蹲够这么多个月才有资格
     "weight": 14,
     "brief": {
       "lede": "参议员和州长，两条路都摆在你面前。",
@@ -940,7 +940,7 @@ POTUS.define("event", [
       {
         "id": "step_aside",
         "text": "退居幕后，支持别人上台",
-        "base": 0.6,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -1020,7 +1020,7 @@ POTUS.define("event", [
     ],
     "tierMin": 2,
     "tierMax": 4,
-    "minTenure": 18,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
       "lede": "一个不需要选举的位置出现了。它只需要一个人点头。",
@@ -1064,7 +1064,7 @@ POTUS.define("event", [
       {
         "id": "accept",
         "text": "接受任命，走技术官僚的路",
-        "base": 0.6,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -1200,7 +1200,7 @@ POTUS.define("event", [
     ],
     "tierMin": 2,
     "tierMax": 4,
-    "minTenure": 18,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
       "lede": "你手里有一个人。他自己还不知道他是一张牌。",
@@ -1244,7 +1244,7 @@ POTUS.define("event", [
       {
         "id": "run_it",
         "text": "亲自操盘一场关键选举",
-        "base": 0.55,
+        "base": 0.45,
         "mods": [
           {
             "src": "attr",
@@ -1319,7 +1319,7 @@ POTUS.define("event", [
       {
         "id": "stay_low",
         "text": "低调布局，不站到台前",
-        "base": 0.65,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -1389,7 +1389,7 @@ POTUS.define("event", [
     ],
     "tierMin": 2,
     "tierMax": 4,
-    "minTenure": 18,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
       "lede": "有人拿着一张纸来找你。上面写着：钱可以这样花。",
@@ -1436,7 +1436,7 @@ POTUS.define("event", [
         "req": {
           "fun": 1000000
         },
-        "base": 0.6,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -1670,7 +1670,7 @@ POTUS.define("event", [
     ],
     "tierMin": 1,
     "tierMax": 3,
-    "minTenure": 12,        // 在当前层级蹲够这么多个月才有资格
+    "minTenure": 84,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
       "lede": "你的名字比你的头衔更响。这既是资产，也是麻烦。",
@@ -1714,7 +1714,7 @@ POTUS.define("event", [
       {
         "id": "ride",
         "text": "乘势而上，把名气变成政治资本",
-        "base": 0.6,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",
@@ -1788,7 +1788,7 @@ POTUS.define("event", [
       {
         "id": "cash",
         "text": "先把名气变现",
-        "base": 0.65,
+        "base": 0.48,
         "mods": [
           {
             "src": "attr",

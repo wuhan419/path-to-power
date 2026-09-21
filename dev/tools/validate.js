@@ -18,7 +18,7 @@ const INDEX = path.join(ROOT, "index.html");
 function makeEl() {
   return {
     innerHTML: "", className: "", textContent: "", disabled: false, value: "", style: {}, outerHTML: "",
-    appendChild() { }, append() { }, remove() { }, setAttribute() { }, closest() { return null; },
+    appendChild() { }, append() { }, remove() { }, setAttribute() { }, insertBefore() { }, closest() { return null; },
     querySelector() { return makeEl(); }, onclick: null, oninput: null, onchange: null
   };
 }
@@ -835,8 +835,15 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   check(P.monthsAtTier() === 12, "monthsAtTier 应为 12，实际 " + P.monthsAtTier());
   check(P.eligible(tv), "熬够 12 个月后，该事件应可触发");
   /* 晋级会重置在位计时（effects.js 的 tier 处理器） */
+  P.G.tierSince = P.monthSeq() - 120;          /* v0.5.4 年限闸：先熬够 10 年 */
   P.applyEffects({ tier: 1 });
   check(P.monthsAtTier() === 0, "层级变动后，在位时长应被重置");
+  /* 年限闸本身：没熬够时 tier 不动、折声望 */
+  P.G.tierSince = P.monthSeq();                 /* 刚升级，在位 0 月 */
+  const repBeforeGate = P.G.rep;
+  P.applyEffects({ tier: 1 });
+  check(P.monthsAtTier() === 0 && P.G.tier >= 1, "年限闸：没熬够时不应再次升级（还在本级）");
+  check(P.G.rep >= repBeforeGate, "年限闸：被拦下的晋升折成声望（" + repBeforeGate + "→" + P.G.rep + "）");
   /* 旧存档迁移：v0.4 新增字段必须被补齐 */
   const old = { year: 2008, month: 3, era: firstEra, flags: [], doneIds: [], attr: {}, faction: {}, log: [] };
   const mig = P.migrate(old);
@@ -1504,13 +1511,21 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     P.rescaleVoters(2, 3);
     vp = P.voterPools();
     check(vp.diehard === 2000, "升位只带走 25% 死忠（8000→" + vp.diehard + "）——地盘换了，人心重新攒");
-    /* effects.voters 生效 + tier 联动 rescale */
+    /* effects.voters 生效 + tier 联动 rescale + 当选发基本盘 */
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
     P.G.tier = 1; P.G.tierSince = P.monthSeq();
     P.applyEffects({ voters: { warm: 1000, diehard: 200 } });
     check(P.voterPools().warm === 1000, "effects.voters 应写入选民池");
+    P.G.rep = 30;
+    P.G.tierSince = P.monthSeq() - 60;           /* 熬够 5 年，过年限闸 */
     P.applyEffects({ tier: 1 });
-    check(P.voterPools().warm === 250, "tier+1 应触发选民池重算（带走 25%）");
+    /* v0.5.4：tier+1 = 旧盘×25% + 当选新基本盘。warm = 250(旧盘带走) + 当选蜜月 */
+    check(P.voterPools().warm >= 250, "tier+1 应触发选民池重算（≥带走的 25%：" + P.voterPools().warm + "）");
+    /* v0.5.4：当选（升位）必须自带基本盘——「市议员选民为 0」是玩家实测 bug */
+    const afterWin = P.voterPools();
+    check(afterWin.diehard > 0 && afterWin.warm > 0 && afterWin.oppose > 0,
+      "升位应发放当选基本盘（死忠 " + afterWin.diehard + " / 好感 " + afterWin.warm + " / 反对 " + afterWin.oppose + "）");
+    check(afterWin.warm <= P.electorateSize(), "基本盘不超选区规模");
     /* 晋升进度 */
     const prog = P.promotionProgress();
     check(prog.pct >= 0 && prog.pct <= 100 && typeof prog.note === "string", "晋升进度应有 0-100 读数与提示");

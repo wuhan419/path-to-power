@@ -12,10 +12,15 @@
     attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = P.clamp(G.attr[k] + v[k], 0, 100); },
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
     fun: function (v, G) { G.fun += v; },
-    /* 按比例的资金变动：funMul: 0.5 = 资金×1.5；funMul: -0.3 = 资金×0.7。
-       投资型事件的回报用它——投入 100k 的人赚 50%，投入 2M 的人也赚 50%，
-       不会再出现「押上全部本金，赚回 15k」的空账。 */
-    funMul: function (v, G) { G.fun += Math.round(G.fun * v); },
+    /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
+       funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
+       本金 = 选项 cost.fun + 投注的 stake 资金 —— 结算前由 render.js 写进
+       G.__stakeBase（applyEffects 按它计算）。没有本金声明时退化为按余额
+       （旧语义兼容，但内容侧不应该再这样用）。 */
+    funMul: function (v, G) {
+      const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : Math.max(0, G.fun);
+      G.fun += Math.round(base * v);
+    },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
     hp: function (v, G) { G.hp = P.clamp(G.hp + v, 0, 100); },
     ap: function (v, G) { const b = P.balance(); G.ap = P.clamp(G.ap + v, b.apMin == null ? 0 : b.apMin, b.apMax || 12); },
@@ -25,12 +30,34 @@
     tier: function (v, G) {
       const b = P.balance();
       const before = G.tier;
+      /* v0.5.4 全局年限闸：晋升要在当前层级熬够月数（不满足 → tier 不动，
+         折成一点声望——"资历还不够"的引擎级表达，玩家实测 28 岁 5 年州长太快）。
+         门槛表写在 balance.tierGates，内容可调。 */
+      const GATES = b.tierGates || [0, 30, 36, 48, 60, 84];
+      const need = GATES[Math.min(before, GATES.length - 1)];
+      if (v > 0 && P.monthsAtTier && P.monthsAtTier() < need) {
+        G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
+        if (P.pushLog) P.pushLog("资历还差着：" + P.monthsAtTier() + "/" + need + " 个月——位子的事再等等（声望+3）。");
+        return;
+      }
       G.tier = P.clamp(G.tier + v, b.tierMin, b.tierMax);
       /* 层级一变就重置"在位时长"，晋升台阶的门槛（ev.minTenure）靠它计量；
          同时重算选民池——升位=选区扩大，旧地盘的人只能带过来一小部分 */
       if (G.tier !== before) {
         G.tierSince = P.monthSeq();
         if (P.rescaleVoters) P.rescaleVoters(before, G.tier);
+        /* v0.5.4：升位=当选/上任——新位置自带基本盘（不然"没人投你怎么当上的"）。
+           规模按新选区 ×当选份额：死忠 = 份额×(0.04+rep/300)（声望越高死忠越多），
+           有好感 = 死忠×2.5（蜜月期），反对 = 死忠×1.5（对手的票也不少）。
+           任命类（setTrack 之外的委任）同样适用——上任也有支持者。 */
+        if (G.tier > before && P.applyVoters) {
+          const esize = P.electorateSize();
+          const share = (b.voterBase && b.voterBase.winShare != null) ? b.voterBase.winShare : 0.08;
+          const diehard = Math.round(esize * share * (0.04 + Math.min(60, G.rep || 0) / 300));
+          const warm = Math.round(diehard * 2.5);
+          const oppose = Math.round(diehard * 1.5);
+          P.applyVoters({ diehard: diehard, warm: warm, oppose: oppose });
+        }
       }
     },
     score: function (v, G) { G.score = (G.score || 0) + v; },
