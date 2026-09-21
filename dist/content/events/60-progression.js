@@ -10,6 +10,7 @@ POTUS.define("event", [
     "grade": "minor",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -75,7 +76,7 @@ POTUS.define("event", [
             "body": "你把整条街的人都聊成了朋友，高票当选，从此有了自己的地盘。",
             "effects": {
               "tier": 1,
-              "rep": 8,
+              "rep": 3,
               "fac": {
                 "base": 12
               }
@@ -85,7 +86,7 @@ POTUS.define("event", [
             "body": "你赢了。位置不大，但从此你不再是‘助理’。",
             "effects": {
               "tier": 1,
-              "rep": 4,
+              "rep": 1.5,
               "fac": {
                 "base": 6
               }
@@ -95,15 +96,15 @@ POTUS.define("event", [
             "body": "你赢了，但花光了积蓄，还欠了人情。",
             "effects": {
               "tier": 1,
-              "rep": 2,
-              "fun": -80000,
+              "rep": 0.8,
+              "fun": -9,
               "fav": -1
             }
           },
           "fail": {
             "body": "你差一点。知名度涨了，位置没到手。",
             "effects": {
-              "rep": 3,
+              "rep": 1.25,
               "fac": {
                 "base": 4
               }
@@ -112,7 +113,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你输得很难看，还被对手挖出旧账。",
             "effects": {
-              "rep": -4,
+              "rep": -1.5,
               "fac": {
                 "base": -10
               },
@@ -127,7 +128,7 @@ POTUS.define("event", [
         "id": "ads",
         "text": "砸钱投广告，快速买曝光",
         "req": {
-          "fun": 50000
+          "fun": 5.5
         },
         "base": 0.48,
         "mods": [
@@ -147,7 +148,7 @@ POTUS.define("event", [
             "body": "广告轰炸奏效，你以压倒性优势当选。",
             "effects": {
               "tier": 1,
-              "rep": 8,
+              "rep": 3,
               "fac": {
                 "base": 8,
                 "commercial": 6
@@ -158,16 +159,16 @@ POTUS.define("event", [
             "body": "钱花得值，你当选了。",
             "effects": {
               "tier": 1,
-              "rep": 5,
-              "fun": -50000
+              "rep": 2,
+              "fun": -5.5
             }
           },
           "meh": {
             "body": "你赢了，但被批‘金钱民主’，且囊中羞涩。",
             "effects": {
               "tier": 1,
-              "rep": 2,
-              "fun": -80000,
+              "rep": 0.8,
+              "fun": -9,
               "fac": {
                 "base": -6
               }
@@ -176,14 +177,14 @@ POTUS.define("event", [
           "fail": {
             "body": "钱花了，票没来。",
             "effects": {
-              "fun": -80000,
-              "rep": 1
+              "fun": -9,
+              "rep": 0.4
             }
           },
           "critfail": {
             "body": "你的广告被指违规，选举委员会找上门。",
             "effects": {
-              "fun": -120000,
+              "fun": -13.5,
               "flags": [
                 "investigation_open",
                 "scandal_2"
@@ -199,6 +200,7 @@ POTUS.define("event", [
     "grade": "minor",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -247,7 +249,7 @@ POTUS.define("event", [
         "id": "run",
         "text": "立刻宣布参选",
         "req": {
-          "rep": 15
+          "rep": 6
         },
         "base": 0.5,
         "mods": [
@@ -272,7 +274,7 @@ POTUS.define("event", [
             "body": "你干净利落地赢下选区，州府的大门为你打开。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 4,
               "fac": {
                 "base": 8,
                 "establishment": 8
@@ -283,7 +285,7 @@ POTUS.define("event", [
             "body": "你赢了，坐进了州议会的席位。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 2.5,
               "fac": {
                 "establishment": 5
               }
@@ -293,7 +295,7 @@ POTUS.define("event", [
             "body": "你赢了，但党内从此把你当‘需要提防的人’。",
             "effects": {
               "tier": 1,
-              "rep": 3,
+              "rep": 1.25,
               "fac": {
                 "establishment": -6
               }
@@ -302,13 +304,13 @@ POTUS.define("event", [
           "fail": {
             "body": "你输了，但州级曝光让你更有名。",
             "effects": {
-              "rep": 4
+              "rep": 1.5
             }
           },
           "critfail": {
             "body": "惨败，你被贴上‘不自量力’的标签。",
             "effects": {
-              "rep": -5,
+              "rep": -2,
               "fac": {
                 "base": -8,
                 "establishment": -6
@@ -332,7 +334,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你的退让换来一个委员会的实权位置。",
             "effects": {
-              "rep": 4,
+              "rep": 1.5,
               "fac": {
                 "establishment": 14
               },
@@ -378,6 +380,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -427,8 +430,8 @@ POTUS.define("event", [
         "id": "run",
         "text": "冲进全国舞台",
         "req": {
-          "rep": 25,
-          "fun": 200000
+          "rep": 5,
+          "fun": 5.5
         },
         "base": 0.45,
         "mods": [
@@ -448,7 +451,7 @@ POTUS.define("event", [
             "body": "你以黑马姿态进入国会，全国媒体开始念你的名字。",
             "effects": {
               "tier": 1,
-              "rep": 14,
+              "rep": 2.75,
               "fac": {
                 "base": 12,
                 "press": 8
@@ -459,7 +462,7 @@ POTUS.define("event", [
             "body": "你赢了，成为联邦众议员。",
             "effects": {
               "tier": 1,
-              "rep": 8,
+              "rep": 1.5,
               "fac": {
                 "base": 6
               }
@@ -469,20 +472,20 @@ POTUS.define("event", [
             "body": "你赢了，但代价是背上一身竞选债。",
             "effects": {
               "tier": 1,
-              "rep": 5,
-              "fun": -250000
+              "rep": 1,
+              "fun": -7
             }
           },
           "fail": {
             "body": "你输了，但全国都知道了你是谁。",
             "effects": {
-              "rep": 6
+              "rep": 1.25
             }
           },
           "critfail": {
             "body": "你输了，且竞选中收受黑金的传言缠上你。",
             "effects": {
-              "rep": -4,
+              "rep": -0.8,
               "flags": [
                 "scandal_2",
                 "investigation_open"
@@ -506,7 +509,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你成了地方上说一不二的人物，稳稳的地位。",
             "effects": {
-              "rep": 5,
+              "rep": 1,
               "fac": {
                 "base": 12
               },
@@ -532,7 +535,7 @@ POTUS.define("event", [
           "fail": {
             "body": "有人嘲笑你没有野心。",
             "effects": {
-              "rep": -2
+              "rep": -0.4
             }
           },
           "critfail": {
@@ -541,7 +544,7 @@ POTUS.define("event", [
               "fac": {
                 "base": -10
               },
-              "rep": -4
+              "rep": -0.8
             }
           }
         }
@@ -553,6 +556,7 @@ POTUS.define("event", [
     "grade": "major",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -602,8 +606,8 @@ POTUS.define("event", [
         "id": "senate",
         "text": "竞选联邦参议员（全国舞台）",
         "req": {
-          "rep": 40,
-          "fun": 800000
+          "rep": 4.5,
+          "fun": 6.5
         },
         "base": 0.45,
         "mods": [
@@ -623,7 +627,7 @@ POTUS.define("event", [
             "body": "你赢了，坐进参议院。全国的镜头都对准你。",
             "effects": {
               "tier": 1,
-              "rep": 18,
+              "rep": 2,
               "fac": {
                 "press": 12,
                 "base": 10
@@ -634,7 +638,7 @@ POTUS.define("event", [
             "body": "你成为参议员，权力核心的门票到手。",
             "effects": {
               "tier": 1,
-              "rep": 12,
+              "rep": 1.25,
               "fac": {
                 "press": 6
               }
@@ -644,21 +648,21 @@ POTUS.define("event", [
             "body": "你赢了，但欠下巨额政治债。",
             "effects": {
               "tier": 1,
-              "rep": 8,
-              "fun": -900000,
+              "rep": 0.9,
+              "fun": -7.5,
               "fav": -2
             }
           },
           "fail": {
             "body": "你惜败，但已经是全国级人物。",
             "effects": {
-              "rep": 8
+              "rep": 0.9
             }
           },
           "critfail": {
             "body": "你输了，还因竞选资金问题被调查。",
             "effects": {
-              "rep": -6,
+              "rep": -0.7,
               "flags": [
                 "scandal_3",
                 "investigation_open"
@@ -671,8 +675,8 @@ POTUS.define("event", [
         "id": "governor",
         "text": "竞选州长（地方实权）",
         "req": {
-          "rep": 35,
-          "fun": 600000
+          "rep": 4,
+          "fun": 5
         },
         "base": 0.5,
         "mods": [
@@ -692,7 +696,7 @@ POTUS.define("event", [
             "body": "你入主州府，成为一方诸侯。",
             "effects": {
               "tier": 1,
-              "rep": 15,
+              "rep": 1.75,
               "fac": {
                 "establishment": 12,
                 "base": 8
@@ -703,7 +707,7 @@ POTUS.define("event", [
             "body": "你当选州长，掌握了实权。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 1,
               "fac": {
                 "establishment": 8
               }
@@ -713,7 +717,7 @@ POTUS.define("event", [
             "body": "你当选，但州议会不听话。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 0.7,
               "fac": {
                 "establishment": 4,
                 "base": -6
@@ -723,13 +727,13 @@ POTUS.define("event", [
           "fail": {
             "body": "你输了，回到原点。",
             "effects": {
-              "rep": 5
+              "rep": 0.6
             }
           },
           "critfail": {
             "body": "惨败，且被质疑执政能力。",
             "effects": {
-              "rep": -6,
+              "rep": -0.7,
               "fac": {
                 "press": -10
               }
@@ -758,8 +762,8 @@ POTUS.define("event", [
             "body": "你跑遍了每一个县，把「他连广告都买不起还来见我们」变成了一句好话。你赢了。",
             "effects": {
               "tier": 1,
-              "rep": 14,
-              "hp": -5,
+              "rep": 1.5,
+              "hp": -0.7,
               "fac": {
                 "base": 12,
                 "press": 5
@@ -770,8 +774,8 @@ POTUS.define("event", [
             "body": "义工替你跑赢了一台机器。你坐进去了，但团队是拼凑的，欠的账要慢慢还。",
             "effects": {
               "tier": 1,
-              "rep": 8,
-              "hp": -4,
+              "rep": 0.9,
+              "hp": -0.6,
               "fac": {
                 "base": 8
               }
@@ -780,8 +784,8 @@ POTUS.define("event", [
           "meh": {
             "body": "你差了几个百分点。没赢，但所有人都记住了那个不肯退的人。",
             "effects": {
-              "rep": 5,
-              "hp": -4,
+              "rep": 0.6,
+              "hp": -0.6,
               "fav": -1,
               "fac": {
                 "base": 6
@@ -791,16 +795,16 @@ POTUS.define("event", [
           "fail": {
             "body": "钱不够就是钱不够。你在初选里被碾过去，还搭进去一整个健康的身子。",
             "effects": {
-              "rep": -3,
-              "hp": -6,
+              "rep": -0.3,
+              "hp": -0.9,
               "fav": -1
             }
           },
           "critfail": {
             "body": "竞选账目被翻出来，你连报名费都凑不齐这件事上了本地报纸。",
             "effects": {
-              "rep": -8,
-              "hp": -4,
+              "rep": -0.9,
+              "hp": -0.6,
               "flags": [
                 "scandal_1"
               ]
@@ -815,6 +819,7 @@ POTUS.define("event", [
     "grade": "major",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -864,8 +869,8 @@ POTUS.define("event", [
         "id": "run",
         "text": "全力冲刺白宫",
         "req": {
-          "rep": 55,
-          "fun": 3000000
+          "rep": 6,
+          "fun": 25
         },
         "base": 0.4,
         "mods": [
@@ -885,7 +890,7 @@ POTUS.define("event", [
             "body": "你赢了。历史翻开了新的一页，而你在那一页的最上面。",
             "effects": {
               "tier": 1,
-              "rep": 20,
+              "rep": 2.25,
               "fac": {
                 "base": 20,
                 "press": 15
@@ -899,7 +904,7 @@ POTUS.define("event", [
             "body": "你赢得大选，成为美国总统。",
             "effects": {
               "tier": 1,
-              "rep": 15,
+              "rep": 1.75,
               "fac": {
                 "base": 12
               },
@@ -912,7 +917,7 @@ POTUS.define("event", [
             "body": "你赢了，但只赢了一届，且被丑闻笼罩。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 1,
               "flags": [
                 "president",
                 "scandal_3"
@@ -922,13 +927,13 @@ POTUS.define("event", [
           "fail": {
             "body": "你输掉了大选，但你已经写进了历史。",
             "effects": {
-              "rep": 10
+              "rep": 1
             }
           },
           "critfail": {
             "body": "你惨败，且竞选中的旧案被全面翻出。",
             "effects": {
-              "rep": -10,
+              "rep": -1,
               "flags": [
                 "scandal_4",
                 "investigation_open"
@@ -957,7 +962,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你扶植的候选人获胜，你成了真正的造王者。",
             "effects": {
-              "rep": 10,
+              "rep": 1,
               "fac": {
                 "establishment": 18
               },
@@ -970,7 +975,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你的人赢了，你分到了一杯羹。",
             "effects": {
-              "rep": 6,
+              "rep": 0.7,
               "fac": {
                 "establishment": 10
               },
@@ -991,7 +996,7 @@ POTUS.define("event", [
               "fac": {
                 "establishment": -8
               },
-              "rep": -3
+              "rep": -0.3
             }
           },
           "critfail": {
@@ -1001,7 +1006,7 @@ POTUS.define("event", [
                 "establishment": -15,
                 "base": -8
               },
-              "rep": -6
+              "rep": -0.7
             }
           }
         }
@@ -1013,6 +1018,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "career",
     "unique": true,
+    valence: "boon", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -1082,7 +1088,7 @@ POTUS.define("event", [
             "body": "任命通过，你手握实权，且不需竞选也能掌权。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 2,
               "fac": {
                 "establishment": 14
               }
@@ -1092,7 +1098,7 @@ POTUS.define("event", [
             "body": "你拿到了位置。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "establishment": 8
               },
@@ -1103,14 +1109,14 @@ POTUS.define("event", [
             "body": "你上位了，但欠了举荐人一个大人情。",
             "effects": {
               "tier": 1,
-              "rep": 4,
+              "rep": 0.8,
               "fav": -2
             }
           },
           "fail": {
             "body": "提名被否，你空欢喜一场。",
             "effects": {
-              "rep": 2,
+              "rep": 0.4,
               "fac": {
                 "establishment": -4
               }
@@ -1119,7 +1125,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你的资质被公开质疑，听证会上出丑。",
             "effects": {
-              "rep": -6,
+              "rep": -1.25,
               "fac": {
                 "press": -10,
                 "establishment": -8
@@ -1143,7 +1149,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你的‘不为官位所动’赢得基层敬佩。",
             "effects": {
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "base": 12
               },
@@ -1193,6 +1199,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -1262,7 +1269,7 @@ POTUS.define("event", [
             "body": "你的人大胜，所有人开始排队求你的电话。",
             "effects": {
               "tier": 1,
-              "rep": 12,
+              "rep": 2.5,
               "fac": {
                 "establishment": 14,
                 "press": 8
@@ -1274,7 +1281,7 @@ POTUS.define("event", [
             "body": "你的人赢了，你的影子更深了。",
             "effects": {
               "tier": 1,
-              "rep": 8,
+              "rep": 1.5,
               "fac": {
                 "establishment": 10
               },
@@ -1285,7 +1292,7 @@ POTUS.define("event", [
             "body": "你的人赢了，但你成了众矢之的。",
             "effects": {
               "tier": 1,
-              "rep": 5,
+              "rep": 1,
               "fac": {
                 "base": -8,
                 "establishment": 6
@@ -1295,7 +1302,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你搞砸了，客户流失。",
             "effects": {
-              "rep": -3,
+              "rep": -0.6,
               "fac": {
                 "establishment": -6
               }
@@ -1304,7 +1311,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你操盘的丑闻曝光，被行业封杀。",
             "effects": {
-              "rep": -8,
+              "rep": -1.5,
               "fac": {
                 "press": -15,
                 "establishment": -12
@@ -1332,7 +1339,7 @@ POTUS.define("event", [
             "body": "你无声地织了一张网，几年后人人都在网里。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "establishment": 10
               },
@@ -1342,7 +1349,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你的影响力稳步增长。",
             "effects": {
-              "rep": 4,
+              "rep": 0.8,
               "fac": {
                 "establishment": 6
               },
@@ -1352,7 +1359,7 @@ POTUS.define("event", [
           "meh": {
             "body": "进展缓慢，但没风险。",
             "effects": {
-              "rep": 2,
+              "rep": 0.4,
               "fac": {
                 "establishment": 3
               }
@@ -1361,13 +1368,13 @@ POTUS.define("event", [
           "fail": {
             "body": "你被更年轻的操盘手取代。",
             "effects": {
-              "rep": -2
+              "rep": -0.4
             }
           },
           "critfail": {
             "body": "有人识破了你的布局，反将你一军。",
             "effects": {
-              "rep": -6,
+              "rep": -1.25,
               "fac": {
                 "establishment": -10
               }
@@ -1382,6 +1389,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "career",
     "unique": true,
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -1434,7 +1442,7 @@ POTUS.define("event", [
         "id": "spend",
         "text": "砸下巨资，改写一场选举",
         "req": {
-          "fun": 1000000
+          "fun": 28
         },
         "base": 0.48,
         "mods": [
@@ -1454,7 +1462,7 @@ POTUS.define("event", [
             "body": "你的钱选出了想要的议员，从此国会有你的回音。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 2,
               "fac": {
                 "commercial": 20,
                 "establishment": 8
@@ -1466,19 +1474,19 @@ POTUS.define("event", [
             "body": "你买到了影响力。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "commercial": 14
               },
-              "fun": -800000
+              "fun": -22
             }
           },
           "meh": {
             "body": "钱花了，对方当选却翻脸不认人。",
             "effects": {
               "tier": 1,
-              "rep": 3,
-              "fun": -1000000,
+              "rep": 0.6,
+              "fun": -28,
               "fac": {
                 "commercial": 6
               }
@@ -1487,7 +1495,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你押错了人，钱打了水漂。",
             "effects": {
-              "fun": -800000,
+              "fun": -22,
               "fac": {
                 "commercial": -6
               }
@@ -1496,7 +1504,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你的资金被查出违规来源，联邦调查局介入。",
             "effects": {
-              "fun": -500000,
+              "fun": -14,
               "flags": [
                 "scandal_3",
                 "investigation_open",
@@ -1510,7 +1518,7 @@ POTUS.define("event", [
         "id": "buy_media",
         "text": "转而收购一家媒体",
         "req": {
-          "fun": 2000000
+          "fun": 55.5
         },
         "base": 0.5,
         "mods": [
@@ -1530,7 +1538,7 @@ POTUS.define("event", [
             "body": "你拥有了话语权本身。从今往后，新闻的走向由你定。",
             "effects": {
               "tier": 1,
-              "rep": 14,
+              "rep": 2.75,
               "fac": {
                 "commercial": 18,
                 "press": -8
@@ -1544,11 +1552,11 @@ POTUS.define("event", [
             "body": "你买下了一家濒死的报纸，它开始为你说话。",
             "effects": {
               "tier": 1,
-              "rep": 8,
+              "rep": 1.5,
               "fac": {
                 "commercial": 12
               },
-              "fun": -2000000,
+              "fun": -55.5,
               "flags": [
                 "owns_media"
               ]
@@ -1558,8 +1566,8 @@ POTUS.define("event", [
             "body": "收购完成，但读者流失严重。",
             "effects": {
               "tier": 1,
-              "rep": 5,
-              "fun": -2500000,
+              "rep": 1,
+              "fun": -69.5,
               "fac": {
                 "press": -10
               }
@@ -1568,7 +1576,7 @@ POTUS.define("event", [
           "fail": {
             "body": "交易被反垄断部门盯上。",
             "effects": {
-              "fun": -1000000,
+              "fun": -28,
               "flags": [
                 "investigation_open"
               ]
@@ -1606,7 +1614,7 @@ POTUS.define("event", [
             "body": "你没花一分钱，只把三方的人凑到一张桌上谈了一晚。第二天，那个席位的人选变了。",
             "effects": {
               "tier": 1,
-              "rep": 9,
+              "rep": 1.75,
               "fav": 1,
               "fac": {
                 "base": 8,
@@ -1618,7 +1626,7 @@ POTUS.define("event", [
             "body": "你靠人情把一件小事办成了，知道这件事的人不多，但都是关键的人。",
             "effects": {
               "tier": 1,
-              "rep": 5,
+              "rep": 1,
               "fac": {
                 "establishment": 5
               }
@@ -1627,14 +1635,14 @@ POTUS.define("event", [
           "meh": {
             "body": "桌上的人笑着答应了，散场后谁也没动。",
             "effects": {
-              "rep": 1,
+              "rep": 0.2,
               "fav": -1
             }
           },
           "fail": {
             "body": "你把人情用光了，却什么也没换到。有人开始觉得你只会空谈。",
             "effects": {
-              "rep": -4,
+              "rep": -0.8,
               "fav": -2,
               "fac": {
                 "commercial": -8
@@ -1644,7 +1652,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "那晚的话被传了出去——你想用关系摆平一场选举。所有人都在装没听见，但都记住了。",
             "effects": {
-              "rep": -8,
+              "rep": -1.5,
               "fac": {
                 "commercial": -12,
                 "press": -6
@@ -1663,6 +1671,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "career",
     "unique": true,
+    valence: "boon", dyn: true,
     "era": [
       "2008_CRASH",
       "1960_CAMELOT",
@@ -1732,29 +1741,29 @@ POTUS.define("event", [
             "body": "你的巡回演讲场场爆满，‘人民的人’人设立住了。",
             "effects": {
               "tier": 1,
-              "rep": 16,
+              "rep": 3,
               "fac": {
                 "base": 18
               },
-              "fun": 400000
+              "fun": 11
             }
           },
           "ok": {
             "body": "你的人气持续攀升。",
             "effects": {
               "tier": 1,
-              "rep": 10,
+              "rep": 2,
               "fac": {
                 "base": 12
               },
-              "fun": 200000
+              "fun": 5.5
             }
           },
           "meh": {
             "body": "热度有了，但被建制派讥为‘娱乐明星’。",
             "effects": {
               "tier": 1,
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "base": 10,
                 "establishment": -10
@@ -1764,7 +1773,7 @@ POTUS.define("event", [
           "fail": {
             "body": "观众疲劳，热度下滑。",
             "effects": {
-              "rep": -2,
+              "rep": -0.4,
               "fac": {
                 "base": -4
               }
@@ -1773,7 +1782,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你在直播中失言，人设崩塌。",
             "effects": {
-              "rep": -8,
+              "rep": -1.5,
               "fac": {
                 "base": -14,
                 "press": -12
@@ -1800,21 +1809,21 @@ POTUS.define("event", [
           "crit": {
             "body": "你赚得盆满钵满，且没人觉得你俗。",
             "effects": {
-              "fun": 1500000,
-              "rep": 5
+              "fun": 41.5,
+              "rep": 1
             }
           },
           "ok": {
             "body": "出书、代言、演讲费，钱包鼓了。",
             "effects": {
-              "fun": 900000,
-              "rep": 2
+              "fun": 25,
+              "rep": 0.4
             }
           },
           "meh": {
             "body": "你赚了钱，但被批‘消费政治’。",
             "effects": {
-              "fun": 500000,
+              "fun": 14,
               "fac": {
                 "press": -6,
                 "base": -4
@@ -1824,7 +1833,7 @@ POTUS.define("event", [
           "fail": {
             "body": "变现失败，还被指割韭菜。",
             "effects": {
-              "rep": -3,
+              "rep": -0.6,
               "fac": {
                 "base": -8
               }
@@ -1833,7 +1842,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你的‘致富课’被查出传销性质，检方介入。",
             "effects": {
-              "fun": -300000,
+              "fun": -8.5,
               "flags": [
                 "scandal_3",
                 "investigation_open"

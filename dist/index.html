@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POTUS · 一个美国小伙的从政之路</title>
+<title>权力之路 · 一个美国小伙的从政之路</title>
 <link rel="stylesheet" href="engine/style.css">
 </head>
 <body>
@@ -17,6 +17,8 @@
 <script src="engine/when.js"></script>
 <script src="engine/dice.js"></script>
 <script src="engine/effects.js"></script>
+<!-- 三值性（机遇/风险/威胁）与动态经济标尺：内容写系数，抽中时按人物职级/能力折算 -->
+<script src="engine/scale.js"></script>
 <script src="engine/events.js"></script>
 <!-- 时间：年 → 月 → 档期（一个月一回合、时代压力、大/中/小事量级） -->
 <script src="engine/time.js"></script>
@@ -24,10 +26,10 @@
 <script src="engine/arc.js"></script>
 <!-- 静好岁月：没有事件的月份，主角的日子与"按部就班"的成长 -->
 <script src="engine/vignette.js"></script>
-<!-- 可选的大模型适配层：离线优先、超时降级、结果缓存（不接也完全能玩） -->
-<script src="engine/llm.js"></script>
 <script src="engine/progression.js"></script>
 <script src="engine/art.js"></script>
+<!-- 社区联系：赞助（收款码弹窗）与作者反馈邮箱 -->
+<script src="engine/social.js"></script>
 <script src="engine/render.js"></script>
 
 <!-- ==========================================================================
@@ -110,6 +112,8 @@
 <script src="content/events/106-era-1990.js"></script>
 <script src="content/events/107-era-2001.js"></script>
 <script src="content/events/108-era-2016.js"></script>
+<!-- 新人机遇补给：为 9 个 boon 池为空的时代各补一张 tierMin:0 时代风味机遇卡 -->
+<script src="content/events/109-boon-fill.js"></script>
 <!-- 例：新增 2016 时代
      <script src="content/events/53-era-2016.js"></script>
      并在 content/20-eras.js 里补上该时代的 era 定义 -->

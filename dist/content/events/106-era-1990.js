@@ -11,6 +11,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "gulf91_storm", grade: "major", category: "foreign",
+    valence: "risk", dyn: true,
     era: ["1990_GULF"], tierMin: 1, tierMax: 5, weight: 12, unique: true,
     medium: ["print", "radio", "tv", "cable"], month: 1,
     title: "导弹拖着光尾划过夜空，全世界都在看",
@@ -44,15 +45,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你挺战的表态被本地报纸登在头版，慰问部队时人人抢着和你合影。速胜的光环暂时全归了你。",
-            effects: { rep: 10, tier: 1, fac: { military: 12, establishment: 8, base: 5 } } },
+            effects: { rep: 1, tier: 1, fac: { military: 12, establishment: 8, base: 5 } } },
           ok: { body: "你顺着爱国浪潮走，安全又讨喜。只是阿拉伯裔商户从此对你关上了门。",
-            effects: { rep: 5, fac: { military: 8, establishment: 4, base: -4 } } },
+            effects: { rep: 0.6, fac: { military: 8, establishment: 4, base: -4 } } },
           meh: { body: "你挺了战，可风头全被更大的名字抢走，你只是千百个「支持部队」里的一个。",
-            effects: { rep: 2, fac: { military: 4 } } },
+            effects: { rep: 0.2, fac: { military: 4 } } },
           fail: { body: "你调子起太高，等首批阵亡名单传来，选区开始有人问「当初是谁喊得最响」。",
-            effects: { rep: -4, fac: { base: -6, military: 3 } } },
+            effects: { rep: -0.4, fac: { base: -6, military: 3 } } },
           critfail: { body: "你挺战最力的录像被对手剪成「他要打仗」的竞选广告。速胜也救不了你被放大的好战形象。",
-            effects: { rep: -8, fac: { base: -10, press: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -0.9, fac: { base: -10, press: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -61,15 +62,15 @@ POTUS.define("event", [
         base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "INTG", w: 0.25 }],
         outcomes: {
           crit: { body: "你一句「胜利之后呢」在速胜后被反复引用，成了「有远见的少数人」。当时被骂，事后被夸。",
-            effects: { rep: 7, fac: { press: 6, establishment: 4, base: 4 } } },
+            effects: { rep: 0.8, fac: { press: 6, establishment: 4, base: 4 } } },
           ok: { body: "你提了战后问题，措辞谨慎没被扣帽子，反而显出分量。",
-            effects: { rep: 3, fac: { establishment: 4 } } },
+            effects: { rep: 0.3, fac: { establishment: 4 } } },
           meh: { body: "你的担忧被爱国声浪盖了过去。你说得对，但没人当时愿意听。",
-            effects: { rep: 1, fac: { military: -3 } } },
+            effects: { rep: 0.1, fac: { military: -3 } } },
           fail: { body: "在人人挺战的时候你问「为什么打」，被剪辑成「他更像站在萨达姆一边」。",
-            effects: { rep: -5, fac: { military: -8, base: -6 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.6, fac: { military: -8, base: -6 }, flags: ["scandal_1"] } },
           critfail: { body: "你的谨慎被同时打成「通敌」和「优柔」，两个词一起上了对手的广告。",
-            effects: { rep: -9, fac: { military: -10, establishment: -6, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1, fac: { military: -10, establishment: -6, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -78,15 +79,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "在人人自危的爱国潮里，你公开替被泼脏水的商户说了话。他们社区的感激是终身的，且会在下一次选举里变成实打实的票。",
-            effects: { rep: 8, fac: { base: 10, church: 8, civil: 6, establishment: -4 }, flags: ["minority_guard"] } },
+            effects: { rep: 0.9, fac: { base: 10, church: 8, civil: 6, establishment: -4 }, flags: ["minority_guard"] } },
           ok: { body: "你护住了本地商户，他们记你的情。主流那边对你多了几分嘀咕。",
-            effects: { rep: 4, fac: { base: 6, church: 4 } } },
+            effects: { rep: 0.4, fac: { base: 6, church: 4 } } },
           meh: { body: "你说了公道话，商户感激，但风头上的你没能改变什么。",
-            effects: { rep: 2, fac: { base: 3 } } },
+            effects: { rep: 0.2, fac: { base: 3 } } },
           fail: { body: "你替「被怀疑的人」说话，被反咬成「你怀疑美国」。逻辑绕了一圈，脏水泼回你身上。",
-            effects: { rep: -5, fac: { military: -6, base: -4 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.6, fac: { military: -6, base: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "你护商户的声明被做成「他不挺部队」的传单，在退伍军人聚集的社区广为流传。",
-            effects: { rep: -8, fac: { military: -10, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -0.9, fac: { military: -10, base: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -97,6 +98,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "gulf92_economy", grade: "mid", category: "career",
+    valence: "risk", dyn: true,
     era: ["1990_GULF"], tierMin: 1, tierMax: 5, weight: 11,
     medium: ["print", "radio", "tv", "cable"],
     title: "战争赢了，可加油站门口的队伍在变长",
@@ -131,15 +133,15 @@ POTUS.define("event", [
         stake: { fun: true, fav: true },
         outcomes: {
           crit: { body: "你一套组合拳把第三党的热度打了下来，本党选民归心。党魁在闭门会上当着众人的面点了你的名。",
-            effects: { rep: 8, tier: 1, fav: 2, fac: { establishment: 12, base: 5 } } },
+            effects: { rep: 1.5, tier: 1, fav: 2, fac: { establishment: 12, base: 5 } } },
           ok: { body: "你替本党稳住了阵脚。那位富翁没掀起大浪，你也没被记成主角，但机器认你的力。",
-            effects: { rep: 4, fac: { establishment: 8 } } },
+            effects: { rep: 0.8, fac: { establishment: 8 } } },
           meh: { body: "你打了，可富翁自己会打自己，用不着你。你成了背景板。",
-            effects: { rep: 1, fac: { establishment: 3 } } },
+            effects: { rep: 0.2, fac: { establishment: 3 } } },
           fail: { body: "你越骂富翁，富翁越火——你替他做了免费广告。本党选民反而觉得你站错了边。",
-            effects: { rep: -5, fac: { establishment: -6, base: -5 }, flags: ["scandal_1"] } },
+            effects: { rep: -1, fac: { establishment: -6, base: -5 }, flags: ["scandal_1"] } },
           critfail: { body: "你替机器打的黑料反被富翁原样甩回你身上，还附了实据。你成了那场闹剧里最狼狈的配角。",
-            effects: { rep: -9, fac: { establishment: -8, press: -8, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.75, fac: { establishment: -8, press: -8, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -149,15 +151,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你抢先把「工作、工厂、加油站」挂在嘴边，选民觉得「要说的话你说了」，第三党的由头一下小了一半。",
-            effects: { rep: 9, fac: { base: 12, labor: 6, establishment: -4 } } },
+            effects: { rep: 1.75, fac: { base: 12, labor: 6, establishment: -4 } } },
           ok: { body: "你借了选民的气，议题被你带回来了。第三党降温，你也长了分量。",
-            effects: { rep: 5, fac: { base: 8 } } },
+            effects: { rep: 1, fac: { base: 8 } } },
           meh: { body: "你想抢议题，抢得不太顺。选民各信各的。",
-            effects: { rep: 2 } },
+            effects: { rep: 0.4 } },
           fail: { body: "你替选民说狠话，被本党当成「学对手拆自己台」。两头都不落好。",
-            effects: { rep: -4, fac: { establishment: -8, base: 3 } } },
+            effects: { rep: -0.8, fac: { establishment: -8, base: 3 } } },
           critfail: { body: "你的「亲民经济话」被本党定性为「里应外合」，机器开始找你的替补。",
-            effects: { rep: -7, fac: { establishment: -12, base: 4 }, flags: ["party_traitor"] } }
+            effects: { rep: -1.5, fac: { establishment: -12, base: 4 }, flags: ["party_traitor"] } }
         }
       },
       {
@@ -165,15 +167,15 @@ POTUS.define("event", [
         base: 0.68, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你袖手旁观，让全国机器去打那场乱仗。你既没得罪富翁的支持者，也没折损在败选里——稳。",
-            effects: { rep: 3, fac: { base: 3 } } },
+            effects: { rep: 0.6, fac: { base: 3 } } },
           ok: { body: "你没掺和。党魁或许有点失望，但你没把自己耗在一场不属于你的战争里。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你袖手，机器却记着「关键时刻他没出力」。",
-            effects: { rep: -1, fac: { establishment: -3 } } },
+            effects: { rep: -0.2, fac: { establishment: -3 } } },
           fail: { body: "你没帮忙，选后清算时「你当时在哪」成了顶到你头上的问题。",
-            effects: { rep: -3, fac: { establishment: -5 } } },
+            effects: { rep: -0.6, fac: { establishment: -5 } } },
           critfail: { body: "你想两头不得罪，结果两边都觉得你没站对。你躲过了大战，却输给了秋后算账。",
-            effects: { rep: -6, fac: { establishment: -6, base: -3 } } }
+            effects: { rep: -1.25, fac: { establishment: -6, base: -3 } } }
         }
       }
     ]
@@ -184,6 +186,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "gulf91_peace", grade: "mid", category: "foreign",
+    valence: "boon", dyn: true,
     era: ["1990_GULF"], tierMin: 2, tierMax: 5, weight: 10,
     medium: ["print", "radio", "tv"],
     title: "墙倒了，军费还在，有人说该把钱花回国内",
@@ -215,15 +218,15 @@ POTUS.define("event", [
         base: 0.52, mods: [{ src: "attr", key: "INTG", w: 0.35 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把一笔军费转成了本地的学校与公路。剪彩那天你成了「和平带来实惠」的活证据，承包商的眼刀你没躲开。",
-            effects: { rep: 9, fac: { base: 10, labor: 6, military: -10, commercial: -6 }, flags: ["peace_dividend"] } },
+            effects: { rep: 1.75, fac: { base: 10, labor: 6, military: -10, commercial: -6 }, flags: ["peace_dividend"] } },
           ok: { body: "你砍了军费投了国内，选民得了实惠，军工记了仇。",
-            effects: { rep: 5, fac: { base: 6, military: -6 } } },
+            effects: { rep: 1, fac: { base: 6, military: -6 } } },
           meh: { body: "你砍了，可省下的大多被拿去还债，本地没见着几块砖。实惠说不清，仇倒是结结实实。",
-            effects: { rep: 1, fac: { military: -5 } } },
+            effects: { rep: 0.2, fac: { military: -5 } } },
           fail: { body: "你砍军费的当口，海外突然冒出一场新危机。你从「有远见」一夜之间变成「自废武功的人」。",
-            effects: { rep: -6, fac: { military: -12, establishment: -6 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.25, fac: { military: -12, establishment: -6 }, flags: ["scandal_1"] } },
           critfail: { body: "你主导的裁军遇上新威胁，一笔原本该建的工厂也黄了。军工和失业工人第一次联手把你写进同一期负面报道。",
-            effects: { rep: -10, fac: { military: -12, labor: -8, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -2, fac: { military: -12, labor: -8, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -233,15 +236,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你力保军费，承包商的工厂保住了，献金也照来了。你成了「懂国防更懂经济」的自己人。",
-            effects: { rep: 5, fun: 120000, fac: { military: 10, commercial: 10, establishment: 6 } } },
+            effects: { rep: 1, fun: 3.5, fac: { military: 10, commercial: 10, establishment: 6 } } },
           ok: { body: "军费保住了，本地工厂没裁员。军工满意，等学校翻新的选民有点失望。",
-            effects: { rep: 2, fac: { military: 6, commercial: 6, base: -4 } } },
+            effects: { rep: 0.4, fac: { military: 6, commercial: 6, base: -4 } } },
           meh: { body: "你保了军费，可这理由在「仗打完了」的空气里听着别扭。落个「维护旧机器」。",
             effects: { fac: { military: 4, base: -3 } } },
           fail: { body: "在举国喊「和平红利」的时刻你死保军费，被贴上了「战争红利维护者」的标签。",
-            effects: { rep: -5, fac: { base: -8, commercial: 4 }, flags: ["scandal_1"] } },
+            effects: { rep: -1, fac: { base: -8, commercial: 4 }, flags: ["scandal_1"] } },
           critfail: { body: "你保军费的照片和承包商晚宴被连在一起登了报。「谁的钱，谁受益」——标题写得清清楚楚。",
-            effects: { rep: -9, fac: { base: -10, press: -8 }, flags: ["bought", "scandal_2"] } }
+            effects: { rep: -1.75, fac: { base: -10, press: -8 }, flags: ["bought", "scandal_2"] } }
         }
       },
       {
@@ -249,15 +252,15 @@ POTUS.define("event", [
         base: 0.64, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你玩了一手漂亮的技术活：既报了「和平红利」的名，又把关键的几笔留在了本地工厂。两头都不得罪。",
-            effects: { rep: 5, fac: { base: 4, military: 3, commercial: 3 } } },
+            effects: { rep: 1, fac: { base: 4, military: 3, commercial: 3 } } },
           ok: { body: "你小裁一点、留一点，各方都觉得「他至少没裁到我头上」。",
-            effects: { rep: 2, fac: { base: 2 } } },
+            effects: { rep: 0.4, fac: { base: 2 } } },
           meh: { body: "你的折中谁都不满意，可谁也不至于翻脸。中庸的代价是存在感低。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           fail: { body: "你想两头讨好，结果两头都觉得你藏了私心。",
-            effects: { rep: -3, fac: { military: -4, base: -3 } } },
+            effects: { rep: -0.6, fac: { military: -4, base: -3 } } },
           critfail: { body: "你的折中被两头各挑一半出来骂：军工说你要拆工厂，改革派说你在替军工挡刀。",
-            effects: { rep: -6, fac: { military: -6, base: -5 } } }
+            effects: { rep: -1.25, fac: { military: -6, base: -5 } } }
         }
       }
     ]
@@ -268,6 +271,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "gulf93_talkradio", grade: "minor", category: "media",
+    valence: "risk", dyn: true,
     era: ["1990_GULF"], tierMin: 0, tierMax: 3, weight: 10,
     medium: ["radio", "cable", "tv"],
     title: "一档火辣的谈话电台邀你连线",
@@ -300,15 +304,15 @@ POTUS.define("event", [
         stake: { ap: true },
         outcomes: {
           crit: { body: "你在直播间里谈笑自若，反将了主播一军。当晚本地话题全是你，「这人敢上、还会说」一夜传开。",
-            effects: { rep: 7, fac: { base: 8, press: 4 } } },
+            effects: { rep: 2.75, fac: { base: 8, press: 4 } } },
           ok: { body: "你顶住了主播的挑衅，还抢了几句好话。没大获全胜，也没输。",
-            effects: { rep: 3, fac: { base: 3 } } },
+            effects: { rep: 1.25, fac: { base: 3 } } },
           meh: { body: "你被主播牵着走了一晚上，勉强全身而退，没留下什么好片段。",
-            effects: { rep: -1, hp: -2 } },
+            effects: { rep: -0.4, hp: -1 } },
           fail: { body: "你被主播连环追问逼到语塞，那句「我……这个嘛」被剪成了当晚片花。",
-            effects: { rep: -5, fac: { press: -6, base: -3 }, flags: ["scandal_1"] } },
+            effects: { rep: -2, fac: { press: -6, base: -3 }, flags: ["scandal_1"] } },
           critfail: { body: "你恼羞成怒在直播里说了句没退路的话，这段录音在你下次竞选时以完整版重播。",
-            effects: { rep: -8, fac: { press: -10, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -3, fac: { press: -10, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -317,15 +321,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你一句「我不陪跑这种噱头」说得云淡风轻，反倒显得你比他高一个段位。他没钓着你，还失了分寸。",
-            effects: { rep: 4, fac: { establishment: 5, base: 2 } } },
+            effects: { rep: 1.5, fac: { establishment: 5, base: 2 } } },
           ok: { body: "你优雅地躲开了坑。主播有点扫兴，但你没失态。",
-            effects: { rep: 2 } },
+            effects: { rep: 0.8 } },
           meh: { body: "你拒了，主播立刻把「他不敢来」挂上了节目。你什么都没做错，却总差一口气。",
-            effects: { rep: -1, fac: { base: -2 } } },
+            effects: { rep: -0.4, fac: { base: -2 } } },
           fail: { body: "你的拒绝被反复播报成「他怕了」，这种软刀子不致命，却一直割你。",
-            effects: { rep: -3, fac: { base: -4 } } },
+            effects: { rep: -1.25, fac: { base: -4 } } },
           critfail: { body: "你不仅拒了还放了句狠话，结果狠话被主播拿去当开场白，一整周都拿你开涮。",
-            effects: { rep: -6, fac: { press: -6, base: -4 } } }
+            effects: { rep: -2.5, fac: { press: -6, base: -4 } } }
         }
       },
       {
@@ -333,15 +337,15 @@ POTUS.define("event", [
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
         outcomes: {
           crit: { body: "你一句话把焦点从你身上转到他的金主身上，主播难得语塞。「谁付他钱」的话题第一次反过来缠上了他。",
-            effects: { rep: 5, fac: { base: 5, press: -2 } } },
+            effects: { rep: 2, fac: { base: 5, press: -2 } } },
           ok: { body: "你反将一军，让攻防至少短暂地倒了过来。没大获全胜，但扳回一局。",
-            effects: { rep: 2, fac: { base: 3 } } },
+            effects: { rep: 0.8, fac: { base: 3 } } },
           meh: { body: "你反问了一句，可这是他的地盘，他一笑就把话头绕了过去。",
-            effects: { rep: -1 } },
+            effects: { rep: -0.4 } },
           fail: { body: "你反咬他的金主，却没拿出证据，倒显得你气急败坏。他乐得把你钉成「输不起」。",
-            effects: { rep: -5, fac: { press: -5, base: -4 }, flags: ["scandal_1"] } },
+            effects: { rep: -2, fac: { press: -5, base: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "你的指控被人当场拆穿，你在直播里的失态被做成了对手竞选广告的原型镜头。",
-            effects: { rep: -9, fac: { press: -8, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -3.5, fac: { press: -8, base: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]

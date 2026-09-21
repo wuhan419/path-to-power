@@ -50,12 +50,94 @@
 
   /* ---------- 资源投注（D&D 式"加码"） ----------
    * 选项里声明 stake 即开启投注面板：
-   *   stake: { fun: true, ap: true, fav: true }              // 用全局默认汇率
-   *   stake: { fun: { per:500000, w:0.06, cap:0.3 } }        // 单项自定义
-   * 汇率默认值来自 balance.stakeRates。
+   *   stake: { fun: true, ap: true, fav: true }              // 用平衡表里的默认汇率
+   *   stake: { fun: { per:500000, w:0.06, cap:0.3 } }        // 单项自定义（per 写死 = 关闭动态换算）
+   * 资金默认汇率**不是常数** —— 按 身位 × 事件钱量级 动态算，见下面的 stakeFunPer()。
    */
-  P.stakeSpec = function (choice) {
-    if (!choice.stake) return null;
+  /* ---------- 选项的"钱量级"（pot）：这个选项自己押着多少钱 ----------
+   * 取 max(|cost.fun|, 各档 |effects.fun|, |cost.fun × funMul|)：
+   *   · cost.fun   —— 明码标价的代价（"花 $400k 请律师团"）
+   *   · effects.fun —— 直接给/扣的钱（"这一笔赚 $150k"）
+   *   · funMul      —— 按本金的比例（"押多少赚 200%"），本金就是 cost.fun，故换算回美元
+   * 一个钱都没写的选项返回 0 —— 那时汇率只用身位锚（见 stakeFunPer）。 */
+  P.stakePot = function (choice) {
+    if (!choice) return 0;
+    const amts = [];
+    const costFun = (choice.cost && choice.cost.fun) || 0;
+    if (costFun) amts.push(Math.abs(costFun));
+    const oc = choice.outcomes || {};
+    for (const k in oc) {
+      const eff = oc[k] && oc[k].effects;
+      if (!eff) continue;
+      if (eff.fun) amts.push(Math.abs(eff.fun));
+      if (eff.funMul != null && costFun) amts.push(Math.abs(costFun * eff.funMul));
+    }
+    return amts.length ? Math.max.apply(null, amts) : 0;
+  };
+
+  /* 把美元数抹成整数档（面板要写"每 $6k → +4%"，$6,124 太难读）。
+     一律向下取整：宁可少收，绝不因为抹零把价码抬到事件锚之上。 */
+  function niceUsd(n) {
+    const step = n < 10000 ? 500 : n < 100000 ? 1000 : n < 1000000 ? 5000 : 50000;
+    return Math.max(step, Math.floor(n / step) * step);
+  }
+  P.niceUsd = niceUsd;
+
+  /* 金额显示（投注面板 / 汇率说明共用）：$400 · $6.1k · $1.5M。
+     动态汇率下同一个选项在不同身位是不同价，界面必须写得清楚，所以格式要短。 */
+  P.fmtUsd = function (n) {
+    n = Math.round(Number(n) || 0);
+    const neg = n < 0; n = Math.abs(n);
+    let s;
+    if (n >= 1000000) s = "$" + (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + "M";
+    else if (n >= 10000) s = "$" + Math.round(n / 1000) + "k";
+    else if (n >= 1000) s = "$" + (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    else s = "$" + n;
+    return (neg ? "-" : "") + s;
+  };
+
+  /* ---------- 资金每档汇率（v0.7：不再是固定值） ----------
+   * 用户实测反馈：过去固定 $250k/档，① 小兵永远投不进第一档，② 价码与事情的钱量级脱钩
+   * （"收益只有 $50k 却让你花 $250k 搏"）。现在每档金额 = 两个锚的几何平均，并被事件锚夹住：
+   *
+   *   身位锚 A = 职位月薪(track,tier) × perSalaryMonths × gradeMul
+   *              —— 你这个位子办一件事的常规手笔（月薪来自 P.officeSalary()，与平静月工资同源）
+   *   事件锚 X = 事件钱量级 × potShare
+   *              —— 这件事本身值多少钱；也是总投入的硬顶
+   *   per = min(√(A × X), X)
+   *     · A < X（身位小 / 事件大）→ 走 √ 那支：per 随身位抬升，小兵不能拿零头买下大事
+   *     · A > X（身位大 / 事件小）→ 被 X 夹住：价码跟着事情走，大佬也不为小事掏大钱
+   *   事件没写钱（pot = 0）→ per = A（只用身位锚）
+   *
+   * 不变量：8 档总投入 = 8 × per ≤ 8 × X = 2 × 事件钱量级。
+   * 返回 {per, pot, anchor, source, raw}，per 已是最终价码（抹过零）。 */
+  P.stakeFunPer = function (choice, grade) {
+    const d = (P.balance().stakeRates || {}).fun || {};
+    const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
+    const g = grade || (P.G && P.G.__curGrade) || "mid";
+    const gm = (d.gradeMul || {})[g];
+    const gmul = gm == null ? 1 : gm;
+    const pot = P.stakePot(choice);
+    const A = Math.max(1, (P.officeSalary ? P.officeSalary() : 0) * months * gmul);
+    const share = d.potShare == null ? 0.25 : d.potShare;
+    const X = pot > 0 ? pot * share : 0;
+    let raw, source;
+    if (X > 0) {
+      raw = Math.min(Math.sqrt(A * X), X);
+      source = A <= X ? "office+pot" : "pot";
+    } else {
+      raw = A;
+      source = "office";
+    }
+    const lo = d.perMin == null ? 500 : d.perMin, hi = d.perMax == null ? 5000000 : d.perMax;
+    let per = niceUsd(P.clamp(raw, lo, hi));
+    /* 抹零后再确认一次：事件锚是硬顶（除非 X 本身连下限都不到——内容里不会出现） */
+    if (X >= lo && per > X) per = niceUsd(X);
+    return { per: per, pot: pot, anchor: A, ceiling: X, source: source, raw: raw };
+  };
+
+  P.stakeSpec = function (choice, grade) {
+    if (!choice || !choice.stake) return null;
     const def = P.balance().stakeRates || {};
     const spec = {};
     ["fun", "ap", "fav"].forEach(function (k) {
@@ -63,12 +145,26 @@
       if (!raw) return;
       spec[k] = (raw === true) ? Object.assign({}, def[k] || {}) : Object.assign({}, def[k] || {}, raw);
     });
-    return Object.keys(spec).length ? spec : null;
+    if (!Object.keys(spec).length) return null;
+    /* 资金汇率：内容写死了 per 就以内容为准（绝对覆盖）；否则按 身位 × 事件钱量级 动态算。
+       动态结果写回 spec.fun.per，下游（stakeMax / stakeInfo / 面板）无需知道它是算出来的。 */
+    if (spec.fun) {
+      const kf = choice.stake.fun;
+      const written = (kf !== true && kf && kf.per != null) ? Number(kf.per) : null;
+      if (written != null && written > 0) {
+        spec.fun.__rate = { per: written, pot: P.stakePot(choice), anchor: null, ceiling: null, source: "content", raw: written };
+      } else {
+        const r = P.stakeFunPer(choice, grade);
+        spec.fun.per = r.per;
+        spec.fun.__rate = r;
+      }
+    }
+    return spec;
   };
 
   /* ---------- 投注档位上限 ----------
    * 一个资源最多能投几档。必须同时被三件事夹住：
-   *   ① 汇率：每档花多少（资金默认 $250k/档；精力 1 点/档）
+   *   ① 汇率：每档花多少（资金 = stakeFunPer() 算出来的动态价码；精力 1 点/档）
    *   ② 加成上限：cap ÷ w —— 超过这个档数，加成不再增长，资源纯属白花
    *   ③ 你手上还剩多少
    * 「到达上限需要几档」用 ceil：最后一档即使只吃到部分上限，也仍然 >0 收益，
@@ -82,7 +178,7 @@
     const s = spec[k], G = P.G;
     if (k === "fav") return G.fav > 0 ? 1 : 0;                // 人情是开关：1 点换一次重投
     if (k === "fun") {
-      const per = s.per || 250000, w = s.w || 0.04, cap = s.cap || 0.30;
+      const per = Math.max(1, s.per || 0), w = s.w || 0.04, cap = s.cap || 0.30;
       return Math.max(0, Math.min(capSteps(w, cap), Math.floor(G.fun / per)));
     }
     const w = s.w || 0.03, cap = s.cap || 0.09;               // k === "ap"
@@ -105,12 +201,12 @@
     const out = { bonus: 0, cost: { fun: 0, fav: 0, ap: 0 }, parts: [], reroll: false, spec: spec };
     if (!spec) return out;
     if (spec.fun && st.fun) {
-      const per = spec.fun.per || 250000;
+      const per = Math.max(1, spec.fun.per || 0);
       const steps = Math.min(st.fun, P.stakeMax("fun", choice));
       if (steps > 0) {
         const b = Math.min(steps * (spec.fun.w || 0.04), spec.fun.cap || 0.30);
         out.cost.fun = steps * per; out.bonus += b;
-        out.parts.push({ label: "资金 $" + (out.cost.fun / 1000).toFixed(0) + "k", pct: b * 100 });
+        out.parts.push({ label: "资金 " + P.fmtUsd(out.cost.fun), pct: b * 100 });
       }
     }
     if (spec.ap && st.ap) {

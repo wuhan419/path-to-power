@@ -23,7 +23,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_profile", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 10,
-    grade: "mid", category: "media",
+    grade: "mid", valence: "risk", dyn: true, category: "media",
     title: "八千字里的那个「你」",
     body: "一份全国性刊物的记者来了，要给你做一个整版人物特稿。\n" +
       "他跟着你三天：两场活动、一顿晚饭、一次车程。他问的问题都很客气，\n" +
@@ -57,15 +57,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("见报那天你先不敢看。看完了你发现：他写出了连你自己都没说清楚的那个你。那篇东西后来被你的团队印在竞选手册的第一页。",
-            { rep: 9, fac: { press: 10, base: 6 }, flags: ["med2_profile_run"] }),
+            { rep: 1.75, fac: { press: 10, base: 6 }, flags: ["med2_profile_run"] }),
           ok: m2("八千字，写的是一个「比传闻里更有意思的人」。不完美，但站得住。",
-            { rep: 6, fac: { press: 7 }, flags: ["med2_profile_run"] }),
+            { rep: 1.25, fac: { press: 7 }, flags: ["med2_profile_run"] }),
           meh: m2("稿子平平稳稳，像一张证件照。你没受伤，也没被更多人认识。",
-            { rep: 2, fac: { press: 3 }, flags: ["med2_profile_run"] }),
+            { rep: 0.4, fac: { press: 3 }, flags: ["med2_profile_run"] }),
           fail: m2("他写到你的那次迟到、你打断别人的那两次、还有你在车程里说的那个笑话。拼起来的人不太好看。",
-            { rep: -4, fac: { press: 4, base: -4 }, flags: ["med2_profile_run"] }),
+            { rep: -0.8, fac: { press: 4, base: -4 }, flags: ["med2_profile_run"] }),
           critfail: m2("你敞开得太彻底，说了一件只有三个人知道的事。见报当天，另外两个人里的一个给你发了四个字：「为什么说。」",
-            { rep: -8, fac: { press: 6, base: -8, establishment: -6 }, flags: ["med2_profile_run", "scandal_1"] })
+            { rep: -1.5, fac: { press: 6, base: -8, establishment: -6 }, flags: ["med2_profile_run", "scandal_1"] })
         }
       },
       {
@@ -75,15 +75,15 @@ POTUS.define("event", [
         cost: { ap: 2 },
         outcomes: {
           crit: m2("你的每句话都滴水不漏，而他却从中拼出了另一个故事：「一个连吃饭都在打稿的人」。这篇文章写的是你的纪律，读者买账。",
-            { rep: 6, fac: { press: 5 }, flags: ["med2_profile_run"] }),
+            { rep: 1.25, fac: { press: 5 }, flags: ["med2_profile_run"] }),
           ok: m2("稿子规矩，像一篇加长版履历。你安全落地，代价是没人会记住这篇文章。",
-            { rep: 3, fac: { press: 2 }, flags: ["med2_profile_run"] }),
+            { rep: 0.6, fac: { press: 2 }, flags: ["med2_profile_run"] }),
           meh: m2("他客气地写完了，客气得像在写一份通稿。编辑把版面砍了三分之一。",
-            { rep: 1, flags: ["med2_profile_run"] }),
+            { rep: 0.2, flags: ["med2_profile_run"] }),
           fail: m2("第三天他就烦了。稿子的第三段是：「接下来的两天，我见到了美国政治里最标准的一台答题机。」",
-            { rep: -5, fac: { press: -6, base: -3 }, flags: ["med2_profile_run"] }),
+            { rep: -1, fac: { press: -6, base: -3 }, flags: ["med2_profile_run"] }),
           critfail: m2("你的团队给他递了一份「参考要点」，被他一字不差地印在了稿子开头，标题是：「这是他们想让你认识的那个人。」",
-            { rep: -8, fac: { press: -12, base: -6 }, flags: ["med2_profile_run", "scandal_1"] })
+            { rep: -1.5, fac: { press: -12, base: -6 }, flags: ["med2_profile_run", "scandal_1"] })
         }
       },
       {
@@ -92,15 +92,15 @@ POTUS.define("event", [
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: m2("他没写你，转头去写了你的对手，写得极其公道。半年后他又来了，这一次带的是好消息。",
-            { rep: 3, fac: { press: 5 } }),
+            { rep: 0.6, fac: { press: 5 } }),
           ok: m2("稿子没了下文。圈子里传了一句「他现在很挑」，说坏不算坏。",
-            { rep: 1, fac: { press: 2 } }),
+            { rep: 0.2, fac: { press: 2 } }),
           meh: m2("什么都没发生。那份刊物的版面给了别人。",
             { rep: 0 }),
           fail: m2("「该议员拒绝了本刊的采访请求」印在了别人稿子的末尾。就一行，但很多人读到了。",
-            { rep: -3, fac: { press: -5 } }),
+            { rep: -0.6, fac: { press: -5 } }),
           critfail: m2("拒绝被写成了一个故事本身：「他躲起来了」。三个月里不断有人问你是不是出了什么事。",
-            { rep: -5, fac: { press: -8, base: -4 }, flags: ["scandal_1"] })
+            { rep: -1, fac: { press: -8, base: -4 }, flags: ["scandal_1"] })
         }
       }
     ]
@@ -111,7 +111,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_profile_after", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
-    grade: "minor", category: "media",
+    grade: "minor", valence: "risk", dyn: true, category: "media",
     after: { id: "med2_profile", minMonthsAfter: 2, maxMonthsAfter: 14 },
     flags: ["med2_profile_run"],
     title: "那篇文章还活着",
@@ -145,15 +145,15 @@ POTUS.define("event", [
         base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
           crit: m2("你在一次公开场合主动引用了那篇文章里最不客气的一段，然后逐句回应。台下有人笑了，笑完之后他们信了。那位作者后来成了你最有分寸的盟友。",
-            { rep: 8, fac: { press: 12, base: 4 }, contact: { columnist: 10 } }),
+            { rep: 3, fac: { press: 12, base: 4 }, contact: { columnist: 10 } }),
           ok: m2("你认了，也补了。断章还在传，但拿到全文的人自己会摇头。",
-            { rep: 5, fac: { press: 8 } }),
+            { rep: 2, fac: { press: 8 } }),
           meh: m2("你想认，但认得很别扭。两边都不太买账。",
-            { rep: 2, fac: { press: 2 } }),
+            { rep: 0.8, fac: { press: 2 } }),
           fail: m2("你的「认下」被写成了新的素材：「他终于对那篇文章做出了反应」。反应本身被断章了。",
-            { rep: -4, fac: { press: -4 } }),
+            { rep: -1.5, fac: { press: -4 } }),
           critfail: m2("你认下的一句话，恰好是文章里被质疑过的那句。你亲手把质疑坐实了。",
-            { rep: -7, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
+            { rep: -2.75, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
         }
       },
       {
@@ -163,15 +163,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("「回应版」最后写成了一篇更完整的你。两家刊物隔空打了一个月笔仗，你在中间捡到了一整轮免费曝光。",
-            { rep: 9, fac: { press: 10, base: 4 } }),
+            { rep: 3.5, fac: { press: 10, base: 4 } }),
           ok: m2("断章的三句话被放回了上下文。伤口止住了，疤还在。",
-            { rep: 5, fac: { press: 6 } }),
+            { rep: 2, fac: { press: 6 } }),
           meh: m2("新文章不咸不淡。两篇文章放在一起，读者只记住了更刻薄的那篇。",
-            { rep: 1, fac: { press: 2 } }),
+            { rep: 0.4, fac: { press: 2 } }),
           fail: m2("你多解释了一句不该解释的。现在有两篇文章可以断章了。",
-            { rep: -5, fac: { press: -6 }, flags: ["scandal_1"] }),
+            { rep: -2, fac: { press: -6 }, flags: ["scandal_1"] }),
           critfail: m2("「回应版」的作者从头到尾就没打算回应 —— 他是冲着把两篇文章缝成一个大故事来的。他成功了。",
-            { rep: -9, fac: { press: -10, base: -8 }, flags: ["scandal_2"] })
+            { rep: -3.5, fac: { press: -10, base: -8 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -180,15 +180,15 @@ POTUS.define("event", [
         base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.25 }, { src: "attr", key: "INTG", w: 0.25 }],
         outcomes: {
           crit: m2("一个月后，一件真正的全国大事把所有人的注意力都带走了。那篇文章安静地变成了档案。",
-            { rep: 4, fac: { press: 3 } }),
+            { rep: 1.5, fac: { press: 3 } }),
           ok: m2("热度自己退了。断章还在对手手里，但用旧了的刀不快。",
-            { rep: 2 }),
+            { rep: 0.8 }),
           meh: m2("隔三差五还有人引用一句。不疼，但也没断根。",
             { rep: 0 }),
           fail: m2("你的对手在一场辩论里当众念出了那句断章。你没能当场纠正，片段传开了。",
-            { rep: -5, fac: { base: -4 } }),
+            { rep: -2, fac: { base: -4 } }),
           critfail: m2("你沉默的每一天，「他不回应」都在长个。到秋天，那篇特稿成了别人讲你的标准开场白。",
-            { rep: -7, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
+            { rep: -2.75, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
         }
       }
     ]
@@ -199,7 +199,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_fact_check", era: MED2_ERAS, tierMin: 0, tierMax: 5, weight: 11,
-    grade: "minor", category: "media",
+    grade: "minor", valence: "risk", dyn: true, category: "media",
     title: "那个数字",
     body: "你在演讲里用了两年的那个数字 —— 每次讲都有掌声的那个 ——\n" +
       "被一家事实核查栏目查了。结论很干脆：来源是三年前的一份估算，\n" +
@@ -233,15 +233,15 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "fac", key: "base", w: 0.25 }],
         outcomes: {
           crit: m2("你把核查栏目骂成了「带节奏的机器」，你的选民鼓掌了。三天后那篇核查在他们的时间线里消失了。",
-            { rep: 5, voters: { diehard: 250 }, fac: { base: 6, press: -8 } }),
+            { rep: 2, voters: { diehard: 250 }, fac: { base: 6, press: -8 } }),
           ok: m2("骂战打了两个星期，不分胜负。你的基本盘没动，中间那批人皱了皱眉。",
-            { rep: 2, fac: { base: 3, press: -6 } }),
+            { rep: 0.8, fac: { base: 3, press: -6 } }),
           meh: m2("你骂了，但没骂响。核查文章该传还在传。",
-            { rep: -1, fac: { press: -4 } }),
+            { rep: -0.4, fac: { press: -4 } }),
           fail: m2("你质疑核查者的那天下午，原作者公开发声，逐条站在了核查那一边。现在故事变成了「他连出处都不认」。",
-            { rep: -6, fac: { press: -10, base: -4 }, flags: ["scandal_1"] }),
+            { rep: -2.5, fac: { press: -10, base: -4 }, flags: ["scandal_1"] }),
           critfail: m2("你团队里有人向媒体承认「其实我们早就知道数字有问题」。你骂核查者的每一个字都被剪进了同一条新闻。",
-            { rep: -10, fac: { press: -14, base: -8 }, flags: ["scandal_2"], voters: { oppose: 200 } })
+            { rep: -4, fac: { press: -14, base: -8 }, flags: ["scandal_2"], voters: { oppose: 200 } })
         }
       },
       {
@@ -250,15 +250,15 @@ POTUS.define("event", [
         base: 0.52, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
           crit: m2("你的勘误发得干脆，还顺手把新数据讲了一遍。那位原作者替你说了话：「认错的政客，我十年没见过第二个。」这句话被转得比核查原文还广。",
-            { rep: 8, fac: { press: 12, base: 4 }, attr: { INTG: 1 } }),
+            { rep: 3, fac: { press: 12, base: 4 }, attr: { INTG: 1 } }),
           ok: m2("你认了，新闻一轮就过去了。有人骂你软，更多人记住了「他认账」。",
-            { rep: 5, fac: { press: 8 }, attr: { INTG: 1 } }),
+            { rep: 2, fac: { press: 8 }, attr: { INTG: 1 } }),
           meh: m2("认了，但讲得笨拙。标题是「该议员为其数据致歉」——不算难看，也不算好看。",
-            { rep: 1, fac: { press: 3 } }),
+            { rep: 0.4, fac: { press: 3 } }),
           fail: m2("勘误发布会开了，但对家用你认错的片段剪了一条广告。道歉成了别人的弹药。",
-            { rep: -4, voters: { warm: -150 }, flags: ["scandal_1"] }),
+            { rep: -1.5, voters: { warm: -150 }, flags: ["scandal_1"] }),
           critfail: m2("你认了这个数字，记者连夜把你用过的其他数字全查了一遍。三天后，第二篇核查出刊了。",
-            { rep: -8, fac: { press: -8 }, flags: ["scandal_2"] })
+            { rep: -3, fac: { press: -8 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -268,15 +268,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("你的团队找到了一个更新的、更硬的数字，来源无可挑剔。下一次演讲你换得毫无痕迹，还多赢了一轮掌声。",
-            { rep: 6, fac: { press: 4 } }),
+            { rep: 2.5, fac: { press: 4 } }),
           ok: m2("新数字接上了。有人注意到了更换，但没人追打。",
-            { rep: 3 }),
+            { rep: 1.25 }),
           meh: m2("新数字平淡无奇，掌声少了一半。你保住了体面，丢了那句金句。",
-            { rep: 1 }),
+            { rep: 0.4 }),
           fail: m2("有记者做了对比：「上周还是七成，这周就成了六成二。他没解释。」不解释本身成了新闻。",
-            { rep: -5, fac: { press: -8 } }),
+            { rep: -2, fac: { press: -8 } }),
           critfail: m2("新数字用了一周，又被查了 —— 这一次是来源过期。两连击之后，你的每一次演讲都会先被过秤。",
-            { rep: -9, fac: { press: -12, base: -5 }, flags: ["scandal_2"] })
+            { rep: -3.5, fac: { press: -12, base: -5 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -285,15 +285,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.25 }],
         outcomes: {
           crit: m2("核查文章发在一个没人留意的周二。它对了，但没人看见它对。",
-            { rep: 1 }),
+            { rep: 0.4 }),
           ok: m2("没有回应，没有下文。数字悄悄退出了你的讲稿。",
             { rep: 0 }),
           meh: m2("你少了一句话可讲。缺了那个数字的段落，总是差半口气。",
-            { rep: -1 }),
+            { rep: -0.4 }),
           fail: m2("台下有人举手问：「您之前说的那个数字，核查说不对。」你答了一句含糊的话，第二天上了简报。",
-            { rep: -4, fac: { press: -5 } }),
+            { rep: -1.5, fac: { press: -5 } }),
           critfail: m2("沉默被解读成默认。一个月后，「用假数字还不认」出现在对手的第一条攻击广告里。",
-            { rep: -7, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
+            { rep: -2.75, fac: { press: -8, base: -6 }, flags: ["scandal_1"] })
         }
       }
     ]
@@ -304,7 +304,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_debate_prep", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 12,
-    grade: "mid", category: "media",
+    grade: "mid", valence: "risk", dyn: true, category: "media",
     cond: function (G, P) { return P.electionYear(); },
     title: "辩论前的那间屋子",
     body: "选举年，辩论定在三周后。对手、主持人的风格、提纲的 rumored 范围，\n" +
@@ -339,15 +339,15 @@ POTUS.define("event", [
         cost: { ap: 2 },
         outcomes: {
           crit: m2("你三次提到那个弱点，第三次对手失态了。那个片段当晚被反复播放。一周后，民调里「强势」成了你的标签。",
-            { rep: 12, voters: { diehard: 350, warm: 150 }, fac: { base: 8, press: 8 } }),
+            { rep: 2.5, voters: { diehard: 350, warm: 150 }, fac: { base: 8, press: 8 } }),
           ok: m2("攻击命中了，没有击倒。观众看到了一把利刃，也看到你没敢连刺。",
-            { rep: 7, voters: { diehard: 200 }, fac: { press: 5 } }),
+            { rep: 1.5, voters: { diehard: 200 }, fac: { press: 5 } }),
           meh: m2("你打了几拳，对手全接住了。整晚五五开，第二天没人讨论辩论。",
-            { rep: 2 }),
+            { rep: 0.4 }),
           fail: m2("对手早有准备，他背了一遍你投票记录里的三条。你的攻击成了他的铺垫，攻守当场易位。",
-            { rep: -6, voters: { warm: -200 }, fac: { press: -6 } }),
+            { rep: -1.25, voters: { warm: -200 }, fac: { press: -6 } }),
           critfail: m2("你追击得太狠，逼得对手当场讲了自家的一段伤心往事。观众看见的是一个在人家伤口上补刀的人。那句台词跟了你四年。",
-            { rep: -11, voters: { warm: -350, oppose: 200 }, fac: { press: -10, base: -8 }, flags: ["scandal_2"] })
+            { rep: -2.25, voters: { warm: -350, oppose: 200 }, fac: { press: -10, base: -8 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -357,15 +357,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("对手忍不住了，主动攻击你，而你把每个问题都稳稳落回自己的主张。主持人事后写专栏说那晚「只有一个成年人在台上」。",
-            { rep: 9, voters: { warm: 250 }, fac: { press: 8, base: 5 } }),
+            { rep: 1.75, voters: { warm: 250 }, fac: { press: 8, base: 5 } }),
           ok: m2("你滴水不漏，观众觉得可信。没高潮，也没伤。",
-            { rep: 5, voters: { warm: 100 } }),
+            { rep: 1, voters: { warm: 100 } }),
           meh: m2("你稳到了困。观众记住了对手的一句俏皮话和你的一句「这要回到我们的计划」。",
-            { rep: 1 }),
+            { rep: 0.2 }),
           fail: m2("对手拿走了全部进攻戏份。你像一件家具一样站在台上，评论说「他来过，但没来过」。",
-            { rep: -5, voters: { warm: -150 }, fac: { press: -5 } }),
+            { rep: -1, voters: { warm: -150 }, fac: { press: -5 } }),
           critfail: m2("站桩站到第三次追问时，主持人放慢语速问：「您就是不愿回答这个问题，对吗？」观众笑了，笑的是你。",
-            { rep: -9, voters: { warm: -250 }, fac: { press: -8, base: -5 }, flags: ["scandal_1"] })
+            { rep: -1.75, voters: { warm: -250 }, fac: { press: -8, base: -5 }, flags: ["scandal_1"] })
         }
       },
       {
@@ -375,15 +375,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("你讲了那位选民的故事，讲到一半全场安静了。对手的 ppt 在那一刻全部失效。那位选民后来出现在了你的竞选广告里 —— 是自愿的。",
-            { rep: 13, voters: { warm: 300, diehard: 150 }, fac: { base: 10, press: 8 } }),
+            { rep: 2.5, voters: { warm: 300, diehard: 150 }, fac: { base: 10, press: 8 } }),
           ok: m2("故事立住了。评论说「数据是他对手的，但人是他的」。",
-            { rep: 8, voters: { warm: 200 }, fac: { base: 6 } }),
+            { rep: 1.5, voters: { warm: 200 }, fac: { base: 6 } }),
           meh: m2("故事讲得有点长，主持人客气地打断了你。半段故事等于没有故事。",
-            { rep: 2 }),
+            { rep: 0.4 }),
           fail: m2("对手的团队连夜找到了那位选民，她说的版本和你的版本差了三处。第二天标题是「一个被借用的名字」。",
-            { rep: -6, fac: { press: -8, base: -5 }, flags: ["scandal_1"] }),
+            { rep: -1.25, fac: { press: -8, base: -5 }, flags: ["scandal_1"] }),
           critfail: m2("那个故事是你从别处听来再润色的，这一点被挖了出来。从此你的每一个真实故事都先被怀疑一遍。",
-            { rep: -10, fac: { press: -12, base: -8 }, flags: ["scandal_2"] })
+            { rep: -2, fac: { press: -12, base: -8 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -392,15 +392,15 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.45 }],
         outcomes: {
           crit: m2("你睡了个好觉上台，全程没看一页笔记。那晚的三个瞬间都成了你的经典素材。你的团队看呆了。",
-            { rep: 11, voters: { diehard: 200, warm: 200 }, fac: { base: 6, press: 6 } }),
+            { rep: 2.25, voters: { diehard: 200, warm: 200 }, fac: { base: 6, press: 6 } }),
           ok: m2("你打了个平手，赢在自然。团队的人从此不敢再逼你排练。",
-            { rep: 5, voters: { warm: 100 } }),
+            { rep: 1, voters: { warm: 100 } }),
           meh: m2("不排练也没惊喜，你用掉了三周里最贵的一晚。",
-            { rep: 1 }),
+            { rep: 0.2 }),
           fail: m2("对手引用了你自己三年前的一次投票，你当场没能想起来细节。那一愣被放大了一周。",
-            { rep: -6, voters: { warm: -150 }, fac: { press: -6 } }),
+            { rep: -1.25, voters: { warm: -150 }, fac: { press: -6 } }),
           critfail: m2("你临场编的一个数字当场被主持人用资料卡纠正。全场那一刻的安静，比任何嘘声都响。",
-            { rep: -10, fac: { press: -10, base: -6 }, flags: ["scandal_2"] })
+            { rep: -2, fac: { press: -10, base: -6 }, flags: ["scandal_2"] })
         }
       }
     ]
@@ -411,7 +411,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_dark_poster", era: MED2_ERAS, tierMin: 0, tierMax: 5, weight: 10,
-    grade: "minor", category: "media",
+    grade: "minor", valence: "bane", dyn: true, category: "media",
     title: "半夜出现的那些纸",
     body: "有人在半夜把它们贴了出来。内容全是「关于你」的：三个半真半假的事实，\n" +
       "一个被夸大四倍的数字，和一句手写的、阴冷的暗示。\n" +
@@ -442,36 +442,36 @@ POTUS.define("event", [
         id: "trace", text: "花人手钱追源头：纸、账号、印厂，一路查上去",
         note: "查得到源头就握住了反击的枪。查不到，时间和钱都喂了水。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
-        cost: { fun: 40000, ap: 1 },
+        cost: { fun: 4.5, ap: 1 },
         outcomes: {
           crit: m2("线索从一张纸的克重查到一家小印厂，再从印厂查到一笔付款。你没声张 —— 你只是让对手知道你手里有了那张收据。传单从此绝迹。",
-            { rep: 6, lev: 1, fac: { press: 4, establishment: 4 } }),
+            { rep: 2.5, lev: 1, fac: { press: 4, establishment: 4 } }),
           ok: m2("查到了大致的圈子：不是对手的正式团队，是几个「自发帮忙」的人。你放了话，纸少了很多。",
-            { rep: 3, fac: { establishment: 3 } }),
+            { rep: 1.25, fac: { establishment: 3 } }),
           meh: m2("查了两周，线索断在一个注销的账号上。钱花了，没结果。",
-            { rep: -1 }),
+            { rep: -0.4 }),
           fail: m2("你雇人查源头的事被捅给了媒体，标题是「他不澄清，他在抓人」。",
-            { rep: -5, fac: { press: -8, base: -4 } }),
+            { rep: -2, fac: { press: -8, base: -4 } }),
           critfail: m2("你查错人，逼到人家店门口，结果传单根本不是他印的。对方报了警，第二天的纸比第一天更多。",
-            { rep: -8, fac: { press: -10, base: -6 }, flags: ["scandal_2"] })
+            { rep: -3, fac: { press: -10, base: -6 }, flags: ["scandal_2"] })
         }
       },
       {
         id: "counterattack", text: "以其人之道：也让一些「关于他」的纸流通起来",
         note: "同归于尽的打法。赢面不小，赢完之后你也变成了会做这种事的人。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
-        cost: { fun: 50000 },
+        cost: { fun: 5.5 },
         outcomes: {
           crit: m2("你的纸做得更狠也更好看。对手先乱：他得一边解释纸上的事，一边解释纸是谁印的。原版的那批传单反而没人提了。",
-            { rep: 5, voters: { diehard: 200 }, fac: { base: 4 }, flags: ["bought"] }),
+            { rep: 2, voters: { diehard: 200 }, fac: { base: 4 }, flags: ["bought"] }),
           ok: m2("两边的纸互相抵消。民众看腻了，都当是抹布。",
-            { rep: 1, flags: ["bought"] }),
+            { rep: 0.4, flags: ["bought"] }),
           meh: m2("你的纸没传开多少。钱变成了废纸。",
-            { rep: -1, flags: ["bought"] }),
+            { rep: -0.4, flags: ["bought"] }),
           fail: m2("印你那批纸的人被抓住了，供出了钱。现在只有一方的手脏，是你这边。",
-            { rep: -7, fac: { press: -10, base: -8 }, flags: ["scandal_2"] }),
+            { rep: -2.75, fac: { press: -10, base: -8 }, flags: ["scandal_2"] }),
           critfail: m2("你做的纸被对手的团队反查了个干净，连付款记录都在电视上念了出来。那一晚你说「我不知情」，连你自己的团队都没人抬头。",
-            { rep: -12, fac: { press: -14, base: -10, establishment: -8 }, flags: ["scandal_3", "investigation_open"] })
+            { rep: -5, fac: { press: -14, base: -10, establishment: -8 }, flags: ["scandal_3", "investigation_open"] })
         }
       },
       {
@@ -480,15 +480,15 @@ POTUS.define("event", [
         base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
           crit: m2("你一个字没提，但连续三周每场活动都满。认识你的人越多，纸就越像笑话。后来有人当面撕了它。",
-            { rep: 7, fac: { base: 6, press: 4 }, attr: { INTG: 1 } }),
+            { rep: 2.75, fac: { base: 6, press: 4 }, attr: { INTG: 1 } }),
           ok: m2("纸传了一阵就停了。没死人，只是有几个选民一直用一种眼神看你。",
-            { rep: 3 }),
+            { rep: 1.25 }),
           meh: m2("它像一种低烧，不致命，一直在。你的日程照旧。",
             { rep: 0 }),
           fail: m2("沉默给了纸生长的时间，纸上的说法长成了坊间的「常识」。等你开口时，已经晚了。",
-            { rep: -6, voters: { warm: -150 }, flags: ["scandal_1"] }),
+            { rep: -2.5, voters: { warm: -150 }, flags: ["scandal_1"] }),
           critfail: m2("投票日前四天，那批纸的「精修版」出现了一遍 —— 附上了伪造的出处。你输掉的票数和纸出现的街区高度重合。",
-            { rep: -9, voters: { warm: -300, oppose: 200 }, flags: ["scandal_2"] })
+            { rep: -3.5, voters: { warm: -300, oppose: 200 }, flags: ["scandal_2"] })
         }
       }
     ]
@@ -499,7 +499,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_press_enemy", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
-    grade: "major", category: "media", unique: true,
+    grade: "major", valence: "bane", dyn: true, category: "media", unique: true,
     any: [
       { flags: ["scandal_2"] }, { flags: ["scandal_3"] }, { flags: ["scandal_4"] },
       { flags: ["wave_occupy"] }, { flags: ["wave_tea"] }, { flags: ["wave_antiwar"] },
@@ -542,15 +542,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: m2("他跟了你两年，写过你六篇稿子：三篇好，两篇中性，一篇狠的 —— 那篇他提前给你打了电话。圈内开始说你是「少数懂得跟媒体打交道的人」。",
-            { rep: 10, fac: { press: 12, base: 4 }, contact: { columnist: 12 }, flags: ["med2_press_enemy"] }),
+            { rep: 1, fac: { press: 12, base: 4 }, contact: { columnist: 12 }, flags: ["med2_press_enemy"] }),
           ok: m2("他跟你的头一年写得克制。你知道这不是仁慈，是观察期。",
-            { rep: 6, fac: { press: 8 }, contact: { columnist: 8 }, flags: ["med2_press_enemy"] }),
+            { rep: 0.7, fac: { press: 8 }, contact: { columnist: 8 }, flags: ["med2_press_enemy"] }),
           meh: m2("你喂他的料他都用了，该写的还是照写。你买到的只是节奏，不是方向。",
-            { rep: 2, fac: { press: 4 }, flags: ["med2_press_enemy"] }),
+            { rep: 0.2, fac: { press: 4 }, flags: ["med2_press_enemy"] }),
           fail: m2("有一次你让他等了四十分钟，恰好那天他本来要写一篇对你不错的稿子。稿子改了方向，你的门也从此只剩半开。",
-            { rep: -5, fac: { press: -8 }, flags: ["med2_press_enemy"] }),
+            { rep: -0.6, fac: { press: -8 }, flags: ["med2_press_enemy"] }),
           critfail: m2("你喂的某条料后来被他查出了水分。他把这件事本身写成了一篇：「一个连喂料都要掺水的人」。此后你的每一份声明他都要先核三遍。",
-            { rep: -9, fac: { press: -14, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] })
+            { rep: -1, fac: { press: -14, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] })
         }
       },
       {
@@ -559,33 +559,33 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.3 }, { src: "attr", key: "INT", w: 0.2 }],
         outcomes: {
           crit: m2("你寸土不让，但你的记录干净到让他跟了半年一无所获。他真的遵守了打招呼时的承诺：写出来的每一篇都对得起事实 —— 也包括那篇写你「滴水不漏」的。",
-            { rep: 8, fac: { press: 6 }, attr: { INTG: 1 }, flags: ["med2_press_enemy"] }),
+            { rep: 0.9, fac: { press: 6 }, attr: { INTG: 1 }, flags: ["med2_press_enemy"] }),
           ok: m2("他跟了你半年，写过几篇不咸不淡的稿。你们的战争还没开始，都还在布防。",
-            { rep: 4, fac: { press: 2 }, flags: ["med2_press_enemy"] }),
+            { rep: 0.4, fac: { press: 2 }, flags: ["med2_press_enemy"] }),
           meh: m2("你的沉默成了他每篇稿子的第一段：「该办公室未回应本刊的多次问询。」",
-            { rep: -2, fac: { press: -6 }, flags: ["med2_press_enemy"] }),
+            { rep: -0.2, fac: { press: -6 }, flags: ["med2_press_enemy"] }),
           fail: m2("门关得越紧他挖得越深。他找到了一笔你三年前的旧账，并在电话里把它念给你听，问你要不要回应。",
-            { rep: -7, fac: { press: -10 }, flags: ["med2_press_enemy", "scandal_2"] }),
+            { rep: -0.8, fac: { press: -10 }, flags: ["med2_press_enemy", "scandal_2"] }),
           critfail: m2("关门把他逼成了敌人。他把「报道你」升级成了「研究你」：他开始访问你二十年前一起工作过的每一个人。",
-            { rep: -11, fac: { press: -14, base: -8 }, flags: ["med2_press_enemy", "scandal_3"] })
+            { rep: -1.25, fac: { press: -14, base: -8 }, flags: ["med2_press_enemy", "scandal_3"] })
         }
       },
       {
         id: "dig_back", text: "他也别想干净：让朋友查查他自己的那些旧账",
         note: "舆论战打成对称战争的第一步。从此你们互相持有对方。谁也没赢，谁都收不了手。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
-        cost: { fun: 80000, ap: 1 },
+        cost: { fun: 0.7, ap: 1 },
         outcomes: {
           crit: m2("他十年前一篇没核实的稿子被你的朋友翻了出来，两个知情人愿意作证。他编辑把他从你的线上撤了。赢了 —— 但整个媒体圈都在看是谁干的。",
-            { rep: 6, lev: 1, fac: { press: -10, establishment: 4 }, flags: ["med2_press_enemy", "compromised"] }),
+            { rep: 0.7, lev: 1, fac: { press: -10, establishment: 4 }, flags: ["med2_press_enemy", "compromised"] }),
           ok: m2("你摸到了他的短处，通过中间人递了过去。他没撤，但稿子的频率肉眼可见地降了。你们心照不宣。",
-            { rep: 3, lev: 1, fac: { press: -6 }, flags: ["med2_press_enemy", "compromised"] }),
+            { rep: 0.3, lev: 1, fac: { press: -6 }, flags: ["med2_press_enemy", "compromised"] }),
           meh: m2("查了半天，他的账比你想的干净。钱白花了，你反而更紧张了。",
-            { rep: -2, flags: ["med2_press_enemy"] }),
+            { rep: -0.2, flags: ["med2_press_enemy"] }),
           fail: m2("你查他的事被他知道了。他的下一篇标题是：「被盯上的人，开始盯人」。",
-            { rep: -7, fac: { press: -12, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] }),
+            { rep: -0.8, fac: { press: -12, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] }),
           critfail: m2("你雇的人做事不干净，事情反着爆了出来：记者没倒，先倒的是你。媒体圈最护的就是自己人。",
-            { rep: -12, fac: { press: -16, base: -10, establishment: -6 }, flags: ["med2_press_enemy", "scandal_3", "investigation_open"] })
+            { rep: -1.25, fac: { press: -16, base: -10, establishment: -6 }, flags: ["med2_press_enemy", "scandal_3", "investigation_open"] })
         }
       },
       {
@@ -594,15 +594,15 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
           crit: m2("他听完沉默了几秒，收回了名片：「好。那我们各凭本事。」后来他写你的稿子依然不客气，但每一篇你都挑不出对手式的歪曲。这可能是这场游戏里最好的结局。",
-            { rep: 9, fac: { press: 10 }, attr: { INTG: 1 }, flags: ["med2_press_enemy"] }),
+            { rep: 1, fac: { press: 10 }, attr: { INTG: 1 }, flags: ["med2_press_enemy"] }),
           ok: m2("他耸耸肩走了。战争按部就班地开始，至少没人骗谁。",
-            { rep: 5, fac: { press: 4 }, flags: ["med2_press_enemy"] }),
+            { rep: 0.6, fac: { press: 4 }, flags: ["med2_press_enemy"] }),
           meh: m2("他觉得你在摆姿态。稿子照写，只是多了一层「他自认清白」的讽刺。",
             { rep: 0, fac: { press: -2 }, flags: ["med2_press_enemy"] }),
           fail: m2("你的「清白」撑了三个月，直到他挖出一件你确实做过的事。落差的伤害是双倍的。",
-            { rep: -7, fac: { press: -10, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] }),
+            { rep: -0.8, fac: { press: -10, base: -6 }, flags: ["med2_press_enemy", "scandal_2"] }),
           critfail: m2("他把你那句话原样印在了第一篇长文的结尾：「『你写你的，我做我的』 —— 他做了什么，请往下读。」那篇文章有一万四千字。",
-            { rep: -12, fac: { press: -14, base: -10 }, flags: ["med2_press_enemy", "scandal_3"] })
+            { rep: -1.25, fac: { press: -14, base: -10 }, flags: ["med2_press_enemy", "scandal_3"] })
         }
       }
     ]
@@ -613,7 +613,7 @@ POTUS.define("event", [
    * ======================================================================== */
   {
     id: "med2_press_enemy_after", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
-    grade: "mid", category: "media",
+    grade: "mid", valence: "bane", dyn: true, category: "media",
     after: { id: "med2_press_enemy", minMonthsAfter: 10, maxMonthsAfter: 30 },
     flags: ["med2_press_enemy"],
     title: "他的名字进了你的日程",
@@ -650,15 +650,15 @@ POTUS.define("event", [
         cost: { ap: 2 },
         outcomes: {
           crit: m2("书出版了。关于你的那一章有一个你想不到的标题：「他一直在听」。他在最后一段写：「我准备写一个对手，最后写成了一个证人。」那本书成了你传记的底稿。",
-            { rep: 14, fac: { press: 12, base: 8 }, attr: { INTG: 1 }, flags: ["med2_press_book"] }),
+            { rep: 2.75, fac: { press: 12, base: 8 }, attr: { INTG: 1 }, flags: ["med2_press_book"] }),
           ok: m2("书出版了，关于你的部分公道但不温柔。你的名字和「争议」并列，也和「配合」并列。",
-            { rep: 8, fac: { press: 8 }, flags: ["med2_press_book"] }),
+            { rep: 1.5, fac: { press: 8 }, flags: ["med2_press_book"] }),
           meh: m2("你说了六个小时，他用了一段。那段引用的是你最疲惫的那一句。",
-            { rep: 2, fac: { press: 3 }, flags: ["med2_press_book"] }),
+            { rep: 0.4, fac: { press: 3 }, flags: ["med2_press_book"] }),
           fail: m2("你为了解释一件事，顺嘴提了另一件。两件事在书里挨着排版。书评说那一章「信息量最大」。",
-            { rep: -7, fac: { press: 6, base: -6 }, flags: ["med2_press_book", "scandal_2"] }),
+            { rep: -1.5, fac: { press: 6, base: -6 }, flags: ["med2_press_book", "scandal_2"] }),
           critfail: m2("你说的某句话，他核对了三年，最后写进了书的结论章。你永远无法知道如果他没写那本书，那句被你遗忘的话会不会就那么过去。",
-            { rep: -11, fac: { press: 8, base: -10 }, flags: ["med2_press_book", "scandal_3"] })
+            { rep: -2.25, fac: { press: 8, base: -10 }, flags: ["med2_press_book", "scandal_3"] })
         }
       },
       {
@@ -667,33 +667,33 @@ POTUS.define("event", [
         base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
         outcomes: {
           crit: m2("书出版了。你的部分全部来自公开记录和他人转述 —— 他是个好记者，写不出你没能给出的把柄。书评说这一章「冷静得近乎敬意」。",
-            { rep: 6, fac: { press: 6 }, flags: ["med2_press_book"] }),
+            { rep: 1.25, fac: { press: 6 }, flags: ["med2_press_book"] }),
           ok: m2("书出了，风波一场。你在书里是一个沉默的、不肯解释的身影 —— 有人读出傲慢，有人读出骨气。",
-            { rep: 3, flags: ["med2_press_book"] }),
+            { rep: 0.6, flags: ["med2_press_book"] }),
           meh: m2("书出了，卖得一般。你的名字在第两百页。",
-            { rep: 1, flags: ["med2_press_book"] }),
+            { rep: 0.2, flags: ["med2_press_book"] }),
           fail: m2("他用了你最不希望出现的那个人做了主要信源。书里那个「你」，你不认识，但读者认识。",
-            { rep: -6, fac: { press: 4, base: -6 }, flags: ["med2_press_book", "scandal_1"] }),
+            { rep: -1.25, fac: { press: 4, base: -6 }, flags: ["med2_press_book", "scandal_1"] }),
           critfail: m2("书成了畅销书。书里那张时间线被无数文章转引，长成了关于你的「标准叙事」。你后来每次开口澄清，引用的都是他的书。",
-            { rep: -10, fac: { press: 4, base: -10 }, flags: ["med2_press_book", "scandal_2"] })
+            { rep: -2, fac: { press: 4, base: -10 }, flags: ["med2_press_book", "scandal_2"] })
         }
       },
       {
         id: "preempt", text: "抢在他前面：先出自传，把叙事权抓回来",
         note: "用自己的版本占领书架。贵，而且打的是持久战 —— 你的书和他的一直摆在一起。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "fac", key: "commercial", w: 0.25 }],
-        cost: { fun: 120000, ap: 2 },
+        cost: { fun: 3.5, ap: 2 },
         outcomes: {
           crit: m2("你的书先出了三个月，写得诚恳，卖得出乎意料。他的书出来时，书评都在拿它和你的对照 —— 而对照的基准是你的版本。",
-            { rep: 12, funMul: 0.35, fac: { press: 6, base: 8, commercial: 6 }, flags: ["med2_press_book"] }),
+            { rep: 2.5, funMul: 0.35, fac: { press: 6, base: 8, commercial: 6 }, flags: ["med2_press_book"] }),
           ok: m2("你的书先出了。两本书各有各的读者，叙事权至少分了一半。",
-            { rep: 7, funMul: 0.1, fac: { base: 5 }, flags: ["med2_press_book"] }),
+            { rep: 1.5, funMul: 0.1, fac: { base: 5 }, flags: ["med2_press_book"] }),
           meh: m2("书出了，反响平平。至少那几个月的版面在谈你的版本。",
-            { rep: 2, funMul: -0.3, flags: ["med2_press_book"] }),
+            { rep: 0.4, funMul: -0.3, flags: ["med2_press_book"] }),
           fail: m2("赶工的书被扒出三处记忆错误。他的书晚出半年，每一处都替你「更正」了 —— 带着出处。",
-            { rep: -6, funMul: -0.5, fac: { press: -6, base: -4 }, flags: ["med2_press_book", "scandal_1"] }),
+            { rep: -1.25, funMul: -0.5, fac: { press: -6, base: -4 }, flags: ["med2_press_book", "scandal_1"] }),
           critfail: m2("你在自传里为辩护而写下的某句话，成了调查线索。书被加印的那一周，传票也到了。",
-            { rep: -10, funMul: -0.6, fac: { press: -8, base: -8 }, flags: ["med2_press_book", "scandal_3", "investigation_open"] })
+            { rep: -2, funMul: -0.6, fac: { press: -8, base: -8 }, flags: ["med2_press_book", "scandal_3", "investigation_open"] })
         }
       },
       {
@@ -702,15 +702,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.25 }],
         outcomes: {
           crit: m2("你们喝了两小时，没提一个字的书。结账时他说：「书里有一章本来叫『猎物』，上个月我改了名。」书出版那天你翻到那一章，标题是「对手」。",
-            { rep: 9, fac: { press: 10 }, attr: { INTG: 1 }, flags: ["med2_press_book"] }),
+            { rep: 1.75, fac: { press: 10 }, attr: { INTG: 1 }, flags: ["med2_press_book"] }),
           ok: m2("一顿体面的酒。书照出，但他在后记里写了一句：「他从来没有对我撒过谎 —— 这在我这一行不多见。」",
-            { rep: 5, fac: { press: 6 }, flags: ["med2_press_book"] }),
+            { rep: 1, fac: { press: 6 }, flags: ["med2_press_book"] }),
           meh: m2("酒喝了，话说完了。该写的他一个字没少写。",
-            { rep: 2, flags: ["med2_press_book"] }),
+            { rep: 0.4, flags: ["med2_press_book"] }),
           fail: m2("他赴了约，也用了这顿酒。书里写：「辞职之前，他还在试最后一招 —— 那副无懈可击的恳切。」",
-            { rep: -5, fac: { press: 4, base: -5 }, flags: ["med2_press_book", "scandal_1"] }),
+            { rep: -1, fac: { press: 4, base: -5 }, flags: ["med2_press_book", "scandal_1"] }),
           critfail: m2("咖啡馆的合影上了书的护封内页，配文是：「他总在正确的时间，出现在正确的镜头里。」你连这顿酒都成了他的素材。",
-            { rep: -8, fac: { press: 4, base: -8 }, flags: ["med2_press_book", "scandal_2"] })
+            { rep: -1.5, fac: { press: 4, base: -8 }, flags: ["med2_press_book", "scandal_2"] })
         }
       }
     ]

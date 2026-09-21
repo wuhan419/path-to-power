@@ -19,8 +19,6 @@ POTUS.reg = {
   /* 年终随笔：年终结算时按"得到/失去/处境"给文学性段落的素材库。
      见 content/13-year-tales.js。键是条目 id，值带 when 条件与 texts 数组。 */
   yeartale: {},
-  /* 大模型服务商预设（llm.js 的设置面板下拉用）。内容包可追加自己的网关。 */
-  llmPreset: {},
   /* 职位名表（状态面板的职位卡用）：键 "track_tier" → 职位名。
      内容包按轨道×层级给出真实职位名；miss 时引擎用 officeFallback 兜底。 */
   office: {},

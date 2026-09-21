@@ -19,6 +19,7 @@ POTUS.define("event", [
   {
     id: "for2_trade_trip",
     grade: "mid", category: "foreign",
+    valence: "risk", dyn: true,
     era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
     tierMin: 0, tierMax: 2, weight: 12,
     brief: {
@@ -50,11 +51,11 @@ POTUS.define("event", [
         note: "不睡午觉、不去观光。低层级上桌的方式不是坐上主桌，是让主桌的人记住帮你递过文件。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
         outcomes: {
-          crit: { body: "最后一晚的酒会上，大使居然叫出了你的名字——因为三天里你替所有人递过文件。合影里你站在边上，但你在画面里。回国的飞机上，半机舱的人都有了你的电话。", effects: { rep: 6, fac: { foreign: 10, commercial: 8, base: 4 }, contact: { fixer: 6 } } },
-          ok: { body: "你换来四十多张名片，记住了两排名字。回国后其中三家企业的季度酒会开始叫你。", effects: { rep: 4, fac: { commercial: 6, foreign: 5 } } },
-          meh: { body: "名片换了一兜，名字没记住几个。大堂的空调很冷，你的皮鞋不合脚。", effects: { rep: 2, fac: { commercial: 3 } } },
-          fail: { body: "你把一位企业家介绍给了错的参赞——生意没成，两边都以为是你不懂规矩。", effects: { rep: -2, fac: { commercial: -4, foreign: -3 } } },
-          critfail: { body: "酒会上你的一句玩笑被翻译得面目全非，传回了国内的行业圈子：「那个年轻人在那边失礼了」。", effects: { rep: -5, fac: { commercial: -6, foreign: -5, press: -3 } } }
+          crit: { body: "最后一晚的酒会上，大使居然叫出了你的名字——因为三天里你替所有人递过文件。合影里你站在边上，但你在画面里。回国的飞机上，半机舱的人都有了你的电话。", effects: { rep: 1.25, fac: { foreign: 10, commercial: 8, base: 4 }, contact: { fixer: 6 } } },
+          ok: { body: "你换来四十多张名片，记住了两排名字。回国后其中三家企业的季度酒会开始叫你。", effects: { rep: 0.8, fac: { commercial: 6, foreign: 5 } } },
+          meh: { body: "名片换了一兜，名字没记住几个。大堂的空调很冷，你的皮鞋不合脚。", effects: { rep: 0.4, fac: { commercial: 3 } } },
+          fail: { body: "你把一位企业家介绍给了错的参赞——生意没成，两边都以为是你不懂规矩。", effects: { rep: -0.4, fac: { commercial: -4, foreign: -3 } } },
+          critfail: { body: "酒会上你的一句玩笑被翻译得面目全非，传回了国内的行业圈子：「那个年轻人在那边失礼了」。", effects: { rep: -1, fac: { commercial: -6, foreign: -5, press: -3 } } }
         }
       },
       {
@@ -62,11 +63,11 @@ POTUS.define("event", [
         note: "不出风头，做全团最懂情况的人。回国后，谁能帮谁做媒，你说了算。",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.4 }],
         outcomes: {
-          crit: { body: "你整理的那份「谁要什么、谁有什么」的私下清单，归国后成了团长案头的参考。半年内三桩生意经了你的手——每一桩的双方都谢了你。", effects: { rep: 5, fac: { commercial: 10, foreign: 6 }, attr: { INT: 2 } } },
-          ok: { body: "你成了团里「问情况找他」的那个人。这个名字值的不多，但保质期很长。", effects: { rep: 3, fac: { commercial: 6, foreign: 3 } } },
-          meh: { body: "功课做了，但生意的逻辑比报表深。你带着半本笔记回了国。", effects: { rep: 2, attr: { INT: 1 } } },
-          fail: { body: "你夜里研究材料，白天跑腿时睡着了。签到表漏了一页，团长记住了你的哈欠。", effects: { rep: -1, fac: { commercial: -3 } } },
-          critfail: { body: "你的清单不知怎么在团里传开了——被你私下标注「难打交道」的企业家读到了自己的那一页。", effects: { rep: -4, fac: { commercial: -7 } } }
+          crit: { body: "你整理的那份「谁要什么、谁有什么」的私下清单，归国后成了团长案头的参考。半年内三桩生意经了你的手——每一桩的双方都谢了你。", effects: { rep: 1, fac: { commercial: 10, foreign: 6 }, attr: { INT: 2 } } },
+          ok: { body: "你成了团里「问情况找他」的那个人。这个名字值的不多，但保质期很长。", effects: { rep: 0.6, fac: { commercial: 6, foreign: 3 } } },
+          meh: { body: "功课做了，但生意的逻辑比报表深。你带着半本笔记回了国。", effects: { rep: 0.4, attr: { INT: 1 } } },
+          fail: { body: "你夜里研究材料，白天跑腿时睡着了。签到表漏了一页，团长记住了你的哈欠。", effects: { rep: -0.2, fac: { commercial: -3 } } },
+          critfail: { body: "你的清单不知怎么在团里传开了——被你私下标注「难打交道」的企业家读到了自己的那一页。", effects: { rep: -0.8, fac: { commercial: -7 } } }
         }
       },
       {
@@ -74,11 +75,11 @@ POTUS.define("event", [
         note: "行李不出错、签到不漏人。一趟平安的差旅也是一种履历——只是没人会记得。",
         base: 0.8,
         outcomes: {
-          crit: { body: "你把跑腿的活干得滴水不漏，团长在总结会上顺口谢了「后勤的同事」。就一句，但是当众的。", effects: { rep: 2, fac: { commercial: 3 } } },
-          ok: { body: "差旅顺利结束。你看了两眼那座城市的著名建筑，拍了几张照片。", effects: { rep: 1 } },
+          crit: { body: "你把跑腿的活干得滴水不漏，团长在总结会上顺口谢了「后勤的同事」。就一句，但是当众的。", effects: { rep: 0.4, fac: { commercial: 3 } } },
+          ok: { body: "差旅顺利结束。你看了两眼那座城市的著名建筑，拍了几张照片。", effects: { rep: 0.2 } },
           meh: { body: "你在酒店房间看完了两季电视剧。时差还没倒过来，飞机已经落地回家。", effects: {} },
-          fail: { body: "你安静得过分了。回国后有人问起代表团里都有谁，没人想起你也在。", effects: { rep: -1, fac: { base: -2 } } },
-          critfail: { body: "你代管的一箱样品在转机时丢了。不是你的错，但箱子确实在你名下。", effects: { rep: -3, fac: { commercial: -5 } } }
+          fail: { body: "你安静得过分了。回国后有人问起代表团里都有谁，没人想起你也在。", effects: { rep: -0.2, fac: { base: -2 } } },
+          critfail: { body: "你代管的一箱样品在转机时丢了。不是你的错，但箱子确实在你名下。", effects: { rep: -0.6, fac: { commercial: -5 } } }
         }
       }
     ]
@@ -90,6 +91,7 @@ POTUS.define("event", [
   {
     id: "for2_lobbyist_foreign",
     grade: "major", unique: true, category: "foreign",
+    valence: "risk", dyn: true,
     era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
     tierMin: 2, tierMax: 5, weight: 10,
     brief: {
@@ -121,24 +123,24 @@ POTUS.define("event", [
         note: "钱是真的，文件也是真的。你欠下的不是钱，是「他们知道你收了」这个事实——它比任何借条都硬。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "钱到账，竞选起死回生，你当选之夜的谢词里没提任何人。中间人发来贺电：以后还是朋友。你烧掉了所有便签——账在别人手里，路在你脚下。", effects: { fun: 300000, rep: 5, fac: { foreign: 12, establishment: -4 }, flags: ["for2_foreign_cash"] } },
-          ok: { body: "钱进了账，竞选撑过了最难的一关。你的会计没问，你也没提。", effects: { fun: 180000, fac: { foreign: 8 }, flags: ["for2_foreign_cash"] } },
-          meh: { body: "钱到了，但对方开始「顺便」转来一些背景材料，请你「参考」。你读了一份，后悔了。", effects: { fun: 100000, fac: { foreign: 5, agency: -3 }, flags: ["for2_foreign_cash"] } },
-          fail: { body: "竞选照旧吃紧——钱进来的速度比承诺的慢，条件却比承诺的早到。你明白了自己在谈判里的位置。", effects: { fun: 40000, rep: -3, fac: { foreign: 3 }, flags: ["for2_foreign_cash"] } },
-          critfail: { body: "选后第三个月，一家报纸顺着那家本地公司挖到了海外的母公司。标题只问了一句：这笔钱走了多远。联邦选举委员会的信函随后就到。", effects: { rep: -12, fac: { foreign: -6, press: -10, establishment: -10 }, flags: ["for2_foreign_cash", "scandal_2", "investigation_open"] } }
+          crit: { body: "钱到账，竞选起死回生，你当选之夜的谢词里没提任何人。中间人发来贺电：以后还是朋友。你烧掉了所有便签——账在别人手里，路在你脚下。", effects: { fun: 2.5, rep: 0.6, fac: { foreign: 12, establishment: -4 }, flags: ["for2_foreign_cash"] } },
+          ok: { body: "钱进了账，竞选撑过了最难的一关。你的会计没问，你也没提。", effects: { fun: 1.5, fac: { foreign: 8 }, flags: ["for2_foreign_cash"] } },
+          meh: { body: "钱到了，但对方开始「顺便」转来一些背景材料，请你「参考」。你读了一份，后悔了。", effects: { fun: 0.8, fac: { foreign: 5, agency: -3 }, flags: ["for2_foreign_cash"] } },
+          fail: { body: "竞选照旧吃紧——钱进来的速度比承诺的慢，条件却比承诺的早到。你明白了自己在谈判里的位置。", effects: { fun: 0.3, rep: -0.3, fac: { foreign: 3 }, flags: ["for2_foreign_cash"] } },
+          critfail: { body: "选后第三个月，一家报纸顺着那家本地公司挖到了海外的母公司。标题只问了一句：这笔钱走了多远。联邦选举委员会的信函随后就到。", effects: { rep: -1.25, fac: { foreign: -6, press: -10, establishment: -10 }, flags: ["for2_foreign_cash", "scandal_2", "investigation_open"] } }
         }
       },
       {
         id: "lawyer_route", text: "请独立律师把钱的来路查到底，再决定",
         note: "花时间和律师费换确定性。查清楚了可能一分拿不到——也可能避开一颗地雷。",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.2 }],
-        cost: { fun: 30000 },
+        cost: { fun: 0.3 },
         outcomes: {
-          crit: { body: "律师查了三周，结论写得像侦探小说：钱要经过两道「本地合伙」才能洗到台面上。你退了支票，并且悄悄留了一份报告——后来它保护了你两次。", effects: { rep: 6, fac: { establishment: 8, agency: 6, foreign: -8 }, flags: ["whistleblower"] } },
-          ok: { body: "查证显示第一层是干净的，第二层查不动。你只收了能查清的那一小部分，退掉了大头。中间人笑了笑：可惜。", effects: { fun: 50000, rep: 3, fac: { establishment: 5, foreign: -3 } } },
+          crit: { body: "律师查了三周，结论写得像侦探小说：钱要经过两道「本地合伙」才能洗到台面上。你退了支票，并且悄悄留了一份报告——后来它保护了你两次。", effects: { rep: 0.7, fac: { establishment: 8, agency: 6, foreign: -8 }, flags: ["whistleblower"] } },
+          ok: { body: "查证显示第一层是干净的，第二层查不动。你只收了能查清的那一小部分，退掉了大头。中间人笑了笑：可惜。", effects: { fun: 0.4, rep: 0.3, fac: { establishment: 5, foreign: -3 } } },
           meh: { body: "律师的费用花掉了，结论是「无法确认」。你退了钱，白白瘦了一圈账面。", effects: { fac: { establishment: 3, foreign: -4 } } },
-          fail: { body: "查证的消息走漏了。对面觉得你「不识抬举」，你的对手收到了原本属于你的那份「友谊」。", effects: { rep: -2, fac: { foreign: -8 } } },
-          critfail: { body: "律师函被人截了图。标题变成了「候选人涉嫌收受外国资金，正被调查」——调查的是钱，标题里没有主语。", effects: { rep: -8, fac: { press: -8, foreign: -6 }, flags: ["scandal_1"] } }
+          fail: { body: "查证的消息走漏了。对面觉得你「不识抬举」，你的对手收到了原本属于你的那份「友谊」。", effects: { rep: -0.2, fac: { foreign: -8 } } },
+          critfail: { body: "律师函被人截了图。标题变成了「候选人涉嫌收受外国资金，正被调查」——调查的是钱，标题里没有主语。", effects: { rep: -0.9, fac: { press: -8, foreign: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -146,11 +148,11 @@ POTUS.define("event", [
         note: "干净，而且是一次表态。agency 会记你一笔好账——但你从此也在某些名单上了，两边的。",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你把材料和谈话记录整理好，交了上去。三个月后一名反谍探员约你喝咖啡：感谢，并且——「以后有这样的人，随时打这个电话」。名片你留了很多年。", effects: { rep: 6, fac: { agency: 12, establishment: 6, foreign: -10 }, contact: { fed: 8 } } },
-          ok: { body: "你拒绝了，也报告了。没人给你发奖牌，但也没人能拿这件事碰你。", effects: { rep: 3, fac: { agency: 8, foreign: -6 } } },
+          crit: { body: "你把材料和谈话记录整理好，交了上去。三个月后一名反谍探员约你喝咖啡：感谢，并且——「以后有这样的人，随时打这个电话」。名片你留了很多年。", effects: { rep: 0.7, fac: { agency: 12, establishment: 6, foreign: -10 }, contact: { fed: 8 } } },
+          ok: { body: "你拒绝了，也报告了。没人给你发奖牌，但也没人能拿这件事碰你。", effects: { rep: 0.3, fac: { agency: 8, foreign: -6 } } },
           meh: { body: "报告交上去石沉大海。中间人换了个号码继续在圈子里活动——只是不再找你。", effects: { fac: { agency: 4, foreign: -5 } } },
           fail: { body: "你的拒绝在圈子里被讲成「不好合作」。某些献金的门，无声地关上了。", effects: { fac: { foreign: -8, commercial: -4 } } },
-          critfail: { body: "你报告的对象——你后来才知道——和对面是一伙的。你的名字从证人栏移到了另一张纸上。", effects: { rep: -5, fac: { agency: -8, foreign: -6 }, flags: ["compromised"] } }
+          critfail: { body: "你报告的对象——你后来才知道——和对面是一伙的。你的名字从证人栏移到了另一张纸上。", effects: { rep: -0.6, fac: { agency: -8, foreign: -6 }, flags: ["compromised"] } }
         }
       }
     ]
@@ -162,6 +164,7 @@ POTUS.define("event", [
   {
     id: "for2_spy_contact",
     grade: "mid", category: "foreign",
+    valence: "bane", dyn: true,
     era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
     tierMin: 2, tierMax: 5, weight: 11,
     brief: {
@@ -193,11 +196,11 @@ POTUS.define("event", [
         note: "他给的信息往往是真的，人脉也是真的。但每一顿饭都有第三个人在记——记账的人不坐在桌上。",
         base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你把关系经营成了一扇窗：他递来的消息七成可靠，你换给他的都是报纸上有的。半年里你对那个国家的了解超过了情报简报的公开版——而且两边都觉得自己赚了。", effects: { rep: 6, fac: { foreign: 12, agency: -4 }, attr: { INT: 2 }, flags: ["for2_embassy_friend"] } },
+          crit: { body: "你把关系经营成了一扇窗：他递来的消息七成可靠，你换给他的都是报纸上有的。半年里你对那个国家的了解超过了情报简报的公开版——而且两边都觉得自己赚了。", effects: { rep: 1.25, fac: { foreign: 12, agency: -4 }, attr: { INT: 2 }, flags: ["for2_embassy_friend"] } },
           ok: { body: "饭吃了，话聊了，礼物收了几件不贵的。他没问过一句出格的，你也没说过一句出格的——目前为止。", effects: { fac: { foreign: 8, agency: -3 }, flags: ["for2_embassy_friend"] } },
           meh: { body: "他开始「顺便」请你帮小忙：引荐一个人、转一封行业里的信。每一件单独看都无伤大雅。", effects: { fac: { foreign: 5, agency: -5 }, flags: ["for2_embassy_friend"] } },
-          fail: { body: "本地报纸的社会版登了一张合照，配文轻松：「我们的议员与外国使节的文化之谊」。轻松归轻松，剪报会被保存的。", effects: { rep: -4, fac: { foreign: 3, press: -5, agency: -6 }, flags: ["for2_embassy_friend", "scandal_1"] } },
-          critfail: { body: "他「恰好」问起的三个日程，两周后都出了事。反谍探员坐在你办公室对面，只问了一句：你告诉过谁。你开始逐顿饭地回忆，越回忆越冷。", effects: { rep: -10, fac: { agency: -12, foreign: -8, establishment: -8, press: -6 }, flags: ["for2_embassy_friend", "investigation_open"] } }
+          fail: { body: "本地报纸的社会版登了一张合照，配文轻松：「我们的议员与外国使节的文化之谊」。轻松归轻松，剪报会被保存的。", effects: { rep: -0.8, fac: { foreign: 3, press: -5, agency: -6 }, flags: ["for2_embassy_friend", "scandal_1"] } },
+          critfail: { body: "他「恰好」问起的三个日程，两周后都出了事。反谍探员坐在你办公室对面，只问了一句：你告诉过谁。你开始逐顿饭地回忆，越回忆越冷。", effects: { rep: -2, fac: { agency: -12, foreign: -8, establishment: -8, press: -6 }, flags: ["for2_embassy_friend", "investigation_open"] } }
         }
       },
       {
@@ -205,11 +208,11 @@ POTUS.define("event", [
         note: "把暗的变成明的。agency 会记你的坦诚——代价是每次饭局前后你都要多写一份「作业」。",
         base: 0.65, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "探员听完你的复述，第一次笑了：「你比我们档案里的他有意思多了。」你们约定：饭照吃，每次之后聊十五分钟。你成了这条线上受信任的名字——两边都这么认为，这才是妙处。", effects: { rep: 8, fac: { agency: 14, foreign: 4 }, contact: { fed: 8 } } },
-          ok: { body: "你报告了。探员记下笔记，说「请保持联系」。以后每次「偶遇」你都多发一封邮件。", effects: { rep: 4, fac: { agency: 9 } } },
-          meh: { body: "报告交了，对方说「知道了」。没有下文，也没有指引。你只能自己拿捏分寸。", effects: { rep: 2, fac: { agency: 5 } } },
+          crit: { body: "探员听完你的复述，第一次笑了：「你比我们档案里的他有意思多了。」你们约定：饭照吃，每次之后聊十五分钟。你成了这条线上受信任的名字——两边都这么认为，这才是妙处。", effects: { rep: 1.5, fac: { agency: 14, foreign: 4 }, contact: { fed: 8 } } },
+          ok: { body: "你报告了。探员记下笔记，说「请保持联系」。以后每次「偶遇」你都多发一封邮件。", effects: { rep: 0.8, fac: { agency: 9 } } },
+          meh: { body: "报告交了，对方说「知道了」。没有下文，也没有指引。你只能自己拿捏分寸。", effects: { rep: 0.4, fac: { agency: 5 } } },
           fail: { body: "报告的流程比你想的繁琐，而参赞注意到了你的迟疑。他微笑着减少了「偶遇」——连同那些有用的消息一起。", effects: { fac: { agency: 4, foreign: -6 } } },
-          critfail: { body: "你报得太勤太细，反谍档案里的你从「合作者」慢慢写成了「接触频繁者」。档案有自己的语法，你读不懂，但别人会。", effects: { rep: -5, fac: { agency: -4, press: -4 }, flags: ["leaker_suspect"] } }
+          critfail: { body: "你报得太勤太细，反谍档案里的你从「合作者」慢慢写成了「接触频繁者」。档案有自己的语法，你读不懂，但别人会。", effects: { rep: -1, fac: { agency: -4, press: -4 }, flags: ["leaker_suspect"] } }
         }
       },
       {
@@ -221,7 +224,7 @@ POTUS.define("event", [
           ok: { body: "疏远得自然。他似乎明白了，也似乎无所谓。", effects: { fac: { agency: 3 } } },
           meh: { body: "推了三次饭局之后，他不再邀请了。你偶尔会想起那盒茶——还有他记着的那些名字。", effects: {} },
           fail: { body: "你的回避被解读成了「不友好」。那个国家的使馆在你下次带队出访时，给你的接待规格降了一档。", effects: { fac: { foreign: -7 } } },
-          critfail: { body: "他离任前在一场公开酒会上大声跟你道别，热络得像多年挚友。在场的一半人记住了你们「很熟」——你解释的每一次都更像解释。", effects: { rep: -6, fac: { press: -5, agency: -6, foreign: -4 }, flags: ["scandal_1"] } }
+          critfail: { body: "他离任前在一场公开酒会上大声跟你道别，热络得像多年挚友。在场的一半人记住了你们「很熟」——你解释的每一次都更像解释。", effects: { rep: -1.25, fac: { press: -5, agency: -6, foreign: -4 }, flags: ["scandal_1"] } }
         }
       }
     ]
@@ -233,6 +236,7 @@ POTUS.define("event", [
   {
     id: "for2_refugee_vote",
     grade: "mid", category: "foreign",
+    valence: "risk", dyn: true,
     era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
     tierMin: 1, tierMax: 4, weight: 11,
     brief: {
@@ -263,11 +267,11 @@ POTUS.define("event", [
         note: "人道的高地和媒体的版面都是真的；反对者的名单也是真的——他们会记得更久。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "church", w: 0.2 }],
         outcomes: {
-          crit: { body: "你那晚的话被两家报纸引用、一家电视台转播：「我们衡量一个社区，看它开门的方式。」三个月后，过渡住房的就业率全州第一——数字归了你的选区，故事归了你。", effects: { rep: 8, fac: { church: 10, base: 6, press: 8 }, voters: { warm: 1800, diehard: 400, oppose: 1200 } } },
-          ok: { body: "欢迎会办得体面，冬衣募到了，孩子们入了学。社区里支持你的人更坚定了，反对你的人开始组织。", effects: { rep: 5, fac: { church: 7, base: 4 }, voters: { warm: 1100, diehard: 250, oppose: 900 } } },
-          meh: { body: "你讲了话，鼓了掌，帮了忙。版面很小，人情很实。", effects: { rep: 3, fac: { church: 4 }, voters: { warm: 500, oppose: 400 } } },
-          fail: { body: "两周后过渡住房出了治安小案——与本区居民无关的一桩——但留言板把它钉在了你的讲台上。", effects: { rep: -4, fac: { base: -5, church: 3, press: -3 }, voters: { warm: 300, diehard: 100, oppose: 1600 } } },
-          critfail: { body: "你那句「我们欢迎他们」被对手剪进了广告，背景音乐配的是本区学校减班的旧闻。下一份民调里，「文化」成了你最弱的栏目。", effects: { rep: -8, fac: { base: -10, press: -5 }, voters: { warm: 200, diehard: 100, oppose: 3200 } } }
+          crit: { body: "你那晚的话被两家报纸引用、一家电视台转播：「我们衡量一个社区，看它开门的方式。」三个月后，过渡住房的就业率全州第一——数字归了你的选区，故事归了你。", effects: { rep: 1.5, fac: { church: 10, base: 6, press: 8 }, voters: { warm: 1800, diehard: 400, oppose: 1200 } } },
+          ok: { body: "欢迎会办得体面，冬衣募到了，孩子们入了学。社区里支持你的人更坚定了，反对你的人开始组织。", effects: { rep: 1, fac: { church: 7, base: 4 }, voters: { warm: 1100, diehard: 250, oppose: 900 } } },
+          meh: { body: "你讲了话，鼓了掌，帮了忙。版面很小，人情很实。", effects: { rep: 0.6, fac: { church: 4 }, voters: { warm: 500, oppose: 400 } } },
+          fail: { body: "两周后过渡住房出了治安小案——与本区居民无关的一桩——但留言板把它钉在了你的讲台上。", effects: { rep: -0.8, fac: { base: -5, church: 3, press: -3 }, voters: { warm: 300, diehard: 100, oppose: 1600 } } },
+          critfail: { body: "你那句「我们欢迎他们」被对手剪进了广告，背景音乐配的是本区学校减班的旧闻。下一份民调里，「文化」成了你最弱的栏目。", effects: { rep: -1.5, fac: { base: -10, press: -5 }, voters: { warm: 200, diehard: 100, oppose: 3200 } } }
         }
       },
       {
@@ -275,11 +279,11 @@ POTUS.define("event", [
         note: "不喊口号，用公文说话。反对者会满意，教会与安置机构会看懂——他们记人的方式是记名单。",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的公函写得滴水不漏：不是反对，是「请求评估承载力」。最终名额减了三成，双方各拿到一个可以说给自己听众的版本——而你在两个版本里都不是主角。", effects: { rep: 3, fac: { base: 5, church: -4 }, voters: { warm: 300, oppose: 500 } } },
+          crit: { body: "你的公函写得滴水不漏：不是反对，是「请求评估承载力」。最终名额减了三成，双方各拿到一个可以说给自己听众的版本——而你在两个版本里都不是主角。", effects: { rep: 0.6, fac: { base: 5, church: -4 }, voters: { warm: 300, oppose: 500 } } },
           ok: { body: "分流的申请批了一半。留言板安静了些，教堂的联系人换了一张更公事公办的脸。", effects: { fac: { base: 4, church: -5 }, voters: { oppose: 400, warm: -100 } } },
           meh: { body: "公文旅行了六个星期，批下来的那天人已经到了。程序走完了，什么也没改变——包括你的处境。", effects: { fac: { base: 2, church: -3 } } },
-          fail: { body: "申请被驳回了。两边都拿到了他们要的叙事：反对者说你「试过了」，支持者拿到了你的公函复印件。", effects: { rep: -4, fac: { base: -4, church: -8, press: -4 }, voters: { oppose: 900, warm: -200 } } },
-          critfail: { body: "公函泄漏给了媒体，标题写的是「我们的议员在背后挡了难民」。你辩解说是「程序」，但「程序」两个字上不了头条。", effects: { rep: -8, fac: { church: -10, press: -8, base: -5 }, voters: { oppose: 1800, warm: -400 }, flags: ["scandal_1"] } }
+          fail: { body: "申请被驳回了。两边都拿到了他们要的叙事：反对者说你「试过了」，支持者拿到了你的公函复印件。", effects: { rep: -0.8, fac: { base: -4, church: -8, press: -4 }, voters: { oppose: 900, warm: -200 } } },
+          critfail: { body: "公函泄漏给了媒体，标题写的是「我们的议员在背后挡了难民」。你辩解说是「程序」，但「程序」两个字上不了头条。", effects: { rep: -1.5, fac: { church: -10, press: -8, base: -5 }, voters: { oppose: 1800, warm: -400 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -287,11 +291,11 @@ POTUS.define("event", [
         note: "不出声的政治：现场的人认识你，报纸的版面没有你。这种账记在最深的那一层。",
         base: 0.7,
         outcomes: {
-          crit: { body: "你搬了一下午的箱子，教了几个孩子投篮球。没有演讲，没有照片——三个月后安置点的家长会挤满了你的选民服务日，这是比任何背书都硬的东西。", effects: { rep: 5, fac: { church: 8, base: 6 }, voters: { warm: 900, diehard: 300, oppose: 300 } } },
-          ok: { body: "你去了，干了活，握了手。教堂的通讯里你的名字排在志愿者名单的中间——恰恰好。", effects: { rep: 3, fac: { church: 5, base: 3 }, voters: { warm: 400, oppose: 200 } } },
-          meh: { body: "你帮了半天忙。有人认出了你，有人没有。世界没有因此改变。", effects: { rep: 1, fac: { church: 3 }, voters: { warm: 200 } } },
-          fail: { body: "你搬运的照片还是被人拍了——角度选得好，像是在「视察」。你想解释，又觉得解释更糟。", effects: { rep: -2, fac: { press: -3 }, voters: { oppose: 300 } } },
-          critfail: { body: "你在场的那半天恰好有孩子走失（后在体育馆找到）。你在场的意义被两边各取所需：一边说你在场都没用，一边问你为什么在场。", effects: { rep: -5, fac: { base: -5, church: -3, press: -5 }, voters: { oppose: 800 } } }
+          crit: { body: "你搬了一下午的箱子，教了几个孩子投篮球。没有演讲，没有照片——三个月后安置点的家长会挤满了你的选民服务日，这是比任何背书都硬的东西。", effects: { rep: 1, fac: { church: 8, base: 6 }, voters: { warm: 900, diehard: 300, oppose: 300 } } },
+          ok: { body: "你去了，干了活，握了手。教堂的通讯里你的名字排在志愿者名单的中间——恰恰好。", effects: { rep: 0.6, fac: { church: 5, base: 3 }, voters: { warm: 400, oppose: 200 } } },
+          meh: { body: "你帮了半天忙。有人认出了你，有人没有。世界没有因此改变。", effects: { rep: 0.2, fac: { church: 3 }, voters: { warm: 200 } } },
+          fail: { body: "你搬运的照片还是被人拍了——角度选得好，像是在「视察」。你想解释，又觉得解释更糟。", effects: { rep: -0.4, fac: { press: -3 }, voters: { oppose: 300 } } },
+          critfail: { body: "你在场的那半天恰好有孩子走失（后在体育馆找到）。你在场的意义被两边各取所需：一边说你在场都没用，一边问你为什么在场。", effects: { rep: -1, fac: { base: -5, church: -3, press: -5 }, voters: { oppose: 800 } } }
         }
       }
     ]
@@ -303,6 +307,7 @@ POTUS.define("event", [
   {
     id: "for2_summit_invite",
     grade: "major", unique: true, category: "foreign",
+    valence: "boon", dyn: true,
     era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
     tierMin: 3, tierMax: 5, weight: 10,
     brief: {
@@ -334,11 +339,11 @@ POTUS.define("event", [
         note: "没人会记住你说了什么——这既是安全稿的目的，也是它的代价。大人物们会得出结论：这人稳，但不值得多谈。",
         base: 0.75,
         outcomes: {
-          crit: { body: "你念得体面，在茶歇被两位大使主动攀谈——正因为你在台上没有消耗任何人的立场，人人都觉得可以跟你聊。", effects: { rep: 8, fac: { foreign: 8, establishment: 6, press: -2 } } },
-          ok: { body: "发言顺利结束，掌声礼貌。你的名字出现在与会名录的第二页。", effects: { rep: 5, fac: { foreign: 5 } } },
-          meh: { body: "你在台上被主持人追问了一句没准备的话，答得像天气预报。", effects: { rep: 2 } },
-          fail: { body: "安全到发昏的发言让一桌智库的人在午宴上公开打趣：「今天的亮点是甜点」。", effects: { rep: -2, fac: { press: -4 } } },
-          critfail: { body: "你以为最安全的稿子里有一句关于某个边境的「祝愿和平」——那三个字在该地区两种语言里的政治含义截然相反。你踩中了你不知道存在的那条线。", effects: { rep: -10, fac: { foreign: -10, press: -8, establishment: -5 }, flags: ["for2_summit_gaffe"] } }
+          crit: { body: "你念得体面，在茶歇被两位大使主动攀谈——正因为你在台上没有消耗任何人的立场，人人都觉得可以跟你聊。", effects: { rep: 0.9, fac: { foreign: 8, establishment: 6, press: -2 } } },
+          ok: { body: "发言顺利结束，掌声礼貌。你的名字出现在与会名录的第二页。", effects: { rep: 0.6, fac: { foreign: 5 } } },
+          meh: { body: "你在台上被主持人追问了一句没准备的话，答得像天气预报。", effects: { rep: 0.2 } },
+          fail: { body: "安全到发昏的发言让一桌智库的人在午宴上公开打趣：「今天的亮点是甜点」。", effects: { rep: -0.2, fac: { press: -4 } } },
+          critfail: { body: "你以为最安全的稿子里有一句关于某个边境的「祝愿和平」——那三个字在该地区两种语言里的政治含义截然相反。你踩中了你不知道存在的那条线。", effects: { rep: -1, fac: { foreign: -10, press: -8, establishment: -5 }, flags: ["for2_summit_gaffe"] } }
         }
       },
       {
@@ -346,11 +351,11 @@ POTUS.define("event", [
         note: "锋利的发言会被三种人剪成三种片子。至少有一个版本会让你上新闻——至于是哪一种，取决于你控制不了的剪辑师。",
         base: 0.45, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "attr", key: "INT", w: 0.2 }],
         outcomes: {
-          crit: { body: "你的一段即兴收尾成了整场论坛被引用最多的话，当晚三家国际媒体转载。回国航班上，驻当地的大使专门坐到了你旁边：总统想在适当的时候听听你这套说法。", effects: { rep: 16, fac: { press: 12, foreign: 8, establishment: 6 } } },
-          ok: { body: "发言有锋芒、无事故。分组讨论后的走廊里，有两个人拿着笔记本追上了你。", effects: { rep: 9, fac: { press: 7, foreign: 5 } } },
-          meh: { body: "讲是讲了，同台的人更有名。你的锋芒被排进了「其他发言摘要」。", effects: { rep: 4 } },
-          fail: { body: "一个用词被对方代表团当场抗议，场面僵了三十秒。组织者圆了过去，录像带圆不过去。", effects: { rep: -5, fac: { foreign: -8, press: -4 }, flags: ["for2_summit_gaffe"] } },
-          critfail: { body: "你那句即兴的「实话」在四十八小时里被两个国家的媒体分别冠以「干涉」与「示弱」的标题。国务院的照会抄送了你。你剪的那期节目，你要了很多年才看完。", effects: { rep: -14, fac: { foreign: -12, press: -10, establishment: -8 }, flags: ["for2_summit_gaffe", "scandal_2"] } }
+          crit: { body: "你的一段即兴收尾成了整场论坛被引用最多的话，当晚三家国际媒体转载。回国航班上，驻当地的大使专门坐到了你旁边：总统想在适当的时候听听你这套说法。", effects: { rep: 1.75, fac: { press: 12, foreign: 8, establishment: 6 } } },
+          ok: { body: "发言有锋芒、无事故。分组讨论后的走廊里，有两个人拿着笔记本追上了你。", effects: { rep: 1, fac: { press: 7, foreign: 5 } } },
+          meh: { body: "讲是讲了，同台的人更有名。你的锋芒被排进了「其他发言摘要」。", effects: { rep: 0.4 } },
+          fail: { body: "一个用词被对方代表团当场抗议，场面僵了三十秒。组织者圆了过去，录像带圆不过去。", effects: { rep: -0.6, fac: { foreign: -8, press: -4 }, flags: ["for2_summit_gaffe"] } },
+          critfail: { body: "你那句即兴的「实话」在四十八小时里被两个国家的媒体分别冠以「干涉」与「示弱」的标题。国务院的照会抄送了你。你剪的那期节目，你要了很多年才看完。", effects: { rep: -1.5, fac: { foreign: -12, press: -10, establishment: -8 }, flags: ["for2_summit_gaffe", "scandal_2"] } }
         }
       },
       {
@@ -358,11 +363,11 @@ POTUS.define("event", [
         note: "真正的桌子不在台上。一场没在日程表上的会面可以换来实打实的通道——以及一条只有你们几个人知道的记录。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "酒店顶楼的四十分钟谈成了实质的东西：一条直通对方内阁办公室的热线，经你的办公室转。你在台上无名，在另一张看不见的名单上排位靠前。", effects: { rep: 8, fac: { foreign: 14, agency: 5, establishment: 5 }, flags: ["for2_backchannel"] } },
-          ok: { body: "会面坦率而有收获：对方答应「研究」你提的个案，你答应「保持这条线」。外交语言里，这已经算成果。", effects: { rep: 5, fac: { foreign: 9 } } },
-          meh: { body: "会面开了，茶喝了，立场各自重申了一遍。你至少知道了对方的底牌比传闻的软。", effects: { rep: 2, fac: { foreign: 4 } } },
+          crit: { body: "酒店顶楼的四十分钟谈成了实质的东西：一条直通对方内阁办公室的热线，经你的办公室转。你在台上无名，在另一张看不见的名单上排位靠前。", effects: { rep: 0.9, fac: { foreign: 14, agency: 5, establishment: 5 }, flags: ["for2_backchannel"] } },
+          ok: { body: "会面坦率而有收获：对方答应「研究」你提的个案，你答应「保持这条线」。外交语言里，这已经算成果。", effects: { rep: 0.6, fac: { foreign: 9 } } },
+          meh: { body: "会面开了，茶喝了，立场各自重申了一遍。你至少知道了对方的底牌比传闻的软。", effects: { rep: 0.2, fac: { foreign: 4 } } },
           fail: { body: "对方把你当成了递话筒，你婉拒了。此后的正式渠道里，那边的文件读起来都冷半度。", effects: { fac: { foreign: -6 } } },
-          critfail: { body: "那场会面的纪要——不是你这边的——三个月后出现在一份泄露的档案里。你不在场证明是没有的，因为你在场。", effects: { rep: -12, fac: { foreign: -8, agency: -8, press: -10, establishment: -8 }, flags: ["for2_backchannel", "investigation_open"] } }
+          critfail: { body: "那场会面的纪要——不是你这边的——三个月后出现在一份泄露的档案里。你不在场证明是没有的，因为你在场。", effects: { rep: -1.25, fac: { foreign: -8, agency: -8, press: -10, establishment: -8 }, flags: ["for2_backchannel", "investigation_open"] } }
         }
       }
     ]

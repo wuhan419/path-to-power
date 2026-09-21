@@ -13,6 +13,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "soc16_election", grade: "major", category: "political",
+    valence: "risk", dyn: true,
     era: ["2016_SOCIAL"], tierMin: 1, tierMax: 5, weight: 13, unique: true,
     medium: ["print", "tv", "cable", "internet", "social"], month: 11,
     title: "民调全说稳了，可手机里那股火没人测得到",
@@ -46,15 +47,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你看穿了这不是闹一阵就散，抢先一步把自己讲成「听得见老百姓声音的人」。老机器骂你投机，新浪潮却把你推到了台前。",
-            effects: { rep: 11, tier: 1, fac: { base: 12, establishment: -8, press: -4 }, flags: ["attention_player"] } },
+            effects: { rep: 1.25, tier: 1, fac: { base: 12, establishment: -8, press: -4 }, flags: ["attention_player"] } },
           ok: { body: "你顺着这股气说了话，基层觉得你「不装」。上层对你多了几分提防，但你的位置更稳了。",
-            effects: { rep: 6, fac: { base: 8, establishment: -4 } } },
+            effects: { rep: 0.7, fac: { base: 8, establishment: -4 } } },
           meh: { body: "你两头押、两头浅。基层觉得你不够狠，建制觉得你不忠心，谁都没把你当自己人。",
-            effects: { rep: 2, fac: { establishment: -3 } } },
+            effects: { rep: 0.2, fac: { establishment: -3 } } },
           fail: { body: "你抢着拥抱浪头，浪却没到你这边来。你既丢了建制的支持，也没捞到民粹的掌声。",
-            effects: { rep: -5, fac: { establishment: -8, base: -4 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.6, fac: { establishment: -8, base: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "你替最出格的那句话开了背书，事后它被单独拎出来当成「他煽动了什么」的证据。浪潮退了，你还站在原地被晒。",
-            effects: { rep: -10, fac: { press: -10, establishment: -8, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1, fac: { press: -10, establishment: -8, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -63,15 +64,15 @@ POTUS.define("event", [
         base: 0.45, mods: [{ src: "fac", key: "establishment", w: 0.45 }, { src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: { body: "在全网嘲弄「老一套」的空气里，你替程序与体面说了完整的一段。当晚你被做成表情包，可多年后有人回头翻，说那是少数几个清醒的声音。",
-            effects: { rep: 8, fac: { establishment: 14, press: 6, base: -4 }, flags: ["institutionalist"] } },
+            effects: { rep: 0.9, fac: { establishment: 14, press: 6, base: -4 }, flags: ["institutionalist"] } },
           ok: { body: "你护住了党的门面，上层记你的稳。只是基层觉得你说的话，跟他们的日子隔着一层玻璃。",
-            effects: { rep: 3, fac: { establishment: 8, base: -3 } } },
+            effects: { rep: 0.3, fac: { establishment: 8, base: -3 } } },
           meh: { body: "你讲了老规矩，讲得没人听。在人人刷手机怒吼的夜晚，体面是最不带货的东西。",
-            effects: { rep: 1, fac: { establishment: 3 } } },
+            effects: { rep: 0.1, fac: { establishment: 3 } } },
           fail: { body: "你替机器喊话，机器自己却塌了。你被和那批「预测全错 yet 自信满满」的专家捆在一起，一起失了信。",
-            effects: { rep: -6, fac: { establishment: -6, press: -6, base: -5 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.7, fac: { establishment: -6, press: -6, base: -5 }, flags: ["scandal_1"] } },
           critfail: { body: "你那句「他们不配」被剪成十五秒， loop 播放成了「精英亲口鄙视选民」。这句话跟你一辈子。",
-            effects: { rep: -11, fac: { base: -12, establishment: -6, press: -6 }, flags: ["elite_contempt"] } }
+            effects: { rep: -1.25, fac: { base: -12, establishment: -6, press: -6 }, flags: ["elite_contempt"] } }
         }
       },
       {
@@ -81,15 +82,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你谁也没帮、谁也没得罪，安静地把本地该办的事办了。风向明朗后，赢的那边居然还来找你「谈谈合作」。",
-            effects: { rep: 4, fac: { base: 5, establishment: 3 } } },
+            effects: { rep: 0.4, fac: { base: 5, establishment: 3 } } },
           ok: { body: "你守住了中立，没押错任何一边。乱世里没把柄，就是最大的资本。",
-            effects: { rep: 2, fac: { base: 3 } } },
+            effects: { rep: 0.2, fac: { base: 3 } } },
           meh: { body: "你谁都不得罪，也就谁都没记住你。这个夜晚你成了透明人。",
             effects: {} },
           fail: { body: "你的「不表态」被两边同时读成「心虚」。在逼着所有人站队的夜晚，中立也是一种罪。",
-            effects: { rep: -3, fac: { establishment: -3, base: -3 } } },
+            effects: { rep: -0.3, fac: { establishment: -3, base: -3 } } },
           critfail: { body: "你两头观望，结果两头都当你是「对方派来的」。谁赢了都想把你换掉。",
-            effects: { rep: -6, fac: { establishment: -5, base: -5 } } }
+            effects: { rep: -0.7, fac: { establishment: -5, base: -5 } } }
         }
       }
     ]
@@ -100,7 +101,8 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "soc17_fakenews", grade: "mid", category: "media",
-    era: ["2016_SOCIAL"], tierMin: 1, tierMax: 5, weight: 11,
+    valence: "risk", dyn: true,
+    era: ["2016_SOCIAL"], tierMin: 0, tierMax: 5, weight: 11,
     medium: ["internet", "social", "print", "cable"],
     title: "一条编出来的黑料，三小时转发过十万",
     body: "有人捏造了一条关于你的「内幕」：细节逼真、情绪到位、来源「据知情人士」。等你的团队查清，它已经传遍了半个网络。\n" +
@@ -129,18 +131,18 @@ POTUS.define("event", [
         id: "fight", text: "硬核辟谣：开記者會、发时间线、要求平台标注",
         note: "把每一句假话都追到出处怼回去。占理，但你在跟一台不讲理的机器比谁更较真。",
         base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 1, fun: 20000 },
+        cost: { ap: 1, fun: 0.6 },
         outcomes: {
           crit: { body: "你一条条摆证据、把造谣链条公开钉死，反倒显出「被黑成这样还站得直」。这波澄清给你赢回了比掉下去更多的信任。",
-            effects: { rep: 8, fac: { press: 8, base: 6 }, flags: ["fact_defender"] } },
+            effects: { rep: 1.5, fac: { press: 8, base: 6 }, flags: ["fact_defender"] } },
           ok: { body: "辟谣起了作用，核心选民稳住了。假料没完全清干净，但没能把你带进沟里。",
-            effects: { rep: 4, fac: { base: 4, press: 3 } } },
+            effects: { rep: 0.8, fac: { base: 4, press: 3 } } },
           meh: { body: "你花了不少力气，可认真的东西永远跑不过刺激的东西。辟谣稿没人看，谣言还在转。",
-            effects: { rep: 1, fun: -20000 } },
+            effects: { rep: 0.2, fun: -0.6 } },
           fail: { body: "你越解释，那几条假话越被反复提起——你亲手替它续了三天命。",
-            effects: { rep: -5, fac: { press: -4, base: -4 } } },
+            effects: { rep: -1, fac: { press: -4, base: -4 } } },
           critfail: { body: "你辟谣时被抓到一处小口误，反被做成「他连辟谣都在撒谎」。泥潭越陷越深。",
-            effects: { rep: -9, fac: { press: -8, base: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -1.75, fac: { press: -8, base: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -150,15 +152,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你把那条煞有介事的假料嘲成了一个全网梗，造谣的一方反而不敢再认领。笑声是最好的消毒剂。",
-            effects: { rep: 7, fav: 1, fac: { base: 8, press: 4 } } },
+            effects: { rep: 1.5, fav: 1, fac: { base: 8, press: 4 } } },
           ok: { body: "你玩梗玩赢了，气度显得比别人高半格。只是也有人选民觉得你「不够严肃」。",
-            effects: { rep: 4, fac: { base: 5 } } },
+            effects: { rep: 0.8, fac: { base: 5 } } },
           meh: { body: "你想幽默，可梗没爆。假料没被嘲死，你倒像在对空气挤眉弄眼。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           fail: { body: "你开的玩笑被断章取义，成了新的把柄。本想灭火，反给自己添了第二条假料。",
-            effects: { rep: -5, fac: { press: -6, base: -4 }, flags: ["scandal_1"] } },
+            effects: { rep: -1, fac: { press: -6, base: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "你嘲错了对象——那条「假料」竟是本地真出了的事，你的段子当场变成冷血现场。",
-            effects: { rep: -10, fac: { base: -10, press: -8 }, flags: ["scandal_2"] } }
+            effects: { rep: -2, fac: { base: -10, press: -8 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -166,15 +168,15 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你一个字没回，假料没等到对手戏，三天就自己凉了。省下的钱和精力，被你办成了别的实事。",
-            effects: { rep: 4, fac: { base: 4 } } },
+            effects: { rep: 0.8, fac: { base: 4 } } },
           ok: { body: "你没给它续热度，它慢慢沉了下去。只是这段时间里，你确实一直「有嘴说不清」。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你等着它凉，它凉得慢吞吞。这几天你顶着一条没辟清的脏水走路。",
-            effects: { rep: -1 } },
+            effects: { rep: -0.2 } },
           fail: { body: "你越沉默，越像默认。等到想起来回应时，那条假话已经成了很多人心里的事实。",
-            effects: { rep: -5, fac: { base: -5, press: -3 } } },
+            effects: { rep: -1, fac: { base: -5, press: -3 } } },
           critfail: { body: "你的沉默被解读成「被戳中不敢吭声」，假料滚成了真危机，连本党都想跟你切割。",
-            effects: { rep: -8, fac: { base: -6, establishment: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.5, fac: { base: -6, establishment: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -185,6 +187,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "soc18_data", grade: "mid", category: "finance",
+    valence: "risk", dyn: true,
     era: ["2016_SOCIAL"], tierMin: 2, tierMax: 5, weight: 11,
     medium: ["internet", "social", "cable"],
     title: "「我们能精准到每个摇摆户的心情」",
@@ -215,37 +218,37 @@ POTUS.define("event", [
         id: "allin", text: "全买：顾问费给足、名单也给它「校准」",
         note: "短期动员效率拉满。但你在把选民隐私和自己的把柄一起交给一个第三方。",
         base: 0.48, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "tech", w: 0.35 }],
-        cost: { fun: 120000 },
+        cost: { fun: 3.5 },
         stake: { fun: true },
         outcomes: {
           crit: { body: "这套打法神了——你像能读透每个摇摆户的心，钱花在刀刃上，选情被硬生生盘活，公司把你当标杆案例。只是你偶尔会想：那些数据，现在还在谁手里。",
-            effects: { funMul: 1.5, rep: 6, tier: 1, fac: { tech: 12, establishment: 6 } } },
+            effects: { funMul: 1.5, rep: 1.25, tier: 1, fac: { tech: 12, establishment: 6 } } },
           ok: { body: "定向投放确实管用，你的动员比对手精准一档。钱基本回了本，只是名单交出去那一下，你心里咯噔过。",
-            effects: { funMul: 0.6, rep: 3, fac: { tech: 8 } } },
+            effects: { funMul: 0.6, rep: 0.6, fac: { tech: 8 } } },
           meh: { body: "花了大钱，效果也就那样——你买的「画像」有一半是过期的。钱打了水漂，还搭上了名单。",
-            effects: { funMul: -0.3, rep: -2 } },
+            effects: { funMul: -0.3, rep: -0.4 } },
           fail: { body: "投放没起水花，可那家公司暴雷了。你给它的选民名单，一夜之间成了「他把数据卖给了黑箱」的铁证。",
-            effects: { funMul: -0.8, rep: -8, fac: { base: -10, press: -8 }, flags: ["data_broker", "scandal_2"] } },
+            effects: { funMul: -0.8, rep: -1.5, fac: { base: -10, press: -8 }, flags: ["data_broker", "scandal_2"] } },
           critfail: { body: "公司在一次全国性调查里被连锅端，你「知情且同意交出选民隐私」的邮件被逐封公开。你成了「用隐私换胜选」的教科书反面案例。",
-            effects: { funMul: -1.0, rep: -13, fac: { base: -14, press: -12, establishment: -6 }, flags: ["data_broker", "scandal_3", "investigation_open"] } }
+            effects: { funMul: -1.0, rep: -2.5, fac: { base: -14, press: -12, establishment: -6 }, flags: ["data_broker", "scandal_3", "investigation_open"] } }
         }
       },
       {
         id: "partial", text: "只买服务，不给名单：匿名聚合、绝不交出个人级数据",
         note: "要工具不要把柄。省下的风险，正是别人日后捅你的那一刀。",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.25 }],
-        cost: { fun: 60000 },
+        cost: { fun: 1.75 },
         outcomes: {
           crit: { body: "你只用了匿名那半套，效果打了点折，却干净得查不出毛病。多年后同行一个个爆雷，你还在，被人称作「居然留了手」。",
-            effects: { funMul: 0.9, rep: 5, fac: { tech: 5, base: 4 }, flags: ["data_clean"] } },
+            effects: { funMul: 0.9, rep: 1, fac: { tech: 5, base: 4 }, flags: ["data_clean"] } },
           ok: { body: "你买了能力，守住了底线。动员升了一点，把柄一个没留。",
-            effects: { funMul: 0.4, rep: 2, fac: { tech: 4 } } },
+            effects: { funMul: 0.4, rep: 0.4, fac: { tech: 4 } } },
           meh: { body: "不给名单，公司的模型就不那么灵了。钱花了一半，效果只有一点。",
-            effects: { funMul: -0.1, rep: 1 } },
+            effects: { funMul: -0.1, rep: 0.2 } },
           fail: { body: "「只要服务不要数据」两头不讨好：公司嫌你小气给半吊子方案，对手还照旧骂你「也用黑箱」。",
-            effects: { funMul: -0.5, rep: -4, fac: { tech: -4, base: -3 } } },
+            effects: { funMul: -0.5, rep: -0.8, fac: { tech: -4, base: -3 } } },
           critfail: { body: "你已尽量收敛，可公司还是拿你的名义去外面「借」了数据。你成了那个「说不清自己知不知道」的人。",
-            effects: { funMul: -0.8, rep: -8, fac: { press: -8, base: -6 }, flags: ["scandal_1"] } }
+            effects: { funMul: -0.8, rep: -1.5, fac: { press: -8, base: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -254,15 +257,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你没买模型，把人和时间砸在了挨家挨户上。在这个「算法治国」的年代，最笨的办法反倒让你有了对手没有的真接触。",
-            effects: { rep: 6, fac: { base: 10, establishment: 3 }, flags: ["ground_game"] } },
+            effects: { rep: 1.25, fac: { base: 10, establishment: 3 }, flags: ["ground_game"] } },
           ok: { body: "你走了最传统的路，效果稳当。没爆点，也没雷点。",
-            effects: { rep: 3, fac: { base: 5 } } },
+            effects: { rep: 0.6, fac: { base: 5 } } },
           meh: { body: "你抬着两条腿挨家挨户，可在这个注意力被算法牵着走的年头，笨办法有点吃力不讨好。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           fail: { body: "你把「拒绝用数据」讲成了道德高地，被对手反手笑成「他买不起、只好装清高」。",
-            effects: { rep: -4, fac: { establishment: -4, tech: -3 } } },
+            effects: { rep: -0.8, fac: { establishment: -4, tech: -3 } } },
           critfail: { body: "你公开痛批同行用数据，结果被人扒出你早年也用过一个类似的小工具。「伪清高」的帽子扣得死死的。",
-            effects: { rep: -7, fac: { press: -6, base: -5 }, flags: ["scandal_1"] } }
+            effects: { rep: -1.5, fac: { press: -6, base: -5 }, flags: ["scandal_1"] } }
         }
       }
     ]
@@ -273,7 +276,8 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "soc20_mailin", grade: "minor", category: "crisis",
-    era: ["2016_SOCIAL"], tierMin: 1, tierMax: 4, weight: 9,
+    valence: "bane", dyn: true,
+    era: ["2016_SOCIAL"], tierMin: 0, tierMax: 4, weight: 9,
     medium: ["tv", "cable", "social", "internet"], month: 11,
     title: "计票夜，领先会「自己变没」",
     body: "疫情这年，几千万人选了邮寄投票。规则说清点了才算数，可清点要几天。\n" +
@@ -304,15 +308,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你顶着压力把拆箱全程直播、把规则一遍遍讲透。选情翻没翻你都被认作「守住了这场计票的人」。",
-            effects: { rep: 5, fac: { establishment: 6, base: 4 }, flags: ["election_steward"] } },
+            effects: { rep: 2, fac: { establishment: 6, base: 4 }, flags: ["election_steward"] } },
           ok: { body: "你老实讲程序，懂的人信了。只是愤怒的那一半，你没能说服。",
-            effects: { rep: 2, fac: { establishment: 4 } } },
+            effects: { rep: 0.8, fac: { establishment: 4 } } },
           meh: { body: "你讲了很多，可没人真在听。你把箱子和规则守好了，仅此而已。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.4 } },
           fail: { body: "你越强调「一切正常」，越像在替什么打掩护。正常的程序，输在了不信任的空气里。",
-            effects: { rep: -4, fac: { base: -5 } } },
+            effects: { rep: -1.5, fac: { base: -5 } } },
           critfail: { body: "你主持的某箱计票出了个操作小差错，被放大成「舞弊实锤」。你解释再多，也追不上那条爆款。",
-            effects: { rep: -7, fac: { press: -6, base: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -2.75, fac: { press: -6, base: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -321,15 +325,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你抢在最前面喊「停」，群里瞬间把你当自己人。短期人气爆表，只是你已经上了这辆不知道开向哪的车。",
-            effects: { rep: 4, fac: { base: 8, establishment: -8 } } },
+            effects: { rep: 1.5, fac: { base: 8, establishment: -8 } } },
           ok: { body: "你跟着喊了几句，自己这边的情绪被你稳住了。法理与体面，你悄悄往回收了一点。",
-            effects: { rep: 2, fac: { base: 5, establishment: -4 } } },
+            effects: { rep: 0.8, fac: { base: 5, establishment: -4 } } },
           meh: { body: "你想借火，火却没全朝你这边照。喊也喊了，没落下多少好处。",
-            effects: { rep: 1, fac: { establishment: -3 } } },
+            effects: { rep: 0.4, fac: { establishment: -3 } } },
           fail: { body: "你带头质疑计票，最后清点结果却毫无问题。「他自己都说不清在闹什么」写进了第二天的报道。",
-            effects: { rep: -5, fac: { establishment: -6, press: -5 } } },
+            effects: { rep: -2, fac: { establishment: -6, press: -5 } } },
           critfail: { body: "你点的这把火，最后烧到了一场你兜不住的场面。事后追责名单上，你喊的那一嗓子被逐字回放。",
-            effects: { rep: -11, fac: { establishment: -10, press: -8, base: -4 }, flags: ["denier", "scandal_3"] } }
+            effects: { rep: -4.5, fac: { establishment: -10, press: -8, base: -4 }, flags: ["denier", "scandal_3"] } }
         }
       },
       {
@@ -337,15 +341,15 @@ POTUS.define("event", [
         base: 0.65, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: { body: "你没赶任何一波热度，只是沉默地把该数清的票数清到底。风平浪静后，人们才反应过来：那一夜他没添过一把柴。",
-            effects: { rep: 4, fac: { base: 4, establishment: 4 } } },
+            effects: { rep: 1.5, fac: { base: 4, establishment: 4 } } },
           ok: { body: "你低调办完该办的事。没出彩，也没惹祸。",
-            effects: { rep: 2 } },
+            effects: { rep: 0.8 } },
           meh: { body: "你什么都没说，也几乎什么都没被记住。在这样一个夜晚，这就算平安。",
             effects: {} },
           fail: { body: "你的沉默被两边同时误读：一边的当默认，另一边的当心虚。不说话，也是一种话。",
-            effects: { rep: -3, fac: { base: -3, establishment: -3 } } },
+            effects: { rep: -1.25, fac: { base: -3, establishment: -3 } } },
           critfail: { body: "你闷头数完了票，可「他当时在场却一声不吭」成了一句迟来的问责。",
-            effects: { rep: -5, fac: { press: -4, base: -4 } } }
+            effects: { rep: -2, fac: { press: -4, base: -4 } } }
         }
       }
     ]

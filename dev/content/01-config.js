@@ -128,6 +128,31 @@ POTUS.define("balance", {
     minor: { base: 7.0, perPressure: -0.5 }
   },
   gradeFallback: { major: ["major", "mid", "minor"], mid: ["mid", "minor"], minor: ["minor"] },
+
+  /* ---------- 事件三值性（valence）与动态经济标尺（engine/scale.js） ----------
+   * 每张卡是 机遇(boon) / 风险(risk) / 威胁(bane) 中的一种；每个档期独立掷一类，
+   * 类与类互不挤占。下面三个权重是校准基线，最终值由 validate.js 的
+   * 网格搜索（体验指标最优）反推写回。valencePressure：每点时代压力对
+   * boon/bane 权重的乘性微调（越动荡，威胁越密、机遇越稀）。
+   * valenceDefault：漏标 valence 的旧内容的兜底类。 */
+  valenceWeights: { boon: 0.40, risk: 0.35, bane: 0.25 },
+  valencePressure: { boonPerPressure: -0.05, banePerPressure: 0.10 },
+  valenceDefault: "risk",
+  /* dyn 事件的内容系数 × 这里的标尺 = 结算绝对值（四舍五入）。
+   * 语义锚：系数 1.0 = T2 基准人物（属性 50）在该量级的标准份量。
+   * 改这些参数会平移全局经济曲线，改完必须重跑 node tools/validate.js。 */
+  econ: {
+    funMonths: { minor: 1.5, mid: 6, major: 20 },   /* 钱标尺 = 职位月薪 × 量级月数 */
+    repBase: { minor: 2.5, mid: 5, major: 9 },
+    hpBase: { minor: 2, mid: 4, major: 7 },
+    smallBase: { minor: 1, mid: 1.5, major: 2 },    /* lev/fav/ap 共用 */
+    tierLean: 0.30,        /* 声望随层级：每级 ±30% */
+    hpTierLean: 0.12,      /* 健康磨损随层级（比声望慢 —— 高位的人更扛得住） */
+    attrLean: 0.40,        /* 主属性每偏离 50 点 ±0.4%×倍数：100 属性 ≈ +20% 收益 */
+    coefMin: -8, coefMax: 8,                         /* dyn 卡系数合法区间（校验用） */
+    coefMaxFun: 150      /* money 单独放宽：大额贿金/收购/竞选款对低标尺天然上百份（只防绝对值忘除的极端） */
+  },
+
   midtermCycle: 2,
 
   /* 年度结算 */

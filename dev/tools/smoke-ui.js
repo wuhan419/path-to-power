@@ -445,34 +445,8 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const rq2 = P.renderQuiet([1, 2, 3, 4, 5, 6]);
   check(rq2.html.indexOf("另有 2 个月") >= 0, "超过 maxShown 的月份被收成「另有 N 个月」");
 
-  /* ---------- 大模型：不接也完全能玩；接上之后失败也必须保住原文 ---------- */
-  console.log("\n== 大模型（可选，不接也能玩） ==");
-  P.llm.clearConfig();
-  P.G.vigMonth = 0; P.G.quietLog = [{ year: 2010, month: 1, text: "一月。这是引擎原本拼好的文字。", gain: {} }];
-  P.renderMonthCard([1]);
-  let aiBtn = [...w.document.querySelectorAll(".vig-act button")].find(function (b) { return b.textContent.indexOf("接入大模型") >= 0; });
-  check(!!aiBtn, "没接大模型时，卡片上给的是「接入大模型来润色」入口");
-  if (aiBtn) aiBtn.click();
-  const aiModal = w.document.querySelector(".modal");
-  check(!!aiModal && /接入大模型/.test(aiModal.textContent), "点击后弹出设置面板");
-  check(!!aiModal && /跨域/.test(aiModal.textContent), "面板里讲清了 file:// 打开时的跨域限制");
-  w.document.getElementById("aiOn").checked = true;
-  w.document.getElementById("aiEp").value = "https://example.invalid/v1/chat/completions";
-  w.document.getElementById("aiModel").value = "smoke-model";
-  w.document.getElementById("aiKey").value = "sk-smoke-test";
-  w.document.getElementById("aiSave").click();
-  check(P.llm.ready() === true, "保存后适配层进入「已配置」状态");
-  check(/已接/.test(w.document.querySelector(".toolbar .btn.ai").textContent), "工具条上的 AI 按钮同步成「已接」");
-  const aiClose = w.document.getElementById("aiClose"); if (aiClose) aiClose.click();
-  P.renderMonthCard([1]);
-  aiBtn = [...w.document.querySelectorAll(".vig-act button")].find(function (b) { return b.textContent.indexOf("让 AI 润色") >= 0; });
-  check(!!aiBtn, "接上之后卡片上出现「让 AI 润色」");
-  if (aiBtn) aiBtn.click();
-  check(w.document.querySelector(".vig-body").textContent.indexOf("这是引擎原本拼好的文字") >= 0,
-    "请求未回/失败时，正文仍是引擎拼好的那一段（离线优先）");
-  check(!!w.document.querySelector(".vig-status"), "给出进行中/失败的状态提示，而不是静默卡住");
-  P.llm.clearConfig();
-  check(P.llm.ready() === false, "清空配置后回到未配置状态（游戏本身不依赖网络）");
+  /* ---------- 大模型适配层已整体下架：引擎不再内置任何联网/模型能力，
+   * 因此本冒烟不再断言任何 AI 按钮或润色入口（游戏本身自始至终不依赖网络）。 ---------- */
 
   /* ---------- v0.5：掷骰建角 / VIP / 州选择 / 收益面板 / 选项说明 / 下野 ---------- */
   console.log("\n== v0.5 掷骰建角 / VIP / 州 / 收益面板 / 下野 ==");

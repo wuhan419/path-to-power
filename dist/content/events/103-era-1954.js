@@ -11,6 +11,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "mcc54_hear", grade: "major", category: "scandal",
+    valence: "bane", dyn: true,
     era: ["1954_MCCARTHY"], tierMin: 1, tierMax: 5, weight: 12, unique: true,
     medium: ["print", "radio", "tv"], month: 6,
     title: "全国都在看电视审判他",
@@ -46,15 +47,15 @@ POTUS.define("event", [
         stake: { fav: true },
         outcomes: {
           crit: { body: "你在风向刚变时就站了出来，成为「第一批敢说话的地方人物」。参议院随后通过对他的谴责，你的名字和先见之明挂在了一起。",
-            effects: { rep: 14, tier: 1, fac: { establishment: 12, press: 10, base: 6 }, flags: ["early_correct"] } },
+            effects: { rep: 1.5, tier: 1, fac: { establishment: 12, press: 10, base: 6 }, flags: ["early_correct"] } },
           ok: { body: "你及时和他切割，党部把你从「名单嫌疑」挪回了「可靠同志」。",
-            effects: { rep: 7, fac: { establishment: 8, press: 5 } } },
+            effects: { rep: 0.8, fac: { establishment: 8, press: 5 } } },
           meh: { body: "你跟着喊了收敛，可没人特别记得你喊过。风是转了，你没捞着功劳。",
-            effects: { rep: 2, fac: { establishment: 3 } } },
+            effects: { rep: 0.2, fac: { establishment: 3 } } },
           fail: { body: "你踩早了。他还没倒，先把你钉成了「替共党出头」，本党的机器开始查你。",
-            effects: { rep: -6, fac: { establishment: -10, base: -5 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.7, fac: { establishment: -10, base: -5 }, flags: ["scandal_1"] } },
           critfail: { body: "你公开要求他收敛，他反手在电视上把你的名字和「可疑名单」并排念了出来。他倒了，可你的名声陪葬。",
-            effects: { rep: -12, fac: { establishment: -8, press: -10, base: -8 }, flags: ["compromised", "scandal_2"] } }
+            effects: { rep: -1.25, fac: { establishment: -8, press: -10, base: -8 }, flags: ["compromised", "scandal_2"] } }
         }
       },
       {
@@ -63,15 +64,15 @@ POTUS.define("event", [
         base: 0.4, mods: [{ src: "attr", key: "INTG", w: 0.3 }, { src: "fac", key: "foreign", w: 0.35 }],
         outcomes: {
           crit: { body: "在一片倒戈声里你替他把话说圆了。他倒了，但保守阵营记住「那种时候还敢说话的人」，日后有人要还这份情。",
-            effects: { rep: 5, fav: 2, fac: { foreign: 8, establishment: 6, press: -10 }, flags: ["loyal_to_a_loser"] } },
+            effects: { rep: 0.6, fav: 2, fac: { foreign: 8, establishment: 6, press: -10 }, flags: ["loyal_to_a_loser"] } },
           ok: { body: "你撑了他一把，撑得很难看。核心支持者记你的好，主流舆论给你记了笔账。",
-            effects: { rep: -1, fac: { establishment: 4, press: -8 } } },
+            effects: { rep: -0.1, fac: { establishment: 4, press: -8 } } },
           meh: { body: "你说了几句，既没救着他，也没把自己烧得太狠。灰头土脸。",
-            effects: { rep: -3, fac: { press: -4 } } },
+            effects: { rep: -0.3, fac: { press: -4 } } },
           fail: { body: "电视上他被越描越黑，你替他说的每一句都被剪成「他居然支持这个」。",
-            effects: { rep: -7, fac: { base: -8, press: -10, establishment: -4 } } },
+            effects: { rep: -0.8, fac: { base: -8, press: -10, establishment: -4 } } },
           critfail: { body: "他塌台时，你被当成「麦卡锡在地方上的合伙人」一并清算。这份忠诚没换来情分，只换来了黑名单。",
-            effects: { rep: -13, fac: { establishment: -14, base: -10, press: -12 }, flags: ["party_traitor", "scandal_3"] } }
+            effects: { rep: -1.5, fac: { establishment: -14, base: -10, press: -12 }, flags: ["party_traitor", "scandal_3"] } }
         }
       },
       {
@@ -79,15 +80,15 @@ POTUS.define("event", [
         base: 0.68, mods: [{ src: "attr", key: "CUN", w: 0.35 }],
         outcomes: {
           crit: { body: "你全程缄默。等他倒台，两边都发现你既没得罪谁也没留下把柄，反而成了「能一起共事的人」。",
-            effects: { rep: 5, fac: { establishment: 6, base: 4 } } },
+            effects: { rep: 0.6, fac: { establishment: 6, base: 4 } } },
           ok: { body: "你什么都没说。风暴过境，你安然无恙，只是谁也没把你当自己人。",
-            effects: { rep: 2 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你的沉默被两边各自解读，谁都觉得你含糊。安全，但没朋友。",
-            effects: { rep: 1, fac: { establishment: -2 } } },
+            effects: { rep: 0.1, fac: { establishment: -2 } } },
           fail: { body: "在一个人人表態的关头你装哑，被上层记成了「不表态就是不同意」。",
-            effects: { rep: -3, fac: { establishment: -6 } } },
+            effects: { rep: -0.3, fac: { establishment: -6 } } },
           critfail: { body: "你的沉默被对手解读成「心里向着他」。清算名单上没有你的名字，可传言里有。",
-            effects: { rep: -6, fac: { base: -6, press: -6 }, flags: ["leaker_suspect"] } }
+            effects: { rep: -0.7, fac: { base: -6, press: -6 }, flags: ["leaker_suspect"] } }
         }
       }
     ]
@@ -98,6 +99,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "mcc54_names", grade: "mid", category: "political",
+    valence: "risk", dyn: true,
     era: ["1954_MCCARTHY"], tierMin: 0, tierMax: 3, weight: 11,
     medium: ["print", "radio"],
     title: "委员会想让你报几个名字",
@@ -130,15 +132,15 @@ POTUS.define("event", [
         stake: { fav: true },
         outcomes: {
           crit: { body: "你报了两个早就不在本地的人，既交了差又几乎没伤到自己人。你全身而退，委员会还当你「识相」。",
-            effects: { rep: 3, fac: { establishment: 8 }, flags: ["named_names"] } },
+            effects: { rep: 0.6, fac: { establishment: 8 }, flags: ["named_names"] } },
           ok: { body: "你报了名字，过关了。那行旧记录果然被划掉了，只是你在镜子里认不太出自己。",
             effects: { fac: { establishment: 5 }, flags: ["named_names"] } },
           meh: { body: "你报了，可委员会嫌你报得不够、话里留了情。你没彻底过关，也没彻底清白。",
-            effects: { rep: -2, flags: ["named_names", "leaker_suspect"] } },
+            effects: { rep: -0.4, flags: ["named_names", "leaker_suspect"] } },
           fail: { body: "你点的人反过来证明你才是常去那些会的人。你想卖人，结果把自己卖了个干净。",
-            effects: { rep: -6, fac: { establishment: -8, base: -6 }, flags: ["compromised", "named_names"] } },
+            effects: { rep: -1.25, fac: { establishment: -8, base: -6 }, flags: ["compromised", "named_names"] } },
           critfail: { body: "你点的那位，第二天在报上把你们当年一起出席的往事全抖了出来。「谁先出卖朋友」成了本地头条。",
-            effects: { rep: -11, fac: { base: -12, press: -8 }, flags: ["named_names", "scandal_2"] } }
+            effects: { rep: -2.25, fac: { base: -12, press: -8 }, flags: ["named_names", "scandal_2"] } }
         }
       },
       {
@@ -147,15 +149,15 @@ POTUS.define("event", [
         base: 0.42, mods: [{ src: "attr", key: "INTG", w: 0.55 }],
         outcomes: {
           crit: { body: "你一句「我只谈我自己，不谈别人」把委员会噎住了。这份硬气被少数报纸悄悄记下，多年后成了你最值钱的履历。",
-            effects: { rep: 8, hp: -3, fac: { base: 8, press: 6, church: 5 }, flags: ["refused_to_name"] } },
+            effects: { rep: 1.5, hp: -0.8, fac: { base: 8, press: 6, church: 5 }, flags: ["refused_to_name"] } },
           ok: { body: "你顶住了，没点人。他们悻悻放了你，你那行旧记录也渐渐没人再提。",
-            effects: { rep: 4, fac: { base: 5 }, flags: ["refused_to_name"] } },
+            effects: { rep: 0.8, fac: { base: 5 }, flags: ["refused_to_name"] } },
           meh: { body: "你守住了嘴，可也没换来什么，日子照常紧。",
-            effects: { rep: 1, hp: -2 } },
+            effects: { rep: 0.2, hp: -0.5 } },
           fail: { body: "你拒不配合，他们把你那行旧记录捅给了报纸。你成了本地一个「有前科还不肯交代」的人。",
-            effects: { rep: -6, fac: { establishment: -8, base: -4 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.25, fac: { establishment: -8, base: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "你的「不配合」被坐实成「心里有鬼」。一份「此人拒绝作证」的报告进了档案，从此跟着你的每一次升迁。",
-            effects: { rep: -10, fac: { establishment: -12, military: -6 }, flags: ["compromised", "investigation_open"] } }
+            effects: { rep: -2, fac: { establishment: -12, military: -6 }, flags: ["compromised", "investigation_open"] } }
         }
       },
       {
@@ -163,15 +165,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
         outcomes: {
           crit: { body: "你滴水不漏地「记不清」，既没点人也没硬顶。委员会挑不出错，你自己那页也悄悄翻了过去。",
-            effects: { rep: 3, fac: { establishment: 3, base: 2 } } },
+            effects: { rep: 0.6, fac: { establishment: 3, base: 2 } } },
           ok: { body: "你含糊过关。没出卖谁，也没把自己搭进去，就是这姿态不太好看。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你的「记不清」两头不讨好：委员会觉得你滑头，朋友觉得你差点把他们绕进去。",
-            effects: { rep: -1, fac: { base: -3 } } },
+            effects: { rep: -0.2, fac: { base: -3 } } },
           fail: { body: "太极打滑了，一句「我记不清」被写成「他显然在隐瞒」。你想要清白，反落了可疑。",
-            effects: { rep: -4, flags: ["leaker_suspect"] } },
+            effects: { rep: -0.8, flags: ["leaker_suspect"] } },
           critfail: { body: "你想蒙混，可他们手头正好有一份写着你名字的记录。当场对质，你的「记不清」成了最难看的一景。",
-            effects: { rep: -8, fac: { establishment: -8, press: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.5, fac: { establishment: -8, press: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -182,6 +184,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "mcc55_bus", grade: "mid", category: "civil",
+    valence: "risk", dyn: true,
     era: ["1954_MCCARTHY"], tierMin: 0, tierMax: 4, weight: 10,
     medium: ["print", "radio", "tv"],
     title: "他们开始不坐那趟巴士",
@@ -214,15 +217,15 @@ POTUS.define("event", [
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你压住了警察动手的冲动，罢乘和平进行，全国媒体拍到的是「克制的本地」而非「暴力镇压」。牧师记下了你，黑人教会从此把你当「可以谈的人」。",
-            effects: { rep: 9, fac: { base: 10, church: 10, civil: 8, establishment: -6 }, flags: ["civil_ally"] } },
+            effects: { rep: 1.75, fac: { base: 10, church: 10, civil: 8, establishment: -6 }, flags: ["civil_ally"] } },
           ok: { body: "你让治安克制了些，事情没闹大。社区记了你的好，上层嫌你「太软」。",
-            effects: { rep: 5, fac: { base: 6, church: 6, establishment: -4 } } },
+            effects: { rep: 1, fac: { base: 6, church: 6, establishment: -4 } } },
           meh: { body: "你按住了几次小规模冲突，可也没真护住什么。一个各打五十大局的收场。",
-            effects: { rep: 1, fac: { base: 2 } } },
+            effects: { rep: 0.2, fac: { base: 2 } } },
           fail: { body: "你想护人，手下的警察还是动了手，照片上写着本地警徽。你替别人挡刀，反被当成主谋。",
-            effects: { rep: -5, fac: { base: -8, establishment: -6 }, flags: ["scandal_1"] } },
+            effects: { rep: -1, fac: { base: -8, establishment: -6 }, flags: ["scandal_1"] } },
           critfail: { body: "罢乘被暴力镇压，你被同时钉上「镇压者」和「挡不住事的人」两顶帽子。商会更嫌你碍事。",
-            effects: { rep: -9, fac: { base: -12, commercial: -6, establishment: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.75, fac: { base: -12, commercial: -6, establishment: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -231,15 +234,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "fac", key: "establishment", w: 0.4 }],
         outcomes: {
           crit: { body: "你果断「恢复秩序」，罢乘很快被压下去。上层夸你靠得住，可你也把自己钉在了历史错的那一边。",
-            effects: { rep: 4, tier: 1, fac: { establishment: 12, commercial: 6, base: -12, civil: -10 } } },
+            effects: { rep: 0.8, tier: 1, fac: { establishment: 12, commercial: 6, base: -12, civil: -10 } } },
           ok: { body: "你按「违法」处理了罢乘。位子稳了，社区里一些看你的眼神变了。",
-            effects: { rep: 1, fac: { establishment: 8, base: -8 } } },
+            effects: { rep: 0.2, fac: { establishment: 8, base: -8 } } },
           meh: { body: "你抓了几个人，罢乘换个方式继续。你既没镇住，也没落好。",
             effects: { fac: { establishment: 3, base: -5 } } },
           fail: { body: "镇压的镜头上了电视，你成了「南方顽固」的一个小注脚。全国舆论反过来教育你。",
-            effects: { rep: -6, fac: { press: -10, base: -8 } } },
+            effects: { rep: -1.25, fac: { press: -10, base: -8 } } },
           critfail: { body: "罢乘领袖在拘押中出事，全国把矛头指向本地。你成了「那场不光彩镇压」的具体责任人。",
-            effects: { rep: -12, fac: { base: -16, press: -10, civil: -12 }, flags: ["scandal_3"] } }
+            effects: { rep: -2.5, fac: { base: -16, press: -10, civil: -12 }, flags: ["scandal_3"] } }
         }
       },
       {
@@ -247,15 +250,15 @@ POTUS.define("event", [
         base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你一句套话说得四平八稳，谁都没抓住你的把柄。罢乘散了，你全身而退。",
-            effects: { rep: 2, fac: { establishment: 3 } } },
+            effects: { rep: 0.4, fac: { establishment: 3 } } },
           ok: { body: "你保持了「官方中立」。没立功，也没惹祸，就是两头都不太记得你的好。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你的中立被双方各解读成「偏向对方」，你什么都没落着，反倒两边不待见。",
-            effects: { rep: -2 } },
+            effects: { rep: -0.4 } },
           fail: { body: "事情闹大了，你的「依法别惹事」被骂成「装没看见」。",
-            effects: { rep: -4, fac: { base: -5 } } },
+            effects: { rep: -0.8, fac: { base: -5 } } },
           critfail: { body: "你两头和稀泥，结果两边都觉得你碍事。罢乘领袖和种族议员罕见地达成一致：下次把你换掉。",
-            effects: { rep: -6, fac: { establishment: -6, base: -6 } } }
+            effects: { rep: -1.25, fac: { establishment: -6, base: -6 } } }
         }
       }
     ]
@@ -266,6 +269,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "mcc53_books", grade: "minor", category: "media",
+    valence: "risk", dyn: true,
     era: ["1954_MCCARTHY"], tierMin: 0, tierMax: 2, weight: 9,
     medium: ["print", "radio"],
     title: "有人要求下架图书馆的「红书」",
@@ -297,15 +301,15 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "INTG", w: 0.45 }, { src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你在镇议会上替书说了句「读什么书不该由联名信决定」。一位州议员主动来结识你，说「本地还有明白人」。",
-            effects: { rep: 4, fac: { base: 5, press: 4, church: 3 }, contact: { lobbyist: 5 }, flags: ["book_defender"] } },
+            effects: { rep: 1.5, fac: { base: 5, press: 4, church: 3 }, contact: { lobbyist: 5 }, flags: ["book_defender"] } },
           ok: { body: "书没下架，风波过去了。你替自己攒了个「不跟风」的名声。",
-            effects: { rep: 2, fac: { base: 3 } } },
+            effects: { rep: 0.8, fac: { base: 3 } } },
           meh: { body: "你说了话，可图书馆还是「自愿」撤了几本。你说不动别人，只证明了自己。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.4 } },
           fail: { body: "你替「红书」说话被传了出去。有人开始认真打听你的读书清单。",
-            effects: { rep: -3, flags: ["leaker_suspect"] } },
+            effects: { rep: -1.25, flags: ["leaker_suspect"] } },
           critfail: { body: "你的护书发言被写进了一份地方「可疑人物」的小报，你的名字下面画了线。",
-            effects: { rep: -6, fac: { establishment: -6, base: -4 }, flags: ["scandal_1"] } }
+            effects: { rep: -2.5, fac: { establishment: -6, base: -4 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -313,15 +317,15 @@ POTUS.define("event", [
         base: 0.7, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
         outcomes: {
           crit: { body: "你签得比谁都快，家长和学校委员都把你当「自己人」。你顺风顺水，只是路过图书馆时不太看那个门口。",
-            effects: { rep: 2, fac: { establishment: 6, base: 2 } } },
+            effects: { rep: 0.8, fac: { establishment: 6, base: 2 } } },
           ok: { body: "你跟着签了。没人再找你麻烦，书下架了，日子照过。",
-            effects: { rep: 1, fac: { establishment: 3 } } },
+            effects: { rep: 0.4, fac: { establishment: 3 } } },
           meh: { body: "你签了字，可老师看你的眼神变了。你换来安稳，换来一点说不清的别扭。",
             effects: { fac: { establishment: 2, base: -2 } } },
           fail: { body: "下架闹上了外地报纸，「某某镇禁书」成了笑柄，签名的名单也被登了出来。",
-            effects: { rep: -4, fac: { press: -6 } } },
+            effects: { rep: -1.5, fac: { press: -6 } } },
           critfail: { body: "多年后，这份你签过名的禁书单被人重新翻出，贴在了你某次竞选的门口。",
-            effects: { rep: -7, fac: { base: -8, press: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -2.75, fac: { base: -8, press: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -329,15 +333,15 @@ POTUS.define("event", [
         base: 0.72, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你没出面，也没拦着。书的事悄悄了了，你既没上黑名单也没上联名信。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.4 } },
           ok: { body: "你保持安静。这本就是件小事，你只是没让自己变成大事。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.4 } },
           meh: { body: "你躲过了，可馆长觉得你不够意思，你也不知道下次他还会不会来找你。",
-            effects: { rep: -1 } },
+            effects: { rep: -0.4 } },
           fail: { body: "你想两不得罪，结果两边都觉得你不够意思。",
-            effects: { rep: -2 } },
+            effects: { rep: -0.8 } },
           critfail: { body: "你的「不表态」被两边都当成偏向对方，一件本可忽略的小事，反倒记住了你。",
-            effects: { rep: -3, fac: { establishment: -3, base: -3 } } }
+            effects: { rep: -1.25, fac: { establishment: -3, base: -3 } } }
         }
       }
     ]

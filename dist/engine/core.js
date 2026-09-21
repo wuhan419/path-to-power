@@ -19,8 +19,6 @@ POTUS.reg = {
   /* 年终随笔：年终结算时按"得到/失去/处境"给文学性段落的素材库。
      见 content/13-year-tales.js。键是条目 id，值带 when 条件与 texts 数组。 */
   yeartale: {},
-  /* 大模型服务商预设（llm.js 的设置面板下拉用）。内容包可追加自己的网关。 */
-  llmPreset: {},
   /* 职位名表（状态面板的职位卡用）：键 "track_tier" → 职位名。
      内容包按轨道×层级给出真实职位名；miss 时引擎用 officeFallback 兜底。 */
   office: {},
@@ -541,6 +539,24 @@ POTUS.withEventVoters = function (effects, ev, choice, outcome, tierName) {
   for (const k in add) v[k] = (v[k] || 0) + add[k];
   merged.voters = v;
   return merged;
+};
+
+/* ---------- 职位月薪（"身位值多少钱"的唯一口径） ----------
+ * 平静月的工资与投注的资金汇率都从这里取，保证"身份决定钱"只有一个来源：
+ *   reg.officeSalary["track_tier"] → miss 退 "*_tier" → 再退公式 salaryBase×(1+tier×salaryPerTier)。
+ * 内容（content/14-offices.js）可以按轨道给不同薪级 —— 财富轨道 T5 就是比选举轨道 T5 有钱。
+ * 改工资表 = 同时改了日常收入与投注价码，这**是有意的**：两者本来就该同源。 */
+POTUS.officeSalary = function () {
+  const G = POTUS.G;
+  if (!G) return 0;
+  const table = POTUS.reg.officeSalary || {};
+  let v = table[G.track + "_" + G.tier];
+  if (v == null) v = table["*_" + G.tier];
+  if (v == null) {
+    const q = POTUS.balance().quietAccount || {};
+    v = Math.round((q.salaryBase == null ? 2000 : q.salaryBase) * (1 + G.tier * (q.salaryPerTier == null ? 2.2 : q.salaryPerTier)));
+  }
+  return Number(v) || 0;
 };
 
 POTUS.stamp = function (eventId) {

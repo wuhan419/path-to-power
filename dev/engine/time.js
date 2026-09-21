@@ -108,7 +108,8 @@
       const ev = s.event && P.events.filter(function (e) { return e.id === s.event; })[0];
       if (s.event && !ev) return;
       if (ev && !P.eligible(ev)) return;            // tier / flag / 近期去重 等
-      out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major", scheduled: true });
+      out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major",
+        valence: ev ? P.valenceOf(ev) : "risk", scheduled: true });
     });
     return out;
   }
@@ -137,7 +138,9 @@
       + (bonus >= (b.slotsBonusAt == null ? 2 : b.slotsBonusAt) ? 1 : 0)
       + variance;
     n = P.clamp(n, 1, b.slotsMax == null ? 3 : b.slotsMax);
-    while (out.length < n) out.push({ grade: P.pickGrade(pressure) });
+    /* 每个档期独立掷三值性（机遇/风险/威胁）：类与类之间互不挤占、
+       与本月初生无关 —— 坏事件不会因为本月已有好事件就不来。 */
+    while (out.length < n) out.push({ grade: P.pickGrade(pressure), valence: P.pickValence(pressure) });
     return out;
   };
 

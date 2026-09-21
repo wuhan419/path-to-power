@@ -156,6 +156,12 @@
   /* 资源代价标签（选项内） */
   .choice .costtag{display:inline-block;font-size:11.5px;color:#7a5a00;background:#f3e6c4;
     border:1px solid #d8c48a;padding:1px 7px;margin-top:4px}
+  /* 事件三值性徽标：机遇（绿）/ 风险（橙）/ 威胁（红） */
+  .vchip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;
+    border:1px solid;border-radius:9px;padding:1px 8px;vertical-align:1px}
+  .vchip.boon{color:#1d5a24;background:#e3f1e1;border-color:#9fc7a0}
+  .vchip.risk{color:#7a5a00;background:#f6ecd2;border-color:#d8c48a}
+  .vchip.bane{color:#7a1f1f;background:#f7e2e0;border-color:#d8a09a}
   /* 资源投注面板（D&D 式加码） */
   .stake{border:1px dashed var(--accent);background:#fbf7ec;padding:12px 14px;margin:12px 0;
     animation:fade .35s ease}
@@ -221,7 +227,7 @@
   .progrow.ready .progbar i{background:var(--accent)}
   .progbar em{position:absolute;top:-3px;bottom:-3px;width:1px;background:#7a1f1f;left:60%}
   .prog-pct{flex:none;font-size:12px;font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700}
-  .prog-note{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic}
+  .prog-note{font-size:11px;color:var(--muted);font-style:italic;flex:none}
   .progrow.ready .prog-note{color:#7a1f1f}
   /* 平静月的月卡（v0.5.2：一个月一个月手动过） */
   .quietwork{display:flex;gap:8px;align-items:baseline;margin:10px 0 4px;font-size:14.5px;line-height:1.8}
@@ -237,8 +243,8 @@
   .officecard b{font-size:13px}
   /* 晋升进度单独占一行（横条 + 说明），避免把前面几项挤变形 */
   .officecard .progrow{flex:0 0 100%;margin:4px 0 0;padding:0;border-top:0}
-  .officecard .progline{max-width:340px}
-  .officecard .prog-note{margin-top:2px}
+  .officecard .progline{max-width:none}
+  .officecard .prog-note{margin-top:0}
   /* 背景卡的位置容器：放在选项下面，独立成框（v0.5.2 应用户要求） */
   .brief-slot{margin-top:14px}
   .brief-slot .brief{margin:0}
@@ -326,13 +332,25 @@
   .vig-act{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .vig-status{margin-top:6px;font-size:11.5px;font-style:italic}
   button.btn.tiny{padding:3px 10px;font-size:12px}
-  /* 大模型设置面板（可选功能，样式跟着 modal 走） */
-  .airow{display:block;margin:8px 0;font-size:13.5px}
-  .airow input[type=text],.airow input[type=password]{width:100%;margin-top:3px}
-  .airow input[type=checkbox]{margin-right:6px}
-  .airow code{background:#e9dfc7;padding:1px 5px;font-size:12px}
-  button.btn.ai{border-style:dashed}
-  button.btn.ai.on{border-style:solid;border-color:var(--accent);color:var(--accent);font-weight:700}
+  /* 右栏顶部常驻操作条（存档/读档/导出/导入/支持/退出）——与操作流同栏，不再单独占整页高度 */
+  .opsbar{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+  .opsbar .btn{flex:1 1 auto;min-width:56px;padding:6px 8px;font-size:13px}
+  .btn-support{border-style:dashed}
+  /* 赞助 / 反馈弹窗：两张收款码 + 邮箱。复用通用 .modal 版式，这里只加内部结构样式。 */
+  .donatebox .box{max-width:460px}
+  .donate-lede{font-size:13px;line-height:1.8;color:#4a4437;margin:2px 0 14px}
+  .qrgrid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:4px 0 14px}
+  .qrcard{margin:0;text-align:center;font-size:12.5px}
+  .qrcard img{display:block;width:190px;height:190px;object-fit:contain;border:1px solid var(--line);background:#fff;padding:6px;cursor:zoom-in;transition:box-shadow .15s}
+  .qrcard img:hover{box-shadow:0 0 0 3px rgba(0,0,0,.10)}
+  .qrcard .qr-cap{margin-top:6px;color:var(--muted);letter-spacing:1px}
+  .donate-email{margin:0 0 6px;font-size:13px;text-align:center;color:#4a4437}
+  .donate-foot{margin-top:14px;text-align:center}
+  /* 收款码点击放大的灯箱：盖在所有弹窗之上，图等大尺寸展示便于扫码。 */
+  .qrzoom{z-index:60;background:rgba(0,0,0,.74);cursor:zoom-out}
+  .qrzoom-inner{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:92vw;max-height:92vh}
+  .qrzoom-inner img{max-width:min(90vw,560px);max-height:78vh;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .qrzoom-cap{color:#f4ecd8;font-size:13px;letter-spacing:1px;text-align:center}
 
   /* ==========================================================================
      v0.5 · 建角掷骰 / 收益结算 / 年终随笔 / 选项说明

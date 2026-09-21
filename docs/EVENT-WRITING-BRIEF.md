@@ -1,5 +1,7 @@
 # 事件包写作规范（并发批次专用 · 必读）
 
+> 本页是 POTUS 文档体系的一部分。项目总览见仓库根 [`README.md`](../README.md)；字段级契约见 [`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)。
+
 你要为一个美国政治生涯模拟游戏写一批事件 JS 文件。写完的文件会被直接加载进游戏。
 
 ## 必读文件（按顺序）
@@ -75,13 +77,13 @@ POTUS.define("event", [
 已登记状态标记（flags 可直接用）：mentor/party_traitor/compromised/whistleblower/vulture/bought/shell/affair_secret/affair_stain/leaker_hero/investigation_open/divorce_pending/tape_out/crisis_2008/cuba_crisis/bridge/constitutional_crisis/president/kingmaker/owns_media/saw_crisis/leaker_suspect/burn_seen/shady_start/owes_shark/black_money/union_backing/street_army/bought_editor/enclave_base/civil_win/street_patrol/fallen/cross_staffer/cross_runner/cross_ngo/cross_insider/cross_senate_road/cross_federal_road/cross_wh_road/cross_gov_road/wave_occupy/wave_tea/wave_antiwar/wave_civil60/wave_busing/wave_gasline/wave_veteran/wave_deferred
 
 ## 新标记要登记
-如果你引入新的 flag（上面列表没有的），在文件末尾加：
+引入新 flag（上面列表没有的）时，在文件末尾加：
 ```js
 POTUS.define("balance", { tagNames: { <你的flag>: { name: "中文名", desc: "是什么", effect: "游戏影响" } } });
 ```
 
 ## 完成后自检（必须全过再交付）
 ```bash
-cd /Users/dfiuser/WorkBuddy/2026-09-20-09-26-57/dev && node tools/validate.js
+cd dev && node tools/validate.js
 ```
-如果报错涉及你的文件，修到全过。
+报错涉及本次交付的文件时，修到全过。

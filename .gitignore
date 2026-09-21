@@ -1,0 +1,9 @@
+# 系统噪声
+.DS_Store
+
+# 本地日志 / 临时脚本输出
+*.log
+dev/tools/out/
+
+# 依赖（本项目零依赖，正常不会出现；防御性忽略）
+node_modules/

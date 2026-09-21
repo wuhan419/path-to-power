@@ -239,6 +239,131 @@ console.log("\n== 背景卡 / 时间 ==");
   check(P.briefHTML({ id: "x" }) === "", "无 brief 的事件不应渲染背景卡");
 }
 
+/* ---------- 三值性（valence）与动态系数（dyn） ----------
+ * 语义按「T2 基准人物（属性 50）」评估；dyn 卡先按同一基准展开成绝对值。
+ * 只对已声明 valence / dyn 的卡硬断言（迁移中的旧卡只计入覆盖度报告），
+ * --val-strict 模式下要求全库声明（内容迁移完成后的验收开关）。 */
+console.log("\n== 三值性与动态系数 ==");
+{
+  const VAL = ["boon", "risk", "bane"];
+  const SCALE = { fun: 1, rep: 1, hp: 1, lev: 1, fav: 1, ap: 1 };
+  const eband = P.balance().econ || {};
+  const cmin = eband.coefMin == null ? -6 : eband.coefMin;
+  const cmax = eband.coefMax == null ? 6 : eband.coefMax;
+  /* money 单独放宽：旧内容的大额现金流（贿金/竞选款）与实际量级无关，
+     换标尺后系数天然偏大；断言只防“绝对值忘除”（十万级），不防风格性偏大 */
+  const fmax = eband.coefMaxFun == null ? 40 : eband.coefMaxFun;
+  const inBand = function (k, v) {
+    if (typeof v !== "number") return true;
+    return k === "fun" ? (v >= -fmax && v <= fmax) : (v >= cmin && v <= cmax);
+  };
+  const badVal = [], badCoef = [], badSem = [];
+  const declared = {};
+  /* 基准快照：T2、全属性 50 —— 评估坐标系只有一套 */
+  const Gv = P.G, saved = { tier: Gv.tier, attr: Gv.attr, track: Gv.track };
+  Gv.tier = 2; Gv.attr = { CHA: 50, INT: 50, CUN: 50, INTG: 50 };
+  if (!Gv.track) Gv.track = "electoral";
+
+  for (const ev of P.events) {
+    if (ev.valence != null && VAL.indexOf(ev.valence) < 0) badVal.push(ev.id + "=" + ev.valence);
+    /* dyn 卡：系数必须在合法区间（绝对值忘除会直接撞上限） */
+    if (ev.dyn) {
+      (ev.choices || []).forEach(function (ch) {
+        for (const k in (ch.cost || {})) {
+          if (SCALE[k] && !inBand(k, ch.cost[k])) badCoef.push(ev.id + "/" + ch.id + " cost." + k + "=" + ch.cost[k]);
+        }
+        ["crit", "ok", "meh", "fail", "critfail"].forEach(function (t) {
+          const fx = ((ch.outcomes || {})[t] || {}).effects || {};
+          for (const k in fx) {
+            if (SCALE[k] && !inBand(k, fx[k])) badCoef.push(ev.id + "/" + ch.id + "@" + t + " " + k + "=" + fx[k]);
+          }
+        });
+      });
+    }
+    /* 三值性语义断言（按 T2 基准；dyn 卡先展开） */
+    if (ev.valence && VAL.indexOf(ev.valence) >= 0) {
+      declared[ev.valence] = (declared[ev.valence] || 0) + 1;
+      const grade = P.gradeOf(ev);
+      const rv = ev.dyn ? P.realize(ev) : ev;
+      const optNets = (rv.choices || []).map(function (ch) {
+        const cn = ch.cost ? P.netScore(ch.cost, grade, rv) : 0;
+        const nets = {};
+        TIERS.forEach(function (t) {
+          const o = (ch.outcomes || {})[t];
+          if (o) nets[t] = P.netScore(o.effects, grade, rv) - cn;
+        });
+        return { ch: ch, nets: nets };
+      });
+      const allNets = [];
+      optNets.forEach(function (o) { TIERS.forEach(function (t) { if (o.nets[t] != null) allNets.push(o.nets[t]); }); });
+      if (ev.valence === "boon") {
+        /* 机遇：再糟的处理也不亏（容忍 ±0.05 份的四舍五入噪声）；且成功确有肉 */
+        const worst = Math.min.apply(null, allNets.concat([0]));
+        if (worst < -0.05) badSem.push("boon 存在净损档（" + worst.toFixed(2) +  " 份）：" + ev.id);
+        const okBest = Math.max.apply(null, optNets.map(function (o) { return o.nets.ok == null ? -99 : o.nets.ok; }));
+        if (okBest < 0.15) badSem.push("boon 的 ok 档没有实质收益（最肥的 ok 只有 " + okBest.toFixed(2) + " 份）：" + ev.id);
+      }
+      if (ev.valence === "risk") {
+        /* 风险：必须有一条“规避”路 —— 无 cost 无 req 且五档净值近乎中性 */
+        const safe = optNets.some(function (o) {
+          if (o.ch.cost || o.ch.req) return false;
+          return TIERS.every(function (t) { return o.nets[t] == null || Math.abs(o.nets[t]) <= 0.35; });
+        });
+        if (!safe) badSem.push("risk 缺『规避选项』（无cost无req且五档净值≈ 0）：" + ev.id);
+        /* 也得真有搏：存在振幅（最好档 - 最坏档）≥ 0.8 份的选项 */
+        const swing = Math.max.apply(null, optNets.map(function (o) {
+          const vs = TIERS.map(function (t) { return o.nets[t]; }).filter(function (x) { return x != null; });
+          return vs.length ? Math.max.apply(null, vs) - Math.min.apply(null, vs) : 0;
+        }));
+        if (swing < 0.8) badSem.push("risk 没有风险振幅（最大摆幅 " + swing.toFixed(2) + " 份）：" + ev.id);
+      }
+      if (ev.valence === "bane") {
+        /* 威胁：伤害真实存在（存在净损 ≤ -0.3 的档），且有翻盘路（某选项 crit 净 ≥ 0.15） */
+        const hurt = allNets.some(function (n) { return n <= -0.3; });
+        const flip = optNets.some(function (o) { return o.nets.crit != null && o.nets.crit >= 0.15; });
+        if (!hurt) badSem.push("bane 没有真实伤害档（所有档净值 > -0.3 份）：" + ev.id);
+        if (!flip) badSem.push("bane 没有翻盘路（没有任何选项 crit 净 ≥ 0.15 份）：" + ev.id);
+      }
+      /* base 概率带：机遇不该难接。注意：威胁的“规避路”本就应高成功率
+         （需求 1：“base 与属性 mods 设计成高能力者可规避”），故不对 bane 的 base 上限做断言。 */
+      (rv.choices || []).forEach(function (ch) {
+        if (ch.base != null) {
+          if (ev.valence === "boon" && ch.base < 0.45) badSem.push("boon 选项 base 过低（" + ch.base + "）：" + ev.id + "/" + ch.id);
+        }
+      });
+    }
+  }
+  Gv.tier = saved.tier; Gv.attr = saved.attr; Gv.track = saved.track;
+
+  const undeclared = P.events.filter(function (e) { return !e.valence; }).length;
+  const dynCount = P.events.filter(function (e) { return e.dyn; }).length;
+  console.log("  已标 valence " + (P.events.length - undeclared) + "/" + P.events.length +
+    "（boon " + (declared.boon || 0) + " ／ risk " + (declared.risk || 0) + " ／ bane " + (declared.bane || 0) + "）" +
+    " ｜ dyn 系数卡 " + dynCount + "/" + P.events.length);
+  check(!badVal.length, "valence 非法值：" + badVal.join("、"));
+  check(!badCoef.length, "dyn 卡系数超出合法区间（rep/hp/小资源 [" + cmin + "," + cmax + "]，money ±" + fmax + "）（疑似绝对值忘除）：" + badCoef.slice(0, 8).join("、") + (badCoef.length > 8 ? " …共" + badCoef.length + "处" : ""));
+  /* 语义违规：常态只报清单不判死（逐卡打磨是个过程）；--val-strict 下硬判。 */
+  if (badSem.length) {
+    console.log("  三值性语义待修 " + badSem.length + " 条：\n    " + badSem.slice(0, 12).join("\n    ") + (badSem.length > 12 ? "\n    …共 " + badSem.length + " 条" : ""));
+    if (process.argv.includes("--val-strict")) fail += badSem.length;
+  }
+  if (process.argv.includes("--val-strict")) {
+    check(undeclared === 0, "仍有 " + undeclared + " 张卡未声明 valence");
+    check(dynCount === P.events.length, "仍有 " + (P.events.length - dynCount) + " 张卡未转 dyn 系数制");
+    /* 时代×三值性覆盖：每个时代的可及池里三类都得有货（两段式抽取不降级的前提） */
+    for (const eraId in P.reg.era) {
+      VAL.forEach(function (v) {
+        const pool = P.events.filter(function (e) {
+          return P.valenceOf(e) === v && ((e.era || []).indexOf(eraId) >= 0 || !(e.era && e.era.length)) && (e.tierMin == null || e.tierMin <= 1);
+        });
+        check(pool.length >= 1, "时代 " + eraId + " 的「" + v + "」池是空的（抽取必然降级）");
+      });
+    }
+  } else if (undeclared) {
+    console.log("  （迁移模式：未声明 valence 的 " + undeclared + " 张卡按兜底类处理；全部完成后跑 --val-strict）");
+  }
+}
+
 /* ---------- 月度回合 / 事件量级 / 媒介时间轴 ---------- */
 console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
 {
@@ -275,7 +400,12 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   check(sep.some(s => s.eventId === "2008_crash_offer"), "2008 年 9 月应命中定点事件 2008_crash_offer");
   check(sep[0].scheduled === true, "定点事件应排在当月第一位");
   const crash = P.events.find(e => e.id === "2008_crash_offer");
-  check(P.drawEvent({ eventId: "2008_crash_offer", grade: "major" }) === crash, "定点档期应直接给出该事件");
+  const drawn = P.drawEvent({ eventId: "2008_crash_offer", grade: "major" });
+  /* dyn 卡抽中时 realize 成绝对值副本（不同人物各自按标尺展开），
+     故不能比对象同一 —— 校 id + 副本回指原卡 + 已脱离系数态 */
+  check(drawn && drawn.id === "2008_crash_offer" &&
+    (crash.dyn ? (drawn.__raw === crash && drawn.__realized === true) : drawn === crash),
+    "定点档期应直接给出该事件（dyn 卡返回展开副本）");
   check(G.doneIds.indexOf("2008_crash_offer") >= 0, "定点事件演完后应进 doneIds（一局只演一次）");
 
   /* 平静的月份：低压力年份应能抽到「没事发生」的月 */
@@ -585,20 +715,58 @@ console.log("\n== 死局保护 ==");
   check(P.fallbackIndex([]) === -1, "空选项列表不应崩溃");
 }
 
-/* ---------- 模拟对局（走真实的月度主循环） ---------- */
-console.log("\n== 生涯模拟 300 局（月度回合） ==");
+/* ---------- 模拟对局（走真实的月度主循环） ----------
+ * 可复现性：引擎一律用 Math.random()，那让"两次独立跑"必然有随机差异 ——
+ * n=300 时某个结局 ±10 局完全可能是噪声，A/B 就没法定论。
+ * 所以模拟阶段把 Math.random 换成定种 PRNG（mulberry32），A/B 就能在**同一批生涯**上比较，
+ * 差异的方差远小于两个独立比例的方差。
+ *   node tools/validate.js                     → 300 局，种子 20260921
+ *   node tools/validate.js --games=600 --seed=7 → 600 局，种子 7
+ * 只影响本文件的模拟阶段，引擎与其它测试不受影响。 */
+function mulberry32(seed) {
+  let s = (seed >>> 0) || 1;
+  return function () {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const _argN = (name, dflt) => {
+  const hit = process.argv.find(a => a.indexOf("--" + name + "=") === 0);
+  return hit ? Number(hit.split("=")[1]) : dflt;
+};
+const GAMES = Math.max(1, Math.round(_argN("games", 300)));
+const SEED = Math.round(_argN("seed", 20260921));
 const K = (o) => Object.keys(o);
 const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
   entries = K(P.reg.entry), parties = K(P.reg.party), stances = K(P.reg.stance);
+
+/* simulate(games, seed)：走真实月度主循环跑一批生涯，返回全部观测 + 体验指标。
+ * 抽成函数是为了 --tune 网格搜索能反复调用同一套模拟。 */
+function simulate(games, seed) {
+const _realRandom = Math.random;
+Math.random = mulberry32(seed);
 let tiers = {}, endings = {}, errs = [];
-let draws = 0, games = 0, fillers = 0, gradeHit = { major: 0, mid: 0, minor: 0 };
+let draws = 0, games_ = 0, fillers = 0, gradeHit = { major: 0, mid: 0, minor: 0 };
+/* 投注观测：v0.7 每档金额是动态的，必须能看见"模拟里到底押了多少"，
+   否则分布一变就分不清是机制变了还是投注策略变了。 */
+let stakeEvents = 0, stakeFunSpent = 0, stakeFunTiers = 0;
 let slotsPerYear = [], monthHist = {}, catHit = {}, medHit = { none: 0, gated: 0 }, dateDrift = 0;
 let eraSpecific = 0, eraGeneric = 0;
 /* 静好岁月：平静月一共结算了多少段随笔、其中有多少段抽不出文字（说明素材有洞） */
 let quietTotal = 0, vigCount = 0, vigEmpty = 0;
 /* 按时代拆开的专属/通用计数 —— 只看总数会掩盖"某个时代几乎没有自己的内容"这种问题 */
 const eraMix = {};
-for (let r = 0; r < 300; r++) {
+/* ---- 体验指标（三值性 v2）----
+ * valHit：每档期实际抽到的三值性（含降级后的真实类）；
+ * net：每次判定动作的净收益（单位：当前人物标尺下的"份"，outcome − cost，不含投注）；
+ * streakBadGames：单局里出现"连续 ≥4 次净损≤-0.25 份"的局数（连环崩盘感）；
+ * fallenGames：经历过下野的局数；baneNetAvg：威胁事件平均净损（伤害是否真实存在）。 */
+let valHit = { boon: 0, risk: 0, bane: 0 }, netSum = 0, netSq = 0, netN = 0;
+let streakBadGames = 0, fallenGames = 0, endFun = 0, baneNetSum = 0, baneNetN = 0;
+for (let r = 0; r < games; r++) {
+  let runCur = 0, runWorst = 0;
   try {
     P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r };
     P.confirmCreate();
@@ -639,16 +807,22 @@ for (let r = 0; r < 300; r++) {
           const pool = ev.choices.filter(pay);
           const usable = pool.length ? pool : [ev.choices[0]];
           const ch = usable[Math.floor(Math.random() * usable.length)];
-          /* 随机投注：能加码就加码 */
+          /* 随机投注：只押「押得起、又不伤本」的一注。
+             v0.7 起每档金额随身位与事件钱量级浮动（balance.stakeRates.fun），所以判据
+             不能是"付得起一档"—— 在动态汇率下那等于"人人每局都押"，A/B 量到的是策略漂移
+             而不是机制漂移。改成「家底至少是四档的钱」（一档不超过家底的 1/4），
+             对汇率不敏感，也更像一个会算账的玩家。 */
           let stake = null;
           const spec = P.stakeSpec(ch);
           if (spec) {
             const s = { fun: 0, ap: 0, fav: 0 };
-            if (spec.fun && G.fun >= (spec.fun.per || 250000)) s.fun = P.rint(0, 2);
+            const per = (spec.fun && spec.fun.per) || 0;
+            if (spec.fun && per > 0 && G.fun >= per * 4) s.fun = P.rint(1, 2);
             if (spec.ap && G.ap >= 1) s.ap = P.rint(0, 2);
             if (spec.fav && G.fav >= 1) s.fav = P.chance(0.5) ? 1 : 0;
             const info = P.stakeInfo(ch, s);
             for (const k in info.cost) G[k] = (G[k] || 0) - info.cost[k];
+            if (info.cost.fun > 0) { stakeEvents++; stakeFunSpent += info.cost.fun; stakeFunTiers += s.fun; }
             stake = info;
           }
           if (ch.cost) for (const k in ch.cost) G[k] = (G[k] || 0) - ch.cost[k];
@@ -659,6 +833,17 @@ for (let r = 0; r < 300; r++) {
           const t = P.rollTierAdv(rp, !!(stake && stake.reroll)).tier;
           const out = ch.outcomes[t] || ch.outcomes.ok;
           if (!out) throw new Error("缺结果档 " + t + " @ " + ev.id);
+          /* 体验指标：这次动作的净"份"数 = 收益净值 − 代价净值（投注另计，不混进事件平衡） */
+          {
+            const gN = P.gradeOf(ev);
+            let net = P.netScore(out.effects, gN, ev);
+            if (ch.cost) net -= P.netScore(ch.cost, gN, ev);
+            netSum += net; netSq += net * net; netN++;
+            const vz = P.valenceOf(ev);
+            valHit[vz] = (valHit[vz] || 0) + 1;
+            if (vz === "bane") { baneNetSum += net; baneNetN++; }
+            if (net <= -0.25) { runCur++; if (runCur > runWorst) runWorst = runCur; } else runCur = 0;
+          }
           P.applyEffects(out.effects);
           if (G.hp <= 0) done = true;
         }
@@ -676,12 +861,98 @@ for (let r = 0; r < 300; r++) {
       }
       if (G.hp <= 0) { const rule = P.evaluateEnding("death_health"); endings[rule.id] = (endings[rule.id] || 0) + 1; done = true; }
     }
-    games++;
+    games_++;
     if (P.G.hp > 0) { const rule = P.evaluateEnding("retire"); endings[rule.id] = (endings[rule.id] || 0) + 1; }
     tiers["T" + P.G.tier] = (tiers["T" + P.G.tier] || 0) + 1;
+    /* 单局体验收尾：连环崩盘 / 下野经历 / 终局家底 */
+    if (runWorst >= 4) streakBadGames++;
+    if ((P.G.fallenCount || 0) > 0) fallenGames++;
+    endFun += P.G.fun || 0;
   } catch (e) { errs.push(e.message); if (errs.length > 5) break; }
 }
 const avgSlots = slotsPerYear.reduce((a, b) => a + b, 0) / Math.max(1, slotsPerYear.length);
+Math.random = _realRandom;                       // 模拟结束，恢复真随机（不影响后续任何东西）
+return {
+  tiers: tiers, endings: endings, errs: errs, draws: draws, games: games_, fillers: fillers, gradeHit: gradeHit,
+  stakeEvents: stakeEvents, stakeFunSpent: stakeFunSpent, stakeFunTiers: stakeFunTiers,
+  monthHist: monthHist, catHit: catHit, medHit: medHit, dateDrift: dateDrift,
+  eraSpecific: eraSpecific, eraGeneric: eraGeneric, eraMix: eraMix,
+  quietTotal: quietTotal, vigCount: vigCount, vigEmpty: vigEmpty, avgSlots: avgSlots,
+  valHit: valHit,
+  netAvg: netN ? netSum / netN : 0,
+  netStd: netN ? Math.sqrt(Math.max(0, netSq / netN - Math.pow(netSum / netN, 2))) : 0,
+  netPerGame: games_ ? netSum / games_ : 0,
+  streakBadGames: streakBadGames, fallenGames: fallenGames,
+  endFunAvg: games_ ? endFun / games_ : 0,
+  baneNetAvg: baneNetN ? baneNetSum / baneNetN : 0
+};
+}
+
+/* ---------- --tune：valenceWeights 网格搜索（需求 2「分布反推」） ----------
+ * 候选 = boon × bane 网格（risk 吃余量），每个候选用同一颗种子跑一批生涯，
+ * 按「成长感为主 + 有张力但不连环崩」的复合评分排名。定案后把胜者写回
+ * 01-config.js 的 balance.valenceWeights，再跑全量 validate 终验。
+ *   node tools/validate.js --tune [--tune-games=120] [--seed=N] */
+if (process.argv.includes("--tune")) {
+  const TG = Math.max(30, Math.round(_argN("tune-games", 120)));
+  const savedW = Object.assign({}, P.balance().valenceWeights);
+  const inBand = (x, lo, hi) => (x >= lo && x <= hi) ? 0 : Math.min(3, Math.abs(x < lo ? lo - x : x - hi) * 100);
+  const cands = [];
+  [0.30, 0.35, 0.40, 0.45, 0.50].forEach(function (boon) {
+    [0.10, 0.15, 0.20, 0.25, 0.30].forEach(function (bane) {
+      if (boon + bane > 0.7) return;
+      cands.push({ boon: boon, risk: +(1 - boon - bane).toFixed(2), bane: bane });
+    });
+  });
+  const rows = [];
+  for (const c of cands) {
+    P.balance().valenceWeights = { boon: c.boon, risk: c.risk, bane: c.bane };
+    const s = simulate(TG, SEED);
+    const dn = Math.max(1, s.draws);
+    const boonR = s.valHit.boon / dn, baneR = s.valHit.bane / dn;
+    const t5R = (s.tiers["T5"] || 0) / Math.max(1, s.games);
+    /* 复合评分：每项越界记 1 分，分越少越好。目标带 =「成长感为主 + 有张力但不连环崩」：
+       boon 30-45% ／ bane 15-30% ／ 月均净值 +0.02~+0.25 份 ／ 方差 ≥0.15（有起伏）
+       ／ 连环崩盘 ≤10% ／ 下野经历 8-45%（有挫折但不惯常）／ 终局 ≥3 种 ／ T5 ≥3% ／ 填充 <15% */
+    const score = inBand(boonR, 0.30, 0.45) + inBand(baneR, 0.15, 0.30)
+      + inBand(s.netAvg, 0.02, 0.25) + (s.netStd < 0.15 ? (0.15 - s.netStd) * 10 : 0)
+      + inBand(s.streakBadGames / Math.max(1, s.games), 0, 0.10)
+      + inBand(s.fallenGames / Math.max(1, s.games), 0.08, 0.45)
+      + (Object.keys(s.endings).length >= 3 ? 0 : 1)
+      + (t5R < 0.03 ? (0.03 - t5R) * 100 : 0)
+      + (s.fillers / dn >= 0.15 ? 2 : 0)
+      + (s.errs.length ? 99 : 0);
+    rows.push({ c: c, score: score, boonR: boonR, baneR: baneR, netAvg: s.netAvg, netStd: s.netStd,
+      streak: s.streakBadGames / Math.max(1, s.games), fallen: s.fallenGames / Math.max(1, s.games),
+      t5: t5R, ends: Object.keys(s.endings).length, fill: s.fillers / dn });
+  }
+  P.balance().valenceWeights = savedW;             // 搜索完恢复默认，不污染后面的常规检查
+  rows.sort((a, b) => a.score - b.score);
+  console.log("\n== --tune valenceWeights 网格搜索（每候选 " + TG + " 局 · 种子 " + SEED + "） ==");
+  console.log("  boon/risk/bane ｜ 越界分 ｜ 实测boon ｜ 实测bane ｜ netAvg ｜ netStd ｜ 连环崩 ｜ 下野率 ｜ T5率 ｜ 结局数 ｜ 填充率");
+  rows.forEach(function (x) {
+    console.log("  " + x.c.boon.toFixed(2) + "/" + x.c.risk.toFixed(2) + "/" + x.c.bane.toFixed(2) +
+      " ｜ " + x.score.toFixed(2) +
+      " ｜ " + (x.boonR * 100).toFixed(1) + "% ｜ " + (x.baneR * 100).toFixed(1) + "%" +
+      " ｜ " + x.netAvg.toFixed(3) + " ｜ " + x.netStd.toFixed(3) +
+      " ｜ " + (x.streak * 100).toFixed(1) + "% ｜ " + (x.fallen * 100).toFixed(1) + "%" +
+      " ｜ " + (x.t5 * 100).toFixed(1) + "% ｜ " + x.ends + " ｜ " + (x.fill * 100).toFixed(1) + "%");
+  });
+  const w = rows[0].c;
+  console.log("  ★ 最优分布：valenceWeights = { boon: " + w.boon.toFixed(2) + ", risk: " + w.risk.toFixed(2) + ", bane: " + w.bane.toFixed(2) + " }（越界分 " + rows[0].score.toFixed(2) + "）→ 写回 01-config.js 后跑全量终验");
+  process.exit(0);
+}
+
+console.log("\n== 生涯模拟 " + GAMES + " 局（月度回合 · 种子 " + SEED + "） ==");
+const sim = simulate(GAMES, SEED);
+const tiers = sim.tiers, endings = sim.endings, errs = sim.errs;
+const draws = sim.draws, games = sim.games, fillers = sim.fillers, gradeHit = sim.gradeHit;
+const stakeEvents = sim.stakeEvents, stakeFunSpent = sim.stakeFunSpent, stakeFunTiers = sim.stakeFunTiers;
+const monthHist = sim.monthHist, catHit = sim.catHit, medHit = sim.medHit, dateDrift = sim.dateDrift;
+const eraSpecific = sim.eraSpecific, eraGeneric = sim.eraGeneric, eraMix = sim.eraMix;
+const quietTotal = sim.quietTotal, vigCount = sim.vigCount, vigEmpty = sim.vigEmpty, avgSlots = sim.avgSlots;
+const valHit = sim.valHit, netAvg = sim.netAvg, netStd = sim.netStd, netPerGame = sim.netPerGame;
+const streakBadGames = sim.streakBadGames, fallenGames = sim.fallenGames, endFunAvg = sim.endFunAvg, baneNetAvg = sim.baneNetAvg;
 console.log("  运行时错误: " + (errs.length ? errs.slice(0, 5).join(" | ") : "无"));
 console.log("  层级分布: " + JSON.stringify(tiers));
 console.log("  结局分布: " + JSON.stringify(endings));
@@ -690,6 +961,9 @@ console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + 
   " ｜ 填充 " + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%" +
   " ｜ 月份降级 " + (dateDrift / Math.max(1, draws) * 100).toFixed(1) + "%");
 console.log("  类型分布: " + JSON.stringify(catHit));
+console.log("  投注观测：押过钱的判定 " + (stakeEvents / Math.max(1, draws) * 100).toFixed(1) + "% 次" +
+  "（平均 " + (stakeFunTiers / Math.max(1, stakeEvents)).toFixed(2) + " 档）" +
+  " ｜ 每局押掉 $" + Math.round(stakeFunSpent / Math.max(1, games) / 1000) + "k");
 console.log("  静好岁月：平静月 " + (quietTotal / Math.max(1, games)).toFixed(1) + " 个/局 ｜ 结算随笔 " +
   (vigCount / Math.max(1, games)).toFixed(1) + " 段/局 ｜ 抽不出文字的 " + vigEmpty + " 段");
 console.log("  时代专属事件占比 " + (eraSpecific / Math.max(1, draws) * 100).toFixed(1) +
@@ -698,7 +972,25 @@ console.log("    按时代：" + Object.keys(eraMix).map(function (k) {
   const m = eraMix[k], t = m.sp + m.gen;
   return k + " " + (t ? (m.sp / t * 100).toFixed(1) : "0.0") + "%（" + m.sp + "/" + t + "）";
 }).join(" ｜ "));
+/* ---- 体验指标面板（三值性 v2）：分布 / 净值 / 张力 ----
+ * 这些数字是 --tune 网格搜索评分的同款观测；常规模式下打印供人工审读。 */
+{
+  const dn = Math.max(1, draws), gn = Math.max(1, games);
+  console.log("  三值性实抽占比: boon " + (valHit.boon / dn * 100).toFixed(1) + "% ｜ risk " + (valHit.risk / dn * 100).toFixed(1) +
+    "% ｜ bane " + (valHit.bane / dn * 100).toFixed(1) + "%（含降级修正）");
+  console.log("  净值体验: 平均每动作 " + netAvg.toFixed(3) + " 份（σ " + netStd.toFixed(3) + "）｜ 每局累计 " + netPerGame.toFixed(1) +
+    " 份 ｜ 威胁事件均损 " + baneNetAvg.toFixed(3) + " 份");
+  console.log("  张力: 连环崩盘局(连续≥4损) " + (streakBadGames / gn * 100).toFixed(1) + "% ｜ 经历过下野 " + (fallenGames / gn * 100).toFixed(1) +
+    "% ｜ 终局均家底 $" + Math.round(endFunAvg / 1000) + "k");
+  /* 体验断言只在验收模式（--val-strict，即全库改写+分布校准完成后）硬判；
+     常态只打印，供迁移过程中人工审读趋势。 */
+  if (process.argv.includes("--val-strict")) {
+    check(valHit.boon / dn >= 0.15, "机遇(boon)实抽占比过低（" + (valHit.boon / dn * 100).toFixed(1) + "%）——池子太薄导致大量降级，成长感缺失");
+    check(streakBadGames / gn <= 0.20, "连环崩盘局占比过高（" + (streakBadGames / gn * 100).toFixed(1) + "%）——体验是挨打不是博弈");
+  }
+}
 check(errs.length === 0, "模拟过程出现运行时错误");
+check(stakeEvents > 0, "300 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
 check(Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
 check(avgSlots >= 2 && avgSlots <= 12, "每年档期数应落在 2-12 之间（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
 check(draws / Math.max(1, games) >= 20, "每局平均事件数过少（" + (draws / Math.max(1, games)).toFixed(1) + "），月度节奏没生效");
@@ -938,15 +1230,14 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   console.log("  ok：把柄（可加/可花/不可负/会顶活跃度）｜ 人脉（认识·好感·断交）｜ 事件链（闭合·窗口·加权）｜ 在位时长（晋升要熬）");
 }
 
-/* ---------- v0.4：静好岁月（平静月的叙事与成长）+ 可选的大模型适配层 ----------
+/* ---------- v0.4：静好岁月（平静月的叙事与成长） ----------
  * 静好岁月要证明三件事：
  *   1) 素材库是完整的 —— 任何 时代×轨道×层级×月份 的组合都能拼出人话，
  *      而且每个槽位都有兜底，不会因为"玩家此刻很惨"就少一段；
  *   2) 结算是幂等的 —— 同一个平静月只结算一次（存档读回来重渲染也不能重复长属性）；
  *   3) 成长是有界的 —— 属性不破 cap、声望/好感不破 100，年纪大了长得慢。
- * 大模型适配层要证明一件事：**不配它，一切照常**。
  */
-console.log("\n== 静好岁月 / 大模型适配层 ==");
+console.log("\n== 静好岁月 ==");
 {
   const frags = P.reg.vignette.fragments || [];
   const firstTrackKey = Object.keys(P.reg.track)[0];
@@ -1106,82 +1397,7 @@ console.log("\n== 静好岁月 / 大模型适配层 ==");
   console.log("  素材 " + frags.length + " 条 ｜ 槽位 " + P.VIGNETTE_SLOTS.length + " 个（时令覆盖 12 个月）｜ " +
     "时代×轨道×层级×月份 全组合可拼 ｜ 结算幂等 ｜ 成长有界且随年龄衰减");
 
-  /* --- 8) 大模型适配层：不配它，一切照常 --- */
-  check(!!P.llm, "应加载 engine/llm.js");
-  P.llm.clearConfig();
-  check(P.llm.ready() === false, "默认不应处于「已配置」状态（游戏本身不依赖网络）");
-  let cbHit = false, cbErr = null;
-  const rNone = P.llm.request("vignette_polish", { months: [3], texts: [{ text: "草稿" }] }, function (t, e) { cbHit = true; cbErr = e; });
-  check(rNone === null && cbHit && !!cbErr, "未配置时应立刻同步回一个错误，而不是抛异常/挂起");
-  check(String(cbErr).indexOf("配置") >= 0, "未配置时应提示「还没配置大模型」，实际：" + cbErr);
-
-  P.llm.setConfig({ enabled: true, endpoint: "https://example.com/v1/chat/completions", apiKey: "sk-SECRET-TEST" });
-  check(P.llm.ready() === true, "地址 + 启用之后 ready() 应为 true");
-  const ctxV = { months: [3], texts: [{ month: 3, text: "三月。这是一段草稿。" }] };
-  const pr = P.llm.buildPrompt("vignette_polish", ctxV);
-  check(!!pr.system && !!pr.user, "prompt 应有 system 与 user");
-  check(pr.user.indexOf("三月。这是一段草稿。") >= 0, "润色 prompt 必须带上引擎拼好的草稿（否则模型无从润色）");
-  check(pr.user.indexOf("sk-SECRET-TEST") < 0 && pr.system.indexOf("sk-SECRET-TEST") < 0, "密钥绝不能出现在 prompt 里");
-  /* 年代准确性：把"这个年代还不存在"的媒介列出来，防止模型在 1960 年写出智能手机 */
-  const notYet = function (s) {
-    const m = String(s).match(/还不存在（绝对不要出现）：(.+)/);
-    return m ? m[1].split("、").filter(function (x) { return x && x !== "—"; }).length : -1;
-  };
-  GV.era = "1960_CAMELOT"; GV.year = 1960;
-  const c60 = notYet(P.llm.buildPrompt("vignette_fresh", {}).user);
-  GV.year = 2025;
-  const c25 = notYet(P.llm.buildPrompt("vignette_fresh", {}).user);
-  check(c60 >= 0 && c25 >= 0 && c60 > c25,
-    "prompt 应随年代收缩「还不存在的媒介」（1960 年 " + c60 + " 项 vs 2025 年 " + c25 + " 项）");
-  check(P.llm.buildPrompt("vignette_fresh", ctxV).user.indexOf("静好岁月") >= 0, "新写的 prompt 应说明任务背景");
-  /* cacheKey：同样输入稳定、不同输入不同（缓存能不能省钱的根基） */
-  check(P.llm.cacheKey("vignette_polish", ctxV) === P.llm.cacheKey("vignette_polish", ctxV), "同样输入的 cacheKey 应稳定");
-  check(P.llm.cacheKey("vignette_polish", ctxV) !== P.llm.cacheKey("vignette_polish", { months: [4], texts: [{ text: "四月。" }] }),
-    "不同输入的 cacheKey 应不同");
-  /* extractText：兼容几种常见厂商的返回形状 */
-  check(P.llm.extractText({ choices: [{ message: { content: "A" } }] }) === "A", "应能解析 OpenAI chat 风格返回");
-  check(P.llm.extractText({ choices: [{ text: "A2" }] }) === "A2", "应能解析 legacy completion 风格返回");
-  check(P.llm.extractText({ output_text: "B" }) === "B", "应能解析 Responses 风格返回");
-  check(P.llm.extractText({ content: [{ text: "C" }] }) === "C", "应能解析 Anthropic 风格返回");
-  check(P.llm.extractText({ candidates: [{ content: { parts: [{ text: "D" }] } }] }) === "D", "应能解析 Gemini 风格返回");
-  check(P.llm.extractText({}) === "" && P.llm.extractText(null) === "" && P.llm.extractText("E") === "E",
-    "解析不出来时应返回空串（而不是抛异常）");
-  /* 缓存命中：命中就不该再发请求 */
-  P.llm.clearCache();
-  const ck = P.llm.cacheKey("vignette_polish", ctxV);
-  P.llm.putCache(ck, "缓存里的文字");
-  let cachedGot = null;
-  const rCache = P.llm.request("vignette_polish", ctxV, function (t, e) { cachedGot = t || e; });
-  check(rCache === "cache" && cachedGot === "缓存里的文字", "同样的局面应直接吃缓存，不再花钱（实际 " + rCache + "）");
-  /* 缓存限容：写超上限要把最旧的淘汰掉 */
-  P.llm.clearCache();
-  for (let i = 0; i < P.llm.CACHE_MAX + 40; i++) P.llm.putCache("k" + i, "t" + i);
-  check(P.llm.cacheSize() <= P.llm.CACHE_MAX, "缓存条数应被限制在 " + P.llm.CACHE_MAX + " 以内，实际 " + P.llm.cacheSize());
-  /* 真发请求：拿一个假 fetch 检查地址/鉴权/模型名是否被正确带上 */
-  const realFetch = global.fetch;
-  let lastReq = null;
-  global.fetch = function (url, opt) {
-    lastReq = { url: url, opt: opt };
-    return Promise.resolve({ ok: true, status: 200, text: function () { return Promise.resolve("{}"); } });
-  };
-  P.llm.clearCache();
-  if (P.G.aiState) P.G.aiState.callsUsed = 0;
-  const rSent = P.llm.request("vignette_polish", ctxV, function () { });
-  check(rSent === "sent", "配置齐全后应真的发出请求，实际返回 " + rSent);
-  check(!!lastReq && lastReq.url === "https://example.com/v1/chat/completions", "请求应发到配置的接口地址");
-  check(!!lastReq && lastReq.opt.headers["Authorization"] === "Bearer sk-SECRET-TEST", "请求头应带上 Bearer 密钥");
-  check(!!lastReq && JSON.parse(lastReq.opt.body).model === "gpt-4o-mini", "请求体应带上配置的模型名");
-  check(!!lastReq && JSON.parse(lastReq.opt.body).messages.length === 2, "请求体应是 system + user 两条消息");
-  /* 额度用完之后不再发请求（一局不能把额度烧光） */
-  if (P.G.aiState) P.G.aiState.callsUsed = P.llm.cap();
-  let capErr = null;
-  const rCap = P.llm.request("vignette_polish", { months: [7], texts: [{ text: "七月的草稿" }] }, function (t, e) { capErr = e; });
-  check(rCap === null && String(capErr).indexOf("额度") >= 0, "本局额度用完后应拒绝并说明原因，实际：" + capErr);
-  global.fetch = realFetch;
-  P.llm.clearConfig();
-  if (P.G.aiState) P.G.aiState.callsUsed = 0;
-  console.log("  适配层：未配置即同步降级 ｜ prompt 不含密钥且随年代收缩 ｜ cacheKey 稳定 ｜ " +
-    "缓存命中不重复花钱 ｜ 缓存限容 " + P.llm.CACHE_MAX + " 条 ｜ 额度上限生效");
+  /* 大模型适配层已整体下架：引擎与自检不再依赖任何联网能力，也不内置任何模型配置。 */
 }
 
 /* ---------- 事件配图：照片层 + SVG 降级 ---------- */
@@ -1707,23 +1923,29 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
      * 投资型支出必须吃得到倍数。 */
   {
     const badEcon = [];
+    /* dyn 卡：断言作用于「按 T2 基准折算后的绝对金额」——系数写的 $50k 份量
+       展开后若仍够到高投入线，就必须遵守同样的回报规矩。 */
+    const Gx = P.G, saveX = { tier: Gx.tier, attr: Gx.attr, track: Gx.track };
+    const chkEconChoice = function (evId, ch) {
+      const cost = (ch.cost && ch.cost.fun) || 0;
+      if (cost < 50000) return;
+      const okFx = ((ch.outcomes || {}).ok || {}).effects || {};
+      const okFun = okFx.fun || 0;
+      /* 资产的口径：钱性资产（把柄/层级/比例回报）或看得见的无形回报
+         （声望≥5 / 派系净变动≥5 / 新人脉 / 状态标记）。消费型支出（买广告、
+         请律师、压稿）回的是这些——合法；两个都没有才是真的"花钱打水漂"。 */
+      const facSum = okFx.fac ? Object.keys(okFx.fac).reduce(function (a, k) { return a + Math.abs(okFx.fac[k]); }, 0) : 0;
+      const asset = okFx.lev != null || okFx.tier != null || okFx.funMul != null ||
+        (okFx.contact && Object.keys(okFx.contact).length > 0) ||
+        (okFx.flags || []).length > 0 ||
+        (okFx.rep || 0) >= 5 || facSum >= 5;
+      if (!asset && okFun < cost * 0.3) badEcon.push(evId + "/" + ch.id + "（$" + (cost / 1000) + "k 投入，ok 档只回 $" + (okFun / 1000) + "k）");
+    };
     P.events.forEach(function (ev) {
-      (ev.choices || []).forEach(function (ch) {
-        const cost = (ch.cost && ch.cost.fun) || 0;
-        if (cost < 50000) return;
-        const okFx = ((ch.outcomes || {}).ok || {}).effects || {};
-        const okFun = okFx.fun || 0;
-        /* 资产的口径：钱性资产（把柄/层级/比例回报）或看得见的无形回报
-           （声望≥5 / 派系净变动≥5 / 新人脉 / 状态标记）。消费型支出（买广告、
-           请律师、压稿）回的是这些——合法；两个都没有才是真的"花钱打水漂"。 */
-        const facSum = okFx.fac ? Object.keys(okFx.fac).reduce(function (a, k) { return a + Math.abs(okFx.fac[k]); }, 0) : 0;
-        const asset = okFx.lev != null || okFx.tier != null || okFx.funMul != null ||
-          (okFx.contact && Object.keys(okFx.contact).length > 0) ||
-          (okFx.flags || []).length > 0 ||
-          (okFx.rep || 0) >= 5 || facSum >= 5;
-        if (!asset && okFun < cost * 0.3) badEcon.push(ev.id + "/" + ch.id + "（$" + (cost / 1000) + "k 投入，ok 档只回 $" + (okFun / 1000) + "k）");
-      });
+      const rv = ev.dyn ? P.realize(ev) : ev;
+      (rv.choices || []).forEach(function (ch) { chkEconChoice(rv.id, ch); });
     });
+    Gx.tier = saveX.tier; Gx.attr = saveX.attr; Gx.track = saveX.track;
     check(!badEcon.length, "高投入（≥$50k）选项的 ok 档回报不足或无资产：" + badEcon.join("、"));
     /* funMul 数值合法：投资型倍数在 [-1, +3]（-1=全亏，+3=翻三倍封顶） */
     const badMul = [];

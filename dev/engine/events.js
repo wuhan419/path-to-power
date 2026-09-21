@@ -206,46 +206,58 @@
   };
 
   /* ---------- 抽取 ----------
-   * slot: {grade:"major"|"mid"|"minor", eventId?}（time.js 排定）
+   * slot: {grade:"major"|"mid"|"minor", valence?:"boon"|"risk"|"bane", eventId?}（time.js 排定）
    * - 定点事件：直接给
-   * - 否则按量级取，池子空了就按 gradeFallback 降级
+   * - 否则两段式：先定三值性（档期没带就现场独立掷一个），再在该类的池子里
+   *   按量级取；这类池空了按相邻类降级，量级池空了按 gradeFallback 降级。
+   * 三值性优先于量级、更优先于月份保真 —— 玩家最先感知的是"找上我的是机遇还是威胁"。
+   * 每个档期独立掷 valence，类与类之间互不挤占（有了好事件不挡坏事件）。
    */
   P.drawEvent = function (slot) {
     const G = P.G, b = P.balance();
     slot = slot || { grade: "minor" };
-
-    /* 玩家快照 + 类型计数：整次抽取共用一份（含 4 级降级里的所有 pass），
-       避免为 61 个事件各算一遍。 */
+  
+    /* 玩家快照 + 类型计数：整次抽取共用一份（含所有降级 pass），
+       避免为几十个事件各造一遍。 */
     const snap = P.snap();
     const counts = P.recentCatCounts();
-
+  
     if (slot.eventId) {
       const hit = P.evById(slot.eventId);
-      if (hit) return P._markDrawn(hit, true);      // 时代脚本：一局只演一次
+      if (hit) return P.realize(P._markDrawn(hit, true));   // 时代脚本：一局只演一次
     }
-
+  
     const fallback = b.gradeFallback || {};
     const want = slot.grade || "minor";
     const chain = fallback[want] || [want];
     const m = P.G.month;
-
-    /* 四级抽取，先严后宽：
-     *   0) 就是本月的事件            —— 界面上写的「2008 年 9 月」真对应一个 9 月的事件
-     *   1) 没写月份的事件（常青事件）—— 放哪个月都不穿帮
-     *   2) 允许月份不符，但避开近期演过的 —— 用 _seasonal 尽量挑离当前月最近的
-     *   3) 连去重窗口也放开 —— 事件池薄的时候，宁可重复演一个真事件，也不要整月都是填充器
-     * 每降一级，内容质量就低一档，所以填充器只留给「连一个硬条件都不满足」的情况。 */
-    for (let pass = 0; pass < 4; pass++) {
-      for (let i = 0; i < chain.length; i++) {
-        let pool = P.events.filter(function (e) {
-          if (!P.eligible(e, pass >= 3, snap) || P.gradeOf(e) !== chain[i]) return false;
-          if (pass === 0) return e.month === m;
-          if (pass === 1) return e.month == null;
-          return true;
-        });
-        if (!pool.length) continue;
-        if (pass === 2) pool = P._seasonal(pool);
-        if (pool.length) return P._markDrawn(weighted(pool, snap, counts));
+  
+    /* 三值性抽取顺序：本档期掷中的类 → 其余类（中性风险优先当缓冲垫） */
+    const wantV = slot.valence || P.pickValence();
+    slot.valence = wantV;                        // 写回档期（诊断/界面"为什么是威胁"）
+    const vChain = [wantV].concat(P.VAL_CHAIN.filter(function (v) { return v !== wantV; }));
+  
+    for (let vi = 0; vi < vChain.length; vi++) {
+      const wantVal = vChain[vi];
+      /* 四级抽取，先严后宽：
+       *   0) 就是本月的事件            —— 界面上写的「2008 年 9 月」真对应一个 9 月的事件
+       *   1) 没写月份的事件（常青事件）—— 放哪个月都不穿帮
+       *   2) 允许月份不符，但避开近期演过的 —— 用 _seasonal 尽量挑离当前月最近的
+       *   3) 连去重窗口也放开 —— 事件池薄的时候，宁可重复演一个真事件，也不要整月都是填充器
+       * 每降一级，内容质量就低一档，所以填充器只留给「连一个硬条件都不满足」的情况。 */
+      for (let pass = 0; pass < 4; pass++) {
+        for (let i = 0; i < chain.length; i++) {
+          let pool = P.events.filter(function (e) {
+            if (!P.eligible(e, pass >= 3, snap) || P.gradeOf(e) !== chain[i]) return false;
+            if (P.valenceOf(e) !== wantVal) return false;
+            if (pass === 0) return e.month === m;
+            if (pass === 1) return e.month == null;
+            return true;
+          });
+          if (!pool.length) continue;
+          if (pass === 2) pool = P._seasonal(pool);
+          if (pool.length) return P.realize(P._markDrawn(weighted(pool, snap, counts)));
+        }
       }
     }
     /* 全部量级都没货：退到填充器，并把它算作本档期 */
@@ -267,7 +279,7 @@
     return {
       id: "filler_" + Math.random().toString(36).slice(2, 8),
       era: [G.era], tierMin: 0, tierMax: 99, weight: 1, filler: true,
-      unique: false, grade: grade, category: P.pick(cats),
+      unique: false, grade: grade, category: P.pick(cats), valence: (slot && slot.valence) || "risk",
       title: topic,
       body: tpl.replace("{act}", act).replace("{topic}", topic),
       brief: pack.brief ? {
@@ -296,7 +308,7 @@
     return {
       id: "filler_safe_" + Math.random().toString(36).slice(2, 8),
       era: [P.G.era], tierMin: 0, tierMax: 99, weight: 1, filler: true,
-      unique: false, grade: grade || "minor", category: "general",
+      unique: false, grade: grade || "minor", category: "general", valence: "risk",
       title: "一桩地方丑闻", body: "你被卷进一桩地方丑闻。必须在聚光灯下做出选择。",
       choices: [mk("高调处理，抢占道德高地", "CHA"), mk("低调摆平，用关系解决", "CUN")]
     };

@@ -256,7 +256,7 @@
    * months: 这一批"刚刚静悄悄过去"的月号数组（来自 quietMonths）。
    * 只读 quietLog，不抽片段、不结算 —— 所以重复渲染不会变、也不会重复给成长。
    * 返回 { html, months, growth }；没有内容时 html 为空串。 */
-  const _store = {};                  // id → 该卡片用于 AI 润色的上下文
+  const _store = {};                  // id → 该卡片拼出来的月份/文本（供外部按需读取）
   let _seq = 0;
   P.vignetteStore = function (id) { return _store[id] || null; };
 
@@ -329,103 +329,19 @@
       body = '<p class="vig-p muted">这一段日子平静得没有留下什么。</p>';
     }
     if (leftover > 0) body += '<p class="vig-more muted">另有 ' + leftover + " 个月同样无声无息地过去了。</p>";
-    _store[id].origBody = body;      // 供「恢复原文」用
 
     const growHTML = notes.length
       ? '<div class="vig-growth"><span class="vig-gtag">按部就班</span>' + notes.join("　·　") + "</div>"
       : "";
 
-    /* AI 入口：离线优先 —— 上面的模板文本已经在了，模型回来只是替换它。 */
-    const aiHTML = (P.llm && P.llm.ready())
-      ? '<div class="vig-act">' +
-      '<button class="btn tiny" onclick="POTUS.vigPolish(\'' + id + '\')">✨ 让 AI 润色</button>' +
-      '<button class="btn tiny" onclick="POTUS.vigFresh(\'' + id + '\')">🎲 另写一段</button>' +
-      "</div>"
-      : (P.llm ? '<div class="vig-act"><button class="btn tiny" onclick="POTUS.llmOpenSettings()">✨ 接入大模型来润色</button></div>' : "");
-
-    /* 自动润色：只在你明确打开开关、并且已经配好接口时才发生。
-       它不阻塞任何东西——先渲染模板，模型回来了再替换。 */
-    if (P.llm && P.llm.ready() && P.llm.config().autoPolish) {
-      setTimeout(function () { P.vigPolish(id); }, 80);
-    }
-
     return {
       html: '<div class="vig" id="' + id + '">' +
         '<div class="vig-head"><span class="vig-title">' + (v.title || "静好岁月") + '</span>' +
         '<span class="vig-range">' + range + "</span></div>" +
-        '<div class="vig-body">' + body + "</div>" + growHTML + aiHTML + "</div>",
+        '<div class="vig-body">' + body + "</div>" + growHTML + "</div>",
       months: want, growth: { notes: notes, tally: tally }, id: id
     };
   };
 
-  /* ---------- 与 LLM 的两件事（都依赖 engine/llm.js；没有它就退化成提示） ---------- */
-  function needLLM() {
-    if (!P.llm) { alert("这一版没有加载大模型适配层（engine/llm.js）。"); return false; }
-    if (!P.llm.ready()) { P.llm.openSettings(); return false; }
-    return true;
-  }
-
-  /* 润色：保留事实，只换文笔 */
-  P.vigPolish = function (id) {
-    const ctx = _store[id]; if (!ctx) return;
-    if (!needLLM()) return;
-    const box = document.getElementById(id);
-    setStatus(box, "正在润色…");
-    P.llm.request("vignette_polish", ctx, function (text, err) {
-      if (!text) { setStatus(box, "润色没成功：" + (err || "无返回") + "（正文仍是上面这一段）"); return; }
-      setBody(box, text, "AI 润色");
-    });
-  };
-
-  /* 另写一段：让模型在同一年、同一个人的处境下，自己写一段日常 */
-  P.vigFresh = function (id) {
-    const ctx = _store[id]; if (!ctx) return;
-    if (!needLLM()) return;
-    const box = document.getElementById(id);
-    setStatus(box, "正在另写一段…");
-    P.llm.request("vignette_fresh", ctx, function (text, err) {
-      if (!text) { setStatus(box, "没写成：" + (err || "无返回") + "（正文仍是上面这一段）"); return; }
-      setBody(box, text, "AI 新写");
-    });
-  };
-
-  function setStatus(box, msg) {
-    if (!box) return;
-    let el = box.querySelector(".vig-status");
-    if (!el) {
-      el = document.createElement("div"); el.className = "vig-status muted";
-      box.appendChild(el);
-    }
-    el.textContent = msg;
-  }
-  function setBody(box, text, badge) {
-    if (!box) return;
-    const body = box.querySelector(".vig-body");
-    if (body) {
-      body.innerHTML = String(text).split(/\n+/).filter(function (x) { return x.trim(); })
-        .map(function (p) { return '<p class="vig-p">' + p + "</p>"; }).join("");
-    }
-    const st = box.querySelector(".vig-status");
-    if (st) st.textContent = badge + " · 这一段的文字由大模型生成，可能与你所在的时代不符，读个味道就好。";
-    const act = box.querySelector(".vig-act");
-    if (act && !act.querySelector(".vig-reset")) {
-      const b = document.createElement("button");
-      b.className = "btn tiny vig-reset";
-      b.textContent = "恢复原文";
-      b.onclick = function () { P.vigReset(box.id); };
-      act.appendChild(b);
-    }
-  }
-
-  /* 把正文换回引擎拼出来的那一段（模型写得不满意时用） */
-  P.vigReset = function (id) {
-    const ctx = _store[id]; if (!ctx || ctx.origBody == null) return;
-    const box = document.getElementById(id); if (!box) return;
-    const body = box.querySelector(".vig-body");
-    if (body) body.innerHTML = ctx.origBody;
-    const st = box.querySelector(".vig-status");
-    if (st) st.textContent = "已恢复引擎原文。";
-    const rs = box.querySelector(".vig-reset");
-    if (rs) rs.remove();
-  };
+  /* 静好岁月完全离线生成：以前这里挂过一段可选的大模型润色入口，已整体下架。 */
 })();

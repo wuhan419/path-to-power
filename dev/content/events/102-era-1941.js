@@ -11,6 +11,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "ww41_pearl", grade: "major", category: "crisis",
+    valence: "bane", dyn: true,
     era: ["1941_WORLDWAR"], tierMin: 0, tierMax: 5, weight: 13, unique: true,
     month: 12, day: 7,
     title: "广播里说，这是一个遗臭万年的日子",
@@ -45,15 +46,15 @@ POTUS.define("event", [
         stake: { ap: true, fav: true },
         outcomes: {
           crit: { body: "一晚招满两个连、卖出破纪录的债券。你成了战争动员的样板人物，华盛顿的都听说了这个郡的名字。",
-            effects: { rep: 15, tier: 1, fac: { establishment: 12, base: 10, military: 10 }, flags: ["war_organizer"] } },
+            effects: { rep: 1.75, tier: 1, fac: { establishment: 12, base: 10, military: 10 }, flags: ["war_organizer"] } },
           ok: { body: "晚会很成功，年轻人一批批报名。你的名字和这场爱国热潮绑在了一起。",
-            effects: { rep: 8, fac: { base: 8, establishment: 6, military: 6 } } },
+            effects: { rep: 0.9, fac: { base: 8, establishment: 6, military: 6 } } },
           meh: { body: "来的人不少，报名的不多。你尽力张罗了，落一句「他挺热心」。",
-            effects: { rep: 3, hp: -3, fac: { base: 3 } } },
+            effects: { rep: 0.3, hp: -0.4, fac: { base: 3 } } },
           fail: { body: "你把调子起太高，一台晚会把本地有儿子的家庭全得罪了。报名没几个，怨气倒攒了一堆。",
-            effects: { rep: -5, fac: { base: -8, military: -4 } } },
+            effects: { rep: -0.6, fac: { base: -8, military: -4 } } },
           critfail: { body: "晚会当晚空袭警报误响，人群踩踏伤了人。一夜之间，「某某的爱国晚会」成了本地最刺耳的短语。",
-            effects: { rep: -11, hp: -4, fac: { base: -12, establishment: -8 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.25, hp: -0.6, fac: { base: -12, establishment: -8 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -62,15 +63,15 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "INTG", w: 0.55 }],
         outcomes: {
           crit: { body: "你在一片「不报名就是叛国」的空气里，硬是把一条替教友和良心者开的口子写进了地方规章。人们恨不起来，也开始敬你三分。",
-            effects: { rep: 9, fac: { church: 14, base: 6, military: -6 }, flags: ["conscience_keeper"] } },
+            effects: { rep: 1, fac: { church: 14, base: 6, military: -6 }, flags: ["conscience_keeper"] } },
           ok: { body: "你为不愿拿枪的人说上了话。骂声有，可教会和一批家庭记下了你的公道。",
-            effects: { rep: 5, fac: { church: 8, military: -4 } } },
+            effects: { rep: 0.6, fac: { church: 8, military: -4 } } },
           meh: { body: "你提了「良心拒服」，被爱国声浪盖过去一半。做了一点，没做成。",
-            effects: { rep: 2, fac: { church: 3, military: -2 } } },
+            effects: { rep: 0.2, fac: { church: 3, military: -2 } } },
           fail: { body: "在举国同仇的时刻你讲宽容，被贴上了「替懦夫说话」的标签。",
-            effects: { rep: -5, fac: { base: -6, military: -8 }, flags: ["scandal_1"] } },
+            effects: { rep: -0.6, fac: { base: -6, military: -8 }, flags: ["scandal_1"] } },
           critfail: { body: "有人把你「替拒服者开门」翻译成「他不支持打仗」。战时的这句话，足够毁掉一个人。",
-            effects: { rep: -9, fac: { establishment: -10, military: -12, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -1, fac: { establishment: -10, military: -12, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -78,15 +79,15 @@ POTUS.define("event", [
         base: 0.72, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你没抢着上电台，却把伤兵安置、军属帮扶这些不起眼的实事悄悄铺好了。仗打完，人们才想起谁一直在做事。",
-            effects: { rep: 5, fac: { base: 6, military: 4 } } },
+            effects: { rep: 0.6, fac: { base: 6, military: 4 } } },
           ok: { body: "你既没当出头鸟，也没掉链子。稳过这一波。",
-            effects: { rep: 2 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你保持低调，既没人夸你，也没人记你。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.1 } },
           fail: { body: "在人人表忠心的时刻你太安静，被对手抓住做文章：「开战了他连个面都不露。」",
-            effects: { rep: -4, fac: { establishment: -6, base: -3 } } },
+            effects: { rep: -0.4, fac: { establishment: -6, base: -3 } } },
           critfail: { body: "你的低调被解读成「等着看笑话」。本地报纸点名问你「这几天你在哪」，你没一个好答案。",
-            effects: { rep: -6, fac: { base: -6, military: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -0.7, fac: { base: -6, military: -6 }, flags: ["scandal_1"] } }
         }
       }
     ]
@@ -97,6 +98,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "ww43_plant", grade: "mid", category: "civil",
+    valence: "risk", dyn: true,
     era: ["1941_WORLDWAR"], tierMin: 1, tierMax: 4, weight: 11,
     medium: ["print", "radio"],
     title: "造炮弹的厂子停了工",
@@ -130,15 +132,15 @@ POTUS.define("event", [
         cost: { ap: 2 }, stake: { fav: true },
         outcomes: {
           crit: { body: "你把加班上限、女工同工和「不轻易开除」写进备忘录，工会当天复了工。厂方不情愿，前线没断供，你成了罕见的「两边都欠他情」的人。",
-            effects: { rep: 10, fav: 2, fac: { labor: 14, commercial: 6, base: 6 }, contact: { union_boss: 12 }, flags: ["shop_steward"] } },
+            effects: { rep: 2, fav: 2, fac: { labor: 14, commercial: 6, base: 6 }, contact: { union_boss: 12 }, flags: ["shop_steward"] } },
           ok: { body: "谈成了个能接受的折中，机器重新转了起来。厂里认你「说了话算数」。",
-            effects: { rep: 6, fac: { labor: 8, commercial: 3 } } },
+            effects: { rep: 1.25, fac: { labor: 8, commercial: 3 } } },
           meh: { body: "你劝回了一半人，另一半磨了两天才复工。勉强算你斡旋有效。",
-            effects: { rep: 2, hp: -3, fac: { labor: 3 } } },
+            effects: { rep: 0.4, hp: -0.8, fac: { labor: 3 } } },
           fail: { body: "你两头劝两头不落实，罢工多拖了三天。厂方怪你软弱，工会怪你偏袒，前线怪本地。",
-            effects: { rep: -6, fac: { labor: -8, commercial: -8 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.25, fac: { labor: -8, commercial: -8 }, flags: ["scandal_1"] } },
           critfail: { body: "你递出去的一份「工会保证复工」的书面承诺被人当成你「逼工会低头」的把柄，两边合伙把你卖了。",
-            effects: { rep: -10, fac: { labor: -14, commercial: -6, base: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -2, fac: { labor: -14, commercial: -6, base: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -147,15 +149,15 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "fac", key: "establishment", w: 0.4 }, { src: "fac", key: "military", w: 0.3 }],
         outcomes: {
           crit: { body: "你一句「战时不容停产」镇住了局面，流水线连夜重启。华盛顿记下了你这个「靠得住」的地方人。",
-            effects: { rep: 6, tier: 1, fac: { establishment: 12, military: 8, labor: -12 } } },
+            effects: { rep: 1.25, tier: 1, fac: { establishment: 12, military: 8, labor: -12 } } },
           ok: { body: "你逼着工会先复工「回头再谈」。厂子转了，工人在心里给你记了一笔。",
-            effects: { rep: 3, fac: { establishment: 8, military: 4, labor: -8 } } },
+            effects: { rep: 0.6, fac: { establishment: 8, military: 4, labor: -8 } } },
           meh: { body: "你说了硬话，可工人半信半疑地回了岗，暗地里还在骂。",
             effects: { fac: { establishment: 4, labor: -5 } } },
           fail: { body: "你替厂方压人，工人根本不理，罢工拖成了本地丑闻，报上说你「替资本当打手」。",
-            effects: { rep: -6, fac: { labor: -14, base: -6 } } },
+            effects: { rep: -1.25, fac: { labor: -14, base: -6 } } },
           critfail: { body: "复工的当天出了「事故」，有人在车间留下了写着你名字的字条。「破坏分子」的帽子满天飞，你也成了靶子。",
-            effects: { rep: -10, hp: -3, fac: { labor: -16, base: -8 }, flags: ["scandal_2", "investigation_open"] } }
+            effects: { rep: -2, hp: -0.8, fac: { labor: -16, base: -8 }, flags: ["scandal_2", "investigation_open"] } }
         }
       },
       {
@@ -163,15 +165,15 @@ POTUS.define("event", [
         base: 0.48, mods: [{ src: "fac", key: "labor", w: 0.45 }, { src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: { body: "你带着工会的条件直接顶到厂方，还真争下了安全条款。工人把你当「自己人」，这份情在街头能存很多年。",
-            effects: { rep: 8, fac: { labor: 16, base: 8, commercial: -10 }, contact: { union_boss: 10 } } },
+            effects: { rep: 1.5, fac: { labor: 16, base: 8, commercial: -10 }, contact: { union_boss: 10 } } },
           ok: { body: "你先替工人争了两句，复工顺理成章。工会领你的情，厂方记你的账。",
-            effects: { rep: 4, fac: { labor: 10, commercial: -6 } } },
+            effects: { rep: 0.8, fac: { labor: 10, commercial: -6 } } },
           meh: { body: "你替工人说了话，条件却只落了一半。两头都说你尽力，但都不满意。",
-            effects: { rep: 1, fac: { labor: 4, commercial: -3 } } },
+            effects: { rep: 0.2, fac: { labor: 4, commercial: -3 } } },
           fail: { body: "你在战时替罢工说话，被扣上「不爱国」的帽子，联邦的来电变成了质问。",
-            effects: { rep: -5, fac: { establishment: -10, military: -6, labor: 6 } } },
+            effects: { rep: -1, fac: { establishment: -10, military: -6, labor: 6 } } },
           critfail: { body: "你替工人站台的照片被印上「煽动停产」的传单，对手把这张照片寄遍了每一个军属家庭。",
-            effects: { rep: -9, fac: { establishment: -12, military: -10, base: -4 }, flags: ["scandal_2"] } }
+            effects: { rep: -1.75, fac: { establishment: -12, military: -10, base: -4 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -182,6 +184,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "ww42_draft", grade: "mid", category: "career",
+    valence: "bane", dyn: true,
     era: ["1941_WORLDWAR"], tierMin: 1, tierMax: 5, weight: 10,
     medium: ["print", "radio"],
     title: "你的笔，决定谁上船",
@@ -213,15 +216,15 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把规矩贴上了墙，大户的求情和穷人的眼泪走的是同一道门。名单没人满意，可没人挑得出你的错。",
-            effects: { rep: 8, fac: { base: 8, military: 6, establishment: -6 }, flags: ["draft_fair"] } },
+            effects: { rep: 1.5, fac: { base: 8, military: 6, establishment: -6 }, flags: ["draft_fair"] } },
           ok: { body: "你按规矩签了，得罪了想走后门的人，但换来了「这人办名单不偏」的评价。",
-            effects: { rep: 4, fac: { base: 4, military: 4, establishment: -3 } } },
+            effects: { rep: 0.8, fac: { base: 4, military: 4, establishment: -3 } } },
           meh: { body: "规矩是立了，可执行里总有缝。你勉强维持了个「大体能看」。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           fail: { body: "你硬按规矩办，把关键金主和上层全得罪了。名单公道，你的位子却开始晃。",
-            effects: { rep: -3, fac: { establishment: -10, commercial: -8 } } },
+            effects: { rep: -0.6, fac: { establishment: -10, commercial: -8 } } },
           critfail: { body: "你的「一视同仁」被两边合起来咬：大户说你不懂事，军属说你把她们儿子往火里推。你成了这场不受欢迎战争的人肉挡板。",
-            effects: { rep: -8, fac: { establishment: -10, base: -8, military: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -1.5, fac: { establishment: -10, base: -8, military: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
@@ -231,15 +234,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你巧妙地把人情藏进「身体原因」的措辞里，大户满意、拨款到位，工头家虽怨却没抓到你的实锤。",
-            effects: { fun: 120000, rep: 3, lev: 1, fac: { commercial: 10, establishment: 6 } } },
+            effects: { fun: 3.5, rep: 0.6, lev: 1, fac: { commercial: 10, establishment: 6 } } },
           ok: { body: "名单照大户的意思调了，献金也照来了。你既没落把柄，也没落骂名，只是夜里偶尔想起那个工头。",
-            effects: { fun: 80000, fac: { commercial: 6 } } },
+            effects: { fun: 2.25, fac: { commercial: 6 } } },
           meh: { body: "你帮大户递了条子，可对方翻脸不认账，你白担了风险。",
-            effects: { rep: -1, fac: { commercial: 2 } } },
+            effects: { rep: -0.2, fac: { commercial: 2 } } },
           fail: { body: "工头在征兵站门口念出了他四个儿子的名字，问「凭什么是我家去」。所有人都知道你的签名。",
-            effects: { rep: -6, fac: { base: -10, labor: -8 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.25, fac: { base: -10, labor: -8 }, flags: ["scandal_1"] } },
           critfail: { body: "那份「身体原因」的假证明被翻了出来。战时替富户躲兵役，这是最容易让人上头的罪状。",
-            effects: { rep: -11, fac: { base: -14, press: -8 }, flags: ["scandal_3", "investigation_open"] } }
+            effects: { rep: -2.25, fac: { base: -14, press: -8 }, flags: ["scandal_3", "investigation_open"] } }
         }
       },
       {
@@ -247,15 +250,15 @@ POTUS.define("event", [
         base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你把签名权推了出去，躲开了这摊浑水。名单照样有人签，锅照样有人背，而你没沾上。",
-            effects: { rep: 3, hp: -2, fac: { establishment: 3 } } },
+            effects: { rep: 0.6, hp: -0.5, fac: { establishment: 3 } } },
           ok: { body: "你没签。事情有人接手，你也就不用夜里想那四个儿子。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.2 } },
           meh: { body: "你推了笔，可上面觉得你「关键时刻撂挑子」。这份名单没写你名字，你的档案里写了这一笔。",
-            effects: { rep: -1, fac: { establishment: -4 } } },
+            effects: { rep: -0.2, fac: { establishment: -4 } } },
           fail: { body: "你拒签被当成「摆架子」，委员会绕过你把事办了，出了乱子又回头怪你当初不担责。",
-            effects: { rep: -4, fac: { establishment: -6, military: -4 } } },
+            effects: { rep: -0.8, fac: { establishment: -6, military: -4 } } },
           critfail: { body: "你撂挑子后名单出了问题没人负责，最后全推到你「当初不该推笔」上。躲了一圈，锅还是你的。",
-            effects: { rep: -7, fac: { establishment: -8, military: -6 }, flags: ["scandal_1"] } }
+            effects: { rep: -1.5, fac: { establishment: -8, military: -6 }, flags: ["scandal_1"] } }
         }
       }
     ]
@@ -266,6 +269,7 @@ POTUS.define("event", [
    * ---------------------------------------------------------------------- */
   {
     id: "ww43_ration", grade: "minor", category: "shady",
+    valence: "risk", dyn: true,
     era: ["1941_WORLDWAR"], tierMin: 0, tierMax: 3, weight: 9,
     medium: ["print", "radio"],
     title: "一沓没用完的糖票和肉票",
@@ -298,15 +302,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你把余票干净地转了几手，赚了一笔小财，还没碰着查的人。你学会了一件事：战时的漏洞就是钱。",
-            effects: { fun: 18000, lev: 1, fac: { commercial: 4 } } },
+            effects: { fun: 2, lev: 1, fac: { commercial: 4 } } },
           ok: { body: "票换成了钱。数目不大，但来路不清白，你自己心里有数。",
-            effects: { fun: 9000, flags: ["shady_start"] } },
+            effects: { fun: 1, flags: ["shady_start"] } },
           meh: { body: "转了两手砸在手里，票没卖出去，还落了一身说不清。",
-            effects: { rep: -1 } },
+            effects: { rep: -0.4 } },
           fail: { body: "配给办数出总数对不上，第一个问的就是发本子的人——也就是你。",
-            effects: { rep: -4, fac: { base: -6 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.5, fac: { base: -6 }, flags: ["scandal_1"] } },
           critfail: { body: "你被单拎出来当成「发国难财」的典型。一张你的照片上了报纸，标题是「战争债券的另一面」。",
-            effects: { rep: -8, fac: { base: -10, press: -8 }, flags: ["scandal_2"] } }
+            effects: { rep: -3, fac: { base: -10, press: -8 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -315,15 +319,15 @@ POTUS.define("event", [
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
           crit: { body: "你递上去的线索破了个案子，配给办记你一功，坊间还传开了「他不沾国难财」。两头都是你的。",
-            effects: { rep: 5, fav: 2, fac: { establishment: 6, base: 5 } } },
+            effects: { rep: 2, fav: 2, fac: { establishment: 6, base: 5 } } },
           ok: { body: "你报了线，自己干净，也得了一句「这人靠得住」。",
-            effects: { rep: 3, fac: { establishment: 4 } } },
+            effects: { rep: 1.25, fac: { establishment: 4 } } },
           meh: { body: "你报了，可案子没人真办，你还在倒卖圈里落个「多嘴」的名。",
-            effects: { rep: 1, fac: { commercial: -3 } } },
+            effects: { rep: 0.4, fac: { commercial: -3 } } },
           fail: { body: "你报的线被反咬成「你才是最清楚内情的那个」。查黑市的查到了你头上。",
-            effects: { rep: -4, fac: { base: -5 }, flags: ["scandal_1"] } },
+            effects: { rep: -1.5, fac: { base: -5 }, flags: ["scandal_1"] } },
           critfail: { body: "配给办顺着你报的线索倒查，发现你当初也经手过几本。你从举报人变成了嫌疑人。",
-            effects: { rep: -7, fac: { base: -8, establishment: -6 }, flags: ["scandal_2"] } }
+            effects: { rep: -2.75, fac: { base: -8, establishment: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -331,15 +335,15 @@ POTUS.define("event", [
         base: 0.78, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: { body: "你只管把本子规规矩矩发下去。邻居用不完的票你也不眼热。这份「不经手」的干净，日后救过你一命。",
-            effects: { rep: 3, fac: { base: 4 } } },
+            effects: { rep: 1.25, fac: { base: 4 } } },
           ok: { body: "你什么都没干，也什么都没惹上。战时里这就够了。",
-            effects: { rep: 1 } },
+            effects: { rep: 0.4 } },
           meh: { body: "你规规矩矩发了本子，别人却发了财。说不清是亏是赚。",
             effects: {} },
           fail: { body: "你的「公事公办」让等着走后门的人不痛快，暗地里传你「摆清高」。",
             effects: { fac: { commercial: -4 } } },
           critfail: { body: "你发了本子却没数清,总账对不上时,没人记得你只是经手——他们记得「是本子从他手上过的」。",
-            effects: { rep: -5, fac: { establishment: -6, base: -4 } } }
+            effects: { rep: -2, fac: { establishment: -6, base: -4 } } }
         }
       }
     ]

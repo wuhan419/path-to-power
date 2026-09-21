@@ -9,6 +9,7 @@ POTUS.define("event", [
     "id": "2008_crash_offer",
     "grade": "major",
     "category": "crisis",
+    valence: "bane", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -79,7 +80,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你成了‘冷静理性的年轻人’，全国记住了你。财长私下放话：记你一功。",
             "effects": {
-              "rep": 12,
+              "rep": 1.25,
               "fac": {
                 "establishment": 15,
                 "commercial": 10
@@ -89,7 +90,7 @@ POTUS.define("event", [
           "ok": {
             "body": "背书通过，媒体给了你三十秒。建制记住了你。",
             "effects": {
-              "rep": 6,
+              "rep": 0.7,
               "fac": {
                 "establishment": 8
               }
@@ -98,7 +99,7 @@ POTUS.define("event", [
           "meh": {
             "body": "你签了，但条款被博客挖出，‘卖身’标签黏上你。",
             "effects": {
-              "rep": 3,
+              "rep": 0.3,
               "fac": {
                 "establishment": 6,
                 "base": -8
@@ -111,7 +112,7 @@ POTUS.define("event", [
           "fail": {
             "body": "背书词被剪接成‘为华尔街说话’，社媒围攻你。",
             "effects": {
-              "rep": -2,
+              "rep": -0.2,
               "fac": {
                 "base": -12,
                 "press": -10
@@ -124,7 +125,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你念错一个数字，全国直播出丑，沦为深夜节目笑料。",
             "effects": {
-              "rep": -8,
+              "rep": -0.9,
               "fac": {
                 "press": -15,
                 "base": -10
@@ -153,7 +154,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你的声明被全文转载，‘人民的声音’人设立住。",
             "effects": {
-              "rep": 10,
+              "rep": 1,
               "fac": {
                 "base": 18,
                 "labor": 10
@@ -163,7 +164,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你赢得基层好感，但得罪了财政部。",
             "effects": {
-              "rep": 5,
+              "rep": 0.6,
               "fac": {
                 "base": 10,
                 "labor": 6,
@@ -182,7 +183,7 @@ POTUS.define("event", [
           "fail": {
             "body": "没人理你，反而被说‘蹭热度’。",
             "effects": {
-              "rep": -2,
+              "rep": -0.2,
               "fac": {
                 "base": -4
               }
@@ -224,7 +225,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你成了吹哨人，但某个大人物记下了你的名字。",
             "effects": {
-              "rep": 8,
+              "rep": 0.9,
               "fac": {
                 "press": 15,
                 "establishment": -15
@@ -237,7 +238,7 @@ POTUS.define("event", [
           "ok": {
             "body": "报道出炉，你被描述为‘内部知情者’。",
             "effects": {
-              "rep": 4,
+              "rep": 0.4,
               "fac": {
                 "press": 8,
                 "establishment": -8
@@ -287,6 +288,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "political",
     "medium": ["cable", "social"],
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -351,7 +353,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你一句话点燃全场，视频破百万播放。",
             "effects": {
-              "rep": 12,
+              "rep": 2.5,
               "fac": {
                 "base": 20,
                 "establishment": -10
@@ -361,7 +363,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你赢得欢呼，但被建制贴上‘民粹’标签。",
             "effects": {
-              "rep": 6,
+              "rep": 1.25,
               "fac": {
                 "base": 12,
                 "establishment": -6
@@ -371,7 +373,7 @@ POTUS.define("event", [
           "meh": {
             "body": "掌声还行，有人举牌骂你作秀。",
             "effects": {
-              "rep": 2,
+              "rep": 0.4,
               "fac": {
                 "base": 5
               }
@@ -380,7 +382,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你被一位退休教师追问到语塞。",
             "effects": {
-              "rep": -2,
+              "rep": -0.4,
               "fac": {
                 "base": -6
               }
@@ -389,7 +391,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你脱口一句被剪成交‘仇视穷人’，全网痛批。",
             "effects": {
-              "rep": -8,
+              "rep": -1.5,
               "fac": {
                 "base": -12,
                 "press": -10
@@ -418,7 +420,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你用一张图表让全场安静，媒体称你‘罕见的理性’。",
             "effects": {
-              "rep": 8,
+              "rep": 1.5,
               "fac": {
                 "establishment": 10,
                 "press": 8
@@ -428,7 +430,7 @@ POTUS.define("event", [
           "ok": {
             "body": "气氛缓和，但被认为‘不够热血’。",
             "effects": {
-              "rep": 3,
+              "rep": 0.6,
               "fac": {
                 "establishment": 5,
                 "base": -3
@@ -473,6 +475,7 @@ POTUS.define("event", [
     "id": "2008_short",
     "grade": "mid",
     "category": "finance",
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -527,7 +530,7 @@ POTUS.define("event", [
         "id": "short",
         "text": "押上全部身家做空",
         "req": {
-          "fun": 200000
+          "fun": 5.5
         },
         "base": 0.4,
         "mods": [
@@ -546,8 +549,8 @@ POTUS.define("event", [
           "crit": {
             "body": "崩盘如期而至，你赚得盆满钵满，也提前看清了体系的腐烂。",
             "effects": {
-              "fun": 2500000,
-              "rep": 5,
+              "fun": 69.5,
+              "rep": 1,
               "flags": [
                 "saw_crisis"
               ]
@@ -556,14 +559,14 @@ POTUS.define("event", [
           "ok": {
             "body": "你小赚一笔，但没敢压够重。",
             "effects": {
-              "fun": 400000,
-              "rep": 2
+              "fun": 11,
+              "rep": 0.4
             }
           },
           "meh": {
             "body": "你赚了，却因‘发国难财’被骂。",
             "effects": {
-              "fun": 300000,
+              "fun": 8.5,
               "fac": {
                 "base": -10,
                 "press": -6
@@ -576,7 +579,7 @@ POTUS.define("event", [
           "fail": {
             "body": "时机错了，你割肉离场，元气大伤。",
             "effects": {
-              "fun": -250000,
+              "fun": -7,
               "fac": {
                 "commercial": -5
               }
@@ -585,7 +588,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "杠杆反噬，你濒临破产，欠下人情无数。",
             "effects": {
-              "fun": -600000,
+              "fun": -16.5,
               "fav": -3,
               "flags": [
                 "debt_crisis"
@@ -614,7 +617,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你成了‘提前预警的人’，道德声望大涨。",
             "effects": {
-              "rep": 8,
+              "rep": 1.5,
               "fac": {
                 "press": 12,
                 "base": 10
@@ -627,7 +630,7 @@ POTUS.define("event", [
           "ok": {
             "body": "媒体认可你的良知，但钱没进兜。",
             "effects": {
-              "rep": 4,
+              "rep": 0.8,
               "fac": {
                 "press": 6,
                 "base": 5
@@ -653,7 +656,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你警告的那家机构反过来起诉你扰乱市场。",
             "effects": {
-              "fun": -150000,
+              "fun": -4,
               "flags": [
                 "investigation_open"
               ]
@@ -667,6 +670,7 @@ POTUS.define("event", [
     "id": "2008_donor",
     "grade": "minor",
     "category": "finance",
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -734,17 +738,17 @@ POTUS.define("event", [
           "crit": {
             "body": "你既拿了钱又巧妙地没被绑死，手腕尽显。",
             "effects": {
-              "fun": 1200000,
+              "fun": 133.5,
               "fac": {
                 "commercial": 15
               },
-              "rep": 3
+              "rep": 1.25
             }
           },
           "ok": {
             "body": "竞选资金无忧，但开始有人知道你的价码。",
             "effects": {
-              "fun": 800000,
+              "fun": 89,
               "fac": {
                 "commercial": 10
               },
@@ -756,7 +760,7 @@ POTUS.define("event", [
           "meh": {
             "body": "钱到手，但你被安排了一场不想去的演讲。",
             "effects": {
-              "fun": 600000,
+              "fun": 66.5,
               "fac": {
                 "commercial": 8
               },
@@ -766,7 +770,7 @@ POTUS.define("event", [
           "fail": {
             "body": "他录像留证，你成了把柄持有人。",
             "effects": {
-              "fun": 400000,
+              "fun": 44.5,
               "fac": {
                 "commercial": 6
               },
@@ -778,7 +782,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "交易被卧底记者拍下，丑闻爆发。",
             "effects": {
-              "fun": 200000,
+              "fun": 22,
               "fac": {
                 "commercial": 4,
                 "press": -20
@@ -811,11 +815,11 @@ POTUS.define("event", [
           "crit": {
             "body": "你拒绝的姿态被传为佳话，基层捐款反而涌来。",
             "effects": {
-              "rep": 8,
+              "rep": 3,
               "fac": {
                 "base": 15
               },
-              "fun": 100000
+              "fun": 11
             }
           },
           "ok": {
@@ -862,6 +866,7 @@ POTUS.define("event", [
     "id": "2008_affair",
     "grade": "minor",
     "category": "romance",
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -964,7 +969,7 @@ POTUS.define("event", [
                 "press": -20,
                 "base": -15
               },
-              "rep": -8
+              "rep": -3
             }
           }
         }
@@ -1026,6 +1031,7 @@ POTUS.define("event", [
   {
     "id": "2008_affair_collect",
     "grade": "mid", "unique": true, "category": "romance",
+    valence: "risk", dyn: true,
     "era": ["2008_CRASH"],
     "tierMin": 1, "tierMax": 5, weight: 9,
     "after": { "id": "2008_affair", minMonthsAfter: 4, maxMonthsAfter: 30 },
@@ -1059,11 +1065,11 @@ POTUS.define("event", [
         "base": 0.5,
         "mods": [{ "src": "attr", "key": "CUN", "w": 0.4 }],
         "outcomes": {
-          "crit": { "body": "报道见报的时机完美：他连夜宣布「陪伴家人」退出公职。表决按你的方向通过，而你的名字从头到尾没出现。", "effects": { rep: 6, lev: 1, fac: { press: 8, establishment: 6 } } },
-          "ok": { "body": "他退了，表决赢了。记者反复问「消息是谁给的」，你练出了一副无辜的表情。", "effects": { rep: 3, fac: { press: 4 } } },
-          "meh": { "body": "报道发了，但他死不承认，事情拖成了罗生门。表决勉强过了。", "effects": { rep: 1, fac: { press: 3, establishment: -3 } } },
-          "fail": { "body": "他挺住了，还反手查泄密源。查到她之前——先查到了你。", "effects": { rep: -6, fac: { press: -6, establishment: -8 }, flags: ["leaker_suspect"] } },
-          "critfail": { "body": "泄密链条被完整还原：她——你——记者。她的职业生涯结束，你得了「用枕边话杀人的政客」这个跟一辈子的外号。", "effects": { rep: -12, fac: { press: -10, establishment: -12, base: -8 }, flags: ["scandal_3"], notFlags: ["affair_secret"] } }
+          "crit": { "body": "报道见报的时机完美：他连夜宣布「陪伴家人」退出公职。表决按你的方向通过，而你的名字从头到尾没出现。", "effects": { rep: 0.3, lev: 1, fac: { press: 8, establishment: 6 } } },
+          "ok": { "body": "他退了，表决赢了。记者反复问「消息是谁给的」，你练出了一副无辜的表情。", "effects": { rep: 0.6, fac: { press: 4 } } },
+          "meh": { "body": "报道发了，但他死不承认，事情拖成了罗生门。表决勉强过了。", "effects": { rep: 0.2, fac: { press: 3, establishment: -3 } } },
+          "fail": { "body": "他挺住了，还反手查泄密源。查到她之前——先查到了你。", "effects": { rep: -0.3, fac: { press: -6, establishment: -8 }, flags: ["leaker_suspect"] } },
+          "critfail": { "body": "泄密链条被完整还原：她——你——记者。她的职业生涯结束，你得了「用枕边话杀人的政客」这个跟一辈子的外号。", "effects": { rep: -0.5, fac: { press: -10, establishment: -12, base: -8 }, flags: ["scandal_3"], notFlags: ["affair_secret"] } }
         }
       },
       {
@@ -1076,8 +1082,8 @@ POTUS.define("event", [
           "crit": { "body": "他听完，很久没说话，然后说：「你要什么？」——从此他在委员会里是你的影子。", "effects": { fav: 2, lev: 1, fac: { establishment: 10 }, contact: { lobbyist: 12 } } },
           "ok": { "body": "表决那天他「因病缺席」。散会后他在走廊对你点了一下头——点得很慢。", "effects": { fav: 1, lev: 1, fac: { establishment: 6 } } },
           "meh": { "body": "他投了弃权，但眼神让你明白：这个人情会以你最不喜欢的方式归还。", "effects": { lev: 1, fac: { establishment: 3 } } },
-          "fail": { "body": "他选择鱼死网破：抢先自曝了一半，然后把「被政敌窃听」的锅甩给你。", "effects": { rep: -7, fac: { establishment: -8, press: -4 }, flags: ["scandal_2"] } },
-          "critfail": { "body": "谈话被录了音。第二天「某议员以私生活相要挟」的报道虽然没有你的名字，但描述得足够清楚。", "effects": { rep: -10, fac: { establishment: -10, press: -8 }, flags: ["scandal_3", "investigation_open"] } }
+          "fail": { "body": "他选择鱼死网破：抢先自曝了一半，然后把「被政敌窃听」的锅甩给你。", "effects": { rep: -0.3, fac: { establishment: -8, press: -4 }, flags: ["scandal_2"] } },
+          "critfail": { "body": "谈话被录了音。第二天「某议员以私生活相要挟」的报道虽然没有你的名字，但描述得足够清楚。", "effects": { rep: -0.4, fac: { establishment: -10, press: -8 }, flags: ["scandal_3", "investigation_open"] } }
         }
       },
       {
@@ -1088,9 +1094,9 @@ POTUS.define("event", [
         "outcomes": {
           "crit": { "body": "表决照旧，世界照旧。但你发现自己开始被另一种目光注视——她看你的眼神里，多了敬重。", "effects": { attr: { INTG: 2 }, contact: { columnist: 6 }, fav: 1 } },
           "ok": { "body": "你把那几句话埋了。它们会烂在土里——大多数秘密都这样。", "effects": {} },
-          "meh": { "body": "几个月后那位同僚东窗事发，与你无关。你庆幸，也隐隐惋惜。", "effects": { rep: 1 } },
+          "meh": { "body": "几个月后那位同僚东窗事发，与你无关。你庆幸，也隐隐惋惜。", "effects": { rep: 0.2 } },
           "fail": { "body": "她等了很久没等到下文。渐渐地，消息不再来了。", "effects": { fav: -1 } },
-          "critfail": { "body": "她把情报给了别人，事情照炸不误——而你白担了几个月的风险。", "effects": { rep: -2, flags: ["affair_stain"] } }
+          "critfail": { "body": "她把情报给了别人，事情照炸不误——而你白担了几个月的风险。", "effects": { rep: -0.4, flags: ["affair_stain"] } }
         }
       }
     ]
@@ -1098,6 +1104,7 @@ POTUS.define("event", [
   {
     "id": "2008_affair_burn",
     "grade": "major", "unique": true, "category": "romance",
+    valence: "bane", dyn: true,
     "era": ["2008_CRASH"],
     "tierMin": 2, "tierMax": 5, weight: 8,
     "after": { "id": "2008_affair", minMonthsAfter: 12, maxMonthsAfter: 60 },
@@ -1131,11 +1138,11 @@ POTUS.define("event", [
         "base": 0.45,
         "mods": [{ "src": "attr", "key": "INTG", "w": 0.4 }, { "src": "attr", "key": "CHA", "w": 0.3 }],
         "outcomes": {
-          "crit": { "body": "那场访问播出的夜晚，你说了实话，你妻子握着你的手。第二天民调不降反升——人们说：至少他不装。", "effects": { rep: 10, attr: { INTG: 4 }, voters: { diehard: 800, warm: 2000 }, notFlags: ["affair_stain"] } },
-          "ok": { "body": "承认了，挨了两周的打，然后舆论转向了更重要的事。你活了下来，带着伤。", "effects": { rep: 3, attr: { INTG: 2 }, notFlags: ["affair_stain"] } },
-          "meh": { "body": "道歉声明发了，民调跌了八个点，没有回升也没有崩。选战继续。", "effects": { rep: -3, voters: { warm: -500 } } },
-          "fail": { "body": "你的道歉被批「排练痕迹过重」。照片之外，记者又挖出了后续的三通电话记录。", "effects": { rep: -8, voters: { warm: -1500, oppose: 1000 }, flags: ["scandal_2"] } },
-          "critfail": { "body": "访问现场，你妻子先于你开了口——她早就知道，一直在等你自己说。镜头拍下了她离场的背影。那张照片赢得了那一周的普利策，输掉的是你的全部。", "effects": { rep: -14, flags: ["scandal_4", "divorce_pending"], voters: { warm: -3000, oppose: 2000 } } }
+          "crit": { "body": "那场访问播出的夜晚，你说了实话，你妻子握着你的手。第二天民调不降反升——人们说：至少他不装。", "effects": { rep: 0.1, attr: { INTG: 4 }, voters: { diehard: 800, warm: 2000 }, notFlags: ["affair_stain"] } },
+          "ok": { "body": "承认了，挨了两周的打，然后舆论转向了更重要的事。你活了下来，带着伤。", "effects": { rep: 0.3, attr: { INTG: 2 }, notFlags: ["affair_stain"] } },
+          "meh": { "body": "道歉声明发了，民调跌了八个点，没有回升也没有崩。选战继续。", "effects": { rep: -0.3, voters: { warm: -500 } } },
+          "fail": { "body": "你的道歉被批「排练痕迹过重」。照片之外，记者又挖出了后续的三通电话记录。", "effects": { rep: -0.9, voters: { warm: -1500, oppose: 1000 }, flags: ["scandal_2"] } },
+          "critfail": { "body": "访问现场，你妻子先于你开了口——她早就知道，一直在等你自己说。镜头拍下了她离场的背影。那张照片赢得了那一周的普利策，输掉的是你的全部。", "effects": { rep: -0.2, flags: ["scandal_4", "divorce_pending"], voters: { warm: -3000, oppose: 2000 } } }
         }
       },
       {
@@ -1145,11 +1152,11 @@ POTUS.define("event", [
         "base": 0.55,
         "mods": [{ "src": "attr", "key": "CUN", "w": 0.4 }, { "src": "fac", "key": "press", "w": 0.2 }],
         "outcomes": {
-          "crit": { "body": "你的团队连夜做了「深度伪造分析」的科普帖，技术媒体先信了。照片的来源反成了对方的丑闻。", "effects": { rep: 8, fac: { press: 8, base: 5 }, notFlags: ["affair_stain"] } },
-          "ok": { "body": "否认持续了三周，投票日你赢了两个点。照片的事没人再提——暂时。", "effects": { rep: 2, notFlags: ["affair_stain"] } },
-          "meh": { "body": "信的人和不信的人正好对半。选举变成了一场关于照片的公投。", "effects": { rep: -2 } },
-          "fail": { "body": "第二张照片来了，带着日期和证人。你的第一句否认现在成了罪证。", "effects": { rep: -9, flags: ["scandal_3"], voters: { warm: -2000, oppose: 1500 } } },
-          "critfail": { "body": "否认的每一句话都被逐条证伪。你的竞选在一周内融化，党内把你除名——你成了「那个撒谎撒到底的人」。", "effects": { rep: -16, flags: ["scandal_5"], fall: 1 } }
+          "crit": { "body": "你的团队连夜做了「深度伪造分析」的科普帖，技术媒体先信了。照片的来源反成了对方的丑闻。", "effects": { rep: 0.9, fac: { press: 8, base: 5 }, notFlags: ["affair_stain"] } },
+          "ok": { "body": "否认持续了三周，投票日你赢了两个点。照片的事没人再提——暂时。", "effects": { rep: 0.2, notFlags: ["affair_stain"] } },
+          "meh": { "body": "信的人和不信的人正好对半。选举变成了一场关于照片的公投。", "effects": { rep: -0.2 } },
+          "fail": { "body": "第二张照片来了，带着日期和证人。你的第一句否认现在成了罪证。", "effects": { rep: -0.1, flags: ["scandal_3"], voters: { warm: -2000, oppose: 1500 } } },
+          "critfail": { "body": "否认的每一句话都被逐条证伪。你的竞选在一周内融化，党内把你除名——你成了「那个撒谎撒到底的人」。", "effects": { rep: -0.2, flags: ["scandal_5"], fall: 1 } }
         }
       },
       {
@@ -1157,13 +1164,13 @@ POTUS.define("event", [
         "text": "花钱买断：让照片消失",
         "note": "六位数的封口费。买得来照片，买不来知道照片存在的人——而且这笔支出本身是新把柄。",
         base: 0.6,
-        cost: { fun: 300000 },
+        cost: { fun: 2.5 },
         "outcomes": {
           "crit": { "body": "中间人收钱消灾，底片当面销毁。整件事像没发生过——除了你和你的会计。", "effects": { notFlags: ["affair_stain"], fac: { commercial: 4 } } },
           "ok": { "body": "照片撤了，但对方留了复印件。你买到的只是时间。", "effects": { lev: 0, flags: ["compromised"] } },
           "meh": { "body": "钱付了，照片「停发」。三个月后它出现在一份小报的内页——没人注意，但你出了冷汗。", "effects": {} },
           "fail": { "body": "付钱的行为本身被记录了。现在你有两个秘密：那张照片，和掩盖它的转账。", "effects": { flags: ["compromised", "launder"] } },
-          "critfail": { "body": "「候选人贿赂销毁证据」的标题比原照片劲爆十倍。你花的每一分钱都成了呈堂证供。", "effects": { rep: -13, flags: ["scandal_4", "investigation_open"], fall: 1 } }
+          "critfail": { "body": "「候选人贿赂销毁证据」的标题比原照片劲爆十倍。你花的每一分钱都成了呈堂证供。", "effects": { rep: -0.2, flags: ["scandal_4", "investigation_open"], fall: 1 } }
         }
       }
     ]
@@ -1173,6 +1180,7 @@ POTUS.define("event", [
     "grade": "mid",
     "category": "media",
     "medium": "tv",
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -1238,7 +1246,7 @@ POTUS.define("event", [
           "crit": {
             "body": "一记绝杀，对手整晚没缓过来，民调飙升。",
             "effects": {
-              "rep": 12,
+              "rep": 2.5,
               "fac": {
                 "base": 15
               }
@@ -1247,7 +1255,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你没输，平手收场。",
             "effects": {
-              "rep": 4,
+              "rep": 0.8,
               "fac": {
                 "base": 5
               }
@@ -1256,7 +1264,7 @@ POTUS.define("event", [
           "meh": {
             "body": "你击中对方，却显得刻薄。",
             "effects": {
-              "rep": 2,
+              "rep": 0.4,
               "fac": {
                 "base": 4,
                 "press": -4
@@ -1266,7 +1274,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你的‘事实’被现场辟谣。",
             "effects": {
-              "rep": -3,
+              "rep": -0.6,
               "fac": {
                 "press": -8,
                 "base": -5
@@ -1276,7 +1284,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你攻击错人，反被揭短，辩论史称耻辱。",
             "effects": {
-              "rep": -10,
+              "rep": -2,
               "fac": {
                 "press": -15,
                 "base": -12
@@ -1300,7 +1308,7 @@ POTUS.define("event", [
           "crit": {
             "body": "教科书级的控场，评论员盛赞。",
             "effects": {
-              "rep": 9,
+              "rep": 1.75,
               "fac": {
                 "press": 10,
                 "establishment": 5
@@ -1310,7 +1318,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你稳住了。",
             "effects": {
-              "rep": 4,
+              "rep": 0.8,
               "fac": {
                 "press": 4
               }
@@ -1319,7 +1327,7 @@ POTUS.define("event", [
           "meh": {
             "body": "你绕开了，但被说回避问题。",
             "effects": {
-              "rep": 1,
+              "rep": 0.2,
               "fac": {
                 "press": -3
               }
@@ -1328,7 +1336,7 @@ POTUS.define("event", [
           "fail": {
             "body": "生硬转折被哄笑。",
             "effects": {
-              "rep": -3,
+              "rep": -0.6,
               "fac": {
                 "press": -5
               }
@@ -1337,7 +1345,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你卡壳了整整十秒，成梗图。",
             "effects": {
-              "rep": -6,
+              "rep": -1.25,
               "fac": {
                 "press": -10
               }
@@ -1351,6 +1359,7 @@ POTUS.define("event", [
     "id": "2008_foundation",
     "grade": "minor",
     "category": "scandal",
+    valence: "bane", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -1411,7 +1420,7 @@ POTUS.define("event", [
           "crit": {
             "body": "基金会口碑爆棚，你成了‘有理想的实干家’。",
             "effects": {
-              "rep": 8,
+              "rep": 3,
               "fac": {
                 "base": 12,
                 "press": 6
@@ -1424,7 +1433,7 @@ POTUS.define("event", [
           "ok": {
             "body": "稳步运转。",
             "effects": {
-              "rep": 3,
+              "rep": 1.25,
               "fac": {
                 "base": 5
               }
@@ -1433,7 +1442,7 @@ POTUS.define("event", [
           "meh": {
             "body": "运转还行，但行政成本被质疑。",
             "effects": {
-              "rep": 1,
+              "rep": 0.4,
               "fac": {
                 "press": -3
               }
@@ -1480,7 +1489,7 @@ POTUS.define("event", [
           "crit": {
             "body": "天衣无缝，钱洗得干干净净没人发现。",
             "effects": {
-              "fun": 900000,
+              "fun": 100,
               "fac": {
                 "commercial": 10
               }
@@ -1489,7 +1498,7 @@ POTUS.define("event", [
           "ok": {
             "body": "钱到手，痕迹基本清除。",
             "effects": {
-              "fun": 500000,
+              "fun": 55.5,
               "flags": [
                 "shell"
               ]
@@ -1498,7 +1507,7 @@ POTUS.define("event", [
           "meh": {
             "body": "赚到，但合伙人开始不稳。",
             "effects": {
-              "fun": 300000,
+              "fun": 33.5,
               "flags": [
                 "shell"
               ],
@@ -1508,7 +1517,7 @@ POTUS.define("event", [
           "fail": {
             "body": "会计师留了底，你被约谈。",
             "effects": {
-              "fun": 100000,
+              "fun": 11,
               "flags": [
                 "scandal_2",
                 "investigation_open"
@@ -1537,6 +1546,7 @@ POTUS.define("event", [
     "grade": "minor",
     "category": "media",
     "medium": "social",
+    valence: "bane", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -1592,7 +1602,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你反转型幽默封神，粉丝暴涨。",
             "effects": {
-              "rep": 12,
+              "rep": 5,
               "fac": {
                 "base": 18
               }
@@ -1601,7 +1611,7 @@ POTUS.define("event", [
           "ok": {
             "body": "热度还在，没翻车。",
             "effects": {
-              "rep": 5,
+              "rep": 2,
               "fac": {
                 "base": 8
               }
@@ -1610,7 +1620,7 @@ POTUS.define("event", [
           "meh": {
             "body": "热度有了，但被批轻浮。",
             "effects": {
-              "rep": 2,
+              "rep": 0.8,
               "fac": {
                 "base": 4,
                 "press": -4
@@ -1620,7 +1630,7 @@ POTUS.define("event", [
           "fail": {
             "body": "越描越黑。",
             "effects": {
-              "rep": -3,
+              "rep": -1.25,
               "fac": {
                 "press": -8,
                 "base": -6
@@ -1630,7 +1640,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你骂了不该骂的群体，全面抵制。",
             "effects": {
-              "rep": -10,
+              "rep": -4,
               "fac": {
                 "base": -15,
                 "press": -15
@@ -1657,7 +1667,7 @@ POTUS.define("event", [
           "crit": {
             "body": "删得漂亮，截图党也没抓住把柄。",
             "effects": {
-              "rep": 2
+              "rep": 0.8
             }
           },
           "ok": {
@@ -1686,7 +1696,7 @@ POTUS.define("event", [
               "fac": {
                 "press": -10
               },
-              "rep": -3
+              "rep": -1.25
             }
           }
         }
@@ -1697,6 +1707,7 @@ POTUS.define("event", [
     "id": "2008_lobby",
     "grade": "mid",
     "category": "political",
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -1758,7 +1769,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你撮合了一笔大交易，上下都念你的好。",
             "effects": {
-              "fun": 700000,
+              "fun": 19.5,
               "fac": {
                 "commercial": 15,
                 "establishment": 8
@@ -1769,7 +1780,7 @@ POTUS.define("event", [
           "ok": {
             "body": "抽成到手，关系网更密。",
             "effects": {
-              "fun": 300000,
+              "fun": 8.5,
               "fac": {
                 "establishment": 5
               },
@@ -1779,7 +1790,7 @@ POTUS.define("event", [
           "meh": {
             "body": "成是成了，但一方觉得你拿太多。",
             "effects": {
-              "fun": 200000,
+              "fun": 5.5,
               "fav": -1
             }
           },
@@ -1795,7 +1806,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "交易涉贿，录音流出，你成了替罪羊。",
             "effects": {
-              "fun": 50000,
+              "fun": 1.5,
               "flags": [
                 "scandal_3",
                 "investigation_open",
@@ -1828,7 +1839,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你掀翻了潜规则，被奉为清流英雄。",
             "effects": {
-              "rep": 10,
+              "rep": 2,
               "fac": {
                 "press": 15,
                 "base": 12
@@ -1841,7 +1852,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你立了人设，但得罪 K 街。",
             "effects": {
-              "rep": 5,
+              "rep": 1,
               "fac": {
                 "press": 8,
                 "base": 6,
@@ -1852,7 +1863,7 @@ POTUS.define("event", [
           "meh": {
             "body": "雷声大雨点小。",
             "effects": {
-              "rep": 2,
+              "rep": 0.4,
               "fac": {
                 "press": 3
               }
@@ -1887,6 +1898,7 @@ POTUS.define("event", [
     "grade": "major",
     "category": "political",
     "medium": ["tv", "social"],
+    valence: "risk", dyn: true,
     "era": [
       "2008_CRASH"
     ],
@@ -1960,7 +1972,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你以黑马之姿掀翻建制，全国侧目。",
             "effects": {
-              "rep": 15,
+              "rep": 1.75,
               "tier": 1,
               "fac": {
                 "base": 18,
@@ -1971,7 +1983,7 @@ POTUS.define("event", [
           "ok": {
             "body": "惨胜，但赢了。",
             "effects": {
-              "rep": 8,
+              "rep": 0.9,
               "tier": 1,
               "fac": {
                 "base": 10,
@@ -1982,7 +1994,7 @@ POTUS.define("event", [
           "meh": {
             "body": "赢了，代价是党内从此视你为叛徒。",
             "effects": {
-              "rep": 5,
+              "rep": 0.6,
               "tier": 1,
               "fac": {
                 "establishment": -12
@@ -1995,7 +2007,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你输了，但名气涨了。",
             "effects": {
-              "rep": 4,
+              "rep": 0.4,
               "fac": {
                 "base": 6,
                 "establishment": -5
@@ -2005,7 +2017,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "惨败且被揭旧账，元气大伤。",
             "effects": {
-              "rep": -6,
+              "rep": -0.7,
               "fac": {
                 "base": -10,
                 "establishment": -10
@@ -2032,7 +2044,7 @@ POTUS.define("event", [
           "crit": {
             "body": "党魁记住了你的‘懂事’，许你一个好位子。",
             "effects": {
-              "rep": 5,
+              "rep": 0.6,
               "fac": {
                 "establishment": 15
               },
@@ -2042,7 +2054,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你安全过关。",
             "effects": {
-              "rep": 2,
+              "rep": 0.2,
               "fac": {
                 "establishment": 8
               }

@@ -1,7 +1,7 @@
 # 选民系统设计（VOTER-SYSTEM）
 
 > 面向接手者。读完这一份，你应该能说清：**选民为什么会变、变了又会影响什么、参数在哪、怎么验证没改坏平衡。**
-> 配套：字段契约见 [`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)；开发流程见 [`DEVELOPMENT-GUIDE.md`](./DEVELOPMENT-GUIDE.md)。
+> 配套：字段契约见 [`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)；开发流程见 [`DEVELOPMENT-GUIDE.md`](./DEVELOPMENT-GUIDE.md)；项目总览见 [`README.md`](../README.md)。
 
 ---
 
@@ -225,12 +225,10 @@ mods: [{ src: "voters", w: 0.12 }]      // 选民底气在这个选项上占 ±1
 
 ```bash
 cd dev
-# 300 局生涯回归 + 全量契约校验（约 5 分钟）
-NODE_PATH=/Users/dfiuser/.workbuddy/binaries/node/workspace/node_modules \
-  /Users/dfiuser/.workbuddy/binaries/node/versions/22.22.2-3/bin/node tools/validate.js
-# UI 冒烟（约 1 分钟）
-NODE_PATH=/Users/dfiuser/.workbuddy/binaries/node/workspace/node_modules \
-  /Users/dfiuser/.workbuddy/binaries/node/versions/22.22.2-3/bin/node tools/smoke-ui.js
+# 300 局生涯回归 + 全量契约校验（约 5 分钟，零依赖）
+node tools/validate.js
+# UI 冒烟（约 1 分钟，需先在工作区装一次 jsdom）
+NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools/smoke-ui.js
 ```
 
 `validate.js` 里已锁住的**选民动态断言**（改这块就会被这些断言接住）：

@@ -1,7 +1,7 @@
 # 开发指南（DEVELOPMENT-GUIDE）
 
 > 面向接手者。目标是：**新人 1 小时内能独立产出可上线的改动**，且**引擎团队和内容团队互不阻塞**。
-> 配套文档：接口字段细节见 [`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)。
+> 配套文档：接口字段细节见 [`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)；项目总览与快速上手见仓库根 [`README.md`](../README.md)。
 
 ---
 
@@ -33,6 +33,43 @@
 本月有没有档期、有几个、每个是什么量级，全部由「时代压力 + 玩家活跃度」决定。
 内容作者通过 `era.pressure` 控制这个时代有多动荡，而不是去堆事件数量。
 细读 [`CONTENT-SCHEMA.md` §0.5](./CONTENT-SCHEMA.md)。
+
+---
+
+## 1.5 两大核心系统：三值性 & 动态经济（必读）
+
+这是 v0.6 之后最重要的两条设计。内容团队写卡前必须理解，否则数值与语义都会写歪。
+
+### 1.5.1 事件三值性（valence）
+
+每张事件卡声明一个 `valence`：
+
+| 值 | UI 徽标 | 语义（引擎强制） |
+|---|---|---|
+| `boon` | 🟢 机遇 | 净收益下限：最差档也只是"少赚"，绝不转盈为亏。 |
+| `risk` | 🟡 风险 | 提供无风险保底选项，或高波动的"博一下"；风险越大幅度越大。 |
+| `bane` | 🔴 威胁 | 默认净损，但可被高掷骰 / 高属性 / 花钱规避，甚至变坏为好。 |
+
+**两段式独立抽取**：每个档期先独立掷一类（`P.pickValence()`，权重 `balance.valenceWeights`），再在该类池子里按量级取；该类池空了按相邻类降级（`VAL_CHAIN`，风险优先当缓冲垫）。类与类互不挤占。
+
+**契约在引擎层强制**：三值性的语义由 `engine/scale.js` 的 `shapeByValence()` 在结算瞬间按声明意图兜底（boon 删 cost + 抹平负值；risk 缺保底时注入 `lay_low`）。所以内容侧只需写清"意图 + 系数"，不必逐条手抠负值；但**语义基调要对**：别把纯灾难写成 `boon`。
+
+> ⚠️ **每个时代都得有新人可及（`tierMin≤1`）的机遇卡**，否则那段时代掷中"机遇"会静默降级为"风险"，好运被吞。`node tools/audit.js` 的第④节会逐时代报覆盖缺口。
+
+### 1.5.2 系数制动态经济（卡只存系数）
+
+事件卡的经济字段（`fun` / `rep` / `hp` / 各种 `effects`）**一律写系数，不写绝对金额**，并在事件上标 `dyn: true`。抽中时 `P.realize(ev)` 把系数 × 当前人物的"标尺"（`P.ruler(grade, ev)`）翻译成绝对值：
+
+```
+钱   = 系数 × (职位月薪 × funMonths[量级] × 属性系数 × 职级系数)
+声望 = 系数 × repBase[量级] × 职级系数(±tierLean/级) × 属性系数
+```
+
+- **语义锚**：系数 `1.0` = T2 基准人物（主属性 50）在该量级的标准份量。
+- **标尺参数**在 `content/01-config.js` 的 `balance.econ`（`funMonths / repBase / hpBase / tierLean / attrLean / coefMin / coefMax / coefMaxFun`）。改这些会平移全局经济曲线，**改完必须重跑 `validate.js`**。
+- 系数合法区间由 `validate.js` 逐卡核对（`money` 因天然上百份而单独放宽到 `coefMaxFun`）。
+
+**批量迁移**：把旧的绝对金额卡一次性折算成系数 + 标注 `valence`/`dyn`，用 `node tools/migrate-scale.js`（详见工具内注释）。
 
 ---
 
@@ -115,7 +152,7 @@ cd game && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tool
 
 **不需要**重新构建、不需要重启服务、不需要改引擎。
 
-### 第一步先看哪个文件？
+### 先看哪个文件
 
 | 你想写什么 | 先读哪个文件 |
 |---|---|
@@ -168,6 +205,8 @@ cd game && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tool
   era: ["2008_CRASH"],
   grade: "mid",                      // ← 必填：major / mid / minor（§4.8）
   category: "scandal",               // ← 必填：事件类型，决定默认配图（§4.8）
+  valence: "risk",                   // ← 必填：boon 机遇 / risk 风险 / bane 威胁（§1.5.1）
+  dyn: true,                         // ← 必填：经济字段按系数写，结算时 × 人物标尺（§1.5.2）
   medium: ["tv", "social"],          // ← 可选：这件事要靠哪种"说话方式"（§4.9）
   title: "标题",
   brief: {                           // ← 背景卡：主角此刻知道多少（§4.7）
@@ -202,7 +241,7 @@ cd game && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tool
 3. 新建文件的话，在 `index.html` 的内容清单里加一行 `<script src="content/events/xx.js"></script>`
 4. `node tools/validate.js`
 
-**必须遵守**：五档结果 `crit/ok/meh/fail/critfail` 一个都不能少；每个选项的 `outcomes` 用**多行格式**写，不要压成一行手数括号（详见 §7）。
+**必须遵守**：五档结果 `crit/ok/meh/fail/critfail` 一个都不能少；`valence` + `dyn` 必填；`dyn` 卡里的 `fun/rep/hp` 等经济字段是**系数**（不是绝对金额，见 §1.5.2）；每个选项的 `outcomes` 用**多行格式**写，不要压成一行手数括号（详见 §7）。
 
 ### 5.2 写背景卡：别把玩家丢进一个他看不懂的局面
 
@@ -229,7 +268,7 @@ cd game && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tool
 | 一份掉在你桌上的文件 | 1974-05-09 | 水门余波里的泄密 |
 | 听证会的传票 | 1974-07-24 | 最高法院裁决总统必须交出录音带的那一天 |
 
-**想给一个虚构事件也钉日期？** 用 `era.scheduled`（见 CONTENT-SCHEMA §1.1），把「哪一年哪一月必定发生」写在时代里，而不是写在事件里——这样事件本身还保持着"任何月份都可能"的通用性。时代脚本已经这样用在了三场时代大事件上。
+**要给一个虚构事件也钉日期：** 用 `era.scheduled`（见 CONTENT-SCHEMA §1.1），把「哪一年哪一月必定发生」写在时代里，而不是写在事件里——这样事件本身还保持着"任何月份都可能"的通用性。时代脚本已经这样用在了三场时代大事件上。
 
 **（2）给出主角视角的背景卡。** 三层，折叠可展开，默认展开、折叠状态被记住：
 
@@ -242,7 +281,7 @@ cd game && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tool
 
 写完自检一句话：**这份背景卡里，有没有主角此刻不可能知道的事？有就删掉或挪进 `unknown`。**
 
-当前 61 个事件 **全部**配齐了背景卡、量级、类型。写新事件时直接抄 `content/events/50-era-2008.js` 里的 `2008_crash_offer`。
+当前 173 个事件 **全部**配齐了背景卡、量级、类型、三值性。写新事件时直接抄 `content/events/50-era-2008.js` 里的 `2008_crash_offer`。
 
 ### 5.3 用资源做设计：代价（cost）与投注（stake）
 
@@ -295,9 +334,9 @@ choices: [
 2. **花了钱就必须更稳**。参考锚点：免费 `base ≈ 0.40~0.50`，花 `$400k` 应给到 `0.70+`，消耗 1 点人情给 `0.60~0.65`。
 3. **`stake` 只给"赌注该由玩家决定"的选项**。固定代价的选项别加 `stake`，否则玩家要操作两遍同样的东西。
 4. **投注上限是 `+30%`（钱）`+9%`（精力），且总目标值封顶 95%**——所以别指望"投注"能救回一个 `base 0.2` 的选项。低 `base` 就该配高风险高回报的五档结果。
-   另外记住精力只有 **3 档**（`+3%/点`，上限 `+9%`）、资金 **8 档**（`$250k/档`，上限 `+30%`）——上限之外的档位引擎直接不给投，界面上按钮会置灰。
+   另外记住精力只有 **3 档**（`+3%/点`，上限 `+9%`）、资金 **8 档**（档数由 `cap÷w` 定，但**每档金额是动态的**，见 §1.5 与下条）。
 
-**想改汇率？** 改 `content/01-config.js` 的 `balance.stakeRates`，全局生效；单个选项要特例就在 `stake` 里写 `{ per, w, cap }` 覆盖。
+**改汇率：** 改 `content/01-config.js` 的 `balance.stakeRates`，全局生效；单个选项要特例就在 `stake` 里写 `{ per, w, cap }` 覆盖。
 
 ### 5.4 加一个时代
 
@@ -307,13 +346,13 @@ choices: [
 2. 新建 `content/events/5x-era-<id>.js` 写该时代事件（`era: ["<id>"]`）
 3. 把该时代的关键节点写进 `era.scheduled`（哪年哪月必定发生什么）
 4. `content/20-eras.js` 的 `blackswan` 里加该时代的黑天鹅
-5. `content/30-fillers.js` 里加该时代的填充包（**强烈建议**，否则会退化用 `"*"` 兜底包）
+5. `content/30-fillers.js` 里加该时代的填充包（**必做**，否则会退化用 `"*"` 兜底包）
 6. `index.html` 清单里引入新事件文件
 7. `node tools/validate.js`
 
-一个时代的**最小可玩内容量**建议：≥ 25 个事件 + 3 个黑天鹅 + 1 个填充包。
+一个时代的**最小可玩内容量**为 ≥ 25 个事件 + 3 个黑天鹅 + 1 个填充包。
 
-> **为什么是 25 而不是 10**：一个月一回合之后，一年要消耗 4~8 个档期。
+> **定 25 而不是 10 的原因**：一个月一回合之后，一年要消耗 4~8 个档期。
 > 事件池太浅会同时导致三件事：填充事件占比上升、日期自洽率下降、同一个事件反复出现。
 > `validate.js` 会把这三个数字都打出来。
 
@@ -473,7 +512,7 @@ effects: { forget: ["fixer"] }             // 彻底断掉（你把他卖了）
 ```
 
 - 单位是**月**。层级一变，计时自动重置（引擎侧），状态面板会显示「在位 X 个月」。
-- 建议值：基层 / 州级 18~24；参议院 / 总统 48；任命 / 造王者 / 巨富 18；名人 12。
+- 取值：基层 / 州级 18~24；参议院 / 总统 48；任命 / 造王者 / 巨富 18；名人 12。
 - **所有 `prog_*` 晋升事件都必须声明 `minTenure`**——校验器会拦。
   确切的数字会直接决定"一局有多长"，所以这是**平衡参数，不是内容参数**：改它之前先想清楚一局想玩多久。
 
@@ -510,7 +549,7 @@ POTUS.define("vignette", {
 **成长曲线在 `balance.vignette` 里，不在片段里**：详见 `CONTENT-SCHEMA.md` §4.13。
 一句话提醒：`hpChance` 默认 **0**，是刻意的——这个游戏的死亡率正好卡在退休年龄那条线上，
 平静月只要回一点点健康，就会把一大批"累死"翻成"退休"（实测 `0.04` 就让因病去世从 ~120 掉到 48）。
-想给玩家"喘口气"的手感就去调它，但调完**一定要跑 `validate.js` 看结局分布**。
+要给玩家"喘口气"的手感就调它，但调完**必须跑 `validate.js` 看结局分布**。
 
 ### 5.11 接一个大模型来润色（可选，不接也完全能玩）
 
@@ -534,13 +573,13 @@ POTUS.define("vignette", {
 
 ### 5.12 给事件配一张照片
 
-事件配图默认是**程序化 SVG**（`content/05-categories.js` 每个类型一套）。想换成真照片，
+事件配图默认是**程序化 SVG**（`content/05-categories.js` 每个类型一套）。要换成真照片，
 走**照片层**：`content/09-photo-art.js` 把「类型 → 文件名」登记进注册表，配图时优先出照片。
 
 **三步**：
 
 1. 把图丢进 `assets/events/`，命名成 **`<类型 key>.jpg`**（例如 `career.jpg`、`scandal.jpg`）。
-   想换图就直接覆盖同名文件，**不用改任何代码**。
+   要换图就直接覆盖同名文件，**不用改任何代码**。
 2. 在 `content/09-photo-art.js` 的 `files` 里加一行：`career: "career.jpg"`。
 3. 跑 `node tools/validate.js` —— 它会**逐个检查这些文件在不在于磁盘上**（这是最容易静默翻车的地方）。
 
@@ -554,7 +593,7 @@ POTUS.define("vignette", {
 **尺寸建议**：卡片正文列宽约 636px，图压到**最大边 900px / JPEG q78** 就够（十张约 860 KB）。
 画框是 `aspect-ratio:16/9` + `object-fit:cover`，所以原图比例不必统一，但**主体尽量居中**，否则会被裁掉。
 
-**想看效果**：浏览器打开 `tools/preview-photos.html` —— 它用真的渲染器 + 真的样式表铺出事件卡，
+**看实际效果**：浏览器打开 `tools/preview-photos.html` —— 它用真的渲染器 + 真的样式表铺出事件卡，
 把 12 个类型和"破图态"一次看全，不用真的开局。
 
 ---
@@ -771,7 +810,7 @@ cd <game> && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node to
 
 ## 10.5 v0.5 新机制速览（出生州 / 掷骰建角 / 下野 / 收益面板 / 年终随笔）
 
-**目录三层结构（先记住这个）**：项目根 = `dev/`（开发区，引擎+内容+工具）+ `dist/`（可分发游戏本体，`bash dev/tools/package.sh` 生成）+ `docs/`（文档在项目根，不在 dev/ 里）。改完代码固定两步：`node dev/tools/validate.js` → `bash dev/tools/package.sh`。
+**目录三层结构（先记住这个）**：项目根 = `dev/`（开发区，引擎+内容+工具）+ `dist/`（可分发游戏本体，`bash dev/tools/package.sh` 生成）+ `docs/`（文档在项目根，不在 dev/ 里）。改完代码一条命令：`bash dev/tools/package.sh`（先自检、全部通过后才打包）。
 
 | 机制 | 内容包怎么写 | 引擎在哪 |
 |---|---|---|
@@ -870,7 +909,7 @@ A：可以（`python3 -m http.server`），但**不必要**。设计目标就是
 | **类型（category）** | 事件的主题分类（仕途/舆论/丑闻/金钱…），每个类型自带默认配图与配色 |
 | **媒介（medium）** | 事件依赖的"说话方式"（报纸/电视/互联网/短视频…），按年份自动放行 |
 | **时代脚本（scheduled）** | 写在 `era.scheduled` 里的定点事件：到了某年某月必定发生 |
-| **投注档（stake step）** | 投注面板里按一次 ＋ 的粒度：资金一档 `$250k`、精力一档 `1` 点。可投档数受 `ceil(cap÷w)` 与余额双重限制 |
+| **投注档（stake step）** | 投注面板里按一次 ＋ 的粒度。**档数是动态价码**：每档金额 `= min(√(身位锚 × 事件锚), 事件锚)`（身位锚 = 职位月薪×3×量级系数，事件锚 = 事件钱量级×25%）；精力一档恒为 `1` 点。档数受 `ceil(cap÷w)` 与余额双重限制 |
 | **保底选项（fallback）** | 一个事件里既无 `cost` 也无 `req` 的那个选项。保证玩家资源见底时仍能推进；`validate.js` 强制每个事件都有 |
 | **档位（tier）** | 掷骰结果五档：crit / ok / meh / fail / critfail |
 | **层级（Tier T0-T5）** | 权力高度；多轨道在此收敛（T0 无名 → T5 顶点） |

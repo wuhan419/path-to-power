@@ -128,6 +128,31 @@ POTUS.define("balance", {
     minor: { base: 7.0, perPressure: -0.5 }
   },
   gradeFallback: { major: ["major", "mid", "minor"], mid: ["mid", "minor"], minor: ["minor"] },
+
+  /* ---------- 事件三值性（valence）与动态经济标尺（engine/scale.js） ----------
+   * 每张卡是 机遇(boon) / 风险(risk) / 威胁(bane) 中的一种；每个档期独立掷一类，
+   * 类与类互不挤占。下面三个权重是校准基线，最终值由 validate.js 的
+   * 网格搜索（体验指标最优）反推写回。valencePressure：每点时代压力对
+   * boon/bane 权重的乘性微调（越动荡，威胁越密、机遇越稀）。
+   * valenceDefault：漏标 valence 的旧内容的兜底类。 */
+  valenceWeights: { boon: 0.40, risk: 0.35, bane: 0.25 },
+  valencePressure: { boonPerPressure: -0.05, banePerPressure: 0.10 },
+  valenceDefault: "risk",
+  /* dyn 事件的内容系数 × 这里的标尺 = 结算绝对值（四舍五入）。
+   * 语义锚：系数 1.0 = T2 基准人物（属性 50）在该量级的标准份量。
+   * 改这些参数会平移全局经济曲线，改完必须重跑 node tools/validate.js。 */
+  econ: {
+    funMonths: { minor: 1.5, mid: 6, major: 20 },   /* 钱标尺 = 职位月薪 × 量级月数 */
+    repBase: { minor: 2.5, mid: 5, major: 9 },
+    hpBase: { minor: 2, mid: 4, major: 7 },
+    smallBase: { minor: 1, mid: 1.5, major: 2 },    /* lev/fav/ap 共用 */
+    tierLean: 0.30,        /* 声望随层级：每级 ±30% */
+    hpTierLean: 0.12,      /* 健康磨损随层级（比声望慢 —— 高位的人更扛得住） */
+    attrLean: 0.40,        /* 主属性每偏离 50 点 ±0.4%×倍数：100 属性 ≈ +20% 收益 */
+    coefMin: -8, coefMax: 8,                         /* dyn 卡系数合法区间（校验用） */
+    coefMaxFun: 150      /* money 单独放宽：大额贿金/收购/竞选款对低标尺天然上百份（只防绝对值忘除的极端） */
+  },
+
   midtermCycle: 2,
 
   /* 年度结算 */
@@ -312,10 +337,35 @@ POTUS.define("balance", {
     edgeSpan: 35
   },
 
-  /* 资源投注汇率（D&D 式加码的默认值；单个选项可覆盖）
-   * fun：每 per 美元 +w 胜算，最多 +cap ／ ap：每 1 点 +w，最多 +cap ／ fav：花 1 点换一次重投取优 */
+  /* ---------- 资源投注汇率（D&D 式加码的默认值；单个选项可覆盖） ----------
+   * 玩法：判定前可"投入资源加码"——资金/精力 抬判定目标值，人情 换一次重投取优。
+   *
+   * v0.7：资金那一档不再写死（用户实测反馈）。过去固定 `per: 250000`，两个后果：
+   *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏对他形同虚设；
+   *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码和事情本身的钱量级脱钩。
+   *
+   * 现在每档金额由**两个锚**算出来（见 engine/dice.js 的 stakeFunPer）：
+   *   身位锚 A = 职位月薪(track,tier) × perSalaryMonths × gradeMul
+   *              —— 你这个位子办一件事的常规手笔。月薪取自 reg.officeSalary，
+   *                 与平静月工资**同一个来源**：身份决定钱，这个口径只能有一个。
+   *   事件锚 X = 事件钱量级 × potShare
+   *              —— 这件事本身押着多少钱；同时它是**总投入的硬顶**。
+   * 合成：per = min(√(A × X), X)，再夹进 [perMin, perMax] 并抹成整数。
+   *   身位小 / 事件大 → 走 √ 那支，随身位抬升（小兵不能拿零头买下大事）
+   *   身位大 / 事件小 → 被 X 夹住，价码跟着事情走（大佬也不为小事掏大钱）
+   * 不变量：**8 档总投入永远 ≤ 2 × 事件钱量级**（8 × X = 8 × pot × 0.25 = 2 × pot），
+   * 所以不可能再出现"花 $250k 去搏 $50k"的账。
+   * 内容写死 `per` 时以内容为准（绝对覆盖，不参与换算）。
+   *
+   * 调参前务必跑 node tools/validate.js，看 300 局的层级分布 / 结局分布有没有被推歪。 */
   stakeRates: {
-    fun: { per: 250000, w: 0.04, cap: 0.30 },
+    fun: {
+      w: 0.04, cap: 0.30,
+      perSalaryMonths: 3,        /* 身位锚 = 职位月薪 × 3 个月 */
+      gradeMul: { minor: 0.6, mid: 1.0, major: 1.8 },   /* 事件没写钱时，按量级缩放身位锚 */
+      potShare: 0.25,            /* 事件锚 X = 事件钱量级 × 0.25（每档不超过事情的 25%，总投入 ≤ 2× 事情） */
+      perMin: 500, perMax: 5000000
+    },
     ap: { w: 0.03, cap: 0.09 },
     fav: { reroll: true }
   },

@@ -13,13 +13,15 @@
     P.SCREEN = "title"; document.body.className = "";
     P.app().innerHTML =
       '<div class="center" style="padding:30px 0">' +
-      '<div class="masthead"><div class="title">POTUS</div>' +
+      '<div class="masthead"><div class="title">权力之路</div>' +
       '<div class="meta">一个美国小伙的从政之路<br>文字驱动 · 政治生涯模拟 · 引擎 v' + P.VERSION + "</div></div>" +
       '<p class="muted">在真实的历史浪潮里，从毕业生爬向权力顶点——或摔下去。<br>掷骰决定命运，存档随时在手。</p>' +
       '<button class="btn primary" onclick="POTUS.startCreate()">开始新游戏</button> ' +
-      '<button class="btn" onclick="POTUS.openLoad()">读取存档</button>' +
+      '<button class="btn" onclick="POTUS.openLoad()">读取存档</button> ' +
+      P.supportButtonHTML() +
       '<p class="hintline">内容包数量：' + Object.keys(P.reg.era).length + ' 个时代 · ' + P.events.length + ' 个事件 · ' +
-      Object.keys(P.reg.ending).length + " 条结局规则</p></div>";
+      Object.keys(P.reg.ending).length + " 条结局规则</p>" +
+      '<p class="hintline">问题反馈、内容与建议：<a class="link" href="mailto:' + P.SUPPORT_EMAIL + '">' + P.SUPPORT_EMAIL + "</a></p></div>";
   };
 
   /* ---------------- 建角 ---------------- */
@@ -208,7 +210,7 @@
       attr: attr, faction: {},
       fun: b.startFun, rep: b.startRep, hp: b.startHp, ap: b.startAp, fav: b.startFav, lev: b.startLev || 0,
       tier: (P.reg.entry[C.entry] || {}).tier || 0,
-      score: 0, flags: [], history: [], log: [], aiState: { callsUsed: 0 },
+      score: 0, flags: [], history: [], log: [],
       contacts: {},
       /* 时间模型：month(1-12) 是唯一权威。
          monthPlan 是本月的"档期表"——一个档期 = 一次需要玩家决策的事件。
@@ -374,9 +376,7 @@
     const pl = P.pressureLabel();
     const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
     P.app().innerHTML =
-      '<div class="masthead"><div class="title">' + era.name + '</div></div>' +
       '<div class="topstat">' + P.topStatus() + '</div>' +
-      P.toolbarHTML() +
       '<div class="grid"><aside class="col-left">' + P.statPanel() + '</aside><div id="main"><div class="news fade"><div class="dateline">' + era.name +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
       '<div class="body">' + brief + "</div>" +
@@ -384,7 +384,10 @@
       "<div>时代压力：<b class=\"" + pl.cls + '">' + pl.text + "</b>（" + P.pressure().toFixed(1) + "／6）　·　压力越高，风波越多、越大。</div>" +
       (media ? "<div>此刻存在的媒介：" + media + "</div>" : "") +
       "</div>" +
-      '</div></div><aside class="col-right" id="actbar"></aside></div>';
+      '</div></div>' +
+      '<aside class="col-right" id="actbar">' +
+      '<div class="opsbar">' + P.opsButtons() + '</div>' +
+      '<div id="actbody"></div></aside></div>';
     // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
     actAppend('<div class="acthead">进入新的一年</div><button class="btn primary actbtn" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +
@@ -720,9 +723,15 @@
         (gapText ? '　·　' + gapText : "") + "</span></div>";
     }
     const box = P.$("#main");
+    /* 三值性徽标：机遇/风险/威胁 —— 玩家第一眼就知道找上我的是哪种事 */
+    const val = P.valenceOf(ev);
+    const vchip = '<span class="vchip ' + val + '" title="' +
+      (val === "boon" ? "机会：再糟的处理也不会亏" : val === "bane" ? "威胁：不处理必有代价，处理得好能翻盘" : "风险：搏与不搏都是路") + '">'
+      + (P.VAL_LABEL[val] || val) + "</span>";
     /* 主次顺序：标题 → 承前 → 正文（主角视角发生了什么）→ 插画 → 背景卡（折叠）→ 选项 */
     box.innerHTML =
       '<div class="news fade"><div class="dateline"><span class="dt">' + P.dateText(ev) + "</span>" +
+      vchip +
       (gdef.name ? ' <span class="gchip ' + (gdef.cls || "") + '">' + gdef.name + "</span>" : "") +
       (catName ? ' <span class="cchip">' + catName + "</span>" : "") +
       (medName ? ' <span class="cchip medium">' + medName + "</span>" : "") +
@@ -735,7 +744,7 @@
       /* 背景卡在事件框下面（中栏底部）：想细看的人展开，不挡任何东西 */
       '<div class="brief-slot">' + P.briefHTML(ev) + "</div>";
     /* v0.5.3 三栏布局：选项进右栏（#actbar），与掷骰/结算/继续按钮同栏 */
-    const cbox = document.getElementById("actbar");
+    const cbox = document.getElementById("actbody");
     let choicesHost = null;
     if (cbox) {
       choicesHost = document.createElement("div");
@@ -903,7 +912,7 @@
       '<button class="btn" id="stBack">返回</button></div>';
     /* v0.5.x 修正：判定栏（投注面板）归入右栏（#actbar）顶部，与「操作在右栏」的三栏设计一致，
        也满足「判定栏在提示栏（选项胜算）之上」——而不是错误地塞进中栏、落在背景卡下面 */
-    const _bar = document.getElementById("actbar");
+    const _bar = document.getElementById("actbody");
     if (_bar) _bar.insertBefore(box, _bar.firstChild); else P.$("#main").appendChild(box);
     const wire = function (id, fn) { const el = P.$("#" + id); if (el) el.onclick = fn; };
     wire("stFunPlus", function () { P.stakeStep("fun", 1); });
@@ -931,13 +940,13 @@
   };
 
   /* 右栏（#actbar）的两个 HTML 快捷操作 */
-  function actClear() { const bar = document.getElementById("actbar"); if (bar) bar.innerHTML = ""; }
-  function actAppend(html) { const bar = document.getElementById("actbar"); if (bar) { const d = document.createElement("div"); d.innerHTML = html; while (d.firstChild) bar.appendChild(d.firstChild); } }
+  function actClear() { const bar = document.getElementById("actbody"); if (bar) bar.innerHTML = ""; }
+  function actAppend(html) { const bar = document.getElementById("actbody"); if (bar) { const d = document.createElement("div"); d.innerHTML = html; while (d.firstChild) bar.appendChild(d.firstChild); } }
 
   /* 操作元素（选项/掷骰/结算/继续按钮）的归宿：右栏 #actbar。
      没有右栏的页面（标题/建角/年终）退回 #main 尾部——单栏兼容。 */
   function actInsert(el) {
-    const bar = document.getElementById("actbar");
+    const bar = document.getElementById("actbody");
     if (bar) { bar.appendChild(el); return; }
     const main = P.$("#main");
     if (main) main.appendChild(el);
@@ -1200,23 +1209,31 @@
     const tenureTxt = tenure >= 12 ? "（在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "") + "）" : (tenure ? "（在位 " + tenure + " 个月）" : "");
     /* v0.5.6：职位卡从左栏「状态」提到顶部状态条，横向排布。原首行的「职位（在位 N 个月）」
        与顶部条原来的「职务 / 在位」两个 chip 重复 —— 合并成一行：职位 · T层级（在位 N 个月）。 */
-    const lines = [
-      "<b>" + P.officeName() + "</b> · T" + G.tier + tenureTxt,
-      (stateTxt ? stateTxt + " · " : "") + "选区规模 " + fmtNum(es.size) + " 人",
-      "选民：死忠 " + fmtNum(vp.diehard) + " · 有好感 " + fmtNum(vp.warm) + " · 反对 " + fmtNum(vp.oppose) +
-      ' <span class="muted" title="死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感。">（选举底气 ' + es.pct + "/100）</span>",
-      "政治光谱：" + spectrum
+    const lineDefs = [
+      { h: "<b>" + P.officeName() + "</b> · T" + G.tier + tenureTxt,
+        t: "现任职务与层级（T1 最低、越高越接近权力顶点）。在同一层级熬得越久，越接近晋升窗口。" },
+      { h: (stateTxt ? stateTxt + " · " : "") + "选区规模 " + fmtNum(es.size) + " 人",
+        t: "你所代表选区的选民总量——层级越高、盘子越大，竞选要触达的人越多。" },
+      { h: "选民：死忠 " + fmtNum(vp.diehard) + " · 有好感 " + fmtNum(vp.warm) + " · 反对 " + fmtNum(vp.oppose) +
+          ' <span class="muted">（选举底气 ' + es.pct + "/100）</span>",
+        t: "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。" },
+      { h: "政治光谱：" + spectrum,
+        t: "党派打底＋姿态偏移＋时代印记。它决定哪些事件与派系对你友好、哪些把你当异类。" }
     ];
-    /* 晋升进度条：到 60 进"机会区间"（位置仍要等事件空缺） */
+    /* 晋升进度条：到 60 进"机会区间"（位置仍要等事件空缺）。标签 / 进度条 / 百分比 / 说明合并为一行。 */
     const prog = P.promotionProgress();
+    const progTip = "在位时长 40% ＋ 声望 25% ＋ 选民底气 20% ＋ 组织关系 15%。到 60 进入机会区间——但晋升仍要等一个位置空出来（对应事件）。";
     const progHTML = G.tier < P.balance().tierMax
       ? '<div class="progrow' + (prog.ready ? " ready" : "") + '">' +
         '<div class="progline"><span class="prog-label">晋升' + (prog.ready ? "（机会区间）" : "") + '</span>' +
         '<div class="progbar"><i style="width:' + prog.pct + '%"></i><em style="left:60%"></em></div>' +
-        '<span class="prog-pct">' + prog.pct + "</span></div>" +
-        '<div class="prog-note" title="在位时长40%＋声望25%＋选民底气20%＋组织关系15%。到60进入机会区间——但晋升仍要等一个位置空出来（对应事件）。">' + prog.note + "</div></div>"
+        '<span class="prog-pct">' + prog.pct + '</span>' +
+        '<span class="prog-note hastip" data-tip="' + progTip.replace(/"/g, "&quot;") + '">' + prog.note + "</span></div></div>"
       : "";
-    return '<div class="officecard">' + lines.filter(Boolean).map(function (l) { return "<div>" + l + "</div>"; }).join("") + progHTML + "</div>";
+    const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    return '<div class="officecard">' + lineDefs.filter(function (d) { return d.h; }).map(function (d) {
+      return '<div class="hastip" data-tip="' + escAttr(d.t) + '">' + d.h + "</div>";
+    }).join("") + progHTML + "</div>";
   };
 
   /* ---------------- 状态面板 / 工具条 ---------------- */
@@ -1263,53 +1280,44 @@
      均已合并为各出现一次。 */
   P.topStatus = function () {
     const G = P.G, a = G.attr, b = P.balance();
-    const chip = function (k, v, cls) {
-      return '<span class="tchip' + (cls ? ' ' + cls : '') + '"><span class="tk">' + k + '</span><b>' + v + '</b></span>';
+    const chip = function (k, v, cls, t) {
+      return '<span class="tchip' + (cls ? ' ' + cls : '') + (t ? ' hastip' : '') + '"' +
+        (t ? ' data-tip="' + String(t).replace(/"/g, '&quot;') + '"' : '') +
+        '><span class="tk">' + k + '</span><b>' + v + '</b></span>';
     };
     const track = (P.reg.track[G.track] || { name: G.track }).name;
+    const eraName = (P.reg.era[G.era] || { name: G.era }).name;
     const yrs = G.age - b.startAge + 1;
     return '<div class="tsrow">' +
         '<span class="tname">' + G.name + '</span>' +
+        chip('时代', eraName, '', '当前时代——它决定世界议题、媒介与事件池，也给整个画面定主色调。') +
         chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
-        chip('轨道', track) +
+        chip('轨道', track, '', '你现在走的这条路：选仕途、幕僚、其它轨道各有不同的晋升线与事件池。') +
         '<span class="tsep"></span>' +
-        chip('声望', G.rep) +
-        chip('公信力', a.INTG) +
-        chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k') +
+        chip('声望', G.rep, '', '名望与曝光度。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
+        chip('公信力', a.INTG, '', '诚信口碑。丑闻与失信会拉低它；它是一些清正选项与关键判定的门槛。') +
+        chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k', '', '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
         '<span class="tsep"></span>' +
-        chip('健康', G.hp, G.hp <= 30 ? 'bad' : '') +
-        chip('精力', G.ap, G.ap <= 1 ? 'bad' : '') +
-        chip('人情', G.fav) +
+        chip('健康', G.hp, G.hp <= 30 ? 'bad' : '', '身体本钱。连轴转会透支；太低会触发健康危机，甚至病故退场。') +
+        chip('精力', G.ap, G.ap <= 1 ? 'bad' : '', '本月可用的行动力。处理一件事往往吃掉若干点，投精力博胜算也花它；逐月回满。') +
+        chip('人情', G.fav, '', '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
       '</div>' +
       '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
   };
 
-  P.toolbarHTML = function () {
-    /* AI 按钮：没接大模型时点开是设置面板，接上了就直接进设置（可随时关掉）。
-       它永远不挡路——游戏本身不需要网络。 */
-    const aiOn = (P.llm && P.llm.ready());
-    return '<div class="toolbar">' +
-      '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
+  /* 操作按钮组：右栏顶部 opsbar 与旧版整页 toolbar 共用。纯本地操作——
+     存档 / 读档 / 导出 / 导入 / 支持作者 / 退出。大模型功能已整体下架，
+     界面不再有任何联网入口。 */
+  P.opsButtons = function () {
+    return '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
       '<button class="btn" onclick="POTUS.openLoad()">读取</button>' +
       '<button class="btn" onclick="POTUS.exportSave()">导出</button>' +
       '<button class="btn" onclick="POTUS.importSave()">导入</button>' +
-      (P.llm ? '<button class="btn ai' + (aiOn ? " on" : "") + '" onclick="POTUS.llmOpenSettings()">✨ AI' +
-        (aiOn ? " 已接" : " 未接") + "</button>" : "") +
-      '<button class="btn" onclick="if(confirm(\'确定放弃本局？\'))POTUS.renderTitle()">退出</button>' +
-      "</div>";
+      P.supportButtonHTML() +
+      '<button class="btn" onclick="if(confirm(\'确定放弃本局？\'))POTUS.renderTitle()">退出</button>';
   };
-  /* 工具条上的 AI 入口（llm.js 没加载也不会报错） */
-  P.llmOpenSettings = function () {
-    if (P.llm && P.llm.openSettings) { P.llm.openSettings(); return; }
-    alert("这一版没有加载大模型适配层（engine/llm.js）。");
-  };
-  /* 设置面板里改完配置后，把工具条上那个按钮的状态同步过来（否则要等下一次重建工具条） */
-  P.refreshAIBtn = function () {
-    const el = document.querySelector(".toolbar .btn.ai");
-    if (!el || !P.llm) return;
-    const on = P.llm.ready();
-    el.textContent = "✨ AI" + (on ? " 已接" : " 未接");
-    el.className = "btn ai" + (on ? " on" : "");
+  P.toolbarHTML = function () {
+    return '<div class="toolbar">' + P.opsButtons() + "</div>";
   };
 
   /* ---------------- 悬浮说明气泡（固定层，避免被边栏 overflow 裁切） ----------------

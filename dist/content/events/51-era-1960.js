@@ -10,6 +10,7 @@ POTUS.define("event", [
     "grade": "major",
     "category": "media",
     "medium": "tv",
+    valence: "risk", dyn: true,
     "era": [
       "1960_CAMELOT"
     ],
@@ -65,7 +66,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你赢了‘荧幕之战’，全国记住了你的脸。",
             "effects": {
-              "rep": 14,
+              "rep": 1.5,
               "fac": {
                 "base": 15
               }
@@ -74,7 +75,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你不怯场，印象分不错。",
             "effects": {
-              "rep": 6,
+              "rep": 0.7,
               "fac": {
                 "base": 8
               }
@@ -83,7 +84,7 @@ POTUS.define("event", [
           "meh": {
             "body": "还行，但对手更有镜头感。",
             "effects": {
-              "rep": 2,
+              "rep": 0.2,
               "fac": {
                 "base": 3
               }
@@ -92,7 +93,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你显得僵硬，电台却赢了。",
             "effects": {
-              "rep": -2,
+              "rep": -0.2,
               "fac": {
                 "base": -5
               }
@@ -101,7 +102,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你冒了汗，特写成为丑态。",
             "effects": {
-              "rep": -8,
+              "rep": -0.9,
               "fac": {
                 "press": -10,
                 "base": -8
@@ -125,7 +126,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你的数据碾压对手，社论盛赞‘内容取胜’。",
             "effects": {
-              "rep": 8,
+              "rep": 0.9,
               "fac": {
                 "press": 12,
                 "establishment": 5
@@ -138,7 +139,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你稳住了知识份子的票。",
             "effects": {
-              "rep": 4,
+              "rep": 0.4,
               "fac": {
                 "press": 6
               }
@@ -147,7 +148,7 @@ POTUS.define("event", [
           "meh": {
             "body": "专家认可，观众嫌闷。",
             "effects": {
-              "rep": 1,
+              "rep": 0.1,
               "fac": {
                 "press": 3,
                 "base": -3
@@ -165,7 +166,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你记错一个数字，全场哗然。",
             "effects": {
-              "rep": -6,
+              "rep": -0.7,
               "fac": {
                 "press": -10
               },
@@ -183,6 +184,7 @@ POTUS.define("event", [
     "grade": "major",
     "category": "civil",
     "medium": "tv",
+    valence: "risk", dyn: true,
     "era": [
       "1960_CAMELOT"
     ],
@@ -247,7 +249,7 @@ POTUS.define("event", [
           "crit": {
             "body": "你成了道义标杆，历史会记得这一夜。",
             "effects": {
-              "rep": 12,
+              "rep": 1.25,
               "fac": {
                 "base": 20,
                 "labor": 10
@@ -260,7 +262,7 @@ POTUS.define("event", [
           "ok": {
             "body": "你赢得良知票，失去南方保守票。",
             "effects": {
-              "rep": 6,
+              "rep": 0.7,
               "fac": {
                 "base": 12,
                 "labor": 6,
@@ -271,7 +273,7 @@ POTUS.define("event", [
           "meh": {
             "body": "你去了，但发言含糊。",
             "effects": {
-              "rep": 3,
+              "rep": 0.3,
               "fac": {
                 "base": 6,
                 "establishment": -4
@@ -281,7 +283,7 @@ POTUS.define("event", [
           "fail": {
             "body": "你临阵改口，两头不是人。",
             "effects": {
-              "rep": -2,
+              "rep": -0.2,
               "fac": {
                 "base": -6,
                 "establishment": -4
@@ -291,7 +293,7 @@ POTUS.define("event", [
           "critfail": {
             "body": "你说了句种族歧视旧调，被录音，政治生命蒙尘。",
             "effects": {
-              "rep": -10,
+              "rep": -1,
               "fac": {
                 "base": -18,
                 "press": -15
@@ -369,7 +371,7 @@ POTUS.define("event", [
    * ======================================================================== */
 
   {
-    id: "1960_fbi", grade: "mid", category: "scandal", era: ["1960_CAMELOT"],
+    id: "1960_fbi", grade: "mid", valence: "bane", dyn: true, category: "scandal", era: ["1960_CAMELOT"],
     tierMin: 1, tierMax: 5, weight: 11,
     title: "来客没有留下名片",
     body: "两个穿深色西装的人在你的办公室外等了四十分钟，没有预约，也没有解释。\n" +
@@ -403,41 +405,41 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "agency", w: 0.3 }],
         cost: { ap: 2 }, stake: { ap: true, fav: true },
         outcomes: {
-          crit: { body: "你收下了那份东西，还顺手问了一个他们没准备的问题。其中一个笑了——他记住你了，用好的那种方式。你从此有一个电话可以打，也从此有一格抽屉属于你。", effects: { lev: 1, rep: 4, contact: { fed: 14 }, fac: { agency: 14, establishment: 6 } } },
+          crit: { body: "你收下了那份东西，还顺手问了一个他们没准备的问题。其中一个笑了——他记住你了，用好的那种方式。你从此有一个电话可以打，也从此有一格抽屉属于你。", effects: { lev: 1, rep: 0.8, contact: { fed: 14 }, fac: { agency: 14, establishment: 6 } } },
           ok: { body: "你收下了。他们把东西留在桌上就走了。你把它锁进抽屉最里层，然后去开下一场会。", effects: { lev: 1, contact: { fed: 8 }, fac: { agency: 8 } } },
-          meh: { body: "你收下了，但他们看出来你不太愿意。他们不缺一个勉强的人。", effects: { lev: 1, hp: -3, contact: { fed: 2 }, fac: { agency: 3 } } },
-          fail: { body: "你收下了，又问了太多问题。他们走的时候把你的名字记在了另一本册子上。", effects: { lev: 1, hp: -4, fac: { agency: -8 } } },
-          critfail: { body: "你收了那份材料，还拿它去换了一个人情。三个月后你才知道，那份材料是他们故意给你的。", effects: { lev: 1, rep: -5, fac: { agency: -14 }, flags: ["scandal_2", "investigation_open"] } }
+          meh: { body: "你收下了，但他们看出来你不太愿意。他们不缺一个勉强的人。", effects: { lev: 1, hp: -0.8, contact: { fed: 2 }, fac: { agency: 3 } } },
+          fail: { body: "你收下了，又问了太多问题。他们走的时候把你的名字记在了另一本册子上。", effects: { lev: 1, hp: -1, fac: { agency: -8 } } },
+          critfail: { body: "你收了那份材料，还拿它去换了一个人情。三个月后你才知道，那份材料是他们故意给你的。", effects: { lev: 1, rep: -1, fac: { agency: -14 }, flags: ["scandal_2", "investigation_open"] } }
         }
       },
       {
         id: "refuse", text: "推回去。让他们自己处理自己那份东西",
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.55 }],
-        cost: { rep: 2 },
+        cost: { rep: 0.4 },
         outcomes: {
-          crit: { body: "你把纸推回去，说：「这件事您该找他本人谈。」办公室里安静了六秒。他们把东西收起来，临走时那位年纪大的说了一句：「我记住您了。」这句话在 1960 年有很多种读法，你后来发现是好的那一种。", effects: { rep: 8, fac: { agency: 8, base: 6, establishment: 4 } } },
-          ok: { body: "你推回去了。他们没有为难你，也没有再来。", effects: { rep: 4, fac: { agency: 4, base: 3 } } },
-          meh: { body: "你推回去了，但话说得很客气，客气到他们不确定你的意思。", effects: { rep: 1, fac: { agency: 1 } } },
-          fail: { body: "你说得太硬了。他们走的时候那句话是：「希望您将来不需要我们。」", effects: { rep: 1, hp: -3, fac: { agency: -10 } } },
-          critfail: { body: "你把这件事说给了别人听。第三个星期，你的司机被问过一次话，而你的办公室开始有人在外面拍照。", effects: { rep: -3, hp: -5, fac: { agency: -16 }, flags: ["scandal_2"] } }
+          crit: { body: "你把纸推回去，说：「这件事您该找他本人谈。」办公室里安静了六秒。他们把东西收起来，临走时那位年纪大的说了一句：「我记住您了。」这句话在 1960 年有很多种读法，你后来发现是好的那一种。", effects: { rep: 1.5, fac: { agency: 8, base: 6, establishment: 4 } } },
+          ok: { body: "你推回去了。他们没有为难你，也没有再来。", effects: { rep: 0.8, fac: { agency: 4, base: 3 } } },
+          meh: { body: "你推回去了，但话说得很客气，客气到他们不确定你的意思。", effects: { rep: 0.2, fac: { agency: 1 } } },
+          fail: { body: "你说得太硬了。他们走的时候那句话是：「希望您将来不需要我们。」", effects: { rep: 0.2, hp: -0.8, fac: { agency: -10 } } },
+          critfail: { body: "你把这件事说给了别人听。第三个星期，你的司机被问过一次话，而你的办公室开始有人在外面拍照。", effects: { rep: -0.6, hp: -1.25, fac: { agency: -16 }, flags: ["scandal_2"] } }
         }
       },
       {
         id: "nothing", text: "什么都不说，把这件事放在今天之后",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你不置可否，然后在一周内把该打的电话都打了一遍——不是找他们，是找你自己的朋友。你把这件事变成了一件有别人知道的事。这是 1960 年最聪明的做法。", effects: { rep: 4, contact: { fixer: 8, columnist: 6 }, fac: { base: 5, agency: 4 } } },
-          ok: { body: "你没表态。他们走了，那份东西也走了。这件事从此没有再被提过。", effects: { rep: 2, fac: { base: 2 } } },
-          meh: { body: "你没表态，也没有人再问。你花了很多个晚上想这件事，这是唯一的代价。", effects: { hp: -3 } },
-          fail: { body: "你以为不表态就是安全。三个月后你发现，他们把你的沉默读成了默认。", effects: { rep: -2, hp: -4, fac: { agency: -6 } } },
-          critfail: { body: "你什么都没说，也什么都没做。这份材料里的那位朋友，后来在一场听证会上替所有人承担了责任。", effects: { rep: -4, hp: -4, contact: { fed: -10 }, fac: { base: -6, agency: -8 }, flags: ["scandal_1"] } }
+          crit: { body: "你不置可否，然后在一周内把该打的电话都打了一遍——不是找他们，是找你自己的朋友。你把这件事变成了一件有别人知道的事。这是 1960 年最聪明的做法。", effects: { rep: 0.8, contact: { fixer: 8, columnist: 6 }, fac: { base: 5, agency: 4 } } },
+          ok: { body: "你没表态。他们走了，那份东西也走了。这件事从此没有再被提过。", effects: { rep: 0.4, fac: { base: 2 } } },
+          meh: { body: "你没表态，也没有人再问。你花了很多个晚上想这件事，这是唯一的代价。", effects: { hp: -0.8 } },
+          fail: { body: "你以为不表态就是安全。三个月后你发现，他们把你的沉默读成了默认。", effects: { rep: -0.4, hp: -1, fac: { agency: -6 } } },
+          critfail: { body: "你什么都没说，也什么都没做。这份材料里的那位朋友，后来在一场听证会上替所有人承担了责任。", effects: { rep: -0.8, hp: -1, contact: { fed: -10 }, fac: { base: -6, agency: -8 }, flags: ["scandal_1"] } }
         }
       }
     ]
   },
 
   {
-    id: "1960_church", grade: "minor", category: "civil", era: ["1960_CAMELOT"],
+    id: "1960_church", grade: "minor", valence: "risk", dyn: true, category: "civil", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 4, weight: 10,
     title: "选民登记表",
     body: "南区那间礼拜堂的牧师在教堂后面摆了一张折叠桌，上面放着六十张选民登记表。\n" +
@@ -469,43 +471,43 @@ POTUS.define("event", [
       {
         id: "sit", text: "坐下。从上午九点坐到下午四点",
         base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "attr", key: "CHA", w: 0.25 }],
-        cost: { ap: 2, rep: 2 }, stake: { ap: true, fav: true },
+        cost: { ap: 2, rep: 0.8 }, stake: { ap: true, fav: true },
         outcomes: {
-          crit: { body: "你坐了一整天。六十张表格里有五十一张被接受，这个数字在县里传了很久。散场的时候牧师没有谢你，他只是把那张折叠桌收起来，说：「下个月还来。」", effects: { rep: 12, contact: { preacher: 18 }, fac: { civil: 20, base: 14, church: 10, establishment: -10 }, flags: ["enclave_base"] } },
-          ok: { body: "你坐了一天。有三个人被拒，其中一位女士在门口站了很久。你把她的名字和地址记了下来。", effects: { rep: 7, contact: { preacher: 10 }, fac: { civil: 12, base: 8, establishment: -6 } } },
-          meh: { body: "你坐了半天就走了。牧师没有说什么，但他记住了你几点离开的。", effects: { rep: 2, contact: { preacher: 4 }, fac: { civil: 5, base: 3 } } },
-          fail: { body: "你在桌子后面和登记员争了两句。争完之后，那天下午的每个人都被问了第四道题。", effects: { rep: -2, contact: { preacher: -4 }, fac: { civil: 4, base: 2, establishment: -8 } } },
-          critfail: { body: "那天下午有人在教堂门口等着你。你没有受伤，但你从此明白了这件事在这个县里意味着什么。", effects: { rep: -4, hp: -8, contact: { preacher: 4 }, fac: { civil: 8, base: 4, establishment: -12 }, flags: ["scandal_1"] } }
+          crit: { body: "你坐了一整天。六十张表格里有五十一张被接受，这个数字在县里传了很久。散场的时候牧师没有谢你，他只是把那张折叠桌收起来，说：「下个月还来。」", effects: { rep: 5, contact: { preacher: 18 }, fac: { civil: 20, base: 14, church: 10, establishment: -10 }, flags: ["enclave_base"] } },
+          ok: { body: "你坐了一天。有三个人被拒，其中一位女士在门口站了很久。你把她的名字和地址记了下来。", effects: { rep: 2.75, contact: { preacher: 10 }, fac: { civil: 12, base: 8, establishment: -6 } } },
+          meh: { body: "你坐了半天就走了。牧师没有说什么，但他记住了你几点离开的。", effects: { rep: 0.8, contact: { preacher: 4 }, fac: { civil: 5, base: 3 } } },
+          fail: { body: "你在桌子后面和登记员争了两句。争完之后，那天下午的每个人都被问了第四道题。", effects: { rep: -0.8, contact: { preacher: -4 }, fac: { civil: 4, base: 2, establishment: -8 } } },
+          critfail: { body: "那天下午有人在教堂门口等着你。你没有受伤，但你从此明白了这件事在这个县里意味着什么。", effects: { rep: -1.5, hp: -4, contact: { preacher: 4 }, fac: { civil: 8, base: 4, establishment: -12 }, flags: ["scandal_1"] } }
         }
       },
       {
         id: "fund", text: "不作保，但出钱把这件事变得专业",
         base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.35 }],
-        cost: { fun: 5000 },
+        cost: { fun: 0.6 },
         outcomes: {
-          crit: { body: "你出了钱：一辆能跑县城三趟的车、一台油印机、还有一位懂宪法的退休教师。到年底，这个县被接受的登记表是去年的四倍。", effects: { rep: 8, contact: { preacher: 12, brother: 6 }, fac: { civil: 14, base: 8, church: 8 } } },
-          ok: { body: "钱出了，油印机买了。牧师说：「下个月来的人会多一点。」", effects: { rep: 4, contact: { preacher: 7 }, fac: { civil: 8, base: 5 } } },
-          meh: { body: "钱出了，但那台油印机三个月后才送到，中间一直在某个仓库里。", effects: { rep: 1, contact: { preacher: 2 }, fac: { civil: 3 } } },
-          fail: { body: "你出的钱被一位经手人拿了一半。牧师没有告诉你，你自己查出来的。这件事你们两个人都没有提。", effects: { rep: -1, contact: { preacher: -3 }, fac: { civil: 2 } } },
-          critfail: { body: "有人把你捐款的数额和用途登在了县报的地方版上，标题是问句。那间教堂的那个月没能摆出登记桌。", effects: { rep: -4, contact: { preacher: -8 }, fac: { civil: -8, base: -6 }, flags: ["scandal_1"] } }
+          crit: { body: "你出了钱：一辆能跑县城三趟的车、一台油印机、还有一位懂宪法的退休教师。到年底，这个县被接受的登记表是去年的四倍。", effects: { rep: 3, contact: { preacher: 12, brother: 6 }, fac: { civil: 14, base: 8, church: 8 } } },
+          ok: { body: "钱出了，油印机买了。牧师说：「下个月来的人会多一点。」", effects: { rep: 1.5, contact: { preacher: 7 }, fac: { civil: 8, base: 5 } } },
+          meh: { body: "钱出了，但那台油印机三个月后才送到，中间一直在某个仓库里。", effects: { rep: 0.4, contact: { preacher: 2 }, fac: { civil: 3 } } },
+          fail: { body: "你出的钱被一位经手人拿了一半。牧师没有告诉你，你自己查出来的。这件事你们两个人都没有提。", effects: { rep: -0.4, contact: { preacher: -3 }, fac: { civil: 2 } } },
+          critfail: { body: "有人把你捐款的数额和用途登在了县报的地方版上，标题是问句。那间教堂的那个月没能摆出登记桌。", effects: { rep: -1.5, contact: { preacher: -8 }, fac: { civil: -8, base: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
         id: "message", text: "不出面。托一句问候过去",
         base: 0.7, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
         outcomes: {
-          crit: { body: "你没有去，但你托人送去了一句话：「这件事我不出面，但我不会说反话。」在 1960 年的南方，这句话对某些人来说是很有分量的。", effects: { rep: 3, contact: { preacher: 5 }, fac: { civil: 5, base: 3 } } },
-          ok: { body: "你托人带了话。牧师回了两个字：「知道了。」", effects: { rep: 1, contact: { preacher: 2 }, fac: { civil: 2 } } },
-          meh: { body: "你的话在路上变了形。传到牧师那里时，已经成了「他最近很忙」。", effects: { rep: -1, fac: { civil: -2 } } },
-          fail: { body: "你什么都没做。那个月摆出来的六十张表，最后只有十七张被接受。", effects: { rep: -2, fac: { civil: -6, base: -4 } } },
-          critfail: { body: "你不出面这件事，被你的对手替你说了一遍，而且说得比你打算说的那句更响。", effects: { rep: -5, contact: { preacher: -8 }, fac: { civil: -12, base: -8 } } }
+          crit: { body: "你没有去，但你托人送去了一句话：「这件事我不出面，但我不会说反话。」在 1960 年的南方，这句话对某些人来说是很有分量的。", effects: { rep: 1.25, contact: { preacher: 5 }, fac: { civil: 5, base: 3 } } },
+          ok: { body: "你托人带了话。牧师回了两个字：「知道了。」", effects: { rep: 0.4, contact: { preacher: 2 }, fac: { civil: 2 } } },
+          meh: { body: "你的话在路上变了形。传到牧师那里时，已经成了「他最近很忙」。", effects: { rep: -0.4, fac: { civil: -2 } } },
+          fail: { body: "你什么都没做。那个月摆出来的六十张表，最后只有十七张被接受。", effects: { rep: -0.8, fac: { civil: -6, base: -4 } } },
+          critfail: { body: "你不出面这件事，被你的对手替你说了一遍，而且说得比你打算说的那句更响。", effects: { rep: -2, contact: { preacher: -8 }, fac: { civil: -12, base: -8 } } }
         }
       }
     ]
   },
 
   {
-    id: "1960_dock", grade: "mid", category: "political", era: ["1960_CAMELOT"],
+    id: "1960_dock", grade: "mid", valence: "risk", dyn: true, category: "political", era: ["1960_CAMELOT"],
     tierMin: 1, tierMax: 5, weight: 10,
     title: "七号码头",
     body: "码头工会的办公室在七号仓库的二楼，门上的漆已经掉了一半。\n" +
@@ -539,41 +541,41 @@ POTUS.define("event", [
         base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "labor", w: 0.35 }],
         cost: { ap: 2 }, stake: { ap: true, fav: true },
         outcomes: {
-          crit: { body: "你把通行证收进口袋，只说了一句：「我进来是为了替你们的合同签字，不是为了替你们的敌人签字。」他看了你很久，然后叫进来三个人，一个一个介绍了名字。", effects: { rep: 9, fav: 1, contact: { union_boss: 18, fixer: 8 }, fac: { labor: 22, base: 10 }, flags: ["union_backing", "street_army"] } },
-          ok: { body: "他信了你，把通行证给了你。一年后你才发现，他也把同一张通行证给了别人。", effects: { rep: 5, contact: { union_boss: 10 }, fac: { labor: 12, base: 5 }, flags: ["union_backing"] } },
-          meh: { body: "通行证拿到手了，但你感觉到有人在门口替你说话，也有人在门口替你说反话。", effects: { rep: 2, contact: { union_boss: 3 }, fac: { labor: 4 } } },
-          fail: { body: "你说得太快，听起来像准备好的。他把通行证拿回去了一半 —— 只给你白天的。", effects: { rep: -3, contact: { union_boss: -8 }, fac: { labor: -12 } } },
-          critfail: { body: "你把那句话说给了第三个人听。传到港区的时候，它变成了另外一句话，而那句话里有你的名字。", effects: { rep: -6, contact: { union_boss: -16 }, fac: { labor: -20, base: -8 }, flags: ["scandal_2"] } }
+          crit: { body: "你把通行证收进口袋，只说了一句：「我进来是为了替你们的合同签字，不是为了替你们的敌人签字。」他看了你很久，然后叫进来三个人，一个一个介绍了名字。", effects: { rep: 1.75, fav: 1, contact: { union_boss: 18, fixer: 8 }, fac: { labor: 22, base: 10 }, flags: ["union_backing", "street_army"] } },
+          ok: { body: "他信了你，把通行证给了你。一年后你才发现，他也把同一张通行证给了别人。", effects: { rep: 1, contact: { union_boss: 10 }, fac: { labor: 12, base: 5 }, flags: ["union_backing"] } },
+          meh: { body: "通行证拿到手了，但你感觉到有人在门口替你说话，也有人在门口替你说反话。", effects: { rep: 0.4, contact: { union_boss: 3 }, fac: { labor: 4 } } },
+          fail: { body: "你说得太快，听起来像准备好的。他把通行证拿回去了一半 —— 只给你白天的。", effects: { rep: -0.6, contact: { union_boss: -8 }, fac: { labor: -12 } } },
+          critfail: { body: "你把那句话说给了第三个人听。传到港区的时候，它变成了另外一句话，而那句话里有你的名字。", effects: { rep: -1.25, contact: { union_boss: -16 }, fac: { labor: -20, base: -8 }, flags: ["scandal_2"] } }
         }
       },
       {
         id: "buy", text: "不参合他的话，直接买下一条装卸线",
         base: 0.55, mods: [{ src: "fac", key: "commercial", w: 0.4 }, { src: "attr", key: "INT", w: 0.3 }],
-        cost: { fun: 70000 }, stake: { fun: true, fav: true },
+        cost: { fun: 2 }, stake: { fun: true, fav: true },
         outcomes: {
-          crit: { body: "你买下了三号码头的一条装卸线。这在这个港口是一个信号：你不是来要东西的，你是来雇人的。第二天有人在你办公室门口排队。", effects: { rep: 7, contact: { union_boss: 10, lobbyist: 6 }, fac: { commercial: 12, labor: 8 } } },
-          ok: { body: "钱付了，线买下了。工会没有为难你，也没有特别欢迎你。", effects: { rep: 3, contact: { union_boss: 4 }, fac: { commercial: 8, labor: 4 } } },
-          meh: { body: "你买下的是闲置最久的那一条。头目在收据上签字的时候笑了一下。", effects: { rep: 1, fac: { labor: 2 } } },
-          fail: { body: "你买的那条线正卡在工会和厂方的一场仲裁里。你花钱买了一个麻烦。", effects: { rep: -3, contact: { union_boss: -6 }, fac: { commercial: 6, labor: -12 } } },
-          critfail: { body: "你买下那条线的价格，比市价高了三成，而且这件事被写进了县报的商业版。港区里开始有人说你是替别人来的。", effects: { fun: -70000, rep: -5, contact: { union_boss: -12 }, fac: { commercial: 4, labor: -18 } } }
+          crit: { body: "你买下了三号码头的一条装卸线。这在这个港口是一个信号：你不是来要东西的，你是来雇人的。第二天有人在你办公室门口排队。", effects: { rep: 1.5, contact: { union_boss: 10, lobbyist: 6 }, fac: { commercial: 12, labor: 8 } } },
+          ok: { body: "钱付了，线买下了。工会没有为难你，也没有特别欢迎你。", effects: { rep: 0.6, contact: { union_boss: 4 }, fac: { commercial: 8, labor: 4 } } },
+          meh: { body: "你买下的是闲置最久的那一条。头目在收据上签字的时候笑了一下。", effects: { rep: 0.2, fac: { labor: 2 } } },
+          fail: { body: "你买的那条线正卡在工会和厂方的一场仲裁里。你花钱买了一个麻烦。", effects: { rep: -0.6, contact: { union_boss: -6 }, fac: { commercial: 6, labor: -12 } } },
+          critfail: { body: "你买下那条线的价格，比市价高了三成，而且这件事被写进了县报的商业版。港区里开始有人说你是替别人来的。", effects: { fun: -2, rep: -1, contact: { union_boss: -12 }, fac: { commercial: 4, labor: -18 } } }
         }
       },
       {
         id: "pass", text: "两个都不要。把通行证推回去",
         base: 0.68, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
-          crit: { body: "你把通行证推回去，说：「等我真要替你们签字的那一年，我再来拿它。」头目点了点头。这句话三年后被人翻出来引用过一次。", effects: { rep: 5, contact: { union_boss: 8, preacher: 4 }, fac: { labor: 8, base: 5 } } },
-          ok: { body: "你推回去了。你少了一个港区，多了一个没有欠人情的名声。", effects: { rep: 3, fac: { labor: 3, base: 3 } } },
-          meh: { body: "你推回去了。半年后你需要进港区参加一场婚礼，被门口的保安拦了二十分钟。", effects: { rep: 1 } },
-          fail: { body: "你的对手拿了那张通行证。到了秋天，港区的每一场集会上都有他的名字。", effects: { rep: -3, fac: { labor: -10, base: -5 } } },
-          critfail: { body: "你推回去的那天，头目把通行证给了你的对手，并且加了一句：「那位先生嫌我们脏。」", effects: { rep: -6, contact: { union_boss: -12 }, fac: { labor: -18, base: -10 }, flags: ["scandal_1"] } }
+          crit: { body: "你把通行证推回去，说：「等我真要替你们签字的那一年，我再来拿它。」头目点了点头。这句话三年后被人翻出来引用过一次。", effects: { rep: 1, contact: { union_boss: 8, preacher: 4 }, fac: { labor: 8, base: 5 } } },
+          ok: { body: "你推回去了。你少了一个港区，多了一个没有欠人情的名声。", effects: { rep: 0.6, fac: { labor: 3, base: 3 } } },
+          meh: { body: "你推回去了。半年后你需要进港区参加一场婚礼，被门口的保安拦了二十分钟。", effects: { rep: 0.2 } },
+          fail: { body: "你的对手拿了那张通行证。到了秋天，港区的每一场集会上都有他的名字。", effects: { rep: -0.6, fac: { labor: -10, base: -5 } } },
+          critfail: { body: "你推回去的那天，头目把通行证给了你的对手，并且加了一句：「那位先生嫌我们脏。」", effects: { rep: -1.25, contact: { union_boss: -12 }, fac: { labor: -18, base: -10 }, flags: ["scandal_1"] } }
         }
       }
     ]
   },
 
   {
-    id: "1960_radio", grade: "mid", category: "media", era: ["1960_CAMELOT"],
+    id: "1960_radio", grade: "mid", valence: "risk", dyn: true, category: "media", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 5, weight: 10, medium: "radio",
     title: "深夜十五分钟",
     body: "本地那家电台在晚上十一点一刻有一个十五分钟的时段，没有主持人，只有一个人对着话筒说话。\n" +
@@ -605,43 +607,43 @@ POTUS.define("event", [
       {
         id: "buy", text: "买下时段，但一个字的名字都不点",
         base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { fun: 14000 }, stake: { fun: true, fav: true },
+        cost: { fun: 0.4 }, stake: { fun: true, fav: true },
         outcomes: {
-          crit: { body: "你讲了三周的县政预算，每期都在结尾留一分钟讲一个普通人的事。第四周开始，有牧师在布道时引用你。这个时段的收听率涨了一倍。", effects: { rep: 8, contact: { columnist: 10, preacher: 8 }, fac: { press: 14, base: 10, church: 6 } } },
-          ok: { body: "你讲了四周，讲得干净。有人开始把你的名字和那个时段连在一起。", effects: { rep: 4, contact: { columnist: 6 }, fac: { press: 8, base: 5 } } },
-          meh: { body: "你讲了四周，反响平平。经理说：「您讲得比上一位好，但上一位有人骂他。」", effects: { rep: 1, fac: { press: 3 } } },
-          fail: { body: "第四期你读了一封听众来信，那封信其实是有人递给你安排的。听众里有人听出来了。", effects: { rep: -2, fac: { press: -4, base: -3 } } },
-          critfail: { body: "节目里你说的一句关于农业补贴的话，被三个县的报纸同时引用，而且都做了相反的解读。你花了一个月解释。", effects: { rep: -5, fac: { press: -8, base: -6 } } }
+          crit: { body: "你讲了三周的县政预算，每期都在结尾留一分钟讲一个普通人的事。第四周开始，有牧师在布道时引用你。这个时段的收听率涨了一倍。", effects: { rep: 1.5, contact: { columnist: 10, preacher: 8 }, fac: { press: 14, base: 10, church: 6 } } },
+          ok: { body: "你讲了四周，讲得干净。有人开始把你的名字和那个时段连在一起。", effects: { rep: 0.8, contact: { columnist: 6 }, fac: { press: 8, base: 5 } } },
+          meh: { body: "你讲了四周，反响平平。经理说：「您讲得比上一位好，但上一位有人骂他。」", effects: { rep: 0.2, fac: { press: 3 } } },
+          fail: { body: "第四期你读了一封听众来信，那封信其实是有人递给你安排的。听众里有人听出来了。", effects: { rep: -0.4, fac: { press: -4, base: -3 } } },
+          critfail: { body: "节目里你说的一句关于农业补贴的话，被三个县的报纸同时引用，而且都做了相反的解读。你花了一个月解释。", effects: { rep: -1, fac: { press: -8, base: -6 } } }
         }
       },
       {
         id: "name", text: "点一个名字。让这个时段替你开一枪",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "press", w: 0.3 }],
-        cost: { fun: 14000, lev: 1 }, stake: { fun: true },
+        cost: { fun: 0.4, lev: 1 }, stake: { fun: true },
         outcomes: {
-          crit: { body: "你用十一分钟讲清楚了那个人的一件事，全部有据可查，最后只说了他的名字和一句话：「这件事我不评论。」第二天他退出了一个委员会。你的节目成了那个时段的传奇。", effects: { rep: 10, lev: 1, contact: { columnist: 12, fed: 6 }, fac: { press: 16, base: 8, establishment: -8 }, flags: ["compromised"] } },
-          ok: { body: "你点了名字。他受了伤，但不是致命的那种。电台经理第二周把价目表涨了一倍。", effects: { rep: 5, fac: { press: 8, establishment: -6 }, flags: ["compromised"] } },
-          meh: { body: "你点了名字，但听众更关心那件事本身，而不是是谁做的。这件事没有形成冲击。", effects: { rep: 1, fac: { press: 2 } } },
-          fail: { body: "他第二天就上了同一个时段的隔壁台，讲了四十分钟。你提供了他这个机会。", effects: { rep: -4, fac: { press: -8, establishment: -6 } } },
-          critfail: { body: "你点名的那个名字，背后站着三位还没出手的人。他们不出手，只是在之后的每一次场合里都记着你。", effects: { rep: -7, fac: { press: -10, establishment: -14 }, flags: ["scandal_2", "investigation_open"] } }
+          crit: { body: "你用十一分钟讲清楚了那个人的一件事，全部有据可查，最后只说了他的名字和一句话：「这件事我不评论。」第二天他退出了一个委员会。你的节目成了那个时段的传奇。", effects: { rep: 2, lev: 1, contact: { columnist: 12, fed: 6 }, fac: { press: 16, base: 8, establishment: -8 }, flags: ["compromised"] } },
+          ok: { body: "你点了名字。他受了伤，但不是致命的那种。电台经理第二周把价目表涨了一倍。", effects: { rep: 1, fac: { press: 8, establishment: -6 }, flags: ["compromised"] } },
+          meh: { body: "你点了名字，但听众更关心那件事本身，而不是是谁做的。这件事没有形成冲击。", effects: { rep: 0.2, fac: { press: 2 } } },
+          fail: { body: "他第二天就上了同一个时段的隔壁台，讲了四十分钟。你提供了他这个机会。", effects: { rep: -0.8, fac: { press: -8, establishment: -6 } } },
+          critfail: { body: "你点名的那个名字，背后站着三位还没出手的人。他们不出手，只是在之后的每一次场合里都记着你。", effects: { rep: -1.5, fac: { press: -10, establishment: -14 }, flags: ["scandal_2", "investigation_open"] } }
         }
       },
       {
         id: "pass", text: "不买。让那个时段继续空着",
         base: 0.68, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你没买。两个月后那个时段被一位年轻教师接手，他讲得比谁都好，而且他后来成了你最早的一批支持者。有些资源不买到手，反而更长久。", effects: { rep: 5, contact: { preacher: 6 }, fac: { base: 8, press: 4 } } },
-          ok: { body: "你没买。那十五分钟继续由别人说话，而你继续跑你的会场。", effects: { rep: 2, fac: { base: 3 } } },
-          meh: { body: "你没买。到了秋天，那个时段开始出现你的对手的声音。", effects: { rep: -1, fac: { press: -3 } } },
-          fail: { body: "你没买。它被一位反对你的商人买下了，第一期就点了你的名。", effects: { rep: -4, fac: { press: -8, base: -5 } } },
-          critfail: { body: "那个时段在之后的两年里成了你的对手的固定地盘。你每次开车经过那栋楼，都会下意识地调一下收音机。", effects: { rep: -6, fac: { press: -12, base: -8 } } }
+          crit: { body: "你没买。两个月后那个时段被一位年轻教师接手，他讲得比谁都好，而且他后来成了你最早的一批支持者。有些资源不买到手，反而更长久。", effects: { rep: 1, contact: { preacher: 6 }, fac: { base: 8, press: 4 } } },
+          ok: { body: "你没买。那十五分钟继续由别人说话，而你继续跑你的会场。", effects: { rep: 0.4, fac: { base: 3 } } },
+          meh: { body: "你没买。到了秋天，那个时段开始出现你的对手的声音。", effects: { rep: -0.2, fac: { press: -3 } } },
+          fail: { body: "你没买。它被一位反对你的商人买下了，第一期就点了你的名。", effects: { rep: -0.8, fac: { press: -8, base: -5 } } },
+          critfail: { body: "那个时段在之后的两年里成了你的对手的固定地盘。你每次开车经过那栋楼，都会下意识地调一下收音机。", effects: { rep: -1.25, fac: { press: -12, base: -8 } } }
         }
       }
     ]
   },
 
   {
-    id: "1960_name", grade: "minor", category: "media", era: ["1960_CAMELOT"],
+    id: "1960_name", grade: "minor", valence: "risk", dyn: true, category: "media", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 4, weight: 9, medium: "print",
     title: "你的名字怎么印",
     body: "县报的排版员打电话来，问了一个很实际的问题：你的名字在他们的报上要怎么印？\n" +
@@ -673,24 +675,24 @@ POTUS.define("event", [
       {
         id: "change", text: "改。用一个这个县能一遍念对的名字",
         base: 0.64, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "attr", key: "CUN", w: 0.25 }],
-        cost: { ap: 1, rep: 1 },
+        cost: { ap: 1, rep: 0.4 },
         outcomes: {
-          crit: { body: "新名字在两张海报之后就顺口了。广播里介绍你的时候不用再停半秒。你的家里人什么都没说，只是母亲从此在信封上还是写原来的拼法。", effects: { rep: 6, fac: { base: 10, press: 6 } } },
-          ok: { body: "名字改了。念起来顺了，争议也少了。这是一笔很划算的交易。", effects: { rep: 3, fac: { base: 6, press: 4 } } },
-          meh: { body: "名字改了，但你自己在说的时候还会卡一下。有人听出来了。", effects: { rep: 1, hp: -2, fac: { base: 3 } } },
-          fail: { body: "改得太彻底，一位老邻居在集会上问：「你是哪家的孩子？」这个问题让你的回答慢了半拍。", effects: { rep: -2, fac: { base: -4, civil: -4 } } },
-          critfail: { body: "你的改名被一位专栏作家写成了一篇短评，标题是问句。那篇文章里，你的原名被印错了两次。", effects: { rep: -5, fac: { base: -6, press: -8, civil: -6 }, flags: ["scandal_1"] } }
+          crit: { body: "新名字在两张海报之后就顺口了。广播里介绍你的时候不用再停半秒。你的家里人什么都没说，只是母亲从此在信封上还是写原来的拼法。", effects: { rep: 2.5, fac: { base: 10, press: 6 } } },
+          ok: { body: "名字改了。念起来顺了，争议也少了。这是一笔很划算的交易。", effects: { rep: 1.25, fac: { base: 6, press: 4 } } },
+          meh: { body: "名字改了，但你自己在说的时候还会卡一下。有人听出来了。", effects: { rep: 0.4, hp: -1, fac: { base: 3 } } },
+          fail: { body: "改得太彻底，一位老邻居在集会上问：「你是哪家的孩子？」这个问题让你的回答慢了半拍。", effects: { rep: -0.8, fac: { base: -4, civil: -4 } } },
+          critfail: { body: "你的改名被一位专栏作家写成了一篇短评，标题是问句。那篇文章里，你的原名被印错了两次。", effects: { rep: -2, fac: { base: -6, press: -8, civil: -6 }, flags: ["scandal_1"] } }
         }
       },
       {
         id: "keep", text: "不改。把它念对的人，才值得我说话",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.5 }],
         outcomes: {
-          crit: { body: "你在第一次演讲的开头花了四十秒教全场念自己的名字，然后说：「记不住也没关系，记住我替你们做过什么就行。」那天的掌声比任何一次都长。", effects: { rep: 9, contact: { preacher: 8, columnist: 8 }, fac: { civil: 14, base: 12, church: 6 }, flags: ["enclave_base"] } },
-          ok: { body: "你没改。有一些播音员一直念错，但你知道他们是在认真念。", effects: { rep: 4, fac: { civil: 8, base: 6 } } },
-          meh: { body: "你没改。几个月里你的名字在不同的报纸上有四种拼法。有人以为那是四个人。", effects: { rep: 1, fac: { base: 2, civil: 3 } } },
-          fail: { body: "你没改，但你在一次重要场合被人连着念错三次，而且没有人纠正。", effects: { rep: -2, fac: { base: -4 } } },
-          critfail: { body: "你坚持不改，但你因此拒绝了一次重要的广播受访机会。你的对手在那里讲了二十分钟。", effects: { rep: -4, fac: { base: -6, press: -6 } } }
+          crit: { body: "你在第一次演讲的开头花了四十秒教全场念自己的名字，然后说：「记不住也没关系，记住我替你们做过什么就行。」那天的掌声比任何一次都长。", effects: { rep: 3.5, contact: { preacher: 8, columnist: 8 }, fac: { civil: 14, base: 12, church: 6 }, flags: ["enclave_base"] } },
+          ok: { body: "你没改。有一些播音员一直念错，但你知道他们是在认真念。", effects: { rep: 1.5, fac: { civil: 8, base: 6 } } },
+          meh: { body: "你没改。几个月里你的名字在不同的报纸上有四种拼法。有人以为那是四个人。", effects: { rep: 0.4, fac: { base: 2, civil: 3 } } },
+          fail: { body: "你没改，但你在一次重要场合被人连着念错三次，而且没有人纠正。", effects: { rep: -0.8, fac: { base: -4 } } },
+          critfail: { body: "你坚持不改，但你因此拒绝了一次重要的广播受访机会。你的对手在那里讲了二十分钟。", effects: { rep: -1.5, fac: { base: -6, press: -6 } } }
         }
       },
       {
@@ -698,11 +700,11 @@ POTUS.define("event", [
         base: 0.58, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         cost: { ap: 1 },
         outcomes: {
-          crit: { body: "你把这件事做成了一个很少人做到的样子：在市政厅你是一个名字，在自家社区你是另一个。两边的门都替你开着，而且两边都知道你有另一扇门。", effects: { rep: 7, contact: { fixer: 8, preacher: 6 }, fac: { civil: 10, base: 10, establishment: 5 }, flags: ["enclave_base"] } },
-          ok: { body: "两边各用各的。有人觉得你聪明，也有人觉得你在演。", effects: { rep: 3, fac: { civil: 6, base: 5 } } },
+          crit: { body: "你把这件事做成了一个很少人做到的样子：在市政厅你是一个名字，在自家社区你是另一个。两边的门都替你开着，而且两边都知道你有另一扇门。", effects: { rep: 2.75, contact: { fixer: 8, preacher: 6 }, fac: { civil: 10, base: 10, establishment: 5 }, flags: ["enclave_base"] } },
+          ok: { body: "两边各用各的。有人觉得你聪明，也有人觉得你在演。", effects: { rep: 1.25, fac: { civil: 6, base: 5 } } },
           meh: { body: "两边用两个名字的结果是：两边都觉得你更属于另一边。", effects: { rep: 0, fac: { civil: 2, base: -2 } } },
-          fail: { body: "一张印错的传单把两个名字同时印在了一面墙上。有些事一旦并排放着就很好笑。", effects: { rep: -3, fac: { civil: -4, base: -4 } } },
-          critfail: { body: "有人拿这两个名字做了一篇稿子，说你在两个社区里说两种话。这篇稿子后来被对手的团队用了整整一年。", effects: { rep: -6, fac: { civil: -10, base: -8, press: -8 }, flags: ["scandal_2"] } }
+          fail: { body: "一张印错的传单把两个名字同时印在了一面墙上。有些事一旦并排放着就很好笑。", effects: { rep: -1.25, fac: { civil: -4, base: -4 } } },
+          critfail: { body: "有人拿这两个名字做了一篇稿子，说你在两个社区里说两种话。这篇稿子后来被对手的团队用了整整一年。", effects: { rep: -2.5, fac: { civil: -10, base: -8, press: -8 }, flags: ["scandal_2"] } }
         }
       }
     ]
