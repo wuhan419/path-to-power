@@ -251,14 +251,12 @@
     G.month = Math.max(want, G.month || 1);
     return G.month;
   };
+  /* v0.5.6：日期/身份/职位信息全部合并进顶部状态条（.topstat）——
+     原先右上角的 .masthead .meta 与顶部条重复（姓名、年月各出现两遍），已删掉。
+     推进月份/事件后刷新顶部条即可（保留函数名，调用点不动）。 */
   P.tickDate = function () {
-    const G = P.G, b = P.balance();
-    const el = document.querySelector(".masthead .meta");
-    if (!el) return;
-    const track = P.reg.track[G.track] || { name: G.track };
-    el.innerHTML = P.dateText() + "　·　第 " + (G.age - b.startAge + 1) + " 个年头<br>" +
-      G.name + " · " + track.name + "<br>" +
-      (P.reg.party[G.party] || {}).name + "/" + (P.reg.stance[G.stance] || {}).name;
+    const ts = document.querySelector(".topstat");
+    if (ts) ts.innerHTML = P.topStatus();
   };
 
   /* ---------------- 背景卡（折叠 / 展开） ---------------- */
@@ -376,7 +374,7 @@
     const pl = P.pressureLabel();
     const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
     P.app().innerHTML =
-      '<div class="masthead"><div class="title">' + era.name + '</div><div class="meta"></div></div>' +
+      '<div class="masthead"><div class="title">' + era.name + '</div></div>' +
       '<div class="topstat">' + P.topStatus() + '</div>' +
       P.toolbarHTML() +
       '<div class="grid"><aside class="col-left">' + P.statPanel() + '</aside><div id="main"><div class="news fade"><div class="dateline">' + era.name +
@@ -893,15 +891,14 @@
   function G_stakeBase(v) { P.G.__stakeBase = v; }
 
   /* 状态面板刷新：v0.5.3 三栏布局后 .panel 在左栏（.col-left）里，
-     这里统一替换它的 innerHTML 而不是 outerHTML（保持左栏结构不动）。 */
+     这里统一替换它的 innerHTML 而不是 outerHTML（保持左栏结构不动）。
+     v0.5.6：顺手修掉原来的无限递归 —— 旧代码在 .topstat 不存在时会再调一次
+     refreshPanel()，条件不变 → 栈溢出。现在两者各自「有则刷，无则跳过」。 */
   P.refreshPanel = function () {
     const col = document.querySelector(".col-left");
     if (col) col.innerHTML = P.statPanel();
     const ts = document.querySelector(".topstat");
     if (ts) ts.innerHTML = P.topStatus();
-    else {
-      P.refreshPanel();          // 旧布局兼容（标题/建角等无三栏的页面）
-    }
   };
 
   /* 右栏（#actbar）的两个 HTML 快捷操作 */
@@ -1166,8 +1163,10 @@
     const stateTxt = G.state ? P.stateName(G.state) : "";
     const tenure = P.monthsAtTier();
     const tenureTxt = tenure >= 12 ? "（在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "") + "）" : (tenure ? "（在位 " + tenure + " 个月）" : "");
+    /* v0.5.6：职位卡从左栏「状态」提到顶部状态条，横向排布。原首行的「职位（在位 N 个月）」
+       与顶部条原来的「职务 / 在位」两个 chip 重复 —— 合并成一行：职位 · T层级（在位 N 个月）。 */
     const lines = [
-      "<b>" + P.officeName() + "</b>" + tenureTxt,
+      "<b>" + P.officeName() + "</b> · T" + G.tier + tenureTxt,
       (stateTxt ? stateTxt + " · " : "") + "选区规模 " + fmtNum(es.size) + " 人",
       "选民：死忠 " + fmtNum(vp.diehard) + " · 有好感 " + fmtNum(vp.warm) + " · 反对 " + fmtNum(vp.oppose) +
       ' <span class="muted" title="死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感。">（选举底气 ' + es.pct + "/100）</span>",
@@ -1211,7 +1210,6 @@
         '<b class="' + (c.favor >= 30 ? "good" : c.favor <= -20 ? "bad" : "") + '">' + (c.favor > 0 ? "+" : "") + c.favor + "</b></div>";
     }).join("");
     return '<div class="panel"><h3>状态</h3>' +
-      P.officeCard() +
       "<div>魅力 " + a.CHA + "</div>" + bar(a.CHA) +
       "<div>智力 " + a.INT + "</div>" + bar(a.INT) +
       "<div>手腕 " + a.CUN + "</div>" + bar(a.CUN) + "<hr>" +
@@ -1223,25 +1221,32 @@
       '<div class="log">' + G.log.map(function (x) { return "<div>" + x + "</div>"; }).join("") + "</div></div>";
   };
 
-  /* 顶部状态条：把“我是谁 / 关键资源”从左侧长边栏提到页面顶端，边栏只留能力+人脉+记忆 */
+  /* 顶部状态条（v0.5.6 合并去重）：把"我是谁 / 关键资源 / 我现在是谁"全部收进页面顶端。
+     · 第 1 行：姓名 · 日期（含"第 N 个年头"） · 轨道 · 声望/公信力/资金 · 健康/精力/人情
+     · 第 2 行：职位卡 officeCard（职务·T层级（在位）｜州·选区规模｜选民池｜政治光谱｜晋升）
+     原先右上角 .masthead .meta 与本条重复（姓名、年月各两遍），职务/在位/州也与职位卡重复，
+     均已合并为各出现一次。 */
   P.topStatus = function () {
-    const G = P.G, a = G.attr;
+    const G = P.G, a = G.attr, b = P.balance();
     const chip = function (k, v, cls) {
       return '<span class="tchip' + (cls ? ' ' + cls : '') + '"><span class="tk">' + k + '</span><b>' + v + '</b></span>';
     };
-    return '<span class="tname">' + G.name + '</span>' +
-      chip('日期', P.dateText()) +
-      chip('职务', P.officeName() + ' · T' + G.tier) +
-      chip('在位', P.monthsAtTier() + '月') +
-      '<span class="tsep"></span>' +
-      chip('声望', G.rep) +
-      chip('公信力', a.INTG) +
-      chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k') +
-      '<span class="tsep"></span>' +
-      chip('健康', G.hp, G.hp <= 30 ? 'bad' : '') +
-      chip('精力', G.ap, G.ap <= 1 ? 'bad' : '') +
-      chip('人情', G.fav) +
-      (G.state ? '<span class="tsep"></span>' + chip('状态', P.stateName(G.state)) : '');
+    const track = (P.reg.track[G.track] || { name: G.track }).name;
+    const yrs = G.age - b.startAge + 1;
+    return '<div class="tsrow">' +
+        '<span class="tname">' + G.name + '</span>' +
+        chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
+        chip('轨道', track) +
+        '<span class="tsep"></span>' +
+        chip('声望', G.rep) +
+        chip('公信力', a.INTG) +
+        chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k') +
+        '<span class="tsep"></span>' +
+        chip('健康', G.hp, G.hp <= 30 ? 'bad' : '') +
+        chip('精力', G.ap, G.ap <= 1 ? 'bad' : '') +
+        chip('人情', G.fav) +
+      '</div>' +
+      '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
   };
 
   P.toolbarHTML = function () {
@@ -1256,7 +1261,7 @@
       (P.llm ? '<button class="btn ai' + (aiOn ? " on" : "") + '" onclick="POTUS.llmOpenSettings()">✨ AI' +
         (aiOn ? " 已接" : " 未接") + "</button>" : "") +
       '<button class="btn" onclick="if(confirm(\'确定放弃本局？\'))POTUS.renderTitle()">退出</button>' +
-      '<span class="muted" style="align-self:center;font-size:12px">' + P.G.name + " · " + P.G.year + "</span></div>";
+      "</div>";
   };
   /* 工具条上的 AI 入口（llm.js 没加载也不会报错） */
   P.llmOpenSettings = function () {

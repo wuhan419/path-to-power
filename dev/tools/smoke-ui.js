@@ -78,9 +78,11 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!w.document.querySelector(".mstrip"), "点击后进入月历卡（含月历条）");
   check(!!w.document.querySelector(".mlabel.now"), "月历条标出本月");
   check(P.G.month >= 1 && P.G.month <= 12, "月份落在 1-12：" + P.G.month);
-  check(/\d{4} 年 \d+ 月/.test(w.document.querySelector(".masthead .meta").textContent),
-    "报头显示当前年月：" + w.document.querySelector(".masthead .meta").textContent.split("　")[0]);
-  check(!!w.document.querySelector(".topstat") && /\d+ 年 \d+ 月/.test(w.document.querySelector(".topstat").textContent), "顶部状态条显示当前日期");
+  /* v0.5.6：原右上角 .masthead .meta 已合并进顶部状态条（去重），报头只留时代名 */
+  check(!w.document.querySelector(".masthead .meta"), "右上角信息已合并进顶部状态条（报头不再有 .meta）");
+  const tsBar = w.document.querySelector(".topstat");
+  const ym = tsBar && (tsBar.textContent.match(/\d{4} 年 \d+ 月/) || [])[0];
+  check(!!ym, "顶部状态条显示当前年月：" + (ym || "(无)"));
   const sBtn = btn("继续");
   check(!!sBtn, "年卡上有「继续 →」按钮");
   sBtn.click();
@@ -326,7 +328,9 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(panelTxt.indexOf("把柄 2 份") >= 0, "状态面板显示把柄份数：" + (panelTxt.match(/把柄 \d+ 份/) || [""])[0]);
   check(panelTxt.indexOf("专栏作家") >= 0 && panelTxt.indexOf("老雷") >= 0, "人脉列表用登记表里的名字（专栏作家 / 老雷）");
   check(panelTxt.indexOf("人脉") >= 0, "状态面板有「人脉」一节");
-  check(panelTxt.indexOf("在位") >= 0, "状态面板显示当前层级的在位月数");
+  /* v0.5.6：职位卡（含"在位 N 个月"）已从左栏 .panel 提到顶部状态条 .topstat */
+  const topTxt = (w.document.querySelector(".topstat") || {}).textContent || "";
+  check(topTxt.indexOf("在职") >= 0 || topTxt.indexOf("在位") >= 0, "顶部状态条显示当前层级的在位月数");
 
   /* 把柄作为代价：没有把柄 → 置灰 + 说明原因；有把柄 → 显示「代价：把柄 1」 */
   const findBtn = (kw) => [...w.document.querySelectorAll(".choice")].find(b => b.textContent.indexOf(kw) === 0);
@@ -594,6 +598,27 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     ".grid 第 3 列 = .col-right#actbar（操作）——在右侧，不会掉到下面");
   const abEl = w.document.getElementById("actbar");
   check(!!abEl && abEl.parentNode === gridEl, "#actbar 的父节点就是 .grid（不是 #app 兄弟）");
+
+  /* ---------- 顶部区合并（v0.5.6）：右上角信息 + 左栏职位卡 都收进 .topstat 且不重复 ---------- */
+  console.log("\n== 顶部状态条（合并右上角信息 + 职位卡，去重） ==");
+  const topbar = w.document.querySelector(".topstat");
+  check(!!topbar, "存在顶部状态条 .topstat");
+  const topRows = topbar ? [...topbar.querySelectorAll(".tsrow")] : [];
+  check(topRows.length === 2, ".topstat 有 2 行（身份/资源 + 职位卡），实际 " + topRows.length);
+  const ocEl = w.document.querySelector(".topstat .officecard");
+  check(!!ocEl, "职位卡 .officecard 已在顶部状态条内（从左栏提上来）");
+  check(!w.document.querySelector(".col-left .officecard"), "左栏 .col-left 内已无职位卡");
+  check(!!ocEl && /选区规模/.test(ocEl.textContent), "职位卡含选区规模");
+  check(!!ocEl && /政治光谱/.test(ocEl.textContent), "职位卡含政治光谱");
+  check(!!ocEl && /选民/.test(ocEl.textContent), "职位卡含选民池");
+  check(!!ocEl && /晋升/.test(ocEl.textContent), "职位卡含晋升进度");
+  check(!!topbar && /轨道/.test(topbar.textContent), "顶部条含轨道（原报头信息已并入）");
+  check(!!topbar && /第 \d+ 个年头/.test(topbar.textContent), "顶部条含「第 N 个年头」（原报头信息已并入）");
+  /* 去重：职务/在位/州 现在只在职位卡里出现一次，不应再有顶层 chip */
+  check(!!topbar && !/tchip[^>]*><span class="tk">职务/.test(topbar.innerHTML), "顶部条不再重复「职务」chip（已并入职位卡）");
+  check(!!topbar && !/tchip[^>]*><span class="tk">在位/.test(topbar.innerHTML), "顶部条不再重复「在位」chip（已并入职位卡）");
+  check(!!topbar && !/tchip[^>]*><span class="tk">状态/.test(topbar.innerHTML), "顶部条不再重复「状态」chip（州已并入职位卡）");
+  check(!!gridEl && !w.document.querySelector(".toolbar .muted"), "工具条不再重复「姓名 · 年份」");
 
   /* ---------- 悬浮说明气泡：必须挂在滚动边栏之外，才不会被 overflow:auto 裁切 ---------- */
   console.log("\n== 悬浮说明气泡（不越出边栏 / 不被裁切） ==");

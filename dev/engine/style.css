@@ -13,13 +13,17 @@
   }
   #app{max-width:1600px;margin:0 auto;padding:18px 22px 60px}
   /* masthead */
-  .masthead{border-bottom:3px double var(--line);padding-bottom:6px;margin-bottom:14px;
+  .masthead{border-bottom:2px double var(--line);padding-bottom:5px;margin-bottom:10px;
     display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
-  .masthead .title{font-size:26px;font-weight:700;letter-spacing:2px}
+  /* v0.5.6：报头只留时代名，字号调小（原 26px 太抢眼，且右侧信息已并入顶部状态条） */
+  .masthead .title{font-size:18px;font-weight:700;letter-spacing:1px}
   .masthead .meta{font-size:13px;color:var(--muted);text-align:right}
-  /* 顶部状态条：把"我是谁 / 关键资源"从左侧长边栏提到页面顶端，边栏只留能力+人脉+记忆 */
-  .topstat{border:1px solid var(--line);background:#fbf7ec;padding:8px 12px;margin:0 0 12px;
-    display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;font-size:13px}
+  /* 顶部状态条（v0.5.6 合并去重）：把"我是谁 / 关键资源 / 我现在是谁"全部收到页面顶端。
+     第 1 行 = 姓名·日期·轨道·资源；第 2 行 = 职位卡（职位/选区/选民/光谱/晋升）。
+     原先右上角 .masthead .meta 与本条重复（姓名、年月各两遍），已删除。 */
+  .topstat{border:1px solid var(--line);background:#fbf7ec;padding:8px 12px;margin:0 0 12px;font-size:13px}
+  .topstat .tsrow{display:flex;align-items:center;gap:7px 16px;flex-wrap:wrap}
+  .topstat .tsrow + .tsrow{margin-top:6px;padding-top:6px;border-top:1px dotted var(--line)}
   .topstat .tname{font-weight:700;font-size:15px;color:var(--accent);letter-spacing:1px}
   .topstat .tsep{width:1px;align-self:stretch;background:var(--line);opacity:.5}
   .topstat .tchip{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
@@ -223,10 +227,15 @@
   .quietwork .qw-text{color:#2a251c}
   .quietcard .mlabel.quiet{margin-bottom:2px}
   .quietcard .vig{margin-top:10px}
-  /* 职位卡：状态面板顶部的"我现在是谁"（职务/选区/基本盘/光谱） */
-  .officecard{border:1px solid var(--line);border-left:3px solid var(--accent);background:#f7f3e8;
-    padding:6px 9px;margin:6px 0;font-size:12.5px;line-height:1.65}
-  .officecard b{font-size:13.5px}
+  /* 职位卡（v0.5.6：从左栏「状态」面板提到顶部状态条，改为横向排布）
+     内容：职位 · T层级（在位 N 个月）｜州 · 选区规模｜选民池（选举底气）｜政治光谱｜晋升进度 */
+  .officecard{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 20px;
+    font-size:12.5px;line-height:1.65}
+  .officecard b{font-size:13px}
+  /* 晋升进度单独占一行（横条 + 说明），避免把前面几项挤变形 */
+  .officecard .progrow{flex:0 0 100%;margin:4px 0 0;padding:0;border-top:0}
+  .officecard .progline{max-width:340px}
+  .officecard .prog-note{margin-top:2px}
   /* 背景卡的位置容器：放在选项下面，独立成框（v0.5.2 应用户要求） */
   .brief-slot{margin-top:14px}
   .brief-slot .brief{margin:0}
