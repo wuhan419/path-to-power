@@ -141,8 +141,7 @@ NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node dev/tools/smoke
 │   ├── assets/     事件配图照片
 │   └── index.html  加载器 + 内容包清单（加内容只改这里的 <script src>）
 ├── dist/         可分发：双击即玩的游戏本体（生成物）
-├── docs/         文档：开发指南 / 内容契约 / 写作简报
-└── PRD_….md      产品需求文档
+└── docs/         文档：设计理念 / 开发指南 / 内容契约 / 写作简报 / 投注经济 / 选民系统
 ```
 
 **唯一接口**：内容通过 `POTUS.define(kind, payload)` 注册，引擎自动接纳。
@@ -153,6 +152,7 @@ NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node dev/tools/smoke
 
 | 文档 | 面向 | 内容 |
 |---|---|---|
+| [`docs/DESIGN.md`](docs/DESIGN.md) | 所有人 | 设计理念：定位、叙事基调、几个关键取舍背后的理由 |
 | [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) | 接手开发者 | 架构、目录、引擎/内容双团队分工、四类常见任务的操作步骤、协作流程 |
 | [`docs/CONTENT-SCHEMA.md`](docs/CONTENT-SCHEMA.md) | 内容作者 | 字段级契约：事件 / 选项 / 代价 / 投注 / 三值性 / 系数经济 / 事件链 / 人脉 / 结局 |
 | [`docs/EVENT-WRITING-BRIEF.md`](docs/EVENT-WRITING-BRIEF.md) | 内容作者 | 写作简报与铁律：如何写出"有前因后果、经济诚实"的事件 |

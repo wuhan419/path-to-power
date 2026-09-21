@@ -28,8 +28,7 @@ NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools/smoke-ui.
 （项目根）
 ├── dev/     开发区：引擎 + 内容 + 工具（本目录，改代码在这里改）
 ├── dist/    可分发：双击即玩的游戏本体（生成物，bash dev/tools/package.sh 刷新）
-├── docs/    文档：DEVELOPMENT-GUIDE.md + CONTENT-SCHEMA.md（在项目根，不在 dev/ 里）
-└── PRD_….md 产品需求文档
+└── docs/    文档：设计理念 + 开发指南 + 内容契约 + 写作简报 + 投注经济 + 选民系统（在项目根，不在 dev/ 里）
 ```
 
 改完代码一条命令：`bash dev/tools/package.sh`（先自检、全部通过后才刷新 dist；只想自检用 `--check`）。
