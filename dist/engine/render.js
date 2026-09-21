@@ -386,7 +386,7 @@
       "<div>时代压力：<b class=\"" + pl.cls + '">' + pl.text + "</b>（" + P.pressure().toFixed(1) + "／6）　·　压力越高，风波越多、越大。</div>" +
       (media ? "<div>此刻存在的媒介：" + media + "</div>" : "") +
       "</div>" +
-      '</div></div></div><aside class="col-right" id="actbar"></aside></div>';
+      '</div></div><aside class="col-right" id="actbar"></aside></div>';
     // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
     actAppend('<div class="acthead">进入新的一年</div><button class="btn primary actbtn" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +
@@ -1277,7 +1277,17 @@
      · 气泡挂在 <body>、position:fixed —— 不被任何祖先的 overflow 裁掉，恒在最顶层；
      · 横向位置夹在「悬浮元素所属栏」（.col-left/.col-right；不属于任何栏则退到视口）
        之内，保证不越出边栏；下方放不下时自动翻到元素上方。 */
+  /* 宿主是否具备真实 DOM。tools/validate.js 用极简 stub 跑引擎（window=global、body 无
+     appendChild），那里没有可用的 DOM API —— 直接停用气泡，绝不能因此拖垮加载流程。 */
+  function tipReady() {
+    return typeof document !== "undefined" && document &&
+      typeof document.addEventListener === "function" &&
+      typeof document.createElement === "function" &&
+      document.body && typeof document.body.appendChild === "function" &&
+      typeof window !== "undefined" && window && typeof window.addEventListener === "function";
+  }
   function tipLayer() {
+    if (!tipReady()) return null;
     let el = document.getElementById("tipbox");
     if (!el) { el = document.createElement("div"); el.id = "tipbox"; document.body.appendChild(el); }
     return el;
@@ -1286,6 +1296,7 @@
     const text = anchor.getAttribute("data-tip");
     if (!text) return;
     const el = tipLayer();
+    if (!el || !el.classList) return;
     el.textContent = text;                 // 用 textContent，天然免疫注入
     el.classList.add("on");
     const ar = anchor.getBoundingClientRect();
@@ -1306,10 +1317,12 @@
     el.style.top = Math.round(top) + "px";
   }
   function hideTip() {
+    if (!tipReady()) return;
     const el = document.getElementById("tipbox");
-    if (el) el.classList.remove("on");
+    if (el && el.classList) el.classList.remove("on");
   }
   function bindTooltip() {
+    if (!tipReady()) return;   // 无 DOM 宿主（validate.js）：跳过绑定
     /* 事件委托：内容动态重渲染也不需要重新绑 */
     document.addEventListener("mouseover", function (e) {
       const t = e.target && e.target.closest ? e.target.closest("[data-tip]") : null;

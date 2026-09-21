@@ -580,6 +580,21 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(text().indexOf("平静的月份") >= 0, "年终卡统计了平静的月份数（文字已逐月出过，不再重复）");
   check(!!btn("进入"), "年终结算卡上有进入下一年的按钮");
 
+  /* ---------- 三栏布局：操作栏必须真的在 .grid 内（右侧），不能掉到下面 ----------
+     回归事故：startYear 模板多写了一个 </div>，导致 .grid 被提前闭合，
+     <aside id="actbar"> 变成 .grid 的兄弟（#app 的子节点）→ 整条操作链掉到中间栏下面。 */
+  console.log("\n== 三栏布局（左状态 · 中事件 · 右操作） ==");
+  const gridEl = w.document.querySelector(".grid");
+  check(!!gridEl, "存在三栏容器 .grid");
+  const kids = gridEl ? [...gridEl.children] : [];
+  check(kids.length === 3, ".grid 恰好 3 个子元素（左/中/右），实际 " + kids.length);
+  check(!!gridEl && kids[0] && kids[0].classList.contains("col-left"), ".grid 第 1 列 = .col-left（状态）");
+  check(!!gridEl && kids[1] && kids[1].id === "main", ".grid 第 2 列 = #main（事件正文）");
+  check(!!gridEl && kids[2] && kids[2].id === "actbar" && kids[2].classList.contains("col-right"),
+    ".grid 第 3 列 = .col-right#actbar（操作）——在右侧，不会掉到下面");
+  const abEl = w.document.getElementById("actbar");
+  check(!!abEl && abEl.parentNode === gridEl, "#actbar 的父节点就是 .grid（不是 #app 兄弟）");
+
   /* ---------- 悬浮说明气泡：必须挂在滚动边栏之外，才不会被 overflow:auto 裁切 ---------- */
   console.log("\n== 悬浮说明气泡（不越出边栏 / 不被裁切） ==");
   const tipAnchor = w.document.createElement("span");
