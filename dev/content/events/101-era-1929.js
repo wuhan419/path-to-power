@@ -274,7 +274,7 @@ POTUS.define("event", [
     valence: "risk", dyn: true,
     era: ["1929_DEPRESSION"], tierMin: 0, tierMax: 3, weight: 10,
     medium: ["print", "radio"],
-    title: "你从面包线前面走过",
+    title: "失业者领面包的长队排在街角，你从旁边走过",
     body: "街角排了一条领免费汤的队，从人行道上一直拐进巷子。有记者正好在拍，镜头抬起来，等你的反应。\n" +
       "这条队里站着的，一大半是去年还在给你投票的人。",
     brief: {

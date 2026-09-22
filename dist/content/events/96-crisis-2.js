@@ -187,7 +187,7 @@ POTUS.define("event", [
     id: "cri2_plant_after", era: CRI2_ERAS, tierMin: 2, tierMax: 5, weight: 10,
     grade: "major", valence: "bane", dyn: true, category: "crisis", unique: true,
     after: { id: "cri2_plant_closure", minMonthsAfter: 12, maxMonthsAfter: 30 },
-    title: "一年后的失业率",
+    title: "工厂关厂一年后，选区失业率翻了一倍上头版",
     body: "州劳工厅的季度数据出来了，本地报纸把它做成了头版：选区失业率百分之十一，比关厂前翻了一倍。\n" +
       "数字旁边配着你在那十八个月里说过的话——一句一句，像对账单。",
     brief: {
@@ -411,7 +411,7 @@ POTUS.define("event", [
           crit: { body: "四十八小时里，二十七个应急水站和充电点在全城亮起来——用的是学校的发电机和教会的厨房。停电的夜里唯一亮着的名单，是市政厅出的。选民记住了那种亮。", effects: { rep: 2, fac: { base: 12, church: 6, labor: 4 }, voters: { diehard: 600, warm: 900 } } },
           ok: { body: "水站和充电点覆盖了主要的社区，独居老人的排查名单也过了一遍。灯没修好之前，人没有被忘记。", effects: { rep: 1.25, fac: { base: 8, church: 4 }, voters: { warm: 600 } } },
           meh: { body: "应急点开了一半，另一半卡在了发电机的租借上。你安慰自己：做了一半总比没做强——这句安慰不太管用。", effects: { rep: 0.6, fac: { base: 4 }, voters: { warm: 300 } } },
-          fail: { body: "应急点的物资在第二天夜里被抢了两处。你在晨间广播里呼吁冷静，呼吁的时候你听见了敲门声—— figurative 的那种。", effects: { rep: -0.8, fac: { base: -6, press: -3 }, voters: { oppose: 500 } } },
+          fail: { body: "应急点的物资在第二天夜里被抢了两处。你在晨间广播里呼吁冷静，呼吁的时候你听见了敲门声——比喻意义上的那种。", effects: { rep: -0.8, fac: { base: -6, press: -3 }, voters: { oppose: 500 } } },
           critfail: { body: "你在应急点安排的临时巡逻队出了事：一名队员和居民冲突动了手。你想解决的问题没有发生，你制造的问题上了新闻。", effects: { rep: -1.75, fac: { base: -10, press: -8, agency: -4 }, voters: { oppose: 1000 }, flags: ["scandal_2"] } }
         }
       }

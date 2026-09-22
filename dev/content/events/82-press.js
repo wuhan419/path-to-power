@@ -120,7 +120,7 @@ POTUS.define("event", [
   {
     id: "press_blackout", era: PRESS_ERAS, tierMin: 1, tierMax: 5, weight: 11,
     grade: "mid", valence: "bane", dyn: true, category: "media", medium: "print",
-    title: "下周四见报",
+    title: "一篇要爆料你的稿子下周四见报",
     body: "你比读者早三天知道那篇稿子要写什么。\n" +
       "一个跑了十七年市政新闻的记者，把三件事拼在了一起：一笔你在去年三月收下的钱、\n" +
       "一次你在市议会走廊里说的话、以及一个你至今没有解释清楚的人。\n" +
@@ -223,7 +223,7 @@ POTUS.define("event", [
   {
     id: "press_kill", era: PRESS_ERAS, tierMin: 2, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "media", medium: ["print", "radio", "tv"],
-    title: "一条本来会登出来的稿子",
+    title: "有人来求你压掉一篇写你盟友的真稿子",
     body: "这一次是别人来找你。\n" +
       "稿子写的不是你，是一个把票许给你的人。它全是真的，每一条都能查证，\n" +
       "而且它一旦登出来，你在这个区里最结实的那根梁就断了。\n" +
@@ -326,7 +326,7 @@ POTUS.define("event", [
   {
     id: "press_own_outlet", era: PRESS_ERAS, tierMin: 2, tierMax: 5, weight: 9,
     grade: "major", valence: "risk", dyn: true, category: "media", unique: true,
-    title: "把它买下来",
+    title: "你考虑把整家本地报纸买下来",
     body: "那家媒体要卖了。\n" +
       "不是关门，是老板老了，两个儿子都不想接，报价开得比实际价值低三成。\n" +
       "你的会计把三页纸放在你面前。第三页的最后一行写着：\n" +
@@ -392,7 +392,7 @@ POTUS.define("event", [
         id: "pass", text: "不买。这笔钱留给选票",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
-          crit: pOut("你把钱投进了三个街区的办事处。半年后你手里没有一个编辑的电话，但有四十个能在雨天把车开出来的人。这两样东西最后哪一样更有用， historians 还在吵。",
+          crit: pOut("你把钱投进了三个街区的办事处。半年后你手里没有一个编辑的电话，但有四十个能在雨天把车开出来的人。这两样东西最后哪一样更有用，历史学家还在吵。",
             { rep: 0.7, fac: { base: 12, labor: 6, press: 4 } }),
           ok: pOut("没买。钱还在，麻烦也少。那家媒体继续按自己的意思写你。",
             { rep: 0.3, fac: { base: 4, press: 3 } }),

@@ -247,7 +247,7 @@ POTUS.define("event", [
         "这次转向会催生日本资产狂潮，多年后炸成一场大萧条——此刻无人预见。",
         "今天你替谁背书，三年后汇率的账会找上门问你是谁的人。"
       ],
-      terms: [{ k: "广场协议", v: "1985 年五国 agreed 联合压低美元。它短期改善了美国贸易，却被普遍认为催生了日本泡沫及其后的长期停滞。" }]
+      terms: [{ k: "广场协议", v: "1985 年五国同意联合压低美元。它短期改善了美国贸易，却被普遍认为催生了日本泡沫及其后的长期停滞。" }]
     },
     choices: [
       {
@@ -495,8 +495,8 @@ POTUS.define("event", [
     minYear: 1988, maxYear: 1989, scoped: true, tierRaw: true, tierMin: 2, tierMax: 6, weight: 11, unique: true,
     medium: ["print", "tv"], month: 3,
     after: { id: "rg87_iran_hearings", minMonthsAfter: 6 },
-    title: "潮水退去，谁在裸泳一目了然",
-    body: "听证落幕、定罪与 pardons 交替登场，这桩丑闻渐渐并入「那个年代的一段插曲」。可对你的清算并未结束——本地要重新决定：还愿不愿意跟一个「上过听证席的人」共事。",
+    title: "风头过后，本地重新审视你这个上过听证席的人",
+    body: "听证落幕、定罪与赦免交替登场，这桩丑闻渐渐并入「那个年代的一段插曲」。可对你的清算并未结束——本地要重新决定：还愿不愿意跟一个「上过听证席的人」共事。",
     brief: {
       lede: "全国已经翻篇，你的选区还没。这一回，是你自己去敲门问一句「还能不能算我一个」。",
       known: [
@@ -815,7 +815,7 @@ POTUS.define("event", [
     valence: "risk", dyn: true,
     minYear: 1988, maxYear: 1988, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 12, unique: true,
     medium: ["tv", "print", "radio"], month: 11,
-    title: "八年到了头，谁能接那把椅子",
+    title: "总统两届将满，继任之争把整个党撕成两半",
     body: "总统任期已满，继任之争把整个党撕成两半：一边要「延续」，一边要「翻新」。对手那边，一位南方州长把话讲得又软又稳。\n" +
       "你这一层的人被迫选边。这场选举没有里根的光环罩着，赌错了方向，再没人替你兜底。",
     brief: {

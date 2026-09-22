@@ -187,7 +187,7 @@ POTUS.define("event", [
     valence: "bane", dyn: true,
     era: ["1941_WORLDWAR"], tierMin: 1, tierMax: 5, weight: 10,
     medium: ["print", "radio"],
-    title: "你的笔，决定谁上船",
+    title: "你在征兵委员会签字，决定谁家独子可以暂缓",
     body: "征兵委员会要给本地名额定缓免名单：谁家独子可以暂缓，谁家的孩子必须走。名单最后一栏签的是你。\n" +
       "桌上摊着两份材料：一位选区大户的求情信，和一个工头家四个儿子的档案——已经走了三个。",
     brief: {

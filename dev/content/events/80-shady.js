@@ -26,10 +26,9 @@ POTUS.define("event", [
   {
     id: "shady_oneshot", era: SHADY_ERAS, tierMin: 0, tierMax: 4, weight: 11,
     grade: "mid", valence: "risk", dyn: true, category: "shady",
-    title: "单次生效",
-    body: "你在两个下午里弄清楚了一件事：这座城市里所有想往上爬的年轻人，都需要同一样东西，\n" +
-      "而他们找不到地方买。你找到了。\n" +
-      "麻烦在于，这种生意只做得成一次 —— 第二次做，你就不再是「碰巧能办到的人」，而是「干这个的人」。",
+    title: "你做起一桩只能做一次的快钱生意",
+    body: "你花两个下午摸清一件事：城里想往上爬的年轻人都要同一样东西，却找不到地方买。你找到了货源。\n" +
+      "麻烦在于这种生意只能做成一次——做第二次，你就从「碰巧能办到的人」变成了「干这行的人」。",
     brief: {
       lede: "有一条路只容一个人走一次。走完就得换一条。",
       known: [
@@ -112,10 +111,9 @@ POTUS.define("event", [
   {
     id: "shady_shark", era: SHADY_ERAS, tierMin: 0, tierMax: 5, weight: 10,
     grade: "minor", valence: "risk", dyn: true, category: "shady",
-    title: "社区里的钱庄",
-    body: "他做皮具，也借钱。他从不签合同，因为在他的社区里，不还钱的人比签合同的人少。\n" +
-      "「要多少？」他连头都没抬，「还有，你打算什么时候还？」\n" +
-      "这两个问题之间没有第三个问题。",
+    title: "你到社区里的钱庄借一笔钱",
+    body: "社区里有个做皮具生意的人，私下也放贷。他不签合同——在这个社区，靠的是熟人和面子，赖账的比签字的少。\n" +
+      "你缺钱，来找他。他头也不抬，只问两句：借多少、什么时候还。这两句之间，没有第三句客气的余地。",
     brief: {
       lede: "利息写在嘴上。所以真正贵的是你答应他的那一刻。",
       known: [
@@ -197,11 +195,10 @@ POTUS.define("event", [
   {
     id: "shady_file", era: SHADY_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "shady",
-    title: "一份不该存在的人事档案",
-    body: "有人把一个牛皮纸袋塞给你就走了，连名字都没说。\n" +
-      "里面是一份复印的人事记录：某位先生三年前签过一份东西，那份东西能让他妻子、他的选区、\n" +
-      "以及给他钱的两个人同时睡不着觉。\n" +
-      "你现在手里有一份别人的睡眠。",
+    title: "有人塞给你一份能毁掉一个人的档案",
+    body: "有人把一个牛皮纸袋塞给你就走，连名字都没留。里面是一份复印的人事记录：某位在职官员三年前签过一份文件，\n" +
+      "这文件能让他本人、他的家庭、以及当初给他钱的两个人同时睡不着。\n" +
+      "你现在握着足以让一个人就范的把柄。",
     brief: {
       lede: "把柄不是武器，是一张借条——你借了他的安全，将来要还利息。",
       known: [
@@ -282,9 +279,9 @@ POTUS.define("event", [
   {
     id: "shady_doctor", era: SHADY_ERAS, tierMin: 0, tierMax: 4, weight: 9,
     grade: "minor", valence: "risk", dyn: true, category: "shady", medium: "print",
-    title: "诊所医生的签名",
-    body: "那家医务中心开在旧城区最旧的街上，招牌是双语的，进门要先说清楚自己不是来找麻烦的。\n" +
-      "医生是个谨慎的人。他唯一在意的是：你来过之后，他的招牌还挂不挂得住。",
+    title: "你让旧城区诊所的医生替你签假条",
+    body: "旧城区有家挂着双语招牌的医务中心，进门得先说清楚自己不是来找麻烦的。\n" +
+      "你要的，是医生签一张能让你合法消失几天的证明。他做事谨慎，只在意一件事：你走了之后，他这块招牌还挂不挂得住。",
     brief: {
       lede: "你需要的是几天时间。问题是替你把日期签掉的人，要拿自己的执照替你担着。",
       known: [
@@ -366,10 +363,9 @@ POTUS.define("event", [
   {
     id: "shady_union", era: SHADY_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "shady", medium: ["print", "tv"],
-    title: "工会的一声口令",
-    body: "工会大楼的会议室闻起来像咖啡和旧地毯。头目听了你十分钟，然后问了一个问题：\n" +
-      "「你要我的人为你做什么？」\n" +
-      "说错这一句，你这辈子都不用再进这栋楼。",
+    title: "你去请工会头目为你站台",
+    body: "工会大楼的会议室一股咖啡和旧地毯味。头目听你讲了十分钟，只问了一句：「你要我的人替你做什么？」\n" +
+      "这句话答错，你这辈子都不用再进这栋楼。",
     brief: {
       lede: "他不投你的票。他能决定别人的票往哪走。这两件事的价钱不一样。",
       known: [
@@ -455,10 +451,10 @@ POTUS.define("event", [
     unique: true, grade: "major", valence: "risk", dyn: true, category: "shady", medium: ["print", "tv"],
     after: { id: "shady_union", minMonthsAfter: 10, maxMonthsAfter: 42 },
     flags: ["union_backing"],
-    title: "他把那句话拿来兑了",
-    body: "市议会的合同表决就在下周。你的电话响了——是他本人。\n" +
-      "「两年前你说过，签合同的手是我们的。」他说，「下周，让我们看看那只手。」\n" +
-      "这一次，他要的不是承诺，是票——你的人情，到了结账的时候。",
+    title: "工会来兑现你两年前许下的承诺",
+    body: "市议会下周要表决一份外包合同，电话响了，是工会头目本人。\n" +
+      "「两年前你说过，签合同的手是我们的人。」他说，「下周，让我们看看这只手怎么投。」\n" +
+      "这一次他要的不是承诺，是你实打实的一票——你的人情，到期结账了。",
     brief: {
       lede: "背书不是礼物，是贷款。两年免息，今天到期。",
       known: [
@@ -525,10 +521,9 @@ POTUS.define("event", [
   {
     id: "shady_launder", era: SHADY_ERAS, tierMin: 2, tierMax: 5, weight: 10,
     grade: "major", valence: "risk", dyn: true, category: "shady", unique: true, medium: ["print", "tv", "internet"],
-    title: "钱进来之后，就洗不干净了",
-    body: "有人愿意给你一笔钱，数目大到你无法拒绝。唯一的条件是：不要问他从哪来。\n" +
-      "会计坐在你对面，拿着一支铅笔，在纸上画了三条路，每条路的末尾都写了同一句话：\n" +
-      "「一旦进来，就没有干净的退路。」",
+    title: "有人要塞给你一笔不能见光的巨款",
+    body: "有人要给你一笔大到无法拒绝的钱，唯一的条件是别问他从哪来。\n" +
+      "会计坐在你对面，用铅笔画了三条把它洗干净的路，每条末尾都写着同一句话：一旦进来，就没有干净的退路。",
     brief: {
       lede: "有些钱你收了，就等于把自己的名字签在了别人的账上。",
       known: [

@@ -123,13 +123,13 @@ POTUS.define("event", [
         { k: "拨款委员会", v: "掌握预算案起草的委员会。所有议员都想上的地方，所有捐款人都想插手的地方。" }
       ]
     },
-    title: "委员会名单上的铅笔字",
+    title: "委员会名单下周定稿，你的名字还在铅笔那一栏",
     body: "权力机关的第一课：你的名字值多少，取决于别人愿意用橡皮擦掉谁。分配季开始了。",
     choices: [
       {
         id: "lobby_hard",
         text: "全力活动：把名字写进黄金席位",
-        note: "去敲门、去表态、去许诺。他们会记住你的胃口——好的委员会喜欢 hungry 的人，也提防 hungry 的人。",
+        note: "去敲门、去表态、去许诺。他们会记住你的胃口——好的委员会喜欢有野心的人，也提防有野心的人。",
         base: 0.4,
         mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "establishment", w: 0.3 }],
         outcomes: {
@@ -196,7 +196,7 @@ POTUS.define("event", [
         "据说对面党有个年轻红人，本来要跟你硬碰，现在他的团队在庆祝你被切。"
       ],
       unknown: [
-        "你的铁杆选民被切走之后，还认不认你的名字—— Warm 和 diehard 之间隔着的从来不是地图。",
+        "你的铁杆选民被切走之后，还认不认你的名字——浅层支持者和铁杆支持者之间隔着的从来不是地图。",
         "委员会里投这一票的那个人，当初在谁的饭桌上坐过。"
       ],
       terms: [
@@ -206,7 +206,7 @@ POTUS.define("event", [
       ]
     },
     title: "他们把你的地盘画没了",
-    body: "新的选区地图公示了。你花了十年织起来的票仓，被一条曲线从中间剪开。voters 池会自动重算——在那之前，你还有一个窗口期可以反应。",
+    body: "新的选区地图公示了。你花了十年织起来的票仓，被一条曲线从中间剪开。选民池会自动重算——在那之前，你还有一个窗口期可以反应。",
     choices: [
       {
         id: "fight",
@@ -288,7 +288,7 @@ POTUS.define("event", [
         { k: "机器", v: "以一位大佬为中心的组织网络：职位、资金、背书与选区服务。机器可以继承，也可以在继承中解体。" }
       ]
     },
-    title: "老板的最后一道题",
+    title: "老板要退休了，你是两个继任人选里的一个",
     body: "他要退了，而你是他两个答案里的一个。这一周你怎么做，决定你是继承机器、辅佐机器，还是目送机器拆掉你的梯子。",
     choices: [
       {
@@ -383,7 +383,7 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你进了那个部。宣布那天，你的名字进了全国每一份报纸的第二段——第一段永远是当选人的。六个月的实况，留给时间去写。", effects: { tier: 1, rep: 1.5, fac: { establishment: 12, press: 8 }, flags: ["car2_cabinet_hot"] } },
           ok: { body: "任命宣布：你接下那个烫手的部。祝贺电话从下午两点响到深夜十一点。", effects: { tier: 1, rep: 1, fac: { establishment: 10 } } },
-          meh: { body: "你拿到了任命——副的。正部长是 balancing 的人选，你是「专业保障」。也好：功劳轮不到你，锅也轮不到你。", effects: { rep: 0.6, fac: { establishment: 6 } } },
+          meh: { body: "你拿到了任命——副的。正部长是平衡各方的人选，你是「专业保障」。也好：功劳轮不到你，锅也轮不到你。", effects: { rep: 0.6, fac: { establishment: 6 } } },
           fail: { body: "征询了三轮，最后电话还是打给了别人。官方说法是「时机」。你的名字在名单上待了十九天——什么也没换来。", effects: { rep: -0.4, fac: { establishment: -5 } } },
           critfail: { body: "征询期间，你选区的桩脚把你的「要走」传成了「已定」，选区服务瘫痪了两周。任命没来，报纸先写了你的空房子。", effects: { rep: -0.9, fac: { establishment: -6, base: -8 }, voters: { warm: -1500 } } }
         }
@@ -413,7 +413,7 @@ POTUS.define("event", [
           ok: { body: "你留在了原地。选区的人知道了你拒绝过什么——这种事瞒不住，也不必瞒。", effects: { rep: 0.4, fac: { base: 7 }, voters: { diehard: 400, warm: 800 } } },
           meh: { body: "电话那头说「理解」，语气里没有理解。你回到自己的办公室，一切照旧。", effects: { fac: { base: 3 } } },
           fail: { body: "婉拒的第二天，你的两个法案在委员会停摆。理由没说，理由也不用说。", effects: { rep: -0.4, fac: { establishment: -8 } } },
-          critfail: { body: "你的拒绝被写成了姿态，你的留任被写成了 ceiling。四年后你想起这个电话，是在另一个更冷的职位上。", effects: { rep: -0.7, fac: { establishment: -10, base: -4 } } }
+          critfail: { body: "你的拒绝被写成了姿态，你的留任被写成了天花板。四年后你想起这个电话，是在另一个更冷的职位上。", effects: { rep: -0.7, fac: { establishment: -10, base: -4 } } }
         }
       }
     ]
@@ -450,7 +450,7 @@ POTUS.define("event", [
         { k: "改组", v: "行政首长中期调整内阁的动作。经常以「机构合并」的名义进行——机构没了，部长就自然没了。" }
       ]
     },
-    title: "任命的实况：第七个月",
+    title: "任命过了半年，到了清账的时候",
     body: "半年前的那通电话把你带到了这里。现在是清账的日子：这份工作比你以为的好，还是比你以为的冷。",
     choices: [
       {
@@ -474,7 +474,7 @@ POTUS.define("event", [
         base: 0.7,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
-          crit: { body: "你把回家的航班排成了惯例。部里笑你「 commuter 」，直到选举年大家才发现：唯一在选区还活着的名字是你。", effects: { rep: 2.5, fac: { base: 8 }, voters: { diehard: 500, warm: 1200 }, hp: -1 } },
+          crit: { body: "你把回家的航班排成了惯例。部里笑你「通勤部长」，直到选举年大家才发现：唯一在选区还活着的名字是你。", effects: { rep: 2.5, fac: { base: 8 }, voters: { diehard: 500, warm: 1200 }, hp: -1 } },
           ok: { body: "选区的桩脚重新热络起来。你两边跑，两边都还在。", effects: { rep: 1.25, fac: { base: 5 }, voters: { warm: 600 } } },
           meh: { body: "回家的频率维持住了，仅此而已。选区的人客气，客气得让人心慌。", effects: { fac: { base: 2 }, hp: -1 } },
           fail: { body: "部里的会议不放你走，选区的酒会等不到你来。两头都开始有人摇头。", effects: { rep: -1.5, fac: { base: -5, establishment: -3 }, hp: -2 } },
@@ -517,7 +517,7 @@ POTUS.define("event", [
         { k: "退半步", v: "主动减少露面与职务的安排。技术上人人可行，政治上人人恐惧。" }
       ]
     },
-    title: "停车场里的四十分钟",
+    title: "你累到在停车场坐了四十分钟不想下车",
     body: "你的身体先于你的日程表提出了动议。是硬撑，是退半步，还是把这件事交给一个可以信任的人——必须选一个。",
     choices: [
       {

@@ -35,7 +35,7 @@ POTUS.define("event", [
         { k: "深红州", v: "共和党长期占绝对优势的州。在野党在此几乎无法赢得全州选举，但基层职位与全国代表席位仍可经营。" }
       ]
     },
-    title: "后厅里的十七个人",
+    title: "你在深红州开会，到会只有十七个人",
     body: "你所在的是深红州，你的党在这里是长期的少数派。后厅例会到会十七人，对面的商会却握着一张越来越长的名单。少数派要怎么打？",
     choices: [
       {
@@ -52,10 +52,10 @@ POTUS.define("event", [
       },
       {
         id: "maverick", text: "做「这个州的那种民主党人」：故意划清界限",
-        note: "反着来的另一种：向中间靠，公开与本党全国路线切割。本党activists恨你，但你能拿到对面的票。",
+        note: "反着来的另一种：向中间靠，公开与本党全国路线切割。本党积极分子恨你，但你能拿到对面的票。",
         base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的「独立宣言」上了州报头版。对面的 crossover 票在下一场地方选举里真实出现了。", effects: { rep: 1.75, fac: { base: 6, commercial: 6, establishment: -6 }, attr: { CUN: 2 } } },
+          crit: { body: "你的「独立宣言」上了州报头版。对面的跨党票在下一场地方选举里真实出现了。", effects: { rep: 1.75, fac: { base: 6, commercial: 6, establishment: -6 }, attr: { CUN: 2 } } },
           ok: { body: "你划清了界限，换来一些对面的中立。本党的电话从此打来得更少。", effects: { rep: 1, fac: { base: 4, commercial: 4, establishment: -5 } } },
           meh: { body: "两边都拿你当工具人用：需要骂本党的时候想起你，分东西的时候忘了你。", effects: { rep: 0.4, fac: { base: 2, establishment: -4 } } },
           fail: { body: "切割过了头：本党不再给你志愿资源，对面的票也没真来。两头空。", effects: { rep: -0.6, fac: { base: -6, establishment: -8 } } },
@@ -89,9 +89,9 @@ POTUS.define("event", [
     brief: {
       lede: "选前七天，全国的飞机都往你这里飞。",
       known: [
-        "你所在的摇摆州又一次成了全国的战场：两个党的献金、 surrogate、和广告预算正以小时为单位涌入。",
+        "你所在的摇摆州又一次成了全国的战场：两个党的献金、上门助选的代言人、和广告预算正以小时为单位涌入。",
         "你的竞选（或你支持的竞选）民调差距在误差以内。最后七天的资源怎么用，决定这一切。",
-        "三个选项摆在桌上：空中战（电视广告）、地面战（敲门动员）、和一件「dirty or not」的事：对手的挖坟研究。"
+        "三个选项摆在桌上：空中战（电视广告）、地面战（敲门动员）、和一件「脏不脏自己选」的事：对手的挖坟研究。"
       ],
       rumor: [
         "据说全国委员会的最后一笔钱今晚到账，只够选两样。",
@@ -106,7 +106,7 @@ POTUS.define("event", [
         { k: "地面战", v: "ground game：敲门、电话、催票的基层组织动员。摇摆州最后七天的胜负手，枯燥但致命。" }
       ]
     },
-    title: "摇摆州的最后一周",
+    title: "摇摆州选战进入最后一周",
     body: "全美国的钱、飞机和镜头都压到了你的州。误差以内的民调、七天的窗口、只够用两次的弹药。这一周会被写进多少回忆录，取决于你怎么打。",
     choices: [
       {
@@ -127,7 +127,7 @@ POTUS.define("event", [
         note: "枯燥、便宜（相对）、致命。摇摆州的胜负手从来在门廊上，不在电视里。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
-          crit: { body: "投票率比你党的高手预估还高两个点——多出来的每一票都敲过门。选举夜的分析师用了三次「unprecedented」。", effects: { rep: 2, fac: { base: 14, labor: 6 } } },
+          crit: { body: "投票率比你党的高手预估还高两个点——多出来的每一票都敲过门。选举夜的分析师连着三次说「前所未有」。", effects: { rep: 2, fac: { base: 14, labor: 6 } } },
           ok: { body: "地面机器转起来了。赢的那一个点，是从门廊上一个一个敲出来的。", effects: { rep: 1.25, fac: { base: 10 } } },
           meh: { body: "动员做了，雨也下了。投票率持平。赢了或者输了，都轮不到地面战背锅或领功。", effects: { rep: 0.6, fac: { base: 5 } } },
           fail: { body: "对手的地面战更大。你的志愿者在最后一晚收到了对面的时薪报价——有人去了。", effects: { rep: 0.2, fac: { base: 3 } } },
@@ -143,7 +143,7 @@ POTUS.define("event", [
           ok: { body: "材料放出去溅起了水花，没有海啸。够搅乱对手的节奏，不够定胜负。", effects: { rep: 0.7, fac: { press: 4 }, lev: 1 } },
           meh: { body: "媒体核实了一周才发——选举都结束了。你的「惊奇」成了马后炮。", effects: { rep: 0.3, fac: { press: 2 } } },
           fail: { body: "材料被证实掺了水分。放料的链条被查到了你的顾问——你「不知情」，但「不知情」本身成了新闻。", effects: { rep: -0.7, fac: { press: -8, base: -5 }, flags: ["scandal_2"] } },
-          critfail: { body: "十月惊奇炸膛：材料是假的，造的人是你 volunteer 里的一个。全国媒体复盘了一个月，标题都带你的名字。", effects: { rep: -1.5, fac: { press: -12, base: -10, establishment: -8 }, flags: ["scandal_3", "investigation_open"] } }
+          critfail: { body: "十月惊奇炸膛：材料是假的，造假的人是你志愿者里的一个。全国媒体复盘了一个月，标题都带你的名字。", effects: { rep: -1.5, fac: { press: -12, base: -10, establishment: -8 }, flags: ["scandal_3", "investigation_open"] } }
         }
       },
       {
@@ -151,7 +151,7 @@ POTUS.define("event", [
         note: "保底选项：不进攻，只确保每一张属于你的票都被投出来、被数进去。没人因为这个赢上头条，也没人因为这个输掉官司。",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
-          crit: { body: "你派的监票员在三个投票站拦下了有瑕疵的计票。 margins 以百票计的县，这就是胜负。", effects: { rep: 1, fac: { base: 6, establishment: 4 }, attr: { INT: 1 } } },
+          crit: { body: "你派的监票员在三个投票站拦下了有瑕疵的计票。那些以百票定胜负的县，这就是胜负。", effects: { rep: 1, fac: { base: 6, establishment: 4 }, attr: { INT: 1 } } },
           ok: { body: "每张票都被数到了。选举的结果无论怎样，你睡得着。", effects: { rep: 0.6, fac: { base: 4 } } },
           meh: { body: "风平浪静的一周。你的谨慎没上新闻——这正是它的价值。", effects: { rep: 0.2 } },
           fail: { body: "你守住了程序，输了声量。对手的广告铺满了每个频道。", effects: { rep: 0.1, fac: { press: -3 } } },
@@ -181,14 +181,14 @@ POTUS.define("event", [
         "有人说你州共和党的金主其实更喜欢输得干净的保守派，赢得不纯让他们难受。"
       ],
       unknown: [
-        "深蓝州的温和派是全国党的稀缺资产——需要「 bipartisan 门面」的时候，电话会打给你。",
+        "深蓝州的温和派是全国党的稀缺资产——需要「两党共治门面」的时候，电话会打给你。",
         "稀缺资产的意思也包括：全国风向一转，你就是第一个被牺牲的。"
       ],
       terms: [
         { k: "深蓝州", v: "民主党长期占绝对优势的州。共和党在此经营地方职位与温和派形象，全州职位长期无望。" }
       ]
     },
-    title: "把党徽熨进内衬",
+    title: "你在深蓝州竞选，把党徽藏进西装内袋",
     body: "深蓝州的少数派政治学：竞选材料上你的党派字号比对手小三号。你要决定自己是什么——全国的版本，还是这个州的特例。",
     choices: [
       {
@@ -200,7 +200,7 @@ POTUS.define("event", [
           ok: { body: "你赢了。竞选材料的党徽字号确实小了一号，没人提，大家都知道。", effects: { rep: 1.5, fac: { base: 5, commercial: 3 } } },
           meh: { body: "温和派的路线走通了第一步。全国委员会的电话开始打来「沟通口径」。", effects: { rep: 0.8, fac: { base: 3, establishment: -3 } } },
           fail: { body: "再温和也没用：风向年，你的党徽被大浪盖住了。你输了，输得体面。", effects: { rep: 0.4, fac: { base: 2 } } },
-          critfail: { body: "你温和得太成功， primary 里被本党的纯度审查者咬住：「他到底是哪边的？」你赢了普选，输了初选的下一届。", effects: { rep: -0.8, fac: { base: 4, establishment: -8 }, flags: ["party_traitor"] } }
+          critfail: { body: "你温和得太成功，初选里被本党的纯度审查者咬住：「他到底是哪边的？」你赢了普选，输了初选的下一届。", effects: { rep: -0.8, fac: { base: 4, establishment: -8 }, flags: ["party_traitor"] } }
         }
       },
       {
@@ -208,7 +208,7 @@ POTUS.define("event", [
         note: "向全国路线看齐。在这个州等于弃权——但你成为全国党在东北的「存在证明」，资源与保护随之而来。",
         base: 0.45, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "你输了选举，赢了全国名单：委员会的演讲席位、有线新闻的常驻位次、和「 principles 以上」的名声。", effects: { rep: 1.25, fac: { establishment: 8, church: 5, base: -6 } } },
+          crit: { body: "你输了选举，赢了全国名单：委员会的演讲席位、有线新闻的常驻位次、和「原则至上」的名声。", effects: { rep: 1.25, fac: { establishment: 8, church: 5, base: -6 } } },
           ok: { body: "输了，但输得让全国党部满意。下一轮的初选资源已经在路上。", effects: { fac: { establishment: 6, base: -4 } } },
           meh: { body: "你守住了立场，交了学费。这个州的选民礼貌地拒绝了你的党徽。", effects: { fac: { establishment: 3, base: -3 } } },
           fail: { body: "惨败。全国的「存在证明」没人在乎——证明存在的前提是存在。", effects: { rep: -0.6, fac: { base: -6 } } },

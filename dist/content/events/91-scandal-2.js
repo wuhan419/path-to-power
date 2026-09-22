@@ -111,7 +111,7 @@ POTUS.define("event", [
   {
     id: "sca2_leak_pod", era: SCA2_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "bane", dyn: true, category: "scandal",
-    title: "那盘录音带",
+    title: "有人录下了你私下说的话来勒索你",
     body: "那天晚上是在一个朋友家的书房里，在座的你全认识。\n" +
       "你说了一段话 —— 关于选民、关于金钱、关于你真正怎么看那件事。\n" +
       "说得很痛快。现在有人把那段痛快装在一件东西里，寄给了你：\n" +
@@ -218,7 +218,7 @@ POTUS.define("event", [
         "有人说你弟弟最近跟你的一位幕僚借过钱，数目不小。"
       ],
       unknown: [
-        "切割的公告一旦发出去， Thanksgiving 的餐桌就再也回不到从前的样子。",
+        "切割的公告一旦发出去，感恩节的餐桌就再也回不到从前的样子。",
         "他会感激你救他，还是会从此认定你欠他 —— 这决定他下一次惹祸的规模。"
       ],
       terms: [
@@ -289,7 +289,7 @@ POTUS.define("event", [
     id: "sca2_old_receipt", era: SCA2_ERAS, tierMin: 1, tierMax: 5, weight: 9,
     grade: "major", valence: "bane", dyn: true, category: "scandal", unique: true,
     flags: ["shady_start"],
-    title: "十年前的那笔钱",
+    title: "有人拿你十年前的灰色启动资金来敲诈",
     body: "信封里是一张复印件：十年前的支票存根、一个你几乎忘了的账号、\n" +
       "还有用红笔圈出来的一个数字 —— 你当年拿过的那笔。\n" +
       "寄信人不是记者，不是检察官，是一个你此刻才想起来还活着的名字。\n" +
@@ -344,7 +344,7 @@ POTUS.define("event", [
             { rep: 1, fac: { agency: 14, press: 8, establishment: -8 }, notFlags: ["shady_start"], flags: ["whistleblower", "sca2_settled"] }),
           ok: s2Out("你交了。他进去了，你也进了一段漫长的「配合调查」。出来的时候你的选区还在 —— 有一部分人甚至在门口等你说完那段往事。",
             { rep: 0.4, fac: { agency: 8, establishment: -10 }, notFlags: ["shady_start"], flags: ["sca2_settled"] }),
-          meh: s2Out("你交了，检方却更想要 bigger fish：他们要你继续戴着窃听器去见他。你从此活在两面派的每一天里。",
+          meh: s2Out("你交了，检方却更想要大鱼：他们要你继续戴着窃听器去见他。你从此活在两面派的每一天里。",
             { hp: -0.9, fac: { agency: 5 }, flags: ["compromised"] }),
           fail: s2Out("账簿是假的 —— 是他伪造来钓你的。你的「自首」成了唯一的真实证据。你亲手把起点交给了检察官。",
             { rep: -1, flags: ["scandal_3", "investigation_open"] }),
@@ -397,7 +397,7 @@ POTUS.define("event", [
     id: "sca2_coverup_choice", era: SCA2_ERAS, tierMin: 1, tierMax: 5, weight: 12,
     grade: "major", valence: "bane", dyn: true, category: "scandal", unique: true,
     flags: ["scandal_2"],
-    title: "四十八小时",
+    title: "丑闻压不住了，你有四十八小时选一条应对的路",
     body: "那件事压不住了。主编室里已经排好了版，律师的电话在桌上震动，\n" +
       "竞选经理站在窗前背对着你，问了一个你现在必须回答的问题：\n" +
       "「我们到底走哪条路？」\n" +
@@ -488,7 +488,7 @@ POTUS.define("event", [
     id: "sca2_coverup_after", era: SCA2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
     grade: "mid", valence: "bane", dyn: true, category: "scandal", unique: true,
     after: { id: "sca2_coverup_choice", minMonthsAfter: 6, maxMonthsAfter: 36 },
-    title: "那四十八小时的利息",
+    title: "当初选的那条路，现在寄来了账单",
     body: "当初那件事有了结局 —— 或者说，有了第一版结局。\n" +
       "你以为账已经结了。今天寄到的是利息。\n" +
       "寄账单的人各不相同，但账单的抬头都是同一行：\n" +

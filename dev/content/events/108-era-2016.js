@@ -69,9 +69,9 @@ POTUS.define("event", [
             effects: { rep: 0.3, fac: { establishment: 8, base: -3 } } },
           meh: { body: "你讲了老规矩，讲得没人听。在人人刷手机怒吼的夜晚，体面是最不带货的东西。",
             effects: { rep: 0.1, fac: { establishment: 3 } } },
-          fail: { body: "你替机器喊话，机器自己却塌了。你被和那批「预测全错 yet 自信满满」的专家捆在一起，一起失了信。",
+          fail: { body: "你替机器喊话，机器自己却塌了。你被和那批「预测全错却自信满满」的专家捆在一起，一起失了信。",
             effects: { rep: -0.7, fac: { establishment: -6, press: -6, base: -5 }, flags: ["scandal_1"] } },
-          critfail: { body: "你那句「他们不配」被剪成十五秒， loop 播放成了「精英亲口鄙视选民」。这句话跟你一辈子。",
+          critfail: { body: "你那句「他们不配」被剪成十五秒，循环播放成了「精英亲口鄙视选民」。这句话跟你一辈子。",
             effects: { rep: -1.25, fac: { base: -12, establishment: -6, press: -6 }, flags: ["elite_contempt"] } }
         }
       },

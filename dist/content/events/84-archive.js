@@ -35,7 +35,7 @@ POTUS.define("event", [
   {
     id: "archive_get", era: ARCH_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "bane", dyn: true, category: "scandal", unique: true,
-    title: "地下室里没有编号的那一格",
+    title: "你在档案室地下室翻出一份没编号的卷宗",
     body: "你以为自己在查一件小事：一笔十年前被记错的土地交易。\n" +
       "归档员去吃饭了，钥匙挂在墙上。你在第三排最里面找到一个标着「杂项」的纸箱，\n" +
       "里面有一份没有编号的卷宗。它被人从正式的序列里拿出来过。\n" +
@@ -228,7 +228,7 @@ POTUS.define("event", [
     id: "archive_showdown", era: ARCH_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "major", valence: "bane", dyn: true, category: "scandal", unique: true,
     after: { id: "archive_bite", minMonthsAfter: 2, maxMonthsAfter: 24 },
-    title: "那扇门后面的两个小时",
+    title: "卷宗上的那位老人约你到他的办公室摊牌",
     body: "他请你去他的办公室，时间是周日下午，楼里没有别人。\n" +
       "他自己倒了两杯水，然后说：「你想要的，我不问你从哪拿到的。\n" +
       "我只问你一句：你想要什么。」\n" +
@@ -332,7 +332,7 @@ POTUS.define("event", [
     id: "archive_settle", era: ARCH_ERAS, tierMin: 0, tierMax: 5, weight: 12,
     grade: "mid", valence: "bane", dyn: true, category: "scandal", unique: true,
     after: { id: "archive_showdown", minMonthsAfter: 4, maxMonthsAfter: 48 },
-    title: "那件事的回执",
+    title: "当年那桩档案的事现在来要结果了",
     body: "你以为已经结掉的事情，回来给了你一张回执。\n" +
       "它不问你后不后悔，它只是把账单放在桌上：\n" +
       "有人升了，有人退了，有人搬走了，有人还在原来的位置上，还记得你的名字。\n" +

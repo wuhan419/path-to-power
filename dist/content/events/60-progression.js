@@ -728,70 +728,60 @@ POTUS.define("event", [
       {
         "id": "shoestring",
         "text": "不等本钱，靠义工和教堂硬打一场",
-        "base": 0.3,
+        "base": 0.32,
         "mods": [
-          {
-            "src": "attr",
-            "key": "CHA",
-            "w": 0.4
-          },
-          {
-            "src": "fac",
-            "key": "base",
-            "w": 0.4
-          }
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "base", "w": 0.4 }
         ],
         "outcomes": {
           "crit": {
-            "body": "你跑遍了每一个县，把「他连广告都买不起还来见我们」变成了一句好话。你赢了。",
+            "body": "你跑遍了每一个县，把「他连广告都买不起还来见我们」变成了一句好话。你赢了——带进去的全是自发义工，不是买来的广告。",
             "effects": {
               "tier": 1,
-              "rep": 1.5,
-              "hp": -0.7,
-              "fac": {
-                "base": 12,
-                "press": 5
-              }
+              "rep": 1.1,
+              "fun": -2,
+              "fac": { "base": 15, "establishment": -3 },
+              "voters": { "diehard": 600, "warm": 300 }
             }
           },
           "ok": {
             "body": "义工替你跑赢了一台机器。你坐进去了，但团队是拼凑的，欠的账要慢慢还。",
             "effects": {
               "tier": 1,
-              "rep": 0.9,
-              "hp": -0.6,
-              "fac": {
-                "base": 8
-              }
+              "rep": 0.7,
+              "fun": -1.5,
+              "fav": -2,
+              "fac": { "base": 10 },
+              "voters": { "diehard": 300 }
             }
           },
           "meh": {
             "body": "你差了几个百分点。没赢，但所有人都记住了那个不肯退的人。",
             "effects": {
-              "rep": 0.6,
-              "hp": -0.6,
-              "fav": -1,
-              "fac": {
-                "base": 6
-              }
+              "rep": 0.5,
+              "fun": -1.5,
+              "fav": -2,
+              "fac": { "base": 7 },
+              "voters": { "diehard": 120 }
             }
           },
           "fail": {
-            "body": "钱不够就是钱不够。你在初选里被碾过去，还搭进去一整个健康的身子。",
+            "body": "钱不够就是钱不够。你在初选里被碾过去，积蓄见了底，还欠下一屁股义工的人情。",
             "effects": {
-              "rep": -0.3,
-              "hp": -0.9,
-              "fav": -1
+              "rep": -0.4,
+              "fun": -2,
+              "fav": -2,
+              "fac": { "base": 3, "establishment": -4 }
             }
           },
           "critfail": {
             "body": "竞选账目被翻出来，你连报名费都凑不齐这件事上了本地报纸。",
             "effects": {
               "rep": -0.9,
-              "hp": -0.6,
-              "flags": [
-                "scandal_1"
-              ]
+              "fun": -2,
+              "fav": -1,
+              "fac": { "base": -3, "establishment": -3 },
+              "flags": [ "scandal_1" ]
             }
           }
         }
@@ -1040,7 +1030,7 @@ POTUS.define("event", [
     "tracks": [
       "appointment"
     ],
-    "title": "一个任命的机会",
+    "title": "有一个任命职位要交到你手上",
     "body": "总统（或州长）手里有个位子：法官、监管委员会、或者内阁次长。他们想找一个‘靠得住又不多事’的人。",
     "choices": [
       {
@@ -1217,7 +1207,7 @@ POTUS.define("event", [
     "tracks": [
       "operative"
     ],
-    "title": "你手里的候选人",
+    "title": "你不参选，转而决定谁能获得提名",
     "body": "你不打算自己参选。你打算决定别人能不能参选。",
     "choices": [
       {
@@ -1861,6 +1851,7 @@ POTUS.define("event", [
           { "src": "attr", "key": "CHA", "w": 0.4 },
           { "src": "fac", "key": "establishment", "w": 0.3 }
         ],
+        "stake": { "fun": true },
         "outcomes": {
           "crit": { "body": "党内顺利背书，你以高票当选市议员。", "effects": { "tier": 1, "rep": 2.5, "fac": { "establishment": 8, "base": 6 } } },
           "ok": { "body": "你赢下了这个席位，第一次成为民选官员。", "effects": { "tier": 1, "rep": 1.5, "fac": { "establishment": 5 } } },
@@ -1878,11 +1869,11 @@ POTUS.define("event", [
           { "src": "fac", "key": "base", "w": 0.4 }
         ],
         "outcomes": {
-          "crit": { "body": "草根的奇迹：你绕开党机器，靠双腿跑赢了选举。", "effects": { "tier": 1, "rep": 3, "fac": { "base": 12 } } },
-          "ok": { "body": "你当选了，代价是从此被党里当成‘不好管的人’。", "effects": { "tier": 1, "rep": 1.5, "fac": { "base": 8, "establishment": -5 } } },
-          "meh": { "body": "你赢了，但队伍散得比组建还快。", "effects": { "tier": 1, "rep": 0.7, "hp": -0.5 } },
-          "fail": { "body": "没有机器的选举终究太难，你差了一截。", "effects": { "rep": 0.5, "fac": { "base": 4 } } },
-          "critfail": { "body": "你输了，还落得孤立。", "effects": { "rep": -1, "fac": { "base": -4 } } }
+          "crit": { "body": "草根的奇迹：你绕开党机器，靠双腿跑赢了选举。", "effects": { "tier": 1, "rep": 3, "fac": { "base": 12 }, "voters": { "diehard": 400, "warm": 200 } } },
+          "ok": { "body": "你当选了，代价是从此被党里当成‘不好管的人’。", "effects": { "tier": 1, "rep": 1.5, "fav": -1, "fac": { "base": 8, "establishment": -5 }, "voters": { "diehard": 200 } } },
+          "meh": { "body": "你赢了，但队伍散得比组建还快，欠下的人情要一张张去还。", "effects": { "tier": 1, "rep": 0.7, "fav": -2, "fac": { "base": 2 }, "voters": { "diehard": 60 } } },
+          "fail": { "body": "没有机器的选举终究太难，你差了一截，垫付的积蓄也见了底。", "effects": { "rep": 0.5, "fav": -1, "fun": -0.5, "fac": { "base": 4 } } },
+          "critfail": { "body": "你输了，还落得孤立。", "effects": { "rep": -1, "fav": -1, "fac": { "base": -4, "establishment": -2 } } }
         }
       }
     ]
@@ -1917,7 +1908,7 @@ POTUS.define("event", [
         { "k": "州参议院", "v": "州议会上院，席位更少、任期更长，握有确认与预算的关键权力。" }
       ]
     },
-    "title": "州参议院的召唤",
+    "title": "本区州参议院的席位空了出来，等你去争",
     "body": "从‘一名州众议员’变成‘本区参议员’，选区更大，赌注也更大。",
     "choices": [
       {
@@ -2047,7 +2038,7 @@ POTUS.define("event", [
         { "k": "竞选伙伴", "v": "候选人挑选的副手，用于平衡选票与派系，正式成为副总统/总统候选人。" }
       ]
     },
-    "title": "副总统的召唤",
+    "title": "有人请你出马竞选副总统",
     "body": "一个全国性的位置在向你招手：入局，或保持独立、坐等下一轮。",
     "choices": [
       {

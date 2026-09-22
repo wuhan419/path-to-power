@@ -48,7 +48,7 @@ POTUS.define("event", [
         }
       ]
     },
-    "title": "第一次电视辩论",
+    "title": "两位总统候选人第一次上电视辩论",
     "body": "镜头会吃掉一切不自然。化妆师说，你要么成为新星，要么成为笑料。",
     "choices": [
       {
@@ -226,7 +226,7 @@ POTUS.define("event", [
         }
       ]
     },
-    "title": "南方的一座教堂",
+    "title": "一位民权领袖请你到南方教堂与他同台",
     "body": "民权领袖请你同台。你的政党在南方的票仓会因此恨你。",
     "choices": [
       {
@@ -373,7 +373,7 @@ POTUS.define("event", [
   {
     id: "1960_fbi", grade: "mid", valence: "bane", dyn: true, category: "scandal", era: ["1960_CAMELOT"],
     tierMin: 1, tierMax: 5, weight: 11,
-    title: "来客没有留下名片",
+    title: "两个不留名片的联邦探员来请你传话",
     body: "两个穿深色西装的人在你的办公室外等了四十分钟，没有预约，也没有解释。\n" +
       "他们进门之后先夸了你的办公室，然后说了一句谁都听得懂的话：\n" +
       "「我们手上有很多人的材料。有些人我们从来不用。」\n" +
@@ -441,7 +441,7 @@ POTUS.define("event", [
   {
     id: "1960_church", grade: "minor", valence: "risk", dyn: true, category: "civil", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 4, weight: 10,
-    title: "选民登记表",
+    title: "牧师请你替来登记的黑人选民作保",
     body: "南区那间礼拜堂的牧师在教堂后面摆了一张折叠桌，上面放着六十张选民登记表。\n" +
       "来登记的人要在门口报出自己的住址，然后被问三个问题 —— 三个和识字、宪法和算术有关的问题。\n" +
       "答错一个，表格就作废。\n" +
@@ -509,7 +509,7 @@ POTUS.define("event", [
   {
     id: "1960_dock", grade: "mid", valence: "risk", dyn: true, category: "political", era: ["1960_CAMELOT"],
     tierMin: 1, tierMax: 5, weight: 10,
-    title: "七号码头",
+    title: "码头工会头目问你会不会把他们卖了",
     body: "码头工会的办公室在七号仓库的二楼，门上的漆已经掉了一半。\n" +
       "他们管着这个港口一千两百个工作岗位，以及一个更重要的东西：谁能进港区。\n" +
       "头目把一张通行证推到你面前，然后说：「你不用马上回答我。\n" +
@@ -577,7 +577,7 @@ POTUS.define("event", [
   {
     id: "1960_radio", grade: "mid", valence: "risk", dyn: true, category: "media", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 5, weight: 10, medium: "radio",
-    title: "深夜十五分钟",
+    title: "你买下一档深夜电台的十五分钟",
     body: "本地那家电台在晚上十一点一刻有一个十五分钟的时段，没有主持人，只有一个人对着话筒说话。\n" +
       "它从来不打广告，但那个时段在这个州很有名 —— 因为第二天早上总有人在饭桌上引用它。\n" +
       "电台经理把价目表放在你面前，然后说了一句奇怪的话：\n" +
@@ -645,7 +645,7 @@ POTUS.define("event", [
   {
     id: "1960_name", grade: "minor", valence: "risk", dyn: true, category: "media", era: ["1960_CAMELOT"],
     tierMin: 0, tierMax: 4, weight: 9, medium: "print",
-    title: "你的名字怎么印",
+    title: "县报请你定下名字在报纸上的拼法",
     body: "县报的排版员打电话来，问了一个很实际的问题：你的名字在他们的报上要怎么印？\n" +
       "三个选项：按本来的拼法；按美国人一看就会念的拼法；或者干脆用一个更短的名字。\n" +
       "他解释得很平淡：「这不是政治问题，这是排版问题。\n" +

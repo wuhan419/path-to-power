@@ -17,7 +17,7 @@ POTUS.define("event", [
   {
     id: "fin2_windfall", era: FIN2_ERAS, tierMin: 0, tierMax: 3, weight: 12,
     grade: "mid", valence: "risk", dyn: true, category: "finance",
-    title: "一笔没写来历的钱",
+    title: "一位远房姑婆留给你一笔不能问来历的钱",
     body: "律师事务所的信封很厚，里面只有一页纸：一位你几乎忘了的远房姑婆留给你一笔遗产，\n" +
       "数目不大不小——够你把眼下的窟窿全堵上，还剩一点。\n" +
       "问题是，执行人附了一句：「委托人希望您不要询问这笔资产的构成。」",
@@ -107,7 +107,7 @@ POTUS.define("event", [
     unique: true, grade: "major", valence: "bane", dyn: true, category: "finance",
     after: { id: "fin2_windfall", minMonthsAfter: 12, maxMonthsAfter: 36 },
     flags: ["windfall_kept"],
-    title: "有人记得那笔钱",
+    title: "有人拿你两年前的那笔遗产来要钱",
     body: "一个自称「资产管理人」的人约你在一家不吵的餐厅见面。\n" +
       "他把一份复印件推过桌面——是你那笔遗产交割文书的最后一页，上面多了一行你从没见过的批注。\n" +
       "「委托人当年有一个附加安排，」他说，「现在到期了。」",
@@ -195,7 +195,7 @@ POTUS.define("event", [
   {
     id: "fin2_taxreturn", era: FIN2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
     grade: "major", valence: "bane", dyn: true, category: "finance", medium: ["print", "tv"],
-    title: "对不上的一栏",
+    title: "税务部门来查你近三年的税单",
     body: "通知函只有两段：税务部门「依法」调阅你近三年的申报材料，\n" +
       "理由那一栏写着——「申报生活水准与报告收入存在显著差异」。\n" +
       "你的会计在电话里沉默了很久，然后说：「先生，我们得谈谈那些没进账的支出。」",
@@ -300,7 +300,7 @@ POTUS.define("event", [
   {
     id: "fin2_realestate", era: FIN2_ERAS, tierMin: 2, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "finance",
-    title: "河对岸的那块地",
+    title: "有人劝你抢买河对岸要建桥的地",
     body: "介绍你来的中间人说得很直白：河对岸规划中的大桥一旦立项，那片仓库区就是下一个城区。\n" +
       "「立项的消息，比你以为的近。」他压低了声音，「买不买，这一周就要定。」\n" +
       "你很清楚：政治人物炒地，赚的是信息差——而信息差正是别人盯你的地方。",
@@ -388,7 +388,7 @@ POTUS.define("event", [
   {
     id: "fin2_pac_game", era: FIN2_ERAS, tierMin: 2, tierMax: 5, weight: 10,
     grade: "major", valence: "risk", dyn: true, category: "finance", unique: true, medium: ["print", "tv", "internet"],
-    title: "自己的盘子",
+    title: "说客劝你成立自己的政治行动委员会",
     body: "两个说客把方案摊在你面前：成立一个以你的名义运作的领导型政治行动委员会。\n" +
       "「捐款上限管的是给候选人的钱，管不了给委员会的钱。」其中一人笑着说，\n" +
       "「从今天起，您可以不求人——可以决定别人的选举。」",
@@ -495,7 +495,7 @@ POTUS.define("event", [
     id: "fin2_bankruptcy", era: FIN2_ERAS, tierMin: 0, tierMax: 5, weight: 12,
     grade: "major", valence: "bane", dyn: true, category: "finance",
     cond: function (G) { return G.fun < 50000; },
-    title: "账上见底的那一天",
+    title: "竞选账上见底、快发不出工资",
     body: "财务主管把最后一页报表推过来，上面只有一个加框的数字——比你觉得还能撑的数少了两位。\n" +
       "「房租下周到期，印刷厂要现结，还有两笔工资。」她一条一条念，\n" +
       "「先生，我们不是经营不善，我们是没钱了。这是两回事。」",

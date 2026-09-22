@@ -55,7 +55,7 @@ POTUS.define("event", [
         }
       ]
     },
-    "title": "听证会的传票",
+    "title": "你被传唤去水门听证会说明情况",
     "body": "你被请去‘说明情况’。镜头对面，是磨刀霍霍的检察官。",
     "choices": [
       {
@@ -239,7 +239,7 @@ POTUS.define("event", [
     "tracks": [
       "operative"
     ],
-    "title": "一份掉在你桌上的文件",
+    "title": "有人把一份能掀翻大人物的文件放到你桌上",
     "body": "它足以掀翻一位大人物。交给媒体，你就是英雄；烧了它，你就是共谋。",
     "choices": [
       {
@@ -388,7 +388,7 @@ POTUS.define("event", [
   {
     id: "1974_tape", grade: "mid", valence: "bane", dyn: true, category: "scandal", era: ["1974_WATERGATE"],
     tierMin: 1, tierMax: 5, weight: 11, medium: "tv",
-    title: "一盘不该存在的磁带",
+    title: "有人存着你两年前说错话的录音带",
     body: "总统辞职之后的第三个月，全国的人都在讨论一个很新鲜的问题：\n" +
       "说话会不会被录下来，录下来的东西会不会变成证据。\n" +
       "现在有人把一盘磁带放在你桌上。标签上是你自己的字迹，日期是两年前。\n" +
@@ -457,7 +457,7 @@ POTUS.define("event", [
   {
     id: "1974_pension", grade: "mid", valence: "bane", dyn: true, category: "finance", era: ["1974_WATERGATE"],
     tierMin: 1, tierMax: 5, weight: 10,
-    title: "市养老金的缺口",
+    title: "市养老金出了缺口，逼你选怎么补",
     body: "市里的养老基金有一个缺口，数字大到没有人愿意在会议记录里写全。\n" +
       "两个方案摆在桌上：动用明年的税款补上，或者把基金的收益目标从百分之六调到百分之九，\n" +
       "然后指望市场。\n" +
@@ -539,7 +539,7 @@ POTUS.define("event", [
   {
     id: "1974_block", grade: "minor", valence: "risk", dyn: true, category: "civil", era: ["1974_WATERGATE"],
     tierMin: 0, tierMax: 4, weight: 10,
-    title: "红线画在第五街",
+    title: "一条拆迁红线要拆掉八十几户人家的街",
     body: "市规划局的地图上多了一条红线。红线以东被划进了一个叫「城市更新」的项目。\n" +
       "红线以西是一家新开的银行的办公室。\n" +
       "红线穿过的是一条有八十户人家的街：四家杂货铺、一间理发店、一座小教堂、\n" +
@@ -608,7 +608,7 @@ POTUS.define("event", [
   {
     id: "1974_local", grade: "minor", valence: "risk", dyn: true, category: "shady", era: ["1974_WATERGATE"],
     tierMin: 0, tierMax: 4, weight: 9,
-    title: "一台自动售货机的分成",
+    title: "市政厅六台售货机背后的一笔回扣账",
     body: "市政厅地下一层有一排自动售货机，三台咖啡、两台汽水、一台三明治。\n" +
       "它们属于一家叫「城市服务」的公司，公司登记地址是一个邮箱。\n" +
       "每一台每月上缴给市里的租金是十二块。\n" +
@@ -677,7 +677,7 @@ POTUS.define("event", [
   {
     id: "1974_union", grade: "mid", valence: "risk", dyn: true, category: "political", era: ["1974_WATERGATE"],
     tierMin: 1, tierMax: 5, weight: 10,
-    title: "工会大楼里的两把椅子",
+    title: "工会换届，两派都要你表态站哪边",
     body: "工会头目明年要退，现在的局面是两把椅子对着摆：\n" +
       "一把坐着他挑的接班人 —— 五十岁，管了十九年的仓库，说话慢，做事准；\n" +
       "另一把坐着一位四十岁的挑战者 —— 她在三年里把三个厂的女工组织了起来。\n" +

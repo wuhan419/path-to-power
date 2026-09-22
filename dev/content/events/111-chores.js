@@ -190,7 +190,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "listen", text: "让每一方都说完，你再逐条回应关切",
-        base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
           crit: { body: "你耐心听完、逐条回话，几方都觉得被当回事，决议顺理成章。", effects: { rep: 0.3, fac: { base: 4, commercial: 2 }, voters: { warm: 380 } } },
           ok: { body: "你主持得体，各方意见都有了着落。", effects: { rep: 0.22, voters: { warm: 200 } } },
@@ -201,11 +201,10 @@ POTUS.define("event", [
       },
       {
         id: "push", text: "亮出方案强推：桥要修，钱这么花",
-        base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
-        cost: { ap: 1 },
+        base: 0.62, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
         outcomes: {
-          crit: { body: "你力排众议把修桥案推了过去，货运与商户都欠你一个「敢拍板」。", effects: { rep: 0.3, fac: { commercial: 4, establishment: 2 }, voters: { diehard: 80 } } },
-          ok: { body: "方案过了，反对声没散，但你办成了事。", effects: { rep: 0.2, voters: { warm: 140 } } },
+          crit: { body: "你力排众议把修桥案推了过去，货运与商户都欠你一个「敢拍板」。", effects: { rep: 0.25, fac: { commercial: 5, establishment: 3 }, voters: { diehard: 90 } } },
+          ok: { body: "方案过了，反对声没散，但你办成了事。", effects: { rep: 0.15, fac: { commercial: 3, establishment: 1 }, voters: { diehard: 40 } } },
           meh: { body: "强推过了，可没人觉得被尊重，掌声稀稀拉拉。", effects: { rep: 0.05 } },
           fail: { body: "你硬推的方案在表决中被翻盘，你白站了一回台。", effects: { rep: 0, voters: { oppose: 130 } } },
           critfail: { body: "你强推的桥被查出预算有猫腻，「是谁在替施工方说话」的问号落到了你头上。", effects: { rep: -0.15, fac: { establishment: -2 }, voters: { oppose: 200 } } }
@@ -256,7 +255,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "grin", text: "笑脸走完每一站，把话说到每个县的痛点上",
-        base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
+        base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你一天三站滴水不漏，几个县的报纸头版都是你，党部把你当成能扛票的人。", effects: { rep: 0.4, fac: { establishment: 4, base: 3 }, voters: { warm: 520, diehard: 90 } } },
@@ -268,7 +267,7 @@ POTUS.define("event", [
       },
       {
         id: "deep", text: "砍掉两站，只在一处扎下去认真聊一上午",
-        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.3 }],
+        base: 0.64, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你在一处挖出了真问题，回州议会带回了有分量的案子，那地界从此是你的铁票。", effects: { rep: 0.3, fac: { base: 4 }, voters: { diehard: 100, warm: 300 } } },
           ok: { body: "你把一处聊透了，只是曝光少了两站。", effects: { rep: 0.2, voters: { warm: 200 } } },
@@ -289,7 +288,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "response", text: "第一时间赶赴现场，协调救援与联邦补助",
-        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
+        base: 0.54, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         cost: { ap: 1 },
         outcomes: {
           crit: { body: "你把救灾与补助跑得漂亮，灾民说「关键时候他真来了」，州里也记下你的执行力。", effects: { rep: 0.4, fac: { establishment: 4, base: 4 }, voters: { warm: 500, diehard: 80 } } },
@@ -301,10 +300,10 @@ POTUS.define("event", [
       },
       {
         id: "fund", text: "坐镇后方，全力催办联邦救灾补助的文书",
-        base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        base: 0.65, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "你把补助款一笔笔要了回来，钱比人先到，镇上念你的实诚。", effects: { rep: 0.3, fac: { base: 4 }, voters: { warm: 340 } } },
-          ok: { body: "文书跑通，钱陆续到位，只是没见到你的面。", effects: { rep: 0.15, voters: { warm: 160 } } },
+          crit: { body: "你把补助款一笔笔要了回来，钱比人先到，镇上念你的实诚。", effects: { rep: 0.25, fac: { base: 3, agency: 4, establishment: 2 }, voters: { warm: 260 } } },
+          ok: { body: "文书跑通，钱陆续到位，只是没见到你的面。", effects: { rep: 0.15, fac: { agency: 2 }, voters: { warm: 160 } } },
           meh: { body: "钱办了，人在后方，存在感低了些。", effects: { rep: 0.1 } },
           fail: { body: "有灾民觉得「他连来都没来一趟」，钱到了人情没到。", effects: { rep: 0, voters: { oppose: 110 } } },
           critfail: { body: "补助迟迟批不下来，你把话放得太满，落空的灾民把账算到你头上。", effects: { rep: -0.15, fac: { press: -2 }, voters: { oppose: 170 } } }

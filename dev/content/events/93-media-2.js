@@ -24,7 +24,7 @@ POTUS.define("event", [
   {
     id: "med2_profile", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "media",
-    title: "八千字里的那个「你」",
+    title: "一份全国刊物要给你写八千字的人物特稿",
     body: "一份全国性刊物的记者来了，要给你做一个整版人物特稿。\n" +
       "他跟着你三天：两场活动、一顿晚饭、一次车程。他问的问题都很客气，\n" +
       "客气到你差点忘了 —— 最后印出来的那八千字，一个字都不会经过你同意。",
@@ -114,7 +114,7 @@ POTUS.define("event", [
     grade: "minor", valence: "risk", dyn: true, category: "media",
     after: { id: "med2_profile", minMonthsAfter: 2, maxMonthsAfter: 14 },
     flags: ["med2_profile_run"],
-    title: "那篇文章还活着",
+    title: "你的特稿见报后被对手反复断章引用",
     body: "那篇特稿见报已经一阵子了，但它没有安静地躺进档案室。\n" +
       "有人开始用文中的句子介绍你，对手开始挑里面的段落断章引用，\n" +
       "还有一件更麻烦的事：那家刊物的对手刊物，想做一个「回应版」。",
@@ -200,7 +200,7 @@ POTUS.define("event", [
   {
     id: "med2_fact_check", era: MED2_ERAS, tierMin: 0, tierMax: 5, weight: 11,
     grade: "minor", valence: "risk", dyn: true, category: "media",
-    title: "那个数字",
+    title: "你演讲里用了两年的数字被核查查出有误",
     body: "你在演讲里用了两年的那个数字 —— 每次讲都有掌声的那个 ——\n" +
       "被一家事实核查栏目查了。结论很干脆：来源是三年前的一份估算，\n" +
       "而且连那份估算的作者都说被误用了。\n" +
@@ -229,7 +229,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "deny", text: "死不认错：那是自由派的核查机构在带节奏",
-        note: "攻击核查者能让核心支持者更紧。代价是 INTG 在悄悄漏，媒体生态把你记进另一栏。",
+        note: "攻击核查者能让核心支持者更紧。代价是公信力在悄悄漏，媒体生态把你记进另一栏。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "fac", key: "base", w: 0.25 }],
         outcomes: {
           crit: m2("你把核查栏目骂成了「带节奏的机器」，你的选民鼓掌了。三天后那篇核查在他们的时间线里消失了。",
@@ -246,7 +246,7 @@ POTUS.define("event", [
       },
       {
         id: "own", text: "公开认错：主动发勘误，把新数字一起讲了",
-        note: "认错是一次性付清的账。INTG 高，这笔钱花得值；INTG 低，会被当成示弱。",
+        note: "认错是一次性付清的账。公信力高，这笔钱花得值；公信力低，会被当成示弱。",
         base: 0.52, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
           crit: m2("你的勘误发得干脆，还顺手把新数据讲了一遍。那位原作者替你说了话：「认错的政客，我十年没见过第二个。」这句话被转得比核查原文还广。",
@@ -306,8 +306,8 @@ POTUS.define("event", [
     id: "med2_debate_prep", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 12,
     grade: "mid", valence: "risk", dyn: true, category: "media",
     cond: function (G, P) { return P.electionYear(); },
-    title: "辩论前的那间屋子",
-    body: "选举年，辩论定在三周后。对手、主持人的风格、提纲的 rumored 范围，\n" +
+    title: "选举年辩论前三周，团队要你定下辩论风格",
+    body: "选举年，辩论定在三周后。对手、主持人的风格、提纲的传闻范围，\n" +
       "你的团队把一切都贴在了墙上 —— 除了一个问题：你要做一个什么样的自己。\n" +
       "排练室已经订好了，就等你进屋。",
     brief: {
@@ -374,7 +374,7 @@ POTUS.define("event", [
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "attr", key: "INTG", w: 0.2 }],
         cost: { ap: 1 },
         outcomes: {
-          crit: m2("你讲了那位选民的故事，讲到一半全场安静了。对手的 ppt 在那一刻全部失效。那位选民后来出现在了你的竞选广告里 —— 是自愿的。",
+          crit: m2("你讲了那位选民的故事，讲到一半全场安静了。对手的幻灯片在那一刻全部失效。那位选民后来出现在了你的竞选广告里 —— 是自愿的。",
             { rep: 2.5, voters: { warm: 300, diehard: 150 }, fac: { base: 10, press: 8 } }),
           ok: m2("故事立住了。评论说「数据是他对手的，但人是他的」。",
             { rep: 1.5, voters: { warm: 200 }, fac: { base: 6 } }),
@@ -412,7 +412,7 @@ POTUS.define("event", [
   {
     id: "med2_dark_poster", era: MED2_ERAS, tierMin: 0, tierMax: 5, weight: 10,
     grade: "minor", valence: "bane", dyn: true, category: "media",
-    title: "半夜出现的那些纸",
+    title: "有人半夜贴出匿名黑你的传单",
     body: "有人在半夜把它们贴了出来。内容全是「关于你」的：三个半真半假的事实，\n" +
       "一个被夸大四倍的数字，和一句手写的、阴冷的暗示。\n" +
       "你的团队从投票站门口、杂货店布告栏、和汽车雨刮器下面各揭回来一张。",
@@ -507,7 +507,7 @@ POTUS.define("event", [
       { flags: ["wave_veteran"] }, { flags: ["wave_deferred"] }, { flags: ["leaker_suspect"] },
       { flags: ["bought"] }, { flags: ["compromised"] }
     ],
-    title: "他要专门盯你了",
+    title: "一位记者通知你，他要用两年专门跟踪报道你",
     body: "那位记者约你在一家咖啡馆见面，开门见山。\n" +
       "「我打算用接下来两年跟你的线。不是奉命，是我自己要跟。」\n" +
       "他把名片推过来，又补了一句：「我先告诉你，是因为盯人之前先打招呼，\n" +
@@ -590,7 +590,7 @@ POTUS.define("event", [
       },
       {
         id: "respect", text: "不设防也不喂料：告诉他「你写你的，我做我的」",
-        note: "最硬气的路，也是最考底子的路。INTG 高的人才有资格说这句话。",
+        note: "最硬气的路，也是最考底子的路。公信力高的人才有资格说这句话。",
         base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
           crit: m2("他听完沉默了几秒，收回了名片：「好。那我们各凭本事。」后来他写你的稿子依然不客气，但每一篇你都挑不出对手式的歪曲。这可能是这场游戏里最好的结局。",
@@ -616,7 +616,7 @@ POTUS.define("event", [
     grade: "mid", valence: "bane", dyn: true, category: "media",
     after: { id: "med2_press_enemy", minMonthsAfter: 10, maxMonthsAfter: 30 },
     flags: ["med2_press_enemy"],
-    title: "他的名字进了你的日程",
+    title: "跟了你两年的记者要写书，请你接受最后一次采访",
     body: "两年过去，跟你的那位记者已经成了你生活的一部分。\n" +
       "你的团队每天早上先看他的版面再看别的；你的律师替你的每句话过秤；\n" +
       "上个月他写了一篇长文，把你这三年做过的事排成了一张时间线 —— 每一条都属实。\n" +
@@ -634,7 +634,7 @@ POTUS.define("event", [
         "有人说他已经在接触你当年最不希望出现的那个人。"
       ],
       unknown: [
-        "书里那 chapters 关于你的部分，标题会是一个名词还是一个动词。",
+        "书里那几章关于你的部分，标题会是一个名词还是一个动词。",
         "十年后，这本书是别人认识你的第一入口 —— 那个入口是你想要的吗。"
       ],
       terms: [

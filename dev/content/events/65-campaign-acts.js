@@ -36,7 +36,7 @@ POTUS.define("event", [
         id: "quiet_start", text: "先挨家挨户摸底，暂不声张", base: 0.55,
         mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你悄悄走访了半条街，摸清了谁支持谁反对， groundwork 扎实。", effects: { rep: 1, fac: { base: 4 }, camp: { momentum: 9 } } },
+          crit: { body: "你悄悄走访了半条街，摸清了谁支持谁反对，底子扎实。", effects: { rep: 1, fac: { base: 4 }, camp: { momentum: 9 } } },
           ok: { body: "你收集了不少真实意见，为正式开跑打好了底。", effects: { camp: { momentum: 6 } } },
           meh: { body: "有人客套，有人关门，你还在试探。", effects: { camp: { momentum: 2 } } },
           fail: { body: "邻居们警惕地问你'你到底想干嘛'。", effects: { camp: { momentum: -4 } } },
@@ -346,7 +346,7 @@ POTUS.define("event", [
           crit: { body: "你体面地回避了对轰，反显得更有格局。", effects: { camp: { momentum: 5 } } },
           ok: { body: "你不得罪人，平稳穿过初选。", effects: { camp: { momentum: 3 } } },
           meh: { body: "没打赢印象分，也没输。", effects: { camp: { momentum: 1 } } },
-          fail: { body: "太 soft 的打法让基本盘有点泄气。", effects: { camp: { momentum: -1 } } },
+          fail: { body: "太软的打法让基本盘有点泄气。", effects: { camp: { momentum: -1 } } },
           critfail: { body: "全程回避，你几乎从初选话题里消失。", effects: { camp: { momentum: -2 } } }
         }
       }
@@ -356,7 +356,7 @@ POTUS.define("event", [
     id: "camp_upper_rally", grade: "mid", category: "career", unique: false,
     valence: "risk", tierRaw: true, tierMin: 3, tierMax: 3, weight: 1,
     title: "巡回拉票",
-    body: "全州跑一圈，从东部的factory town到西部的郊区。体能和消息，都在考验你。",
+    body: "全州跑一圈，从东部的工厂城镇到西部的郊区。体能和消息，都在考验你。",
     choices: [
       {
         id: "grind", text: "密集巡回，一天五场", base: 0.5,
@@ -431,7 +431,7 @@ POTUS.define("event", [
     body: "党在大会上决定把提名给谁。会场里的每一张票，都得靠你几天前就谈好的信任。",
     choices: [
       {
-        id: "work_room", text: "逐 deleg 谈判，锁定提名", base: 0.5,
+        id: "work_room", text: "逐名代表谈判，锁定提名", base: 0.5,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "establishment", w: 0.3 }],
         outcomes: {
           crit: { body: "你在走廊里谈下足够票数，第一轮就拿下提名。", effects: { rep: 2, fac: { establishment: 6 }, camp: { momentum: 13 } } },

@@ -27,7 +27,7 @@ POTUS.define("event", [
   {
     id: "media_fireside", era: MEDIA_ERAS, tierMin: 0, tierMax: 5, weight: 9,
     grade: "mid", valence: "risk", dyn: true, category: "media", medium: "radio",
-    title: "第一次对着麦克风说话",
+    title: "电台请你做一档固定的晚间谈话节目",
     body: "电台请你做一档固定的晚间谈话：三十分钟，一根麦克风，没有画面。\n" +
       "团队里有人说这是浪费——没人看得见你的脸，也就没人记得住你。",
     brief: {
@@ -84,7 +84,7 @@ POTUS.define("event", [
   {
     id: "media_tv_spot", era: MEDIA_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "media", medium: "tv",
-    title: "买下三十秒",
+    title: "你花大钱买下电视黄金时段的三十秒",
     body: "电视台的广告部给你报了一个价：三十秒，黄金时段，够把一个人变成一张全国都认得的脸。\n" +
       "价格是你几乎全部的钱。而你的对手昨天已经在同一时段投过了。",
     brief: {
@@ -153,7 +153,7 @@ POTUS.define("event", [
   {
     id: "media_cable_show", era: MEDIA_ERAS, tierMin: 1, tierMax: 5, weight: 9,
     grade: "mid", valence: "risk", dyn: true, category: "media", medium: "cable",
-    title: "午夜档的敌意节目",
+    title: "一个有线新闻的午夜节目连拿你当靶子",
     body: "一个二十四小时新闻频道的午夜谈话节目，连着三周拿你当靶子。\n" +
       "它的收视率不高，但看它的人，恰好是最会在党内初选里投票的那批人。",
     brief: {
@@ -209,7 +209,7 @@ POTUS.define("event", [
   {
     id: "media_blog_drop", era: MEDIA_ERAS, tierMin: 0, tierMax: 5, weight: 10,
     grade: "major", valence: "risk", dyn: true, category: "media", medium: "internet",
-    title: "一个匿名博客",
+    title: "一个匿名博客贴出了你的三份内部文件",
     body: "一个没人听过名字的博客，贴出了三份盖着抬头的文件扫描件。\n" +
       "文件是真的——但里面的内容，是你三年前在一次闭门会上说的话。",
     brief: {
@@ -279,7 +279,7 @@ POTUS.define("event", [
   {
     id: "media_viral_clip", era: MEDIA_ERAS, tierMin: 0, tierMax: 5, weight: 12,
     grade: "major", valence: "risk", dyn: true, category: "media", medium: "shortvideo",
-    title: "十五秒",
+    title: "一段你蹲下跟孩子说话的十五秒视频火了",
     body: "一段十五秒的片段，在四十八小时里被播放了上亿次。\n" +
       "片段里，你在一次活动结束后，对着一群孩子蹲下去，用很慢的语速讲了一句话。\n" +
       "拍它的是一个谁都不认识的志愿者。他没有恶意，他只是顺手拍了下来。",
@@ -338,7 +338,7 @@ POTUS.define("event", [
   {
     id: "media_deepfake", era: MEDIA_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "major", valence: "bane", dyn: true, category: "crisis", medium: "deepfake",
-    title: "那段视频不是你",
+    title: "一段冒充你的合成视频在夜里传开",
     body: "一段两分钟的视频在夜里传开：画面里的你，在说一件你绝对没说过的事。\n" +
       "嘴型对得很准，声音也很像。你的团队花了四十分钟才确认——这不是你。",
     brief: {

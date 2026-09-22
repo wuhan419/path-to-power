@@ -121,7 +121,7 @@ POTUS.define("event", [
           crit: { body: "你们把议题推上了州议程：一场听证、两个法案、和一批把你的名字挂在嘴边的志愿者。", effects: { rep: 1.5, fac: { base: 12, press: 6, establishment: -3 }, flags: ["cross_ngo"] } },
           ok: { body: "组织又壮大一圈。你的名字和议题绑在了一起——这是资产，也是标签。", effects: { rep: 1, fac: { base: 8, establishment: -2 }, flags: ["cross_ngo"] } },
           meh: { body: "日子照旧：写报告、见议员、等回电。理想主义的折旧比你想的快。", effects: { rep: 0.4, fac: { base: 4 } } },
-          fail: { body: "基金会的拨款改了方向，你们的项目砍了一半。你在裁员名单上划掉了别人的名字，然后失眠。", effects: { rep: 0.2, fac: { base: 3 }, hp: -1 } },
+          fail: { body: "基金会的拨款改了方向，你们的项目砍了一半。你在裁员名单上划掉了别人的名字，从此组织里有人觉得你欠他们一句话。", effects: { rep: 0.2, fac: { base: 3, press: -2 }, fav: -1 } },
           critfail: { body: "一篇调查报道指出你们的理事会里坐着一家有利益的公司。你不知情——但签名页上有你。", effects: { rep: -1.25, fac: { base: -8, press: -6 }, flags: ["scandal_2"] } }
         }
       },
@@ -140,12 +140,12 @@ POTUS.define("event", [
       {
         id: "halfway", text: "做个「党外的党内人」：保持独立但定期合作",
         note: "两头都留着门。政治圈管这个叫狡猾，也叫成熟——取决于你后来成功了没有。",
-        base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
+        base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "establishment", w: 0.2 }],
         outcomes: {
-          crit: { body: "你成了两边的翻译官：党需要议题的正当性，组织需要党的通道。两边都给你留了椅子。", effects: { rep: 1.25, fac: { base: 6, establishment: 6, press: 3 } } },
-          ok: { body: "合作关系维持住了。你没有全部的杠杆，但也没有全部的枷锁。", effects: { rep: 0.6, fac: { base: 3, establishment: 3 } } },
-          meh: { body: "两边客气地把你当成「需要的时候再找」的人。", effects: { fac: { base: 2, establishment: 2 } } },
-          fail: { body: "一次关键投票你两边都没讨到好：党说你拆台，组织说你投诚。", effects: { rep: -0.6, fac: { base: -5, establishment: -5 } } },
+          crit: { body: "你成了两边的翻译官：党需要议题的正当性，组织需要党的通道。两边都给你留了椅子——连那些两边都够不着的人，也开始把你当门路。", effects: { rep: 1.25, fac: { base: 6, establishment: 6, press: 3 }, contact: { fixer: 8 }, fav: 2 } },
+          ok: { body: "合作关系维持住了。你没有全部的杠杆，但也没有全部的枷锁；顺带认识了几个哪边都办得成事的人。", effects: { rep: 0.6, fac: { base: 4, establishment: 4 }, contact: { fixer: 6 }, fav: 1 } },
+          meh: { body: "两边客气地把你当成「需要的时候再找」的人。你倒是攒下了几个还肯接你电话的中间人。", effects: { fac: { base: 2, establishment: 2 }, contact: { fixer: 3 } } },
+          fail: { body: "一次关键投票你两边都没讨到好：党说你拆台，组织说你投诚。连帮忙牵线的人也开始躲你。", effects: { rep: -0.6, fac: { base: -5, establishment: -5 }, fav: -1 } },
           critfail: { body: "你的「中间人」身份被写进了对手的攻击广告：两头下注，两头都不是自己人。", effects: { rep: -1.25, fac: { base: -8, establishment: -8, press: -4 }, flags: ["scandal_1"] } }
         }
       }
@@ -288,7 +288,7 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你两头周旋得天衣无缝：候选人谢你「鼎力相助」，州里的桩脚也在替你热身。只有你的日程表知道真相。", effects: { rep: 0.9, fac: { establishment: 6, base: 6 }, attr: { CUN: 2 } } },
           ok: { body: "两边都半信半疑，两边都还用你。你的平衡术暂时成立。", effects: { rep: 0.4, fac: { establishment: 3, base: 3 } } },
-          meh: { body: "「协助」的意思最后变成你在两间办公室之间来回跑腿。", effects: { rep: 0.2, hp: -0.6 } },
+          meh: { body: "「协助」的意思最后变成你在两间办公室之间来回跑腿，两边的人情都替你贴进去不少。", effects: { rep: 0.2, fav: -1 } },
           fail: { body: "候选人团队发现你的献金名单里一半是州长桩脚。你被礼貌地请出了电话会。", effects: { rep: -0.4, fac: { establishment: -8 } } },
           critfail: { body: "两边同时收到对方给你的承诺书复印件。华盛顿的不再理你，州里的要求你「给个说法」。", effects: { rep: -0.9, fac: { establishment: -10, base: -8 }, flags: ["scandal_2"] } }
         }

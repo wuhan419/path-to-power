@@ -33,7 +33,7 @@ POTUS.define("event", [
   {
     id: "enc_preacher", era: ENCL_ERAS, tierMin: 0, tierMax: 4, weight: 10,
     grade: "minor", valence: "risk", dyn: true, category: "civil",
-    title: "讲台上的十分钟",
+    title: "牧师给你教堂讲台上的十分钟",
     body: "南区的浸信会礼拜天早上有四百个人。牧师管着这四百个人的周日早晨，\n" +
       "也管着他们接下来一个星期里会怎么议论一个人。\n" +
       "他给了你十分钟。他说得很客气：「你可以在献诗之后讲几句。」\n" +
@@ -119,7 +119,7 @@ POTUS.define("event", [
   {
     id: "enc_elders", era: ENCL_ERAS, tierMin: 0, tierMax: 5, weight: 9,
     grade: "minor", valence: "risk", dyn: true, category: "civil",
-    title: "七个人和一条街",
+    title: "商户公所的七位长老请你去喝茶",
     body: "旧城区那条街上的商户公所有七位长老。他们不管你选举，他们管这条街上\n" +
       "谁能开张、谁的地租能谈、谁家的小孩可以去那个周末补习班。\n" +
       "他们请你去喝茶。茶叶是很旧的那种，杯子是别人家用过的玻璃杯。\n" +
@@ -205,7 +205,7 @@ POTUS.define("event", [
   {
     id: "enc_ballot", era: ENCL_ERAS, tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "risk", dyn: true, category: "civil", medium: "print",
-    title: "三个投票站",
+    title: "选务处要撤掉三个投票站的双语选票",
     body: "选务处今年打算把双语选票从三个投票站撤掉，理由是「使用率不足」。\n" +
       "使用率的算法是这样的：只有在投票站当场要求过双语选票的人，才算使用者。\n" +
       "而在这三个站里，一共有一千七百个从来不说英语的选民。\n" +
@@ -308,7 +308,7 @@ POTUS.define("event", [
   {
     id: "enc_street", era: ENCL_ERAS, tierMin: 0, tierMax: 5, weight: 9,
     grade: "mid", valence: "risk", dyn: true, category: "civil",
-    title: "巡逻队",
+    title: "街上商户想自发组织夜间巡逻队",
     body: "三个月里这条街上发生了四起抢劫，都是晚上十点以后，都在离警局八个街区的地方。\n" +
       "报警的等候时间从九分钟变成了三十七分钟。\n" +
       "二十三家店铺的老板开了个会，有人提议自己组织夜间巡逻。\n" +
@@ -412,7 +412,7 @@ POTUS.define("event", [
     id: "enc_first", era: ENCL_ERAS, tierMin: 1, tierMax: 4, weight: 10,
     grade: "major", valence: "risk", dyn: true, category: "career", unique: true,
     contacts: ["preacher"], minRep: 20,
-    title: "他们决定推出一个人",
+    title: "社区开会决定推出一个人去选那个位子",
     body: "那天晚上去了三十几个人，坐在一间借来的地下室里。\n" +
       "牧师先说了话，然后三位老人说了话，然后大家开始一个一个地念名字。\n" +
       "念到第四个的时候，有人说了你的名字，屋子里安静了两三秒 —— 这两三秒是决定性的。\n" +
