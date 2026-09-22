@@ -320,7 +320,11 @@
   function resText(cost) {
     return Object.keys(cost).filter(function (k) { return k !== "ap" && k !== "hp"; }).map(function (k) {
       const v = cost[k];
-      if (k === "fun") return "资金 " + (v < 0 ? "-$" : "$") + (Math.abs(v) / 1000).toFixed(0) + "k";
+      if (k === "fun") {
+        const a = Math.abs(v);
+        /* 不足一千的零头按原样显示——一律除千会算出「资金 $0k」这种没有意义的标签 */
+        return "资金 " + (v < 0 ? "-$" : "$") + (a >= 1000 ? (a / 1000).toFixed(0) + "k" : a);
+      }
       return RES_LABEL[k] + " " + v;
     }).join(" · ");
   }
@@ -370,27 +374,31 @@
     const P_ = window.POTUS, G = P_.G;
     const out = [];
     if (!eff) return out;
-    if (eff.rep != null) out.push({ k: "声望", v: eff.rep, sign: eff.rep });
-    if (eff.fun != null) {
+    /* 变化量为 0 的项一律不列：结算条是给玩家看「这一手改变了什么」，
+       堆一串「声望 0」只会把真正有变化的项淹掉。 */
+    if (eff.rep) out.push({ k: "声望", v: eff.rep, sign: eff.rep });
+    if (eff.fun) {
       const k = Math.round(eff.fun / 1000);
-      out.push({ k: "资金", v: (k >= 0 ? "+$" : "-$") + Math.abs(k) + "k", sign: eff.fun });
+      if (k) out.push({ k: "资金", v: (k >= 0 ? "+$" : "-$") + Math.abs(k) + "k", sign: eff.fun });
     }
-    if (eff.funMul != null) {
+    if (eff.funMul) {
       const pct = Math.round(eff.funMul * 100);
-      const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
-      const amt = base != null ? Math.round(base * eff.funMul / 1000) : null;
-      out.push({
-        k: "资金",
-        v: (pct >= 0 ? "+" : "") + pct + "%（本金）" + (amt != null ? (amt >= 0 ? " ≈+$" : " ≈-$") + Math.abs(amt) + "k" : ""),
-        sign: eff.funMul
-      });
+      if (pct) {
+        const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
+        const amt = base != null ? Math.round(base * eff.funMul / 1000) : null;
+        out.push({
+          k: "资金",
+          v: (pct >= 0 ? "+" : "") + pct + "%（本金）" + (amt != null && amt !== 0 ? (amt >= 0 ? " ≈+$" : " ≈-$") + Math.abs(amt) + "k" : ""),
+          sign: eff.funMul
+        });
+      }
     }
-    if (eff.fav != null) out.push({ k: "人情", v: eff.fav, sign: eff.fav });
-    if (eff.lev != null) out.push({ k: "把柄", v: eff.lev, sign: eff.lev });
+    if (eff.fav) out.push({ k: "人情", v: eff.fav, sign: eff.fav });
+    if (eff.lev) out.push({ k: "把柄", v: eff.lev, sign: eff.lev });
     if (eff.tier != null && eff.tier !== 0) out.push({ k: "层级", v: (eff.tier > 0 ? "T↑" : "T↓"), sign: eff.tier });
-    if (eff.attr) for (const a in eff.attr) out.push({ k: { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" }[a] || a, v: eff.attr[a], sign: eff.attr[a] });
-    if (eff.fac) for (const f in eff.fac) out.push({ k: P_.factionName(f), v: eff.fac[f], sign: eff.fac[f] });
-    if (eff.contact) for (const c in eff.contact) out.push({ k: P_.contactName(c), v: eff.contact[c], sign: eff.contact[c] });
+    if (eff.attr) for (const a in eff.attr) { if (!eff.attr[a]) continue; out.push({ k: { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" }[a] || a, v: eff.attr[a], sign: eff.attr[a] }); }
+    if (eff.fac) for (const f in eff.fac) { if (!eff.fac[f]) continue; out.push({ k: P_.factionName(f), v: eff.fac[f], sign: eff.fac[f] }); }
+    if (eff.contact) for (const c in eff.contact) { if (!eff.contact[c]) continue; out.push({ k: P_.contactName(c), v: eff.contact[c], sign: eff.contact[c] }); }
     /* 状态词条：只在 tagNames 里登记过的才翻译（scandal_n 这类内部标记不翻） */
     const tagNames = P_.balance().tagNames || {};
     if (eff.flags) [].concat(eff.flags).forEach(function (f) {
@@ -407,6 +415,7 @@
       const VCN = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
       for (const vk in eff.voters) {
         const n = eff.voters[vk];
+        if (!n) continue;
         out.push({ k: VCN[vk] || vk, v: (n > 0 ? "+" : "") + fmtVoterNum(n), sign: vk === "oppose" ? -n : n });
       }
     }
@@ -419,9 +428,14 @@
     if (!items.length) return "";
     return '<div class="gainbox"><span class="gtag">这一手</span>' +
       items.map(function (x) {
-        const cls = x.flag ? "gflag" : (x.sign > 0 ? "good" : x.sign < 0 ? "bad" : "");
-        const tip = x.tip ? ' class="' + cls + ' hastip" data-tip="' + String(x.tip).replace(/"/g, "&quot;") + '"' : ' class="' + cls + '"';
-        return '<span class="gchip2 ' + (tip ? tip + '"' : cls + '"') + ">" + x.k + " " + (x.v > 0 && !x.flag ? "+" : "") + x.v + "</span>";
+        const cls = "gchip2 " + (x.flag ? "gflag" : (x.sign > 0 ? "good" : x.sign < 0 ? "bad" : ""));
+        /* 只在「值本身就是数字且为正」时补 + 号：
+           选民那几项的 v 已经是带符号字符串（"+320"），再补一个就变成 "++320"。
+           另：原先这里会拼出两个 class 属性（class="gchip2" class="good"），
+           浏览器忽略后者 —— 正负分色其实一直没生效，这里一并修掉。 */
+        const plus = (typeof x.v === "number" && x.v > 0 && !x.flag) ? "+" : "";
+        const tipAttr = x.tip ? ' hastip" data-tip="' + String(x.tip).replace(/"/g, "&quot;") + '"' : '"';
+        return '<span class="' + cls + tipAttr + ">" + x.k + " " + plus + x.v + "</span>";
       }).join("") + "</div>";
   }
 
@@ -495,6 +509,37 @@
       "</span>";
   }
 
+  /* 头版导语（standfirst）：有 ev.standfirst 直接用；否则从正文第一句提炼一句斜体引文。
+     不写回事件文件——只做界面层的呈现提炼。 */
+  function standfirstOf(ev) {
+    if (ev && ev.standfirst) return ev.standfirst;
+    const b = (ev && ev.body) || "";
+    const parts = b.split(/[。！？\n]/);
+    let first = (parts[0] || "").trim();
+    if (first.length > 64) first = first.slice(0, 64) + "…";
+    return first || (ev && ev.title) || "";
+  }
+
+  /* ---------- 成功把握的「文字档位」 ----------
+   * 只给一句话的手感，不报百分比（保留不确定性，也避免玩家拿数字当精确预期）。
+   * 六档由红到绿递进：机会渺茫 → 凶多吉少 → 胜负难料 → 略占上风 → 胜券在握 → 十拿九稳。
+   * 只有带 base（要走判定）的选项才有把握可说；纯剧情选项（无判定）不显示，避免误导。 */
+  const ODDS_SCALE = [
+    { min: 0.85, label: "十拿九稳", cls: "odds-l5" },
+    { min: 0.70, label: "胜券在握", cls: "odds-l4" },
+    { min: 0.55, label: "略占上风", cls: "odds-l3" },
+    { min: 0.40, label: "胜负难料", cls: "odds-l2" },
+    { min: 0.25, label: "凶多吉少", cls: "odds-l1" },
+    { min: -1,   label: "机会渺茫", cls: "odds-l0" }
+  ];
+  function oddsOf(ch) {
+    if (!ch || ch.base == null) return null;      // 不用判定 → 没有「把握」可言
+    const p = P.computeP(ch).P;
+    for (let i = 0; i < ODDS_SCALE.length; i++) if (p >= ODDS_SCALE[i].min) return ODDS_SCALE[i];
+    return ODDS_SCALE[ODDS_SCALE.length - 1];
+  }
+  const ODDS_TIP = "这一手成功的把握：受选项本身、你的天赋、以及选区选民底气共同影响；投入资金可以往上加，但每次判定本身仍然有运气。";
+
   P.presentEvent = function (ev, slot) {
     P.tickDate();
     const grade = (slot && slot.grade) || P.gradeOf(ev);
@@ -520,18 +565,27 @@
       (val === "boon" ? "机会：再糟的处理也不会亏" : val === "bane" ? "威胁：不处理必有代价，处理得好能翻盘" : "风险：搏与不搏都是路") + '">'
       + (P.VAL_LABEL[val] || val) + "</span>";
     /* 主次顺序：标题 → 承前 → 正文（主角视角发生了什么）→ 插画 → 背景卡（折叠）→ 选项 */
+    const standfirst = standfirstOf(ev);
+    /* 档案编号：本局走到第几件事（不足三位补零），配合等宽字做档案标签 */
+    const dno = String(((P.G.history || []).length) + 1).padStart(3, "0");
     box.innerHTML =
-      '<div class="news fade"><div class="dateline"><span class="dt">' + P.dateText(ev) + "</span>" +
-      vchip +
-      (gdef.name ? ' <span class="gchip ' + (gdef.cls || "") + '">' + gdef.name + "</span>" : "") +
-      (catName ? ' <span class="cchip">' + catName + "</span>" : "") +
-      (medName ? ' <span class="cchip medium">' + medName + "</span>" : "") +
-      (ev.type ? " · " + ev.type : "") + "</div>" +
-      chainHTML +
-      "<h2>" + (ev.title || "") + "</h2>" +
-      '<div class="body">' + (ev.body || "") + "</div>" +
-      P.artSVG(ev) +
+      '<article class="news editorial fade">' +
+      '<div class="stamp">档案</div>' +
+      '<div class="dossier-head">' +
+        '<span class="dnum">DOSSIER // EVENT NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
+        '<span class="dmeta">' + vchip +
+          (gdef.name ? '<span class="gchip ' + (gdef.cls || "") + '">' + gdef.name + "</span>" : "") +
+          (catName ? '<span class="cchip">' + catName + "</span>" : "") +
+          (medName ? '<span class="cchip medium">' + medName + "</span>" : "") +
+          (ev.type ? '<span class="cchip">' + ev.type + "</span>" : "") +
+        '</span>' +
       '</div>' +
+      chainHTML +
+      '<h1 class="headline">' + (ev.title || "") + '</h1>' +
+      (standfirst ? '<p class="standfirst">' + standfirst + "</p>" : "") +
+      P.artSVG(ev) +
+      '<div class="body">' + (ev.body || "") + "</div>" +
+      '</article>' +
       /* 背景卡在事件框下面（中栏底部）：想细看的人展开，不挡任何东西 */
       '<div class="brief-slot">' + P.briefHTML(ev) + "</div>";
     /* v0.5.3 三栏布局：选项进右栏（#actbar），与掷骰/结算/继续按钮同栏 */
@@ -560,11 +614,15 @@
       const btn = document.createElement("button");
       btn.className = "choice" + (isForced ? " forced" : "");
       btn.disabled = !!blocked;
-      /* 掷骰对用户隐藏：不再显示胜算百分比。玩家只需知道「有风险、能投入资源搏一把、
-         结果有得有失」——风险的量由事件三值性徽标与下面的回报区间来传达。 */
+      /* 掷骰对用户隐藏：不报胜算百分比，只用一句话给「把握」的手感；
+         风险的量由三值性徽标 + 把握档位 + 回报区间共同传达。 */
       const hint = stakeSpec ? '<span class="hint">可投入资源，搏更大把握</span>' : "";
-      btn.innerHTML = ch.text + hint +
-        (ch.cost ? '<span class="costtag">代价：' + resText(ch.cost) + "</span>" : "") +
+      const odds = oddsOf(ch);
+      const oddsHTML = odds ? '<span class="odds ' + odds.cls + ' hastip" data-tip="' + ODDS_TIP + '">' + odds.label + "</span>" : "";
+      /* 代价可能「有键但无内容」（例如只写了已退役的 ap/hp），先算出文本再决定渲不渲染 */
+      const costTxt = ch.cost ? resText(ch.cost) : "";
+      btn.innerHTML = ch.text + oddsHTML + hint +
+        (costTxt ? '<span class="costtag">代价：' + costTxt + "</span>" : "") +
         rewLineHTML(rew) +
         (blocked ? '<span class="req">✕ ' + (blockedReq || blockedCost) + "</span>" : "") +
         (isForced ? '<span class="req forced-tag">⚠ 保底选项：' + (blockedCost || blockedReq) + "，硬撑一次（资源会被扣到见底）</span>" : "");
@@ -635,7 +693,9 @@
     const label = P.TIER_LABEL[res.tier] || res.tier;
     const div = document.createElement("div");
     div.className = "result " + res.tier + " fade";
-    div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
+    /* 档位做成小徽章（按档位配色），叙事正文独立成段 —— 一眼看清"结果如何"，
+       再读"发生了什么"，不再是一个 18px 粗体压着一段正文。 */
+    div.innerHTML = '<span class="rtag">' + label + '</span><div class="rbody">' + (out.body || "") + "</div>";
     mainInsert(div);
     const gainHTML = gainBoxHTML(effFinal);
     if (gainHTML) {

@@ -99,11 +99,11 @@ POTUS.define("event", [
         outcomes: {
           crit: {
             body: "律师把你的每句话都变成了不可追问的堡垒。委员会空手而归。",
-            effects: { rep: 2, fac: { establishment: 10, commercial: 8 } }
+            effects: { rep: 2, attr: { INT: 2 }, fac: { establishment: 10, commercial: 8 } }
           },
           ok: {
             body: "程序被拖成了迷宫，最后不了了之。",
-            effects: { rep: 1, fac: { establishment: 5 } }
+            effects: { rep: 1, attr: { INT: 1 }, fac: { establishment: 5 } }
           },
           meh: {
             body: "你安全了，但纳税人买单的账被媒体翻了出来。",
@@ -128,11 +128,11 @@ POTUS.define("event", [
         outcomes: {
           crit: {
             body: "听证会无限期推迟。你欠的那个人情，日后会以更贵的方式收回。",
-            effects: { rep: 1.25, fac: { establishment: 12 } }
+            effects: { rep: 1.25, attr: { CUN: 1 }, fac: { establishment: 12 } }
           },
           ok: {
             body: "议程挪到了选举之后。你喘了口气。",
-            effects: { rep: 0.6, fac: { establishment: 6 } }
+            effects: { rep: 0.6, attr: { CUN: 1 }, fac: { establishment: 6 } }
           },
           meh: {
             body: "推迟了两周，然后如期举行。",
@@ -184,11 +184,11 @@ POTUS.define("event", [
         outcomes: {
           crit: {
             body: "医生证明无懈可击。委员会白白摆了一天的椅子。",
-            effects: { rep: 0.6, fac: { base: -2 } }
+            effects: { rep: 0.6, attr: { INTG: 2 }, fac: { base: -2 } }
           },
           ok: {
             body: "你缺席了，风波顺延到明年。",
-            effects: {}
+            effects: { attr: { INTG: 1 } }
           },
           meh: {
             body: "有人拍到你当天在高尔夫球场。",

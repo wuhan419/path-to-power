@@ -136,8 +136,8 @@ POTUS.define("event", [
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.2 }],
         cost: { fun: 0.3 },
         outcomes: {
-          crit: { body: "律师查了三周，结论写得像侦探小说：钱要经过两道「本地合伙」才能洗到台面上。你退了支票，并且悄悄留了一份报告——后来它保护了你两次。", effects: { rep: 0.7, fac: { establishment: 8, agency: 6, foreign: -8 }, flags: ["whistleblower"] } },
-          ok: { body: "查证显示第一层是干净的，第二层查不动。你只收了能查清的那一小部分，退掉了大头。中间人笑了笑：可惜。", effects: { fun: 0.4, rep: 0.3, fac: { establishment: 5, foreign: -3 } } },
+          crit: { body: "律师查了三周，结论写得像侦探小说：钱要经过两道「本地合伙」才能洗到台面上。你退了支票，并且悄悄留了一份报告——后来它保护了你两次。", effects: { rep: 0.7, attr: { INTG: 2 }, fac: { establishment: 8, agency: 6, foreign: -8 }, flags: ["whistleblower"] } },
+          ok: { body: "查证显示第一层是干净的，第二层查不动。你只收了能查清的那一小部分，退掉了大头。中间人笑了笑：可惜。", effects: { fun: 0.4, rep: 0.3, attr: { INTG: 1 }, fac: { establishment: 5, foreign: -3 } } },
           meh: { body: "律师的费用花掉了，结论是「无法确认」。你退了钱，白白瘦了一圈账面。", effects: { fac: { establishment: 3, foreign: -4 } } },
           fail: { body: "查证的消息走漏了。对面觉得你「不识抬举」，你的对手收到了原本属于你的那份「友谊」。", effects: { rep: -0.2, fac: { foreign: -8 } } },
           critfail: { body: "律师函被人截了图。标题变成了「候选人涉嫌收受外国资金，正被调查」——调查的是钱，标题里没有主语。", effects: { rep: -0.9, fac: { press: -8, foreign: -6 }, flags: ["scandal_1"] } }
@@ -279,8 +279,8 @@ POTUS.define("event", [
         note: "不喊口号，用公文说话。反对者会满意，教会与安置机构会看懂——他们记人的方式是记名单。",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的公函写得滴水不漏：不是反对，是「请求评估承载力」。最终名额减了三成，双方各拿到一个可以说给自己听众的版本——而你在两个版本里都不是主角。", effects: { rep: 0.6, fac: { base: 5, church: -4 }, voters: { warm: 300, oppose: 500 } } },
-          ok: { body: "分流的申请批了一半。留言板安静了些，教堂的联系人换了一张更公事公办的脸。", effects: { fac: { base: 4, church: -5 }, voters: { oppose: 400, warm: -100 } } },
+          crit: { body: "你的公函写得滴水不漏：不是反对，是「请求评估承载力」。最终名额减了三成，双方各拿到一个可以说给自己听众的版本——而你在两个版本里都不是主角。", effects: { rep: 0.6, attr: { CUN: 2 }, fac: { base: 5, church: -4 }, voters: { warm: 300, oppose: 500 } } },
+          ok: { body: "分流的申请批了一半。留言板安静了些，教堂的联系人换了一张更公事公办的脸。", effects: { attr: { CUN: 1 }, fac: { base: 4, church: -5 }, voters: { oppose: 400, warm: -100 } } },
           meh: { body: "公文旅行了六个星期，批下来的那天人已经到了。程序走完了，什么也没改变——包括你的处境。", effects: { fac: { base: 2, church: -3 } } },
           fail: { body: "申请被驳回了。两边都拿到了他们要的叙事：反对者说你「试过了」，支持者拿到了你的公函复印件。", effects: { rep: -0.8, fac: { base: -4, church: -8, press: -4 }, voters: { oppose: 900, warm: -200 } } },
           critfail: { body: "公函泄漏给了媒体，标题写的是「我们的议员在背后挡了难民」。你辩解说是「程序」，但「程序」两个字上不了头条。", effects: { rep: -1.5, fac: { church: -10, press: -8, base: -5 }, voters: { oppose: 1800, warm: -400 }, flags: ["scandal_1"] } }

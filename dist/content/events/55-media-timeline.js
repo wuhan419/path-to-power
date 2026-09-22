@@ -252,9 +252,9 @@ POTUS.define("event", [
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         cost: { fun: 1, ap: 1 },
         outcomes: {
-          crit: out("你找到了那个人。你没有公开他，但从此你知道该防谁。", { rep: 0.7, fac: { agency: 8, base: 3 } }),
-          ok: out("范围缩小到了两三个人。至少你心里有数了。", { rep: 0.3, fac: { agency: 5 } }),
-          meh: out("什么都没查出来，还花了钱。", { rep: -0.1, fac: { agency: -2 } }),
+          crit: out("你顺着一处复印的反光锁定了拍文件的人。你没声张——但从此知道该防谁，手里也多了能反将一军的东西。", { rep: 0.7, fac: { agency: 10 }, attr: { CUN: 2 } }),
+          ok: out("范围缩小到两三个人。你心里有了数，泄露的势头也停了。", { rep: 0.3, fac: { agency: 6 }, attr: { CUN: 1 } }),
+          meh: out("什么都没查出来，还花了钱。你只对空气警惕了几分。", { rep: -0.1, fac: { agency: -2 } }),
           fail: out("你查人的动作被人知道了，标题变成「他忙着抓内鬼，不忙着解释」。", { rep: -0.4, fac: { base: -6, press: -6 } }),
           critfail: out("你查错了人，还把一位老部下逼走了。他带走了更多东西。", { rep: -0.8, fac: { base: -8, press: -8 }, flags: ["scandal_3"] })
         }
@@ -367,23 +367,23 @@ POTUS.define("event", [
     choices: [
       {
         id: "counter", text: "立刻拿出技术鉴定 + 完整时间线硬刚",
-        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.5 }, { src: "fac", key: "press", w: 0.2 }],
+        base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.5 }, { src: "fac", key: "press", w: 0.2 }],
         cost: { fun: 1.75, ap: 1 },
         outcomes: {
-          crit: out("鉴定报告 + 原件比对一次性公开，主流媒体集体跟进辟谣。造谣的账号一夜之间消失。", { rep: 1.25, fac: { press: 12, base: 6 } }),
-          ok: out("几家主媒确认了是伪造。事情慢慢平了。", { rep: 0.7, fac: { press: 8 } }),
-          meh: out("报告出来了，但只有关心这件事的人看到。剩下的人还是半信半疑。", { rep: 0.2, fac: { press: 3 } }),
-          fail: out("你花大价钱做的鉴定，被说成「有钱人请的专家」。", { rep: -0.4, fac: { base: -7, press: -5 } }),
-          critfail: out("鉴定过程里泄露了一份内部邮件，被解读成「他们自己也不确定」。", { rep: -0.9, fac: { press: -12, base: -10 }, flags: ["scandal_3"] })
+          crit: out("鉴定报告 + 原件逐帧比对一次性公开，主流媒体集体跟进辟谣，还顺藤摸到造谣账号背后的对手金主。", { rep: 1.75, fac: { press: 12, agency: 8 }, voters: { warm: 400 } }),
+          ok: out("几家权威媒体确认了是伪造并点名谴责，谣言失去了主流放大器。", { rep: 1, fac: { press: 9, agency: 5 } }),
+          meh: out("报告出来了，但只有关心这件事的技术圈看到；剩下的人还是半信半疑。", { rep: 0.2, fac: { press: 4 } }),
+          fail: out("你花大价钱做的鉴定，被对手包装成「有钱人请的专家自证清白」，越描越黑。", { rep: -0.6, fac: { base: -8, press: -5 } }),
+          critfail: out("鉴定过程里泄露了一份内部邮件，被解读成「他们自己也不确定」。", { rep: -1, fac: { press: -12, base: -10 }, flags: ["scandal_3"] })
         }
       },
       {
         id: "human", text: "不争技术，只做一件事：带着摄像机去现场走一遍",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: out("你在画面里一句技术都不谈，只是把那天整条街、整个下午重走一遍。人们自己得出了结论。", { rep: 1.25, fac: { base: 12, press: 8 } }),
-          ok: out("画面比报告更有说服力。疑虑消了大半。", { rep: 0.7, fac: { base: 8 } }),
-          meh: out("有人被打动，有人觉得你在演戏。两拨人都更坚定了。", { rep: 0.2, fac: { base: 2, press: -2 } }),
+          crit: out("你在画面里一句技术都不谈，只是把那天整条街、整个下午重走一遍。人们自己得出了结论，见过你本人的选民开始四处替你辟谣。", { rep: 1.1, voters: { warm: 500, diehard: 100 }, fac: { base: 6 } }),
+          ok: out("画面比报告更有说服力。你走过的每一条街，疑虑都消了大半。", { rep: 0.6, voters: { warm: 250 }, fac: { base: 5 } }),
+          meh: out("有人被打动，有人觉得你在演戏。两拨人都更坚定了。", { rep: 0.2, voters: { warm: 40 }, fac: { press: -2 } }),
           fail: out("走现场的画面被剪成了「他在卖惨」，反而扩大了传播。", { rep: -0.4, fac: { base: -8, press: -6 } }),
           critfail: out("现场那天恰好有人拍了另一段角度不同的素材，被拼在了一起。", { rep: -1, fac: { press: -13, base: -12 }, flags: ["scandal_4"] })
         }

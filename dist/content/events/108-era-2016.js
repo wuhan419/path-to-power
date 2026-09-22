@@ -240,9 +240,9 @@ POTUS.define("event", [
         cost: { fun: 1.75 },
         outcomes: {
           crit: { body: "你只用了匿名那半套，效果打了点折，却干净得查不出毛病。多年后同行一个个爆雷，你还在，被人称作「居然留了手」。",
-            effects: { funMul: 0.9, rep: 1, fac: { tech: 5, base: 4 }, flags: ["data_clean"] } },
+            effects: { funMul: 0.9, rep: 1, voters: { warm: 400 }, fac: { tech: 5, base: 4 }, flags: ["data_clean"] } },
           ok: { body: "你买了能力，守住了底线。动员升了一点，把柄一个没留。",
-            effects: { funMul: 0.4, rep: 0.4, fac: { tech: 4 } } },
+            effects: { funMul: 0.4, rep: 0.4, voters: { warm: 150 }, fac: { tech: 4 } } },
           meh: { body: "不给名单，公司的模型就不那么灵了。钱花了一半，效果只有一点。",
             effects: { funMul: -0.1, rep: 0.2 } },
           fail: { body: "「只要服务不要数据」两头不讨好：公司嫌你小气给半吊子方案，对手还照旧骂你「也用黑箱」。",
@@ -325,9 +325,9 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你抢在最前面喊「停」，群里瞬间把你当自己人。短期人气爆表，只是你已经上了这辆不知道开向哪的车。",
-            effects: { rep: 1.5, fac: { base: 8, establishment: -8 } } },
+            effects: { rep: 1.5, voters: { warm: 500 }, fac: { base: 8, establishment: -8 } } },
           ok: { body: "你跟着喊了几句，自己这边的情绪被你稳住了。法理与体面，你悄悄往回收了一点。",
-            effects: { rep: 0.8, fac: { base: 5, establishment: -4 } } },
+            effects: { rep: 0.8, voters: { warm: 200 }, fac: { base: 5, establishment: -4 } } },
           meh: { body: "你想借火，火却没全朝你这边照。喊也喊了，没落下多少好处。",
             effects: { rep: 0.4, fac: { establishment: -3 } } },
           fail: { body: "你带头质疑计票，最后清点结果却毫无问题。「他自己都说不清在闹什么」写进了第二天的报道。",

@@ -1434,19 +1434,19 @@ console.log("\n== 事件配图（照片层 / 程序化 SVG 降级） ==");
   const noPhoto = { title: "测试事件", category: noPhotoKey };
   const hWith = P.artSVG(withPhoto);
   const hNone = P.artSVG(noPhoto);
-  check(/class="art art-photo"/.test(hWith), "有照片的类型没渲染成照片卡");
+  check(/class="art art-press"/.test(hWith), "有照片的类型没渲染成照片卡");
   check(/<img /.test(hWith) && hWith.indexOf(PH.dir + PH.files[withPhoto.category]) >= 0,
     "照片卡的 <img src> 没指向登记的文件");
   check(/class="art-back"/.test(hWith) && /<svg /.test(hWith),
     "照片卡没有预置 SVG 垫片（图片加载失败时会露出破图）");
-  check(/art-photo-broken/.test(hWith), "照片卡没挂 onerror 降级钩子");
-  check(!/art-photo/.test(hNone) && /<svg /.test(hNone),
+  check(/art-press-broken/.test(hWith), "照片卡没挂 onerror 降级钩子");
+  check(!/art-press/.test(hNone) && /<svg /.test(hNone),
     "没登记照片的类型（" + noPhotoKey + "）应退回程序化 SVG，实际：" + hNone.slice(0, 40));
 
   /* ④ 单个事件可以自带图 / 关掉照片 */
   check(/custom-shot\.jpg/.test(P.artSVG({ title: "x", category: fileKeys[0], photo: "custom-shot.jpg" })),
     "ev.photo 自定义文件名没生效");
-  check(!/art-photo/.test(P.artSVG({ title: "x", category: fileKeys[0], photo: false })),
+  check(!/art-press/.test(P.artSVG({ title: "x", category: fileKeys[0], photo: false })),
     "ev.photo=false 没关掉照片层");
 
   /* ⑤ 照片层不能改变「画什么类型」之外的任何东西：同一事件两次渲染结果一致 */

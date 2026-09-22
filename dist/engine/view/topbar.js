@@ -46,6 +46,15 @@
     if (id) id.innerHTML = P.identityHTML();
   };
 
+  /* 头像路径：难度×层级 → assets/heroes/hero-<难度>-<层级>.jpg。
+     缺失难度信息（旧存档）退回 normal；文件缺失由 onerror 在界面层隐藏，绝不影响布局。 */
+  P.heroPortrait = function () {
+    const G = P.G; if (!G) return "";
+    const d = G.difficulty || "normal";
+    const t = G.tier || 0;
+    return "assets/heroes/hero-" + d + "-" + t + ".jpg";
+  };
+
   /* 核心身份徽标（顶栏右侧）：姓名 · 职位 · T层级 · 年龄 ·（在位）
      ——玩家最该盯的“等级”信息，包在 #ident 里按 tier 上色（见 CSS .tb-ident.tier-N）。 */
   P.identityHTML = function () {
@@ -73,7 +82,10 @@
         '<span class="idp-next">→ ' + prog.nextName + '</span>' +
         '</span>';
     }
+    const port = P.heroPortrait ? P.heroPortrait() : "";
     return '<span class="idcard tier-' + G.tier + '">' +
+      (port ? '<span class="portrait"><img src="' + port + '" alt="' + escAttr(G.name) + '"' +
+        ' onerror="this.closest(\'.portrait\').style.visibility=\'hidden\'"></span>' : "") +
       '<span class="id-tier">等级' + (G.tier + 1) + '</span>' +
       '<span class="id-main">' +
         '<span class="id-office">' + P.officeName() + '</span>' +

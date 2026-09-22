@@ -288,8 +288,8 @@ POTUS.define("event", [
         base: 0.3, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         req: { lev: 1 }, cost: { lev: 1 },
         outcomes: {
-          crit: { body: "你的料比他们的狠。第二天两家媒体同时收到两份故事，编辑部决定「一并处理」——最终谁也没敢单发。停火。", effects: { rep: 0.2, fac: { press: 3 }, notFlags: ["affair_stain"] } },
-          ok: { body: "对手的故事也上了版面，火力被分走一半。战场从你的独角戏变成了对轰。", effects: { rep: -0.4, fac: { press: 2 } } },
+          crit: { body: "你的料比他们的狠。第二天两家媒体同时收到两份故事，编辑部决定「一并处理」——最终谁也没敢单发。停火。", effects: { rep: 0.2, attr: { CUN: 4 }, fac: { press: 3 }, notFlags: ["affair_stain"] } },
+          ok: { body: "对手的故事也上了版面，火力被分走一半。战场从你的独角戏变成了对轰。", effects: { rep: -0.4, attr: { CUN: 2 }, fac: { press: 2 } } },
           meh: { body: "你的料递晚了——他们的稿已经签发。你的反击成了「回应」，对方的成了「报道」。", effects: { rep: -0.8, flags: ["scandal_2"] } },
           fail: { body: "递料的行为被查到了。原故事没死，还长出了新故事：「他试图用黑料灭火」。", effects: { rep: -1.75, fac: { press: -10 }, flags: ["scandal_3", "leaker_suspect"] } },
           critfail: { body: "你的「料」经不起核查——半个真的半个假的。你用一份假料回应了一个真故事，等于当众自认。", effects: { rep: -2.75, fac: { press: -12, base: -8 }, flags: ["scandal_4", "investigation_open"], fall: 1 } }

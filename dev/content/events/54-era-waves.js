@@ -82,8 +82,8 @@ POTUS.define("event", [
         note: "把征兵令当演讲素材。左翼学生和牧师会记住你，征兵委员会和退伍军人协会也会。",
         base: 0.45, mods: [{ src: "attr", key: "CHA", w: 0.5 }, { src: "fac", key: "base", w: 0.2 }],
         outcomes: {
-          crit: { body: "你的发言被地区报纸整版刊登。一夜之间，全县的反战青年都有了名字喊。", effects: { rep: 1.25, fac: { base: 15, press: 8, military: -15 }, flags: ["wave_antiwar"] } },
-          ok: { body: "你成了本地反战圈子的联络人。名单在你手里越滚越长。", effects: { rep: 0.8, fac: { base: 10, military: -10 }, flags: ["wave_antiwar"] } },
+          crit: { body: "你的发言被地区报纸整版刊登。一夜之间，全县的反战青年都有了名字喊。", effects: { rep: 1.25, voters: { warm: 600 }, fac: { base: 15, press: 8, military: -15 }, flags: ["wave_antiwar"] } },
+          ok: { body: "你成了本地反战圈子的联络人。名单在你手里越滚越长。", effects: { rep: 0.8, voters: { warm: 250 }, fac: { base: 10, military: -10 }, flags: ["wave_antiwar"] } },
           meh: { body: "游行上电视了，镜头扫过你的脸只有一秒半。 FBI 的档案里那一秒可能更长。", effects: { rep: 0.4, fac: { base: 6, military: -8, agency: -5 }, flags: ["wave_antiwar"] } },
           fail: { body: "游行被冲散，你被拘留了一夜。父亲来保你的时候没有说话。", effects: { rep: 0.1, fac: { base: 4, military: -12, agency: -8 }, flags: ["wave_antiwar", "scandal_1"] } },
           critfail: { body: "你被拍了照：站在烧征兵卡的人群最前面。那张照片后来被用了二十年。", effects: { rep: -0.4, fac: { base: 5, military: -18, agency: -10, church: -8 }, flags: ["wave_antiwar", "scandal_2"] } }

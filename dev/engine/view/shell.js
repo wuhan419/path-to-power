@@ -30,7 +30,19 @@
      “权力之路”）——姓名·职位·T层级·年龄·在位，像别的游戏的“等级栏”，按层级配色。
      徒章包在 #ident 里，随月份/事件刷新（见 topbar.js 的 identityHTML / refreshPanel）。 */
   P.topbarHTML = function () {
-    return '<header class="topbar">' +
+    let kicker = "";
+    const G = P.G;
+    if (G && G.year) {
+      const b = P.balance() || {};
+      const startAge = b.startAge == null ? 25 : b.startAge;
+      const yrs = (G.age || startAge) - startAge + 1;
+      const eraName = ((P.reg.era || {})[G.era] || {}).name || G.era;
+      kicker = '<div class="kicker-band">' +
+        '<span>权力之路 · <b>' + eraName + '</b> · 第 ' + yrs + ' 个年头</span>' +
+        '<span class="kb-r">' + G.year + ' 年 ' + (G.month || 1) + ' 月 · ' + (G.name || "") + '</span>' +
+        '</div>';
+    }
+    return kicker + '<header class="topbar">' +
       '<div class="tb-ops">' + P.opsButtons() + '</div>' +
       '<div class="tb-ident" id="ident">' + P.identityHTML() + '</div>' +
       '</header>';

@@ -3,18 +3,26 @@
     --ink:#1a1a1a; --paper:#f4efe3; --paper2:#e9e1cf; --line:#3a342a;
     --accent:#7a1f1f; --muted:#6b6354; --good:#2f6b3a; --bad:#9c2b2b;
     --era1:#3a4a63; --era2:#7a1f1f; --era3:#caa53a;
+    --rule:#463d2e; --faint:#9a8f78; --warm:#8a6d1a;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+    --serif:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{
-    background:var(--paper); color:var(--ink);
+    /* v0.9 · 真实纸纹：在米色纸底上叠一层极淡的 fractalNoise 颗粒（fixed 附着，整页如一卷纸） */
+    background-color:var(--paper);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+    background-attachment:fixed;
+    color:var(--ink);
     font-family:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
     line-height:1.7; font-size:16px;
   }
   #app{max-width:1600px;margin:0 auto;padding:18px 22px 60px}
   /* masthead */
-  .masthead{border-bottom:2px double var(--line);padding-bottom:5px;margin-bottom:10px;
-    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
+  .masthead{border-bottom:2px double var(--line);padding:10px 18px;margin:0 0 14px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;
+    background:linear-gradient(180deg,#efe6d0,#e8dcc0)}
   /* v0.5.6：报头只留时代名，字号调小（原 26px 太抢眼，且右侧信息已并入顶部状态条） */
   .masthead .title{font-size:18px;font-weight:700;letter-spacing:1px}
   .masthead .meta{font-size:13px;color:var(--muted);text-align:right}
@@ -133,7 +141,8 @@
   .id-prog.atmax b{color:var(--tier);letter-spacing:1px;font-weight:800;font-size:14px}
   .grid{display:grid;grid-template-columns:minmax(0,58fr) minmax(330px,42fr);gap:16px;align-items:start}
   .col-event{min-width:0}
-  .col-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .col-right{display:flex;flex-direction:column;gap:12px;min-width:0;
+    border-left:1px solid var(--rule);padding-left:16px}   /* 档案页的红色竖栏线 */
   /* 整屏固定高度、栏内自滚：只对游戏对局屏（body.game）生效；标题/建角/结局照常整页滚 */
   body.game{overflow:hidden}
   body.game #app{height:100vh;display:flex;flex-direction:column;padding:10px 18px 12px}
@@ -158,6 +167,7 @@
     body.game .col-event,body.game .col-right{height:auto;overflow:visible}
     body.game .statusbox{max-height:none;overflow:visible}
     .grid{grid-template-columns:1fr}
+    .col-right{border-left:0;padding-left:0}   /* 单栏时竖栏线失去意义 */
   }
   /* 状态区（右栏顶）：合并原 topstat + 左栏 panel。.sb.tier-N 驱动级别配色 */
   .statusbox{background:none;border:0;padding:0}
@@ -246,12 +256,23 @@
   .dicebar .db-tag{font-size:11px;letter-spacing:3px;opacity:.85}
   .dicebar b{font-size:22px;font-family:"SF Mono",Menlo,Consolas,monospace;letter-spacing:2px;
     min-width:64px;text-align:center;background:rgba(255,255,255,.14);padding:2px 10px}
-  .result{font-size:18px;border-left:4px solid var(--line);padding:6px 12px;margin:10px 0;background:#fbf7ec}
+  .result{font-size:15px;border-left:4px solid var(--line);padding:8px 12px;margin:10px 0;background:#fbf7ec}
+  /* 判定档位做成小徽章（按档位配色），叙事正文另起一段 */
+  .result .rtag{display:inline-block;font-size:12px;letter-spacing:2px;font-weight:800;
+    padding:2px 10px;border-radius:3px;margin-bottom:6px;background:var(--muted);color:#fff}
+  .result.crit .rtag{background:var(--era3);color:#231c07}
+  .result.ok .rtag{background:var(--good)}
+  .result.meh .rtag{background:var(--warm)}
+  .result.fail .rtag{background:var(--bad)}
+  .result.critfail .rtag{background:#14142b}
+  .result .rbody{font-size:15px;line-height:1.9;color:#2a251c}
   .result.crit{border-color:var(--era3);color:#7a5a00}
   .result.ok{border-color:var(--good)}
   .result.meh{border-color:var(--muted)}
   .result.fail{border-color:var(--bad)}
   .result.critfail{border-color:#000;background:#2a2a2a;color:#fff}
+  /* 大失败卡是深底：正文 .rbody 的默认近黑字(#2a251c)会糊进背景，这里改浅色保证可读 */
+  .result.critfail .rbody{color:#f4efe3}
   .fade{animation:fade .4s ease}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .log{font-size:12.5px;color:var(--muted);max-height:240px;overflow:auto;border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
@@ -260,22 +281,31 @@
   .center{text-align:center}
   .muted{color:var(--muted)}
   .art{width:100%;height:120px;border:1px solid var(--line);margin:8px 0;background:#fff}
+  /* v0.9 · 标题主视觉加一点「印相」滤镜，与报刊调子统一（不动内联边框/圆角） */
+  .hero-wrap img{filter:saturate(.92) contrast(1.04) sepia(.04)}
   /* 事件配图的「照片层」（表在 content/09-photo-art.js；缺图时自动翻出 .art-back 里的 SVG） */
-  .art-photo{position:relative;display:block;isolation:isolate;padding:0;height:auto;
-    aspect-ratio:16/9;max-height:260px;overflow:hidden;background:#1a1a1a}
-  .art-photo img{display:block;width:100%;height:100%;object-fit:cover;
-    filter:saturate(.94) contrast(1.03)}
-  /* 压一层时代主色的淡色罩，让照片与报纸版式同一个调子 */
-  .art-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:var(--era1);opacity:.10;mix-blend-mode:multiply}
-  .art-photo .art-tag{position:absolute;left:0;bottom:0;z-index:2;background:var(--ink);
-    color:#f4efe3;font-size:11px;letter-spacing:2px;padding:2px 9px;opacity:.86}
+  .art-press{position:relative;display:block;isolation:isolate;padding:0;height:auto;
+    overflow:hidden;background:#1a1a1a;border:1px solid var(--line)}
+  .art-press img{display:block;width:100%;height:206px;object-fit:cover;
+    filter:grayscale(1) sepia(.3) contrast(1.06) brightness(1.02)}
+  /* 压一层时代主色的淡罩 + 半调网点，让照片与报纸版式同一个调子 */
+  .art-press::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:var(--era1);opacity:.08;mix-blend-mode:multiply}
+  .art-press::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background-image:radial-gradient(rgba(0,0,0,.22) 1px,transparent 1.4px);
+    background-size:4px 4px;mix-blend-mode:multiply;opacity:.4}
+  /* 头版角标：左下「头版·类型」，右上「卷宗/事件号」 */
+  .art-press .art-ptag{position:absolute;left:0;bottom:0;z-index:3;background:var(--ink);
+    color:#f4efe3;font-size:11px;letter-spacing:2px;padding:2px 9px}
+  .art-press .art-pnum{position:absolute;right:0;top:0;z-index:3;background:var(--paper);
+    color:var(--ink);font-family:var(--mono);font-size:10.5px;letter-spacing:1px;padding:2px 8px;
+    border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
   /* 兜底垫片：默认不显示，照片加载失败时才翻出来 */
-  .art-photo .art-back{display:none;position:absolute;inset:0;z-index:1}
-  .art-photo .art-back svg{width:100%;height:100%}
-  .art-photo-broken img{display:none}
-  .art-photo-broken::after{display:none}
-  .art-photo-broken .art-back{display:block}
+  .art-press .art-back{display:none;position:absolute;inset:0;z-index:1}
+  .art-press .art-back svg{width:100%;height:100%}
+  .art-press-broken img{display:none}
+  .art-press-broken::after,.art-press-broken::before{display:none}
+  .art-press-broken .art-back{display:block}
   a.link{color:var(--accent)}
   /* ending */
   .ending{border:3px double var(--line);padding:18px;background:#fbf7ec}
@@ -296,6 +326,16 @@
   /* 资源代价标签（选项内） */
   .choice .costtag{display:inline-block;font-size:11.5px;color:#7a5a00;background:#f3e6c4;
     border:1px solid #d8c48a;padding:1px 7px;margin-top:4px}
+  /* 选项的「成功把握」：不报百分比，只用一句话给手感；六档由红到绿递进 */
+  .choice .odds{display:inline-block;margin-left:8px;font-size:11.5px;font-weight:700;
+    letter-spacing:1px;padding:1px 8px;border-radius:9px;border:1px solid;vertical-align:1px}
+  .odds-l0{color:#8a1f1f;background:#f8e6e4;border-color:#d8a09a}
+  .odds-l1{color:#9c4a1f;background:#fbeade;border-color:#e0b48f}
+  .odds-l2{color:#7a5a00;background:#f6ecd2;border-color:#d8c48a}
+  .odds-l3{color:#5a6b1f;background:#f0f2d9;border-color:#c0c98a}
+  .odds-l4{color:#2f6b3a;background:#e9f3e8;border-color:#9fc7a0}
+  .odds-l5{color:#1d5a24;background:#e0f0dd;border-color:#7fbf84}
+  .choice:disabled .odds{opacity:.5}
   /* 选项回报区间预览（掷骰前）：代价之下再给一行“这条路能捞到什么”的摆动幅度 */
 .choice .rewline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px}
 .choice .rewline .gtag{font-size:11px;letter-spacing:2px;color:var(--muted)}
@@ -517,6 +557,8 @@
   .gainbox{margin:8px 0;padding:7px 10px;border:1px dotted var(--line);background:#f7f3e8;
     display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .gainbox .gtag{font-size:11px;letter-spacing:2px;color:var(--muted);margin-right:4px;flex:none}
+  /* 结算数值等宽对齐，正负分色靠 .good/.bad（此前 class 拼错导致分色失效，已修） */
+  .gainbox .gchip2{font-variant-numeric:tabular-nums}
   .gchip2{display:inline-block;font-size:12.5px;padding:1px 9px;border-radius:9px;border:1px solid var(--line);
     background:#fff;font-weight:600}
   .gchip2.good{color:#2f6b3a;border-color:#8fae94;background:#eef5ee}
@@ -538,3 +580,57 @@
   details.check summary{cursor:pointer;font-size:13px;color:var(--muted);user-select:none}
   details.check summary:hover{color:var(--ink)}
   details.check[open] .check-line{margin-top:5px}
+
+  /* ==========================================================================
+     v0.9 · 报刊档案风（对齐 mockup-event-v3-archive.html）
+     顶栏 kicker 条 / 身份头像 / 事件卡 = 头版社论（大标题 + 斜体导语 + 头版图）
+     ======================================================================== */
+  /* 顶栏 kicker 条：时代 · 年份 · 第几个年头（仅对局中存在 G 时由 shell.js 注入） */
+  .kicker-band{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;
+    font-size:11.5px;letter-spacing:1px;color:#e9e1cf;
+    background:var(--ink);padding:5px 12px;margin:0 0 10px;border-bottom:2px solid var(--accent)}
+  .kicker-band b{color:#fff;font-weight:700}
+  .kicker-band .kb-r{font-family:var(--mono);font-size:11px;color:#cfc6ad}
+
+  /* 身份徽标里的头像（难度×层级 → assets/heroes/hero-<难度>-<层级>.jpg） */
+  .tb-ident .portrait{flex:0 0 auto;width:54px;height:58px;padding:3px;background:#fbf7ec;
+    border:1px solid var(--line);box-shadow:2px 2px 0 rgba(0,0,0,.16);position:relative;align-self:center}
+  .tb-ident .portrait img{display:block;width:100%;height:100%;object-fit:cover;
+    filter:grayscale(1) sepia(.22) contrast(1.05)}
+  .tb-ident .portrait::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(0,0,0,.2) 1px,transparent 1.4px);background-size:3px 3px;
+    mix-blend-mode:multiply;opacity:.45}
+
+  /* 事件卡 = 头版社论 */
+  .news.editorial{border:1px solid var(--line);background:#fbf7ec;padding:16px 18px 18px;margin:10px 0;
+    box-shadow:2px 2px 0 rgba(0,0,0,.08);position:relative}
+  .news.editorial .dossier-head{display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px 12px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+    padding-bottom:6px;margin-bottom:10px}
+  .news.editorial .dnum{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;
+    color:var(--accent);font-weight:700}
+  .news.editorial .dmeta{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .news.editorial h1.headline{margin:0 0 10px;font-family:var(--serif);
+    font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.5px;color:var(--ink);
+    padding-right:120px}   /* 右上角的「档案」橡皮章压不到标题 */
+  /* 红色橡皮章：倾斜盖在最上方，纸质档案感（与参考稿同参：-11° / rgba(158,42,42)） */
+  .news.editorial .stamp{position:absolute;right:8px;top:36px;transform:rotate(-11deg);
+    border:2.5px solid rgba(158,42,42,.62);color:rgba(158,42,42,.66);border-radius:4px;
+    padding:4px 10px;font-size:19px;font-weight:800;letter-spacing:4px;
+    font-family:var(--serif);opacity:.85;pointer-events:none;z-index:2;
+    box-shadow:inset 0 0 0 1px rgba(158,42,42,.35)}
+  .news.editorial .standfirst{margin:0 0 14px;font-size:15.5px;line-height:1.65;font-style:italic;
+    color:#4b4134;max-width:62ch;padding-bottom:12px;border-bottom:3px double var(--rule)}
+  .news.editorial .body{font-size:15.5px;line-height:1.95;white-space:pre-wrap;color:#2a251c}
+  /* 导语为空时不要让双层下边框悬空 */
+  .news.editorial .standfirst:empty{display:none}
+
+  /* 建角：难度卡带 25 岁头像 */
+  .create .opt-diff{display:flex;align-items:center;gap:12px}
+  .create .opt-port{flex:0 0 auto;width:54px;height:58px;object-fit:cover;padding:2px;
+    background:#fbf7ec;border:1px solid var(--line);box-shadow:2px 2px 0 rgba(0,0,0,.16)}
+  .create .opt-diff.sel{background:var(--era3);font-weight:700}
+  .create .opt-diff.sel .opt-body small{color:#5a4a1f}
+  .create .opt-body{flex:1 1 auto;min-width:0}
+  .create .opt-body b{font-size:15px;letter-spacing:.5px}
+  .create .opt-body small{display:block;color:var(--muted);font-weight:400;margin-top:2px}

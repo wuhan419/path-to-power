@@ -173,8 +173,10 @@
     let h = '<h3 style="margin:14px 0 4px">选择难度（＝你的出身与初始资源）</h3>';
     for (const id in DIFFS) {
       const d = DIFFS[id], sel = C.difficulty === id ? " sel" : "";
-      h += '<div class="opt' + sel + '" onclick="POTUS.pickDifficulty(\'' + id + '\')"><b>' +
-        d.label + "</b><small>" + d.note + "</small></div>";
+      h += '<div class="opt opt-diff' + sel + '" onclick="POTUS.pickDifficulty(\'' + id + '\')">' +
+        '<img class="opt-port" src="assets/heroes/hero-' + id + '-0.jpg" alt="' + d.label +
+        '" onerror="this.style.visibility=\'hidden\'">' +
+        '<div class="opt-body"><b>' + d.label + "</b><small>" + d.note + "</small></div></div>";
     }
     const oInfo = P.reg.origin[C.origin] || {};
     P.app().innerHTML =
@@ -216,7 +218,7 @@
     else if (wind < 0) { stateFx.establishment = wind * 4; stateFx.base = Math.abs(wind) * 3; }
     P.G = {
       version: P.VERSION, seed: P.rint(1, 9999999),
-      name: name, era: C.era, year: era.startYear, age: b.startAge,
+      name: name, difficulty: C.difficulty, era: C.era, year: era.startYear, age: b.startAge,
       origin: C.origin, talent: C.talent,
       entry: C.entry, track: (P.reg.entry[C.entry] || {}).track_suggest || Object.keys(P.reg.track)[0],
       party: C.party, stance: C.stance, state: C.state || "",

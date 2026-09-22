@@ -383,8 +383,8 @@ POTUS.define("event", [
         note: "每一分钱都干净。代价是黑暗里的每一天——程序正义的账单，是用电器的夜晚支付的。",
         base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "招标走完了程序，工期的拖延比你担心得少——第九天全城复电。审计席上你的账目是全市最干净的一份，干净本身在选举季值钱。", effects: { rep: 1.5, fac: { establishment: 8, agency: 6, press: 5, base: -3 }, voters: { warm: 300, oppose: 200 } } },
-          ok: { body: "程序走完了，第十一天复电。省下的钱是真的，多黑的两天也是真的——两笔账各记各的。", effects: { rep: 0.6, fac: { establishment: 6, agency: 4, base: -5 }, voters: { oppose: 400 } } },
+          crit: { body: "招标走完了程序，工期的拖延比你担心得少——第九天全城复电。审计席上你的账目是全市最干净的一份，干净本身在选举季值钱。", effects: { rep: 1.5, attr: { INTG: 2 }, fac: { establishment: 8, agency: 6, press: 5, base: -3 }, voters: { warm: 300, oppose: 200 } } },
+          ok: { body: "程序走完了，第十一天复电。省下的钱是真的，多黑的两天也是真的——两笔账各记各的。", effects: { rep: 0.6, attr: { INTG: 1 }, fac: { establishment: 6, agency: 4, base: -5 }, voters: { oppose: 400 } } },
           meh: { body: "招标的公示期吃掉了四天。市政厅门口的蜡烛从抗议变成了守夜——守夜的名单上没有你的朋友。", effects: { rep: -0.2, fac: { establishment: 4, base: -6 }, voters: { oppose: 600 } } },
           fail: { body: "第十一天的头版是两张对比图：黑着的居民楼，和按程序公示着的招标文件。程序没有错——错的看起来是你。", effects: { rep: -1.5, fac: { base: -10, press: -4, establishment: 2 }, voters: { oppose: 900 } } },
           critfail: { body: "停电的第二周，一家没有备用电源的护理院出了事。家属的律师在诉状里写：「他有权限走紧急程序，他选择了流程。」这句话你没法反驳。", effects: { rep: -2.75, fac: { base: -14, press: -10, establishment: -6 }, voters: { oppose: 1600 }, flags: ["scandal_2"], fall: 1 } }
@@ -495,8 +495,8 @@ POTUS.define("event", [
         req: { fun: 2.5 },
         stake: { fun: true, fav: true },
         outcomes: {
-          crit: { body: "恐慌折价三成，你吃进了沿街六个铺面和银行的一层债权。十八个月后价格翻倍——交易结构干净合法，只是每一层干净都洗不掉「那天」这个日期。", effects: { funMul: 1.2, lev: 1, fac: { commercial: 12, base: -8 }, flags: ["vulture", "rebuild_insider"] } },
-          ok: { body: "低买高卖这一课你上得很成功。选区记性好的那几个人开始用一种新的眼神看你——像看一种鸟。", effects: { funMul: 0.6, fac: { commercial: 8, base: -6 }, flags: ["vulture"] } },
+          crit: { body: "恐慌折价三成，你吃进了沿街六个铺面和银行的一层债权。十八个月后价格翻倍——交易结构干净合法，只是每一层干净都洗不掉「那天」这个日期。", effects: { funMul: 1.2, lev: 1, attr: { CUN: 2 }, fac: { commercial: 12, base: -8 }, flags: ["vulture", "rebuild_insider"] } },
+          ok: { body: "低买高卖这一课你上得很成功。选区记性好的那几个人开始用一种新的眼神看你——像看一种鸟。", effects: { funMul: 0.6, attr: { CUN: 1 }, fac: { commercial: 8, base: -6 }, flags: ["vulture"] } },
           meh: { body: "吃进来的资产不涨不跌，趴在账上。你占住了现金，占来了名声的折扣——两边都在等。", effects: { funMul: 0.1, rep: -0.3, fac: { commercial: 4, base: -5 }, flags: ["vulture"] } },
           fail: { body: "恐慌比你想的浅，价格比你想的硬。你高位接了一手，还被记者拍到了和银行经理吃饭的照片——饭是真的，理由没人信。", effects: { funMul: -0.5, rep: -0.7, fac: { commercial: -6, base: -8, press: -6 }, voters: { oppose: 700 }, flags: ["vulture", "scandal_1"] } },
           critfail: { body: "你压价最狠的那一单来自教区的养老基金——修女们被迫卖掉铺面支付照料开支。交易合法。教会公报写了三个星期，第四周，听证会的邀请到了。", effects: { funMul: -0.2, rep: -1.5, fac: { base: -14, church: -16, press: -12, commercial: -8 }, voters: { oppose: 1800 }, flags: ["vulture", "scandal_3", "investigation_open"] } }

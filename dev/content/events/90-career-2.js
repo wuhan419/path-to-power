@@ -395,8 +395,8 @@ POTUS.define("event", [
         base: 0.6,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
         outcomes: {
-          crit: { body: "你要了那个所有人都同情的部。当选人在电话里沉默了两秒：「有意思的选择。」——后来你才知道，就是这两秒让他决定信任你。", effects: { tier: 1, rep: 0.9, fac: { establishment: 8 }, attr: { INT: 1 }, flags: ["car2_cabinet_cold"] } },
-          ok: { body: "冷衙门的任命没人抗议，因为没人在乎。你搬进那间办公室，档案柜比人多。", effects: { tier: 1, rep: 0.4, fac: { establishment: 5 }, flags: ["car2_cabinet_cold"] } },
+          crit: { body: "你要了那个所有人都同情的部。当选人在电话里沉默了两秒：「有意思的选择。」——后来你才知道，就是这两秒让他决定信任你。", effects: { tier: 1, rep: 0.9, fac: { establishment: 8 }, attr: { INT: 3 }, flags: ["car2_cabinet_cold"] } },
+          ok: { body: "冷衙门的任命没人抗议，因为没人在乎。你搬进那间办公室，档案柜比人多。", effects: { tier: 1, rep: 0.4, fac: { establishment: 5 }, attr: { INT: 2 }, flags: ["car2_cabinet_cold"] } },
           meh: { body: "你上任了。报纸用了七个字介绍你的新职务，其中三个是标点。", effects: { rep: 0.2, flags: ["car2_cabinet_cold"] } },
           fail: { body: "你要冷衙门的消息走漏，被对手写成了「此人已无野心」。还没上任，你的政治讣告先写好了。", effects: { rep: -0.3, fac: { establishment: -4, base: -3 } } },
           critfail: { body: "冷衙门也不干净：你接手的第三个月，发现上一任埋着一笔消失的专项款。现在它是你的了——问题也是。", effects: { rep: -0.9, flags: ["investigation_open", "car2_cabinet_cold"] } }

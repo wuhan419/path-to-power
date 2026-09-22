@@ -41,7 +41,8 @@
       civil: "civil.jpg",         // 民权：街上的人群
       crisis: "crisis.jpg",       // 危机：从阴影里长出来的东西
       foreign: "foreign.jpg",     // 外交：握手与地图
-      shady: "shady.jpg"          // 灰产：不该被拍到的那一面
+      shady: "shady.jpg",         // 灰产：不该被拍到的那一面
+      govt:  "govt.jpg"           // 政务：日常公务、选民接待
     }
   });
 
@@ -76,10 +77,12 @@
       const cat = PP.category(ev.category);
       const tag = (cat && cat.name) || "";
       const back = svgBackup(ev);
-      return '<figure class="art art-photo">' +
+      const pnum = ev.id ? esc(ev.id) : esc(ev.category || "");
+      return '<figure class="art art-press">' +
         '<img src="' + dir + encodeURIComponent(file) + '" alt="' + esc(ev.title || "") + '"' +
-        ' onerror="this.closest(\'.art-photo\').classList.add(\'art-photo-broken\')">' +
-        (tag ? '<figcaption class="art-tag">' + esc(tag) + "</figcaption>" : "") +
+        ' onerror="this.closest(\'.art-press\').classList.add(\'art-press-broken\')">' +
+        (tag ? '<span class="art-ptag">头版 · ' + esc(tag) + "</span>" : "") +
+        '<span class="art-pnum">卷宗 ' + pnum + "</span>" +
         (back ? '<span class="art-back" aria-hidden="true">' + back + "</span>" : "") +
         "</figure>";
     } catch (e) {

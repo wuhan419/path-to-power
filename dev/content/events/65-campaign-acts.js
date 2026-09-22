@@ -148,8 +148,8 @@ POTUS.define("event", [
         id: "attack", text: "抓对手的记录猛攻", base: 0.45,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         outcomes: {
-          crit: { body: "你甩出一份对手不愿面对的材料，全场风向为之一变。", effects: { rep: 1.5, camp: { momentum: 12 } } },
-          ok: { body: "你打得对手连连招架。", effects: { camp: { momentum: 7 } } },
+          crit: { body: "你甩出一份对手不愿面对的材料，全场风向为之一变。", effects: { rep: 1.5, attr: { CUN: 2 }, camp: { momentum: 12 } } },
+          ok: { body: "你打得对手连连招架。", effects: { attr: { CUN: 1 }, camp: { momentum: 7 } } },
           meh: { body: "攻击没打疼对方，也只显得公事公办。", effects: { camp: { momentum: 2 } } },
           fail: { body: "选民觉得你只会抹黑，皱起了眉头。", effects: { rep: -1.5, camp: { momentum: -7 } } },
           critfail: { body: "你的攻击被当场证伪，信誉扫地。", effects: { rep: -2.5, fac: { base: -6 }, camp: { momentum: -13 } } }
@@ -680,8 +680,8 @@ POTUS.define("event", [
         id: "policy_paper", text: "用一份重磅政策白皮书开场", base: 0.5,
         mods: [{ src: "attr", key: "INT", w: 0.55 }],
         outcomes: {
-          crit: { body: "白皮书被媒体逐条引用，你立住了'serious'人设。", effects: { rep: 2, camp: { momentum: 11 } } },
-          ok: { body: "政策开局，专业形象加分。", effects: { camp: { momentum: 6 } } },
+          crit: { body: "白皮书被媒体逐条引用，你立住了'serious'人设。", effects: { rep: 2, attr: { INT: 2 }, camp: { momentum: 11 } } },
+          ok: { body: "政策开局，专业形象加分。", effects: { attr: { INT: 1 }, camp: { momentum: 6 } } },
           meh: { body: "写得专业，但传不开。", effects: { camp: { momentum: 2 } } },
           fail: { body: "白皮书没人读，声势没起来。", effects: { camp: { momentum: -5 } } },
           critfail: { body: "白皮书里的数据被驳了个底朝天。", effects: { rep: -2, camp: { momentum: -11 } } }
@@ -750,8 +750,8 @@ POTUS.define("event", [
         id: "go_for_kill", text: "抓住对手破绽穷追猛打", base: 0.45,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         outcomes: {
-          crit: { body: "你一句关键追问把对手问到语塞，全场倒戈。", effects: { rep: 1.5, camp: { momentum: 12 } } },
-          ok: { body: "你打得对手招架不住。", effects: { camp: { momentum: 7 } } },
+          crit: { body: "你一句关键追问把对手问到语塞，全场倒戈。", effects: { rep: 1.5, attr: { CUN: 2 }, camp: { momentum: 12 } } },
+          ok: { body: "你打得对手招架不住。", effects: { attr: { CUN: 1 }, camp: { momentum: 7 } } },
           meh: { body: "你够凶，但选民觉得你'过了'。", effects: { camp: { momentum: 1 } } },
           fail: { body: "你攻击过度，选民开始同情对手。", effects: { rep: -1.5, camp: { momentum: -7 } } },
           critfail: { body: "你的猛攻被当场反转，自己下不了台。", effects: { rep: -2.5, camp: { momentum: -13 } } }
@@ -1085,8 +1085,8 @@ POTUS.define("event", [
         id: "attack_opponent", text: "把对手钉在耻辱柱上", base: 0.45,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
         outcomes: {
-          crit: { body: "你一句致命追问令对手哑口，全场倒向你。", effects: { rep: 2, camp: { momentum: 13 } } },
-          ok: { body: "你掌控了辩论的攻击节奏。", effects: { camp: { momentum: 7 } } },
+          crit: { body: "你一句致命追问令对手哑口，全场倒向你。", effects: { rep: 2, attr: { CUN: 2 }, camp: { momentum: 13 } } },
+          ok: { body: "你掌控了辩论的攻击节奏。", effects: { attr: { CUN: 1 }, camp: { momentum: 7 } } },
           meh: { body: "你够狠，但选民怕你'过头'。", effects: { camp: { momentum: 1 } } },
           fail: { body: "你显得偏刻薄，选民同情对手。", effects: { rep: -1.5, camp: { momentum: -8 } } },
           critfail: { body: "你的攻击被反转，自己成了靶心。", effects: { rep: -3, camp: { momentum: -14 } } }

@@ -310,9 +310,9 @@ POTUS.define("event", [
         stake: { ap: true, fav: true },
         outcomes: {
           crit: out("他没敢多问，而且为了保险，还多给了你一份完全不同的记录。你走的时候他手在抖——你知道自己以后还能来。",
-            { lev: 1, rep: 0.4, fac: { base: -2, press: 3 }, contact: { doctor: 6 } }),
+            { lev: 1, rep: 0.4, attr: { CUN: 2 }, fac: { base: -2, press: 3 }, contact: { doctor: 6 } }),
           ok: out("他签了。你没说一句难听的话，但两个人都清楚刚才发生了什么。",
-            { rep: 0.4, fac: { base: -3 }, contact: { doctor: 2 } }),
+            { rep: 0.4, attr: { CUN: 1 }, fac: { base: -3 }, contact: { doctor: 2 } }),
           meh: out("他签了一半就开始拖延。你拿到了东西，但他记住了你的脸。",
             { contact: { doctor: -5 } }),
           fail: out("他很怕，但怕到了极点反而硬了起来：「你报警吧，我明天就关门。」你拿不到签名，还多了一个敌人。",

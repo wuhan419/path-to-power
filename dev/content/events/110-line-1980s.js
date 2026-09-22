@@ -64,8 +64,8 @@ POTUS.define("event", [
         base: 0.4, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "fac", key: "base", w: 0.25 }],
         stake: { fun: true },
         outcomes: {
-          crit: { body: "你抢先一步把情绪说成了街头共识，激进派把你当成敢讲的人。", effects: { rep: 1.25, fac: { base: 10, establishment: -8 } } },
-          ok: { body: "你骂出了部分人的气，也被另一部分人记住了脸。", effects: { rep: 0.4, fac: { base: 6, establishment: -6 } } },
+          crit: { body: "你抢先一步把情绪说成了街头共识，激进派把你当成敢讲的人，街头开始替你转发。", effects: { rep: 1.25, fac: { base: 10, establishment: -8 }, voters: { warm: 500 } } },
+          ok: { body: "你骂出了部分人的气，也被另一部分人记住了脸。", effects: { rep: 0.4, fac: { base: 6, establishment: -6 }, voters: { warm: 200 } } },
           meh: { body: "没人接你的茬，全国此刻只想让总统活下来。", effects: { rep: -0.2, fac: { establishment: -3 } } },
           fail: { body: "在举国祈福的空气里你唱反调，报纸标题把你写成「趁乱的人」。", effects: { rep: -1.5, fac: { establishment: -10, base: -4 } } },
           critfail: { body: "总统伤愈归来的那天，你那句话还在网上流传。所有人都想起你在枪声里说了什么。", effects: { rep: -2.5, fac: { establishment: -14, press: -8 }, flags: ["scandal_2"] } }
@@ -75,7 +75,7 @@ POTUS.define("event", [
         id: "silent", text: "不评论，只把镜头让给医生和家属",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的克制事后被称赞：那种时刻不抢镜，反倒显得可靠。", effects: { rep: 0.8, fac: { establishment: 4, church: 4 } } },
+          crit: { body: "你的克制事后被称赞：那种时刻不抢镜，反倒显得可靠。建制的与教堂的人都记住了你这份分寸。", effects: { rep: 0.8, fac: { establishment: 9, church: 9 } } },
           ok: { body: "你没说错话，也没留下什么。这本身就是一种成绩。", effects: { rep: 0.3 } },
           meh: { body: "记者追着你请你表态，你摇头走开。第二天没人记得这件事里有你。", effects: {} },
           fail: { body: "你的沉默被对手解读成「不敢站队」。", effects: { rep: -0.5, fac: { base: -3 } } },
@@ -133,8 +133,8 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "fac", key: "commercial", w: 0.3 }],
         cost: { fun: 0.5 },
         outcomes: {
-          crit: { body: "你悄悄谈回了一批临时岗位，工厂重开门那天，人们以为是市场自己回暖。", effects: { rep: 1, fac: { commercial: 8, base: 6, establishment: 4 } } },
-          ok: { body: "你争到了一点缓冲，不多，但没白忙。", effects: { rep: 0.5, fac: { commercial: 5 } } },
+          crit: { body: "你悄悄谈回了一批临时岗位，工厂重开门那天，人们以为是市场自己回暖。开发商也把后续项目的赞助记在你名下。", effects: { rep: 1, fun: 3, attr: { INT: 2 }, fac: { commercial: 8, base: 6, establishment: 4 } } },
+          ok: { body: "你争到了一点缓冲，不多，但没白忙。金主也愿意留着你这条能谈事的线。", effects: { rep: 0.5, fun: 1, fac: { commercial: 5 } } },
           meh: { body: "你两头跑，最后两头都不领情——事没成，钱也花了。", effects: { rep: 0.1, fun: -0.3 } },
           fail: { body: "谈判崩了，被裁的人后来才知道你收了开发商的饭局。「两边吃」的传闻悄悄传开。", effects: { rep: -1.25, fac: { base: -8, commercial: 4 }, flags: ["scandal_1"] } },
           critfail: { body: "你被拍到和厂方老板称兄道弟，而工人们在下岗名单上。你的名字上了本地头版最下方的小字。", effects: { rep: -2.25, fac: { base: -12, press: -8, commercial: -4 }, flags: ["scandal_2"] } }
@@ -335,8 +335,8 @@ POTUS.define("event", [
         note: "在举国哀恸里当那个谈「责任」的人——有人赞你清醒，有人骂你冷血。",
         base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "fac", key: "press", w: 0.25 }],
         outcomes: {
-          crit: { body: "你提前点出赶工的问题，媒体开始把你当「会盯 O 形环的那个人」。", effects: { rep: 1.25, fac: { press: 8, establishment: -6, base: 4 } } },
-          ok: { body: "你呼吁彻查，说得在理，只是时机显得有点急。", effects: { rep: 0.5, fac: { press: 5 } } },
+          crit: { body: "你提前点出赶工的问题，媒体开始把你当「会盯 O 形环的那个人」。", effects: { rep: 1.25, attr: { INT: 2 }, fac: { press: 8, establishment: -6, base: 4 } } },
+          ok: { body: "你呼吁彻查，说得在理，只是时机显得有点急。", effects: { rep: 0.5, attr: { INT: 1 }, fac: { press: 5 } } },
           meh: { body: "你提了调查，可全国此刻只想哭，不想追责。", effects: { rep: 0.1 } },
           fail: { body: "在丧礼的空气里谈问责，你被说成「拿遇难者出头」。", effects: { rep: -1.25, fac: { establishment: -6, base: -4 } } },
           critfail: { body: "你的追查戳到了本地航天承包商，他们反手捐给你的对手一大笔，还放话你「只会砸本地饭碗」。", effects: { rep: -2, fac: { commercial: -8, base: -6, establishment: -6 }, flags: ["scandal_1"] } }
@@ -346,8 +346,8 @@ POTUS.define("event", [
         id: "lowkey", text: "此刻少说话：只发一封简短慰问，把话筒让给家属",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的克制被称赞：那种举国悲恸时不抢镜，反倒留下稳重的印象。", effects: { rep: 0.7, fac: { establishment: 4, church: 4 } } },
-          ok: { body: "你低调慰问，没出任何错，也没留下什么。", effects: { rep: 0.3 } },
+          crit: { body: "你的克制被称赞：那种举国悲恸时不抢镜，反倒留下稳重的印象。", effects: { rep: 0.7, attr: { INTG: 2 }, fac: { establishment: 4, church: 4 } } },
+          ok: { body: "你低调慰问，没出任何错，也没留下什么。", effects: { rep: 0.3, attr: { INTG: 1 } } },
           meh: { body: "你躲过了镜头，也躲过了所有人的记忆。", effects: {} },
           fail: { body: "有人说连这种事你都不肯出头，是不是太惜身。", effects: { rep: -0.5, fac: { base: -3 } } },
           critfail: { body: "你本想避风头，却被拍到同一天你在剪彩一家商场。「别人家的孩子在看天上掉下来的人，你在剪彩」——配图杀伤力十足。", effects: { rep: -1.8, fac: { base: -8, press: -6 }, flags: ["scandal_1"] } }
@@ -403,8 +403,8 @@ POTUS.define("event", [
         id: "watch", text: "收下这个人情线索，但绝不亲自经手",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }],
         outcomes: {
-          crit: { body: "你留了个「知道内情却未沾手」的位置，日后无论谁倒下你都能全身而退。", effects: { rep: 0.6, lev: 1, fac: { establishment: 4 } } },
-          ok: { body: "你没沾手，却拿到了几分先机信息，够你审时度势。", effects: { rep: 0.3 } },
+          crit: { body: "你留了个「知道内情却未沾手」的位置，日后无论谁倒下你都能全身而退，也把这条暗线攥在了自己手里。", effects: { rep: 0.6, lev: 1, attr: { INT: 2 }, fac: { establishment: 4 } } },
+          ok: { body: "你没沾手，却拿到了几分先机信息，够你审时度势。", effects: { rep: 0.3, attr: { INT: 1 } } },
           meh: { body: "你什么都知道一点，却什么也决定不了。", effects: {} },
           fail: { body: "你既没帮忙也没拒绝得干净，两头都觉得你「神神秘秘」。", effects: { rep: -0.5, fac: { establishment: -3 } } },
           critfail: { body: "你本想留一手，结果被当成知情不报的一员。事后追责，你说不清自己究竟知不知道。", effects: { rep: -1.4, fac: { press: -6, agency: -6 }, flags: ["scandal_1"] } }
@@ -542,8 +542,8 @@ POTUS.define("event", [
         id: "flip", text: "反过来：公开把这桩丑闻痛批一番，与过去彻底切割",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你把自己从「链上的人」改写成「看穿它的人」，竟真骗过了不少选民。", effects: { rep: 1, fac: { base: 6, establishment: -4 } } },
-          ok: { body: "你和旧账划清了界限，至少面上没人再牵扯你。", effects: { rep: 0.4 } },
+          crit: { body: "你把自己从「链上的人」改写成「看穿它的人」，竟真骗过了不少选民，新面孔开始聚到你这边。", effects: { rep: 1, voters: { warm: 500 }, fac: { base: 6, establishment: -4 } } },
+          ok: { body: "你和旧账划清了界限，至少面上没人再牵扯你。", effects: { rep: 0.4, voters: { warm: 150 } } },
           meh: { body: "你的痛批说得没底气，谁都知道你也曾在那条线上。", effects: { rep: 0 } },
           fail: { body: "你反咬旧日同僚，被指「叛徒」，圈子两头都不再信你。", effects: { rep: -1.25, fac: { establishment: -8 } } },
           critfail: { body: "你切割太狠，把知情人的嘴一起得罪了。有人决定，要让你说清楚那年究竟做了什么。", effects: { rep: -2, fac: { establishment: -10, press: -6 }, flags: ["scandal_2", "investigation_open"] } }
@@ -598,8 +598,8 @@ POTUS.define("event", [
         note: "把民怨往最招人恨的一方引。讨巧，也彻底得罪金主。",
         base: 0.5, mods: [{ src: "fac", key: "base", w: 0.45 }],
         outcomes: {
-          crit: { body: "你替赔了钱的选民出了口恶气，基层把你当「替普通人说话的人」。", effects: { rep: 1.25, fac: { base: 12, labor: 6, commercial: -10 } } },
-          ok: { body: "你骂了华尔街，穷人解气，金主记仇。", effects: { rep: 0.5, fac: { base: 6, commercial: -6 } } },
+          crit: { body: "你替赔了钱的选民出了口恶气，基层把你当「替普通人说话的人」。", effects: { rep: 1.25, voters: { warm: 600 }, fac: { base: 12, labor: 6, commercial: -10 } } },
+          ok: { body: "你骂了华尔街，穷人解气，金主记仇。", effects: { rep: 0.5, voters: { warm: 200 }, fac: { base: 6, commercial: -6 } } },
           meh: { body: "你跟着骂了两句，谁都没太往心里去。", effects: { rep: 0.1 } },
           fail: { body: "本地券商和银行正是你的金主，你这一骂把票仓也骂毛了。", effects: { rep: -1, fun: -0.8, fac: { commercial: -10 } } },
           critfail: { body: "你高调反华尔街，可金主们撤资后你的机器当场停摆，基层也看穿你「骂人是做戏」。", effects: { rep: -2, fun: -1.5, fac: { commercial: -12, base: -6 }, flags: ["scandal_1"] } }
@@ -663,8 +663,8 @@ POTUS.define("event", [
         id: "vision", text: "把镜头拉远：谈一个「没有铁幕的欧洲」该往哪走",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.45 }],
         outcomes: {
-          crit: { body: "你的远景分析被更高层的人注意到，「这人看得到十年后」的说法开始流传。", effects: { rep: 1.5, tier: 1, fac: { establishment: 8, press: 5 } } },
-          ok: { body: "你讲了格局，显得有分量，虽然暂时没人接你的话头。", effects: { rep: 0.8, fac: { establishment: 4 } } },
+          crit: { body: "你的远景分析被更高层的人注意到，「这人看得到十年后」的说法开始流传。", effects: { rep: 1.5, attr: { INT: 3 }, tier: 1, fac: { establishment: 8, press: 5 } } },
+          ok: { body: "你讲了格局，显得有分量，虽然暂时没人接你的话头。", effects: { rep: 0.8, attr: { INT: 1 }, fac: { establishment: 4 } } },
           meh: { body: "你讲了大道理，可全国只想庆祝，不想听规划。", effects: { rep: 0.4 } },
           fail: { body: "在举国欢呼时你冷静谈「往后」，显得不合时宜，被人嫌你扫兴。", effects: { rep: 0.1, fac: { press: -2 } } },
           critfail: { body: "你的一套宏大规划被截成「他怀疑这一切会不会成真」的引语，两边都不爱听。", effects: { rep: 0, fac: { base: -2, establishment: -2 } } }
@@ -674,8 +674,8 @@ POTUS.define("event", [
         id: "simply", text: "只做一个普通人：举着香槟站到人群里，什么也不说",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
         outcomes: {
-          crit: { body: "你真实的喜悦被镜头捕捉，人们说「这才像一个正常人面对历史」。", effects: { rep: 1.25, fac: { base: 8 } } },
-          ok: { body: "你融入欢庆，什么都没做错，什么也记住了。", effects: { rep: 0.6 } },
+          crit: { body: "你真实的喜悦被镜头捕捉，人们说「这才像一个正常人面对历史」，人群里有人开始高叫你的名字。", effects: { rep: 1.25, voters: { warm: 600 }, fac: { base: 8 } } },
+          ok: { body: "你融入欢庆，什么都没做错，什么也记住了。", effects: { rep: 0.6, voters: { warm: 200 } } },
           meh: { body: "你跟着欢呼了一晚上，第二天太阳照常升起。", effects: { rep: 0.3 } },
           fail: { body: "你在人群里显得有点格格不入，有人小声说「他来干什么」。", effects: { rep: 0.1 } },
           critfail: { body: "你想低调蹭个镜头，却被拍到一脸茫然，本地晚报配文「他与他的选民不同频」。", effects: { rep: 0, fac: { base: -2 } } }
@@ -730,8 +730,8 @@ POTUS.define("event", [
         note: "守住反战与谨慎的基层，但可能被扣「纵容侵略」的帽子。",
         base: 0.5, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "你「先别急着开战」的声音在战后被重新评价为清醒，稳重的标签贴住了。", effects: { rep: 1.25, fac: { base: 10, church: 6, military: -6 }, flags: ["old_school"] } },
-          ok: { body: "你呼吁先外交，反战者欣慰，鹰派不悦。", effects: { rep: 0.5, fac: { base: 6, military: -5 } } },
+          crit: { body: "你「先别急着开战」的声音在战后被重新评价为清醒，稳重的标签贴住了。", effects: { rep: 1.25, voters: { warm: 600 }, fac: { base: 10, church: 6, military: -6 }, flags: ["old_school"] } },
+          ok: { body: "你呼吁先外交，反战者欣慰，鹰派不悦。", effects: { rep: 0.5, voters: { warm: 200 }, fac: { base: 6, military: -5 } } },
           meh: { body: "你说了谨慎的话，很快被开战头条淹没。", effects: { rep: 0.1 } },
           fail: { body: "开战后你被指「在侵略面前讲风度」，显得不合时宜。", effects: { rep: -1, fac: { military: -8, establishment: -4 } } },
           critfail: { body: "「萨达姆拿下油田会掐住我们命脉」的论调占了上风，你的谨慎被说成天真甚至通敌。", effects: { rep: -2, fac: { military: -10, establishment: -6, press: -6 }, flags: ["scandal_1"] } }

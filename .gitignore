@@ -7,3 +7,8 @@ dev/tools/out/
 
 # 依赖（本项目零依赖，正常不会出现；防御性忽略）
 node_modules/
+
+# 美术出图临时产物（.miora 预览工程 + 同名 _assets 散图 + staging），不入库
+/potus-*.miora
+/potus-assets/
+/potus-*_assets/

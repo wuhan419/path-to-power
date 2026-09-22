@@ -163,9 +163,9 @@ POTUS.define("event", [
         cost: { fun: 4 }, stake: { fun: true },
         outcomes: {
           crit: s2Out("中间人收钱、交带、当面消磁，流程熟练得像做过一百次。你从此对每一间书房里的每一件电器保持礼貌的警觉。",
-            { fac: { commercial: 3 }, flags: ["sca2_tape_bought"] }),
+            { attr: { CUN: 2 }, fac: { commercial: 3 }, flags: ["sca2_tape_bought"] }),
           ok: s2Out("母带到手了。你把它锁进保险箱，然后开始等 —— 等第二封信，或者等它永远不来。",
-            { flags: ["sca2_tape_bought", "compromised"] }),
+            { attr: { CUN: 1 }, flags: ["sca2_tape_bought", "compromised"] }),
           meh: s2Out("钱付了，带子拿到手 —— 是翻录的。母带在谁那里，对方没说。",
             { hp: -1, flags: ["compromised"] }),
           fail: s2Out("付钱这件事被记下来了。现在你有两个秘密：那段话，和为了盖住那段话的这笔转账。",
@@ -234,9 +234,9 @@ POTUS.define("event", [
         cost: { fun: 1.75, ap: 1, fav: 1 },
         outcomes: {
           crit: s2Out("天亮前，这次拦截变成了一次「口头警告」。地方版的记者睡了个好觉。老雷只说了一句：「下不为例 —— 我是说你的电话，不是他。」",
-            { contact: { fixer: 10 }, flags: ["sca2_family_hidden"] }),
+            { attr: { CUN: 2 }, contact: { fixer: 10 }, flags: ["sca2_family_hidden"] }),
           ok: s2Out("按住了。报上没有名字，只有一个「郊区拦停」的简讯。你弟弟欠你的，从今天起换了一种记法。",
-            { contact: { fixer: 6 }, flags: ["sca2_family_hidden", "compromised"] }),
+            { attr: { CUN: 1 }, contact: { fixer: 6 }, flags: ["sca2_family_hidden", "compromised"] }),
           meh: s2Out("名字按住了，程序没按住：他被吊销驾照九十天，而你多了一个知道你全部底细的中间人。",
             { hp: -0.8, contact: { fixer: 4 }, flags: ["sca2_family_hidden"] }),
           fail: s2Out("有人把「候选人弟弟被特殊处理」的风声递给了报社。新闻的主角从酒驾变成了特权。",

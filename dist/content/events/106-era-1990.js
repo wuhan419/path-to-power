@@ -62,9 +62,9 @@ POTUS.define("event", [
         base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "INTG", w: 0.25 }],
         outcomes: {
           crit: { body: "你一句「胜利之后呢」在速胜后被反复引用，成了「有远见的少数人」。当时被骂，事后被夸。",
-            effects: { rep: 0.8, fac: { press: 6, establishment: 4, base: 4 } } },
+            effects: { rep: 0.8, attr: { INT: 2 }, fac: { press: 6, establishment: 4, base: 4 } } },
           ok: { body: "你提了战后问题，措辞谨慎没被扣帽子，反而显出分量。",
-            effects: { rep: 0.3, fac: { establishment: 4 } } },
+            effects: { rep: 0.3, attr: { INT: 1 }, fac: { establishment: 4 } } },
           meh: { body: "你的担忧被爱国声浪盖了过去。你说得对，但没人当时愿意听。",
             effects: { rep: 0.1, fac: { military: -3 } } },
           fail: { body: "在人人挺战的时候你问「为什么打」，被剪辑成「他更像站在萨达姆一边」。",
@@ -337,9 +337,9 @@ POTUS.define("event", [
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
         outcomes: {
           crit: { body: "你一句话把焦点从你身上转到他的金主身上，主播难得语塞。「谁付他钱」的话题第一次反过来缠上了他。",
-            effects: { rep: 2, fac: { base: 5, press: -2 } } },
+            effects: { rep: 2, attr: { CUN: 2 }, fac: { base: 5, press: -2 } } },
           ok: { body: "你反将一军，让攻防至少短暂地倒了过来。没大获全胜，但扳回一局。",
-            effects: { rep: 0.8, fac: { base: 3 } } },
+            effects: { rep: 0.8, attr: { CUN: 1 }, fac: { base: 3 } } },
           meh: { body: "你反问了一句，可这是他的地盘，他一笑就把话头绕了过去。",
             effects: { rep: -0.4 } },
           fail: { body: "你反咬他的金主，却没拿出证据，倒显得你气急败坏。他乐得把你钉成「输不起」。",

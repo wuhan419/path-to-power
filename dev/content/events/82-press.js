@@ -273,9 +273,9 @@ POTUS.define("event", [
         cost: { fun: 7 }, stake: { fun: true, fav: true },
         outcomes: {
           crit: pOut("你买了整整一季的广告位。总编自己动手把那篇稿子改成了八百字的地方版短讯，登在周六。周六没人看报纸。",
-            { rep: 0.6, fac: { press: 8, commercial: 6 }, flags: ["bought"] }),
+            { rep: 0.6, attr: { CUN: 2 }, fac: { press: 8, commercial: 6 }, flags: ["bought"] }),
           ok: pOut("稿子登了，但变得很薄：三个段落，没有一句引语。钱能买到的不是沉默，是篇幅。",
-            { rep: 0.4, fac: { press: 4 }, flags: ["bought"] }),
+            { rep: 0.4, attr: { CUN: 1 }, fac: { press: 4 }, flags: ["bought"] }),
           meh: pOut("你买了广告，也登了稿子。总编两边都收了，两边都没欠你。",
             { rep: -0.2, fac: { press: -2 } }),
           fail: pOut("广告部收了钱，编辑部照登不误，而且顺手在稿子里写了一句「本报曾就该议员接受广告投放一事作过内部报备」。",
@@ -377,9 +377,9 @@ POTUS.define("event", [
         cost: { fun: 2 },
         outcomes: {
           crit: pOut("你没有买它，你只是成了它最大的广告主，以及主编每周二下午的那杯咖啡。这个国家里真正有效的媒体控制，从来不在产权证上。",
-            { rep: 0.7, fac: { press: 12, commercial: 6 } }),
+            { rep: 0.7, attr: { CUN: 2 }, fac: { press: 12, commercial: 6 } }),
           ok: pOut("从那以后，那家报纸写你的稿子会先打个电话。他们不是不敢写，只是写得更准了。",
-            { rep: 0.3, fac: { press: 7 } }),
+            { rep: 0.3, attr: { CUN: 1 }, fac: { press: 7 } }),
           meh: pOut("钱花出去了，效果一般。主编接了你的电话，但他同时也接别人的。",
             { rep: -0.1, fac: { press: 1 } }),
           fail: pOut("主编把钱退了回来，还写了一篇短评，题目叫「本刊不接受任何形式的版面赞助」。",

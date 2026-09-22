@@ -115,8 +115,8 @@ POTUS.define("event", [
         cost: { fun: 3.5 },
         base: 0.5, mods: [{ src: "fac", key: "press", w: 0.3 }],
         outcomes: {
-          crit: { body: "最后一支广告击中了：对手的回应广告仓促而难看。选举夜，你的州以一个点之差亮了你的颜色。", effects: { rep: 1.75, fac: { press: 10, base: 6 } } },
-          ok: { body: "广告守住了基本盘。结果：赢了，赢得像广告里说的那样「稳步」。", effects: { rep: 1, fac: { press: 6 } } },
+          crit: { body: "最后一支广告击中了：对手的回应广告仓促而难看。选举夜，你的州以一个点之差亮了你的颜色。", effects: { rep: 1.75, voters: { warm: 400 }, fac: { press: 10, base: 6 } } },
+          ok: { body: "广告守住了基本盘。结果：赢了，赢得像广告里说的那样「稳步」。", effects: { rep: 1, voters: { warm: 150 }, fac: { press: 6 } } },
           meh: { body: "广告打了水漂的一半。另一半没人记得。赢是赢了，账难看。", effects: { rep: 0.6, fac: { press: 3 } } },
           fail: { body: "对手最后一周的反广告更狠。你输了两个点，输掉的预算更多。", effects: { rep: 0.2, fac: { press: 2 } } },
           critfail: { body: "广告里一个数据被查证有误，选举前两天上了新闻——新闻的版面比广告大。", effects: { rep: -0.9, fac: { press: -8, base: -4 }, flags: ["scandal_2"] } }
@@ -208,8 +208,8 @@ POTUS.define("event", [
         note: "向全国路线看齐。在这个州等于弃权——但你成为全国党在东北的「存在证明」，资源与保护随之而来。",
         base: 0.45, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "你输了选举，赢了全国名单：委员会的演讲席位、有线新闻的常驻位次、和「原则至上」的名声。", effects: { rep: 1.25, fac: { establishment: 8, church: 5, base: -6 } } },
-          ok: { body: "输了，但输得让全国党部满意。下一轮的初选资源已经在路上。", effects: { fac: { establishment: 6, base: -4 } } },
+          crit: { body: "你输了选举，赢了全国名单：委员会的演讲席位、有线新闻的常驻位次、和「原则至上」的名声。", effects: { rep: 1.25, attr: { INTG: 2 }, fac: { establishment: 8, church: 5, base: -6 } } },
+          ok: { body: "输了，但输得让全国党部满意。下一轮的初选资源已经在路上。", effects: { attr: { INTG: 1 }, fac: { establishment: 6, base: -4 } } },
           meh: { body: "你守住了立场，交了学费。这个州的选民礼貌地拒绝了你的党徽。", effects: { fac: { establishment: 3, base: -3 } } },
           fail: { body: "惨败。全国的「存在证明」没人在乎——证明存在的前提是存在。", effects: { rep: -0.6, fac: { base: -6 } } },
           critfail: { body: "你为全国路线站台的一段视频在本州疯传——不是支持者转的。你成了对面筹款邮件的固定反派。", effects: { rep: -1.5, fac: { base: -10, press: -5 }, flags: ["scandal_1"] } }

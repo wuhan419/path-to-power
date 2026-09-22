@@ -358,9 +358,9 @@ POTUS.define("event", [
         cost: { ap: 2, fun: 0.2 }, req: { fac: "agency", min: 10 },
         outcomes: {
           crit: eOut("你在预算听证会上把八个街区的等候时间做成了一张表，念了三分钟。一个月后这条街多了一个夜间巡逻车组，而且是常驻的。",
-            { rep: 1.5, fac: { agency: 16, establishment: 8, base: 8, civil: 6 } }),
+            { rep: 1.5, attr: { INT: 2 }, fac: { agency: 16, establishment: 8, base: 8, civil: 6 } }),
           ok: eOut("警局答应每周多加两班车。不多，但街上的人看得见警灯。",
-            { rep: 0.8, fac: { agency: 10, base: 5 } }),
+            { rep: 0.8, attr: { INT: 1 }, fac: { agency: 10, base: 5 } }),
           meh: eOut("他们非常客气地听完了，然后说今年的编制已经定了。",
             { rep: 0, hp: -0.8, fac: { agency: 3, base: -2 } }),
           fail: eOut("你在听证会上说得太直接，让一位副局长当场难堪。车没加，那条街的等候时间变成了四十一分钟。",

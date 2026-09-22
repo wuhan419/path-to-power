@@ -226,6 +226,9 @@ POTUS.define("event", [
             "body": "你成了吹哨人，但某个大人物记下了你的名字。",
             "effects": {
               "rep": 0.9,
+              "attr": {
+                "INTG": 2
+              },
               "fac": {
                 "press": 15,
                 "establishment": -15
@@ -239,6 +242,9 @@ POTUS.define("event", [
             "body": "报道出炉，你被描述为‘内部知情者’。",
             "effects": {
               "rep": 0.4,
+              "attr": {
+                "INTG": 1
+              },
               "fac": {
                 "press": 8,
                 "establishment": -8
