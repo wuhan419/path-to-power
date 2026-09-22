@@ -60,8 +60,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "show", text: "到场剪彩，顺便帮志愿者把募款的门挨家敲开",
-        base: 0.66, mods: [{ src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 1 },
+        base: 0.54, mods: [{ src: "attr", key: "CHA", w: 0.3 }],
         outcomes: {
           crit: { body: "你挽起袖子帮着跑了一下午，照片上了本地报，街坊都说「这人实在」。", effects: { rep: 0.35, fac: { base: 5 }, voters: { warm: 450, diehard: 80 } } },
           ok: { body: "你剪了彩、说了几句，帮着敲了两家的门。", effects: { rep: 0.2, voters: { warm: 280 } } },
@@ -72,7 +71,7 @@ POTUS.define("event", [
       },
       {
         id: "send", text: "实在脱不开身，送一副署名花篮去",
-        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.25 }],
+        base: 0.68, mods: [{ src: "attr", key: "INT", w: 0.25 }],
         outcomes: {
           crit: { body: "花篮上的话写得恰到好处，人们记住了你的周到。", effects: { rep: 0.2, voters: { warm: 200 } } },
           ok: { body: "花篮到位，你缺席得还算体面。", effects: { rep: 0.1, voters: { warm: 90 } } },
@@ -93,8 +92,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "walk", text: "真跟着走一条街，听巡警讲巷子里的事",
-        base: 0.64, mods: [{ src: "attr", key: "INT", w: 0.3 }],
-        cost: { ap: 1 },
+        base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "你听了一肚子一线的委屈，回头替警局要来了加人预算，工会记你这份实诚。", effects: { rep: 0.35, fac: { base: 4, military: 2 }, voters: { warm: 420, diehard: 70 } } },
           ok: { body: "你走了一晚，握了不少手，照片上了本地报社会版。", effects: { rep: 0.2, voters: { warm: 260 } } },
@@ -105,7 +103,7 @@ POTUS.define("event", [
       },
       {
         id: "decline", text: "婉谢：把这份体面让给更想露脸的同僚",
-        base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.25 }],
+        base: 0.67, mods: [{ src: "attr", key: "CUN", w: 0.25 }],
         outcomes: {
           crit: { body: "你低调让贤，同领了人情，警界还觉得你「不争」。", effects: { rep: 0.15, fac: { establishment: 2 }, voters: { warm: 120 } } },
           ok: { body: "你客气推了，工会没往心里去。", effects: { rep: 0.05 } },
@@ -126,7 +124,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "mediate", text: "泡两杯咖啡，把两边拉一块儿各退一步",
-        base: 0.62, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
+        base: 0.56, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
         outcomes: {
           crit: { body: "你三言两语把篱笆的事说开，两家握手，邻里都说「还是得找他说理」。", effects: { rep: 0.3, fac: { base: 4 }, voters: { warm: 360, oppose: -150 } } },
           ok: { body: "两边各让了半步，事算平了。", effects: { rep: 0.22, voters: { warm: 200 } } },
@@ -137,7 +135,7 @@ POTUS.define("event", [
       },
       {
         id: "rule", text: "翻出地契条文，按规矩给个了断",
-        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
+        base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.35 }],
         outcomes: {
           crit: { body: "你查清界址、依法裁定，输的一方也服气「他讲的是理」。", effects: { rep: 0.25, fac: { establishment: 2 }, voters: { warm: 220 } } },
           ok: { body: "你按规矩断了，虽是硬办法，胜在公道。", effects: { rep: 0.2, voters: { warm: 100 } } },

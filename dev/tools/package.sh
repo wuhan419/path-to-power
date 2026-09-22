@@ -87,6 +87,13 @@ build_dist() {
     --exclude 'node_modules/' \
     "$DEV_ROOT/" "$DIST/"
 
+  # 设计文档 docs/ 一并纳入 dist（GitHub Pages 只发布 dist/，文档要随包走）
+  if [ -d "$PROJ_ROOT/docs" ]; then
+    mkdir -p "$DIST/docs"
+    rsync -a --delete --exclude '.DS_Store' "$PROJ_ROOT/docs/" "$DIST/docs/"
+    echo "  ✓ 已打包 docs/ → dist/docs/（$(find "$DIST/docs" -type f | wc -l | tr -d ' ') 个文件）"
+  fi
+
   # 玩家视角的简版 README
   cat > "$DIST/README.txt" <<'EOF'
 权力之路 · 一个美国小伙的从政之路

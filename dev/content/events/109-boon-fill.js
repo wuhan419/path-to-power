@@ -273,30 +273,41 @@ POTUS.define("event", [
     choices: [
       {
         id: "ride_wave",
-        text: "上车：牵头本地的新运动",
-        note: "浪潮不等人,站到浪尖或留在岸上,没有中间。",
-        base: 0.66,
+        text: "上车：牵头本地的新运动", note: "站到浪尖或摔下浪头——赌的是选民和草根班底，押上的是身家。",
+        base: 0.42,
         mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "CUN", w: 0.2 }],
         outcomes: {
-          crit: { body: "你把一场地方动员办得风生水起,组织的资源、人脉、全国网络一夜之间对你开放。", effects: { rep: 1.2, fac: { base: 12 }, attr: { CHA: 2 }, fun: 0.3 } },
-          ok: { body: "你成了本地新运动的名字,捐款和志愿者源源而来。", effects: { rep: 0.7, fac: { base: 8 }, fun: 0.2 } },
-          meh: { body: "上了车,但还在后座,前排是别人的。", effects: { fac: { base: 4 } } },
-          fail: { body: "热潮里你慢了半拍,风头被更激进的人抢了。", effects: { fac: { base: 3 } } },
-          critfail: { body: "运动翻车,你被顺带贴了标签——不过年轻,重来的本钱还有。", effects: { attr: { CUN: 2 } } }
+          crit: { body: "你把一场地方动员办成全国样板,年轻的脸被写进这波浪潮的史书——捐款、志愿者、地方党部一夜之间全归你调度。", effects: { rep: 1.4, fac: { base: 14 }, voters: { warm: 600, diehard: 120 }, fun: 0.4, attr: { CHA: 2 } } },
+          ok: { body: "你成了本地新运动的名字,捐款和志愿者源源而来。", effects: { rep: 0.8, fac: { base: 9 }, voters: { warm: 300 } } },
+          meh: { body: "上了车,但还在后座,前排是别人的。", effects: { fac: { base: 4 }, voters: { warm: 60 } } },
+          fail: { body: "热潮里你慢了半拍,风头被更激进的人抢走,建制派趁机说你「煽动」。", effects: { rep: -0.5, fac: { establishment: -3 }, voters: { oppose: 200 } } },
+          critfail: { body: "运动翻车,你被贴上手递贴子的标签——不过年轻,重来的本钱还有。", effects: { rep: -1.2, fac: { base: -4, establishment: -4 }, voters: { oppose: 500 }, attr: { CUN: -2 } } }
         }
       },
       {
         id: "keep_own_brand",
-        text: "合作但不入伙：借势,不押身家",
-        note: "风口上站稳自己的桩,比随风乱跑更耐用。",
-        base: 0.72,
+        text: "合作但不入伙：借势,不押身家", note: "风口上站稳自己的桩——回报不大,但几乎不会输。",
+        base: 0.80,
         mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
-          crit: { body: "你借到了活动的资源,却没被任何一方的胜负绑住。风过后,你还站在原地,名字干干净净。", effects: { rep: 0.8, fac: { base: 8 }, attr: { CUN: 2 } } },
-          ok: { body: "合作愉快,进退自如。", effects: { rep: 0.5, fac: { base: 6 } } },
-          meh: { body: "你既没大赚也没受损。", effects: { fac: { base: 3 } } },
-          fail: { body: "两头都不太信你「骑墙」,好处少了点。", effects: { fac: { establishment: 2 } } },
-          critfail: { body: "太谨慎让你错过了一班车,可也躲过了后来的翻车。", effects: { attr: { CUN: 1 } } }
+          crit: { body: "你借到了活动的资源,却没被任何一方的胜负绑住。风过后,你还站在原地,名字干干净净。", effects: { rep: 0.9, fac: { establishment: 3 }, attr: { CUN: 2 } } },
+          ok: { body: "合作愉快,进退自如。", effects: { rep: 0.5, fac: { base: 5 } } },
+          meh: { body: "你既没大赚也没受损。", effects: { fac: { base: 2 } } },
+          fail: { body: "两头都不太信你「骑墙」,好处少了点。", effects: { fac: { establishment: -1 } } },
+          critfail: { body: "太谨慎让你错过了一班车,可也躲过了后来的翻车。", effects: { attr: { CUN: 1 }, rep: -0.2 } }
+        }
+      },
+      {
+        id: "cash_out",
+        text: "顺水推舟：把这场风变成自己的本钱", note: "风口最肥的是变现。钱到手了,「自己人」的光环也就淡了。",
+        base: 0.58,
+        mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "attr", key: "CHA", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你把自己摆在赞助人和组织者中间,抽成了厚厚一层。商界的门从此为你而开——只是草根开始嘀咕你「不是自己人」。", effects: { fun: 1.6, fac: { commercial: 8, base: -2 }, rep: 0.3 } },
+          ok: { body: "一场风下来,账面好看了不少。", effects: { fun: 0.9, fac: { commercial: 5 } } },
+          meh: { body: "小捞一笔,不算丢人。", effects: { fun: 0.3 } },
+          fail: { body: "风停了,只剩你手里一堆没人承情的关系。", effects: { fun: 0.1, fac: { base: -3, establishment: -2 }, voters: { oppose: 120 } } },
+          critfail: { body: "吃相被人拍了下来,「趁火打劫」四个字跟着你——现金到手,名声和良心一起掉了。", effects: { fun: 0.2, rep: -1.0, fac: { base: -6, establishment: -3 }, attr: { INTG: -2 } } }
         }
       }
     ]
