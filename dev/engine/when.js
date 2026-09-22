@@ -38,6 +38,23 @@
     return null;
   }
 
+  /* ---------- 层级档位映射：旧 6 档(0..5) → 新 10 级(0..9) ----------
+   * 玩法大改造把晋升线从 6 档拉长到 10 级，但 30+ 内容文件里上百处 tierMin/tierMax/
+   * minTier/maxTier/quietWorks 档位……全都按旧的 0..5 语义书写。与其逐处手工重排（易错、
+   * 且以后新增内容还得记两套刻度），不如在**唯一收口**（本求值器读档位门槛处）做一次
+   * 单调映射：条件里的旧档位值被抬到新空间再与真实 G.tier(0..9) 比较。
+   *   · 只映射 0..5（旧空间）；6..9 与通配 99 原样返回 → 新内容可直接按 10 级书写。
+   *   · 单调递增，故 tierMin<=tierMax 的自洽校验、事件档位区间顺序全部保持不变。
+   * 想要不同的铺档密度，改 balance.tierBand（长度 6 的数组，索引=旧档，值=新级）即可。 */
+  const LEGACY_TIER_BAND = [0, 2, 4, 5, 7, 9];
+  POTUS.tierBand = function (n) {
+    const map = (P.balance && P.balance().tierBand) || LEGACY_TIER_BAND;
+    n = Number(n);
+    if (!isFinite(n)) return n;
+    if (n >= 0 && n < map.length) return map[n];
+    return n;                       // 已在(或超出)新空间：原样透传
+  };
+
   /* ---------- 玩家此刻的样子（条件的求值对象） ----------
    * 只在需要时构造。事件抽取会在一次抽取里构造一次、往下传（见 events.js 的 drawEvent），
    * 所以 300 局模拟里这张快照只被造十几万次，而不是几千万次。 */
@@ -58,6 +75,7 @@
       scandal: P.scandalLevel ? P.scandalLevel() : 0,
       tenure: P.monthsAtTier ? P.monthsAtTier() : 0,
       flags: G.flags || [],
+      counters: G.counters || {},
       reason: G.endingReason
     };
   };
@@ -90,6 +108,7 @@
     "states", "notStates",
     "tiers", "months", "notMonths",
     "flags", "notFlags", "contacts", "after", "cond", "reason",
+    "countMin", "countMax", "countEq",
     "minTier", "tierMin", "maxTier", "tierMax",
     "minYear", "maxYear", "minAge", "ageMin", "maxAge", "ageMax",
     "minRep", "repMin", "maxRep", "minHp", "maxHp", "minFun", "funMin", "maxFun",
@@ -125,7 +144,7 @@
     if (!inList(pick(cond, ["entries", "entryIn"]), s.entry)) return false;
     if (!inList(cond.talents, s.talent)) return false;
     if (!inList(cond.states, s.state)) return false;
-    if (!inList(cond.tiers, s.tier)) return false;
+    if (!inList((cond.tiers && arr(cond.tiers).map(POTUS.tierBand)) || null, s.tier)) return false;
     if (!inList(cond.months, s.month)) return false;
 
     /* ---------- 身份与处境：黑名单 ---------- */
@@ -141,12 +160,15 @@
 
     /* ---------- 数值门槛 ---------- */
     let i, v;
+    const rawTier = !!cond.tierRaw;
     for (i = 0; i < LOW.length; i++) {
       v = pick(cond, [LOW[i][0], LOW[i][1]]);
+      if (v != null && LOW[i][2] === "tier" && !rawTier) v = POTUS.tierBand(v);   // 旧档门槛抬进新空间
       if (v != null && s[LOW[i][2]] < v) return false;
     }
     for (i = 0; i < HIGH.length; i++) {
       v = pick(cond, [HIGH[i][0], HIGH[i][1]]);
+      if (v != null && HIGH[i][2] === "tier" && !rawTier) v = POTUS.tierBand(v);
       if (v != null && s[HIGH[i][2]] > v) return false;
     }
 
@@ -155,6 +177,13 @@
     if (fl && !fl.every(function (f) { return s.flags.indexOf(f) >= 0; })) return false;
     const nf = arr(cond.notFlags);
     if (nf && nf.some(function (f) { return s.flags.indexOf(f) >= 0; })) return false;
+
+    /* ---------- 隐藏计数器 buff（程度记忆）----------
+     * 与 flags 的布尔记忆互补：countMin/countMax/countEq 接 {键: 阈值} 对象，
+     * 逐键比较 counters[key]。任一不满足即不成立（缺省计数当 0）。 */
+    if (cond.countMin) { for (const k in cond.countMin) { if ((s.counters[k] || 0) < cond.countMin[k]) return false; } }
+    if (cond.countMax) { for (const k in cond.countMax) { if ((s.counters[k] || 0) > cond.countMax[k]) return false; } }
+    if (cond.countEq) { for (const k in cond.countEq) { if ((s.counters[k] || 0) !== cond.countEq[k]) return false; } }
 
     /* ---------- 人脉：名单里的人必须都认识 ---------- */
     const ct = arr(cond.contacts);

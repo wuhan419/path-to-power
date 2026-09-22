@@ -24,6 +24,8 @@
 <script src="engine/time.js"></script>
 <!-- 主线：这个人这一辈子主要在过哪一条命（单线制，可换线；只加权不硬塞） -->
 <script src="engine/arc.js"></script>
+<!-- 竞选：每一次民选晋升的一连串事件（单场制，一幕幕强制推进到投票日）——见 content/61-campaigns.js -->
+<script src="engine/campaign.js"></script>
 <!-- 静好岁月：没有事件的月份，主角的日子与"按部就班"的成长 -->
 <script src="engine/vignette.js"></script>
 <script src="engine/progression.js"></script>
@@ -56,17 +58,22 @@
 <script src="content/09-photo-art.js"></script>
 <!-- 建角：出身 / 天赋 / 起点路径 -->
 <script src="content/10-characters.js"></script>
-<!-- 主线：一个人这一辈子在过哪条命。只编排已有事件（事件 id 是**延迟解析**的，
-     所以这个文件排在事件库前面没问题；id 写错由 tools/validate.js 抓） -->
-<script src="content/11-arcs.js"></script>
+<!-- 主线：已停用（玩法大改造——多支路主线砍掉）。保留文件便于回退，
+     从加载清单移除后 P.reg.arc 为空，引擎不再推进任何主线。 -->
+<!-- <script src="content/11-arcs.js"></script> -->
 <!-- 出生州：当地选民的政治倾向（顺风/逆风/摇摆，影响起点派系与事件倾斜） -->
 <script src="content/12-states.js"></script>
 <!-- 年终随笔：把这一年写成三段人话（做了什么/得失/处境）的素材库 -->
 <script src="content/13-year-tales.js"></script>
 <!-- 职位名表：状态面板"职位卡"的 轨道×层级 → 真实职位名 -->
 <script src="content/14-offices.js"></script>
-<!-- 时代锚点 + 黑天鹅 -->
+<!-- 竞选链定义：每一次民选晋升的一连串事件（引擎 engine/campaign.js 读 reg.campaign）。
+     各幕事件本体见 content/events/65-campaign-acts.js；末幕复用 60-progression.js 的 prog_*。 -->
+<script src="content/61-campaigns.js"></script>
+<!-- 时代锚点 + 黑天鹅（迁移期兼容层，未铺年代照旧走 era） -->
 <script src="content/20-eras.js"></script>
+<!-- 连续时间轴（去"时代"化）：按绝对年铺开的 worldline（pressure/brief/outlets）+ 全局定点事件表 fixed -->
+<script src="content/21-worldline.js"></script>
 <!-- 填充模板（事件池耗尽时兜底，保证永不枯竭） -->
 <script src="content/30-fillers.js"></script>
 <!-- 结局规则（声明式） -->
@@ -83,6 +90,8 @@
 <!-- 媒介时间轴事件：同一件事，广播时代/电视时代/短视频时代各长出不同版本 -->
 <script src="content/events/55-media-timeline.js"></script>
 <script src="content/events/60-progression.js"></script>
+<!-- 竞选各幕事件：61-campaigns.js 竞选链里投票日之前的那一幕一幕（引擎锁定、非随机抽） -->
+<script src="content/events/65-campaign-acts.js"></script>
 <!-- 路线抉择：参选 vs 幕僚、NGO vs 体制、州参议院 vs 联邦众议员、竞选团队 vs 州长。
      选项用 setTrack 改轨道，用 cross_* 标记给后续倾斜 -->
 <script src="content/events/62-crossroads.js"></script>
@@ -120,6 +129,10 @@
 <script src="content/events/108-era-2016.js"></script>
 <!-- 新人机遇补给：为 9 个 boon 池为空的时代各补一张 tierMin:0 时代风味机遇卡 -->
 <script src="content/events/109-boon-fill.js"></script>
+<!-- 连续时间轴 · 1980—1990 定点大事件与事件串（去时代化，钉进全局 fixed；低层级落点 + 下行面） -->
+<script src="content/events/110-line-1980s.js"></script>
+<!-- 日常公务 / 选民服务池（chore 通道）：不进随机卡池，仅经 P.choresSlot 兜底注入；tierRaw 分四层级簇 -->
+<script src="content/events/111-chores.js"></script>
 <!-- 例：新增 2016 时代
      <script src="content/events/53-era-2016.js"></script>
      并在 content/20-eras.js 里补上该时代的 era 定义 -->

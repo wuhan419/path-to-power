@@ -23,6 +23,8 @@
    * 让事件池很薄时宁可重复演一个真实事件，也不要整月都出填充器。 */
   P.eligible = function (ev, ignoreRecent, snap) {
     const G = P.G;
+    /* 日常公务事件（chore）不进随机卡池，只经 time.js 的 choresSlot 注入通道出现 */
+    if (ev.chore) return false;
     if (!P.when(ev, snap)) return false;
     /* 时代适配：年份窗口 + 媒介（这条事件要靠的"说话方式"此刻存不存在） */
     if (!P.yearOK(ev)) return false;
@@ -31,6 +33,10 @@
     if (ev.grades && ev.grades.indexOf(P.gradeOf(ev)) < 0) return false;
     if (P.isUnique(ev) && G.doneIds.indexOf(ev.id) >= 0) return false;   // 一局一次
     if (!ignoreRecent && P.recentIds.indexOf(ev.id) >= 0) return false;
+    /* 竞选幕事件锁定：属于某个竞选流程的事件（宣战/初选/辩论/投票日…），
+       只有当它正是当前幕时才允许出现 —— 否则不能从普通卡池里被随机抽走。
+       （当前幕由 campaign.js 经 planMonth 以 eventId 定点档期强制推出，不经这里。） */
+    if (P.campaignLockedOut && P.campaignLockedOut(ev)) return false;
     return true;
   };
 
@@ -141,11 +147,18 @@
   /* 只要倾斜的数值（抽取热路径用，不分配对象） */
   function tiltOf(ev, snap, counts) {
     const b = P.balance();
+    /* 主线 arc 已停用（玩法大改造：多支路主线砍掉），arc 因子恒为 1。 */
     const t = clampF(P.biasMul(b.identityBias, ev, snap)) *
       clampF(P.biasMul(b.resourceBias, ev, snap)) *
-      clampF(P.arcBoost ? P.arcBoost(ev, snap) : 1) *
       clampF(repeatFactor(ev, counts));
     return clampTilt(t);
+  }
+
+  /* "分期专属"判定：窄 era 标签，或显式 scoped:true（去时代化后按年份窗口的时代事件用这个标记）。
+     这类事件只在本分期能被抽到，给一份权重倍数，免得被常青通用事件淹没（沿用 eraWeightMul）。 */
+  function periodScoped(e, eraCount) {
+    const eraNarrow = e.era && e.era.length && e.era.length < eraCount;
+    return eraNarrow || !!e.scoped;
   }
 
   /* 完整的权重拆解 —— 抽取用它，诊断矩阵与界面"为什么这件事找上你"也用它 */
@@ -153,14 +166,13 @@
     const b = P.balance(), o = opts || {};
     snap = snap || P.snap();
     const eraCount = Object.keys(P.reg.era).length;
-    const allEras = !ev.era || !ev.era.length || ev.era.length >= eraCount;
     const d = {
       base: fnum(ev.weight, 10),
-      era: allEras ? 1 : fnum(b.eraWeightMul, 3),
+      era: periodScoped(ev, eraCount) ? fnum(b.eraWeightMul, 3) : 1,
       chain: ev.after ? fnum(b.chainWeightMul, 9) : 1,
       identity: clampF(P.biasMul(b.identityBias, ev, snap)),
       resource: clampF(P.biasMul(b.resourceBias, ev, snap)),
-      arc: clampF(P.arcBoost ? P.arcBoost(ev, snap) : 1),
+      arc: 1,   /* 主线 arc 已停用：诊断里保留键位但恒为 1 */
       repeat: clampF(repeatFactor(ev, o.counts))
     };
     d.tilt = clampTilt(d.identity * d.resource * d.arc * d.repeat);
@@ -174,8 +186,7 @@
     const b = P.balance();
     let w = fnum(e.weight, 10);
     const eraCount = Object.keys(P.reg.era).length;
-    const allEras = !e.era || !e.era.length || e.era.length >= eraCount;
-    if (!allEras) w *= fnum(b.eraWeightMul, 3);
+    if (periodScoped(e, eraCount)) w *= fnum(b.eraWeightMul, 3);
     if (e.after) w *= fnum(b.chainWeightMul, 9);
     return w * tiltOf(e, snap, counts);
   }
@@ -317,8 +328,10 @@
   /* 新闻标题（离线模板；内容可覆盖 outlets / newsTpl） */
   P.makeNews = function (headline) {
     const era = P.reg.era[P.G.era] || {};
-    const outlets = P.reg.newsOutlets[P.G.era] || era.outlets || ["本报"];
-    const tpl = era.newsTpl || "【{outlet}】{year}年{month}月｜{name}：{headline}";
+    const wl = P.reg.worldline || {};
+    const wOut = wl.outlets && (wl.outlets[P.G.year] || wl.outlets["*"]);
+    const outlets = wOut || P.reg.newsOutlets[P.G.era] || era.outlets || ["本报"];
+    const tpl = wl.newsTpl || era.newsTpl || "【{outlet}】{year}年{month}月｜{name}：{headline}";
     return tpl.replace("{outlet}", P.pick(outlets)).replace("{year}", P.G.year)
       .replace("{month}", P.G.month || 1)
       .replace("{name}", P.G.name).replace("{headline}", headline);

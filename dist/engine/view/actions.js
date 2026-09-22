@@ -1,6 +1,6 @@
 /* ============================================================================
  * POTUS ENGINE · view/actions.js
- * 资源投注面板（D&D 式加码）：投入资金/精力抬高胜算、花人情换重投取优。
+ * 资源投注面板（D&D 式加码）：投入资金抬高胜算、花人情换重投取优。
  * 面板落在右栏 #actbody 顶部，与「操作在右栏」的三栏设计一致。
  * ==========================================================================*/
 "use strict";
@@ -16,7 +16,7 @@
   };
 
   P.openStake = function (ev, ch) {
-    _stake = { ev: ev, ch: ch, st: { fun: 0, fav: 0, ap: 0 } };
+    _stake = { ev: ev, ch: ch, st: { fun: 0, fav: 0 } };
     const c = P.$("#choices"); if (c) c.style.display = "none";
     P.renderStake();
   };
@@ -91,19 +91,6 @@
         '<button class="btn" id="stFunPlus"' + (atMax ? " disabled" : "") + '>＋</button>' +
         '<span class="stake-note">' + note + "</span></div>");
     }
-    if (spec.ap) {
-      const mx = P.stakeMax("ap", ch), atMax = st.ap >= mx;
-      const note = mx === 0
-        ? "精力已经见底，投不动了"
-        : (atMax
-          ? "精力已经加到顶了"
-          : "每点精力都能再添一把（还可投 " + (mx - st.ap) + " 点，精力 " + P.G.ap + "）");
-      rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>精力</b>' +
-        '<button class="btn" id="stApMinus"' + (st.ap <= 0 ? " disabled" : "") + '>−</button>' +
-        '<span class="stake-val">' + st.ap + "</span>" +
-        '<button class="btn" id="stApPlus"' + (atMax ? " disabled" : "") + '>＋</button>' +
-        '<span class="stake-note">' + note + "</span></div>");
-    }
     if (spec.fav) {
       const canFav = P.stakeMax("fav", ch) >= 1;
       rows.push('<div class="stake-row' + (canFav ? "" : " off") + '"><b>人情</b><label class="stake-check"><input type="checkbox" id="stFav" ' +
@@ -125,8 +112,6 @@
     const wire = function (id, fn) { const el = P.$("#" + id); if (el) el.onclick = fn; };
     wire("stFunPlus", function () { P.stakeStep("fun", 1); });
     wire("stFunMinus", function () { P.stakeStep("fun", -1); });
-    wire("stApPlus", function () { P.stakeStep("ap", 1); });
-    wire("stApMinus", function () { P.stakeStep("ap", -1); });
     wire("stGo", P.stakeConfirm);
     wire("stBack", P.stakeCancel);
     const fav = P.$("#stFav"); if (fav) fav.onchange = P.stakeToggleFav;

@@ -63,6 +63,27 @@
   .officecard .progbar i{background:linear-gradient(90deg,#b7ac91,var(--muted))}
   .officecard .progrow.ready .progbar i{background:linear-gradient(90deg,var(--era3),var(--accent))}
   .officecard .prog-pct{font-size:14px}
+  /* 竞选条：campaign.js 的界面投影——一场民选竞选进行中时出现在状态区顶部 */
+  .campbar{border:1px solid var(--line);border-left:3px solid var(--accent);
+    background:linear-gradient(180deg,#fbf3df,#f3ead4);padding:8px 11px;margin:0 0 12px;border-radius:4px}
+  .campbar .cmp-head{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+  .campbar .cmp-tag{font-size:10.5px;letter-spacing:1.5px;color:#fff;background:var(--accent);
+    padding:2px 7px;border-radius:3px;flex:0 0 auto}
+  .campbar .cmp-office{font-size:14.5px;color:var(--ink);letter-spacing:.5px}
+  .campbar .cmp-stage{font-size:12px;color:var(--muted)}
+  .campbar .cmp-left{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .campbar .cmp-left.warn{color:var(--bad);font-weight:700}
+  .campbar .cmp-lede{font-size:11.5px;color:var(--muted);font-style:italic;margin:3px 0 0}
+  .campbar .cmp-meters{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:7px}
+  .campbar .cmp-meter{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+  .campbar .cmp-meter i{font-style:normal}
+  .campbar .cmp-track{display:inline-block;width:64px;height:8px;border:1px solid var(--line);
+    border-radius:5px;overflow:hidden;background:#e4dac1}
+  .campbar .cmp-track b{display:block;height:100%;background:linear-gradient(90deg,var(--era3,#caa53a),var(--accent))}
+  .campbar .cmp-meter.low .cmp-track b{background:var(--bad)}
+  .campbar .cmp-meter em{font-style:normal;font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-weight:700;color:var(--ink);min-width:18px}
+  .campbar .cmp-meter.low em{color:var(--bad)}
   /* era skin */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   body.era-1960_CAMELOT{--era1:#3a4a63;--era2:#5a6f9c;--era3:#caa53a;--accent:#3a4a63}
@@ -85,12 +106,13 @@
      字号拉开对比：职位 20px 特粗（身份焦点）、层级牌实心色块、副行 12px 灰。--tier 由 .idcard.tier-N 注入。 */
   .tb-ident{display:flex;align-items:center;justify-content:flex-end;min-width:0}
   .idcard{display:inline-flex;align-items:center;gap:11px}
-  .id-tier{flex:0 0 auto;min-width:42px;height:42px;padding:0 9px;border-radius:9px;
+  .id-tier{flex:0 0 auto;min-width:42px;height:42px;padding:0 8px;border-radius:9px;
     display:inline-flex;align-items:center;justify-content:center;
-    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:18px;font-weight:800;letter-spacing:.5px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;font-weight:800;letter-spacing:0;
     color:#fff;background:var(--tier,var(--muted));border:1px solid rgba(0,0,0,.14);
     box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
-  .idcard.tier-5 .id-tier{color:#2a2200;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+  .idcard.tier-5 .id-tier,.idcard.tier-6 .id-tier{color:#2a2200;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+  .idcard.tier-9 .id-tier{box-shadow:inset 0 0 0 2px rgba(212,175,55,.85),0 0 6px rgba(212,175,55,.5)}
   .id-main{display:flex;flex-direction:column;line-height:1.1;text-align:right;min-width:0}
   .id-office{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--tier,var(--ink));white-space:nowrap}
   .id-sub{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;flex-wrap:wrap;
@@ -164,9 +186,11 @@
   /* 标签行里的溢出收敛与丑闻语义 */
   .tag-more{background:#e9dfc7;color:var(--muted);font-style:italic;border-style:dashed}
   .tag.scandal{background:#f3dede;color:var(--bad);border-color:#c49a9a;font-weight:700}
-  /* T0–T5 级别色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金） */
+  /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑） */
   .sb.tier-0,.idcard.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2{--tier:#3a4a63}
   .sb.tier-3,.idcard.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5{--tier:#caa53a}
+  .sb.tier-6,.idcard.tier-6{--tier:#b8862f}.sb.tier-7,.idcard.tier-7{--tier:#9a2f2f}.sb.tier-8,.idcard.tier-8{--tier:#6a1f6b}
+  .sb.tier-9,.idcard.tier-9{--tier:#14142b}
   .sb .jobbadge{background:var(--tier,var(--accent))}
   .sb.tier-5 .jobbadge{color:#3a2f00}.sb.tier-5 .jobbadge b{color:#241c00}
   /* stats panel */

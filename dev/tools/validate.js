@@ -90,7 +90,14 @@ for (const ev of P.events) {
   check(!ids.has(ev.id), "事件 id 重复：" + ev.id);
   ids.add(ev.id);
   check(ev.title && ev.body, "事件缺 title/body：" + ev.id);
-  check(ev.era && ev.era.length, "事件缺 era：" + ev.id);
+ /* 分期标签：去"时代"化改造后，一条事件合法地"属于某段年月"有三种写法——
+     旧的 era 标签、新的绝对年窗（minYear/maxYear 走 when、fromYear/toYear/years 走 yearOK）、
+     或显式 scoped（分期专属、走 eraWeightMul 加权）。晋升脊柱（tierRaw）跨年代通用，豁免。 */
+  if (!ev.tierRaw) check(
+    (ev.era && ev.era.length) || ev.scoped ||
+    ev.minYear != null || ev.maxYear != null ||
+    ev.fromYear != null || ev.toYear != null || ev.years,
+    "事件缺分期标签（era / 年窗 minYear·maxYear·fromYear·toYear·years / scoped）：" + ev.id);
   /* 事件类型 / 量级 / 媒介：统一填充格式的三件套。
      要求每个事件都显式声明，这样"按类型把内容派给不同的人写"才对齐得上。 */
   check(!!ev.category, "事件缺 category（事件类型）：" + ev.id);
@@ -126,23 +133,27 @@ for (const ev of P.events) {
         check(typeof ch.cost[k] === "number" && ch.cost[k] > 0, "cost 数值必须 >0：" + ev.id + "/" + ch.id + "/" + k);
       }
     }
-    /* 投注 stake：键必须是 fun/ap/fav；值可以是 true 或 {per,w,cap} */
+    /* 投注 stake：键必须是 fun/fav（ap 已退役但作为休眠字段仍容忍）；值可以是 true 或 {per,w,cap} */
     if (ch.stake) {
       check(typeof ch.stake === "object", "stake 必须是对象：" + ev.id + "/" + ch.id);
       for (const k in ch.stake) {
         check(STAKE_KEYS.indexOf(k) >= 0, "stake 未知资源键 " + k + "：" + ev.id + "/" + ch.id);
         const v = ch.stake[k];
         check(v === true || typeof v === "object", "stake." + k + " 必须是 true 或对象：" + ev.id + "/" + ch.id);
-        if (v && typeof v === "object") check(P.stakeSpec(ch), "stake 声明了 " + k + " 但 stakeSpec 解析失败：" + ev.id + "/" + ch.id);
+        if (v && typeof v === "object" && (k === "fun" || k === "fav")) check(P.stakeSpec(ch), "stake 声明了 " + k + " 但 stakeSpec 解析失败：" + ev.id + "/" + ch.id);
       }
-      check(!!P.stakeSpec(ch), "stake 非空但 stakeSpec 返回 null：" + ev.id + "/" + ch.id);
+      /* v0.9：精力(ap) 退役。若一个选项的 stake 只声明了已退役的 ap（休眠字段），
+         引擎正确地不弹投注面板（stakeSpec→null），不强求非空；
+         只要还声明了 fun/fav 之一，就必须能解析出投注规格。 */
+      const liveStake = Object.keys(ch.stake).some(function (k) { return k === "fun" || k === "fav"; });
+      if (liveStake) check(!!P.stakeSpec(ch), "stake 声明了 fun/fav 但 stakeSpec 返回 null：" + ev.id + "/" + ch.id);
       /* 汇率自洽：cap ÷ w 必须至少给得出 1 档，否则第一档就是"花钱买 0 收益" */
       const sp = P.stakeSpec(ch);
       if (sp) {
-        ["fun", "ap"].forEach(function (k) {
+        ["fun"].forEach(function (k) {
           if (!sp[k]) return;
           const s = sp[k];
-          const w = s.w || (k === "fun" ? 0.04 : 0.03), cap = s.cap || (k === "fun" ? 0.30 : 0.09);
+          const w = s.w || 0.04, cap = s.cap || 0.30;
           check(w > 0 && cap > 0, "stake." + k + " 的 w/cap 必须为正：" + ev.id + "/" + ch.id);
           check(cap / w >= 1 - 1e-9, "stake." + k + " 的上限(" + cap + ")还不到一档加成(" + w + ")，投注必然白花：" + ev.id + "/" + ch.id);
         });
@@ -516,29 +527,29 @@ console.log("\n== 资源经济 / 投注 ==");
   P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "资源测试" };
   P.confirmCreate();
   const tChoice = {
-    id: "__res", text: "t", base: 0.4, cost: { fun: 100000, ap: 1 },
-    stake: { fun: true, ap: true, fav: true }, outcomes: {}
+    id: "__res", text: "t", base: 0.4, cost: { fun: 100000 },
+    stake: { fun: true, fav: true }, outcomes: {}
   };
-  P.G.fun = 2000000; P.G.ap = 8; P.G.fav = 2;
+  P.G.fun = 2000000; P.G.fav = 2;
   const noStake = P.computeP(tChoice).P;
   const tPer = P.stakeSpec(tChoice).fun.per;      /* v0.7：每档金额是动态的，从引擎取 */
-  const st = P.stakeInfo(tChoice, { fun: 2, ap: 2, fav: 1 });
+  const st = P.stakeInfo(tChoice, { fun: 2, fav: 1 });
   const withStake = P.computeP(tChoice, st);
-  check(withStake.P > noStake, "投注资金/精力后胜算应提高（" + noStake + " → " + withStake.P + "）");
-  check(st.cost.fun === 2 * tPer && st.cost.ap === 2 && st.cost.fav === 1, "投注花费计算错误：" + JSON.stringify(st.cost));
+  check(withStake.P > noStake, "投注资金/人情后胜算应提高（" + noStake + " → " + withStake.P + "）");
+  check(st.cost.fun === 2 * tPer && st.cost.fav === 1, "投注花费计算错误：" + JSON.stringify(st.cost));
   check(st.reroll === true, "投入人情应获得重投（advantage）");
   check(withStake.breakdown.some(b => b.label.indexOf("投入") === 0), "判定明细应包含『投入·』条目");
   check(withStake.target === Math.round(withStake.P * 100), "target 应与胜算一致");
 
   /* 上限：狂投也不能突破 0.95 */
   P.G.fun = 999999999;
-  const capSt = P.stakeInfo(tChoice, { fun: 999999, ap: 99, fav: 1 });
+  const capSt = P.stakeInfo(tChoice, { fun: 999999, fav: 1 });
   check(P.computeP(tChoice, capSt).P <= 0.95, "投注后胜算不应超过 0.95");
 
   /* 余额不足 → 投注被夹到可用余额 */
-  P.G.fun = 100000; P.G.ap = 0; P.G.fav = 0;
-  const poor = P.stakeInfo(tChoice, { fun: 5, ap: 5, fav: 1 });
-  check(poor.cost.fun <= 100000 && poor.cost.ap === 0 && poor.cost.fav === 0,
+  P.G.fun = 100000; P.G.fav = 0;
+  const poor = P.stakeInfo(tChoice, { fun: 5, fav: 1 });
+  check(poor.cost.fun <= 100000 && poor.cost.fav === 0,
     "余额不足时投注花费应被夹到可用余额：" + JSON.stringify(poor.cost));
 
   /* advantage：分布应显著优于单次（大成功率上升、大失败率下降） */
@@ -565,17 +576,7 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "上限测试" };
   P.confirmCreate();
 
-  /* 精力：默认每点 +3%、上限 +9% → 最多 3 点。
-     这就是玩家报的 bug —— 过去档数上限只按「身上有多少精力」算，
-     于是 12 点精力的角色能一路点 + 到 12，第 4 点之后全是白花。 */
-  const apCh = { id: "__ap", text: "t", base: 0.4, stake: { ap: true }, outcomes: {} };
-  P.G.ap = 12;
-  const apMax = P.stakeMax("ap", apCh);
-  console.log("  精力：每点 +3%、上限 +9% → 最多 " + apMax + " 点（身上有 " + P.G.ap + " 点）");
-  check(apMax === 3, "精力投注上限应为 3 点（cap÷w = 0.09÷0.03），实际 " + apMax);
-  const overAp = P.stakeInfo(apCh, { ap: 12 });
-  check(overAp.cost.ap === 3, "狂点精力也不该多扣：应只扣 3 点，实际 " + overAp.cost.ap);
-  check(Math.abs(overAp.bonus - 0.09) < 1e-9, "精力加成应正好封顶 +9%，实际 +" + (overAp.bonus * 100).toFixed(1) + "%");
+  /* 精力(ap) 已于 v0.9 退役，不再是投注加码轴；投注只剩资金(fun) + 人情(fav)。 */
 
   /* 资金：每档 +4%、上限 +30% → 吃满上限需要 8 档（档数由 cap÷w 决定，与每档金额无关） */
   const funCh = { id: "__fun", text: "t", base: 0.4, stake: { fun: true }, outcomes: {} };
@@ -593,10 +594,9 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(P.stakeInfo(funCh, { fun: 5 }).cost.fun === per * 5, "扣款应等于档数×汇率");
 
   /* 一档都投不起 → 上限必须是 0（界面据此把 ＋ 置灰并说明原因，而不是"点了没反应"） */
-  P.G.fun = per - 1; P.G.ap = 0; P.G.fav = 0;
+  P.G.fun = per - 1; P.G.fav = 0;
   const favCh = { id: "__fav", text: "t", base: 0.4, stake: { fav: true }, outcomes: {} };
   check(P.stakeMax("fun", funCh) === 0, "钱不够一档时资金上限应为 0（正是『资金＋点了没用』的成因）");
-  check(P.stakeMax("ap", apCh) === 0, "精力为 0 时精力上限应为 0");
   check(P.stakeMax("fav", favCh) === 0, "没人情时人情上限应为 0");
 
   /* 单调性 & 硬上限：档数变多，加成只增不减，且永远不越过 cap */
@@ -623,8 +623,8 @@ console.log("\n== 动态投注汇率（身位 × 事件金额）==");
   P.confirmCreate();
   const CL = (cost, oc) => ({ id: "__r", text: "t", base: 0.4, cost: cost, stake: { fun: true }, outcomes: oc || {} });
   const smallCh = CL({ fun: 400000 });                       // 有钱量级
-  const nomoneyCh = CL({ ap: 1 });                           // 没有钱量级
-  const tinyCh = CL({ ap: 1 }, { ok: { effects: { fun: 50000 } } });
+  const nomoneyCh = CL({ rep: 1 });                           // 没有钱量级
+  const tinyCh = CL({ rep: 1 }, { ok: { effects: { fun: 50000 } } });
 
   /* ① 身位轴：同一个选项，职位越高每档越贵 */
   const byTier = [];
@@ -747,7 +747,7 @@ const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
 function simulate(games, seed) {
 const _realRandom = Math.random;
 Math.random = mulberry32(seed);
-let tiers = {}, endings = {}, errs = [];
+let tiers = {}, demoTiers = {}, endings = {}, errs = [];
 let draws = 0, games_ = 0, fillers = 0, gradeHit = { major: 0, mid: 0, minor: 0 };
 /* 投注观测：v0.7 每档金额是动态的，必须能看见"模拟里到底押了多少"，
    否则分布一变就分不清是机制变了还是投注策略变了。 */
@@ -766,7 +766,7 @@ const eraMix = {};
 let valHit = { boon: 0, risk: 0, bane: 0 }, netSum = 0, netSq = 0, netN = 0;
 let streakBadGames = 0, fallenGames = 0, endFun = 0, baneNetSum = 0, baneNetN = 0;
 for (let r = 0; r < games; r++) {
-  let runCur = 0, runWorst = 0;
+  let runCur = 0, runWorst = 0, demoTier = null;
   try {
     P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r };
     P.confirmCreate();
@@ -802,8 +802,9 @@ for (let r = 0; r < games; r++) {
           if (P.mediumOK(ev)) medHit.none++; else medHit.gated++;
           /* 统计「月份降级」发生率（池子薄时引擎会放开月份限制，不算错误） */
           if (ev.month != null && ev.month !== G.month) dateDrift++;
-          /* 只挑「付得起代价」的选项，模拟真实 UI 里被禁用的情况 */
-          const pay = (c) => !c.cost || Object.keys(c.cost).every(k => (G[k] || 0) >= c.cost[k]);
+          /* 只挑「付得起代价」的选项，模拟真实 UI 里被禁用的情况。
+             v0.9：精力(ap)/健康(hp) 已退役，代价里一律忽略（与 stage.js 的 costBlock 同口径）。 */
+          const pay = (c) => !c.cost || Object.keys(c.cost).every(k => k === "ap" || k === "hp" || (G[k] || 0) >= c.cost[k]);
           const pool = ev.choices.filter(pay);
           const usable = pool.length ? pool : [ev.choices[0]];
           const ch = usable[Math.floor(Math.random() * usable.length)];
@@ -815,10 +816,9 @@ for (let r = 0; r < games; r++) {
           let stake = null;
           const spec = P.stakeSpec(ch);
           if (spec) {
-            const s = { fun: 0, ap: 0, fav: 0 };
+            const s = { fun: 0, fav: 0 };
             const per = (spec.fun && spec.fun.per) || 0;
             if (spec.fun && per > 0 && G.fun >= per * 4) s.fun = P.rint(1, 2);
-            if (spec.ap && G.ap >= 1) s.ap = P.rint(0, 2);
             if (spec.fav && G.fav >= 1) s.fav = P.chance(0.5) ? 1 : 0;
             const info = P.stakeInfo(ch, s);
             for (const k in info.cost) G[k] = (G[k] || 0) - info.cost[k];
@@ -854,6 +854,11 @@ for (let r = 0; r < games; r++) {
       quietTotal += (G.quietMonths || []).length;
       (G.quietLog || []).forEach(function (e) { vigCount++; if (!e.text) vigEmpty++; });
       G.year++; G.age++; G.hp = P.clamp(G.hp, 0, 100);
+      /* 8 年 demo 快照：真实玩家一局 demo 大约打 8 年。晋升脊柱的年限闸让 8 年内
+         最多摸到「联邦众」(tier6, 累计 92 月≈7.7 年)；参/州长要 120 月、总统要 194 月——
+         所以正常爬梯 8 年够不到总统，只有破格跳级(tier+2/+3)的人中龙凤能走捷径。
+         这里单独记 8 年那一刻的层级，与「生涯终局」分开看（后者跑满 55 年，是另一码事）。 */
+      if (demoTier == null && (y + 1) >= 8) demoTier = G.tier;
       /* 丑闻自然消退（与 endYear 同口径） */
       for (let i = 5; i >= 1; i--) {
         const f = "scandal_" + i;
@@ -864,6 +869,8 @@ for (let r = 0; r < games; r++) {
     games_++;
     if (P.G.hp > 0) { const rule = P.evaluateEnding("retire"); endings[rule.id] = (endings[rule.id] || 0) + 1; }
     tiers["T" + P.G.tier] = (tiers["T" + P.G.tier] || 0) + 1;
+    if (demoTier == null) demoTier = P.G.tier;          // 8 年内就出局（死亡）→ 用终局层级
+    demoTiers["T" + demoTier] = (demoTiers["T" + demoTier] || 0) + 1;
     /* 单局体验收尾：连环崩盘 / 下野经历 / 终局家底 */
     if (runWorst >= 4) streakBadGames++;
     if ((P.G.fallenCount || 0) > 0) fallenGames++;
@@ -873,7 +880,7 @@ for (let r = 0; r < games; r++) {
 const avgSlots = slotsPerYear.reduce((a, b) => a + b, 0) / Math.max(1, slotsPerYear.length);
 Math.random = _realRandom;                       // 模拟结束，恢复真随机（不影响后续任何东西）
 return {
-  tiers: tiers, endings: endings, errs: errs, draws: draws, games: games_, fillers: fillers, gradeHit: gradeHit,
+  tiers: tiers, demoTiers: demoTiers, endings: endings, errs: errs, draws: draws, games: games_, fillers: fillers, gradeHit: gradeHit,
   stakeEvents: stakeEvents, stakeFunSpent: stakeFunSpent, stakeFunTiers: stakeFunTiers,
   monthHist: monthHist, catHit: catHit, medHit: medHit, dateDrift: dateDrift,
   eraSpecific: eraSpecific, eraGeneric: eraGeneric, eraMix: eraMix,
@@ -954,7 +961,8 @@ const quietTotal = sim.quietTotal, vigCount = sim.vigCount, vigEmpty = sim.vigEm
 const valHit = sim.valHit, netAvg = sim.netAvg, netStd = sim.netStd, netPerGame = sim.netPerGame;
 const streakBadGames = sim.streakBadGames, fallenGames = sim.fallenGames, endFunAvg = sim.endFunAvg, baneNetAvg = sim.baneNetAvg;
 console.log("  运行时错误: " + (errs.length ? errs.slice(0, 5).join(" | ") : "无"));
-console.log("  层级分布: " + JSON.stringify(tiers));
+console.log("  层级分布【8年demo快照】: " + JSON.stringify(sim.demoTiers) + "   ← 玩家真实视角：多数应到市议员、少数摸联邦众、总统仅异数");
+console.log("  层级分布【生涯终局55年】: " + JSON.stringify(tiers) + "   ← 跑满 lifespan，含破格火箭线");
 console.log("  结局分布: " + JSON.stringify(endings));
 console.log("  每年档期 平均 " + avgSlots.toFixed(1) + " 个 ｜ 每年有事发生的月数分布 " + JSON.stringify(monthHist));
 console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + " 个 ｜ 量级 " + JSON.stringify(gradeHit) +
@@ -1019,7 +1027,6 @@ console.log("\n== 渲染冒烟 ==");
     if (stakedChoice) {
       P.choose(ev, stakedChoice);          // 打开投注面板
       P.stakeStep("fun", 1);
-      P.stakeStep("ap", 1);
       P.stakeToggleFav();
       P.stakeCancel();
     }
@@ -1029,8 +1036,8 @@ console.log("\n== 渲染冒烟 ==");
   } catch (e) { smokeOK = false; smokeErr = e.message; }
   check(smokeOK, "事件渲染 / 投注面板不应抛异常：" + smokeErr);
   /* 投注面板打开后应把所有声明过的资源都列出来 */
-  P.G.fun = 3000000; P.G.ap = 8; P.G.fav = 3;
-  const info = P.stakeInfo(stakedChoice, { fun: 1, ap: 1, fav: 1 });
+  P.G.fun = 3000000; P.G.fav = 3;
+  const info = P.stakeInfo(stakedChoice, { fun: 1, fav: 1 });
   check(info.parts.length === Object.keys(P.stakeSpec(stakedChoice)).length,
     "投注明细条目数应等于声明资源数（" + info.parts.length + " vs " + Object.keys(P.stakeSpec(stakedChoice)).length + "）");
 }
@@ -1628,7 +1635,8 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   P.confirmCreate();
   const stEv = evWithState[0];
   P.G.state = stEv.states[0];
-  P.G.tier = (stEv.tierMin || 0) + 1; P.G.year = stEv.fromYear || P.G.year; P.G.doneIds = []; P.recentIds = [];
+  /* tierBand：事件里的旧档门槛会被 when.js 单调抬进 10 级空间，测试要站在抬升后的真实档位上 */
+  P.G.tier = Math.min(P.balance().tierMax, P.tierBand(stEv.tierMin || 0) + 1); P.G.year = stEv.fromYear || P.G.year; P.G.doneIds = []; P.recentIds = [];
   check(P.eligible(stEv), "州联动事件 " + stEv.id + " 在对应州应可触发");
   const otherState = states.find(function (x) { return stEv.states.indexOf(x) < 0; });
   if (otherState) {
@@ -1751,7 +1759,8 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.reg.ending.some(function (r) { return r.id === "disgrace"; }), "结局规则应注册 disgrace（身败名裂）");
   check(P.reg.ending.some(function (r) { return r.id === "retire_comeback"; }), "结局规则应注册 retire_comeback（东山再起）");
   /* 东山再起的门槛：fallen 且 tier>=3 —— 优先级高于普通 retire */
-  P.G.flags = ["fallen"]; P.G.tier = 3; P.G.endingReason = "retire";
+  /* 东山再起的门槛（旧档 tier>=3）经 when.js tierBand 抬进新空间；测试要站在映射后的真实档位上 */
+  P.G.flags = ["fallen"]; P.G.tier = P.tierBand(3); P.G.endingReason = "retire";
   const comeback = P.evaluateEnding("retire");
   check(comeback.id === "retire_comeback", "下野后爬回 T3 的退休结局应是东山再起（实际 " + comeback.id + "）");
 
@@ -1799,7 +1808,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   {
     check(typeof P.applyVoters === "function" && typeof P.electionStrength === "function", "选民池 API 应存在");
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
-    P.G.tier = 2;                                    /* 选区 30 万 */
+    P.G.tier = 2;                                    /* 等级3 选区 */
     P.applyVoters({ warm: 50000, diehard: 8000, oppose: 20000 });
     let vp = P.voterPools();
     check(vp.warm === 50000 && vp.diehard === 8000 && vp.oppose === 20000, "选民池应按具体人数累加");
@@ -1808,12 +1817,13 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     P.applyVoters({ warm: 999999999 });
     check(P.voterPools().warm <= P.electorateSize(), "选民人数应被选区规模夹住（" + P.voterPools().warm + " ≤ " + P.electorateSize() + "）");
     const es = P.electionStrength();
-    check(es.size === 300000 && es.pct > 0, "T2 选区应为 30 万，选举底气为正（" + es.size + "/" + es.pct + "）");
-    /* 升位稀释：T2→T3 只带走 25% */
+    const tier2Electorate = P.balance().voterBase.electorate[2];
+    check(es.size === tier2Electorate && es.pct > 0, "等级3 选区应为 " + tier2Electorate + "，选举底气为正（" + es.size + "/" + es.pct + "）");
+    /* 升位稀释：等级3→等级4 跨一级，按 carryKeep 锚带走一部分旧死忠（阶梯衰减，跳得越多带得越少） */
     P.G.voters = { warm: 50000, diehard: 8000, oppose: 20000 };
     P.rescaleVoters(2, 3);
     vp = P.voterPools();
-    check(vp.diehard === 2000, "升位只带走 25% 死忠（8000→" + vp.diehard + "）——地盘换了，人心重新攒");
+    check(vp.diehard > 0 && vp.diehard < 8000, "升位应稀释死忠（8000→" + vp.diehard + "）——地盘换了，人心重新攒");
     /* effects.voters 生效 + tier 联动 rescale + 当选发基本盘 */
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
     P.G.tier = 1; P.G.tierSince = P.monthSeq();
@@ -1846,12 +1856,17 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(vdyn.enabled === true, "balance.voterDynamic 默认开启");
 
     /* ① 自然增减：从 0 起向目标收敛，且有界 */
-    P.G.tier = 1;                                   /* 选区 6 万 */
+    P.G.tier = 1;                                   /* 等级2 选区 */
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
     P.G.rep = 30; P.G.track = "electoral";
+    const vd0 = P.balance().voterDynamic || {};
     const tgt = P.voterTargets();
-    check(tgt.size === 60000 && tgt.warm === 4800 && tgt.diehard === 1200 && tgt.oppose === 2400,
-      "T1 目标基本盘按选区规模算（" + tgt.warm + "/" + tgt.diehard + "/" + tgt.oppose + "）");
+    const expectSize = P.balance().voterBase.electorate[1];
+    const ew = Math.round(expectSize * (vd0.targetShare == null ? 0.08 : vd0.targetShare));
+    const ed = Math.round(expectSize * (vd0.diehardTargetShare == null ? 0.02 : vd0.diehardTargetShare));
+    const eo = Math.round(expectSize * (vd0.opposeTargetShare == null ? 0.04 : vd0.opposeTargetShare));
+    check(tgt.size === expectSize && tgt.warm === ew && tgt.diehard === ed && tgt.oppose === eo,
+      "等级2 目标基本盘按选区规模算（" + tgt.warm + "/" + tgt.diehard + "/" + tgt.oppose + " ｜ 选区 " + expectSize + "）");
     const d0 = P.voterDrift();
     check(!!d0 && d0.warm > 0 && d0.oppose > 0, "首个平静月：好感与反对同时净增（在任就会攒名声也攒怨气）");
     for (let i = 0; i < 400; i++) P.voterDrift();
@@ -1885,7 +1900,8 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(!!merged2.voters && merged2.rep === 3, "withEventVoters 合并选民增减且保留原有其他效果");
 
     /* ③ 反噬：均衡态修正为 0、有界、单调 */
-    P.G.voters = { warm: 4800, diehard: 1200, oppose: 2400 };
+    const tEq = P.voterTargets();
+    P.G.voters = { warm: tEq.warm, diehard: tEq.diehard, oppose: tEq.oppose };
     const esMid = P.electionStrength().pct, eMid2 = P.voterEdge();
     check(Math.abs(eMid2) < 1e-9,
       "自然均衡态（pct=" + esMid + "%）选民修正正好为 0 —— 不推翻既有 300 局平衡");

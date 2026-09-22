@@ -1,14 +1,14 @@
 # 参与贡献
 
-> 本页是 POTUS 文档体系的一部分。项目总览与快速上手见仓库根 [`README.md`](README.md)。
+> 本页是《权力之路》文档体系的一部分。项目总览与快速上手见仓库根 [`README.md`](README.md)。
 
-感谢你想为 **POTUS · 美国政治生涯模拟器** 贡献一份力量！本文说明如何上手、贡献什么、以及提交前的硬性要求。
+感谢你想为 **《权力之路》· 美国政治生涯模拟器** 贡献一份力量！本文说明如何上手、贡献什么、以及提交前的硬性要求。
 
 在动手前，请先花几分钟读：
 
+- [`docs/DESIGN.md`](docs/DESIGN.md) —— 设计理念：定位、叙事、各核心系统（含竞选链）的关键取舍。
 - [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md) —— 架构、目录、双团队分工、常见任务操作步骤。
-- [`docs/CONTENT-SCHEMA.md`](docs/CONTENT-SCHEMA.md) —— 字段级契约（写内容时的"字典"）。
-- [`docs/EVENT-WRITING-BRIEF.md`](docs/EVENT-WRITING-BRIEF.md) —— 事件写作铁律。
+- [`docs/CONTENT-SCHEMA.md`](docs/CONTENT-SCHEMA.md) —— 字段级契约（写内容时的"字典"）；**事件写作铁律见其 §11，竞选链契约见 §14**。
 
 ---
 
@@ -42,6 +42,10 @@
 照着 `dev/content/events/50-era-2008.js`（普通事件）、`dev/content/events/84-archive.js`（四幕事件链）、`dev/content/events/109-boon-fill.js`（机遇卡）抄格式即可。
 
 **按 `时代 × 类型` 切片**，不同的人可以并行写互不重叠的文件。
+
+### 🟢 写 / 调竞选链（campaign，零引擎门槛）
+
+每一次民选晋升都是一串强制推进的幕（宣布→初选→筹款/辩论→摇摆→投票日）。加一条链改 `dev/content/61-campaigns.js`、补各幕事件改 `dev/content/events/65-campaign-acts.js`，引擎不动一行。契约见 `CONTENT-SCHEMA.md` §14，操作步骤见 `DEVELOPMENT-GUIDE.md` §5.13。
 
 ### 🟡 美术 / 数值 / 平衡
 

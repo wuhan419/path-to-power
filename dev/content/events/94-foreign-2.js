@@ -373,11 +373,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-/* ---- 新标记登记 ---- */
-POTUS.define("balance", { tagNames: {
-  for2_foreign_cash: { name: "外国通道资金", desc: "一笔经本地公司转手的外国资金进过你的竞选账目。", effect: "后续事件里 foreign 派系视你为自己人；一旦被揭发将成为重大丑闻的引信。" },
-  for2_embassy_friend: { name: "使馆的常客", desc: "你与某位「文化参赞」保持过一段看得见的友谊。", effect: "foreign 好感上升，agency 好感承压；反谍相关事件会认这个标记。" },
-  for2_summit_gaffe: { name: "论坛失言", desc: "你在国际论坛上的一句话（或它的译本）被做成了外交事件。", effect: "国际场合的基础胜算降低，媒体更爱引用你的发言。" },
-  for2_backchannel: { name: "桌下通道", desc: "一场不在日程表上的会面为你留下了一条直通外国的非正式渠道。", effect: "foreign 派系事件解锁更高层选项；这条线一旦泄露，代价极大。" }
-} });

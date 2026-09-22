@@ -13,7 +13,9 @@ POTUS.define(kind, payload);
 
 | kind | payload | 说明 |
 |---|---|---|
-| `"era"` | `{ eraId: {...} }` | 时代锚点 |
+| `"era"` | `{ eraId: {...} }` | 时代锚点（**迁移期兼容层**：开局皮肤 + 未迁移年代的兜底，新内容主推 `worldline`/`fixed`，见 §1.5） |
+| `"worldline"` | `{ pressure:{年:值}, brief:{年:...}, outlets:{年:...} }` | **连续时间轴**：按**绝对年份**键控的时代压力 / 年终简报 / 新闻口径（取代"选时代"，见 §1.5） |
+| `"fixed"` | `[ {event, year, ...}, ... ]` | **全局定点事件表**：某年某月**必发**的大事件与固定事件串（取代 `era.scheduled`，可多次调用累加，见 §1.6） |
 | `"origin"` | `{ id: {...} }` | 出身 |
 | `"talent"` | `{ id: {...} }` | 天赋 |
 | `"entry"` | `{ id: {...} }` | 起点路径 |
@@ -28,6 +30,7 @@ POTUS.define(kind, payload);
 | `"grade"` | `{ id: {...} }` | **事件量级**（大/中/小事），一般不用改 |
 | `"medium"` | `{ id: {...} }` | **时代媒介时间轴**（报纸/电视/互联网/短视频… 各自起始年份），见 §4.9 |
 | `"event"` | `[ event, ... ]` | 事件库（可多次调用，自动累加） |
+| `"campaign"` | `{ campId: {...} }` | **竞选链**（一条民选晋升 = 一串分幕、强制推进的竞选事件，见 §14） |
 | `"ending"` | `[ rule, ... ]` | 结局规则（可多次调用，自动累加） |
 | `"vignette"` | `{ title?, lede?, fragments:[ ... ] }` | **静好岁月**：平静月份的随笔片段库（`fragments` 多次调用会**累加**），见 §4.13 |
 | `"photo"` | `{ dir?, files:{ categoryId: "x.jpg" } }` | **事件配图的照片表**（`files` 多次调用会**合并**），没登记的类型自动退回程序化 SVG，见 §4.15 |
@@ -54,7 +57,7 @@ POTUS.define(kind, payload);
 pActive = clamp(activeChance + 时代压力 × activePressureMul + 活跃度 × activeBonusMul,
                 activeMin, activeMax)
 
-时代压力 = era.pressure（内容在 era 里写，0-6）
+时代压力 = 优先按绝对年份读 worldline.pressure[年]；该年不在时间轴里则回落 era.pressure（内容在 era 里写，0-6）
 活跃度   = 丑闻 0.8 + 被调查 0.8 + 选举年 0.6 + 层级≥T4 0.5   （权重见 balance.bonusPressure）
 
 有事发生的月份 → 档期数 = slotsBase + (压力≥slotsPressureAt ?1:0)
@@ -129,6 +132,41 @@ POTUS.define("era", {
 > **定点事件仍要过一遍普通事件的触发条件**（tier / flag / era / 媒介年份 …），不满足就跳过。
 > 所以「写给高层级玩家的定点事件」不会硬塞给还没爬到那个位置的人。
 
+> ⚠ **迁移期说明**：`era.scheduled` 是**旧机制**，仍可用（未迁移的 1912…2016 时代照靠它）。新铺的年代一律改用下面的**全局 `fixed` 表**（§1.6）+ **绝对年窗 `minYear`/`maxYear`**，不再往 era 里写 `scheduled`、事件也不再钉 `era`。
+
+### 1.5 worldline（连续时间轴 · 取代"选时代"）
+
+玩法核心已从**"选一个时代"**改为**一条按绝对年月推进的连续时间轴**：历史在特定年份自动变脸，玩家与作者层面都不再出现"时代"这个词。`worldline` 就是这条轴的**按年键控**数据，`content/21-worldline.js` 承载：
+
+```js
+POTUS.define("worldline", {
+  pressure: { "1980": 4, "1982": 5, "1986": 2, /* …按绝对年份 */ },  // 该年时代压力（0-6）
+  brief:    { "1981": "里根遇刺未遂、国会风向突变……" },               // 年度世界简报（字符串或 {lede,…}）
+  outlets:  { "1987": ["CNN", "纽约时报", "…"] }                        // 该年新闻口径池
+});
+```
+
+- 引擎读点全部改为**"优先按 `G.year` 读 worldline，读不到则整体回落 era"**（`time.js` 的 `pressure`、`view/stage.js` 的简报与黑天鹅、`progression.js` 的选举年、`events.js` 的 `makeNews`/filler）。因此**未迁移的年代（1912…2016）照常工作**，零回归。
+- **不要给 `pressure`/`brief`/`outlets` 写 `"*"` 兜底键**：留空即让未覆盖的年份（如主模拟跑的 2008）整体回落到 era，避免"半新半旧"串味。
+- 本轮铺满 **1980—1990**；其余年代后续按同一形状补。
+
+### 1.6 fixed（全局定点事件表 · 取代 era.scheduled）
+
+与 `worldline` 配套的**按绝对年月必发**的事件表，是"到点必发的大事件 / 固定事件串"的落点。可多次 `POTUS.define("fixed", […])`，自动累加：
+
+```js
+POTUS.define("fixed", [
+  { event: "rg81_shooting", year: 1981, month: 3, grade: "mid" },
+  { event: "rg87_iran_hearings", year: 1987, month: 7, grade: "major" },   // 事件串后幕：靠 after 续接
+  { event: "rg89_iran_after", fromYear: 1988, toYear: 1989, month: 3 }     // 弹性年月窗口
+]);
+```
+
+字段与 §1.1 的 `scheduled` **完全一致**（`event/year/month/fromYear/toYear/fromMonth/grade/once/cond/flags`）；差别只在它是**全局表、与 era 无关**。`time.js` 的 `scheduledHits()` 会把 `fixed` 与（迁移期）`era.scheduled` **两路合并**，同一事件只演一次。
+
+- **固定事件串**不复活已停用的 `arc.js`，而是用现有机制拼：把 2~3 幕（前奏→爆发→余波）各自钉进 `fixed`，后幕靠事件自带的 `after:{id,minMonthsAfter}` / `flags` 续接。**前幕若因层级/机缘没演，后幕的 `after` 不成立即静默跳过**——是一条"可断裂"的串，符合"历史 catch-up 但不强灌"。
+- 串里的每一幕事件本身仍写 `minYear`/`maxYear` + `scoped:true`（见 §4 / §4.2.1），`fixed` 只负责"到点必发"，事件自己负责"够不够格发"。
+
 ## 2. origin / talent / entry
 
 ```js
@@ -172,7 +210,7 @@ POTUS.define("faction", { base:{ name:"基层选民" }, establishment:{ name:"�
 ```js
 POTUS.define("event", [{
   id: "2008_crash_offer",           // 必填，全局唯一
-  era: ["2008_CRASH"],              // 必填，可多个时代共用
+  era: ["2008_CRASH"],              // 可选（迁移期兼容）：钉在哪个/哪些时代。**新内容不再写 era**，改用绝对年窗 minYear/maxYear（见 §1.5）
   title: "一份'救市'内部简报",        // 必填
   body: "……",                       // 必填，事件正文
 
@@ -183,6 +221,7 @@ POTUS.define("event", [{
   dyn: true,                        // 必填：经济字段写系数而非绝对金额（见 §4.16.2）
   medium: ["tv", "social"],         // 可选：这件事要靠哪种"说话方式"才能发生
   unique: true,                     // 可选：一局只演一次（grade=major 时默认 true）
+  chore: true,                      // 可选：标记为「日常公务/选民服务」卡——**不进随机卡池**，只经 time.js 的 choresSlot 按月兜底注入（需 tier>0 在任者），见 §4.17
 
   weight: 14,                       // 可选，抽样权重（默认 10）
   filler: false,                    // 可选，标记为填充事件
@@ -192,8 +231,11 @@ POTUS.define("event", [{
   brief: { /* 主角视角的背景卡，见 §4.7 */ },
 
   // —— 触发条件（全部可选，全部满足才可能被抽中）——
-  tierMin: 0, tierMax: 5,           // 层级区间
-  fromYear: 2008, toYear: 2020,     // 年份窗口（也可写 years: [2008, 2020]）
+  tierMin: 0, tierMax: 9,           // 层级区间（引擎 tier 0..9 = 界面等级 1..10）
+  tierRaw: true,                    // 可选：为 true 时 tierMin/tierMax 直接按真实 0..9 解释，跳过 when.js 旧的 tierBand 6 档映射（晋升脊柱 prog_* / 竞选链各幕一律带上）
+  minYear: 1980, maxYear: 1989,     // 推荐（新内容首选）：绝对年窗，走 when.js 统一条件词汇；配 scoped:true 标为分期专属
+  scoped: true,                     // 可选：去 era 后标记「某一时期专属」，供 eraWeightMul 加权（不参与年份判定）
+  fromYear: 2008, toYear: 2020,     // 另一套年份窗口（走 core.js 的 POTUS.yearOK，也可写 years: [2008, 2020]）
   tracks: ["electoral"],            // 仅这些轨道可触发
   parties: ["D"],                   // 仅这些党派
   entries: ["celebrity"],           // 仅这些起点
@@ -260,23 +302,23 @@ req: { contact: "fixer" }              // 人脉门槛：必须已经认识「�
 
 ### 4.3 cost（选项的资源代价）
 
-**选这个选项要先付的钱/精力/人情/把柄。** 付不起时按钮置灰，提示"缺少资金/精力/人情/把柄"，玩家点不动。
+**选这个选项要先付的钱/人情/把柄。** 付不起时按钮置灰，提示"缺少资金/人情/把柄"，玩家点不动。
 
 ```js
-cost: { fun: 400000 }        // 花 $400k
-cost: { ap: 2 }              // 花 2 点精力
-cost: { fav: 1 }             // 花 1 点人情
-cost: { lev: 1 }             // 花掉 1 份把柄（把柄是"份"，花掉就没了，不能欠）
-cost: { fun: 120000, ap: 1 } // 可以组合
+cost: { fun: 400000 }         // 花 $400k
+cost: { fav: 1 }              // 花 1 点人情
+cost: { lev: 1 }              // 花掉 1 份把柄（把柄是"份"，花掉就没了，不能欠）
+cost: { fun: 120000, fav: 1 } // 可以组合
 ```
 
 | 键 | 含义 | 单位 | 归零/上限 |
 |---|---|---|---|
 | `fun` | 资金 | 美元 | **允许为负**（负债是有戏剧性的，别拿它当硬墙） |
-| `ap` | 精力 | 点 | 夹在 `[apMin, apMax]`，每年按健康恢复 |
 | `fav` | 人情 | 点 | 夹在 `[0, 20]` |
 | `lev` | **把柄** | 份 | 下限 0（**不能为负**：花掉就没了，没有"欠人一份把柄"这回事） |
-| `rep` / `hp` | 声望 / 健康 | 点 | 可以作代价，但谨慎（易造成死亡螺旋） |
+| `rep` | 声望 | 点 | 可以作代价，但谨慎（易造成死亡螺旋） |
+
+> ⚠️ **精力(`ap`)、健康(`hp`) 已于 v0.9 退役**：不再作为代价（也不上界面）。历史内容里残留的 `cost:{ap}` 会被引擎忽略（不展示、不扣减）；**新事件不要再写 `ap`/`hp` 代价**。
 
 > **把柄（lev）是什么**：通过灰色手段拿到的"让某人不敢开口"的东西——一份人事档案、一盘录音带、一个编号。
 > 它换不来钱，只能换来沉默和让步。它有三个特性，写内容时要一直记着：
@@ -287,7 +329,7 @@ cost: { fun: 120000, ap: 1 } // 可以组合
 设计建议：
 - **代价要"肉疼但不致命"**。一个事件里最多 1~2 个选项带重代价。
 - 代价与收益要成比例：花 $400k 的选项，成功率应明显高于免费的。
-- 要表达"钱买不到的东西"，用 `fav` / `ap` 当代价，而不是把 `fun` 门槛抬到天上去。
+- 要表达"钱买不到的东西"，用 `fav`（或把柄 `lev`）当代价，而不是把 `fun` 门槛抬到天上去。
 - 高代价选项配合 `req` 使用效果最好（有钱也要有资格）。
 
 #### 4.3.1 保底选项（强制，`validate.js` 会拦）
@@ -312,7 +354,7 @@ choices: [
 ```
 
 保底选项不是"白送的失败选项"，它应该**有真实的机会、也有真实的代价**，只是不用资源结算：
-- 常见写法：拼体力（`hp`）、拼时间（低基础成功率）、拼人（说清失败后果）。
+- 常见写法：拼时间（低基础成功率）、拼人（说清失败后果）。
 - 设计感：`base` 通常比付费选项低 0.05~0.15，用 `mods` 让属性好的角色也能翻盘。
 - 它的存在本身也是叙事：**"没钱的人怎么办"**往往比"有钱怎么办"更有戏。
 
@@ -323,16 +365,17 @@ choices: [
 **声明 stake 的选项，点击后会先弹出一个投注面板**，玩家自己决定往判定里砸多少资源，再掷骰。这是本作把"资源"变成"博弈"的核心机制。
 
 ```js
-stake: { fun: true, ap: true, fav: true }   // 三种都能投，用全局默认汇率
-stake: { fun: true }                        // 只能投钱
-stake: { fun: { per: 500000, w: 0.06, cap: 0.3 }, ap: true }  // 单项自定义
+stake: { fun: true, fav: true }   // 两种都能投，用全局默认汇率
+stake: { fun: true }              // 只能投钱
+stake: { fun: { per: 500000, w: 0.06, cap: 0.3 } }  // 单项自定义
 ```
 
 | 资源 | 效果 | 默认汇率（`balance.stakeRates`） | 实际可投档数 |
 |---|---|---|---|
 | `fun` | 提高判定目标值 | **动态汇率**（每档金额随职级/事件量级算出，见 §4.16.3）→ `+4%`，上限 `+30%` | **最多 8 档** |
-| `ap` | 提高判定目标值 | 每 `1` 点 → `+3%`，上限 `+9%` | **最多 3 点** |
 | `fav` | **重投取优**（D&D 的 advantage，掷两次取好的那次） | 花 `1` 点换一次 | 开关式，1 点 |
+
+> ⚠️ **精力(`ap`) 已于 v0.9 从投注退役**：不再是加码轴。历史上写过 `stake:{ap:true}` 的选项会退化为“无投注面板”（休眠，不报错）。
 
 单项自定义字段：
 
@@ -882,6 +925,18 @@ POTUS.define("photo", {
 
 一句话：**你只管把"意图 + 系数 + 门槛"写清楚，"此刻对这个人意味着多少钱、能不能选"交给引擎。**
 
+### 4.17 chore（日常公务 / 选民服务池）
+
+为了让"在任者"每个月都有轻量的选民经营可做的事，新增一条**不走随机卡池**的注入通道（`content/events/111-chores.js`）：
+
+- **入口**：事件写 `chore: true` + `category: "govt"`。`events.js` 的 `eligible` 顶部会 `if (ev.chore) return false`——chore 卡**永不进随机池**，只经 `time.js` 的 `P.choresSlot(isEmptyMonth)` 注入。
+- **谁能撞上**：仅 `tier > 0` 的**选举轨在任者**（`choresSlot` 对 `tier<=0` 直接返回 null）。
+- **频率**：加权随机 0～1 + 空月保底 1——本月若已有 fixed/竞选档期则按小概率 `chance`（默认 0）追加；本月本来空档时按 `emptyFillChance`（默认 0.7）兜底一条。**优先级低于 fixed**，不抢定点事件。
+- **形状**：按 `tierRaw:true` 分四层级簇（基层 T0–2 / 市政 T2–4 / 州 T4–6 / 联邦 T6+），`grade:"minor"`、低权重、`valence` 多为 `boon`（经营选民"只赚不赔但赚得不多"）、主吃 `voters`（warm/diehard↑、oppose↓）+ 少量 rep。
+- **开关**：`balance.choreDynamic = { enabled:true, chance:0, emptyFillChance:0.7 }`；`enabled:false` 即完全回到现状（引擎不注入任何 chore）。删掉 `111-chores.js` 两行接入亦可一键回退。
+
+> 每卡仍守硬约束：≥ 2 选项、每选项五档齐全、至少一个既无 cost 又无 req 的保底选项（§4.3.1）。
+
 ---
 
 ## 5. mods（胜算修饰符）
@@ -926,6 +981,7 @@ effects: { attr:{CHA:5}, fac:{base:10,press:-8}, fun:400000, rep:6, hp:-3, ap:1,
 | `lev` | **把柄份数增减** | 下限 0（可为负 = 花掉一份，但不会变成负数） |
 | `contact` | **人脉好感增减**（`{id: 数字}`，首次出现即"从此认识"） | -100~100 |
 | `forget` | **彻底断掉一段关系**（`["id"]` 或 `"id"`） | — |
+| `camp` | **竞选选情增减** `{momentum:±x, warchest:±y}`：只用在竞选各幕事件里，撬动当前 campaign 的选情表（见 §14）。**不计入三值性净值、不上状态资源条**（引擎 campaign.js 注册的自定义效果键） | — |
 | `tier` | 层级升降（变动会把"在位时长"重置） | `balance.tierMin~tierMax` |
 | `score` | 自定义累计分（供结局条件用） | — |
 | `flags` | 增加状态标记 | — |
@@ -1023,7 +1079,7 @@ POTUS.define("blackswan", {
 |---|---|---|
 | `startAge/startFun/startRep/startHp/startAp/startFav` | 24 / 50000 / 5 / 100 / 8 / 0 | 建角初始值 |
 | `startAttr` | `{CHA:45,INT:45,CUN:45,INTG:50}` | 初始属性 |
-| `tierMin` / `tierMax` | 0 / 5 | 层级范围 |
+| `tierMin` / `tierMax` | 0 / 9 | 层级范围（引擎 tier `0..9`，界面显示等级 `1..10`）。旧内容不带 `tierRaw` 时经 `when.js` 的 `tierBand [0,2,4,5,7,9]` 把旧 6 档语义映射到新 10 级 |
 | `monthsPerYear` | 12 | 一年几个月（一个月一回合，见 §0.5） |
 | `activeChance` | 0.12 | 某个月"有事发生"的基准概率 |
 | `activePressureMul` | 0.04 | 时代压力对"有事发生"的放大系数 |
@@ -1062,6 +1118,14 @@ POTUS.define("blackswan", {
 ---
 
 ## 11. 事件写作规范（强制）
+
+> 本节是**事件写作规范的唯一出处**（早先拆单的《事件包写作规范》已并入这里）。可直接复制的最小交付骨架见 §13，六条铁律的完整论述见 §11.6。写新事件前，先照抄一个范例定风格：`content/events/80-shady.js` 的 `shady_union` / `shady_union_collect`（前因后果 + `after` 余波链 + 保底选项 + 经济诚实），以及 `content/events/62-crossroads.js`（`note` 字段范例）。
+>
+> **可用效果键速查**：`attr:{CHA,INT,CUN,INTG}` `fac:{base,establishment,commercial,labor,press,military,church,agency,foreign,tech,criminal}` `fun` `rep` `hp` `ap` `fav` `lev` `tier(±1)` `camp:{momentum,warchest}`（仅竞选各幕，见 §14） `score` `flags:[...]` `notFlags:[...]` `contact:{人id}` `forget:[人id]` `voters:{warm,diehard,oppose}` `count:{计数器}` `funMul` `fall:1|2`（下野） `hardEnd:"prison"|"disgrace"`（硬结局，慎用） `setTrack` `setStance`。
+>
+> **已登记人脉 id**：`brother`(家里人) `fixer`(老雷·掮客) `shark`(放贷人) `doctor`(诊所医生) `union_boss`(工会头目) `pastor`(牧师) `columnist`(专栏作家) `producer`(电视制作人) `lobbyist`(游说客) `agent`(联邦探员)。
+>
+> **引入新 flag 要登记**（否则不显示、无 hover 说明）：在文件末尾加 `POTUS.define("balance", { tagNames: { <flag>: { name:"中文名", desc:"是什么", effect:"游戏影响" } } });`。
 
 1. **多行格式**。每个选项的 `outcomes` 独占一块，五档逐行排列：
    ```js
@@ -1296,7 +1360,8 @@ when 里引擎额外注入的差值布尔：`upRep/downRep/upFun/downFun/upHp/do
   grade: "mid",                     // major / mid / minor
   category: "scandal",              // 类型 id，见 §4.8 的表（灰产用 shady）
   medium: ["tv", "social"],         // 可选，见 §4.9
-  tierMin: 0, tierMax: 5,           // 层级区间
+  tierMin: 0, tierMax: 9,           // 层级区间（引擎 tier 0..9 = 界面等级 1..10）
+  tierRaw: true,                    // 直接按 0..9 解释 tierMin/tierMax（新卡建议都带上，免得踩旧 tierBand 映射）
   weight: 10,                       // 抽样权重
   // 可选：人脉 / 事件链 / 在位时长（三条都是"让一局变长"的柱子）
   // contacts: ["fixer"],           // 认识某个人才会触发，见 §4.10
@@ -1371,3 +1436,87 @@ node tools/validate.js
 | 结局分布 | 因病去世应保持两位数（默认约 1/3） | 静好岁月的 `hpChance` 一旦开大，死亡率会被推平、整个终局变温和（见 §4.13） |
 | 类型分布 | 不少于 5 种 | 太低说明内容类型单一 |
 | 大事件数量 | 越多越好 | 大事件一局只演一次，池子浅了会很快耗尽 |
+
+---
+
+## 14. campaign（竞选链：多幕民选晋升）
+
+**在本作里，每一次民选晋升都不是一锤子买卖，而是一连串强制推进的事件。** 当玩家熬够资历、触发某一级民选台阶时，引擎（`engine/campaign.js`）自动为他开打一场竞选：把“这一场怎么选”拆成一幕一幕，直到投票日。**设计理念见 [`DESIGN.md`](DESIGN.md) 的“核心系统六：竞选链”；这里是字段契约。**
+
+### 14.1 注册与文件
+
+```js
+POTUS.define("campaign", { camp_federal: { … }, … });   // 一个文件里可放多条链
+```
+
+内容侧样板：`content/61-campaigns.js`（9 条链定义）+ `content/events/65-campaign-acts.js`（各幕事件）。竞选链是**纯新增子系统**：从 `index.html` 删两行 `<script>` 即可完全回退。
+
+### 14.2 一条链的字段
+
+```js
+camp_federal: {
+  office: "联邦众议员",            // 必填，这一场在选什么（界面显示）
+  lede:   "通往国会的那一跳……",    // 可选，一句话点题
+  tier:   6,                       // 必填，目标级 = 末幕要抵达的那一级（= 起跳级 + 1）
+  retryable: true,                 // 可选，基层链标此 → 败选来年可卷土重来（末幕 prog_* unique:false）
+  gate: { tierRaw: true, tierMin: 5, tierMax: 5, minTenure: 24 },  // 谁能开打这一场（P.when 词汇，与对应 prog_* 同调）
+  meters: { momentum: 45, warchest: 30 },   // 选情表初值
+  stages: [                                   // 一幕一幕，每一幕都必须演出来
+    { event: "camp_federal_announce", title: "宣布角逐国会席位", maxMonths: 5, metersDelta: { momentum: 4 } },
+    { event: "camp_federal_primary",  title: "国会初选",       maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 16 } },
+    { event: "camp_federal_money",    title: "筹款与金主",     maxMonths: 6, metersDelta: { momentum: 4 }, abortBelow: { warchest: 12 } },
+    { event: "camp_federal_swing",    title: "摇摆选区的最后一周", maxMonths: 6, metersDelta: { momentum: 6 }, abortBelow: { momentum: 18 } },
+    { event: "prog_federal",          title: "投票日 · 决战国会", final: true, maxMonths: 8 }   // 末幕 = 复用统一晋升台阶
+  ]
+}
+```
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `office` | ✔ | 界面显示的官职名 |
+| `lede` |  | 一句话点题 |
+| `tier` | ✔ | 目标级（0..9）。引擎在链走完后看 `G.tier >= tier` 判 WON/LOST |
+| `retryable` |  | 基层链标 `true`（配 `prog_*` 的 `unique:false`），败选可过 `retryCooldown` 再战 |
+| `gate` | ✔ | 开启条件。用统一的 `P.when` 词汇（与事件门槛同一套），**与对应 `prog_*` 的 `tierRaw/tierMin/tierMax/minTenure` 完全对齐** |
+| `meters` | ✔ | 选情表初值（`momentum` 选情 / `warchest` 金库；名字在 `balance.campaign.meterNames`） |
+| `stages[]` | ✔ | 分幕数组，按下面子字段 |
+
+#### stage 子字段
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `event` | ✔ | 这一幕的事件 id（必须是已存在的卡）。**末幕一律复用 `60-progression.js` 的 `prog_*`** |
+| `title` |  | 幕标题（不写则取事件 title） |
+| `final` |  | `true` 标记投票日：演完就按是否抵达 `tier` 判胜/败 |
+| `maxMonths` | ✔ | 这一幕的窗口；窗口内始终没演出来 = 竞选拖垮 = 崩盘（LOST） |
+| `metersDelta` |  | 演完这一幕后的选情保底增减（代表“推进竞选本身的惯性”） |
+| `abortBelow` |  | 这一幕结束时的选情闸门；跌破即当场败选（区别于末幕掷骰落败） |
+
+### 14.3 选情怎么动（与三值性契约）
+
+- **选情主要靠各幕事件自己的 `outcomes` 撕动**：事件里写 `effects: { camp: { momentum: ±x, warchest: ±y } }`（`camp` 效果键见 §6）。`stages.metersDelta` 只给一点“推进惯性”位移，`abortBelow` 只给少量崩盘闸。
+- **各幕事件都是 `risk`**（有输有赢、可搭砸），量级 `mid`（总统幕 `major`），带 `tierRaw:true` 与 `tierMin/tierMax` 钉在本场起跳级。它们**不锁 track**——各级民选台阶是所有轨道共用的晋升阶梯。
+- **这些幕事件不会被随机抽到**：campaign.js 把它们锁定，只在它们正是“当前幕”时强制演出（借 `drawEvent` 对带 `eventId` 的定点档期直接返回、不查 `eligible` 的既有通道）。
+
+### 14.4 引擎参数（`balance.campaign`）
+
+```js
+POTUS.define("balance", { campaign: {
+  meterDrift: 0.8,      // 每个平静月选情自然流失
+  retryCooldown: 12,    // 败选后隔这么多个月才允许卷土重来（仅 retryable 链）
+  meterNames: { momentum: "选情", warchest: "金库" }
+}});
+```
+
+状态字段：`G.campaign = { id, stageIdx, since, meters, status }`、`G.campaignLog`、`G.campaignCool`（均 `core.js` migrate 补齐）。
+
+### 14.5 规模随职级缩放
+
+| 链 | 幕数 | 台阶 |
+|---|---|---|
+| `camp_council` / `camp_city` | 3 | 宣布 → 基层动员/辩论 → 投票日 |
+| `camp_state` / `camp_upper` / `camp_stwide` | 4 | 宣布 → 初选 → 造势 → 投票日 |
+| `camp_federal` / `camp_senate` / `camp_vp` | 5 | 宣布 → 初选 → 筹款/辩论 → 摇摆 → 投票日 |
+| `camp_president` | 6 | 宣布 → 初选 → 提名 → 辩论 → 摇摆州 → 投票日 |
+
+> 非民选轨道（任命 `prog_appoint` / 操盘手 `prog_kingmaker` / 巨富 `prog_magnate` / 名人 `prog_star`）**不套竞选链**——它们不是选举，有自己的里程碑事件。

@@ -7,7 +7,7 @@
 (function () {
   const P = window.POTUS;
 
-  /* 层级的可读名：优先轨道职位表，退 fallback（"T3" 这种内部代号不该裸奔见玩家） */
+  /* 层级的可读名：优先轨道职位表，退 fallback（"T3"/"层级3" 这种内部代号不该裸奔见玩家） */
   P.tierName = function (t) {
     const G = P.G;
     const table = P.reg.office || {};
@@ -15,7 +15,7 @@
     const name = hit ? (typeof hit === "string" ? hit : hit.name) : null;
     if (name) return name;
     const fb = P.balance().officeFallback || [];
-    return fb[t] || ("层级" + t);
+    return fb[t] || ("等级 " + (t + 1));
   };
 
   /* ---------------- 状态词条：名字 + hover 说明（是什么 / 有什么影响） ----------------
@@ -94,7 +94,7 @@
     const statusChips = scandal + tagChips + tagMore;
     /* 四行紧凑布局：左侧固定标签列 + 右侧 chip 流（能力/标签/派系/人脉）。日志已收进顶栏「动态」弹窗。 */
     const row = function (lab, chips) { return '<div class="sbrow"><span class="sblab">' + lab + '</span><span class="qchips">' + chips + '</span></div>'; };
-    return row('能力', attrChips) +
+    return (attrChips ? row('能力', attrChips) : "") +
       (statusChips ? row('标签', statusChips) : "") +
       row('派系', facChips || '<span class="muted">—</span>') +
       row('人脉', ctChips || '<span class="muted">—</span>');

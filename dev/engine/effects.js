@@ -22,34 +22,37 @@
       G.fun += Math.round(base * v);
     },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
-    hp: function (v, G) { G.hp = P.clamp(G.hp + v, 0, 100); },
-    ap: function (v, G) { const b = P.balance(); G.ap = P.clamp(G.ap + v, b.apMin == null ? 0 : b.apMin, b.apMax || 12); },
+    /* v0.9 退役：健康/精力不再是玩家可感资源。事件里残留的 hp/ap 增减一律**空操**（保留 handler 入口
+       以免“未知效果键”告警刷屏）。健康仍由 endYear 的年度老化直接结算（驱动生病/死亡结局），
+       但不再被任何事件影响；精力彻底退出玩法。要恢复：把下面两个空函数改回原实现即可。 */
+    hp: function (v, G) { /* 事件不再影响健康（后台静态量） */ },
+    ap: function (v, G) { /* 精力已退役（事件不再影响） */ },
     fav: function (v, G) { G.fav = P.clamp(G.fav + v, 0, 20); },
     /* 把柄：只能靠"让某人不敢开口"得到，不能靠钱买。下限 0，无上限 */
     lev: function (v, G) { G.lev = Math.max(0, (G.lev || 0) + v); },
     tier: function (v, G) {
       const b = P.balance();
       const before = G.tier;
-      /* v0.5.4 全局年限闸：晋升要在当前层级熬够月数（不满足 → tier 不动，
-         折成一点声望——"资历还不够"的引擎级表达，玩家实测 28 岁 5 年州长太快）。
-         门槛表写在 balance.tierGates，内容可调。 */
-      const GATES = b.tierGates || [0, 30, 36, 48, 60, 84];
+      /* 全局年限闸：正常晋升（一步一级）要在当前层级熬够月数（不满足 → tier 不动，
+         折成一点声望——"资历还不够"的引擎级表达）。门槛表写在 balance.tierGates（10 级）。
+         破格直提：tier:+2/+3 视为非常规提拔，**绕过资历闸**；代价是被跳过的中间级
+         不会记进 counters["served_N"]，日后"德不配位"类事件据此找上门。 */
+      const GATES = b.tierGates || [8, 10, 12, 18, 20, 24, 28, 34, 40, 0];
       const need = GATES[Math.min(before, GATES.length - 1)];
-      if (v > 0 && P.monthsAtTier && P.monthsAtTier() < need) {
+      const bypass = v >= 2;
+      if (v > 0 && !bypass && P.monthsAtTier && P.monthsAtTier() < need) {
         G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
         if (P.pushLog) P.pushLog("资历还差着：" + P.monthsAtTier() + "/" + need + " 个月——位子的事再等等（声望+3）。");
         return;
       }
+      /* 离开本级前登记：你确实坐过这一级（跳级时只登记起点，中间级留白 → 资历债） */
+      if (v > 0) { if (!G.counters) G.counters = {}; G.counters["served_" + before] = 1; }
       G.tier = P.clamp(G.tier + v, b.tierMin, b.tierMax);
       /* 层级一变就重置"在位时长"，晋升台阶的门槛（ev.minTenure）靠它计量；
-         同时重算选民池——升位=选区扩大，旧地盘的人只能带过来一小部分 */
+         同时重算选民池——升位=选区扩大，旧地盘的人只能带过来一小部分（跳级带得更少） */
       if (G.tier !== before) {
         G.tierSince = P.monthSeq();
         if (P.rescaleVoters) P.rescaleVoters(before, G.tier);
-        /* v0.5.4：升位=当选/上任——新位置自带基本盘（不然"没人投你怎么当上的"）。
-           规模按新选区 ×当选份额：死忠 = 份额×(0.04+rep/300)（声望越高死忠越多），
-           有好感 = 死忠×2.5（蜜月期），反对 = 死忠×1.5（对手的票也不少）。
-           任命类（setTrack 之外的委任）同样适用——上任也有支持者。 */
         if (G.tier > before && P.applyVoters) {
           const esize = P.electorateSize();
           const share = (b.voterBase && b.voterBase.winShare != null) ? b.voterBase.winShare : 0.08;
@@ -58,11 +61,24 @@
           const oppose = Math.round(diehard * 1.5);
           P.applyVoters({ diehard: diehard, warm: warm, oppose: oppose });
         }
+        /* 胜利线里程碑：首次抵达 demo 目标级（默认等级 7 / 联邦众议员）记一笔高光，不结束游戏 */
+        if (b.victoryTier != null && G.tier > before && G.tier >= b.victoryTier && before < b.victoryTier && P.pushLog) {
+          P.pushLog("★ 里程碑：你踏进了全国政治的中心舞台（等级 " + (G.tier + 1) +
+            "：" + (P.tierName ? P.tierName(G.tier) : "") + "）。");
+        }
       }
     },
     score: function (v, G) { G.score = (G.score || 0) + v; },
     flags: function (v) { [].concat(v).forEach(P.addFlag); },
     notFlags: function (v) { [].concat(v).forEach(P.delFlag); },
+    /* 隐藏计数器 buff：{ cap_legal: 1, cap_fund: 2 } → 累加（下限 0）。
+     * 与 flags 的分工：flags 记"发生过没有"（布尔），counters 记"攒了多少"（程度）。
+     * 刻意不进 tagNames、不上状态面板 —— 玩家看不见，但世界看得见：
+     * 后续事件用 countMin/countMax/countEq 读它，决定该不该触发。 */
+    count: function (v, G) {
+      if (!G.counters) G.counters = {};
+      for (const k in v) G.counters[k] = Math.max(0, (G.counters[k] || 0) + (Number(v[k]) || 0));
+    },
     /* 选民池（v0.5.2）：{ warm: 500, diehard: 100, oppose: -200 } → 具体人数的增减。
        warm=有好感（可能票）diehard=死忠（必到票）oppose=反对（对手的票）。 */
     voters: function (v, G) { if (P.applyVoters) P.applyVoters(v); },
@@ -110,7 +126,7 @@
       G.fallenCount = (G.fallenCount || 0) + 1;
       G.fallenShieldUntil = P.monthSeq() + 12;    // 12 个月保护期
       G.fallenThisTurn = true;                    // afterEvent 会据此补一段"下野"的交代
-      P.pushLog("下野：你从 T" + from + " 摔到了 T" + G.tier + "。政治生命还在，但台阶要重新爬。");
+      P.pushLog("下野：你从等级 " + (from + 1) + " 摔到了等级 " + (G.tier + 1) + "。政治生命还在，但台阶要重新爬。");
     },
 
     /* 硬 BE：政治生命就此终结。v = 结局理由（"prison" 入狱 / "disgrace" 身败名裂）。

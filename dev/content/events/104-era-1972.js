@@ -351,12 +351,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-POTUS.define("balance", {
-  tagNames: {
-    deep_throat: { name: "暗线报信人", desc: "匿名给调查记者指了方向。", effect: "舆论与基层在暗中承你的情，但一旦暴露，你将被上层彻底清算。" },
-    hush_man: { name: "封口费经手人", desc: "替资金链分发过封口费。", effect: "上层短期信任你，可这是随时会变成起诉书的旧账。" },
-    clean_hands: { name: "没上船", desc: "在最脏的环节拒收了那笔钱。", effect: "当整艘船下沉时，你的清白是最硬的护身符。" },
-    constitutionalist: { name: "守宪的人", desc: "在深夜解职令前宁可辞职也不执行。", effect: "全国记住你守住了底线，晋升与公信力大涨，代价是上层的冷落。" }
-  }
-});

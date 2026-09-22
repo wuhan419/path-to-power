@@ -1,7 +1,7 @@
 /* ============================================================================
  * CONTENT · events/105-era-1980.js
  * 时代：1980 保守回潮 —— 里根浪潮、减税松监管、空中交通管制员被解雇、核冻结运动。
- * 铁律见 docs/EVENT-WRITING-BRIEF.md。人脉只用已登记的 8 个。
+ * 铁律见 docs/CONTENT-SCHEMA.md §11。人脉只用已登记的 8 个。
  * ==========================================================================*/
 
 POTUS.define("event", [
@@ -12,7 +12,7 @@ POTUS.define("event", [
   {
     id: "rg80_wave", grade: "major", category: "political",
     valence: "risk", dyn: true,
-    era: ["1980_REAGAN"], tierMin: 1, tierMax: 5, weight: 12, unique: true,
+    minYear: 1980, maxYear: 1989, scoped: true, tierMin: 1, tierMax: 5, weight: 12, unique: true,
     medium: ["print", "radio", "tv", "cable"], month: 11,
     title: "一整片州一夜之间换了颜色",
     body: "电视里，那位前演员以碾压之势横扫全国。滞胀、人质、和一句「政府不能解决问题」，\n" +
@@ -98,7 +98,7 @@ POTUS.define("event", [
   {
     id: "rg81_patco", grade: "mid", category: "civil",
     valence: "bane", dyn: true,
-    era: ["1980_REAGAN"], tierMin: 1, tierMax: 4, weight: 11,
+    minYear: 1980, maxYear: 1989, scoped: true, tierMin: 1, tierMax: 4, weight: 11,
     medium: ["print", "radio", "tv"], month: 8,
     title: "上百万人订的机票，一夜之间说不清",
     body: "空中交通管制员罢工了，白宫给每个人发了信：回来，否则解雇，还引用了一部禁止公务人员罢工的法。\n" +
@@ -184,7 +184,7 @@ POTUS.define("event", [
   {
     id: "rg82_snl", grade: "mid", category: "finance",
     valence: "risk", dyn: true,
-    era: ["1980_REAGAN"], tierMin: 2, tierMax: 5, weight: 10,
+    minYear: 1980, maxYear: 1989, scoped: true, tierMin: 2, tierMax: 5, weight: 10,
     medium: ["print", "tv"],
     title: "一家「什么都敢贷」的新储贷公司找上门",
     body: "监管松绑后，一批新开的储贷公司开始满世界撒钱：地产、油田、 anything。他们要的是「有个懂政治的人挂个名」。\n" +
@@ -269,7 +269,7 @@ POTUS.define("event", [
   {
     id: "rg83_freeze", grade: "minor", category: "foreign",
     valence: "risk", dyn: true,
-    era: ["1980_REAGAN"], tierMin: 0, tierMax: 3, weight: 10,
+    minYear: 1980, maxYear: 1989, scoped: true, tierMin: 0, tierMax: 3, weight: 10,
     medium: ["print", "radio", "tv"],
     title: "大学里发起了一份「核冻结」请愿",
     body: "军备竞赛升温，电视上放着「导弹几分钟能到」的模拟画面。大学城发起请愿，要美苏同时冻结核武。\n" +

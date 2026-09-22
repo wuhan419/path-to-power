@@ -8,11 +8,13 @@
 
   /* v0.8 视图层隐藏清单：这些项从面板上撤下，但**引擎数值与判定一律不动**（值照旧参与
      结算/门槛/掷骰）。与「属性减法」的冻结为常量策略对应，后续彻底重构再回到引擎层。
-     · attr INT/INTG：智力/诚信——不再上面板（属性条仅留魅力·手腕）
+     · attr INT/INTG：智力/诚信——不再上面板
+     · attr CHA/CUN：玩法大改造后 demo 期整条「能力」先隐藏（属性仍由出身模板给、
+       仍照旧参与判定，只是不上面板减少噪声；要恢复展示把 CHA/CUN 从下表删掉即可）
      · res hp/ap/intg：健康/精力/公信力（公信力并入声望）——不再上资源瓷贴
      · fac press/labor/religious/intel：媒体/工会（常量）+ 宗教/情报（死轴）——不再上派系区 */
   P.UI_HIDE = {
-    attr: { INT: 1, INTG: 1 },
+    attr: { INT: 1, INTG: 1, CHA: 1, CUN: 1 },
     res: { hp: 1, ap: 1, intg: 1 },
     fac: { press: 1, labor: 1, religious: 1, intel: 1 }
   };
@@ -60,7 +62,7 @@
     const b = P.balance();
     let progChip;
     if (G.tier >= b.tierMax) {
-      progChip = '<span class="id-prog atmax"><b>权力顶点</b></span>';
+      progChip = '<span class="id-prog atmax"><b>等级 ' + (G.tier + 1) + ' · 权力顶点</b></span>';
     } else {
       const prog = P.promotionProgress();
       const tip = prog.note + "。晋升就绪度＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。";
@@ -72,7 +74,7 @@
         '</span>';
     }
     return '<span class="idcard tier-' + G.tier + '">' +
-      '<span class="id-tier">T' + G.tier + '</span>' +
+      '<span class="id-tier">等级' + (G.tier + 1) + '</span>' +
       '<span class="id-main">' +
         '<span class="id-office">' + P.officeName() + '</span>' +
         '<span class="id-sub">' +
@@ -98,8 +100,10 @@
     const key = (G.track || "*") + "_" + G.tier;
     const hit = table[key] || table["*_" + G.tier];
     if (hit) return typeof hit === "string" ? hit : hit.name;
-    return (P.reg.officeFallback || ["无名之辈", "圈内人", "地方民选官员", "州级人物", "全国性人物", "权力顶点"])[G.tier] ||
-      ("T" + G.tier);
+    return (P.reg.officeFallback || [
+      "无名之辈", "圈内人", "地方官员", "地方资深", "州级新人",
+      "州级人物", "联邦官员", "全国性人物", "重量级人物", "权力顶点"
+    ])[G.tier] || ("等级 " + (G.tier + 1));
   };
   /* ---------------- 晋升进度条（v0.5.2 用户设计） ----------------
    * 进度不是"经验值"，是"你准备好了吗"的综合读数：
@@ -109,10 +113,9 @@
   P.promotionProgress = function () {
     const G = P.G, b = P.balance();
     if (G.tier >= b.tierMax) return { pct: 100, ready: true, note: "已在顶点" };
-    /* 熬的年数按下一级职位加权：T1→T2 要 3 年，T3→T4 要 5 年，T4→T5 要 7 年
-       （v0.5.4 用户实测反馈：28 岁干 5 年就州长太快）。 */
-    const NEED = [30, 36, 36, 48, 60, 84];
-    const needTenure = NEED[Math.min(G.tier, NEED.length - 1)];
+    /* 在位的年数按下一级职位加权：直接取全局年限闸 balance.tierGates（与晋升判定同源） */
+    const GATES = b.tierGates || [8, 10, 12, 18, 20, 24, 28, 34, 40, 0];
+    const needTenure = GATES[Math.min(G.tier, GATES.length - 1)];
     const tenureScore = Math.min(1, P.monthsAtTier() / needTenure);
     const repScore = Math.min(1, G.rep / 60);
     const es = P.electionStrength();
@@ -176,7 +179,8 @@
   };
 
   /* 顶部状态条（v0.5.6 合并去重）：把"我是谁 / 关键资源 / 我现在是谁"全部收进页面顶端。
-     · 第 1 行：姓名 · 日期（含"第 N 个年头"） · 轨道 · 声望/公信力/资金 · 健康/精力/人情
+     · 第 1 行：姓名 · 日期（含"第 N 个年头"）
+     · 资源瓷贴：声望 / 资金 / 人情（精力·健康已于 v0.9 退役，不再上屏）
      · 第 2 行：职位卡 officeCard（职务·T层级（在位）｜州·选区规模｜选民池｜政治光谱｜晋升）
      原先右上角 .masthead .meta 与本条重复（姓名、年月各两遍），职务/在位/州也与职位卡重复，
      均已合并为各出现一次。 */
@@ -204,13 +208,11 @@
       ap:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13z"/></svg>',
       fav:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.4a3.2 3.2 0 010 5.9M18.5 20a5.5 5.5 0 00-2.8-4.6"/></svg>'
     };
-    const track = (P.reg.track[G.track] || { name: G.track }).name;
-    const eraName = (P.reg.era[G.era] || { name: G.era }).name;
     const yrs = G.age - b.startAge + 1;
+    /* v0.9：去掉「年代」概念（现在是按绝对年月推进的连续时间轴）与「轨道」（demo 期只一条轨道），
+       顶栏只保留日期。要恢复：把下面两个 chip 加回来即可。 */
     return '<div class="tsrow tsmeta">' +
-        chip('时代', eraName, '当前时代——它决定世界议题、媒介与事件池，也给整个画面定主色调。') +
         chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
-        chip('轨道', track, '你现在走的这条路：选仕途、幕僚、其它轨道各有不同的晋升线与事件池。') +
       '</div>' +
       '<div class="tsrow statgrid">' +
         stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
@@ -218,6 +220,33 @@
         stat('人情', G.fav, 's-fav', ICON.fav, false, '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
       '</div>' +
       '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
+  };
+
+  /* ---------------- 竞选条（campaign.js 的界面投影） ----------------
+   * 只在有一场活跃竞选时出现：这一场在选什么、走到第几幕、这一幕的窗口还剩几个月、
+   * 选情表（动量 / 金库）的实时读数。让玩家看得见"这是一场一连串事件的竞选"，而不是一锤子买卖。 */
+  P.campaignHTML = function () {
+    const cp = P.campaignPanel ? P.campaignPanel() : null;
+    if (!cp) return "";
+    const esc = function (s) { return String(s == null ? "" : s).replace(/"/g, '&quot;'); };
+    const METER_MAX = 60;                          // 选情条满格参考值（momentum 常见 45 起、上限不硬编）
+    const bar = function (m) {
+      const pctv = Math.max(0, Math.min(100, Math.round(m.value / METER_MAX * 100)));
+      const low = m.value <= 18 ? " low" : "";
+      return '<span class="cmp-meter' + low + '"><i>' + esc(m.name) + '</i>' +
+        '<span class="cmp-track"><b style="width:' + pctv + '%"></b></span>' +
+        '<em>' + m.value + '</em></span>';
+    };
+    const left = cp.stepLeft == null ? "" :
+      '<span class="cmp-left' + (cp.stepLeft <= 1 ? ' warn' : '') + '">这一幕还剩 ' + cp.stepLeft + ' 个月</span>';
+    return '<div class="campbar">' +
+      '<div class="cmp-head"><span class="cmp-tag">竞选中</span>' +
+      '<b class="cmp-office">' + esc(cp.office) + '</b>' +
+      '<span class="cmp-stage">第 ' + cp.stage + ' / ' + cp.stageCount + ' 幕 · ' + esc(cp.stageTitle) + '</span>' +
+      left + '</div>' +
+      (cp.lede ? '<div class="cmp-lede">' + esc(cp.lede) + '</div>' : "") +
+      (cp.meters.length ? '<div class="cmp-meters">' + cp.meters.map(bar).join("") + '</div>' : "") +
+      '</div>';
   };
 
   /* ---------------- 状态区（v0.8 两栏重构） ----------------
@@ -230,6 +259,7 @@
     const G = P.G;
     return '<div class="sb tier-' + G.tier + '">' +
       '<div class="topstat">' + P.topStatus() + '</div>' +
+      P.campaignHTML() +
       '<div class="panel sb-detail">' + P.statusDetailHTML() + '</div>' +
       '</div>';
   };

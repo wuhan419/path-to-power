@@ -9,16 +9,12 @@ POTUS.define("event", [
     "id": "prog_council",
     "grade": "minor",
     "category": "career",
-    "unique": true,
+    "unique": false,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
+    "tierRaw": true,     // 晋升脊柱：按新 10 级空间直接判定，不走 tierBand 铺档（跨时代通用——任何时代都要能迈出第一步）
     "tierMin": 0,
-    "tierMax": 0,        // 只在源层级 T0（无名之辈）触发；叙事=第一次参选，升 T1
-    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
+    "tierMax": 0,        // 等级1（志愿者）触发；第一次参选，升 等级2 地方党务
+    "minTenure": 8,        // 在当前级蹲够这么多个月才有资格（与 balance.tierGates 同调）
     "weight": 20,
     "brief": {
       "lede": "第一次有人要认真地对你说：把你的名字印在选票上。",
@@ -201,14 +197,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 1,
-    "tierMax": 1,        // 只在源层级 T1（地方民选官员）触发；升 T2 州众议员
-    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 2,
+    "tierMax": 2,        // 等级3（市议员）触发；进州议会，升 等级4 州众议员
+    "minTenure": 12,        // 与 balance.tierGates 同调
     "weight": 16,
     "brief": {
       "lede": "州议会的席位空了出来。有人劝你去填。",
@@ -381,14 +373,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 2,
-    "tierMax": 2,        // 只在源层级 T2（州众议员）触发；升 T3 联邦众议员/州参议员
-    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 5,
+    "tierMax": 5,        // 等级6（全州公职）触发；进国会，升 等级7 联邦众议员（胜利线）
+    "minTenure": 24,        // 与 balance.tierGates 同调
     "weight": 15,
     "brief": {
       "lede": "联邦众议院的门开着一条缝。你要挤进去。",
@@ -557,14 +545,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 3,
-    "tierMax": 3,        // 只在源层级 T3（州参/联邦众议员）触发；升 T4 州长/联邦参议员
-    "minTenure": 60,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 6,
+    "tierMax": 6,        // 等级7（联邦众议员）触发；升 等级8 联邦参议员 / 州长
+    "minTenure": 28,        // 与 balance.tierGates 同调
     "weight": 14,
     "brief": {
       "lede": "参议员和州长，两条路都摆在你面前。",
@@ -820,14 +804,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 4,
-    "tierMax": 4,        // 只在源层级 T4（州长/联邦参议员）触发；升 T5 总统
-    "minTenure": 48,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 8,
+    "tierMax": 8,        // 等级9（总统候选人）触发；问鼎白宫，升 等级10 总统
+    "minTenure": 40,        // 与 balance.tierGates 同调
     "weight": 30,
     "brief": {
       "lede": "所有人都看着你。你要不要说那句话。",
@@ -1019,14 +999,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "boon", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 2,
-    "tierMax": 4,
-    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 4,
+    "tierMax": 7,
+    "minTenure": 20,        // 委任轨道中途的破格提拔（与 tierGates 同调）
     "weight": 16,
     "brief": {
       "lede": "一个不需要选举的位置出现了。它只需要一个人点头。",
@@ -1200,14 +1176,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 2,
-    "tierMax": 4,
-    "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 3,
+    "tierMax": 6,
+    "minTenure": 24,        // 操盘轨道：让别人当选换来的级（与 tierGates 同调）
     "weight": 16,
     "brief": {
       "lede": "你手里有一个人。他自己还不知道他是一张牌。",
@@ -1390,14 +1362,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "risk", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 2,
-    "tierMax": 4,
-    "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 3,
+    "tierMax": 6,
+    "minTenure": 24,        // 财富轨道：用钱改写一场选举（与 tierGates 同调）
     "weight": 16,
     "brief": {
       "lede": "有人拿着一张纸来找你。上面写着：钱可以这样花。",
@@ -1672,14 +1640,10 @@ POTUS.define("event", [
     "category": "career",
     "unique": true,
     valence: "boon", dyn: true,
-    "era": [
-      "2008_CRASH",
-      "1960_CAMELOT",
-      "1974_WATERGATE"
-    ],
-    "tierMin": 1,
-    "tierMax": 3,
-    "minTenure": 84,        // 在当前层级蹲够这么多个月才有资格
+    "tierRaw": true,
+    "tierMin": 2,
+    "tierMax": 5,
+    "minTenure": 30,        // 名人轨道：名气走在职位前面（与 tierGates 同调）
     "weight": 16,
     "brief": {
       "lede": "你的名字比你的头衔更响。这既是资产，也是麻烦。",
@@ -1849,6 +1813,271 @@ POTUS.define("event", [
               ]
             }
           }
+        }
+      }
+    ]
+  },
+
+  /* ===== 桥接台阶：把旧 6 档的稀疏台阶补成连续 10 级（等级2→3、等级4→5、等级5→6、等级8→9） ===== */
+  {
+    "id": "prog_city",
+    "grade": "minor",
+    "category": "career",
+    "unique": false,        // 市议员=大多数人应能抵达的基线：可重试，难度墙砌在它之上
+    valence: "risk", dyn: true,
+    "tierRaw": true,
+    "tierMin": 1,
+    "tierMax": 1,        // 等级2（地方党务）触发；第一次选上公职，升 等级3 市议员
+    "minTenure": 10,        // 与 balance.tierGates 同调
+    "weight": 18,
+    "brief": {
+      "lede": "党务干得再久，名字也只在党的名册上。要让它出现在选票上，你得去争一个真正的席位。",
+      "known": [
+        "市议员多为兼职，津贴不高，但它是第一个‘代表一城人’的职务。",
+        "市的议题很具体：警察、消防、分区、垃圾清运——每一件都有人为你记一辈子。",
+        "党内需要一个熟悉基层的人去占住这个位子，你已经干了几年党务，他们开始考虑你。"
+      ],
+      "rumor": [
+        "有人说现任市长跟本地开发商走得近，这个位子未必有人真心想守。",
+        "有人说你只要出面，党的捐款人就会跟上一小笔。"
+      ],
+      "unknown": [
+        "你是在为自己参选，还是在替党务机器占位。",
+        "第一次拥有实权，会让你更谨慎，还是更激进。"
+      ],
+      "terms": [
+        { "k": "市议会", "v": "市的立法机关，管预算、分区与地方条例，是地方政治最常见的实权起点。" },
+        { "k": "兼职议员", "v": "许多市的议员是兼职，有本职工作，靠津贴与名誉支撑。" }
+      ]
+    },
+    "title": "市议会的一个席位",
+    "body": "从党的干部变成民选的公职人员，这一步跨过去，你才算真正上了牌桌。",
+    "choices": [
+      {
+        "id": "run",
+        "text": "争取党内提名，参选市议员",
+        "base": 0.5,
+        "mods": [
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "establishment", "w": 0.3 }
+        ],
+        "outcomes": {
+          "crit": { "body": "党内顺利背书，你以高票当选市议员。", "effects": { "tier": 1, "rep": 2.5, "fac": { "establishment": 8, "base": 6 } } },
+          "ok": { "body": "你赢下了这个席位，第一次成为民选官员。", "effects": { "tier": 1, "rep": 1.5, "fac": { "establishment": 5 } } },
+          "meh": { "body": "你险胜，但欠了党机器一份人情。", "effects": { "tier": 1, "rep": 0.8, "fav": -1 } },
+          "fail": { "body": "你输了，但在地方上露了脸。", "effects": { "rep": 1 } },
+          "critfail": { "body": "惨败，党内开始怀疑你的号召力。", "effects": { "rep": -1.25, "fac": { "establishment": -6 } } }
+        }
+      },
+      {
+        "id": "selfrun",
+        "text": "不靠党机器，自己拉一支志愿者队伍选",
+        "base": 0.42,
+        "mods": [
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "base", "w": 0.4 }
+        ],
+        "outcomes": {
+          "crit": { "body": "草根的奇迹：你绕开党机器，靠双腿跑赢了选举。", "effects": { "tier": 1, "rep": 3, "fac": { "base": 12 } } },
+          "ok": { "body": "你当选了，代价是从此被党里当成‘不好管的人’。", "effects": { "tier": 1, "rep": 1.5, "fac": { "base": 8, "establishment": -5 } } },
+          "meh": { "body": "你赢了，但队伍散得比组建还快。", "effects": { "tier": 1, "rep": 0.7, "hp": -0.5 } },
+          "fail": { "body": "没有机器的选举终究太难，你差了一截。", "effects": { "rep": 0.5, "fac": { "base": 4 } } },
+          "critfail": { "body": "你输了，还落得孤立。", "effects": { "rep": -1, "fac": { "base": -4 } } }
+        }
+      }
+    ]
+  },
+  {
+    "id": "prog_upper",
+    "grade": "mid",
+    "category": "career",
+    "unique": true,
+    valence: "risk", dyn: true,
+    "tierRaw": true,
+    "tierMin": 3,
+    "tierMax": 3,        // 等级4（州众议员）触发；升 等级5 州参议员
+    "minTenure": 18,        // 与 balance.tierGates 同调
+    "weight": 15,
+    "brief": {
+      "lede": "众议院的资历攒够了，党里有人暗示你：参议院那张桌子可以给你留个位置。",
+      "known": [
+        "州参议员比众议员更少、更稳，每一个席位都对应更大的选区。",
+        "参院握有人事与预算的确认权，是通往全州职务的中间站。",
+        "空出的席位往往由党内大佬先过一遍目——你得到场，也得有人替你说话。"
+      ],
+      "rumor": [
+        "有人说这个位子早被内定给一位捐得更多的人。",
+        "有人说现任者想退休，但没跟任何人说过。"
+      ],
+      "unknown": [
+        "从多数党里的小角色，到少数人之一的参议员，别人对你的眼光会怎么变。",
+        "你会不会为了这张桌子，欠下一个还不清的人情。"
+      ],
+      "terms": [
+        { "k": "州参议院", "v": "州议会上院，席位更少、任期更长，握有确认与预算的关键权力。" }
+      ]
+    },
+    "title": "州参议院的召唤",
+    "body": "从‘一名州众议员’变成‘本区参议员’，选区更大，赌注也更大。",
+    "choices": [
+      {
+        "id": "run",
+        "text": "争取提名，竞选州参议员",
+        "req": { "rep": 5 },
+        "base": 0.48,
+        "mods": [
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "establishment", "w": 0.3 }
+        ],
+        "outcomes": {
+          "crit": { "body": "大佬替你开了口，党机器全速运转，你顺利入主参院。", "effects": { "tier": 1, "rep": 3, "fac": { "establishment": 10 } } },
+          "ok": { "body": "你当选州参议员，进入了州议会的上院。", "effects": { "tier": 1, "rep": 1.75, "fac": { "establishment": 6 } } },
+          "meh": { "body": "你赢了，但为了让大佬助你，你许下了几个不太好兑现的承诺。", "effects": { "tier": 1, "rep": 0.9, "fac": { "establishment": 4 }, "flags": ["compromised"] } },
+          "fail": { "body": "你输了，但已经是州里有名有姓的人物。", "effects": { "rep": 1.25 } },
+          "critfail": { "body": "惨败，党内改推了别人，你被冷处理。", "effects": { "rep": -1.25, "fac": { "establishment": -8 } } }
+        }
+      },
+      {
+        "id": "hold",
+        "text": "不冒险，继续在众院深耕资历",
+        "base": 0.65,
+        "mods": [{ "src": "fac", "key": "establishment", "w": 0.3 }],
+        "outcomes": {
+          "crit": { "body": "你成了委员会里最懂某块业务的人，说话开始有分量。", "effects": { "rep": 1.25, "fac": { "establishment": 8 }, "fav": 2 } },
+          "ok": { "body": "你稳稳地攒着资历。", "effects": { "fac": { "establishment": 5 } } },
+          "meh": { "body": "你守住了位子，也守住了天花板。", "effects": { "fac": { "establishment": 2 } } },
+          "fail": { "body": "有人觉得你安于现状。", "effects": { "rep": -0.3 } },
+          "critfail": { "body": "错过这一波，下次不知要等多久。", "effects": { "rep": -0.6, "fac": { "establishment": -4 } } }
+        }
+      }
+    ]
+  },
+  {
+    "id": "prog_stwide",
+    "grade": "mid",
+    "category": "career",
+    "unique": true,
+    valence: "risk", dyn: true,
+    "tierRaw": true,
+    "tierMin": 4,
+    "tierMax": 4,        // 等级5（州参议员）触发；升 等级6 全州公职（州总检察官/州级大员）
+    "minTenure": 20,        // 与 balance.tierGates 同调
+    "weight": 15,
+    "brief": {
+      "lede": "要在一个选区里赢是一回事，要让全州的人都认识你是另一回事。",
+      "known": [
+        "全州公职——州总检察长、州务卿、州财务官——由整个州投票选出，名字要出现在每一张州选票上。",
+        "这一步是从‘地方人物’变成‘全州人物’的分水岭，也是通往联邦与全国舞台的跳板。",
+        "竞选全州职务意味着高昂的广告与差旅，钱从这一刻起变成硬门槛。"
+      ],
+      "rumor": [
+        "有人说现任的州级大员要转战联邦，这个位子在空。",
+        "有人说对手阵营已经筹到了你两倍的款。"
+      ],
+      "unknown": [
+        "全州曝光带来的，是机会还是靶子。",
+        "为打这场选战，你要向谁借钱、又是欠谁的人情。"
+      ],
+      "terms": [
+        { "k": "全州公职", "v": "由整个州选民选出的行政或检察职务（如州总检察长），是从地方通往全国的关键台阶。" }
+      ]
+    },
+    "title": "把版图扩大到全州",
+    "body": "一个全州性的职位出现了。拿下它，你就再不是某一区的人了。",
+    "choices": [
+      {
+        "id": "run",
+        "text": "竞选全州公职",
+        "req": { "rep": 5, "fun": 6 },
+        "base": 0.46,
+        "mods": [
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "press", "w": 0.3 }
+        ],
+        "outcomes": {
+          "crit": { "body": "你的名字上了全州的选票，也赢了整个州。", "effects": { "tier": 1, "rep": 3, "fac": { "press": 10, "base": 6 } } },
+          "ok": { "body": "你当选州级公职，正式成为全州人物。", "effects": { "tier": 1, "rep": 1.75, "fac": { "press": 5 } } },
+          "meh": { "body": "你赢了，但竞选债压得你喘不过气。", "effects": { "tier": 1, "rep": 0.9, "fun": -7 } },
+          "fail": { "body": "你输了，但全州都认识了你的名字。", "effects": { "rep": 1.5, "fun": -3 } },
+          "critfail": { "body": "惨败，竞选财务还被翻了个底朝天。", "effects": { "rep": -1.25, "fun": -6, "flags": ["scandal_2", "investigation_open"] } }
+        }
+      },
+      {
+        "id": "wait",
+        "text": "这次不上，先攒资历和人脉",
+        "base": 0.6,
+        "mods": [{ "src": "fac", "key": "establishment", "w": 0.3 }],
+        "outcomes": {
+          "crit": { "body": "你躲开了一场本就赢不了的硬仗，保住了实力。", "effects": { "rep": 1, "fac": { "establishment": 8 }, "fav": 2 } },
+          "ok": { "body": "你按兵不动，等着更合适的时机。", "effects": { "fac": { "establishment": 4 } } },
+          "meh": { "body": "错过一次，机会可能不再来。", "effects": {} },
+          "fail": { "body": "别人上了车，你还在站台上。", "effects": { "rep": -0.4 } },
+          "critfail": { "body": "被视为难当大任，党里转向力捧别人。", "effects": { "rep": -0.8, "fac": { "establishment": -6 } } }
+        }
+      }
+    ]
+  },
+  {
+    "id": "prog_vp",
+    "grade": "major",
+    "category": "career",
+    "unique": true,
+    valence: "risk", dyn: true,
+    "tierRaw": true,
+    "tierMin": 7,
+    "tierMax": 7,        // 等级8（联邦参议员/州长）触发；升 等级9 副总统/总统候选人
+    "minTenure": 34,        // 与 balance.tierGates 同调
+    "weight": 16,
+    "brief": {
+      "lede": "你已经站在了全国舞台的中央。现在有一个更高的电话在响。",
+      "known": [
+        "到大选年，领跑者会挑选竞选伙伴——一张副总统的选票，或一个全国性的枢机职位。",
+        "副总统候选人的遴选看的是互补：地理、派系、性别、经验，一样样地配。",
+        "这通电话既可能把你推上权力顶点，也可能让你在聚光灯下被反复审视。"
+      ],
+      "rumor": [
+        "有人说候选名单已经内定，你只是被拿来平衡某个派系。",
+        "有人说对手已经准备好一叠关于你的黑材料。"
+      ],
+      "unknown": [
+        "站上这个舞台，会不会是你政治生命的最高点。",
+        "你愿意为了这张票，替别人的议程背书到什么程度。"
+      ],
+      "terms": [
+        { "k": "竞选伙伴", "v": "候选人挑选的副手，用于平衡选票与派系，正式成为副总统/总统候选人。" }
+      ]
+    },
+    "title": "副总统的召唤",
+    "body": "一个全国性的位置在向你招手：入局，或保持独立、坐等下一轮。",
+    "choices": [
+      {
+        "id": "accept",
+        "text": "接受征召，成为总统候选人／副手",
+        "req": { "rep": 6, "fun": 8 },
+        "base": 0.5,
+        "mods": [
+          { "src": "attr", "key": "CHA", "w": 0.4 },
+          { "src": "fac", "key": "establishment", "w": 0.3 }
+        ],
+        "outcomes": {
+          "crit": { "body": "你被正式提名，名字与总统之位并列，全国瞩目。", "effects": { "tier": 1, "rep": 3, "fac": { "establishment": 12, "press": 8 } } },
+          "ok": { "body": "你成了总统候选人／副手，站进了权力中枢。", "effects": { "tier": 1, "rep": 2, "fac": { "establishment": 8 } } },
+          "meh": { "body": "你上了名单，但成了替罪羊，要为别人的失误埋单。", "effects": { "tier": 1, "rep": 0.8, "fac": { "establishment": -4 } } },
+          "fail": { "body": "你落选了副手之位，但已是全国性重量级人物。", "effects": { "rep": 1.25 } },
+          "critfail": { "body": "遴选会上被当众拒绝，难堪传遍全国。", "effects": { "rep": -1.25, "fac": { "establishment": -8, "press": -6 } } }
+        }
+      },
+      {
+        "id": "stay",
+        "text": "婉拒征召，守住自己的独立地位",
+        "base": 0.55,
+        "mods": [{ "src": "attr", "key": "INTG", "w": 0.3 }],
+        "outcomes": {
+          "crit": { "body": "你保持独立的姿态赢得尊重，党里把你当成各方都想拉拢的关键人物。", "effects": { "rep": 1.5, "attr": { "INTG": 3 }, "fac": { "base": 8 } } },
+          "ok": { "body": "你没当任何人的副手，声望反而更硬。", "effects": { "rep": 1, "fac": { "base": 4 } } },
+          "meh": { "body": "你守住了一身干净，也错过了一班快车。", "effects": { "rep": 0.3 } },
+          "fail": { "body": "两边都不再把你当自己人。", "effects": { "fac": { "establishment": -5 } } },
+          "critfail": { "body": "你以为的独立，被人读成了傲慢。", "effects": { "rep": -0.8, "fac": { "establishment": -6, "base": -4 } } }
         }
       }
     ]

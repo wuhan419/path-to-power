@@ -23,7 +23,7 @@
     if (m.src === "track") { const v = G.track === m.key ? m.w : 0; return { v: v, label: "轨道·" + m.key }; }
     if (m.src === "party") { const v = G.party === m.key ? m.w : 0; return { v: v, label: "党派·" + m.key }; }
     if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: "姿态·" + m.key }; }
-    if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: "层级 T" + G.tier }; }
+    if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: "等级 " + (G.tier + 1) }; }
     if (m.src === "res" && m.key === "fun") { const v = G.fun >= (m.min || 0) ? m.w : 0; return { v: v, label: "资金充足" }; }
     /* v0.6 选民底气：voterEdge() ∈ [-1,1]（自然均衡点处为 0）。
        内容可以用 mods: [{ src: "voters", w: 0.08 }] 显式声明，
@@ -140,7 +140,7 @@
     if (!choice || !choice.stake) return null;
     const def = P.balance().stakeRates || {};
     const spec = {};
-    ["fun", "ap", "fav"].forEach(function (k) {
+    ["fun", "fav"].forEach(function (k) {
       const raw = choice.stake[k];
       if (!raw) return;
       spec[k] = (raw === true) ? Object.assign({}, def[k] || {}) : Object.assign({}, def[k] || {}, raw);
@@ -181,8 +181,7 @@
       const per = Math.max(1, s.per || 0), w = s.w || 0.04, cap = s.cap || 0.30;
       return Math.max(0, Math.min(capSteps(w, cap), Math.floor(G.fun / per)));
     }
-    const w = s.w || 0.03, cap = s.cap || 0.09;               // k === "ap"
-    return Math.max(0, Math.min(capSteps(w, cap), G.ap));
+    return 0;                                                  // v0.9：精力已退役，不再有第三加码轴
   };
 
   /* 达到上限后总共能加多少胜算（界面拿来显示"上限 +X%"） */
@@ -198,7 +197,7 @@
   P.stakeInfo = function (choice, st) {
     const spec = P.stakeSpec(choice);
     st = st || {};
-    const out = { bonus: 0, cost: { fun: 0, fav: 0, ap: 0 }, parts: [], reroll: false, spec: spec };
+    const out = { bonus: 0, cost: { fun: 0, fav: 0 }, parts: [], reroll: false, spec: spec };
     if (!spec) return out;
     if (spec.fun && st.fun) {
       const per = Math.max(1, spec.fun.per || 0);
@@ -207,14 +206,6 @@
         const b = Math.min(steps * (spec.fun.w || 0.04), spec.fun.cap || 0.30);
         out.cost.fun = steps * per; out.bonus += b;
         out.parts.push({ label: "资金 " + P.fmtUsd(out.cost.fun), pct: b * 100 });
-      }
-    }
-    if (spec.ap && st.ap) {
-      const n = Math.min(st.ap, P.stakeMax("ap", choice));
-      if (n > 0) {
-        const b = Math.min(n * (spec.ap.w || 0.03), spec.ap.cap || 0.09);
-        out.cost.ap = n; out.bonus += b;
-        out.parts.push({ label: "精力 " + n, pct: b * 100 });
       }
     }
     if (spec.fav && st.fav) {

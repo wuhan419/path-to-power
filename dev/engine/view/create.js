@@ -7,13 +7,58 @@
 (function () {
   const P = window.POTUS;
 
-  /* ---------------- 建角 ---------------- */
+  /* ---------------- 建角（demo 极简版） ----------------
+   * 用户定的快速开局：时代锁死 1980，玩家只选「难度 + 姓名」。
+   *   · 难度 = 出身 + 初始资源（直接吃 10-characters.js 的 origin 资源梯度）
+   *   · 其余轴（起点=insider、党派/州/天赋）代码自动填或随机，玩家不碰
+   *   · 姓名留空 → 默认「汤米」
+   * 老的完整建角（八选 + 掷骰 + VIP）函数都还在本文件里，只是不再被 renderCreate 调用，便于回退。 */
+  const DEMO_ERA = "1980_REAGAN";
+  /* 五档难度：出身（吃 10-characters.js 的资源梯度）+ bonus（在出身之上再叠一笔开局增量）。
+   * bonus 走 applyEffects，支持的键与事件效果一致：fun / rep / fav / lev / fac / attr。
+   *   —— 精力(ap)、健康(hp) 已在 v0.9 退役，这里不再出现。
+   * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。 */
+  const DIFFS = {
+    legendary: { label: "传奇", origin: "dynasty", note: "政治世家中的世家 · 开局资金 $3.0M · 声望 +15、人情 +6、天赋全属性 +5 —— 含着金汤匙落地，一路都有人铺",
+      bonus: { fun: 1800000, rep: 7, fav: 4, fac: { establishment: 10 }, attr: { CHA: 5, INT: 5, CUN: 5, INTG: 5 } } },
+    easy:   { label: "简单", origin: "dynasty", note: "政治世家 · 开局资金 $1.2M · 建制人脉 +30、声望 +8 —— 有人替你开好路" },
+    normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 开局资金 $400k · 智力 +15，但基层不信任你" },
+    hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 白手起家（资金 0）· 基层 +20 但建制 -20，全凭一股韧劲往上爬" },
+    brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 家无余财 $0 · 只有工会与基层，且起步声望更低、建制更冷 —— 真正的从零开始",
+      bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
+  };
+  function randKey(map) { const ks = Object.keys(map); return ks[Math.floor(Math.random() * ks.length)]; }
+  /* 给四属性各掷一把（35-55），自动开局用，不再让玩家手动洒自由点 */
+  function autoRoll() {
+    const r = (P.balance() && P.balance().rollAttrs) || {};
+    const lo = r.min == null ? 35 : r.min, hi = r.max == null ? 55 : r.max;
+    return { CHA: P.rint(lo, hi), INT: P.rint(lo, hi), CUN: P.rint(lo, hi), INTG: P.rint(lo, hi) };
+  }
+  function fillDefaults(C) {
+    C.era = DEMO_ERA;
+    C.entry = "insider";                    // 从志愿者/助理做起，tier0 —— 契合晋升阶梯的第一格
+    C.stance = "establishment";
+    C.party = P.chance(0.5) ? "D" : "R";    // 随机党派，给重复开局留点变化
+    C.state = randKey(P.reg.state);
+    C.talent = randKey(P.reg.talent);
+    C.rolled = autoRoll(); C.spent = {}; C.rerolled = {}; C.freeExtra = 0;
+  }
   P.startCreate = function () {
     P.SCREEN = "create";
-    P.CSEL = { era: null, origin: null, talent: null, entry: null, party: null, stance: null, state: null, name: "",
-      rolled: null, spent: {}, rerolled: {}, freeExtra: 0 };
+    P.CSEL = { name: "", difficulty: "normal" };
+    const C = P.CSEL;
+    C.origin = DIFFS[C.difficulty].origin;
+    fillDefaults(C);
     P.renderCreate();
   };
+  /* 选难度：只换出身(资源梯度)，不重掷其它轴，避免点一下全屏乱闪 */
+  P.pickDifficulty = function (id) {
+    if (!DIFFS[id]) return;
+    const C = P.CSEL;
+    C.difficulty = id; C.origin = DIFFS[id].origin;
+    P.renderCreate();
+  };
+  /* 兼容：老代码/事件仍可能调 pickCreate */
   P.pickCreate = function (key, k) { P.CSEL[key] = k; P.renderCreate(); };
 
   function group(title, map, key, extra) {
@@ -125,49 +170,34 @@
 
   P.renderCreate = function () {
     const C = P.CSEL;
-    const ready = C.era && C.origin && C.talent && C.entry && C.party && C.stance && C.state && C.rolled;
+    let h = '<h3 style="margin:14px 0 4px">选择难度（＝你的出身与初始资源）</h3>';
+    for (const id in DIFFS) {
+      const d = DIFFS[id], sel = C.difficulty === id ? " sel" : "";
+      h += '<div class="opt' + sel + '" onclick="POTUS.pickDifficulty(\'' + id + '\')"><b>' +
+        d.label + "</b><small>" + d.note + "</small></div>";
+    }
+    const oInfo = P.reg.origin[C.origin] || {};
     P.app().innerHTML =
-      '<div class="create"><div class="masthead"><div class="title">创建角色</div><div class="meta">可能性优先</div></div>' +
-      group("选择时代锚点（开局年份）", P.reg.era, "era", function (o) { return o.startYear + " 年 · 难度 " + (o.diff || "—"); }) +
-      group("出身", P.reg.origin, "origin") +
-      group("出生州（当地选民有自己的倾向）", P.reg.state, "state", function (o) {
-        const LEAN = { D: "民主党地盘", R: "共和党地盘", S: "摇摆州" };
-        const STR = { 1: "略偏", 2: "明显倾向", 3: "铁票仓" };
-        return (LEAN[o.lean] || "") + (o.lean === "S" ? "" : "·" + (STR[o.strength] || "")) +
-          " ｜ 与州倾向同党顺风，反着走是逆风（拉拢少数派的地形）";
-      }) +
-      group("天赋（灵根）", P.reg.talent, "talent") +
-      group("起点路径", P.reg.entry, "entry", function (o) { return o.track_suggest ? "建议轨道：" + (P.reg.track[o.track_suggest] || {}).name : ""; }) +
-      group("党派", P.reg.party, "party") +
-      group("姿态", P.reg.stance, "stance") +
-      rollBlockHTML() +
-      '<h3 style="margin:14px 0 4px">姓名</h3>' +
-      '<input type="text" id="pname" placeholder="输入你的名字" value="' + (C.name || "") + '" style="width:100%">' +
+      '<div class="create"><div class="masthead"><div class="title">权力之路 · 快速开局</div>' +
+      '<div class="meta">一个美国小伙的从政之路</div></div>' +
+      '<p class="hintline" style="margin:8px 0 2px">' +
+      '你只需要挑一个<b>难度</b>、给个<b>名字</b>，就能从社区里那个啥都没有的年轻人开始，一步一步往上爬。</p>' +
+      h +
+      '<h3 style="margin:14px 0 4px">姓名（留空默认叫「汤米」）</h3>' +
+      '<input type="text" id="pname" placeholder="不填就叫汤米" value="' + (C.name || "") + '" style="width:100%">' +
       '<div style="margin-top:16px" class="center">' +
-      '<button class="btn primary" ' + (ready ? "" : "disabled") + ' onclick="POTUS.confirmCreate()">进入 ' +
-      (ready ? (P.reg.era[C.era] || {}).name : "…（先完成选择与掷骰）") + "</button> " +
+      '<button class="btn primary" onclick="POTUS.confirmCreate()">开始游戏 →</button> ' +
       '<button class="btn" onclick="POTUS.renderTitle()">返回</button></div>' +
-      '<p class="hintline">起点 ' + Object.keys(P.reg.entry).length + " 种 × 轨道 " + Object.keys(P.reg.track).length +
-      " 条 × 党派 " + Object.keys(P.reg.party).length + " × 姿态 " + Object.keys(P.reg.stance).length +
-      " × 州 " + Object.keys(P.reg.state).length + "。轨道由起点建议，可在游戏中切换。</p></div>";
+      '<p class="hintline">难度 <b>' + (C.difficulty ? DIFFS[C.difficulty].label : "—") + "</b>" +
+      "　出身 <b>" + (oInfo.name || "—") + "</b>" +
+      "　起点 <b>直接入行（从志愿者做起）</b>。开局年份、党派、天赋等由系统自动定，游戏里可再切换。</p></div>";
     const inp = P.$("#pname");
     if (inp) inp.oninput = function (e) { P.CSEL.name = e.target.value; };
-    const rb = P.$("#rollBtn");
-    if (rb) rb.onclick = function () { P.rollAttrs(); };
-    document.querySelectorAll("[data-reroll]").forEach(function (el) {
-      el.onclick = function () { P.rerollAttr(el.getAttribute("data-reroll")); };
-    });
-    document.querySelectorAll("[data-spend]").forEach(function (el) {
-      const parts = el.getAttribute("data-spend").split(",");
-      el.onclick = function () { P.spendAttr(parts[0], parseInt(parts[1], 10)); };
-    });
-    const vb = P.$("#vipBtn");
-    if (vb) vb.onclick = function () { P.applyVipCode(); };
   };
 
   P.confirmCreate = function () {
     const C = P.CSEL, b = P.balance();
-    const name = (C.name || "无名氏").trim() || "无名氏";
+    const name = (C.name || "汤米").trim() || "汤米";
     const era = P.reg.era[C.era];
     /* 属性：掷骰 + 自由点；没掷过（旧调用方/测试）就用平衡表的 startAttr */
     let attr;
@@ -202,6 +232,8 @@
       doneSeq: {}, tierSince: 0, vigMonth: 0, quietLog: [], rngState: P.rint(1, 9999999), endingReason: null,
       /* 主线：当前主线 + 本局走过的主线 + 换线空窗的截止月。跨年不清零 —— 一条线可以横跨好几年。 */
       arc: null, arcLog: [], arcCool: 0,
+      /* 竞选链：当前竞选 + 本局打过的竞选 + 败选重开冷却。*/
+      campaign: null, campaignLog: [], campaignCool: 0,
       /* v0.5：下野记录 + 年初快照（年终叙事对比用） */
       fallenCount: 0, fallenShieldUntil: 0, yearStartSnap: null
     };
@@ -212,6 +244,8 @@
     P.applyEffects((P.reg.entry[C.entry] || {}).effects);
     P.applyEffects((P.reg.state[C.state] || {}).entryEffects);
     if (Object.keys(stateFx).length) P.applyEffects({ fac: stateFx });
+    /* 难度资源梯度：在出身/起点/州的效果之上，再叠一档难度增量（可正可负） */
+    P.applyEffects((DIFFS[C.difficulty] || {}).bonus);
     P.pushLog("开局：" + name + "，" + era.name + "，" + (P.reg.origin[C.origin] || {}).name + "出身，" +
       (C.state ? P.stateName(C.state) + "，" : "") +
       (P.reg.entry[C.entry] || {}).name + "，" + (P.reg.party[C.party] || {}).name + "/" + (P.reg.stance[C.stance] || {}).name + "。");

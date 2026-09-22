@@ -12,6 +12,12 @@ POTUS.VERSION = "0.4.0";
 POTUS.reg = {
   era: {}, origin: {}, talent: {}, entry: {}, track: {}, party: {}, stance: {},
   faction: {}, factionUnknown: "其他", blackswan: {}, filler: {},
+  /* 连续时间轴（去"时代"化改造）：worldline 是按年键控的全局世界线
+     （pressure/brief/outlets/blackswan 一律按绝对年份取），fixed 是全局
+     "定点事件表"——到某年某月必发的历史大事件与事件串。见 content/21-worldline.js。
+     era 仍保留为迁移期兼容层：未迁移的年代照旧走 reg.era[G.era]。 */
+  worldline: {},
+  fixed: [],
   category: {}, grade: {}, medium: {}, contact: {}, newsOutlets: {}, ending: [], npc: {}, balance: {},
   /* 出生州：每州带政治倾向（D/R/S 摇摆），建角时选择，影响派系起点与事件倾斜。
      见 content/12-states.js。事件/倾向表可用 when.states 引用。 */
@@ -32,6 +38,9 @@ POTUS.reg = {
   /* 主线：一个人这一辈子主要在过哪一条命（见 engine/arc.js + content/11-arcs.js）。
      单线制 —— 同一时刻只有一条活跃主线，但可以换线。 */
   arc: {},
+  /* 竞选：每一次民选晋升的一连串事件（见 engine/campaign.js + content/61-campaigns.js）。
+     单场制 —— 同一时刻只有一场活跃竞选，一幕一幕强制推进到投票日。 */
+  campaign: {},
   /* 静好岁月：平静月份的随笔片段库（见 engine/vignette.js）。多个内容文件可各自追加片段。 */
   vignette: { title: "静好岁月", lede: "", fragments: [] }
 };
@@ -42,6 +51,8 @@ POTUS.define = function (kind, payload) {
   if (payload == null) return;
   if (kind === "event") { POTUS.events = POTUS.events.concat([].concat(payload)); return; }
   if (kind === "ending") { POTUS.reg.ending = POTUS.reg.ending.concat([].concat(payload)); return; }
+  /* 定点事件表是"累加"：多个时代/主题文件可各自往全局 fixed 追加自己的历史锚点 */
+  if (kind === "fixed") { POTUS.reg.fixed = POTUS.reg.fixed.concat([].concat(payload)); return; }
   if (kind === "balance") {
     /* 词典类的键（tagNames）要**深合并**而不是整键覆盖——
        多个事件包各自登记自己的状态词条时，覆盖会把别人的词条全吃掉（踩过：
@@ -87,7 +98,7 @@ POTUS.define = function (kind, payload) {
 const BALANCE_DEFAULTS = {
   startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0, startLev: 0,
   startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
-  tierMin: 0, tierMax: 5,
+  tierMin: 0, tierMax: 9,
 
   /* ---- 建角掷骰：定命一掷 + 自由点 ----
    * rollAttrs   四属性各掷一次的范围（默认 35-55，d20+35 的味道）
@@ -118,6 +129,16 @@ const BALANCE_DEFAULTS = {
   /* 「事件续集」的权重倍数：一旦前情已经演过（ev.after 解锁），
      续集要明显更容易被抽到，否则一个故事会散落在几百个档期里连不起来。 */
   chainWeightMul: 9,
+
+  /* ---- 日常公务 / 选民服务池（去时代化改造新增）----
+     各级（含志愿者 tier 0 的基层事务：致悼词/剪彩/夜巡/调解邻里）都可能撞上的琐事（葬礼致辞/切蛋糕/town hall…），
+     主吃选民池、量级轻。它不参与随机抽卡（事件带 chore:true，eligible 直接挡掉），
+     只经 time.js 的 choresSlot 注入通道出现，频率可控、可回退。
+     · enabled=false → 完全关闭，回到现状；
+     · chance        → 本月已有档期时，额外再塞 1 条日常公务的概率（默认 0，保守）；
+     · emptyFillChance → 本月本会空转（无 fixed/竞选/随机档期）时，用一条日常公务
+                        兜底的概率。设成 1 = "空月保底 1"；默认 0.7，留出纯静好岁月月份。*/
+  choreDynamic: { enabled: true, chance: 0, emptyFillChance: 0.7 },
 
   /* ---- 权重管线：玩家处境造成的倾斜（见 engine/events.js 的 P.weightBreakdown）----
    *   w = 基础 × 时代 × 续集 × tilt
@@ -219,6 +240,8 @@ POTUS.chance = function (p) { return Math.random() < p; };
 POTUS.hasFlag = function (f) { return POTUS.G.flags.indexOf(f) >= 0; };
 POTUS.addFlag = function (f) { if (POTUS.G.flags.indexOf(f) < 0) POTUS.G.flags.push(f); };
 POTUS.delFlag = function (f) { POTUS.G.flags = POTUS.G.flags.filter(function (x) { return x !== f; }); };
+/* 隐藏计数器 buff（程度记忆）：读 / 取。写入走 effects 的 count 处理器。 */
+POTUS.counter = function (k) { const c = POTUS.G && POTUS.G.counters; return (c && c[k]) || 0; };
 POTUS.pushLog = function (s) {
   const G = POTUS.G;
   const stamp = G.year + (G.month && G.month <= 12 ? "年" + G.month + "月" : "年");
@@ -401,7 +424,7 @@ POTUS.voterPools = function () {
 /* 当前选区的注册选民规模（按层级取表） */
 POTUS.electorateSize = function () {
   const b = POTUS.balance();
-  const table = (b.voterBase && b.voterBase.electorate) || [5000, 60000, 300000, 750000, 9000000, 240000000];
+  const table = (b.voterBase && b.voterBase.electorate) || [5000, 18000, 70000, 180000, 450000, 1200000, 3000000, 8000000, 20000000, 240000000];
   const G = POTUS.G;
   return table[G ? G.tier : 0] || table[0];
 };
@@ -422,11 +445,20 @@ POTUS.rescaleVoters = function (fromTier, toTier) {
   const G = POTUS.G;
   if (!G || !G.voters || fromTier === toTier) return;
   const b = POTUS.balance();
-  const table = (b.voterBase && b.voterBase.electorate) || [5000, 60000, 300000, 750000, 9000000, 240000000];
+  const vb = b.voterBase || {};
+  const table = vb.electorate || [5000, 18000, 70000, 180000, 450000, 1200000, 3000000, 8000000, 20000000, 240000000];
   const ratio = table[toTier] / (table[fromTier] || 1);
-  const keep = ratio > 1 ? (b.voterBase && b.voterBase.carryKeep != null ? b.voterBase.carryKeep : 0.25) : 1;
+  /* 升位=换选区：旧地盘的人只能带走一小部分。carryKeep 是"升一级"的锚，
+     跨得越多带得越少（每多跳一级再乘一次 carryStepDecay）—— 跳级=破格直提，根基更薄。 */
+  let keep = 1;
+  if (ratio > 1) {
+    const steps = Math.max(1, toTier - fromTier);
+    const base = vb.carryKeep != null ? vb.carryKeep : 0.35;
+    const decay = vb.carryStepDecay != null ? vb.carryStepDecay : 0.66;
+    keep = base * Math.pow(decay, steps - 1);
+  }
   ["warm", "diehard", "oppose"].forEach(function (k) {
-    G.voters[k] = Math.round((G.voters[k] || 0) * (ratio > 1 ? keep : 1));
+    G.voters[k] = Math.round((G.voters[k] || 0) * keep);
   });
 };
 /* 选举胜算参考（界面用）：死忠=必到票，好感=可能票，反对=对手的票，其余=未定盘 */
@@ -574,6 +606,8 @@ POTUS.serialize = function () { return JSON.stringify(POTUS.G); };
 POTUS.migrate = function (G) {
   if (!G) return G;
   if (G.month == null) G.month = 1;                       // 旧存档只有"第几个 beat"，没有月份
+  if (G.flags == null) G.flags = [];
+  if (G.counters == null) G.counters = {};                  /* v0.6 隐藏计数器 buff */
   if (G.doneIds == null) G.doneIds = [];
   if (G.quietMonths == null) G.quietMonths = [];
   if (G.yearHeads == null) G.yearHeads = [];
@@ -595,6 +629,10 @@ POTUS.migrate = function (G) {
   if (G.arc == null) G.arc = null;
   if (G.arcLog == null) G.arcLog = [];
   if (G.arcCool == null) G.arcCool = 0;      // 换线空窗的截止月序号（0 = 随时可开新线）
+  /* 竞选链：当前竞选 + 本局打过的竞选 + 败选重开冷却（旧存档 = 还没开打过任何竞选） */
+  if (G.campaign == null) G.campaign = null;
+  if (G.campaignLog == null) G.campaignLog = [];
+  if (G.campaignCool == null) G.campaignCool = 0;
   /* v0.5 主线之后的机制：出生州 / 下野 / 年初快照（年终叙事要对比"今年与去年"） */
   if (G.voters == null) G.voters = { warm: 0, diehard: 0, oppose: 0 };   /* v0.5.2 选民池 */
   if (G.state == null) G.state = "";
@@ -691,10 +729,10 @@ POTUS.saveBrief = function (raw) {
     const st = G.state ? (POTUS.stateName ? POTUS.stateName(G.state) : G.state) : "";
     return {
       name: G.saveName || "未命名",
-      line: era + " " + (G.year || "") + "年" + (G.month || 1) + "月 · " + (G.age || "?") + "岁" +
+      line: (G.year || "") + "年" + (G.month || 1) + "月 · " + (G.age || "?") + "岁" +
         (oName ? " · " + oName : "") +
         (party ? " · " + party : "") + (st ? " · " + st : ""),
-      line2: "声望 " + (G.rep || 0) + " · 资金 $" + ((G.fun || 0) / 1000).toFixed(0) + "k · 健康 " + (G.hp || 0) +
+      line2: "声望 " + (G.rep || 0) + " · 资金 $" + ((G.fun || 0) / 1000).toFixed(0) + "k" +
         (G.voters ? " · 死忠 " + (G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard) : ""),
       at: G.saveAt
     };

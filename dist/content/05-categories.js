@@ -60,6 +60,21 @@
       })
     },
 
+    /* 政务 / 选民服务：日常公务、选民接待、剪彩致辞、市政厅会议——
+       量级小、权重低、主吃 voters（warm/diehard↑、oppose↓）。见 content/events/111-chores.js。 */
+    govt: {
+      name: "政务", ink: "#4a4a2f", base: "#e9e6d3",
+      art: art(function (ev, ink) {
+        return '<path d="M22 44L60 24l38 20z" fill="' + ink + '" opacity=".8"/>' +
+          '<rect x="26" y="46" width="68" height="4" fill="' + ink + '" opacity=".8"/>' +
+          '<rect x="32" y="52" width="6" height="26" fill="' + ink + '" opacity=".55"/>' +
+          '<rect x="48" y="52" width="6" height="26" fill="' + ink + '" opacity=".55"/>' +
+          '<rect x="66" y="52" width="6" height="26" fill="' + ink + '" opacity=".55"/>' +
+          '<rect x="82" y="52" width="6" height="26" fill="' + ink + '" opacity=".55"/>' +
+          '<rect x="24" y="80" width="72" height="6" fill="' + ink + '" opacity=".7"/>';
+      })
+    },
+
     /* 舆论：媒体、辩论、社交网络 */
     media: {
       name: "舆论", ink: "#255346", base: "#dbe8e1",

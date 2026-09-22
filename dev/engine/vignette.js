@@ -179,18 +179,15 @@
         }
       }
       /* v0.5.2 用户要求：平静的日子也不是完全静止的——
-         资金有小额的进出（工资/开销/顺手的生意），精力喘口气回一点，人情偶尔攒一点。
-         全部小量级 + 双向（资金可正可负），大事仍然只属于事件。 */
+         资金有小额的进出（工资/开销/顺手的生意），人情偶尔攒一点。
+         全部小量级 + 双向（资金可正可负），大事仍然只属于事件。
+         v0.9：精力(ap) 已退役，平静月不再回精力。 */
       if (v.funChance && P.chance(v.funChance)) {
         const scale = 500 + G.tier * 1500;              /* T0 是几百块的月光，T3 是几千块的周转 */
         const gain = P.chance(v.funGoodChance == null ? 0.55 : v.funGoodChance);
         const amt = P.rint(1, 4) * scale * (gain ? 1 : -1);
         G.fun += amt;
         tally.fun = (tally.fun || 0) + amt;
-      }
-      if (v.apChance && P.chance(v.apChance) && G.ap < (b.apMax == null ? 12 : b.apMax)) {
-        G.ap += 1;
-        tally.ap = (tally.ap || 0) + 1;
       }
       if (v.favChance && P.chance(v.favChance)) {
         G.fav = P.clamp(G.fav + 1, 0, 20);
@@ -209,14 +206,12 @@
     const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
     const notes = [];
     for (const k in tally.attr) notes.push((ATTR_CN[k] || k) + " +" + tally.attr[k]);
-    if (tally.hp) notes.push("健康 +" + tally.hp);
     if (tally.rep) notes.push("声望 +" + tally.rep);
     if (tally.contact) notes.push("人脉好感 +" + tally.contact);
     if (tally.fun) {
       const k = Math.round(tally.fun / 1000);
       if (k !== 0) notes.push("资金 " + (k > 0 ? "+$" : "-$") + Math.abs(k) + "k");
     }
-    if (tally.ap) notes.push("精力 +" + tally.ap);
     if (tally.fav) notes.push("人情 +" + tally.fav);
     /* 选民（v0.6）：有变化才写进月卡 —— 让玩家看见"我什么都没干，但选民在动" */
     if (tally.voters) {
@@ -289,14 +284,12 @@
     const ATTR_CN2 = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
     const notes = [];
     for (const k in tally.attr) notes.push((ATTR_CN2[k] || k) + " +" + tally.attr[k]);
-    if (tally.hp) notes.push("健康 +" + tally.hp);
     if (tally.rep) notes.push("声望 +" + tally.rep);
     if (tally.contact) notes.push("人脉好感 +" + tally.contact);
     if (tally.fun) {
       const kf = Math.round(tally.fun / 1000);
       if (kf !== 0) notes.push("资金 " + (kf > 0 ? "+$" : "-$") + Math.abs(kf) + "k");
     }
-    if (tally.ap) notes.push("精力 +" + tally.ap);
     if (tally.fav) notes.push("人情 +" + tally.fav);
     /* 选民（v0.6）：把这几个月的选民净变化也报出来 */
     const _VCN2 = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };

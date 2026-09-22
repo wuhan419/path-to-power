@@ -113,8 +113,13 @@
 
   P.startYear = function (resume) {
     P.SCREEN = "game";
-    const G = P.G, era = P.reg.era[G.era] || { name: G.era, brief: {} };
-    const brief = (era.brief && (era.brief[G.year] || era.brief["*"])) || (G.year + "年，风暴仍在继续。");
+    const G = P.G, w = P.reg.worldline || {}, era = P.reg.era[G.era] || { name: G.era, brief: {} };
+    /* 年初播报：优先全局时间轴的按年条目，其次 era.brief（按年或通配），
+       再退回时间轴通配 —— 未迁移年代照旧走 era，可回退。 */
+    const brief = (w.brief && w.brief[G.year])
+      || (era.brief && (era.brief[G.year] || era.brief["*"]))
+      || (w.brief && w.brief["*"])
+      || (G.year + "年，风暴仍在继续。");
     if (!resume) G.month = 0;                 // 0 → advanceMonth 会从 1 月开始
     G.monthPlan = []; G.slotIndex = 0; G.slotCount = 0;
     G.quietMonths = []; G.yearHeads = [];
@@ -126,7 +131,7 @@
     P.app().innerHTML =
       P.topbarHTML() +
       '<div class="grid">' +
-      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + era.name +
+      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + (w.name || era.name) +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
       '<div class="body">' + brief + "</div>" +
       '<div class="yearbar">' +
@@ -245,11 +250,9 @@
     items.push({ k: "结余", v: (net >= 0 ? "+$" : "-$") + Math.abs(net / 1000).toFixed(1) + "k", sign: net >= 0 ? 1 : -1 });
     const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
     for (const k in (gain.attr || {})) items.push({ k: ATTR_CN[k] || k, v: "+" + gain.attr[k], sign: 1 });
-    if (gain.hp) items.push({ k: "健康", v: "+" + gain.hp, sign: 1 });
     if (gain.rep) items.push({ k: "声望", v: "+" + gain.rep, sign: 1 });
     if (gain.contact) items.push({ k: "人脉好感", v: "+" + gain.contact, sign: 1 });
     if (gain.fav) items.push({ k: "人情", v: "+" + gain.fav, sign: 1 });
-    if (gain.ap) items.push({ k: "精力", v: "+" + gain.ap, sign: 1 });
     if (gain.fun) items.push({ k: "额外进账", v: (gain.fun > 0 ? "+$" : "-$") + Math.abs(gain.fun / 1000).toFixed(1) + "k", sign: gain.fun > 0 ? 1 : -1 });
     return {
       net: net,
@@ -313,9 +316,9 @@
   }
 
   /* 资源盘点：选项代价 + 当前余额 */
-  const RES_LABEL = { fun: "资金", fav: "人情", ap: "精力", rep: "声望", hp: "健康", lev: "把柄" };
+  const RES_LABEL = { fun: "资金", fav: "人情", rep: "声望", lev: "把柄" };   /* v0.9：精力/健康已退役，不再作为代价展示 */
   function resText(cost) {
-    return Object.keys(cost).map(function (k) {
+    return Object.keys(cost).filter(function (k) { return k !== "ap" && k !== "hp"; }).map(function (k) {
       const v = cost[k];
       if (k === "fun") return "资金 " + (v < 0 ? "-$" : "$") + (Math.abs(v) / 1000).toFixed(0) + "k";
       return RES_LABEL[k] + " " + v;
@@ -324,14 +327,14 @@
   function costBlock(ch) {
     if (!ch.cost) return null;
     const G = P.G, lack = [];
-    for (const k in ch.cost) if (k === "fun" ? G.fun < ch.cost[k] : (G[k] || 0) < ch.cost[k]) lack.push(RES_LABEL[k] || k);
+    for (const k in ch.cost) { if (k === "ap" || k === "hp") continue; if (k === "fun" ? G.fun < ch.cost[k] : (G[k] || 0) < ch.cost[k]) lack.push(RES_LABEL[k] || k); }
     return lack.length ? ("缺少" + lack.join("、")) : null;
   }
   function payCost(ch, extra) {
     const G = P.G, paid = {};
     [ch.cost, extra].forEach(function (c) {
       if (!c) return;
-      for (const k in c) { if (!c[k]) continue; G[k] = (G[k] || 0) - c[k]; paid[k] = (paid[k] || 0) + c[k]; }
+      for (const k in c) { if (!c[k] || k === "ap" || k === "hp") continue; G[k] = (G[k] || 0) - c[k]; paid[k] = (paid[k] || 0) + c[k]; }
     });
     if (G.fun < 0) G.fun = G.fun;              // 允许负债（保留戏剧性）
     G.fav = P.clamp(G.fav, 0, 20); G.ap = P.clamp(G.ap, 0, 99); G.hp = P.clamp(G.hp, 0, 100);
@@ -383,8 +386,6 @@
       });
     }
     if (eff.fav != null) out.push({ k: "人情", v: eff.fav, sign: eff.fav });
-    if (eff.ap != null) out.push({ k: "精力", v: eff.ap, sign: eff.ap });
-    if (eff.hp != null) out.push({ k: "健康", v: eff.hp, sign: eff.hp });
     if (eff.lev != null) out.push({ k: "把柄", v: eff.lev, sign: eff.lev });
     if (eff.tier != null && eff.tier !== 0) out.push({ k: "层级", v: (eff.tier > 0 ? "T↑" : "T↓"), sign: eff.tier });
     if (eff.attr) for (const a in eff.attr) out.push({ k: { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" }[a] || a, v: eff.attr[a], sign: eff.attr[a] });
@@ -430,7 +431,7 @@
    * 具体落在哪档（保留掷骰悬念）。稀有终局（下野 / 入狱）只用不写细节的角标点一下。
    * 注意：ev 已由 P.drawEvent→P.realize 展开成绝对数值，这里直接读即可；
    *       唯 funMul（投资按比例回报）本金未定，只给百分比区间；flags/状态一律不预览（避免剧透）。 */
-  const REW_SCAL = { rep: "声望", fun: "资金", ap: "精力", fav: "人情", hp: "健康", lev: "把柄" };
+  const REW_SCAL = { rep: "声望", fun: "资金", fav: "人情", lev: "把柄" };
   const REW_ATTR = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
   const REW_INLINE = 6;                 // 常驻一行最多几枚筹码，其余折进「回报明细」
   function _rmin(a) { return Math.min.apply(null, a); }
@@ -472,7 +473,7 @@
     if (voters.warm.length) chips.push(_rwChip("好感选民", _rmin(voters.warm), _rmax(voters.warm), _rwVoter));
     if (voters.oppose.length) chips.push(_rwChip("反对者", _rmin(voters.oppose), _rmax(voters.oppose), _rwVoter, true));
     if (up || down) chips.push({ k: "层级", v: (up && down) ? "↑↓" : (up ? "↑" : "↓"), cls: (down && !up) ? "bad" : "gflag" });
-    ["ap", "fav", "hp", "lev"].forEach(function (k) { if (scal[k]) chips.push(_rwChip(REW_SCAL[k], _rmin(scal[k]), _rmax(scal[k]), _rwSigned)); });
+    ["fav", "lev"].forEach(function (k) { if (scal[k]) chips.push(_rwChip(REW_SCAL[k], _rmin(scal[k]), _rmax(scal[k]), _rwSigned)); });
     Object.keys(fac).map(function (f) { return { f: f, s: Math.abs(_rmin(fac[f])) + Math.abs(_rmax(fac[f])) }; })
       .sort(function (a, b) { return b.s - a.s; }).slice(0, 2).forEach(function (x) {
         chips.push(_rwChip(P.factionName(x.f), _rmin(fac[x.f]), _rmax(fac[x.f]), _rwSigned));
@@ -723,11 +724,12 @@
       G.lev = Math.max(0, G.lev - levGone);
     }
     if (levGone) P.pushLog("时效：有 " + levGone + " 份把柄失去了价值（当事人下台或事情过去了）。");
-    P.pushLog("年度结算：" + G.age + "岁，声望" + G.rep + "，资金$" + (G.fun / 1000).toFixed(0) + "k，健康" + G.hp + "。");
+    P.pushLog("年度结算：" + G.age + "岁，声望" + G.rep + "，资金$" + (G.fun / 1000).toFixed(0) + "k。");
 
     let bsHTML = "";
     if (P.chance(b.blackswanChance)) {
-      const list = P.reg.blackswan[G.era] || [];
+      const wl = P.reg.worldline || {};
+      const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[G.era] || [];
       if (list.length) {
         const bs = P.pick(list);
         P.addFlag("bs_" + (bs.id || bs.title));
@@ -760,8 +762,7 @@
       '<div class="yearbar">' +
       "<div>" + G.age + " 岁　·　" + P.officeName() + "（在位 " + P.monthsAtTier() + " 个月）　·　" +
       (sc ? "丑闻 Lv" + sc : "无丑闻") + "　·　平静的月份 " + quiet + " 个</div>" +
-      "<div>声望 " + G.rep + "　·　资金 $" + (G.fun / 1000).toFixed(0) + "k　·　健康 " + G.hp + "　·　精力 " + G.ap +
-      "　·　把柄 " + (G.lev || 0) + " 份</div>" +
+      "<div>声望 " + G.rep + "　·　资金 $" + (G.fun / 1000).toFixed(0) + "k　·　把柄 " + (G.lev || 0) + " 份</div>" +
       "<div>人脉 " + P.myContacts().length + " 人" +
       (G.state ? "　·　" + P.stateName(G.state) : "") +
       (levGone ? "　·　" + levGone + " 份把柄在本年失效" : "") + "</div>" +

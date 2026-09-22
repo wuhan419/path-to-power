@@ -20,8 +20,13 @@
 
   /* ---------- 时代压力：0-5，越高越动荡 ---------- */
   P.pressure = function () {
-    const G = P.G, era = P.reg.era[G.era] || {};
-    const raw = era.pressure;
+    const G = P.G, w = P.reg.worldline || {};
+    const era = P.reg.era[G.era] || {};
+    const y = String(G.year);
+    /* 优先按绝对年读全局时间轴的世界线压力；时间轴没铺到的年份整体回落 era
+       （渐进迁移、可回退：未迁移的 2008 等年代照旧走 reg.era[G.era].pressure）。 */
+    const wm = (w.pressure && typeof w.pressure === "object") ? w.pressure : null;
+    const raw = (wm && wm[y] != null) ? wm[y] : era.pressure;
     let v = 1;
     if (typeof raw === "function") v = Number(raw(G, P)) || 0;
     else if (typeof raw === "number") v = raw;
@@ -92,27 +97,69 @@
    */
   function scheduledHits(month) {
     const G = P.G, era = P.reg.era[G.era] || {};
-    const list = era.scheduled;
-    if (!list || !list.length) return [];
-    const out = [];
-    list.forEach(function (s) {
-      if (s.year != null && s.year !== G.year) return;
-      if (s.month != null && s.month !== month) return;
-      if (s.fromYear != null && G.year < s.fromYear) return;
-      if (s.toYear != null && G.year > s.toYear) return;
-      if (s.fromMonth != null && (s.fromYear == null || G.year === s.fromYear) && month < s.fromMonth) return;
-      if (s.cond && !s.cond(G, P)) return;
-      if (s.flags && !s.flags.every(P.hasFlag)) return;
-      const once = s.once !== false;
-      if (once && s.event && G.doneIds.indexOf(s.event) >= 0) return;
-      const ev = s.event && P.events.filter(function (e) { return e.id === s.event; })[0];
-      if (s.event && !ev) return;
-      if (ev && !P.eligible(ev)) return;            // tier / flag / 近期去重 等
-      out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major",
-        valence: ev ? P.valenceOf(ev) : "risk", scheduled: true });
+    /* 全局定点事件表 fixed（按绝对年月）+ 迁移期兼容的 era.scheduled，两路合并 */
+    const lists = [];
+    if (P.reg.fixed && P.reg.fixed.length) lists.push(P.reg.fixed);
+    if (era.scheduled && era.scheduled.length) lists.push(era.scheduled);
+    if (!lists.length) return [];
+    const out = [], seen = {};
+    lists.forEach(function (list) {
+      list.forEach(function (s) {
+        if (s.year != null && s.year !== G.year) return;
+        if (s.month != null && s.month !== month) return;
+        if (s.fromYear != null && G.year < s.fromYear) return;
+        if (s.toYear != null && G.year > s.toYear) return;
+        if (s.fromMonth != null && (s.fromYear == null || G.year === s.fromYear) && month < s.fromMonth) return;
+        if (s.cond && !s.cond(G, P)) return;
+        if (s.flags && !s.flags.every(P.hasFlag)) return;
+        if (s.event && seen[s.event]) return;            // 同一事件两条路只演一次
+        const once = s.once !== false;
+        if (once && s.event && G.doneIds.indexOf(s.event) >= 0) return;
+        const ev = s.event && P.evById(s.event);
+        if (s.event && !ev) return;
+        if (ev && !P.eligible(ev)) return;            // tier / flag / 近期去重 等
+        if (s.event) seen[s.event] = 1;
+        out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major",
+          valence: ev ? P.valenceOf(ev) : "risk", scheduled: true });
+      });
     });
     return out;
   }
+
+  /* ---------- 日常公务（选民服务）注入通道 ----------
+     只在"轻量"层面出现：从带 chore:true 的事件里挑一条当前层级/年份合适的，
+     作为本月的一条 minor 档期。它们不在随机卡池里（eligible 已挡），只走这里。
+     层级把关交给事件自身的 tierMin/tierMax（choreEligible 里的 P.when）——
+     志愿者（tier 0）也有基层琐事（致悼词/剪彩/夜巡/调解邻里，见 events/111-chores.js 的 T0–2 簇），
+     所以这里不再对 tier<=0 一刀切封死。 */
+  function choreEligible(e, snap) {
+    if (!e.chore) return false;
+    if (!P.when(e, snap)) return false;         // tierMin/tierMax/tracks/flags/minYear… 走统一词汇
+    if (!P.yearOK(e) || !P.mediumOK(e)) return false;
+    const G = P.G;
+    if (P.isUnique(e) && G.doneIds.indexOf(e.id) >= 0) return false;
+    if (P.recentIds.indexOf(e.id) >= 0) return false;
+    return true;
+  }
+  P.choresSlot = function (isEmptyMonth) {
+    const G = P.G, b = P.balance(), d = b.choreDynamic || {};
+    if (d.enabled === false) return null;
+    if (!G) return null;                                    // 层级门槛由 choreEligible 逐条把关（含志愿者 tier 0）
+    const p = isEmptyMonth
+      ? (d.emptyFillChance == null ? 0.7 : d.emptyFillChance)
+      : (d.chance == null ? 0 : d.chance);
+    if (!(p > 0) || !P.chance(p)) return null;
+    const snap = P.snap();
+    const pool = P.events.filter(function (e) { return choreEligible(e, snap); });
+    if (!pool.length) return null;
+    /* 权重随机（chore 事件自带 weight 表达"这类事务多常见"） */
+    let tot = 0;
+    const ws = pool.map(function (e) { const w = Number(e.weight) || 10; tot += w; return w; });
+    let r = Math.random() * tot, hitEv = pool[0];
+    for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) { hitEv = pool[i]; break; } }
+    return { eventId: hitEv.id, grade: P.gradeOf(hitEv) || "minor",
+      valence: P.valenceOf(hitEv) || "boon", chore: true };
+  };
 
   /* ---------- 排定某个月的档期 ----------
    * 返回 [{grade, eventId?, scheduled?}]，空数组 = 平静的一个月
@@ -121,6 +168,21 @@
     const G = P.G, b = P.balance();
     const out = scheduledHits(month);
     if (month == null) month = G.month;
+
+    /* 竞选进行中：把“当前那一幕”排成本月必出的定点档期。
+       保证幕在它的窗口内一定演得出来（不像普通事件那样看运气）——
+       这就是 campaign 与已停用的主线 arc 的根本区别：流程必须一幕幕推下去。 */
+    if (P.campaignForceSlot) {
+      const cs = P.campaignForceSlot();
+      if (cs) out.unshift(cs);
+    }
+
+    /* 日常公务注入：本月已有 fixed/竞选档期时按小概率追加一条（默认 0），
+       空转月按 emptyFillChance 兜底一条。balance.choreDynamic.enabled=false 即完全关闭。 */
+    if (P.choresSlot) {
+      const ch = P.choresSlot(out.length === 0);
+      if (ch) out.push(ch);
+    }
 
     const pressure = P.pressure();
     const bonus = P.bonusPressure();
@@ -160,9 +222,8 @@
     let m = (G.month == null ? 0 : G.month) + 1;
     while (m <= maxM) {
       G.month = m;
-      /* 主线推幕 / 换线：必须在 planMonth 之前 —— 本月抽什么事件要靠它给的加成。
-         挂在时间轴上（而不是渲染时），300 局模拟才会真的走到这条路径。 */
-      if (P.arcTick) P.arcTick(m);
+      /* 竞选链：每月推一次（推幕 / 选情流失 / 崩盘判定）。主线 arc 已停用，这里只推竞选。 */
+      if (P.campaignTick) P.campaignTick(m);
       const plan = P.planMonth(m);
       if (plan.length) {
         G.monthPlan = plan;
@@ -184,7 +245,6 @@
   P.loadMonth = function (month) {
     const G = P.G;
     G.month = month;
-    if (P.arcTick) P.arcTick(month);          // 与 advanceMonth 保持一致：先推主线，再排档期
     const plan = P.planMonth(month);
     G.monthPlan = plan;
     G.slotIndex = 0;

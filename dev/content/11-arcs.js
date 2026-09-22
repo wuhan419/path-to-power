@@ -59,11 +59,15 @@
          也别放太宽：一次超时就要吃掉整个窗口，五幕加起来会超过 lifespan，
          整条线就永远走不到"最后一幕演过"的那一天（实测：窗口全放 48-84 时，0/72 走完）。 */
       stages: [
-        { title: "第一次把自己的名字放上选票", events: ["prog_council"], maxMonths: 36 },
-        { title: "州议会的席位空了出来", events: ["prog_state"], maxMonths: 36 },
-        { title: "联邦众议员的机会", events: ["prog_federal"], maxMonths: 42 },
+        { title: "第一次把自己的名字放上选票", events: ["prog_council"], maxMonths: 40 },
+        { title: "市议会的一个席位", events: ["prog_city"], maxMonths: 40 },
+        { title: "州议会的席位空了出来", events: ["prog_state"], maxMonths: 44 },
+        { title: "州参议院的召唤", events: ["prog_upper"], maxMonths: 50 },
+        { title: "把版图扩大到全州", events: ["prog_stwide"], maxMonths: 52 },
+        { title: "联邦众议员的机会", events: ["prog_federal"], maxMonths: 56 },
         { title: "参议员 / 州长：二选一", events: ["prog_senate"], maxMonths: 60 },
-        { title: "总统大选：你决定参选", events: ["prog_president"], maxMonths: 60 }
+        { title: "副总统的召唤", events: ["prog_vp"], maxMonths: 66 },
+        { title: "总统大选：你决定参选", events: ["prog_president"], maxMonths: 72 }
       ],
       /* 坐到最高那级，这条路就走到头了 —— 不是"完成"，是"没有再往上的台阶了" */
       endWhen: { minTier: 5 }

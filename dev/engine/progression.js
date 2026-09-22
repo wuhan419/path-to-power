@@ -8,9 +8,10 @@
 
   /* 是否选举年（周期可被 balance 覆盖） */
   P.electionYear = function () {
-    const b = P.balance(), era = P.reg.era[P.G.era] || { startYear: P.G.year };
-    const cycle = era.electionCycle || b.midtermCycle || 2;
-    return (P.G.year - era.startYear) % cycle === 0;
+    const b = P.balance(), w = P.reg.worldline || {}, era = P.reg.era[P.G.era] || { startYear: P.G.year };
+    const base = w.electionBase != null ? w.electionBase : era.startYear;
+    const cycle = w.electionCycle || era.electionCycle || b.midtermCycle || 2;
+    return (P.G.year - base) % cycle === 0;
   };
 
   /* 声明式条件求值：直接交给统一的 P.when()（engine/when.js）。
@@ -61,7 +62,7 @@
       '<div class="grade">' + (rule.grade || "C") + "</div>" +
       '<div class="news"><div class="dateline">史学家评语</div><div class="body">' + body + "</div></div>" +
       '<div class="news"><div class="dateline">评分</div><div class="body">权力分数 ' + s.power + " ｜ 道德分数 " + s.moral + "<br>" +
-      "最高层级 T" + P.G.tier + "（" + track.name + "）｜ " + party.name + "/" + stance.name + "<br>" +
+      "最高等级 " + (P.G.tier + 1) + "（" + track.name + "）｜ " + party.name + "/" + stance.name + "<br>" +
       "终局年龄 " + P.G.age + " ｜ 净资产 $" + (P.G.fun / 1000).toFixed(0) + "k ｜ 丑闻等级 " + P.scandalLevel() + "</div></div>" +
       '<div class="center" style="margin-top:14px">' +
       '<button class="btn primary" onclick="POTUS.renderTitle()">回到标题</button> ' +

@@ -7,11 +7,18 @@ POTUS.define("balance", {
   /* 建角初始值 */
   startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
   startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
-  tierMin: 0, tierMax: 5,
-  /* 晋升年限闸（引擎级）：升到第 N 级需要在 N-1 级熬够的月数。
-     节奏目标：T0→T1 两年半，T2→T3 四年，T4→T5 七年——
-     5 年 ≈ 市议员，10 年 ≈ 州议员，20 年 ≈ 州长/国会议员，一辈子够到总统。 */
-  tierGates: [0, 30, 36, 48, 60, 84],
+  tierMin: 0, tierMax: 9,
+  /* 晋升线共 10 级（引擎内部 tier 0..9，界面显示「等级 1..10」）。旧的 6 档内容门槛由
+     engine/when.js 的 tierBand 单调抬进这 10 级空间；这里是铺档密度表（索引=旧档 0..5，
+     值=新级）。想调疏密只改这一行。 */
+  tierBand: [0, 2, 4, 5, 7, 9],
+  /* 胜利线：demo 目标是在 1988 之前摸到「等级 7」（tier 6，联邦众议员）。达到该级顶栏记一笔里程碑。 */
+  victoryTier: 6,
+  /* 晋升年限闸（引擎级）：升到下一级需要在本级熬够的月数（索引=当前级）。
+     按真实政治人物的在任节奏校准（每级 = 一届以上），并保证 demo 能在 ~8 年（106 月）内
+     够到等级 7：累计到 tier6 约 92 月，留 ~14 月缓冲去等一个空缺 + 选战。
+     级越低升得越快（幕僚→地方快），级越高越要熬（联邦→全国一步好几年）。 */
+  tierGates: [8, 10, 12, 18, 20, 24, 28, 34, 40, 0],
 
   /* ---- 时间：一个月一回合，一年 12 个月 ----
    * 不是每个月都有事件。平静的月份会被自动跳过，只留一行月历记录。
@@ -135,7 +142,7 @@ POTUS.define("balance", {
    * 网格搜索（体验指标最优）反推写回。valencePressure：每点时代压力对
    * boon/bane 权重的乘性微调（越动荡，威胁越密、机遇越稀）。
    * valenceDefault：漏标 valence 的旧内容的兜底类。 */
-  valenceWeights: { boon: 0.40, risk: 0.35, bane: 0.25 },
+  valenceWeights: { boon: 0.40, risk: 0.33, bane: 0.27 },
   valencePressure: { boonPerPressure: -0.05, banePerPressure: 0.10 },
   valenceDefault: "risk",
   /* dyn 事件的内容系数 × 这里的标尺 = 结算绝对值（四舍五入）。
@@ -274,14 +281,16 @@ POTUS.define("balance", {
      开销是随机的 livingMin..livingMax ×(1+tier×0.6)（位置越高、体面越贵）。 */
   quietAccount: { salaryBase: 2000, salaryPerTier: 2.2, livingMin: 800, livingMax: 2200 },
 
-  /* ---------- 选民池（v0.5.2）：选区规模按层级（注册选民数，近似值） ----------
-   * T0 社区/学区 → T1 市 → T2 州众议院选区 → T3 国会选区 → T4 全州 → T5 全国。
-   * carryKeep：升位时只能把旧选区 25% 的选民带进新选区——地盘换了，人心要重新攒。 */
+  /* ---------- 选民池：选区规模按层级（注册选民数，近似值） ----------
+   * 10 级由小到大：社区/学区 → 地方党区 → 市 → 州众选区 → 州参选区 → 全州 → 国会选区
+   * → 联邦参/州长（全州）→ 全国重量级 → 全国。
+   * carryKeep：升一级能带进新选区的旧选民比例锚；carryStepDecay：跨得越多带得越少
+   * （每多跳一级再乘一次），跳级=破格直提，根基更薄。engine/core.js rescaleVoters 用。 */
   voterBase: {
-    electorate: [5000, 60000, 300000, 750000, 9000000, 240000000],
-    carryKeep: 0.25,
-    /* 当选份额：新职位的基本盘占新选区的比例（市议员 8% 选区 ≈ 4800 票的基本盘，
-       联邦议员 8% ≈ 6 万——符合真实"当选者基本盘"的量级）。 */
+    electorate: [5000, 18000, 70000, 180000, 450000, 1200000, 3000000, 8000000, 20000000, 240000000],
+    carryKeep: 0.35,
+    carryStepDecay: 0.66,
+    /* 当选份额：新职位的基本盘占新选区的比例。 */
     winShare: 0.08
   },
 
@@ -380,83 +389,30 @@ POTUS.define("balance", {
   /* 状态标记（引擎显示用；值可为字符串或 {name, desc, effect}——desc/effect 会出现在悬停说明里）
    * desc = 这个状态是什么；effect = 它在游戏里的实际影响（数值/倾斜/事件门槛）。 */
   tagNames: {
-    mentor: { name: "导师", desc: "有人愿意指点你、在房间里替你说话", effect: "部分党内事件的判定加分" },
-    party_traitor: { name: "党内叛徒", desc: "你在关键场合与本党划清了界限", effect: "建制派好感事件容易变差，反建制叙事反而认你" },
-    compromised: { name: "被拿捏", desc: "有人手里握着你的把柄", effect: "特定胁迫事件会找上门" },
-    whistleblower: { name: "吹哨人", desc: "你把内部的脏东西端了出去", effect: "媒体好感上升，建制派戒备你" },
-    vulture: { name: "秃鹫", desc: "危机里发过别人的国难财", effect: "基层好感类事件变差，商业派系反而高看一眼" },
-    bought: { name: "已标价", desc: "大家知道你的立场是可以买到的", effect: "诚信相关判定减分，金主更愿意接近" },
-    shell: { name: "空壳", desc: "你的竞选账目被人查过", effect: "财务类丑闻事件更容易触发" },
-    affair_secret: { name: "隐秘情", desc: "一段没人知道的关系", effect: "暂时没有影响——直到有人知道" },
-    affair_stain: { name: "情变", desc: "私生活的事见了报", effect: "声望受创，道德团体好感下降" },
-    leaker_hero: { name: "泄密英雄", desc: "你把该公开的东西公开了，公众叫好", effect: "基层与媒体好感，建制派记恨" },
-    foundation_watch: { name: "基金被盯", desc: "你的慈善基金正在被查账", effect: "调查类事件概率上升" },
-    launder: { name: "洗钱嫌疑", desc: "账目说不清来源", effect: "司法类事件更容易找上你" },
+    /* v0.9 精简：标签只保留"身份钥匙"——每一个都真实门控某条专属事件链 / 结局 / 引擎机制，
+       绝不放"只写不读"的纯装饰标签。宁可少而稀有，也不要多而廉价。 */
+    /* —— 引擎 / 结局硬门 —— */
     investigation_open: { name: "调查中", desc: "有正式调查在你头上进行", effect: "日程变密（活跃度+0.8），恶果事件更容易出现" },
-    divorce_pending: { name: "离婚待定", desc: "家事正在变成公事", effect: "私人类事件的负面影响加重" },
-    tape_out: { name: "录音外流", desc: "你的一段私下录音在流传", effect: "媒体好感下降，相关丑闻加重" },
-    crisis_2008: { name: "危机亲历", desc: "你完整经历了那场崩盘", effect: "金融类事件认你这段经历" },
-    cuba_crisis: { name: "核危机亲历", desc: "古巴导弹危机时你在场", effect: "外交与国安类事件的经验加分" },
-    bridge: { name: "民权桥", desc: "你在那座桥的画面里站过", effect: "民权类事件认你" },
-    constitutional_crisis: { name: "宪政危机", desc: "你亲历了宪政机器的正面相撞", effect: "制度相关事件的判断加分" },
-    leak: { name: "举报信", desc: "一封与你有关的举报信在流传", effect: "调查概率上升" },
+    prison: { name: "入狱", desc: "你进了联邦系统", effect: "政治生命终结（终局）" },
     president: { name: "总统", desc: "你坐上了那个位置", effect: "终局结算按总统线走" },
     president_done: { name: "曾任总统", desc: "你的任期结束了", effect: "退休结局按总统评价" },
-    kingmaker: { name: "造王者", desc: "别人当选是因为你", effect: "幕僚线结局与党内话语权" },
-    owns_media: { name: "拥有媒体", desc: "一支笔在你手里", effect: "舆论类事件可选择自己的版本" },
-    saw_crisis: { name: "预见危机", desc: "你在崩盘前看出了苗头", effect: "金融判定加分" },
-    debt_crisis: { name: "债务危机", desc: "个人财务亮过红灯", effect: "部分金主对你观望" },
-    leaker_suspect: { name: "疑似泄密者", desc: "有人怀疑是你说的", effect: "建制派疏远，虽无实据" },
-    burn_seen: { name: "烧文件被目击", desc: "有人看见你销毁过东西", effect: "调查类事件的线索" },
-    tweet_saved: { name: "推文被存证", desc: "你发过又删的东西有人截图", effect: "随时可能被翻出来" },
-    bailout_stain: { name: "救市污点", desc: "你为救市背过书", effect: "反建制阵营会用这个打你" },
-    bailout_stain2: { name: "救市污点", desc: "你为救市背过书", effect: "反建制阵营会用这个打你" },
-    prison: { name: "入狱", desc: "你进了联邦系统", effect: "政治生命终结（终局）" },
-    /* 灰产线 */
-    shady_start: { name: "走过灰路", desc: "你的第一桶金不干净", effect: "灰产类事件更容易找上你" },
-    sold_brother: { name: "卖过自家人", desc: "你把自己的兄弟卖了", effect: "家人相关事件永久变差" },
-    owes_shark: { name: "有账在身", desc: "你欠着不该欠的人的钱", effect: "放贷人会定期出现" },
-    black_money: { name: "黑钱入账", desc: "你的账上有说不清的钱", effect: "洗钱嫌疑类事件概率上升" },
-    union_backing: { name: "工会背书", desc: "劳工组织站在你身后", effect: "基层动员类判定加分" },
-    street_army: { name: "街头班底", desc: "你有一群随时能上街的人", effect: "集会与动员事件加分" },
-    /* 媒体线 */
-    bought_editor: { name: "买通过编辑", desc: "某家报纸的版面跟你有默契", effect: "舆论危机可压稿一次" },
-    /* 档案链 */
-    archive_taken: { name: "手上有档案", desc: "地下室那格文件在你手里", effect: "档案链后续事件解锁" },
-    archive_seen: { name: "被人看见翻档案", desc: "那晚有人注意到了你", effect: "档案链反噬事件解锁" },
-    archive_hunter: { name: "反查过对方", desc: "你也去挖了对方的底", effect: "摊牌时的筹码" },
-    archive_leak: { name: "材料已外流", desc: "档案的内容见了光", effect: "局势进入公开阶段" },
-    archive_deal: { name: "做过交易", desc: "你用档案换过东西", effect: "双方都记着这笔账" },
-    archive_expose: { name: "公开过材料", desc: "是你把它端上台面的", effect: "吹哨人形象，建制记恨" },
-    archive_hold: { name: "扣着没用的牌", desc: "档案还压在你手里", effect: "把柄类玩法可用" },
-    archive_burn: { name: "当面烧掉了", desc: "你把档案烧了给他们看", effect: "这条线了结，敌友各记一笔" },
-    archive_owned: { name: "这件事已由我定调", desc: "档案的故事版本由你说了算", effect: "该线收益锁定" },
-    /* 族群飞地线 */
-    enclave_base: { name: "飞地班底", desc: "一个社区把你当自己人", effect: "该社区相关事件判定加分" },
-    enclave_standard: { name: "被社区推出", desc: "社区推你做他们的旗", effect: "代表该社区参选的事件解锁" },
-    civil_win: { name: "替社区赢过一次", desc: "你为他们拿到过实在的东西", effect: "基层好感类判定加分" },
-    street_patrol: { name: "街区巡逻队", desc: "你手里有一支巡逻队", effect: "治安议题事件的筹码，也是风险" },
-    /* v0.5：下野与路线 */
-    fallen: { name: "下野过", desc: "你从台上摔下来过", effect: "层级与声望曾受重创；爬回 T3+ 退休=「东山再起」结局" },
-    cross_staffer: { name: "选过幕僚路", desc: "在第一道分岔你选择了抬轿子", effect: "党务与灰产类事件更密" },
-    cross_runner: { name: "选过参选路", desc: "在第一道分岔你把自己的名字印上了选票", effect: "仕途与民权类事件更密" },
-    cross_ngo: { name: "坚守过NGO", desc: "面对党机器你留在了议题组织", effect: "民权类事件更密" },
-    cross_insider: { name: "入过体制", desc: "你接过了党机器的位置", effect: "党务类事件更密" },
-    cross_senate_road: { name: "走了州参议院", desc: "你在州府与华盛顿之间选了州府", effect: "州级议程相关事件" },
-    cross_federal_road: { name: "走了联邦众议院", desc: "你去了华盛顿", effect: "联邦议程相关事件" },
-    cross_wh_road: { name: "进了竞选团队", desc: "你跟了那个人", effect: "委任线事件更密" },
-    cross_gov_road: { name: "选了州长", desc: "你把名字放在了全州选票最上面", effect: "州级行政权相关事件" },
-    /* v0.5：时代浪潮亲历 */
-    wave_occupy: { name: "占领亲历", desc: "你在帐篷里待过", effect: "民权类事件更密；进步派选民认你" },
-    wave_tea: { name: "茶党亲历", desc: "你站上过市政厅的讲台", effect: "民权类事件更密；保守派民粹认你" },
-    wave_antiwar: { name: "反战亲历", desc: "你在游行前排站过", effect: "反战叙事的信用，军系好感受损" },
-    wave_civil60: { name: "民权亲历", desc: "你去过华盛顿那个八月", effect: "民权类事件更密" },
-    wave_busing: { name: "校车亲历", desc: "你在路线图之争里站过位", effect: "教育议题相关事件" },
-    wave_gasline: { name: "油队亲历", desc: "你在加油队里做过事", effect: "民生议题的信用" },
-    wave_detroit: { name: "底特律亲历", desc: "你参与过那场听证", effect: "工业与工会议题" },
-    wave_irancon: { name: "伊朗门亲历", desc: "你离那批文件很近", effect: "高风险高回报的档案类事件" },
-    wave_veteran: { name: "退伍军人", desc: "你穿过军装、去过战场", effect: "竞选时的履历加分，军系好感" },
-    wave_deferred: { name: "缓征过", desc: "你用学业躲开了那场战争", effect: "合法但会被追问的记录" }
+    fallen: { name: "下野过", desc: "你从台上摔下来过", effect: "爬回 T3+ 退休=「东山再起」结局；否则=「从谷底收场」；顶栏光谱挂「下野」印记" },
+    owns_media: { name: "拥有媒体", desc: "一支笔在你手里", effect: "解锁「话语权的所有者」退休结局" },
+    /* —— 事件链钥匙（有它才解锁后续专属事件） —— */
+    mentor: { name: "导师", desc: "有人愿意指点你、在房间里替你说话", effect: "解锁导师后续专属事件（党内关键场合指路）" },
+    shady_start: { name: "走过灰路", desc: "你的第一桶金不干净", effect: "解锁灰产后续专属事件链（脏钱越陷越深）" },
+    union_backing: { name: "工会背书", desc: "劳工组织站在你身后", effect: "解锁工会背书专属事件；背弃它会遭反噬" },
+    archive_taken: { name: "手上有档案", desc: "地下室那格文件在你手里", effect: "解锁整条档案链（要挟 / 交易 / 摊牌 / 了结）" },
+    /* —— 路线余波（identityBias 加权：走过哪条岔路，就更常碰上那条路的世界） —— */
+    cross_insider: { name: "入过体制", desc: "你接过了党机器的位置", effect: "党务 / 仕途类事件加权；顶栏光谱挂「机器」印记" },
+    cross_runner: { name: "选过参选路", desc: "在第一道分岔你把自己的名字印上了选票", effect: "仕途与民权类事件加权" },
+    cross_staffer: { name: "选过幕僚路", desc: "在第一道分岔你选择了抬轿子", effect: "党务与灰产类事件加权" },
+    cross_ngo: { name: "坚守过NGO", desc: "面对党机器你留在了议题组织", effect: "民权类事件加权" },
+    /* —— 时代浪潮亲历（identityBias 加权 + 顶栏光谱底色） —— */
+    wave_occupy: { name: "占领亲历", desc: "你在帐篷里待过", effect: "民权类事件加权；顶栏光谱挂「占领」底色" },
+    wave_tea: { name: "茶党亲历", desc: "你站上过市政厅的讲台", effect: "民权类事件加权；顶栏光谱挂「茶党」底色" },
+    wave_antiwar: { name: "反战亲历", desc: "你在游行前排站过", effect: "民权类事件加权；顶栏光谱挂「反战」印记" },
+    wave_civil60: { name: "民权亲历", desc: "你去过华盛顿那个八月", effect: "民权类事件加权" }
   }
 });
 

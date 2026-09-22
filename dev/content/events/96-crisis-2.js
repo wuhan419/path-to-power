@@ -518,12 +518,3 @@ POTUS.define("event", [
   }
 
 ]);
-
-/* 新标记登记 */
-POTUS.define("balance", { tagNames: {
-  flood_responder: { name: "洪灾到场", desc: "水漫选区那几天，你在现场而不是在新闻里。", effect: "选区和教会记得你的到场；部分后续危机与重建事件会认这个标记。" },
-  plant_defender: { name: "救厂之人", desc: "最大雇主关厂时，你没有顺其自然——你押上了日程和名义。", effect: "工会与基层因此高看你一眼；关厂余波幕会以这个标记为前提触发。" },
-  grid_fast: { name: "四十八小时复电", desc: "大停电时你签了紧急条款先让灯亮起来。", effect: "加价合同的账单会在数月后的审计席等着你。" },
-  bank_calmer: { name: "止住队伍的人", desc: "挤兑那天你站在了大厅里，队伍因你短了半截。", effect: "储蓄者和本地商界长期记得这份信用；相关事件会认这个标记。" },
-  rebuild_insider: { name: "重建圈内人", desc: "灾后/危机后的合同名单里有你的一份。", effect: "钱和把柄同时到账——下一轮查账事件的种子。" }
-} });
