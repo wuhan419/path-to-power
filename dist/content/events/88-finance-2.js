@@ -595,14 +595,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-/* 新标记登记 */
-POTUS.define("balance", {
-  tagNames: {
-    windfall_kept: { name: "收下了没问过的钱", desc: "你收下了一笔没有问过来路的遗产。", effect: "两年内可能有余波找上门——有人记得那笔钱。" },
-    pac_leader: { name: "自建盘子", desc: "你有了以自己名义运作的领导型委员会。", effect: "党内话语权上升，但委员会的每一笔账都多一双眼睛盯着。" },
-    land_deal: { name: "河对岸的成交记录", desc: "你在规划消息公布前后买过地对岸的地。", effect: "地产版档案里躺着一个对你不利的日期。" },
-    audit_clean: { name: "审计了结", desc: "税务审计以补税或整改结案，未升级为指控。", effect: "档案里有过一次审计记录，但你能说「查过了，没事」。" },
-    lean_team: { name: "精简团队", desc: "资金链危机后你裁掉了半数人马。", effect: "开销骤降，但任何关于背弃老部下的叙事都会更伤你。" }
-  }
-});

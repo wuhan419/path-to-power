@@ -347,12 +347,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-POTUS.define("balance", {
-  tagNames: {
-    reagan_era: { name: "踩准新时代", desc: "在 1980 浪潮里抢先转向了新多数。", effect: "商业与建制缘你而升，但「墙头草」的旧账随时可能被翻。" },
-    old_school: { name: "老派硬骨", desc: "在全党改口时仍替旧议程说话。", effect: "劳工与基层念你的骨气，短期内不太受新当权者待见。" },
-    labor_champion: { name: "劳工代言人", desc: "在管制员被集体解雇时公开替工人说话。", effect: "工会长期替你抬桥，商业派系对你设防。" },
-    snl_escaped: { name: "躲过泡沫", desc: "没沾松绑后的储贷快钱还预警了别人。", effect: "泡沫破裂后你的清白成了最硬的口碑。" }
-  }
-});

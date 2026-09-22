@@ -352,12 +352,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-POTUS.define("balance", {
-  tagNames: {
-    dep_anchor: { name: "乱世定盘", desc: "在崩盘挤提中替储户稳住了场面。", effect: "基层与舆论长期信任，但你被绑在了「不能倒」的位置上。" },
-    knows_hunger: { name: "知道谁在挨饿", desc: "破产那年你摸清了整条街谁最难。", effect: "救济与民生议题上你有额外的说服资本。" },
-    veteran_friend: { name: "老兵之友", desc: "补偿金大军被清前你替他们说过硬话。", effect: "军方与退伍军人好感上升，建制派对你警惕。" },
-    works_chief: { name: "以工代赈牵头人", desc: "你牵头修成了新政的一条路。", effect: "有了实打实的政绩，劳工与基层好感上升。" }
-  }
-});

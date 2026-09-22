@@ -351,10 +351,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-POTUS.define("balance", {
-  tagNames: {
-    minority_guard: { name: "护少数", desc: "在爱国潮最盛时替被怀疑的族裔说过话。", effect: "少数族裔与教会社区长期拥你，但被鹰派贴过标签。" },
-    peace_dividend: { name: "和平红利派", desc: "推动把冷战军费转投国内民生。", effect: "基层与改革派赞赏，军工与军方视你为眼中钉。" }
-  }
-});

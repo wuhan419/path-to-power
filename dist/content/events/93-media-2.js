@@ -716,10 +716,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-/* 新标记登记 */
-POTUS.define("balance", { tagNames: {
-  med2_profile_run: { name: "特稿见报", desc: "一篇关于你的全国性人物特稿已经发表", effect: "舆论生态记住了一个纸上的你，后续余波随之而来" },
-  med2_press_enemy: { name: "有人盯线", desc: "一位记者决定长期专门报道你", effect: "舆论战长期化，涉及媒体的判定压力上升" },
-  med2_press_book: { name: "写进书里", desc: "关于你的非虚构书已出版或正在出版", effect: "书里的叙事长期影响外界对你的认知" }
-} });

@@ -452,9 +452,3 @@ POTUS.define("event", [
   }
 
 ]);
-
-/* ---- 新标记登记 ---- */
-POTUS.define("balance", { tagNames: {
-  setback_survivor: { name: "败选幸存者", desc: "你输过一场选举，而且输得体面。", effect: "下次竞选类事件的判定加分——选民和党内都见过你跌倒站起的样子。" },
-  burn_seen: { name: "过劳被目击", desc: "你在公开场合露出过撑不住的样子。", effect: "健康相关事件的负面影响加重；党内对你体能的议论。" }
-} });

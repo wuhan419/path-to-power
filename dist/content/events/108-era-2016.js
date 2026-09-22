@@ -355,17 +355,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-POTUS.define("balance", {
-  tagNames: {
-    attention_player: { name: "会玩注意力", desc: "2016 年就看懂了「手机里的火」比民调管用。", effect: "基层与舆论场吃得开，老建制对你始终存疑。" },
-    institutionalist: { name: "守程序的人", desc: "在人人掀桌的夜里替规则说了话。", effect: "当晚不带货，事后却被当成清醒者，上层信得过。" },
-    elite_contempt: { name: "「鄙视选民」的话柄", desc: "一句失言被剪成永远的十五秒。", effect: "每次露面都被翻出来的旧账。" },
-    fact_defender: { name: "较真的辟谣者", desc: "对假新闻一条条硬碰硬。", effect: "赢了讲理的人，却总在流量上吃亏。" },
-    data_broker: { name: "卖过选民数据", desc: "把个人级名单交给了黑箱公司。", effect: "随时可能被翻出的一笔隐私旧账。" },
-    data_clean: { name: "用了数据留了手", desc: "买了精准投放却拒交个人数据。", effect: "同行爆雷时，你是少数干净的那个。" },
-    ground_game: { name: "笨办法的人", desc: "不买算法，把钱砸在挨家挨户上。", effect: "基层接触扎实，舆论场上却少了点「高科技」。" },
-    election_steward: { name: "计票守夜人", desc: "在不信任的夜里守住了程序透明。", effect: "建制与讲理者信你，愤怒的一方嫌你「不作为」。" },
-    denier: { name: "点过不信的火", desc: "为稳自己人跟着质疑选举结果。", effect: "一旦风向转变，这把火会连你自己一起烧。" }
-  }
-});

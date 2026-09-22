@@ -354,13 +354,3 @@ POTUS.define("event", [
     ]
   }
 ]);
-
-/* 本包引入的新状态标记登记 */
-POTUS.define("balance", {
-  tagNames: {
-    progressive_soul: { name: "进步派元勋", desc: "在 1912 分裂中押了新秩序，被视为进步灵魂人物。", effect: "基层与舆论长期加成，但建制派对你冷淡。" },
-    muckrider: { name: "借火扒粪", desc: "顺着揭黑报道把自己塑造成了透明派。", effect: "舆论好感上升，商业派系警惕。" },
-    suffrage_friend: { name: "选举权之友", desc: "在妇女还投不了票时就替她们站过台。", effect: "未来选民册扩大时你有一笔旧情可收。" },
-    trustslayer: { name: "托拉斯克星", desc: "把大亨的饭局端上了报纸。", effect: "基层与舆论大涨，商业献金几乎断流。" }
-  }
-});
