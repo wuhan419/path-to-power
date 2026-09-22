@@ -28,9 +28,15 @@
 <script src="engine/vignette.js"></script>
 <script src="engine/progression.js"></script>
 <script src="engine/art.js"></script>
-<!-- 社区联系：赞助（收款码弹窗）与作者反馈邮箱 -->
-<script src="engine/social.js"></script>
-<script src="engine/render.js"></script>
+<!-- 界面层（view/）：由原 render.js 按职责分区拆分而来。都是往共享 window.POTUS 挂函数，
+     彼此无求值期依赖；shell.js 定义 P.SCREEN 与 boot，约定最先加载。 -->
+<script src="engine/view/shell.js"></script>
+<script src="engine/view/title.js"></script>
+<script src="engine/view/create.js"></script>
+<script src="engine/view/topbar.js"></script>
+<script src="engine/view/leftbar.js"></script>
+<script src="engine/view/stage.js"></script>
+<script src="engine/view/actions.js"></script>
 
 <!-- ==========================================================================
      内容包清单 —— 新增内容只改这一块（加一行 <script src>）
@@ -82,7 +88,7 @@
 <script src="content/events/62-crossroads.js"></script>
 <!-- 州联动事件：深州的逆风党、摇摆州的最后一周、深蓝州的温和派生存术 -->
 <script src="content/events/64-states.js"></script>
-<!-- 机制演示包：展示 cost（资源代价）与 stake（D&D 式投入加码）。正式内容稳定后可删。 -->
+<!-- 资源机制示范卡（丑闻/金钱/综合）：展示 cost（资源代价）与 stake（D&D 式投入加码）。 -->
 <script src="content/events/70-demo-resources.js"></script>
 <!-- 灰产线：不靠党内机器，靠"别人不敢说的事"往上走（把柄 / 人脉 / 单次生效） -->
 <script src="content/events/80-shady.js"></script>

@@ -107,7 +107,7 @@ game/
 │       ├── 52-era-1974.js
 │       ├── 55-media-timeline.js ★ 媒介时间轴：同一件事在广播/电视/短视频时代的不同形态
 │       ├── 60-progression.js   跨时代晋升事件链（全部带 minTenure）
-│       ├── 70-demo-resources.js  ★ 机制演示包（cost/stake 怎么写，抄它）
+│       ├── 70-demo-resources.js  ★ 资源机制示范（cost/stake 怎么写，抄它；已归入丑闻/金钱/综合）
 │       ├── 80-shady.js         灰产线样板：把柄 / 人脉 / 单次生效
 │       ├── 82-press.js         媒体即武器样板：借笔→挡笔→用笔→拥有笔
 │       ├── 84-archive.js       ★★ 事件链样板：四幕连演（拿到→被反噬→摊牌→了结）

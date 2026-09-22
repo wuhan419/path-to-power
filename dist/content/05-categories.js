@@ -148,17 +148,6 @@
           '<circle cx="60" cy="74" r="6" fill="' + ink + '" opacity=".85"/>' +
           '<path d="M28 92h64" stroke="' + ink + '" stroke-width="3" opacity=".4"/>';
       })
-    },
-
-    /* 机制演示包专用（正式内容稳定后可删） */
-    demo: {
-      name: "机制演示", ink: "#5a4a2a", base: "#ece4d2",
-      art: art(function (ev, ink) {
-        return '<rect x="26" y="26" width="68" height="68" rx="9" fill="none" stroke="' + ink + '" stroke-width="4"/>' +
-          '<circle cx="45" cy="45" r="5.5" fill="' + ink + '"/><circle cx="75" cy="45" r="5.5" fill="' + ink + '"/>' +
-          '<circle cx="60" cy="60" r="5.5" fill="' + ink + '"/>' +
-          '<circle cx="45" cy="75" r="5.5" fill="' + ink + '"/><circle cx="75" cy="75" r="5.5" fill="' + ink + '"/>';
-      })
     }
   });
 

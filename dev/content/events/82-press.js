@@ -34,7 +34,7 @@ POTUS.define("event", [
   {
     id: "press_columnist", era: PRESS_ERAS, tierMin: 0, tierMax: 4, weight: 10,
     grade: "minor", valence: "risk", dyn: true, category: "media", medium: "print",
-    title: "第七版上的那支笔",
+    title: "你在饭局上被介绍给本市报纸的专栏编辑",
     body: "本市报纸的第七版有一个专栏，每周三次，每次六百字。写它的人今年五十一岁，\n" +
       "在这张报纸上写了二十二年。他喜欢一个人和毁掉一个人用的是同一支笔，\n" +
       "而且他自己从来不觉得这两件事有什么区别。\n" +

@@ -103,7 +103,7 @@ EOF
 
   # dist 完整性校验：关键文件都在
   local f
-  for f in index.html engine/core.js engine/render.js content/01-config.js content/events/54-era-waves.js assets/events/general.jpg; do
+  for f in index.html engine/core.js engine/view/shell.js engine/view/stage.js content/01-config.js content/events/54-era-waves.js assets/events/general.jpg; do
     if [ ! -f "$DIST/$f" ]; then
       echo "✗ dist 缺少 $f" >&2; exit 1
     fi

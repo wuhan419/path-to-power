@@ -173,7 +173,7 @@ NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node dev/tools/smoke
 
 请先阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与 [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md)。**提交前必须跑 `node dev/tools/validate.js` 全部通过。**
 
-发现 bug、想提内容或机制上的想法，直接开 Issue，或写信到 **contact-via-issues**。
+发现 bug、想提内容或机制上的想法，直接在仓库开 Issue。
 
 ---
 

@@ -1,12 +1,12 @@
 /* ============================================================================
  * CONTENT · 70-demo-resources.js
- * 【机制演示包】专门用来展示两件事：
- *   1) cost  —— 选项的"资源代价"，余额不足时选项直接变灰并提示缺什么
- *   2) stake  —— 判定前可"投入资源加码"，打开 D&D 式面板：
+ * 【资源机制示范】三张开局事件，用来说明两件事的写法：
+ *   1) cost  —— 选项的“资源代价”，余额不足时选项直接变灰并提示缺什么
+ *   2) stake  —— 判定前可“投入资源加码”，打开 D&D 式面板：
  *                资金/精力 加值提高目标值，人情 换一次重投取优（advantage）
  *
- * 想看演示效果：这三个事件 weight 调得较高，开局头几年基本一定会撞上。
- * 正式内容稳定后，把 weight 降回 10~12 即可（或直接删掉本文件与 index.html 里那一行）。
+ * 三张卡各自归入常规分类（丑闻 / 金钱 / 综合），weight 偏高，开局头几年多半会撞上，
+ * 让玩家在真实剧情里自然学会 cost 与 stake。id 仍保留 demo_ 前缀，validate 与冒烟测试依赖它。
  *
  * 字段写法见 docs/CONTENT-SCHEMA.md 的「cost / stake」一节。
  * ==========================================================================*/
@@ -21,7 +21,7 @@ POTUS.define("event", [
   {
     id: "demo_hearing",
     grade: "mid", valence: "risk", dyn: true,
-    category: "demo",
+    category: "scandal",
     era: DEMO_ERAS,
     tierMin: 0,
     tierMax: 5,
@@ -213,7 +213,7 @@ POTUS.define("event", [
   {
     id: "demo_donor_gala",
     grade: "minor", valence: "risk", dyn: true,
-    category: "demo",
+    category: "finance",
     era: DEMO_ERAS,
     tierMin: 0,
     tierMax: 5,
@@ -375,7 +375,7 @@ POTUS.define("event", [
   {
     id: "demo_2am_call",
     grade: "minor", valence: "risk", dyn: true,
-    category: "demo",
+    category: "general",
     era: DEMO_ERAS,
     tierMin: 0,
     tierMax: 5,
