@@ -206,14 +206,14 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!w.document.getElementById("stFunPlus") && !!w.document.getElementById("stApPlus") && !!w.document.getElementById("stFav"),
     "面板列出 资金 / 精力 / 人情 三种投入方式");
   check(w.document.getElementById("choices").style.display === "none", "投注时选项列表被收起来");
-  const target0 = parseInt(w.document.querySelector(".check-preview b").textContent, 10);
+  check(!w.document.querySelector(".check-preview"), "投注面板不再显示判定目标值/胜率（掷骰对用户隐藏）");
   w.document.getElementById("stFunPlus").click();
   w.document.getElementById("stFunPlus").click();
   w.document.getElementById("stApPlus").click();
   w.document.getElementById("stFav").click();
-  const target1 = parseInt(w.document.querySelector(".check-preview b").textContent, 10);
-  check(target1 > target0, "加码后判定目标值上升：" + target0 + " → " + target1);
-  check(w.document.querySelector(".check-preview").textContent.indexOf("投入") >= 0, "预览区列出「投入·…」明细");
+  const pAfter = P.computeP(allIn, P.stakeInfo(allIn, { fun: 2, ap: 1, fav: true })).P;
+  check(pAfter > beforeP,
+    "后台胜算仍随加码上升（引擎不变，只是不再显示）：" + beforeP.toFixed(3) + " → " + pAfter.toFixed(3));
 
   /* ---------- 投注上限护栏（玩家反馈的 bug） ---------- */
   console.log("\n== 投注上限护栏 ==");
@@ -234,7 +234,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   for (let i = 0; i < 8; i++) { const b = w.document.getElementById("stApPlus"); if (b && !b.disabled) b.click(); }
   check(valOf("精力") === 3, "连按 8 次 ＋ 后仍停在 3 点（实际 " + valOf("精力") + "）");
   check(w.document.getElementById("stApPlus").disabled, "到顶后 ＋ 按钮被置灰（不再是「点了没反应」的活按钮）");
-  check(rowOf("精力").textContent.indexOf("已达上限") >= 0, "并说明原因：已达上限 +9%（最多 3 点）");
+  check(rowOf("精力").textContent.indexOf("加到顶") >= 0, "到顶后说明原因（精力已加到顶，不再显示具体加值百分比）");
   const apOver = P.stakeInfo(allIn, { fun: 0, ap: 99 });
   check(apOver.cost.ap === 3, "即便参数被灌成 99，也只扣 3 点精力（实际 " + apOver.cost.ap + "）");
 
@@ -309,21 +309,17 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(P.G.fun === funBefore, "返回不扣除资源");
 
   /* 真正确认判定 */
-  console.log("\n== 确认判定 → 掷骰 → D&D 明细 ==");
+  console.log("\n== 确认判定（掷骰隐藏）→ 结算 ==");
   w.document.querySelectorAll(".choice")[idx].click();
   w.document.getElementById("stFunPlus").click();
   w.document.getElementById("stFav").click();
   const funBefore2 = P.G.fun, apBefore2 = P.G.ap, favBefore2 = P.G.fav;
   w.document.getElementById("stGo").click();
-  await sleep(900);
-  const checkBox = w.document.querySelector(".check");
-  check(!!checkBox, "出现 D&D 判定明细卡");
-  const checkTxt = checkBox.textContent.replace(/\s+/g, " ");
-  check(/d100 = \d+.*／ 目标 \d+/.test(checkTxt), "明细含「d100 = X ／ 目标 Y」：" + checkTxt.split("／")[0].trim());
-  check(/重投 \d+ \/ \d+ 取优/.test(checkTxt), "重投时同时展示两次骰值（取优）");
-  check(checkBox.textContent.indexOf("重投") >= 0, "投入人情后显示「重投（取优）」");
-  check(checkBox.querySelector(".mods").textContent.indexOf("基础") === 0, "明细列出修饰符拆分（基础/属性/派系/投入）");
-  check(!!w.document.querySelector(".paid"), "明细列出已消耗资源");
+  /* 掷骰已搬后台：不再有骰子动画/判定明细卡/点数。结算同步完成，只呈现结果 + 收益。 */
+  const diceHidden = ((w.document.getElementById("actbody") || {}).textContent || "").replace(/\s+/g, " ");
+  check(!w.document.querySelector(".check"), "结算不再出现「判定明细」卡");
+  check(!w.document.querySelector(".dicebar"), "结算不再出现骰子动画/点数条");
+  check(!/d100|／ 目标|重投 \d/.test(diceHidden), "操作区不含 d100/目标/骰值等掷骰信息");
   check(P.G.fun < funBefore2, "资金被真实扣除：" + (funBefore2 / 1000) + "k → " + (P.G.fun / 1000) + "k");
   check(!!w.document.querySelector(".result"), "出现结果卡");
   check(w.document.querySelector(".result").textContent.search(/大成功|成功|勉强过关|失败|大失败/) >= 0,
@@ -547,11 +543,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     check(resEl.compareDocumentPosition(gainEl) & w.document.defaultView.Node.DOCUMENT_POSITION_FOLLOWING,
       "收益面板排在结果正文之后（叙事为主，对账为辅）");
   }
-  const checkDet = w.document.querySelector("details.check");
-  check(!!checkDet, "判定明细改成折叠（details.check）");
-  check(!!checkDet && !checkDet.open, "判定明细默认收起");
-  check(!!checkDet && checkDet.querySelector("summary").textContent.indexOf("判定明细") >= 0,
-    "摘要行直接可见 d100 与目标");
+  check(!w.document.querySelector("details.check"), "结算不再呈现折叠的「判定明细」（d100/目标/加值已全部隐藏）");
 
   /* ---------- 下野（软 BE）：afterEvent 补交代，游戏继续 ---------- */
   console.log("\n== 下野（软 BE）与硬结局 ==");
@@ -604,7 +596,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const topbar = w.document.querySelector(".topstat");
   check(!!topbar, "存在顶部状态条 .topstat");
   const topRows = topbar ? [...topbar.querySelectorAll(".tsrow")] : [];
-  check(topRows.length === 2, ".topstat 有 2 行（身份/资源 + 职位卡），实际 " + topRows.length);
+  check(topRows.length === 3, ".topstat 有 3 行（元信息 + 资源瓷贴 + 职位卡），实际 " + topRows.length);
   const ocEl = w.document.querySelector(".topstat .officecard");
   check(!!ocEl, "职位卡 .officecard 已在顶部状态条内（从左栏提上来）");
   check(!w.document.querySelector(".col-left .officecard"), "左栏 .col-left 内已无职位卡");

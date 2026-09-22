@@ -119,8 +119,10 @@
         '<span class="prog-note hastip" data-tip="' + progTip.replace(/"/g, "&quot;") + '">' + prog.note + "</span></div></div>"
       : "";
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
-    return '<div class="officecard">' + lineDefs.filter(function (d) { return d.h; }).map(function (d) {
-      return '<div class="hastip" data-tip="' + escAttr(d.t) + '">' + d.h + "</div>";
+    return '<div class="officecard">' + lineDefs.filter(function (d) { return d.h; }).map(function (d, i) {
+      /* 首行（现任职务）升级为醒目的职位徽标 .jobbadge，其余为普通信息行 */
+      const extra = i === 0 ? " jobbadge" : "";
+      return '<div class="ocline' + extra + ' hastip" data-tip="' + escAttr(d.t) + '">' + d.h + "</div>";
     }).join("") + progHTML + "</div>";
   };
 
@@ -131,27 +133,44 @@
      均已合并为各出现一次。 */
   P.topStatus = function () {
     const G = P.G, a = G.attr, b = P.balance();
-    const chip = function (k, v, cls, t) {
-      return '<span class="tchip' + (cls ? ' ' + cls : '') + (t ? ' hastip' : '') + '"' +
-        (t ? ' data-tip="' + String(t).replace(/"/g, '&quot;') + '"' : '') +
+    const esc = function (s) { return String(s).replace(/"/g, '&quot;'); };
+    /* 精简元信息 chip（时代/日期/轨道）——保持轻量文字，不与资源瓷贴抢戏 */
+    const chip = function (k, v, t) {
+      return '<span class="tchip"' + (t ? ' data-tip="' + esc(t) + '"' : '') +
         '><span class="tk">' + k + '</span><b>' + v + '</b></span>';
+    };
+    /* 资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色；bad 时整块转红示警 */
+    const stat = function (k, v, cls, icon, bad, t) {
+      return '<span class="stat ' + cls + (bad ? ' bad' : '') + '"' +
+        (t ? ' data-tip="' + esc(t) + '"' : '') + '>' +
+        '<span class="sicon">' + icon + '</span>' +
+        '<span class="sbody"><span class="slab">' + k + '</span><b class="sval">' + v + '</b></span></span>';
+    };
+    /* 图标用 currentColor 描边/填充，颜色由 .stat 的 --sc 变量决定，风格贴合纸面克制 */
+    const ICON = {
+      rep:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.1 6.6.6-5 4.4 1.5 6.5L12 16.9 5.9 20.1 7.4 13.6l-5-4.4 6.6-.6z"/></svg>',
+      intg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l7 2.6V12c0 4.3-2.9 7.4-7 9-4.1-1.6-7-4.7-7-9V5.6z"/></svg>',
+      fun:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M16.5 6.5H10a3 3 0 000 6h4a3 3 0 010 6H7"/></svg>',
+      hp:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5S4 15.6 4 9.9C4 7.2 6 5.2 8.5 5.2c1.6 0 3 .9 3.5 2 .5-1.1 1.9-2 3.5-2C18 5.2 20 7.2 20 9.9c0 5.7-8 10.6-8 10.6z"/></svg>',
+      ap:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13z"/></svg>',
+      fav:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.4a3.2 3.2 0 010 5.9M18.5 20a5.5 5.5 0 00-2.8-4.6"/></svg>'
     };
     const track = (P.reg.track[G.track] || { name: G.track }).name;
     const eraName = (P.reg.era[G.era] || { name: G.era }).name;
     const yrs = G.age - b.startAge + 1;
-    return '<div class="tsrow">' +
+    return '<div class="tsrow tsmeta">' +
         '<span class="tname">' + G.name + '</span>' +
-        chip('时代', eraName, '', '当前时代——它决定世界议题、媒介与事件池，也给整个画面定主色调。') +
+        chip('时代', eraName, '当前时代——它决定世界议题、媒介与事件池，也给整个画面定主色调。') +
         chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
-        chip('轨道', track, '', '你现在走的这条路：选仕途、幕僚、其它轨道各有不同的晋升线与事件池。') +
-        '<span class="tsep"></span>' +
-        chip('声望', G.rep, '', '名望与曝光度。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
-        chip('公信力', a.INTG, '', '诚信口碑。丑闻与失信会拉低它；它是一些清正选项与关键判定的门槛。') +
-        chip('资金', '$' + (G.fun / 1000).toFixed(0) + 'k', '', '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
-        '<span class="tsep"></span>' +
-        chip('健康', G.hp, G.hp <= 30 ? 'bad' : '', '身体本钱。连轴转会透支；太低会触发健康危机，甚至病故退场。') +
-        chip('精力', G.ap, G.ap <= 1 ? 'bad' : '', '本月可用的行动力。处理一件事往往吃掉若干点，投精力博胜算也花它；逐月回满。') +
-        chip('人情', G.fav, '', '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
+        chip('轨道', track, '你现在走的这条路：选仕途、幕僚、其它轨道各有不同的晋升线与事件池。') +
+      '</div>' +
+      '<div class="tsrow statgrid">' +
+        stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
+        stat('公信力', a.INTG, 's-intg', ICON.intg, a.INTG <= 20, '诚信口碑。丑闻与失信会拉低它；它是一些清正选项与关键判定的门槛。') +
+        stat('资金', '$' + (G.fun / 1000).toFixed(0) + 'k', 's-fun', ICON.fun, false, '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
+        stat('健康', G.hp, 's-hp', ICON.hp, G.hp <= 30, '身体本钱。连轴转会透支；太低会触发健康危机，甚至病故退场。') +
+        stat('精力', G.ap, 's-ap', ICON.ap, G.ap <= 1, '本月可用的行动力。处理一件事往往吃掉若干点，投精力搏把握也花它；随时间恢复。') +
+        stat('人情', G.fav, 's-fav', ICON.fav, false, '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
       '</div>' +
       '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
   };

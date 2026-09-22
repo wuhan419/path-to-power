@@ -30,6 +30,36 @@
   .topstat .tchip .tk{color:var(--muted);font-size:11.5px}
   .topstat .tchip b{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;font-size:14px}
   .topstat .tchip.bad b{color:var(--bad)}
+  /* --- v0.7.x 顶部状态条美化：资源瓷贴 + 职位徽标 + 突出进度条 --- */
+  /* 六项资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色（--sc 控主色，--sc-bg 控底） */
+  .topstat .statgrid{gap:6px 8px}
+  .topstat .stat{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;
+    border:1px solid var(--sc-bd,var(--line));border-left:3px solid var(--sc,var(--muted));
+    border-radius:3px;background:var(--sc-bg,#fff);line-height:1.15}
+  .topstat .stat .sicon{display:inline-flex;align-items:center;color:var(--sc,var(--muted))}
+  .topstat .stat .sicon svg{width:14px;height:14px;display:block}
+  .topstat .stat .slab{display:block;font-size:10px;letter-spacing:.5px;color:var(--muted)}
+  .topstat .stat .sval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;
+    font-size:16px;color:var(--sc,var(--ink))}
+  .topstat .s-rep {--sc:#7a1f1f;--sc-bg:#f6e9e6;--sc-bd:#d8b0a8}
+  .topstat .s-intg{--sc:#3a4a63;--sc-bg:#e9edf4;--sc-bd:#b4c0d4}
+  .topstat .s-fun {--sc:#7a5a00;--sc-bg:#f5ecd2;--sc-bd:#d8c48a}
+  .topstat .s-hp  {--sc:#2f6b3a;--sc-bg:#e7f1e7;--sc-bd:#a9cbae}
+  .topstat .s-ap  {--sc:#1f6b6b;--sc-bg:#e3efef;--sc-bd:#a5c9c9}
+  .topstat .s-fav {--sc:#6b2d6b;--sc-bg:#f0e7f0;--sc-bd:#cba8cb}
+  .topstat .stat.bad{--sc:var(--bad);--sc-bg:#f7e2e0;--sc-bd:#d8a09a}
+  /* 职位徽标：officeCard 首行，实心主色块，一眼看到"我现在是谁" */
+  .officecard .jobbadge{flex:0 0 auto;margin:0 6px 2px 0;padding:4px 12px;align-self:center;
+    background:var(--accent);color:#f4efe3;border-radius:3px;font-size:13px;line-height:1.3;
+    text-decoration:none;cursor:help}
+  .officecard .jobbadge b{font-size:15px;letter-spacing:.5px;color:#fff}
+  /* 进度条加强：更粗的条、渐变填充、放大的标签与百分比 */
+  .officecard .progline{gap:9px}
+  .officecard .prog-label{font-size:12.5px;letter-spacing:1.5px}
+  .officecard .progbar{height:12px;border-radius:6px;overflow:hidden}
+  .officecard .progbar i{background:linear-gradient(90deg,#b7ac91,var(--muted))}
+  .officecard .progrow.ready .progbar i{background:linear-gradient(90deg,var(--era3),var(--accent))}
+  .officecard .prog-pct{font-size:14px}
   /* era skin */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   body.era-1960_CAMELOT{--era1:#3a4a63;--era2:#5a6f9c;--era3:#caa53a;--accent:#3a4a63}

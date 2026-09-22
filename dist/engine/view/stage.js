@@ -548,7 +548,6 @@
        都有保底选项），这里只是兜底。 */
     const forced = P.fallbackIndex(chs);
     chs.forEach(function (ch, i) {
-      const r = P.computeP(ch);
       const blockedReq = reqBlock(ch);
       const blockedCost = costBlock(ch);
       const isForced = i === forced;
@@ -558,9 +557,10 @@
       const btn = document.createElement("button");
       btn.className = "choice" + (isForced ? " forced" : "");
       btn.disabled = !!blocked;
-      let hint = "胜算：" + P.fuzzy(r.P) + "（" + Math.round(r.P * 100) + "%）";
-      if (stakeSpec) hint += " · 可投入资源";
-      btn.innerHTML = ch.text + '<span class="hint">' + hint + "</span>" +
+      /* 掷骰对用户隐藏：不再显示胜算百分比。玩家只需知道「有风险、能投入资源搏一把、
+         结果有得有失」——风险的量由事件三值性徽标与下面的回报区间来传达。 */
+      const hint = stakeSpec ? '<span class="hint">可投入资源，搏更大把握</span>' : "";
+      btn.innerHTML = ch.text + hint +
         (ch.cost ? '<span class="costtag">代价：' + resText(ch.cost) + "</span>" : "") +
         rewLineHTML(rew) +
         (blocked ? '<span class="req">✕ ' + (blockedReq || blockedCost) + "</span>" : "") +
@@ -624,61 +624,41 @@
     G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
-    const main = P.$("#main");
-    const dice = document.createElement("div"); dice.className = "dicebar";
-    dice.innerHTML = '<span class="db-tag">掷骰</span><b>🎲</b>';
-    mainInsert(dice);   // v0.5.4：掷骰进右栏 #actbar，操作不滚动中栏
-    let n = 0;
-    const iv = setInterval(function () {
-      const db = dice.querySelector("b"); if (db) db.textContent = P.rint(1, 100);
-      if (++n <= 10) return;
-      clearInterval(iv);
-      const db2 = dice.querySelector("b"); if (db2) db2.textContent = res.roll;
-      P.applyEffects(effFinal);
-      P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
-      const label = P.TIER_LABEL[res.tier] || res.tier;
-      // 主次分明：结果正文（叙事）→ 收益结算（对账）→ 判定明细（折叠，给较真的人）
-      const div = document.createElement("div");
-      div.className = "result " + res.tier + " fade";
-      div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
-      mainInsert(div);   // v0.5.4：结算结果进右栏 #actbar
-      const gainHTML = gainBoxHTML(effFinal);
-      if (gainHTML) {
-        const gb = document.createElement("div");
-        gb.className = "fade";
-        gb.innerHTML = gainHTML;
-        mainInsert(gb);   // v0.5.4：收益结算进右栏 #actbar
-      }
-      // D&D 式判定明细（默认收起）
-      const check = document.createElement("details");
-      check.className = "check fade";
-      const rollTxt = res.rerolled ? ("d100 = <b>" + res.roll + "</b>（重投 " + res.rolls.join(" / ") + " 取优）") : ("d100 = <b>" + res.roll + "</b>");
-      check.innerHTML = "<summary>判定明细　d100 = <b>" + res.roll + "</b> ／ 目标 <b>" + r.target + "</b></summary>" +
-        '<div class="check-line">' + rollTxt + ' ／ 目标 <b>' + r.target + "</b></div>" +
-        '<div class="mods">' + r.breakdown.map(function (b) {
-          return "<span>" + b.label + " " + (b.pct >= 0 ? "+" : "") + b.pct.toFixed(1) + "</span>";
-        }).join("") + "</div>" +
-        (Object.keys(paid).length ? '<div class="paid">已消耗：' + resText(paid) + "</div>" : "");
-      mainInsert(check);
-      const eff = effFinal || {};
-      const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
-      if (newScandal || out.news) {
-        const headline = P.makeNews(out.news || ("陷入争议：" + String(out.body || "").slice(0, 24)));
-        P.G.history.push(headline);
-        (P.G.yearHeads = P.G.yearHeads || []).push(headline);
-        P.pushLog("头条：" + headline);
-        const nv = document.createElement("div"); nv.className = "news fade";
-        nv.innerHTML = '<div class="dateline">突发</div><div class="body">' + headline + "</div>";
-        mainInsert(nv);
-      }
-      P.pushLog("[" + (ev.title || "") + "] " + label + "（目标" + r.target + "，d100=" + res.roll + "）");
-      const btn = document.createElement("button");
-      btn.className = "btn primary"; btn.style.marginTop = "10px"; btn.textContent = "继续 →";
-      btn.onclick = function () { P.afterEvent(); };
-      mainInsert(btn);
-      P.refreshPanel();
-      P.autosave();
-    }, 45);
+    /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、
+       不列目标值与加值明细。玩家看到的只有：结果档位（大成功/成功/勉强/失败/大失败）
+       ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
+    P.applyEffects(effFinal);
+    P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
+    const label = P.TIER_LABEL[res.tier] || res.tier;
+    const div = document.createElement("div");
+    div.className = "result " + res.tier + " fade";
+    div.innerHTML = "<b>" + label + "</b><br>" + (out.body || "");
+    mainInsert(div);
+    const gainHTML = gainBoxHTML(effFinal);
+    if (gainHTML) {
+      const gb = document.createElement("div");
+      gb.className = "fade";
+      gb.innerHTML = gainHTML;
+      mainInsert(gb);
+    }
+    const eff = effFinal || {};
+    const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
+    if (newScandal || out.news) {
+      const headline = P.makeNews(out.news || ("陷入争议：" + String(out.body || "").slice(0, 24)));
+      P.G.history.push(headline);
+      (P.G.yearHeads = P.G.yearHeads || []).push(headline);
+      P.pushLog("头条：" + headline);
+      const nv = document.createElement("div"); nv.className = "news fade";
+      nv.innerHTML = '<div class="dateline">突发</div><div class="body">' + headline + "</div>";
+      mainInsert(nv);
+    }
+    P.pushLog("[" + (ev.title || "") + "] " + label);
+    const btn = document.createElement("button");
+    btn.className = "btn primary"; btn.style.marginTop = "10px"; btn.textContent = "继续 →";
+    btn.onclick = function () { P.afterEvent(); };
+    mainInsert(btn);
+    P.refreshPanel();
+    P.autosave();
   };
 
   P.afterEvent = function () {

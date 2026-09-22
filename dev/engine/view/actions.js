@@ -75,18 +75,16 @@
     const s = _stake; if (!s) return;
     const ch = s.ch, st = s.st;
     const spec = P.stakeSpec(ch, s.ev && s.ev.grade);
-    const info = P.stakeInfo(ch, st);
-    const r = P.computeP(ch, info);
     const prev = P.$("#stake"); if (prev) prev.remove();
     const rows = [];
     if (spec.fun) {
-      const per = Math.max(1, spec.fun.per || 0), w = (spec.fun.w || 0.04) * 100, cap = (spec.fun.cap || 0.30) * 100;
+      const per = Math.max(1, spec.fun.per || 0);
       const mx = P.stakeMax("fun", ch), atMax = st.fun >= mx;
       const note = mx === 0
         ? "资金不足：每档需 " + P.fmtUsd(per) + "，你现在只有 " + P.fmtUsd(P.G.fun)
         : (atMax
-          ? "已达上限 +" + cap + "%（最多 " + mx + " 档）"
-          : "每 " + P.fmtUsd(per) + " → +" + w + "%，上限 +" + cap + "%，还可投 " + (mx - st.fun) + " 档（余额 " + P.fmtUsd(P.G.fun) + "）");
+          ? "已经加到这项的上限了"
+          : "每档 " + P.fmtUsd(per) + "，投得越多把握越大（最多 " + mx + " 档，余额 " + P.fmtUsd(P.G.fun) + "）");
       rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>资金</b>' +
         '<button class="btn" id="stFunMinus"' + (st.fun <= 0 ? " disabled" : "") + '>−</button>' +
         '<span class="stake-val">' + P.fmtUsd(st.fun * per) + "</span>" +
@@ -94,13 +92,12 @@
         '<span class="stake-note">' + note + "</span></div>");
     }
     if (spec.ap) {
-      const w = (spec.ap.w || 0.03) * 100, cap = (spec.ap.cap || 0.09) * 100;
       const mx = P.stakeMax("ap", ch), atMax = st.ap >= mx;
       const note = mx === 0
         ? "精力已经见底，投不动了"
         : (atMax
-          ? "已达上限 +" + cap + "%（最多 " + mx + " 点）"
-          : "每 1 点 → +" + w + "%，上限 +" + cap + "%，还可投 " + (mx - st.ap) + " 点（精力 " + P.G.ap + "）");
+          ? "精力已经加到顶了"
+          : "每点精力都能再添一把（还可投 " + (mx - st.ap) + " 点，精力 " + P.G.ap + "）");
       rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>精力</b>' +
         '<button class="btn" id="stApMinus"' + (st.ap <= 0 ? " disabled" : "") + '>−</button>' +
         '<span class="stake-val">' + st.ap + "</span>" +
@@ -113,16 +110,12 @@
         (st.fav ? "checked" : "") + (canFav ? "" : " disabled") + "> 花 1 点，获得<b>重投（取优）</b></label>" +
         '<span class="stake-note">' + (canFav ? "（人情 " + P.G.fav + "）" : "没有人情可以动用") + "</span></div>");
     }
-    const bd = r.breakdown.map(function (b) {
-      return "<span>" + b.label + " " + (b.pct >= 0 ? "+" : "") + b.pct.toFixed(1) + "</span>";
-    }).join("");
     const rateNote = P.stakeRateNote(ch, s.ev && s.ev.grade);
     const box = document.createElement("div");
     box.className = "stake"; box.id = "stake";
-    box.innerHTML = "<h3>投入资源，提高胜算</h3>" +
-      '<div class="stake-note" style="margin:-4px 0 6px;font-size:11.5px;color:var(--muted)">加码只提高这一判定的胜算，不增加事件本身的回报 —— 量力而行。</div>' + rows.join("") +
+    box.innerHTML = "<h3>投入资源，搏更大把握</h3>" +
+      '<div class="stake-note" style="margin:-4px 0 6px;font-size:11.5px;color:var(--muted)">加码只是让这一票更稳，不改变事情本身的回报 —— 量力而行。</div>' + rows.join("") +
       (rateNote ? '<div class="stake-rate">' + rateNote + "</div>" : "") +
-      '<div class="check-preview">判定目标值 <b>' + r.target + "</b>%　" + bd + "</div>" +
       '<div class="stake-actions"><button class="btn primary" id="stGo">确认判定</button>' +
       '<button class="btn" id="stBack">返回</button></div>';
     /* v0.5.x 修正：判定栏（投注面板）归入右栏（#actbar）顶部，与「操作在右栏」的三栏设计一致，
