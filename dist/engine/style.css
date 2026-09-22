@@ -31,14 +31,17 @@
   .topstat .tchip b{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;font-size:14px}
   .topstat .tchip.bad b{color:var(--bad)}
   /* --- v0.7.x 顶部状态条美化：资源瓷贴 + 职位徽标 + 突出进度条 --- */
-  /* 六项资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色（--sc 控主色，--sc-bg 控底） */
-  .topstat .statgrid{gap:6px 8px}
-  .topstat .stat{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;
-    border:1px solid var(--sc-bd,var(--line));border-left:3px solid var(--sc,var(--muted));
+  /* 资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色（--sc 控主色，--sc-bg 控底）。
+     v0.8 减法后只剩 3 项 → flex:1 等分铺满整行、内容居中，避免右侧留白 */
+  .topstat .statgrid{gap:8px}
+  .topstat .stat{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    padding:5px 10px;border:1px solid var(--sc-bd,var(--line));border-left:3px solid var(--sc,var(--muted));
     border-radius:3px;background:var(--sc-bg,#fff);line-height:1.15}
   .topstat .stat .sicon{display:inline-flex;align-items:center;color:var(--sc,var(--muted))}
-  .topstat .stat .sicon svg{width:14px;height:14px;display:block}
-  .topstat .stat .slab{display:block;font-size:10px;letter-spacing:.5px;color:var(--muted)}
+  .topstat .stat .sicon svg{width:15px;height:15px;display:block}
+  /* 名称与数值同一行（不堆叠）→ 整条变矮、拉长铺满 */
+  .topstat .stat .sbody{display:inline-flex;align-items:baseline;gap:6px}
+  .topstat .stat .slab{display:inline;font-size:12.5px;letter-spacing:.5px;color:var(--muted)}
   .topstat .stat .sval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;
     font-size:16px;color:var(--sc,var(--ink))}
   .topstat .s-rep {--sc:#7a1f1f;--sc-bg:#f6e9e6;--sc-bd:#d8b0a8}
@@ -71,26 +74,101 @@
   .news .dateline{font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);
     padding-bottom:4px;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
   .news .body{font-size:15.5px;white-space:pre-wrap}
-  /* layout（v0.5.3 三栏：左状态 · 中事件 · 右操作——充分利用宽屏）
-     v0.5.5：左右栏宽度改为可压缩（minmax），把三栏布局的可用下界从 1150px 拉到 1000px，
-     避免常见笔记本窗口（1280/1366）一缩就退化成"操作栏掉到下面" */
-  .grid{display:grid;grid-template-columns:minmax(200px,250px) minmax(0,1fr) minmax(280px,320px);gap:18px;align-items:start}
-  .col-left{position:sticky;top:56px;max-height:calc(100vh - 70px);overflow:auto}
-  .col-right{position:sticky;top:56px;max-height:calc(100vh - 70px);overflow:auto}
+  /* layout（v0.8 两栏）：顶部栏（左=游戏级操作 右=标题）独立后，下方分左右两栏：
+     左 = 事件（#main.col-event）；右 = 状态区（顶部 #statusbox）+ 操作区（底部 .actbar）。
+     58/42 分栏；宽屏下整页一屏放下（body.game 撑满视口剩余高、两栏各自内部滚动）。 */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border-bottom:2px double var(--line);padding:2px 2px 8px;margin-bottom:12px}
+  .topbar .tb-ops{display:flex;gap:8px;flex-wrap:wrap}
+  .topbar .tb-title{font-size:20px;font-weight:700;letter-spacing:3px;color:var(--accent);white-space:nowrap}
+  /* 顶栏身份徽标（v0.8）：突出「主角是谁」——层级牌 + 职位主视觉（大）+ 姓名·年龄·在位（小淡注）。
+     字号拉开对比：职位 20px 特粗（身份焦点）、层级牌实心色块、副行 12px 灰。--tier 由 .idcard.tier-N 注入。 */
+  .tb-ident{display:flex;align-items:center;justify-content:flex-end;min-width:0}
+  .idcard{display:inline-flex;align-items:center;gap:11px}
+  .id-tier{flex:0 0 auto;min-width:42px;height:42px;padding:0 9px;border-radius:9px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:18px;font-weight:800;letter-spacing:.5px;
+    color:#fff;background:var(--tier,var(--muted));border:1px solid rgba(0,0,0,.14);
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
+  .idcard.tier-5 .id-tier{color:#2a2200;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+  .id-main{display:flex;flex-direction:column;line-height:1.1;text-align:right;min-width:0}
+  .id-office{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--tier,var(--ink));white-space:nowrap}
+  .id-sub{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;flex-wrap:wrap;
+    font-size:12px;color:var(--muted);margin-top:3px}
+  .id-sub .id-name{font-weight:700;color:var(--ink);letter-spacing:.5px}
+  .id-sub .id-sep{opacity:.45}
+  .id-sub .id-age,.id-sub .id-tenure{font-variant-numeric:tabular-nums}
+  /* 顶栏徒章右侧：竖分隔 + 晋升就绪度小条（晋升 [进度条] 61 →下一级），随 tier 配色、就绪转绿 */
+  .id-vdiv{width:1px;align-self:stretch;background:var(--line);opacity:.35;margin:3px 0}
+  .id-prog{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:var(--muted)}
+  .id-prog .idp-cap{letter-spacing:1px;font-weight:700;color:var(--tier,var(--accent))}
+  .id-prog .idp-bar{position:relative;width:64px;height:7px;background:#d9d0bb;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .id-prog .idp-bar i{display:block;height:100%;background:var(--tier,var(--muted));transition:width .3s}
+  .id-prog.ready .idp-bar i{background:var(--good)}
+  .id-prog .idp-pct{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:800;font-size:14px;color:var(--tier,var(--ink))}
+  .id-prog.ready .idp-pct{color:var(--good)}
+  .id-prog .idp-next{color:var(--muted)}
+  .id-prog.atmax b{color:var(--tier);letter-spacing:1px;font-weight:800;font-size:14px}
+  .grid{display:grid;grid-template-columns:minmax(0,58fr) minmax(330px,42fr);gap:16px;align-items:start}
+  .col-event{min-width:0}
+  .col-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+  /* 整屏固定高度、栏内自滚：只对游戏对局屏（body.game）生效；标题/建角/结局照常整页滚 */
+  body.game{overflow:hidden}
+  body.game #app{height:100vh;display:flex;flex-direction:column;padding:10px 18px 12px}
+  body.game .topbar{flex:0 0 auto}
+  body.game .grid{flex:1 1 auto;min-height:0;align-items:stretch}
+  body.game .col-event,body.game .col-right{height:100%;overflow:auto;padding-right:2px}
+  body.game .statusbox{flex:0 1 auto;overflow:auto;min-height:0;max-height:62%}
+  body.game .actbar{flex:1 1 auto;overflow:auto;min-height:0}
   .acthead{font-size:12px;letter-spacing:3px;color:var(--accent);font-weight:700;
     border-bottom:2px solid var(--accent);padding-bottom:4px;margin-bottom:10px}
   .actbtn{width:100%;margin-top:12px;padding:12px}
   .col-right .choices{margin-top:4px}
   .col-right .choice{font-size:14px;padding:10px 12px}
   .col-right .stake,.col-right .check,.col-right .result,.col-right .dicebar{margin:0 0 12px}
-  /* 中栏没有右栏的页面（年终/静好旧渲染）时 grid 自动塌成两栏 */
-  .grid.two-col{grid-template-columns:250px minmax(0,1fr)}
   @media(max-width:1000px){
-    .grid{grid-template-columns:200px minmax(0,1fr)}
-    .col-right{grid-column:1 / -1;position:static;max-height:none}
-    .col-left{position:static;max-height:none}
+    .grid{grid-template-columns:minmax(0,1fr) minmax(300px,44fr)}
   }
-  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  /* 窄屏（含竖屏）：两栏堆叠为单列，取消固定高度，恢复整页滚动 */
+  @media(max-width:820px){
+    body.game{overflow:auto}
+    body.game #app{height:auto;display:block;overflow:visible}
+    body.game .col-event,body.game .col-right{height:auto;overflow:visible}
+    body.game .statusbox{max-height:none;overflow:visible}
+    .grid{grid-template-columns:1fr}
+  }
+  /* 状态区（右栏顶）：合并原 topstat + 左栏 panel。.sb.tier-N 驱动级别配色 */
+  .statusbox{background:none;border:0;padding:0}
+  .sb{display:flex;flex-direction:column;gap:10px;border-left:4px solid var(--tier,var(--muted));padding-left:10px}
+  .sb .topstat{margin:0}
+  .sb-detail{font-size:13px;padding:6px 9px}
+  .sb-detail h3{margin:7px 0 3px;font-size:11.5px;letter-spacing:1px;color:var(--accent);border:0;padding:0}
+  .sb-detail h3:first-child{margin-top:0}
+  /* 内联 chip 流：能力/派系/人脉/标签不再一行一个，改横向流式换行，极大压缩高度 */
+  .qchips{display:flex;flex-wrap:wrap;gap:4px 6px;margin:0 0 2px}
+  .qchip{display:inline-flex;align-items:baseline;gap:4px;font-size:12px;line-height:1.3;
+    padding:1px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .qchip b{font-weight:700;color:var(--muted)}
+  .qchip .qval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;color:var(--ink)}
+  .qchip .pos{color:var(--good);font-weight:700}
+  .qchip .neg{color:var(--bad);font-weight:700}
+  .log-sm{font-size:11px;line-height:1.45;color:var(--muted);margin-top:5px;
+    border-top:1px dotted var(--line);padding-top:4px;max-height:none;overflow:visible}
+  .sb-detail .log{max-height:none;overflow:visible}
+  /* 状态详情紧凑行：左侧固定标签列 + 右侧 chip 流「同一排」（能力/标签/派系/人脉），省掉标题独占的高度 */
+  .sbrow{display:flex;align-items:flex-start;gap:7px;margin:3px 0}
+  .sbrow .sblab{flex:0 0 30px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent);padding-top:2px}
+  .sbrow .qchips{margin:0;flex:1 1 auto;gap:3px 5px}
+  .qchip,.qchips .tag{white-space:nowrap}
+  .tag{cursor:help}
+  /* 标签行里的溢出收敛与丑闻语义 */
+  .tag-more{background:#e9dfc7;color:var(--muted);font-style:italic;border-style:dashed}
+  .tag.scandal{background:#f3dede;color:var(--bad);border-color:#c49a9a;font-weight:700}
+  /* T0–T5 级别色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金） */
+  .sb.tier-0,.idcard.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2{--tier:#3a4a63}
+  .sb.tier-3,.idcard.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5{--tier:#caa53a}
+  .sb .jobbadge{background:var(--tier,var(--accent))}
+  .sb.tier-5 .jobbadge{color:#3a2f00}.sb.tier-5 .jobbadge b{color:#241c00}
   /* stats panel */
   .panel{border:1px solid var(--line);background:#fbf7ec;padding:10px 12px;font-size:13.5px}
   .panel h3{margin:0 0 6px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -182,6 +260,14 @@
   /* modal */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:20}
   .modal .box{background:var(--paper);border:1px solid var(--line);padding:18px;max-width:520px;width:92%}
+  /* 动态（近期日志）弹窗：标题栏 + 可滚动的倒序日志流 + 关闭 */
+  .modal .box.logmodal{max-width:600px}
+  .logmodal h3{margin:0 0 10px;font-size:16px;letter-spacing:2px;color:var(--accent);
+    border-bottom:2px solid var(--accent);padding-bottom:6px}
+  .logmodal .loglist{max-height:60vh;overflow:auto;font-size:13px;line-height:1.6;
+    display:flex;flex-direction:column;gap:5px;padding-right:4px}
+  .logmodal .logline{padding:5px 9px;background:#fbf7ec;border:1px solid var(--line);
+    border-left:3px solid var(--muted);border-radius:3px;color:var(--ink)}
   .hidden{display:none}
   /* 资源代价标签（选项内） */
   .choice .costtag{display:inline-block;font-size:11.5px;color:#7a5a00;background:#f3e6c4;
@@ -273,15 +359,28 @@
   .quietwork .qw-text{color:#2a251c}
   .quietcard .mlabel.quiet{margin-bottom:2px}
   .quietcard .vig{margin-top:10px}
-  /* 职位卡（v0.5.6：从左栏「状态」面板提到顶部状态条，改为横向排布）
-     内容：职位 · T层级（在位 N 个月）｜州 · 选区规模｜选民池（选举底气）｜政治光谱｜晋升进度 */
-  .officecard{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 20px;
-    font-size:12.5px;line-height:1.65}
-  .officecard b{font-size:13px}
-  /* 晋升进度单独占一行（横条 + 说明），避免把前面几项挤变形 */
-  .officecard .progrow{flex:0 0 100%;margin:4px 0 0;padding:0;border-top:0}
-  .officecard .progline{max-width:none}
-  .officecard .prog-note{margin-top:0}
+  /* 职位卡（v0.8「选区基本盘」面板）：身份已提到顶栏徽标，这里专注选区/基本盘/晋升，
+     像传统游戏的装备·技能面板——带标题栏的分区卡，逐行罗列、突出好读。 */
+  .topstat .tsoffice{display:block}
+  /* 选区基本盘（紧凑）：顶边按 tier 配色；标题行「选区基本盘 + 缩略光谱/选区」同行；
+     下方选民三档做本卡核心读数（大数字、语义配色）。晋升进度已上移到顶栏徽标。 */
+  .officecard{border:1px solid var(--line);border-top:3px solid var(--tier,var(--accent));
+    background:#fbf7ec;border-radius:4px;padding:6px 10px 8px}
+  .officecard .oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:7px}
+  .officecard .oc-title{font-size:11.5px;letter-spacing:2px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .officecard .oc-meta{font-size:11.5px;color:var(--muted);text-align:right;overflow-wrap:anywhere}
+  .officecard .ocline{font-size:12.5px;color:var(--ink)}
+  /* 选民三档：小标签在上、大数字在下，三档并排 + 右侧底气读数 */
+  .officecard .vt{display:inline-flex;flex-direction:column;align-items:center;gap:1px;margin-right:15px;vertical-align:top}
+  .officecard .vt i{font-style:normal;font-size:10.5px;letter-spacing:.5px;color:var(--muted)}
+  .officecard .vt b{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:18px;font-weight:800;line-height:1}
+  .officecard .vt-die b{color:var(--good)}
+  .officecard .vt-warm b{color:#8a6d1a}
+  .officecard .vt-oppose b{color:var(--bad)}
+  .officecard .vt-power{display:inline-flex;align-items:baseline;gap:2px;font-size:11px;color:var(--muted)}
+  .officecard .vt-power b{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:15px;font-weight:800;color:var(--tier,var(--ink))}
+  .officecard .vt-power em{font-style:normal;font-size:10px}
   /* 背景卡的位置容器：放在选项下面，独立成框（v0.5.2 应用户要求） */
   .brief-slot{margin-top:14px}
   .brief-slot .brief{margin:0}

@@ -782,13 +782,24 @@ POTUS.importSave = function () {
   };
   inp.click();
 };
+POTUS.openLog = function () {
+  if (!POTUS.G) return;
+  const old = document.querySelector(".modal"); if (old) old.remove();
+  const logs = (POTUS.G.log || []).slice().reverse();   // 最新在上
+  let h = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box logmodal"><h3>近期动态</h3>';
+  h += logs.length
+    ? '<div class="loglist">' + logs.map(function (x) { return '<div class="logline">' + x + "</div>"; }).join("") + "</div>"
+    : '<p class="muted">还没有记录。</p>';
+  h += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div></div>';
+  const m = document.createElement("div"); m.innerHTML = h; document.body.appendChild(m.firstElementChild);
+};
+
 POTUS.renderLoadedScreen = function () {
-  const era = POTUS.reg.era[POTUS.G.era] || { name: POTUS.G.era };
   POTUS.app().innerHTML =
-    '<div class="masthead"><div class="title">' + era.name + '</div><div class="meta">' + POTUS.G.year + " 年 " + (POTUS.G.month || 1) + " 月 · " + POTUS.G.name + "</div></div>" +
-    POTUS.toolbarHTML() +
-    '<div class="grid"><div id="main"><div class="news"><div class="body">已载入存档：' +
-    POTUS.G.year + " 年 " + (POTUS.G.month || 1) + " 月。</div>" +
-    '<button class="btn primary" style="margin-top:10px" onclick="POTUS.startYear(true)">继续 →</button></div></div>' +
-    POTUS.statPanel() + "</div>";
+    POTUS.topbarHTML() +
+    '<div class="grid"><div id="main" class="col-event"><div class="news fade"><div class="dateline">已载入存档</div>' +
+    '<div class="body">' + POTUS.G.year + " 年 " + (POTUS.G.month || 1) + " 月。</div></div></div>" +
+    '<aside class="col-right"><div id="statusbox" class="statusbox">' + POTUS.statusPanel() + '</div>' +
+    '<div class="actbar"><div id="actbody"><div class="acthead">继续你的政治生涯</div>' +
+    '<button class="btn primary actbtn" onclick="POTUS.startYear(true)">继续 →</button></div></div></aside></div>';
 };

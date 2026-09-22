@@ -1023,7 +1023,8 @@ console.log("\n== 渲染冒烟 ==");
       P.stakeToggleFav();
       P.stakeCancel();
     }
-    P.statPanel();
+    P.statusPanel();
+    P.statusDetailHTML();
     P.toolbarHTML();
   } catch (e) { smokeOK = false; smokeErr = e.message; }
   check(smokeOK, "事件渲染 / 投注面板不应抛异常：" + smokeErr);

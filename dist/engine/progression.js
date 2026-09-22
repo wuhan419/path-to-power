@@ -42,6 +42,8 @@
 
   P.ending = function (reason) {
     P.SCREEN = "ending";
+    /* 结局屏是单页长文，撤下 body.game 的「整屏固定高度 + 栏内自滚」布局，避免被裁切（保留 era 皮肤） */
+    document.body.className = "era-" + P.G.era;
     const rule = P.evaluateEnding(reason);
     const s = P.scores();
     const era = P.reg.era[P.G.era] || { name: P.G.era };

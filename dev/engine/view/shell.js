@@ -12,7 +12,8 @@
      存档 / 读档 / 导出 / 导入 / 退出。大模型功能、以及任何实名收款/打赏入口
      均已整体移除（公开发包的政治题材不应携带可定位到作者身份的渠道）。 */
   P.opsButtons = function () {
-    return '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
+    return '<button class="btn" onclick="POTUS.openLog()">动态</button>' +
+      '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
       '<button class="btn" onclick="POTUS.openLoad()">读取</button>' +
       '<button class="btn" onclick="POTUS.exportSave()">导出</button>' +
       '<button class="btn" onclick="POTUS.importSave()">导入</button>' +
@@ -20,6 +21,19 @@
   };
   P.toolbarHTML = function () {
     return '<div class="toolbar">' + P.opsButtons() + "</div>";
+  };
+
+  /* v0.8 两栏重构：游戏级操作（保存/读取/导出/导入/退出）从左栏与右栏 opsbar
+     提到独立的顶部栏。左 = 操作按钮，右 = 游戏标题。这些是对「游戏本身」的操作，
+     与右栏底部的「对局操作」（继续 / 选项 / 结算）分属两个层级。 */
+  /* v0.8 顶栏：左 = 游戏级操作（含「动态」弹窗）；右 = 核心身份徽标（取代旧标题
+     “权力之路”）——姓名·职位·T层级·年龄·在位，像别的游戏的“等级栏”，按层级配色。
+     徒章包在 #ident 里，随月份/事件刷新（见 topbar.js 的 identityHTML / refreshPanel）。 */
+  P.topbarHTML = function () {
+    return '<header class="topbar">' +
+      '<div class="tb-ops">' + P.opsButtons() + '</div>' +
+      '<div class="tb-ident" id="ident">' + P.identityHTML() + '</div>' +
+      '</header>';
   };
 
   /* ---------------- 悬浮说明气泡（固定层，避免被边栏 overflow 裁切） ----------------

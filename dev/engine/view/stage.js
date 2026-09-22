@@ -124,8 +124,9 @@
     const pl = P.pressureLabel();
     const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
     P.app().innerHTML =
-      '<div class="topstat">' + P.topStatus() + '</div>' +
-      '<div class="grid"><aside class="col-left">' + P.statPanel() + '</aside><div id="main"><div class="news fade"><div class="dateline">' + era.name +
+      P.topbarHTML() +
+      '<div class="grid">' +
+      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + era.name +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
       '<div class="body">' + brief + "</div>" +
       '<div class="yearbar">' +
@@ -133,9 +134,10 @@
       (media ? "<div>此刻存在的媒介：" + media + "</div>" : "") +
       "</div>" +
       '</div></div>' +
-      '<aside class="col-right" id="actbar">' +
-      '<div class="opsbar">' + P.opsButtons() + '</div>' +
-      '<div id="actbody"></div></aside></div>';
+      '<aside class="col-right">' +
+      '<div id="statusbox" class="statusbox">' + P.statusPanel() + '</div>' +
+      '<div class="actbar"><div id="actbody"></div></div></aside></div>';
+    document.body.className = "game era-" + G.era;
     // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
     actAppend('<div class="acthead">进入新的一年</div><button class="btn primary actbtn" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +

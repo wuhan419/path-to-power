@@ -6,6 +6,17 @@
 (function () {
   const P = window.POTUS;
 
+  /* v0.8 视图层隐藏清单：这些项从面板上撤下，但**引擎数值与判定一律不动**（值照旧参与
+     结算/门槛/掷骰）。与「属性减法」的冻结为常量策略对应，后续彻底重构再回到引擎层。
+     · attr INT/INTG：智力/诚信——不再上面板（属性条仅留魅力·手腕）
+     · res hp/ap/intg：健康/精力/公信力（公信力并入声望）——不再上资源瓷贴
+     · fac press/labor/religious/intel：媒体/工会（常量）+ 宗教/情报（死轴）——不再上派系区 */
+  P.UI_HIDE = {
+    attr: { INT: 1, INTG: 1 },
+    res: { hp: 1, ap: 1, intg: 1 },
+    fac: { press: 1, labor: 1, religious: 1, intel: 1 }
+  };
+
   /* 时间：年 / 月 / 日
      月份由引擎推进（engine/time.js 的 advanceMonth），是唯一权威；
      事件只负责声明自己的「日」（day），以及它内容上属于哪个月（month，用于抽取时匹配）。 */
@@ -27,8 +38,54 @@
      原先右上角的 .masthead .meta 与顶部条重复（姓名、年月各出现两遍），已删掉。
      推进月份/事件后刷新顶部条即可（保留函数名，调用点不动）。 */
   P.tickDate = function () {
-    const ts = document.querySelector(".topstat");
-    if (ts) ts.innerHTML = P.topStatus();
+    const sb = document.getElementById("statusbox");
+    if (sb) sb.innerHTML = P.statusPanel();
+    const id = document.getElementById("ident");
+    if (id) id.innerHTML = P.identityHTML();
+  };
+
+  /* 核心身份徽标（顶栏右侧）：姓名 · 职位 · T层级 · 年龄 ·（在位）
+     ——玩家最该盯的“等级”信息，包在 #ident 里按 tier 上色（见 CSS .tb-ident.tier-N）。 */
+  P.identityHTML = function () {
+    const G = P.G;
+    const tenure = P.monthsAtTier();
+    const tenureTxt = tenure >= 12
+      ? "在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "")
+      : "在位 " + (tenure || 0) + " 个月";
+    /* 分组徽标（v0.8）：左侧「T 层级牌」实心色块（按层级配色），右侧上下两行——
+       职位是玩家最该盯的「身份」，给最大字号做主视觉；姓名·年龄·在位收成淡注副行小字。
+       层级 class 挂在 .idcard 内层，好让 tickDate 用 innerHTML 刷新时配色随之更新。 */
+    /* 晋升就绪度小条（v0.8 从「选区基本盘」上移到顶栏，与身份并列——玩家最该盯的「差多少能升」） */
+    const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    const b = P.balance();
+    let progChip;
+    if (G.tier >= b.tierMax) {
+      progChip = '<span class="id-prog atmax"><b>权力顶点</b></span>';
+    } else {
+      const prog = P.promotionProgress();
+      const tip = prog.note + "。晋升就绪度＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。";
+      progChip = '<span class="id-prog' + (prog.ready ? " ready" : "") + ' hastip" data-tip="' + escAttr(tip) + '">' +
+        '<span class="idp-cap">晋升</span>' +
+        '<span class="idp-bar"><i style="width:' + prog.pct + '%"></i></span>' +
+        '<span class="idp-pct">' + prog.pct + '</span>' +
+        '<span class="idp-next">→ ' + prog.nextName + '</span>' +
+        '</span>';
+    }
+    return '<span class="idcard tier-' + G.tier + '">' +
+      '<span class="id-tier">T' + G.tier + '</span>' +
+      '<span class="id-main">' +
+        '<span class="id-office">' + P.officeName() + '</span>' +
+        '<span class="id-sub">' +
+          '<span class="id-name">' + G.name + '</span>' +
+          '<span class="id-sep">·</span>' +
+          '<span class="id-age">' + G.age + ' 岁</span>' +
+          '<span class="id-sep">·</span>' +
+          '<span class="id-tenure">' + tenureTxt + '</span>' +
+        '</span>' +
+      '</span>' +
+      '<span class="id-vdiv"></span>' +
+      progChip +
+    '</span>';
   };
 
   /* ---------------- 职位卡：我现在是谁（状态面板顶部的一块） ----------------
@@ -97,33 +154,25 @@
     const tenureTxt = tenure >= 12 ? "（在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "") + "）" : (tenure ? "（在位 " + tenure + " 个月）" : "");
     /* v0.5.6：职位卡从左栏「状态」提到顶部状态条，横向排布。原首行的「职位（在位 N 个月）」
        与顶部条原来的「职务 / 在位」两个 chip 重复 —— 合并成一行：职位 · T层级（在位 N 个月）。 */
-    const lineDefs = [
-      { h: "<b>" + P.officeName() + "</b> · T" + G.tier + tenureTxt,
-        t: "现任职务与层级（T1 最低、越高越接近权力顶点）。在同一层级熬得越久，越接近晋升窗口。" },
-      { h: (stateTxt ? stateTxt + " · " : "") + "选区规模 " + fmtNum(es.size) + " 人",
-        t: "你所代表选区的选民总量——层级越高、盘子越大，竞选要触达的人越多。" },
-      { h: "选民：死忠 " + fmtNum(vp.diehard) + " · 有好感 " + fmtNum(vp.warm) + " · 反对 " + fmtNum(vp.oppose) +
-          ' <span class="muted">（选举底气 ' + es.pct + "/100）</span>",
-        t: "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。" },
-      { h: "政治光谱：" + spectrum,
-        t: "党派打底＋姿态偏移＋时代印记。它决定哪些事件与派系对你友好、哪些把你当异类。" }
-    ];
-    /* 晋升进度条：到 60 进"机会区间"（位置仍要等事件空缺）。标签 / 进度条 / 百分比 / 说明合并为一行。 */
-    const prog = P.promotionProgress();
-    const progTip = "在位时长 40% ＋ 声望 25% ＋ 选民底气 20% ＋ 组织关系 15%。到 60 进入机会区间——但晋升仍要等一个位置空出来（对应事件）。";
-    const progHTML = G.tier < P.balance().tierMax
-      ? '<div class="progrow' + (prog.ready ? " ready" : "") + '">' +
-        '<div class="progline"><span class="prog-label">晋升' + (prog.ready ? "（机会区间）" : "") + '</span>' +
-        '<div class="progbar"><i style="width:' + prog.pct + '%"></i><em style="left:60%"></em></div>' +
-        '<span class="prog-pct">' + prog.pct + '</span>' +
-        '<span class="prog-note hastip" data-tip="' + progTip.replace(/"/g, "&quot;") + '">' + prog.note + "</span></div></div>"
-      : "";
+    /* v0.8 压高度：选区规模+光谱缩略进标题行；晋升进度上移到顶栏身份徒章（identityHTML）。
+       卡体只留最关键的「选民三档 + 底气」一行。 */
+    let specShort = partyName + (G.stance === "outsider" ? "·反建制" : "");
+    const specMarks = [["wave_tea", "茶党"], ["wave_occupy", "占领"], ["wave_antiwar", "反战"], ["cross_insider", "机器"], ["fallen", "下野"]];
+    specShort += specMarks.filter(function (m) { return P.hasFlag(m[0]); }).map(function (m) { return "·" + m[1]; }).join("");
+    const metaTxt = (stateTxt ? stateTxt + " · " : "") + "选区 " + fmtNum(es.size) + " · " + specShort;
+    const spectrumTip = "选区规模：层级越高盘子越大。光谱=党派打底+姿态偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。";
+    /* 选民三档是本卡的核心读数 → 数字做大、按语义配色（死忠绿/好感金/反对红），标签小字退到上方 */
+    const voterLine = '<span class="vt vt-die"><i>死忠</i><b>' + fmtNum(vp.diehard) + '</b></span>' +
+      '<span class="vt vt-warm"><i>有好感</i><b>' + fmtNum(vp.warm) + '</b></span>' +
+      '<span class="vt vt-oppose"><i>反对</i><b>' + fmtNum(vp.oppose) + '</b></span>' +
+      '<span class="vt-power hastip" data-tip="\u9009\u4e3e\u5e95\u6c14\uff1a\u4e09\u6863\u9009\u6c11\u7684\u7efc\u5408\u53ef\u6253\u5206，0–100">\u5e95\u6c14 <b>' + es.pct + '</b><em>/100</em></span>';
+    const voterTip = "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。";
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
-    return '<div class="officecard">' + lineDefs.filter(function (d) { return d.h; }).map(function (d, i) {
-      /* 首行（现任职务）升级为醒目的职位徽标 .jobbadge，其余为普通信息行 */
-      const extra = i === 0 ? " jobbadge" : "";
-      return '<div class="ocline' + extra + ' hastip" data-tip="' + escAttr(d.t) + '">' + d.h + "</div>";
-    }).join("") + progHTML + "</div>";
+    return '<div class="officecard">' +
+      '<div class="oc-head"><span class="oc-title">选区基本盘</span>' +
+        '<span class="oc-meta hastip" data-tip="' + escAttr(spectrumTip) + '">' + metaTxt + '</span></div>' +
+      '<div class="oc-rows"><div class="ocline hastip" data-tip="' + escAttr(voterTip) + '">' + voterLine + "</div></div>" +
+      "</div>";
   };
 
   /* 顶部状态条（v0.5.6 合并去重）：把"我是谁 / 关键资源 / 我现在是谁"全部收进页面顶端。
@@ -159,19 +208,29 @@
     const eraName = (P.reg.era[G.era] || { name: G.era }).name;
     const yrs = G.age - b.startAge + 1;
     return '<div class="tsrow tsmeta">' +
-        '<span class="tname">' + G.name + '</span>' +
         chip('时代', eraName, '当前时代——它决定世界议题、媒介与事件池，也给整个画面定主色调。') +
         chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
         chip('轨道', track, '你现在走的这条路：选仕途、幕僚、其它轨道各有不同的晋升线与事件池。') +
       '</div>' +
       '<div class="tsrow statgrid">' +
-        stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
-        stat('公信力', a.INTG, 's-intg', ICON.intg, a.INTG <= 20, '诚信口碑。丑闻与失信会拉低它；它是一些清正选项与关键判定的门槛。') +
+        stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
         stat('资金', '$' + (G.fun / 1000).toFixed(0) + 'k', 's-fun', ICON.fun, false, '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
-        stat('健康', G.hp, 's-hp', ICON.hp, G.hp <= 30, '身体本钱。连轴转会透支；太低会触发健康危机，甚至病故退场。') +
-        stat('精力', G.ap, 's-ap', ICON.ap, G.ap <= 1, '本月可用的行动力。处理一件事往往吃掉若干点，投精力搏把握也花它；随时间恢复。') +
         stat('人情', G.fav, 's-fav', ICON.fav, false, '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
       '</div>' +
       '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
+  };
+
+  /* ---------------- 状态区（v0.8 两栏重构） ----------------
+     顶栏只留游戏级操作后，原本散在「页面顶端 .topstat」+「左栏 .panel」两块的状态信息
+     合并进右栏顶部的 #statusbox，按重要度自上而下：
+       身份条 + 资源瓷贴 + 职位卡（.topstat，按 T0–T5 配色）
+       → 属性 / 派系 / 人脉 / 把柄 / 标签 / 日志（.sb-detail）
+     外壳 .sb.tier-N 供 CSS 按当前层级上色（职位徽标底色 + 状态区左描边）。 */
+  P.statusPanel = function () {
+    const G = P.G;
+    return '<div class="sb tier-' + G.tier + '">' +
+      '<div class="topstat">' + P.topStatus() + '</div>' +
+      '<div class="panel sb-detail">' + P.statusDetailHTML() + '</div>' +
+      '</div>';
   };
 })();
