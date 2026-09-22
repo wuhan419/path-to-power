@@ -17,7 +17,7 @@ POTUS.define("event", [
       "1974_WATERGATE"
     ],
     "tierMin": 0,
-    "tierMax": 1,
+    "tierMax": 0,        // 只在源层级 T0（无名之辈）触发；叙事=第一次参选，升 T1
     "minTenure": 30,        // 在当前层级蹲够这么多个月才有资格
     "weight": 20,
     "brief": {
@@ -207,7 +207,7 @@ POTUS.define("event", [
       "1974_WATERGATE"
     ],
     "tierMin": 1,
-    "tierMax": 2,
+    "tierMax": 1,        // 只在源层级 T1（地方民选官员）触发；升 T2 州众议员
     "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
     "weight": 16,
     "brief": {
@@ -387,7 +387,7 @@ POTUS.define("event", [
       "1974_WATERGATE"
     ],
     "tierMin": 2,
-    "tierMax": 3,
+    "tierMax": 2,        // 只在源层级 T2（州众议员）触发；升 T3 联邦众议员/州参议员
     "minTenure": 36,        // 在当前层级蹲够这么多个月才有资格
     "weight": 15,
     "brief": {
@@ -563,7 +563,7 @@ POTUS.define("event", [
       "1974_WATERGATE"
     ],
     "tierMin": 3,
-    "tierMax": 4,
+    "tierMax": 3,        // 只在源层级 T3（州参/联邦众议员）触发；升 T4 州长/联邦参议员
     "minTenure": 60,        // 在当前层级蹲够这么多个月才有资格
     "weight": 14,
     "brief": {
@@ -826,7 +826,7 @@ POTUS.define("event", [
       "1974_WATERGATE"
     ],
     "tierMin": 4,
-    "tierMax": 5,
+    "tierMax": 4,        // 只在源层级 T4（州长/联邦参议员）触发；升 T5 总统
     "minTenure": 48,        // 在当前层级蹲够这么多个月才有资格
     "weight": 30,
     "brief": {
