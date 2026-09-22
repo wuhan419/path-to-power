@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POTUS · 事件屏改造效果图 v2（操作常驻·不滚整页）</title>
+<style>
+/* ============================================================================
+   讨论稿 v2 —— 关键修正：固定高度双栏、整页不滚动。
+   左栏=阅读（长文在左栏内部滚）；右栏=状态(上)+操作区(下,常驻视口)。
+   三原语：sheet 外框 / editorial 阅读栏 / rail 边栏（含常驻 actzone）
+   ========================================================================== */
+:root{
+  --paper:#f4efe3; --paper-2:#ece3d0; --ink:#1c1a16; --body:#2a251c; --muted:#6b6354;
+  --accent:#7a1f1f; --line:#2c271d; --rule:#3a342a; --faint:#9a8f78;
+  --good:#2f6b3a; --bad:#9c2b2b; --warm:#8a6d1a;
+  --serif:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,"Times New Roman",serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{height:100vh;overflow:hidden;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);-webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column}
+
+/* sheet = 铺满视口的报纸（不再居中可滚卡片） */
+.sheet{flex:1;min-height:0;display:flex;flex-direction:column}
+.kicker-band{display:flex;justify-content:space-between;align-items:center;flex:0 0 auto;
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  padding:9px 30px;border-bottom:1px solid var(--line);background:#efe7d4}
+.kicker-band b{color:var(--accent);font-weight:700}
+
+/* 顶栏 */
+.topbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  border-bottom:3px double var(--line);padding:12px 30px 14px}
+.ops{display:flex;gap:7px;flex-wrap:wrap}
+.ops button{font-family:var(--serif);font-size:12.5px;letter-spacing:1px;color:var(--muted);
+  background:none;border:1px solid var(--line);padding:5px 11px;cursor:pointer;transition:.15s}
+.ops button:hover{background:var(--ink);color:var(--paper)}
+.ident{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.tier{flex:0 0 auto;min-width:46px;height:46px;padding:0 10px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-weight:800;font-size:14px;color:#fff;background:var(--accent);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
+.id-main{display:flex;flex-direction:column;line-height:1.12;text-align:right}
+.id-office{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--accent)}
+.id-sub{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+.id-sub b{color:var(--ink);font-weight:700}
+.id-vdiv{width:1px;align-self:stretch;background:var(--line);opacity:.4;margin:2px 0}
+.id-prog{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);white-space:nowrap}
+.id-prog .cap{font-weight:700;letter-spacing:1px;color:var(--accent)}
+.id-prog .bar{position:relative;width:70px;height:8px;background:var(--paper-2);
+  border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.id-prog .bar i{display:block;height:100%;background:var(--good);width:75%}
+.id-prog .pct{font-family:var(--mono);font-weight:800;font-size:14px;color:var(--ink)}
+
+/* grid：填满剩余高度，两栏各自独立滚动 */
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px;
+  gap:40px;align-items:stretch;padding:22px 30px 16px}
+@media(max-width:880px){.grid{grid-template-columns:1fr;overflow:auto}}
+
+/* 左：editorial 阅读栏（内部滚动） */
+.editorial{overflow:auto;min-height:0;padding-right:8px}
+.kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);
+  font-weight:700;margin-bottom:10px}
+.kicker span{color:var(--muted);margin:0 7px}
+.headline{font-size:32px;line-height:1.22;font-weight:700;letter-spacing:.5px;margin:0 0 12px;color:var(--ink)}
+.standfirst{font-size:17px;line-height:1.62;font-style:italic;color:#4a4034;
+  max-width:60ch;margin:0 0 18px;padding-bottom:16px;border-bottom:1px solid var(--rule)}
+/* 头版大图：压扁到 ~190px，保证首屏露出标题+导语+图头；无图则整段删除 */
+.hero{position:relative;width:100%;height:190px;overflow:hidden;margin:0 0 18px;
+  background:
+    repeating-radial-gradient(circle at 30% 30%,rgba(255,255,255,.06) 0 2px,transparent 2px 5px),
+    linear-gradient(135deg,#5a1a1a,#2a1410 60%,#1a0f0c);
+  border:1px solid var(--line)}
+.hero .grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(0deg,#000 0 1px,transparent 1px 3px)}
+.hero .emblem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:80px;font-weight:800;color:rgba(244,239,227,.12);letter-spacing:6px}
+.hero .tag{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--paper);
+  font-size:11px;letter-spacing:2px;padding:3px 11px}
+.hero .cap{position:absolute;right:10px;bottom:8px;color:rgba(244,239,227,.7);font-size:11px;font-style:italic}
+.body{font-size:16px;line-height:1.9;color:var(--body);max-width:64ch}
+.body p{margin:0 0 15px;text-indent:2em}
+.brief{margin:20px 0 0;border-left:3px solid var(--warm);background:#f7f1e2;padding:11px 15px}
+.brief h4{margin:0 0 5px;font-size:12px;letter-spacing:2px;color:var(--warm);font-weight:700}
+.brief p{font-size:13.5px;line-height:1.7;color:#4a4034;margin:0}
+
+/* 右：rail 边栏（flex 列：状态上 + 操作区下，均可在各自区滚） */
+.rail{display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  border-left:1px solid var(--rule);padding-left:22px}
+.rail .statusbox{flex:0 1 auto;max-height:50%;overflow:auto;padding-right:4px}
+.rail .date{font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+.sec{margin-bottom:16px}
+.sec > .lab{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);
+  font-weight:700;border-bottom:1px solid var(--rule);padding-bottom:4px;margin-bottom:8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.tile{border-left:3px solid var(--accent);background:#fbf7ec;padding:5px 8px}
+.tile .t{font-size:11px;letter-spacing:1px;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-weight:800;font-size:15px;color:var(--ink);margin-top:2px}
+.voters{display:flex;gap:16px;align-items:flex-end}
+.voter{display:flex;flex-direction:column;align-items:flex-start}
+.voter i{font-style:normal;font-size:11px;color:var(--muted);letter-spacing:.5px}
+.voter b{font-family:var(--mono);font-size:20px;font-weight:800;line-height:1.1}
+.voter.die b{color:var(--good)}.voter.warm b{color:var(--warm)}.voter.opp b{color:var(--bad)}
+.camp{border-left:3px solid var(--accent);background:linear-gradient(180deg,#fbf3df,#f3ead4);
+  padding:8px 11px;font-size:12.5px;margin-top:2px}
+.camp .ctag{display:inline-block;font-size:10px;letter-spacing:1.5px;color:#fff;background:var(--accent);
+  padding:2px 7px;margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:12px;padding:1px 9px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.chip b{font-family:var(--mono);font-weight:700;color:var(--ink);margin-left:4px}
+
+/* 操作区：钉在右栏底部、常驻视口（与你现有 .actbar 一致） */
+.actzone{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;
+  border-top:3px double var(--line);margin-top:14px;padding-top:14px}
+.actzone .act-head{font-size:12px;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:12px}
+.choice{display:block;width:100%;text-align:left;font-family:var(--serif);cursor:pointer;
+  background:none;border:0;border-left:3px solid var(--line);padding:11px 14px;margin-bottom:10px;transition:.15s}
+.choice:hover{background:#efe6d2;border-left-color:var(--accent);transform:translateX(2px)}
+.choice .ctitle{font-size:16px;font-weight:700;color:var(--ink)}
+.choice .chint{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+.choice .ccost{display:inline-block;font-size:11px;color:var(--warm);background:#f3e6c4;
+  border:1px solid #d8c48a;padding:1px 8px;margin-top:5px}
+
+.foot{flex:0 0 auto;font-size:11px;color:var(--muted);letter-spacing:.5px;
+  border-top:1px solid var(--line);padding:6px 30px;background:#efe7d4}
+.foot b{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="kicker-band">
+    <span>权力之路 · <b>1980 · 里根时代</b> · 第 3 年</span>
+    <span>11 月 · 距选举 7 个月</span>
+  </div>
+
+  <div class="topbar">
+    <div class="ops">
+      <button>动态</button><button>保存</button><button>读取</button>
+      <button>导出</button><button>导入</button><button>退出</button>
+    </div>
+    <div class="ident">
+      <div class="id-main">
+        <div class="id-office">市议员</div>
+        <div class="id-sub"><b>汤坶·哈里森</b><span>52 岁</span><span>在位 4 年</span></div>
+      </div>
+      <div class="tier">T3</div>
+      <div class="id-vdiv"></div>
+      <div class="id-prog">
+        <span class="cap">晋升</span>
+        <span class="bar"><i></i></span>
+        <span class="pct">75</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 左：阅读（内部滚动） -->
+    <main class="editorial">
+      <div class="kicker">中事件 <span>·</span> 竞选 <span>·</span> 风险</div>
+      <h1 class="headline">宣布竞选州议会</h1>
+      <p class="standfirst">党内元老递来话：今年州议会的席位空出来了。你要不要，自己走到台前？</p>
+
+      <figure class="hero">
+        <div class="grain"></div>
+        <div class="emblem">POTUS</div>
+        <span class="tag">头版 · 1980</span>
+        <span class="cap">（真实事件图去色+主色罩，统一档案调；无图则整段删除）</span>
+      </figure>
+
+      <div class="body">
+        <p>市政厅的灯还亮着。你刚把最后一份预算附件签完，书记官老麦就把门带上了，留你一个人对着窗外那排熄灭的店铺招牌。三年前你以志愿者身份走进这栋楼，如今办公桌上的镇纸还是当初同事凑钱送的那块——可椅子还没坐热，席位的风向已经变了。</p>
+        <p>县党部下午递了话：现任议员转任州务卿，空出来的位置今年重新洗牌。如果你愿意，他们可以帮你把名字排进初选名单；但如果拖到春天再犹豫，名额就会落到那个背后有开发商撑腰的家伙手里。窗外下起雨了，你想起当年拉票时踩过的每一条泥路。</p>
+      </div>
+
+      <div class="brief">
+        <h4>背景 · 你已知的事</h4>
+        <p>你在本地经营三年，工会与蓝领基本盘稳固，但建制派对你仍存观望。初选门槛不低，需要在 60 天内凑齐 1,200 个有效联署。</p>
+      </div>
+    </main>
+
+    <!-- 右：状态(上) + 操作区(下,常驻) -->
+    <aside class="rail">
+      <div class="statusbox">
+        <div class="date">1983 年 11 月 · 秋</div>
+        <div class="sec">
+          <div class="lab">资源</div>
+          <div class="tiles">
+            <div class="tile"><div class="t">声望</div><div class="v">62</div></div>
+            <div class="tile"><div class="t">资金</div><div class="v">$1.5M</div></div>
+            <div class="tile"><div class="t">人情</div><div class="v">3</div></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="lab">选区基本盘</div>
+          <div class="voters">
+            <div class="voter die"><i>死忠</i><b>38</b></div>
+            <div class="voter warm"><i>好感</i><b>93</b></div>
+            <div class="voter opp"><i>反对</i><b>21</b></div>
+          </div>
+          <div class="date" style="margin-top:6px">底气 61/100 · 选区 7.0 万</div>
+        </div>
+        <div class="sec">
+          <div class="lab">竞选</div>
+          <div class="camp"><span class="ctag">进行中</span>州议员初选 · 距投票 7 个月</div>
+        </div>
+        <div class="sec">
+          <div class="lab">派系 / 人脉</div>
+          <div class="chips">
+            <span class="chip">基层<b>93</b></span>
+            <span class="chip">建制<b>38</b></span>
+            <span class="chip">商会<b>22</b></span>
+            <span class="chip">退伍<b>20</b></span>
+            <span class="chip">宗教<b>10</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actzone">
+        <div class="act-head">你的选择</div>
+        <button class="choice">
+          <span class="ctitle">站出来，宣布参选</span>
+          <span class="chint">把三年积累摊到台面上，正式进入初选。声望 +，但资金立刻吃紧。</span>
+          <span class="ccost">代价：资金 −$80k</span>
+        </button>
+        <button class="choice">
+          <span class="ctitle">先观望，等党内信号</span>
+          <span class="chint">不急着亮牌，留力到春天。保留灵活，但席位可能被对手抢走。</span>
+        </button>
+        <button class="choice">
+          <span class="ctitle">私下运作，扶植代理人</span>
+          <span class="chint">自己不出面，找人顶上、背后掌舵。风险低，但功劳不算在你头上。</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="foot">效果图 v2 · <b>整页不滚动</b>：长文只在左栏内部滚，操作区常驻右栏底部、永远在视口内（与你现有 .actbar 一致）。</div>
+</div>
+</body>
+</html>
