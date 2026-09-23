@@ -12,12 +12,12 @@
      存档 / 读档 / 导出 / 导入 / 退出。大模型功能、以及任何实名收款/打赏入口
      均已整体移除（公开发包的政治题材不应携带可定位到作者身份的渠道）。 */
   P.opsButtons = function () {
-    return '<button class="btn" onclick="POTUS.openLog()">动态</button>' +
-      '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
-      '<button class="btn" onclick="POTUS.openLoad()">读取</button>' +
-      '<button class="btn" onclick="POTUS.exportSave()">导出</button>' +
-      '<button class="btn" onclick="POTUS.importSave()">导入</button>' +
-      '<button class="btn" onclick="if(confirm(\'确定放弃本局？\'))POTUS.renderTitle()">退出</button>';
+    return '<button class="btn" onclick="POTUS.openLog()">' + P.t("ui.shell.log", "动态") + '</button>' +
+      '<button class="btn" onclick="POTUS.quickSave()">' + P.t("ui.shell.save", "保存") + '</button>' +
+      '<button class="btn" onclick="POTUS.openLoad()">' + P.t("ui.shell.load", "读取") + '</button>' +
+      '<button class="btn" onclick="POTUS.exportSave()">' + P.t("ui.shell.export", "导出") + '</button>' +
+      '<button class="btn" onclick="POTUS.importSave()">' + P.t("ui.shell.import", "导入") + '</button>' +
+      '<button class="btn" onclick="if(confirm(\'' + P.t("ui.shell.quitConfirm", "确定放弃本局？") + '\'))POTUS.renderTitle()">' + P.t("ui.shell.quit", "退出") + '</button>';
   };
   P.toolbarHTML = function () {
     return '<div class="toolbar">' + P.opsButtons() + "</div>";
@@ -45,9 +45,9 @@
       const startAge = b.startAge == null ? 25 : b.startAge;
       const yrs = (G.age || startAge) - startAge + 1;
       kicker = '<div class="kicker-band">' +
-        '<span class="kb-l">权力之路 · <b>' + P.eraName() + '</b> · 第 ' + yrs + ' 个年头</span>' +
+        '<span class="kb-l">' + P.t("ui.shell.game", "权力之路") + ' · <b>' + P.eraName() + '</b> · ' + P.t("ui.shell.yearNth", "第 {n} 个年头", { n: yrs }) + '</span>' +
         '<span class="kb-ops">' + P.opsButtons() + '</span>' +
-        '<span class="kb-r">' + G.year + ' 年 ' + (G.month || 1) + ' 月 · ' + (G.name || "") + '</span>' +
+        '<span class="kb-r">' + P.t("ui.shell.date", "{y} 年 {m} 月", { y: G.year, m: G.month || 1 }) + ' · ' + (G.name || "") + '</span>' +
         '</div>';
     }
     /* v0.9 框架收敛（不做大改）：原「有头像的标题栏」拆成两半——
@@ -131,7 +131,7 @@
     if (P.i18n) P.i18n.boot();
     bindTooltip();
     if (!Object.keys(P.reg.era).length) {
-      P.app().innerHTML = '<div class="center" style="padding:40px"><h2>未加载任何内容包</h2><p class="muted">请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。</p></div>';
+      P.app().innerHTML = '<div class="center" style="padding:40px"><h2>' + P.t("ui.shell.noContentTitle", "未加载任何内容包") + '</h2><p class="muted">' + P.t("ui.shell.noContentHint", "请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。") + '</p></div>';
       return;
     }
     P.renderTitle();

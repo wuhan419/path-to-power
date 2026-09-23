@@ -27,6 +27,7 @@
     const y = (ev && ev.year) || G.year;
     const m = G.month || 1;
     const d = ev && ev.day;
+    /* 不提取：validate.js 的时间契约断言锁定本函数中文输出（dev/tools 红名单不可改） */
     return y + " 年 " + m + " 月" + (d ? " " + d + " 日" : "");
   };
   /* 兼容旧内容 / 旧测试：把当前月向后推到 m（接受数字或 {month:n}）。年内不回退。 */
@@ -70,24 +71,24 @@
         ' onerror="this.closest(\'.idc-portrait\').style.visibility=\'hidden\'"></span>' : "") +
       '<span class="idc-info">' +
         '<span class="idc-name">' + G.name + '</span>' +
-        '<span class="idc-age">' + G.age + ' 岁</span>' +
+        '<span class="idc-age">' + P.t("ui.topbar.age", "{n} 岁", { n: G.age }) + '</span>' +
       '</span>';
   };
   /* 组件②：职位 · 等级徽标 · 晋升条（原 identityHTML 的下半截，v0.10 拆出） */
   P.officeProgHTML = function () {
     const G = P.G;
     return '<span class="idc-office">' + P.officeName() + '</span>' +
-      '<span class="idc-tier">等级 ' + (G.tier + 1) + '</span>' +
+      '<span class="idc-tier">' + P.t("ui.topbar.tierLevel", "等级 {n}", { n: G.tier + 1 }) + '</span>' +
       P.promoBarHTML();
   };
 
   /* 晋升就绪度：悬浮提示的完整文字（百分比 / 下一级 / 规则说明） */
   P.promoTip = function () {
     const b = P.balance();
-    if (P.G.tier >= b.tierMax) return "已达权力顶点。";
+    if (P.G.tier >= b.tierMax) return P.t("ui.topbar.tipMax", "已达权力顶点。");
     const prog = P.promotionProgress();
-    return prog.note + "。晋升就绪度 " + prog.pct +
-      "＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。";
+    return P.t("ui.topbar.tip", "{note}。晋升就绪度 {pct}＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。",
+      { note: prog.note, pct: prog.pct });
   };
   /* 晋升就绪度小条（纯进度条版）：只画条子，文字全部收进悬浮提示（hastip）。 */
   P.promoBarHTML = function () {
@@ -108,11 +109,11 @@
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
     let progChip;
     if (G.tier >= P.balance().tierMax) {
-      progChip = '<span class="id-prog atmax"><b>权力顶点</b></span>';
+      progChip = '<span class="id-prog atmax"><b>' + P.t("ui.topbar.peak", "权力顶点") + '</b></span>';
     } else {
       const prog = P.promotionProgress();
       progChip = '<span class="id-prog' + (prog.ready ? " ready" : "") + ' hastip" data-tip="' + escAttr(P.promoTip()) + '">' +
-        '<span class="idp-cap">晋升</span>' +
+        '<span class="idp-cap">' + P.t("ui.topbar.promoCap", "晋升") + '</span>' +
         '<span class="idp-bar"><i style="width:' + prog.pct + '%"></i></span>' +
         '<span class="idp-pct">' + prog.pct + '</span>' +
         '<span class="idp-next">→ ' + prog.nextName + '</span>' +
@@ -132,9 +133,9 @@
     const hit = table[key] || table["*_" + G.tier];
     if (hit) return typeof hit === "string" ? hit : hit.name;
     return (P.reg.officeFallback || [
-      "无名之辈", "圈内人", "地方官员", "地方资深", "州级新人",
-      "州级人物", "联邦官员", "全国性人物", "重量级人物", "权力顶点"
-    ])[G.tier] || ("等级 " + (G.tier + 1));
+      P.t("ui.topbar.fbNobody", "无名之辈"), P.t("ui.topbar.fbInsider", "圈内人"), P.t("ui.topbar.fbLocal", "地方官员"), P.t("ui.topbar.fbLocalVet", "地方资深"), P.t("ui.topbar.fbStateNew", "州级新人"),
+      P.t("ui.topbar.fbStateFig", "州级人物"), P.t("ui.topbar.fbFed", "联邦官员"), P.t("ui.topbar.fbNational", "全国性人物"), P.t("ui.topbar.fbHeavy", "重量级人物"), P.t("ui.topbar.peak", "权力顶点")
+    ])[G.tier] || P.t("ui.topbar.tierLevel", "等级 {n}", { n: G.tier + 1 });
   };
   /* ---------------- 晋升进度条（v0.5.2 用户设计） ----------------
    * 进度不是"经验值"，是"你准备好了吗"的综合读数：
@@ -143,7 +144,7 @@
    * 进度只决定机会来的时候你抓不抓得住。满了不晋升也正常：位置就那么多。 */
   P.promotionProgress = function () {
     const G = P.G, b = P.balance();
-    if (G.tier >= b.tierMax) return { pct: 100, ready: true, note: "已在顶点" };
+    if (G.tier >= b.tierMax) return { pct: 100, ready: true, note: P.t("ui.topbar.noteAtMax", "已在顶点") };
     /* 在位的年数按下一级职位加权：直接取全局年限闸 balance.tierGates（与晋升判定同源） */
     const GATES = b.tierGates || [8, 10, 12, 18, 20, 24, 28, 34, 40, 0];
     const needTenure = GATES[Math.min(G.tier, GATES.length - 1)];
@@ -156,8 +157,8 @@
     const ready = pct >= 60;
     const nextName = P.tierName(G.tier + 1);
     const note = ready
-      ? "机会区间——在等一个空缺的位置（" + nextName + "）"
-      : "还没到时候（下一级：" + nextName + "）";
+      ? P.t("ui.topbar.noteReady", "机会区间——在等一个空缺的位置（{n}）", { n: nextName })
+      : P.t("ui.topbar.noteNext", "还没到时候（下一级：{n}）", { n: nextName });
     return { pct: pct, ready: ready, note: note, nextName: nextName };
   };
 
@@ -175,32 +176,32 @@
     };
     const diehardTxt = fmtNum(vp.diehard) + " 死忠 · " + fmtNum(vp.warm) + " 有好感 · " + fmtNum(vp.oppose) + " 反对";
     /* 政治光谱：党派打底，姿态偏移，关键标记再拉 */
-    const partyName = (P.reg.party[G.party] || {}).name || "无党派";
-    let wing = G.stance === "outsider" ? "（反建制）" : "";
+    const partyName = (P.reg.party[G.party] || {}).name || P.t("ui.topbar.noParty", "无党派");
+    let wing = G.stance === "outsider" ? P.t("ui.topbar.wingOutsider", "（反建制）") : "";
     let spectrum = partyName + wing;
-    if (P.hasFlag("wave_tea")) spectrum += "·茶党底色";
-    if (P.hasFlag("wave_occupy")) spectrum += "·占领底色";
-    if (P.hasFlag("wave_antiwar")) spectrum += "·反战印记";
-    if (P.hasFlag("cross_insider")) spectrum += "·机器的人";
-    if (P.hasFlag("fallen")) spectrum += "·下野待起";
+    if (P.hasFlag("wave_tea")) spectrum += P.t("ui.topbar.mTea", "·茶党底色");
+    if (P.hasFlag("wave_occupy")) spectrum += P.t("ui.topbar.mOccupy", "·占领底色");
+    if (P.hasFlag("wave_antiwar")) spectrum += P.t("ui.topbar.mAntiwar", "·反战印记");
+    if (P.hasFlag("cross_insider")) spectrum += P.t("ui.topbar.mMachine", "·机器的人");
+    if (P.hasFlag("fallen")) spectrum += P.t("ui.topbar.mFallen", "·下野待起");
     const stateTxt = G.state ? P.stateName(G.state) : "";
     const tenure = P.monthsAtTier();
-    const tenureTxt = tenure >= 12 ? "（在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "") + "）" : (tenure ? "（在位 " + tenure + " 个月）" : "");
+    const tenureTxt = tenure >= 12 ? (tenure % 12 ? P.t("ui.topbar.tenureYearsRest", "（在位 {n} 年余）", { n: Math.floor(tenure / 12) }) : P.t("ui.topbar.tenureYears", "（在位 {n} 年）", { n: Math.floor(tenure / 12) })) : (tenure ? P.t("ui.topbar.tenureMonths", "（在位 {n} 个月）", { n: tenure }) : "");
     /* v0.5.6：职位卡从左栏「状态」提到顶部状态条，横向排布。原首行的「职位（在位 N 个月）」
        与顶部条原来的「职务 / 在位」两个 chip 重复 —— 合并成一行：职位 · T层级（在位 N 个月）。 */
     /* v0.8 压高度：选区规模+光谱缩略进标题行；晋升进度上移到顶栏身份徒章（identityHTML）。
        卡体只留最关键的「选民三档 + 底气」一行。 */
-    let specShort = partyName + (G.stance === "outsider" ? "·反建制" : "");
-    const specMarks = [["wave_tea", "茶党"], ["wave_occupy", "占领"], ["wave_antiwar", "反战"], ["cross_insider", "机器"], ["fallen", "下野"]];
+    let specShort = partyName + (G.stance === "outsider" ? P.t("ui.topbar.wingShort", "·反建制") : "");
+    const specMarks = [["wave_tea", P.t("ui.topbar.sTea", "茶党")], ["wave_occupy", P.t("ui.topbar.sOccupy", "占领")], ["wave_antiwar", P.t("ui.topbar.sAntiwar", "反战")], ["cross_insider", P.t("ui.topbar.sMachine", "机器")], ["fallen", P.t("ui.topbar.sFallen", "下野")]];
     specShort += specMarks.filter(function (m) { return P.hasFlag(m[0]); }).map(function (m) { return "·" + m[1]; }).join("");
-    const metaTxt = (stateTxt ? stateTxt + " · " : "") + "选区 " + fmtNum(es.size) + " · " + specShort;
-    const spectrumTip = "选区规模：层级越高盘子越大。光谱=党派打底+姿态偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。";
+    const metaTxt = (stateTxt ? stateTxt + " · " : "") + P.t("ui.topbar.district", "选区 {n}", { n: fmtNum(es.size) }) + " · " + specShort;
+    const spectrumTip = P.t("ui.topbar.spectrumTip", "选区规模：层级越高盘子越大。光谱=党派打底+姿态偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。");
     /* 选民三档是本卡的核心读数 → 数字做大、按语义配色（死忠绿/好感金/反对红），标签小字退到上方 */
-    const voterLine = '<span class="vt vt-die"><i>死忠</i><b>' + fmtNum(vp.diehard) + '</b></span>' +
-      '<span class="vt vt-warm"><i>有好感</i><b>' + fmtNum(vp.warm) + '</b></span>' +
-      '<span class="vt vt-oppose"><i>反对</i><b>' + fmtNum(vp.oppose) + '</b></span>' +
-      '<span class="vt-power hastip" data-tip="\u9009\u4e3e\u5e95\u6c14\uff1a\u4e09\u6863\u9009\u6c11\u7684\u7efc\u5408\u53ef\u6253\u5206，0–100">\u5e95\u6c14 <b>' + es.pct + '</b><em>/100</em></span>';
-    const voterTip = "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。";
+    const voterLine = '<span class="vt vt-die"><i>' + P.t("ui.topbar.vtDie", "死忠") + '</i><b>' + fmtNum(vp.diehard) + '</b></span>' +
+      '<span class="vt vt-warm"><i>' + P.t("ui.topbar.vtWarm", "有好感") + '</i><b>' + fmtNum(vp.warm) + '</b></span>' +
+      '<span class="vt vt-oppose"><i>' + P.t("ui.topbar.vtOppose", "反对") + '</i><b>' + fmtNum(vp.oppose) + '</b></span>' +
+      '<span class="vt-power hastip" data-tip="' + P.t("ui.topbar.powerTip", "选举底气：三档选民的综合可打分，0–100") + '">' + P.t("ui.topbar.vtPower", "底气") + ' <b>' + es.pct + '</b><em>/100</em></span>';
+    const voterTip = P.t("ui.topbar.voterTip", "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。");
     /* v0.10 基本盘占比条：三档人数占三档合计的比例（死忠绿/好感金/反对红）。
        非零段最小可视宽 2%（否则 268/2100 这种小段画不出来）；三档全 0 整条隐藏。 */
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
@@ -209,8 +210,8 @@
     if (vt > 0) {
       const segW = function (v) { return Math.max(v / vt * 100, 2).toFixed(1); };
       const segPct = Math.round(vp.diehard / vt * 100) + "% / " + Math.round(vp.warm / vt * 100) + "% / " + Math.round(vp.oppose / vt * 100) + "%";
-      const barTip = "基本盘结构（死忠/有好感/反对占有票盘子的比例）：" + segPct +
-        "——" + fmtNum(vp.diehard) + " / " + fmtNum(vp.warm) + " / " + fmtNum(vp.oppose) + "（合计 " + fmtNum(vt) + " 人）";
+      const barTip = P.t("ui.topbar.baseTip", "基本盘结构（死忠/有好感/反对占有票盘子的比例）：{pct}——{d} / {w} / {o}（合计 {t} 人）",
+        { pct: segPct, d: fmtNum(vp.diehard), w: fmtNum(vp.warm), o: fmtNum(vp.oppose), t: fmtNum(vt) });
       voterBar = '<div class="vbar hastip" data-tip="' + escAttr(barTip) + '">' +
         (vp.diehard > 0 ? '<i class="vb-die" style="width:' + segW(vp.diehard) + '%"></i>' : "") +
         (vp.warm > 0 ? '<i class="vb-warm" style="width:' + segW(vp.warm) + '%"></i>' : "") +
@@ -218,7 +219,7 @@
         '</div>';
     }
     return '<div class="officecard">' +
-      '<div class="oc-head"><span class="oc-title">选区基本盘</span>' +
+      '<div class="oc-head"><span class="oc-title">' + P.t("ui.topbar.baseTitle", "选区基本盘") + '</span>' +
         '<span class="oc-meta hastip" data-tip="' + escAttr(spectrumTip) + '">' + metaTxt + '</span></div>' +
       '<div class="oc-rows"><div class="ocline hastip" data-tip="' + escAttr(voterTip) + '">' + voterLine + "</div>" + voterBar + "</div>" +
       "</div>";
@@ -235,7 +236,7 @@
     const G = P.G, b = P.balance();
     const yrs = G.age - b.startAge + 1;
     return '<div class="topstat"><div class="tsrow tsmeta">' +
-      '<span class="tchip"><span class="tk">日期</span><b>' + P.dateText() + ' · 第 ' + yrs + ' 个年头</b></span>' +
+      '<span class="tchip"><span class="tk">' + P.t("ui.topbar.dateLab", "日期") + '</span><b>' + P.dateText() + ' · ' + P.t("ui.topbar.yearNth", "第 {n} 个年头", { n: yrs }) + '</b></span>' +
       '</div></div>';
   };
   /* 资金显示分级缩写：随仕途增长宽度恒定，不把瓷贴撑爆/截断 ——
@@ -271,10 +272,10 @@
       lev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l8 8M16 16l2-2M14 18l2-2"/></svg>'
     };
     return '<div class="topstat"><div class="tsrow statgrid">' +
-        stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
-        stat('资金', P.fmtMoney(G.fun), 's-fun', ICON.fun, false, '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
-        stat('人情', G.fav, 's-fav', ICON.fav, false, '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
-        stat('把柄', G.lev, 's-lev', ICON.lev, false, '别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。') +
+        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。")) +
+        stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。")) +
+        stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。")) +
+        stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。")) +
       '</div></div>';
   };
 
@@ -294,11 +295,11 @@
         '<em>' + m.value + '</em></span>';
     };
     const left = cp.stepLeft == null ? "" :
-      '<span class="cmp-left' + (cp.stepLeft <= 1 ? ' warn' : '') + '">这一幕还剩 ' + cp.stepLeft + ' 个月</span>';
+      '<span class="cmp-left' + (cp.stepLeft <= 1 ? ' warn' : '') + '">' + P.t("ui.topbar.campLeft", "这一幕还剩 {n} 个月", { n: cp.stepLeft }) + '</span>';
     return '<div class="campbar">' +
-      '<div class="cmp-head"><span class="cmp-tag">竞选中</span>' +
+      '<div class="cmp-head"><span class="cmp-tag">' + P.t("ui.topbar.campTag", "竞选中") + '</span>' +
       '<b class="cmp-office">' + esc(cp.office) + '</b>' +
-      '<span class="cmp-stage">第 ' + cp.stage + ' / ' + cp.stageCount + ' 幕 · ' + esc(cp.stageTitle) + '</span>' +
+      '<span class="cmp-stage">' + P.t("ui.topbar.campStage", "第 {s} / {t} 幕 · {title}", { s: cp.stage, t: cp.stageCount, title: esc(cp.stageTitle) }) + '</span>' +
       left + '</div>' +
       (cp.lede ? '<div class="cmp-lede">' + esc(cp.lede) + '</div>' : "") +
       (cp.meters.length ? '<div class="cmp-meters">' + cp.meters.map(bar).join("") + '</div>' : "") +
@@ -332,7 +333,7 @@
     const box = btn.closest(".idc-chips");
     if (!box) return;
     const open = box.classList.toggle("open");
-    btn.textContent = (open ? "收起 ▴" : "档案 ▸");
+    btn.textContent = (open ? P.t("ui.topbar.chipsClose", "收起 ▴") : P.t("ui.topbar.chipsOpen", "档案 ▸"));
   };
   P.statusPanel = function () {
     const G = P.G;
