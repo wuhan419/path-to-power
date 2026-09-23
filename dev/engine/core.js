@@ -57,6 +57,31 @@ POTUS.define = function (kind, payload) {
   if (kind === "ending") { POTUS.reg.ending = POTUS.reg.ending.concat([].concat(payload)); return; }
   /* 定点事件表是"累加"：多个时代/主题文件可各自往全局 fixed 追加自己的历史锚点 */
   if (kind === "fixed") { POTUS.reg.fixed = POTUS.reg.fixed.concat([].concat(payload)); return; }
+  /* 多语言覆盖层：载荷交给 engine/i18n.js 收着，boot 时按当前语言一次性并入。
+     见 docs/I18N.md —— 内容原文件不动，英文写在 content/i18n/en/ 里。 */
+  if (kind === "l10n") {
+    const pl = [].concat(payload);
+    for (const one of pl) {
+      const lg = one.lang && POTUS.i18n.LANGS[one.lang] ? one.lang : "en";
+      POTUS.i18n.ingest(lg, one);
+    }
+    return;
+  }
+  /* 世界线按绝对年份键控，必须**逐年深合并**：多个内容包各自铺自己的年份段
+     （1991—1995 一个文件、1996—2000 一个文件），浅合并会让后写的整表顶掉前写的。
+     其余 kind 一律维持 Object.assign 的浅合并语义。 */
+  if (kind === "worldline") {
+    const w = POTUS.reg.worldline;
+    for (const field in payload) {
+      const pv = payload[field];
+      if (pv && typeof pv === "object" && !Array.isArray(pv)) {
+        w[field] = Object.assign(w[field] || {}, pv);
+      } else {
+        w[field] = pv;
+      }
+    }
+    return;
+  }
   if (kind === "balance") {
     /* 词典类的键（tagNames）要**深合并**而不是整键覆盖——
        多个事件包各自登记自己的状态词条时，覆盖会把别人的词条全吃掉（踩过：

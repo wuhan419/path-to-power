@@ -74,8 +74,18 @@ const fileOfId = {};
 })();
 
 /* ---------- 统计口径 ---------- */
-/* 「字」= 去掉所有空白后的字符数（中英都按字符计，够用来卡 200 字上限）。 */
+/* 「字」= 去掉所有空白后的字符数。
+   英文不能套这个上限：同一句话英文约 5 个字母 = 1 个汉字，直接按字符计会全线爆表。
+   所以统一折算成"中文等价字"：CJK 串按字符，纯拉丁串按词 ×0.5（≈200 字 ↔ 100 词）。
+   阈值表本身不用动，只动这一把尺子。见 docs/I18N.md 的长度预算。 */
+const CJK_RE = /[　-〿㐀-䶿一-鿿぀-ヿ＀-￯]/;
 function charCount(s) { return (s || "").replace(/\s+/g, "").length; }
+function unit(s) {
+  const t = (s == null ? "" : String(s)).trim();
+  if (!t) return 0;
+  if (CJK_RE.test(t)) return charCount(t);
+  return t.split(/\s+/).length * 0.5;
+}
 function hasBrief(ev) {
   const b = ev.brief;
   if (!b) return false;
@@ -95,19 +105,21 @@ const rows = events.filter(fileFilter).map(ev => ({
   file: fileOfId[ev.id] || "(未定位)",
   id: ev.id,
   title: ev.title || "",
-  titleLen: charCount(ev.title),
-  bodyLen: charCount(ev.body),
+  titleLen: unit(ev.title),
+  titleWords: String(ev.title || "").trim().split(/\s+/).filter(Boolean).length,
+  bodyLen: unit(ev.body),
   hasBody: !!(ev.body && String(ev.body).trim()),
   hasBrief: hasBrief(ev),
   nChoices: (ev.choices || []).length,
-  longBody: charCount(ev.body) > LIMIT
+  longBody: unit(ev.body) > LIMIT
 }));
 
 const total = rows.length;
 const nLong = rows.filter(r => r.longBody).length;
 const nNoBody = rows.filter(r => !r.hasBody).length;
 const nNoBrief = rows.filter(r => !r.hasBrief).length;
-const nShortTitle = rows.filter(r => r.titleLen > 0 && r.titleLen < 8).length;
+/* 标题过短：中文看字数，英文看词数（"A Change in the Air" 才 4 个英文词但绝不短） */
+const nShortTitle = rows.filter(r => r.titleLen > 0 && r.titleLen < 8 && r.titleWords < 4).length;
 
 /* ---------- 报告 ---------- */
 function pad(s, n) { s = String(s); return s.length >= n ? s : s + " ".repeat(n - s.length); }
@@ -120,22 +132,22 @@ if (has("brief")) {
   const findings = [];
   for (const ev of events.filter(fileFilter)) {
     const b = ev.brief; if (!b) continue;
-    const lede = charCount(b.lede);
+    const lede = unit(b.lede);
     const known = arr(b.known), rumor = arr(b.rumor), unknown = arr(b.unknown), terms = arr(b.terms);
-    const knownSum = known.reduce((s, x) => s + charCount(x), 0);
-    const rumorSum = rumor.reduce((s, x) => s + charCount(x), 0);
-    const unkSum = unknown.reduce((s, x) => s + charCount(x), 0);
-    const termSum = terms.reduce((s, t) => s + charCount(t && t.k) + charCount(t && t.v), 0);
-    const totalWords = lede + knownSum + rumorSum + unkSum + termSum;
+    const knownSum = known.reduce((s, x) => s + unit(x), 0);
+    const rumorSum = rumor.reduce((s, x) => s + unit(x), 0);
+    const unkSum = unknown.reduce((s, x) => s + unit(x), 0);
+    const termSum = terms.reduce((s, t) => s + unit(t && t.k) + unit(t && t.v), 0);
+    const totalWords = Math.round(lede + knownSum + rumorSum + unkSum + termSum);
     const probs = [];
     if (totalWords > 300) probs.push("总字" + totalWords + ">300");
     if (lede > 50) probs.push("lede" + lede + ">50");
     if (known.length > 4) probs.push("known条数" + known.length + ">4");
-    known.forEach((x, i) => { if (charCount(x) > 30) probs.push("known#" + (i + 1) + "=" + charCount(x) + ">30"); });
+    known.forEach((x, i) => { if (unit(x) > 30) probs.push("known#" + (i + 1) + "=" + unit(x) + ">30"); });
     if (rumor.length > 2) probs.push("rumor条数" + rumor.length + ">2");
-    rumor.forEach((x, i) => { if (charCount(x) > 25) probs.push("rumor#" + (i + 1) + "=" + charCount(x) + ">25"); });
+    rumor.forEach((x, i) => { if (unit(x) > 25) probs.push("rumor#" + (i + 1) + "=" + unit(x) + ">25"); });
     if (unknown.length > 2) probs.push("unknown条数" + unknown.length + ">2");
-    unknown.forEach((x, i) => { if (charCount(x) > 20) probs.push("unknown#" + (i + 1) + "=" + charCount(x) + ">20"); });
+    unknown.forEach((x, i) => { if (unit(x) > 20) probs.push("unknown#" + (i + 1) + "=" + unit(x) + ">20"); });
     if (terms.length > 2) probs.push("terms个" + terms.length + ">2");
     terms.forEach((t, i) => { if (charCount(t && t.v) > 20) probs.push("terms#" + (i + 1) + "解释>20"); });
     if (probs.length) findings.push({ file: fileOfId[ev.id] || "(未定位)", id: ev.id, grade: ev.grade || "-", totalWords, probs });

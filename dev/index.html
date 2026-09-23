@@ -13,6 +13,9 @@
      引擎（稳定，一般不需要改动）
      ======================================================================= -->
 <script src="engine/core.js"></script>
+<!-- 本地化地基：P.t(key, 中文原文) 取串 + POTUS.define("l10n") 覆盖层按结构合并。
+     中文无需字典（内联字面量即兜底），英文只写覆盖层，见 docs/I18N.md -->
+<script src="engine/i18n.js"></script>
 <!-- 统一的声明式条件求值器：事件门槛 / 结局规则 / 静好片段 / 主线 gate 共用这一套词汇 -->
 <script src="engine/when.js"></script>
 <script src="engine/dice.js"></script>
@@ -134,6 +137,20 @@
 <!-- 例：新增 2016 时代
      <script src="content/events/53-era-2016.js"></script>
      并在 content/20-eras.js 里补上该时代的 era 定义 -->
+
+<!-- ==========================================================================
+     以下为生成器托管区，请勿手工编辑 —— node dev/tools/gen-manifest.js 重写
+     （新增内容文件后跑一次即可，不必再来 index.html 里加 <script>）
+     ======================================================================= -->
+<!-- BEGIN content-auto-manifest -->
+
+<!-- END content-auto-manifest -->
+
+<!-- BEGIN i18n-manifest -->
+<script src="content/i18n/zh.js"></script>
+<script src="content/i18n/en/events/106-era-1990.js"></script>
+<script src="content/i18n/en/ui.js"></script>
+<!-- END i18n-manifest -->
 
 <script>POTUS.boot();</script>
 </body>

@@ -32,8 +32,11 @@ global.localStorage = {
   key: (i) => Object.keys(_store)[i] ?? null,
   get length() { return Object.keys(_store).length; }
 };
-global.getComputedStyle = () => ({ getPropertyValue: () => "" });
-global.alert = () => { }; global.confirm = () => true; global.prompt = () => "x";
+/* --lang=en：把语言预置进存根 localStorage，boot 时 engine/i18n.js 会套用英文覆盖层，
+   于是同一套断言可以在两种语言下各跑一遍。 */
+const L10N_LANG = ((process.argv.find(a => /^--lang=/.test(a)) || "").split("=")[1] || "").trim();
+if (L10N_LANG) _store.potus_lang = L10N_LANG;
+global.getComputedStyle = () => ({ getPropertyValue: () => "" });global.alert = () => { }; global.confirm = () => true; global.prompt = () => "x";
 global.setTimeout = () => 0; global.setInterval = () => 1; global.clearInterval = () => { };
 /* URL/Blob/FileReader 桩：必须是可实例化的函数（不能是普通对象）——
    node 的 fs shim 会对 path 做 `instanceof URL` 判定，RHS 不可调用会直接 TypeError。 */
@@ -69,6 +72,29 @@ try {
 
 let fail = 0;
 const check = (c, m) => { if (!c) { console.log("  ✗ " + m); fail++; } };
+
+/* ---------- 多语言覆盖层自检（content/i18n/，契约见 docs/I18N.md） ---------- */
+(function l10nSelfCheck() {
+  const I = P.i18n;
+  if (!I) { check(false, "engine/i18n.js 没有加载（index.html 里缺 <script>）"); return; }
+  const R = I.report;
+  const prot = Object.keys(R.protectedHits);
+  check(prot.length === 0, "覆盖层改写了结构性键（会断事件链与存档）：" +
+    prot.map(k => k + "×" + R.protectedHits[k]).join(", "));
+  check(R.missed.length === 0, "覆盖层指向不存在的目标（id 拼错 / 字段路径不对 / 数组没对齐）：" +
+    R.missed.slice(0, 8).join(", ") + (R.missed.length > 8 ? " …共 " + R.missed.length + " 处" : ""));
+  check(R.unknownKind.length === 0, "覆盖层用了注册表里不存在的类别：" + R.unknownKind.join(", "));
+  console.log("  多语言层：当前语言 " + P.locale.lang + " ｜ 界面串 " + Object.keys(P.locale.ui).length +
+    " 条 ｜ 内容覆盖 en " + (R.applied.en || 0) + " 条" + (L10N_LANG === "en" ? "（已套用）" : "（本次未套用）"));
+  if (L10N_LANG === "en") {
+    const enTitles = P.events.filter(e => {
+      const t = String(e.title || "");
+      return !/[一-鿿]/.test(t) && /[A-Za-z]{4}/.test(t);
+    }).length;
+    check(enTitles > 0, "--lang=en 下没有任何一张卡变成英文，覆盖层大概率没生效");
+    console.log("  英文标题命中 " + enTitles + " / " + P.events.length + " 张卡（其余缺译回落中文，属预期）");
+  }
+})();
 /* 可被 cost / req 消耗的资源。lev（把柄）在 v0.4 加入 ——
  * 它和 fav 一样是"份数"资源：cost.lev = 1 表示花掉一份把柄。 */
 const RES_KEYS = ["fun", "fav", "ap", "rep", "hp", "lev"];
@@ -1093,11 +1119,16 @@ console.log("    按时代：" + Object.keys(eraMix).map(function (k) {
 console.log("  同月重复卡回归检测: " + sim.monthRepeat + " 次（同一自然月内同卡重演，应为 0）");
 check(sim.monthRepeat === 0, "同一自然月内出现了重复卡 " + sim.monthRepeat + " 次——月内去重闸门失效");
 check(errs.length === 0, "模拟过程出现运行时错误");
-check(stakeEvents > 0, GAMES + " 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
-check(Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
+/* 三条统计性断言在小样本下必然假报警（1 局只会有 1 个结局）。
+   它们只在 GAMES >= STAT_MIN 时生效，好让 `--games=1` 成为并行 worker 的秒级结构快通道。 */
+const STAT_MIN = 8;
+const thinSample = GAMES < STAT_MIN;
+if (thinSample) console.log("  · 样本 " + GAMES + " 局 < " + STAT_MIN + "：跳过 " + 3 + " 项统计断言（提交前请用默认 20 局跑全）");
+check(thinSample || stakeEvents > 0, GAMES + " 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
+check(thinSample || Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
 check(avgSlots >= 2 && avgSlots <= 12, "每年档期数应落在 2-12 之间（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
 check(draws / Math.max(1, games) >= 20, "每局平均事件数过少（" + (draws / Math.max(1, games)).toFixed(1) + "），月度节奏没生效");
-check(gradeHit.major > 0, "模拟中从未出现大事件");
+check(thinSample || gradeHit.major > 0, "模拟中从未出现大事件");
 check(fillers / Math.max(1, draws) < 0.3, "填充事件占比过高，说明事件池太薄：" + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%");
 check(medHit.gated === 0, "模拟中出现了媒介门控失效的事件：" + medHit.gated);
 check(Object.keys(catHit).length >= 5, "事件类型过于单一，只有 " + Object.keys(catHit).length + " 种");

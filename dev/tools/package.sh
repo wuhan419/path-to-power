@@ -71,6 +71,12 @@ run_validate() {
   if ! command -v node >/dev/null 2>&1; then
     echo "✗ 未找到 node，无法自检（如需跳过请用 --fast）" >&2; exit 1
   fi
+  # 前置门禁：index.html 的内容清单归生成器托管。漏登记的文件不会报错，
+  # 只会静默不加载 —— 所以硬性要求托管区与磁盘一致。
+  echo "▶ 清单同步：node tools/gen-manifest.js --check"
+  if ! node "$DEV_ROOT/tools/gen-manifest.js" --check; then
+    echo "✗ dev/index.html 内容清单已过期，先跑：node dev/tools/gen-manifest.js" >&2; exit 1
+  fi
   echo "▶ 自检：node tools/validate.js --games=$VGAMES"
   node "$VALIDATE" --games="$VGAMES"
   echo "✓ 自检通过"

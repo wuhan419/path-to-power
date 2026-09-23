@@ -15,7 +15,7 @@
     const name = hit ? (typeof hit === "string" ? hit : hit.name) : null;
     if (name) return name;
     const fb = P.balance().officeFallback || [];
-    return fb[t] || ("等级 " + (t + 1));
+    return fb[t] || P.t("ui.tier.level", "等级 {n}", { n: t + 1 });
   };
 
   /* ---------------- 状态词条：名字 + hover 说明（是什么 / 有什么影响） ----------------
@@ -33,7 +33,7 @@
     const t = P.tagInfo(flag);
     const parts = [];
     if (t.desc) parts.push(t.desc);
-    if (t.effect) parts.push("（游戏影响：" + t.effect + "）");
+    if (t.effect) parts.push(P.t("ui.leftbar.effectNote", "（游戏影响：{v}）", { v: t.effect }));
     return parts.join(" ");
   };
 
@@ -57,7 +57,10 @@
     const G = P.G, a = G.attr;
     const hide = (P.UI_HIDE || {});
     const hideAttr = hide.attr || {}, hideFac = hide.fac || {};
-    const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
+    const ATTR_CN = {
+      CHA: P.t("ui.attr.CHA", "魅力"), INT: P.t("ui.attr.INT", "智力"),
+      CUN: P.t("ui.attr.CUN", "手腕"), INTG: P.t("ui.attr.INTG", "诚信")
+    };
     const sgn = function (v) { return (v > 0 ? "+" : "") + v; };
     /* 底色分档（v0.10）：按正负 + 幅度给 chip 上淡底，三档封顶保证文字可读：
        |v| ≥ 40 → 第 3 档，≥ 15 → 第 2 档，> 0 → 第 1 档，0 → 不上底色。 */
@@ -97,16 +100,19 @@
       const tip = P.tagTooltip(f);
       return '<span class="tag hastip"' + (tip ? ' data-tip="' + String(tip).replace(/"/g, "&quot;") + '"' : "") + ">" + P.tagInfo(f).name + "</span>";
     }).join("");
-    const tagMore = tagList.length > TAG_MAX ? '<span class="tag tag-more">+' + (tagList.length - TAG_MAX) + "\u9879</span>" : "";
+    const tagMore = tagList.length > TAG_MAX
+      ? '<span class="tag tag-more">' + P.t("ui.leftbar.more", "+{n} 项", { n: tagList.length - TAG_MAX }) + "</span>" : "";
     const sc = P.scandalLevel();
-    const scandal = sc ? '<span class="tag scandal hastip" data-tip="\u4e11\u95fb\u7b49\u7ea7\uff1a\u8d8a\u9ad8\u8d8a\u5bb9\u6613\u88ab\u653b\u51fb\u3001\u4e5f\u66f4\u96be\u6d88\u9664\u3002">\u4e11\u95fb Lv' + sc + "</span>" : "";
+    const scandal = sc
+      ? '<span class="tag scandal hastip" data-tip="' + P.t("ui.leftbar.scandalTip", "丑闻等级：越高越容易被攻击、也更难消除。") + '">'
+        + P.t("ui.leftbar.scandal", "丑闻 Lv") + sc + "</span>" : "";
     const statusChips = scandal + tagChips + tagMore;
     const row = function (lab, chips) { return '<div class="sbrow"><span class="sblab">' + lab + '</span><span class="qchips">' + chips + '</span></div>'; };
     return {
-      attrs: attrChips ? row('能力', attrChips) : "",
-      tags: statusChips ? row('标签', statusChips) : "",
-      factions: row('派系', facChips || '<span class="muted">—</span>'),
-      contacts: row('人脉', ctChips || '<span class="muted">—</span>')
+      attrs: attrChips ? row(P.t("ui.leftbar.row.attrs", "能力"), attrChips) : "",
+      tags: statusChips ? row(P.t("ui.leftbar.row.tags", "标签"), statusChips) : "",
+      factions: row(P.t("ui.leftbar.row.factions", "派系"), facChips || '<span class="muted">—</span>'),
+      contacts: row(P.t("ui.leftbar.row.contacts", "人脉"), ctChips || '<span class="muted">—</span>')
     };
   };
   /* 兼容旧调用点：四行按默认顺序拼接 */

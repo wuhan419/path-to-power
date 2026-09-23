@@ -127,6 +127,8 @@
 
   /* ---------------- 启动 ---------------- */
   P.boot = function () {
+    /* 语言覆盖层必须在任何渲染之前并入注册表（读 localStorage / ?lang=） */
+    if (P.i18n) P.i18n.boot();
     bindTooltip();
     if (!Object.keys(P.reg.era).length) {
       P.app().innerHTML = '<div class="center" style="padding:40px"><h2>未加载任何内容包</h2><p class="muted">请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。</p></div>';
