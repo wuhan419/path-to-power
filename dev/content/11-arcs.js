@@ -97,10 +97,10 @@
         ]
       },
       stages: [
-        { title: "没人再给你打电话", events: ["press_columnist", "1960_name", "enc_elders"], maxMonths: 48 },
+        { title: "没人再给你打电话", events: ["press_columnist", "enc_elders"], maxMonths: 48 },
         {
           title: "街角那点事",
-          events: ["1974_block", "shady_doctor", "2008_foundation"],
+          events: ["shady_doctor", "2008_foundation"],
           maxMonths: 60
         }
       ],
@@ -128,17 +128,17 @@
       stages: [
         {
           title: "先有七个人，再有一条街",
-          events: ["enc_elders", "enc_street", "1974_block"],
+          events: ["enc_elders", "enc_street"],
           maxMonths: 36
         },
         {
           title: "讲台与投票站之间",
-          events: ["enc_preacher", "enc_ballot", "1960_church"],
+          events: ["enc_preacher", "enc_ballot"],
           maxMonths: 48
         },
         {
           title: "他们决定推出一个人",
-          events: ["enc_first", "1960_civil"],
+          events: ["enc_first"],
           maxMonths: 60
         },
         {
@@ -174,7 +174,7 @@
       stages: [
         {
           title: "晚宴上那张写着名字的座次表",
-          events: ["2008_donor", "1974_pension", "demo_donor_gala"],
+          events: ["2008_donor", "demo_donor_gala"],
           maxMonths: 48
         },
         {
@@ -216,12 +216,12 @@
       stages: [
         {
           title: "第一次对着麦克风说话",
-          events: ["media_fireside", "press_columnist", "1960_radio"],
+          events: ["media_fireside", "press_columnist"],
           maxMonths: 36
         },
         {
           title: "上镜的人和不上镜的人",
-          events: ["media_tv_spot", "media_cable_show", "1960_tv", "2008_debate"],
+          events: ["media_tv_spot", "media_cable_show", "2008_debate"],
           maxMonths: 48
         },
         {
@@ -263,12 +263,12 @@
       stages: [
         {
           title: "社区里的钱庄",
-          events: ["shady_shark", "shady_doctor", "1974_local"],
+          events: ["shady_shark", "shady_doctor"],
           maxMonths: 36
         },
         {
           title: "一份不该存在的档案",
-          events: ["shady_file", "shady_union", "1974_tape"],
+          events: ["shady_file", "shady_union"],
           maxMonths: 48
         },
         {
@@ -306,10 +306,10 @@
       stages: [
         {
           title: "楼道里的一次谈话",
-          /* 「时代事件 + 轨道事件」混写：prog_appoint 只有委任轨道抽得到，
-             1960_dock / 1974_union / 2008_lobby 是三个时代各一件的"楼道谈话"，
-             所以这条线在三个时代、两类人身上都有活的候选。 */
-          events: ["prog_appoint", "1960_dock", "1974_union", "2008_lobby"],
+          /* 「轨道事件 + 时代事件」混写：prog_appoint 只有委任轨道抽得到，
+             2008_lobby 是 2008 时代的"楼道谈话"，两类人、两种处境都有活的候选。
+             （1960/1974 的同类时代事件已随 pre-1980 死内容清理。） */
+          events: ["prog_appoint", "2008_lobby"],
           maxMonths: 48
         },
         {
@@ -319,7 +319,7 @@
         },
         {
           title: "听证会的传票",
-          events: ["prog_senate", "1974_hearings"],
+          events: ["prog_senate"],
           maxMonths: 72
         },
         {

@@ -459,12 +459,14 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   console.log("  日期自洽率 " + (100 - mismatch / drawn0 * 100).toFixed(1) + "%（" + mismatch + "/" + drawn0 + " 因事件池太薄而降级）");
   check(mismatch / drawn0 < 0.30, "月份不符的降级比例过高（" + (mismatch / drawn0 * 100).toFixed(1) + "%），事件池太薄");
 
-  /* 媒介时间轴：同一件事，年代不对就不该发生 */
-  const tvEv = P.events.find(e => e.id === "1960_tv");
+  /* 媒介时间轴：同一件事，年代不对就不该发生。
+     用一个合成 tv 探针（只声明 medium），专测「媒介→年份」放行与 eligible 联动，
+     不绑定任何具体时代事件（pre-1980 演示包已清理）。*/
+  const tvEv = { id: "__tv_probe", medium: "tv" };
   const shortEv = P.events.find(e => e.id === "media_viral_clip");
   const fakeEv = P.events.find(e => e.id === "media_deepfake");
   const blogEv = P.events.find(e => e.id === "media_blog_drop");
-  check(!!tvEv && !!shortEv && !!fakeEv && !!blogEv, "媒介时间轴演示包应已注册");
+  check(!!shortEv && !!fakeEv && !!blogEv, "媒介时间轴演示包应已注册");
   G.era = "1960_CAMELOT"; G.flags = []; G.tier = 0; G.doneIds = []; P.recentIds = [];
   G.year = 1700;
   check(!P.mediumOK(tvEv), "1700 年不应放行「电视」事件");
