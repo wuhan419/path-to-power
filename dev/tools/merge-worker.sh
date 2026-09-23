@@ -39,12 +39,13 @@ for a in "$@"; do
     *)            echo "✗ 未知参数：$a" >&2; exit 2 ;;
   esac
 done
-# 前缀匹配：worker 分支名是 content/wNN-<tag>，用 --list 找出唯一匹配
+# 前缀匹配：worker 分支名是 content/wNN-<tag>（for-each-ref 的 pattern 按路径整段匹配，
+# 半截前缀匹配不上，所以这里用 branch 列表自己过滤）
 resolve() {
-  local prefix="$1" hit
-  hit=$(git for-each-ref --format='%(refname:short)' "refs/heads/$prefix" | head -2)
-  local n; n=$(printf '%s\n' "$hit" | grep -c . || true)
-  if [ "$n" != "1" ]; then echo "✗ 分支前缀 '$prefix' 匹配到 $n 个，无法确定" >&2; return 1; fi
+  local prefix="$1" hit n
+  hit=$(git branch --format='%(refname:short)' | grep "^$prefix" || true)
+  n=$(printf '%s' "$hit" | grep -c . || true)
+  if [ "$n" != "1" ]; then echo "✗ 分支前缀 '$prefix' 匹配到 $n 个（$hit），无法确定" >&2; return 1; fi
   printf '%s\n' "$hit"
 }
 
