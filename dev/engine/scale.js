@@ -204,8 +204,8 @@
       });
       if (!hasSafe) {
         const blank = {};
-        TIERS5.forEach(function (t) { blank[t] = { body: "你把这一页轻轻翻了过去——既没有接住机会，也没有留下把柄。", effects: {} }; });
-        out.choices.push({ id: "lay_low", text: "按下不表，静观其变", note: "不赌这一把，也不接这份情——先保住眼前。", base: 0.6, outcomes: blank });
+        TIERS5.forEach(function (t) { blank[t] = { body: P.t("ui.scale.layLowBody", "你把这一页轻轻翻了过去——既没有接住机会，也没有留下把柄。"), effects: {} }; });
+        out.choices.push({ id: "lay_low", text: P.t("ui.scale.layLowText", "按下不表，静观其变"), note: P.t("ui.scale.layLowNote", "不赌这一把，也不接这份情——先保住眼前。"), base: 0.6, outcomes: blank });
       }
     }
   }
