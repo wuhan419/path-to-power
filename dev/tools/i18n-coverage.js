@@ -124,7 +124,7 @@ const SCREENS = [
   { name: "topbar 顶栏", fn: () => P.topbarHTML() },
   { name: "status 状态面板", fn: () => P.statusPanel() },
   { name: "identity 身份条", fn: () => P.identityHTML() },
-  { name: "brief 时代简报", fn: () => P.briefHTML() },
+  { name: "brief 时代简报", fn: () => P.briefHTML(P.realize ? P.realize(P.events[0]) : P.events[0]) },
   { name: "ledger 年终结算", fn: () => P.endYear && P.endYear() }
 ];
 

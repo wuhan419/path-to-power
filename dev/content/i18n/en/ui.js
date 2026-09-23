@@ -30,6 +30,10 @@ POTUS.define("l10n", {
       "you do is set the stakes on each choice. Every decision moves the balance of reputation, cash, favors and " +
       "blackmail, shifts your base, and decides whether you win and climb. No right answers; many endings. Walk your own road to power.",
 
+    /* 事件配图的头版角标（content/09-photo-art.js） */
+    "ui.photo.frontTag": "Front page",
+    "ui.photo.dossierNo": "File {n}",
+
     /* 属性 / 层级 / 左栏状态面板（engine/view/leftbar.js） */
     "ui.attr.CHA": "Charm",
     "ui.attr.INT": "Wit",

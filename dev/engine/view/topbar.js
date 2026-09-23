@@ -26,9 +26,9 @@
     const G = P.G;
     const y = (ev && ev.year) || G.year;
     const m = G.month || 1;
-    const d = ev && ev.day;
-    /* 不提取：validate.js 的时间契约断言锁定本函数中文输出（dev/tools 红名单不可改） */
-    return y + " 年 " + m + " 月" + (d ? " " + d + " 日" : "");
+    /* P.dateLabel 是 i18n 的两个日期原语之一：中文 2008 年 9 月 24 日 / 英文 Sep 24, 2008。
+       validate.js 的时间契约断言走 ZH() 取词，所以英文侧渲染不会假红。 */
+    return P.dateLabel(y, m, ev && ev.day);
   };
   /* 兼容旧内容 / 旧测试：把当前月向后推到 m（接受数字或 {month:n}）。年内不回退。 */
   P.setMonth = function (m) {
@@ -169,12 +169,15 @@
     const vp = P.voterPools();
     const es = P.electionStrength();
     const fmtNum = function (n) {
-      if (n >= 100000000) return (n / 100000000).toFixed(1) + " 亿";
-      if (n >= 10000) return (n / 10000).toFixed(n >= 100000 ? 0 : 1) + " 万";
-      if (n >= 1000) return (n / 1000).toFixed(1) + " 千";
+      /* 中文按 亿/万/千 三档；英文没有「万」这个量级，走覆盖层模板换算成 K/M/B。 */
+      if (n >= 100000000) return P.t("ui.topbar.numYi", "{n} 亿", { n: (n / 100000000).toFixed(1) });
+      if (n >= 10000) return P.t("ui.topbar.numWan", "{n} 万", { n: (n / 10000).toFixed(n >= 100000 ? 0 : 1) });
+      if (n >= 1000) return P.t("ui.topbar.numKilo", "{n} 千", { n: (n / 1000).toFixed(1) });
       return String(n);
     };
-    const diehardTxt = fmtNum(vp.diehard) + " 死忠 · " + fmtNum(vp.warm) + " 有好感 · " + fmtNum(vp.oppose) + " 反对";
+    const diehardTxt = fmtNum(vp.diehard) + " " + P.t("ui.topbar.vtDie", "死忠") + " · "
+      + fmtNum(vp.warm) + " " + P.t("ui.topbar.vtWarm", "有好感") + " · "
+      + fmtNum(vp.oppose) + " " + P.t("ui.topbar.vtOppose", "反对");
     /* 政治光谱：党派打底，姿态偏移，关键标记再拉 */
     const partyName = (P.reg.party[G.party] || {}).name || P.t("ui.topbar.noParty", "无党派");
     let wing = G.stance === "outsider" ? P.t("ui.topbar.wingOutsider", "（反建制）") : "";

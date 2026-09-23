@@ -8,7 +8,7 @@
 POTUS.define("l10n", {
   lang: "en",
   ui: {
-    /* 日期 / 身份（注：dateText 本体由 validate.js 契约断言锁定中文，未提取） */
+    /* 日期 / 身份（dateText 走 i18n.js 的 P.dateLabel 原语：英文 "Sep 2008"） */
     "ui.topbar.age": "Age {n}",
     "ui.topbar.tierLevel": "Level {n}",
 
@@ -50,6 +50,10 @@ POTUS.define("l10n", {
     "ui.topbar.tenureYearsRest": "(in office {n}+ yr)",
     "ui.topbar.tenureMonths": "(in office {n} mo)",
     "ui.topbar.district": "Electorate {n}",
+    /* 中文的 亿/万/千 换算成英文量级（与 view/stage.js 的 numWan/numKilo 同一口径） */
+    "ui.topbar.numYi": "{n} ×100M",
+    "ui.topbar.numWan": "{n} ×10K",
+    "ui.topbar.numKilo": "{n}K",
     "ui.topbar.spectrumTip": "Electorate size: the higher the office, the bigger the pool. Spectrum = party base + stance shift + era marks; it decides which events and factions are friendly to you — and which treat you as an outlier.",
     "ui.topbar.vtDie": "Loyal",
     "ui.topbar.vtWarm": "Warm",
