@@ -44,13 +44,13 @@
     const def = (G && G.state && P.stateDef) ? P.stateDef(G.state) : null;
     const st = (def && def.name) || (G && G.state) || "";
     switch (tok) {
-      case "STATE": return st || "本州";
-      case "CITY": return (def && def.city) || st || "本市";
-      case "DISTRICT": return (def && def.district) || (def && def.districtName) || "本选区";
+      case "STATE": return st || P.t("ui.flavor.state", "本州");
+      case "CITY": return (def && def.city) || st || P.t("ui.flavor.city", "本市");
+      case "DISTRICT": return (def && def.district) || (def && def.districtName) || P.t("ui.flavor.district", "本选区");
       case "HOME": {
         const city = (def && def.city) || "";
-        if (city && st) return city + "，" + st;
-        return city || st || "家乡";
+        if (city && st) return P.t("ui.flavor.homeCityState", "{city}，{state}", { city: city, state: st });
+        return city || st || P.t("ui.flavor.hometown", "家乡");
       }
       default: return null;
     }
