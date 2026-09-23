@@ -1918,7 +1918,8 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(gs.length >= 5, "gainSummary 应把各类效果都翻译出来（实际 " + gs.length + " 条）");
   check(gs.some(function (x) { return x.k === "声望" && x.v === 8 && x.sign > 0; }), "rep 应翻成 声望+8");
   check(gs.some(function (x) { return x.k === "资金" && x.v.indexOf("+$250k") === 0; }), "fun 应翻成 资金+$250k");
-  check(gs.some(function (x) { return x.k === "媒体" && x.sign < 0; }), "fac.press 应翻成 媒体-4");
+  /* 派系名取自活注册表（boot 时已被覆盖层翻掉，ZH() 管不到），所以拿同源的 factionName 比对。 */
+  check(gs.some(function (x) { return x.k === P.factionName("press") && x.sign < 0; }), "fac.press 应翻成派系名（媒体/Press）-4");
   check(gs.some(function (x) { return x.flag && x.k === "状态"; }), "flags 应翻成状态词条");
   check(gs.some(function (x) { return x.k === "下野"; }), "fall 应翻成下野");
   const gsScandal = P.gainSummary({ flags: ["scandal_3"] });
