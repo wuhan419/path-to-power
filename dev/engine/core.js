@@ -279,7 +279,9 @@ POTUS.delFlag = function (f) { POTUS.G.flags = POTUS.G.flags.filter(function (x)
 POTUS.counter = function (k) { const c = POTUS.G && POTUS.G.counters; return (c && c[k]) || 0; };
 POTUS.pushLog = function (s) {
   const G = POTUS.G;
-  const stamp = G.year + (G.month && G.month <= 12 ? "年" + G.month + "月" : "年");
+  const stamp = (G.month && G.month <= 12)
+    ? POTUS.t("ui.core.stampYm", "{y}年{m}月", { y: G.year, m: G.month })
+    : POTUS.t("ui.core.stampY", "{y}年", { y: G.year });
   G.log.unshift("[" + stamp + "] " + s);
   if (G.log.length > 80) G.log.pop();
 };
@@ -287,7 +289,11 @@ POTUS.pushLog = function (s) {
 /* 大事件/中事件的中文名（引擎只用来显示，内容可覆盖 reg.grade） */
 POTUS.gradeName = function (g) {
   const d = POTUS.reg.grade[g];
-  return d ? (d.name || g) : ({ major: "大事件", mid: "中事件", minor: "小事" }[g] || g);
+  return d ? (d.name || g) : ({
+    major: POTUS.t("ui.core.gradeMajor", "大事件"),
+    mid: POTUS.t("ui.core.gradeMid", "中事件"),
+    minor: POTUS.t("ui.core.gradeMinor", "小事")
+  }[g] || g);
 };
 /* 事件类型（类别）定义，内容可增删 */
 POTUS.category = function (key) {
@@ -295,7 +301,7 @@ POTUS.category = function (key) {
 };
 POTUS.categoryName = function (key) {
   const c = POTUS.category(key);
-  return c ? (c.name || key) : (key || "综合");
+  return c ? (c.name || key) : (key || POTUS.t("ui.core.catGeneral", "综合"));
 };
 
 /* ---------- 时代媒介（口径）----------
@@ -380,7 +386,7 @@ POTUS.monthsAtTier = function () {
 POTUS.contactDef = function (id) { return POTUS.reg.contact[id] || null; };
 POTUS.contactName = function (id) {
   const d = POTUS.contactDef(id);
-  return d ? (d.name || id) : (id || "某人");
+  return d ? (d.name || id) : (id || POTUS.t("ui.core.contactSomeone", "某人"));
 };
 POTUS.hasContact = function (id) {
   const G = POTUS.G;
@@ -429,12 +435,12 @@ POTUS.vipActivate = function (code) {
   const b = POTUS.balance();
   const codes = b.vipCodes || {};
   const key = String(code || "").trim().toUpperCase();
-  if (!key) return "请输入充值码";
-  if (codes[key] == null) return "没有这个码：" + key;
+  if (!key) return POTUS.t("ui.core.vipEmpty", "请输入充值码");
+  if (codes[key] == null) return POTUS.t("ui.core.vipUnknown", "没有这个码：{k}", { k: key });
   if (!POTUS.vipInfinite) {
     let used = [];
     try { used = JSON.parse(localStorage.getItem("potus_vip_used") || "[]"); } catch (e) { used = []; }
-    if (used.indexOf(key) >= 0) return "这个码已经用过了";
+    if (used.indexOf(key) >= 0) return POTUS.t("ui.core.vipUsed", "这个码已经用过了");
     used.push(key);
     try { localStorage.setItem("potus_vip_used", JSON.stringify(used)); } catch (e) { }
   }
@@ -755,7 +761,7 @@ POTUS.autosave = function () { try { localStorage.setItem(SAVE_KEY + "_auto", PO
  * 交互：保存=选位写入（占用位两段确认覆盖）；读取=选位载入；占用位支持重命名(✎)与删除(×)。 */
 const SLOT_COUNT = 8;
 function slotKey(i) { return SAVE_KEY + "_slot" + i; }
-function slotDefaultName(i) { return "存档位 " + (i + 1); }
+function slotDefaultName(i) { return POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }); }
 function readSlotRaw(i) { return localStorage.getItem(slotKey(i)); }
 function escHtml(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function escAttr(s) { return escHtml(s).replace(/"/g, "&quot;"); }
@@ -764,7 +770,8 @@ function safeSetItem(k, v) {
   try { localStorage.setItem(k, v); return true; }
   catch (e) {
     const full = e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED" || e.code === 22 || e.code === 1014);
-    alert(full ? "浏览器存储空间已满，保存失败。请先删除部分存档后重试。" : "保存失败：" + (e && e.message ? e.message : e));
+    alert(full ? POTUS.t("ui.core.saveQuotaFull", "浏览器存储空间已满，保存失败。请先删除部分存档后重试。")
+      : POTUS.t("ui.core.saveFailed", "保存失败：{e}", { e: e && e.message ? e.message : e }));
     return false;
   }
 }
@@ -777,7 +784,8 @@ function officeNameFor(G) {
 }
 function defaultSaveName(G) {
   const o = officeNameFor(G);
-  return (G.year || "") + "年" + (G.month || 1) + "月 · " + G.name + (o ? "（" + o + "）" : "");
+  return POTUS.t("ui.core.stampYm", "{y}年{m}月", { y: G.year || "", m: G.month || 1 }) + " · " + G.name +
+    (o ? POTUS.t("ui.core.paren", "（{v}）", { v: o }) : "");
 }
 /* 一次性迁移：把 v0.5.4 及更早的时间戳档导入固定存档位，然后删除旧 key 与索引 */
 function migrateOldSaves() {
@@ -807,10 +815,10 @@ function migrateOldSaves() {
 function fmtAgo(at) {
   if (!at) return "";
   const s = Math.max(0, Math.floor((Date.now() - at) / 1000));
-  if (s < 60) return "刚刚";
-  if (s < 3600) return Math.floor(s / 60) + " 分钟前";
-  if (s < 86400) return Math.floor(s / 3600) + " 小时前";
-  if (s < 86400 * 30) return Math.floor(s / 86400) + " 天前";
+  if (s < 60) return POTUS.t("ui.core.agoJust", "刚刚");
+  if (s < 3600) return POTUS.t("ui.core.agoMin", "{n} 分钟前", { n: Math.floor(s / 60) });
+  if (s < 86400) return POTUS.t("ui.core.agoHour", "{n} 小时前", { n: Math.floor(s / 3600) });
+  if (s < 86400 * 30) return POTUS.t("ui.core.agoDay", "{n} 天前", { n: Math.floor(s / 86400) });
   return new Date(at).toLocaleDateString();
 }
 
@@ -821,7 +829,7 @@ function slotThumbHTML(b) {
   const src = "assets/heroes/hero-" + d + "-" + t + ".jpg";
   return '<span class="svthumb"><img src="' + src + '" alt="" decoding="async" ' +
     'onerror="this.closest(\'.svthumb\').classList.add(\'noimg\')">' +
-    '<span class="svlvl">等级' + (t + 1) + "</span></span>";
+    '<span class="svlvl">' + POTUS.t("ui.core.thumbLevel", "等级{n}", { n: t + 1 }) + "</span></span>";
 }
 
 /* 保存对话框：命名 + 选固定存档位写入。占用位两段确认覆盖，绝不新建堆积档。 */
@@ -838,25 +846,25 @@ POTUS.quickSave = function () {
       rows += '<div class="saverow"><button class="btn saveline tier-' + (b.tier || 0) + '" onclick="POTUS.saveToSlot(' + i + ',this)">' +
         slotThumbHTML(b) +
         '<span class="svbody">' +
-        "<b>存档位 " + (i + 1) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
+        "<b>" + POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
         "<small>" + escHtml(b.line) + "</small>" +
         "<small>" + escHtml(b.line2) + "</small>" +
-        '<small class="svcta">点击覆盖保存到此位</small></span></button></div>';
+        '<small class="svcta">' + POTUS.t("ui.core.ctaOverwrite", "点击覆盖保存到此位") + "</small></span></button></div>";
     } else {
       rows += '<div class="saverow"><button class="btn saveline svel" onclick="POTUS.saveToSlot(' + i + ',this)">' +
         '<span class="svthumb svel-ph" aria-hidden="true"></span>' +
-        '<span class="svbody"><b>空存档位 ' + (i + 1) + "</b>" +
-        '<small class="svcta">点击保存到此位</small></span></button></div>';
+        '<span class="svbody"><b>' + POTUS.t("ui.core.emptySlot", "空存档位 {n}", { n: i + 1 }) + "</b>" +
+        '<small class="svcta">' + POTUS.t("ui.core.ctaSaveHere", "点击保存到此位") + "</small></span></button></div>";
     }
   }
   const m = document.createElement("div");
   m.className = "modal";
   m.onclick = function (e) { if (e.target === m) m.remove(); };
-  m.innerHTML = '<div class="box savemodal"><h3>保存存档</h3>' +
-    '<label class="airow">存档名称<input type="text" id="svName" value="' + escAttr(defName) + '" maxlength="40"></label>' +
+  m.innerHTML = '<div class="box savemodal"><h3>' + POTUS.t("ui.core.saveTitle", "保存存档") + '</h3>' +
+    '<label class="airow">' + POTUS.t("ui.core.nameLabel", "存档名称") + '<input type="text" id="svName" value="' + escAttr(defName) + '" maxlength="40"></label>' +
     '<div class="slotlist">' + rows + "</div>" +
     '<p class="hintline" id="svMsg"></p>' +
-    '<button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div>';
+    '<button class="btn" onclick="this.closest(\'.modal\').remove()">' + POTUS.t("ui.core.close", "关闭") + "</button></div>";
   document.body.appendChild(m);
   const inp = document.getElementById("svName");
   if (inp) { inp.focus(); inp.select(); }
@@ -869,9 +877,9 @@ POTUS.saveToSlot = function (i, btn) {
   const cta = btn ? btn.querySelector(".svcta") : null;
   if (occupied && btn && btn.dataset.armed !== "1") {
     btn.dataset.armed = "1";
-    if (cta) { cta.dataset.orig = cta.textContent; cta.textContent = "再次点击确认覆盖！"; }
+    if (cta) { cta.dataset.orig = cta.textContent; cta.textContent = POTUS.t("ui.core.confirmOverwrite", "再次点击确认覆盖！"); }
     btn.classList.add("danger");
-    setTimeout(function () { if (btn.isConnected) { btn.dataset.armed = ""; btn.classList.remove("danger"); if (cta) cta.textContent = cta.dataset.orig || "点击覆盖保存到此位"; } }, 2500);
+    setTimeout(function () { if (btn.isConnected) { btn.dataset.armed = ""; btn.classList.remove("danger"); if (cta) cta.textContent = cta.dataset.orig || POTUS.t("ui.core.ctaOverwrite", "点击覆盖保存到此位"); } }, 2500);
     return;
   }
   const name = ((document.getElementById("svName") || {}).value || "").trim() || defaultSaveName(G);
@@ -879,7 +887,7 @@ POTUS.saveToSlot = function (i, btn) {
   if (!safeSetItem(slotKey(i), POTUS.serialize())) return;
   POTUS.autosave();
   const msg = document.getElementById("svMsg");
-  if (msg) msg.textContent = "已保存到「存档位 " + (i + 1) + "」· " + name;
+  if (msg) msg.textContent = POTUS.t("ui.core.savedTo", "已保存到「存档位 {n}」· {name}", { n: i + 1, name: name });
   setTimeout(function () { const mm = document.querySelector(".modal"); if (mm) mm.remove(); }, 750);
 };
 
@@ -895,12 +903,14 @@ POTUS.saveBrief = function (raw) {
     const party = (POTUS.reg.party[G.party] || {}).name || "";
     const st = G.state ? (POTUS.stateName ? POTUS.stateName(G.state) : G.state) : "";
     return {
-      name: G.saveName || "未命名",
-      line: (G.year || "") + "年" + (G.month || 1) + "月 · " + (G.age || "?") + "岁" +
+      name: G.saveName || POTUS.t("ui.core.unnamed", "未命名"),
+      line: POTUS.t("ui.core.stampYm", "{y}年{m}月", { y: G.year || "", m: G.month || 1 }) + " · " +
+        POTUS.t("ui.core.saveAge", "{n}岁", { n: G.age || "?" }) +
         (oName ? " · " + oName : "") +
         (party ? " · " + party : "") + (st ? " · " + st : ""),
-      line2: "声望 " + (G.rep || 0) + " · 资金 $" + ((G.fun || 0) / 1000).toFixed(0) + "k" +
-        (G.voters ? " · 死忠 " + (G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard) : ""),
+      line2: POTUS.t("ui.core.statRep", "声望 {v}", { v: G.rep || 0 }) + " · " +
+        POTUS.t("ui.core.statFun", "资金 ${v}k", { v: ((G.fun || 0) / 1000).toFixed(0) }) +
+        (G.voters ? " · " + POTUS.t("ui.core.statDiehard", "死忠 {v}", { v: G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard }) : ""),
       office: oName, tier: G.tier || 0, diff: G.difficulty || "normal",
       at: G.saveAt
     };
@@ -914,10 +924,10 @@ POTUS.renameSlot = function (i) {
   const cur = g.saveName || slotDefaultName(i);
   const old = document.querySelector(".modal"); if (old) old.remove();
   const m = document.createElement("div"); m.className = "modal";
-  m.innerHTML = '<div class="box"><h3>重命名 · 存档位 ' + (i + 1) + '</h3>' +
-    '<label class="airow">存档名称<input type="text" id="rnName" maxlength="40" value="' + escAttr(cur) + '"></label>' +
-    '<div class="airow" style="display:flex;gap:8px"><button class="btn primary" id="rnGo">确定</button>' +
-    '<button class="btn" id="rnCancel">取消</button></div></div>';
+  m.innerHTML = '<div class="box"><h3>' + POTUS.t("ui.core.rename", "重命名") + " · " + POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }) + '</h3>' +
+    '<label class="airow">' + POTUS.t("ui.core.nameLabel", "存档名称") + '<input type="text" id="rnName" maxlength="40" value="' + escAttr(cur) + '"></label>' +
+    '<div class="airow" style="display:flex;gap:8px"><button class="btn primary" id="rnGo">' + POTUS.t("ui.core.confirm", "确定") + '</button>' +
+    '<button class="btn" id="rnCancel">' + POTUS.t("ui.core.cancel", "取消") + "</button></div></div>";
   document.body.appendChild(m);
   const inp = document.getElementById("rnName"); if (inp) { inp.focus(); inp.select(); }
   function commit() {
@@ -934,7 +944,7 @@ POTUS.renameSlot = function (i) {
 POTUS.delSlot = function (i, btn) {
   if (btn.dataset.armed !== "1") {
     btn.dataset.armed = "1";
-    btn.textContent = "确认删";
+    btn.textContent = POTUS.t("ui.core.confirmDel", "确认删");
     btn.classList.add("danger");
     setTimeout(function () { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "×"; btn.classList.remove("danger"); } }, 2500);
     return;
@@ -947,7 +957,7 @@ POTUS.delSlot = function (i, btn) {
 POTUS.openLoad = function () {
   migrateOldSaves();
   const old = document.querySelector(".modal"); if (old) old.remove();
-  let html = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box savemodal"><h3>读取存档</h3>';
+  let html = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box savemodal"><h3>' + POTUS.t("ui.core.loadTitle", "读取存档") + '</h3>';
   let any = false;
   const autoRaw = localStorage.getItem(SAVE_KEY + "_auto");
   const ab = autoRaw ? POTUS.saveBrief(autoRaw) : null;
@@ -955,7 +965,7 @@ POTUS.openLoad = function () {
     any = true;
     html += '<div class="saverow"><button class="btn saveline tier-' + (ab.tier || 0) + '" onclick="POTUS.doLoad(\'' + SAVE_KEY + '_auto\')">' +
       slotThumbHTML(ab) +
-      '<span class="svbody"><b>自动存档 <i class="ago">实时</i></b>' +
+      '<span class="svbody"><b>' + POTUS.t("ui.core.autoSave", "自动存档") + ' <i class="ago">' + POTUS.t("ui.core.live", "实时") + '</i></b>' +
       "<small>" + escHtml(ab.line) + "</small>" +
       "<small>" + escHtml(ab.line2) + "</small></span></button></div>";
   }
@@ -967,31 +977,31 @@ POTUS.openLoad = function () {
       html += '<div class="saverow">' +
         '<button class="btn saveline tier-' + (b.tier || 0) + '" onclick="POTUS.doLoad(\'' + slotKey(i) + '\')">' +
         slotThumbHTML(b) +
-        '<span class="svbody"><b>存档位 ' + (i + 1) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
+        '<span class="svbody"><b>' + POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
         "<small>" + escHtml(b.line) + "</small>" +
         "<small>" + escHtml(b.line2) + "</small></span></button>" +
-        '<button class="btn svedit" title="重命名" onclick="POTUS.renameSlot(' + i + ')">✎</button>' +
-        '<button class="btn svdel" title="删除" onclick="POTUS.delSlot(' + i + ',this)">×</button>' +
+        '<button class="btn svedit" title="' + POTUS.t("ui.core.rename", "重命名") + '" onclick="POTUS.renameSlot(' + i + ')">✎</button>' +
+        '<button class="btn svdel" title="' + POTUS.t("ui.core.del", "删除") + '" onclick="POTUS.delSlot(' + i + ',this)">×</button>' +
         "</div>";
     } else {
-      html += '<div class="saverow saverow-empty"><span class="slotempty">存档位 ' + (i + 1) + " · 空</span></div>";
+      html += '<div class="saverow saverow-empty"><span class="slotempty">' + POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }) + " · " + POTUS.t("ui.core.empty", "空") + "</span></div>";
     }
   }
-  if (!any) html += '<p class="muted">还没有任何存档。开始游戏后点「保存」写入存档位。</p>';
-  html += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div></div>';
+  if (!any) html += '<p class="muted">' + POTUS.t("ui.core.noSaves", "还没有任何存档。开始游戏后点「保存」写入存档位。") + '</p>';
+  html += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">' + POTUS.t("ui.core.close", "关闭") + "</button></div></div>";
   const m = document.createElement("div"); m.innerHTML = html; document.body.appendChild(m.firstElementChild);
 };
 POTUS.doLoad = function (key) {
   try {
     const full = key === "auto" ? SAVE_KEY + "_auto" : (key.indexOf(SAVE_KEY + "_") === 0 ? key : SAVE_KEY + "_" + key);
     const s = localStorage.getItem(full);
-    if (!s) { alert("无存档"); return; }
+    if (!s) { alert(POTUS.t("ui.core.noSave", "无存档")); return; }
     POTUS.G = POTUS.migrate(JSON.parse(s));
     document.body.className = "era-" + POTUS.G.era;
     const m = document.querySelector(".modal"); if (m) m.remove();
     POTUS.renderLoadedScreen();
     POTUS.SCREEN = "game";
-  } catch (e) { alert("读取失败：" + e.message); }
+  } catch (e) { alert(POTUS.t("ui.core.loadFailed", "读取失败：{e}", { e: e.message })); }
 };
 POTUS.exportSave = function () {
   try {
@@ -999,7 +1009,7 @@ POTUS.exportSave = function () {
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "POTUS_" + POTUS.G.name + "_" + POTUS.G.era + "_" + POTUS.G.year + ".potus.json"; a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-  } catch (e) { alert("导出失败：" + e.message); }
+  } catch (e) { alert(POTUS.t("ui.core.exportFailed", "导出失败：{e}", { e: e.message })); }
 };
 POTUS.importSave = function () {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json,.potus";
@@ -1008,7 +1018,7 @@ POTUS.importSave = function () {
     const r = new FileReader();
     r.onload = function () {
       try { POTUS.G = POTUS.migrate(JSON.parse(r.result)); document.body.className = "era-" + POTUS.G.era; POTUS.renderLoadedScreen(); POTUS.SCREEN = "game"; }
-      catch (e) { alert("导入失败：" + e.message); }
+      catch (e) { alert(POTUS.t("ui.core.importFailed", "导入失败：{e}", { e: e.message })); }
     };
     r.readAsText(f);
   };
@@ -1018,20 +1028,20 @@ POTUS.openLog = function () {
   if (!POTUS.G) return;
   const old = document.querySelector(".modal"); if (old) old.remove();
   const logs = (POTUS.G.log || []).slice().reverse();   // 最新在上
-  let h = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box logmodal"><h3>近期动态</h3>';
+  let h = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box logmodal"><h3>' + POTUS.t("ui.core.logTitle", "近期动态") + '</h3>';
   h += logs.length
     ? '<div class="loglist">' + logs.map(function (x) { return '<div class="logline">' + x + "</div>"; }).join("") + "</div>"
-    : '<p class="muted">还没有记录。</p>';
-  h += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div></div>';
+    : '<p class="muted">' + POTUS.t("ui.core.noLog", "还没有记录。") + '</p>';
+  h += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">' + POTUS.t("ui.core.close", "关闭") + "</button></div></div>";
   const m = document.createElement("div"); m.innerHTML = h; document.body.appendChild(m.firstElementChild);
 };
 
 POTUS.renderLoadedScreen = function () {
   POTUS.app().innerHTML =
     POTUS.topbarHTML() +
-    '<div class="grid"><div id="main" class="col-event"><div class="news fade"><div class="dateline">已载入存档</div>' +
-    '<div class="body">' + POTUS.G.year + " 年 " + (POTUS.G.month || 1) + " 月。</div></div></div>" +
+    '<div class="grid"><div id="main" class="col-event"><div class="news fade"><div class="dateline">' + POTUS.t("ui.core.loadedBadge", "已载入存档") + '</div>' +
+    '<div class="body">' + POTUS.t("ui.core.loadedDate", "{y} 年 {m} 月。", { y: POTUS.G.year, m: POTUS.G.month || 1 }) + '</div></div></div>' +
     '<aside class="col-right">' +
-    '<div class="actbar"><div id="actbody"><div class="acthead">继续你的政治生涯</div>' +
-    '<button class="btn primary actbtn" onclick="POTUS.startYear(true)">继续 →</button></div></div></aside></div>';
+    '<div class="actbar"><div id="actbody"><div class="acthead">' + POTUS.t("ui.core.resumeHead", "继续你的政治生涯") + '</div>' +
+    '<button class="btn primary actbtn" onclick="POTUS.startYear(true)">' + POTUS.t("ui.core.resumeBtn", "继续 →") + "</button></div></div></aside></div>";
 };
