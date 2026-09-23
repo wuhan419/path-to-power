@@ -1912,8 +1912,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.G.stance !== stance0, "setStance 应改姿态");
   P.G.track = track0; P.G.stance = stance0;
 
-  /* --- 收益结算面板：effects → 玩家语言 --- */
-  const gs = P.gainSummary({ rep: 8, fun: 250000, fav: -1, fac: { base: 6, press: -4 }, flags: ["fallen"], fall: 1 });
+  /* --- 收益结算面板：effects → 玩家语言 ---
+     词条名取自派系/属性/状态注册表，en 覆盖层一翻就会被当成断言失败，所以整段按中文取词。 */
+  const gs = ZH(() => P.gainSummary({ rep: 8, fun: 250000, fav: -1, fac: { base: 6, press: -4 }, flags: ["fallen"], fall: 1 }));
   check(gs.length >= 5, "gainSummary 应把各类效果都翻译出来（实际 " + gs.length + " 条）");
   check(gs.some(function (x) { return x.k === "声望" && x.v === 8 && x.sign > 0; }), "rep 应翻成 声望+8");
   check(gs.some(function (x) { return x.k === "资金" && x.v.indexOf("+$250k") === 0; }), "fun 应翻成 资金+$250k");
