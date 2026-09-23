@@ -3,7 +3,16 @@
 
 # 本地日志 / 临时脚本输出
 *.log
+*.log.*
+logs/
 dev/tools/out/
+
+# AI 助手生成的记忆 / 工作区元数据（一律不入库）
+.workbuddy/
+.qoder/
+.cursor/
+.aider*
+.continue/
 
 # 依赖（本项目零依赖，正常不会出现；防御性忽略）
 node_modules/

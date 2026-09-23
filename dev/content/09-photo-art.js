@@ -33,6 +33,7 @@
     files: {
       general: "general.jpg",     // 综合：发布台 / 记者会
       career: "career.jpg",       // 仕途：讲台与聚光灯
+      campaign: "campaign.jpg",   // 竞选：把名字放上选票的那一连串流程（独立玩法）
       political: "political.jpg", // 党务：签字落笔
       media: "media.jpg",         // 舆论：版面与流量
       scandal: "scandal.jpg",     // 丑闻：围堵与标语

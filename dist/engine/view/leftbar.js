@@ -47,17 +47,26 @@
     if (id) id.innerHTML = P.identityHTML();
   };
 
-  /* ---------------- 状态详情（能力 / 标签 / 派系 / 人脉 / 日志）—— v0.8 高度压缩 ----------------
-     只返回内层 HTML，.panel 外壳由 statusPanel() 负责。两条原则：
+  /* ---------------- 状态详情（能力 / 标签 / 派系 / 人脉 / 日志）—— v0.10 行级组件化 ----------------
+     每一行是一个独立组件（sbrow：左侧固定标签列 + 右侧 chip 流），由 P.statusRows()
+     按行返回，供 topbar.js 的 STATUS_LAYOUT 任意组合挪放。两条原则不变：
        ① 一行一个太占高度 → 属性/派系/人脉改成内联 chip 流式换行；日志只留最近 3 条。
        ② 已决定不再展示的项（智力/诚信/健康/精力/把柄 + 媒体·工会·宗教·情报派系）
           仅在视图层隐藏（引擎数值与判定不动），隐藏清单见 topbar.js 的 P.UI_HIDE。 */
-  P.statusDetailHTML = function () {
+  P.statusRows = function () {
     const G = P.G, a = G.attr;
     const hide = (P.UI_HIDE || {});
     const hideAttr = hide.attr || {}, hideFac = hide.fac || {};
     const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
     const sgn = function (v) { return (v > 0 ? "+" : "") + v; };
+    /* 底色分档（v0.10）：按正负 + 幅度给 chip 上淡底，三档封顶保证文字可读：
+       |v| ≥ 40 → 第 3 档，≥ 15 → 第 2 档，> 0 → 第 1 档，0 → 不上底色。 */
+    const tint = function (v) {
+      if (!v) return "";
+      const a = Math.abs(v);
+      const lv = a >= 40 ? 3 : a >= 15 ? 2 : 1;
+      return " tint-" + (v > 0 ? "p" : "n") + lv;
+    };
     /* 能力：可见属性内联（智力等已隐藏） */
     const attrChips = ["CHA", "INT", "CUN"].filter(function (k) { return !hideAttr[k]; })
       .map(function (k) {
@@ -69,11 +78,11 @@
       if (hideFac[k]) continue;
       const v = G.faction[k] || 0;
       if (v === 0) continue;
-      facChips += '<span class="qchip"><b>' + P.factionName(k) + '</b><span class="' + (v > 0 ? "pos" : "neg") + '">' + sgn(v) + "</span></span>";
+      facChips += '<span class="qchip' + tint(v) + '"><b>' + P.factionName(k) + '</b><span class="' + (v > 0 ? "pos" : "neg") + '">' + sgn(v) + "</span></span>";
     }
     /* 人脉：内联（前 5） */
     const ctChips = P.myContacts().slice(0, 5).map(function (c) {
-      return '<span class="qchip"' + (c.role ? ' data-tip="' + String(c.role).replace(/"/g, "&quot;") + '"' : "") + '><b>' + c.name +
+      return '<span class="qchip' + tint(c.favor) + '"' + (c.role ? ' data-tip="' + String(c.role).replace(/"/g, "&quot;") + '"' : "") + '><b>' + c.name +
         '</b><span class="' + (c.favor >= 30 ? "pos" : c.favor <= -20 ? "neg" : "") + '">' + sgn(c.favor) + "</span></span>";
     }).join("");
     /* 状态标签（导师/走过灰路… 这类 buff 式「际遇」，不含丑闻/黑天鹅）：单独成排。
@@ -92,11 +101,17 @@
     const sc = P.scandalLevel();
     const scandal = sc ? '<span class="tag scandal hastip" data-tip="\u4e11\u95fb\u7b49\u7ea7\uff1a\u8d8a\u9ad8\u8d8a\u5bb9\u6613\u88ab\u653b\u51fb\u3001\u4e5f\u66f4\u96be\u6d88\u9664\u3002">\u4e11\u95fb Lv' + sc + "</span>" : "";
     const statusChips = scandal + tagChips + tagMore;
-    /* 四行紧凑布局：左侧固定标签列 + 右侧 chip 流（能力/标签/派系/人脉）。日志已收进顶栏「动态」弹窗。 */
     const row = function (lab, chips) { return '<div class="sbrow"><span class="sblab">' + lab + '</span><span class="qchips">' + chips + '</span></div>'; };
-    return (attrChips ? row('能力', attrChips) : "") +
-      (statusChips ? row('标签', statusChips) : "") +
-      row('派系', facChips || '<span class="muted">—</span>') +
-      row('人脉', ctChips || '<span class="muted">—</span>');
+    return {
+      attrs: attrChips ? row('能力', attrChips) : "",
+      tags: statusChips ? row('标签', statusChips) : "",
+      factions: row('派系', facChips || '<span class="muted">—</span>'),
+      contacts: row('人脉', ctChips || '<span class="muted">—</span>')
+    };
+  };
+  /* 兼容旧调用点：四行按默认顺序拼接 */
+  P.statusDetailHTML = function () {
+    const r = P.statusRows();
+    return r.attrs + r.tags + r.factions + r.contacts;
   };
 })();

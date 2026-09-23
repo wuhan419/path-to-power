@@ -38,12 +38,16 @@
   };
   /* v0.5.6：日期/身份/职位信息全部合并进顶部状态条（.topstat）——
      原先右上角的 .masthead .meta 与顶部条重复（姓名、年月各出现两遍），已删掉。
-     推进月份/事件后刷新顶部条即可（保留函数名，调用点不动）。 */
+     推进月份/事件后刷新顶部条即可（保留函数名，调用点不动）。
+     v0.9.1：顶栏黑条（kicker-band）里的月份只在年初渲染一次 → 每次一并刷新，
+     避免「顶栏 1 月 / 状态卡 3 月」两处日期打架。 */
   P.tickDate = function () {
     const sb = document.getElementById("statusbox");
     if (sb) sb.innerHTML = P.statusPanel();
     const id = document.getElementById("ident");
     if (id) id.innerHTML = P.identityHTML();
+    const kb = document.querySelector(".kicker-band");
+    if (kb && P.G && P.G.year) kb.outerHTML = P.topbarHTML();
   };
 
   /* 头像路径：难度×层级 → assets/heroes/hero-<难度>-<层级>.jpg。
@@ -55,51 +59,66 @@
     return "assets/heroes/hero-" + d + "-" + t + ".jpg";
   };
 
-  /* 核心身份徽标（顶栏右侧）：姓名 · 职位 · T层级 · 年龄 ·（在位）
-     ——玩家最该盯的“等级”信息，包在 #ident 里按 tier 上色（见 CSS .tb-ident.tier-N）。 */
+  /* 核心身份（组件①）：头像 → 姓名 + 年龄。
+     v0.10 组件化：职位/等级/晋升拆成独立的 officeProgHTML()（组件②），
+     两者在 STATUS_LAYOUT 里同列竖排——布局归配置，组件各自独立可挪。 */
   P.identityHTML = function () {
     const G = P.G;
-    const tenure = P.monthsAtTier();
-    const tenureTxt = tenure >= 12
-      ? "在位 " + Math.floor(tenure / 12) + " 年" + (tenure % 12 ? "余" : "")
-      : "在位 " + (tenure || 0) + " 个月";
-    /* 分组徽标（v0.8）：左侧「T 层级牌」实心色块（按层级配色），右侧上下两行——
-       职位是玩家最该盯的「身份」，给最大字号做主视觉；姓名·年龄·在位收成淡注副行小字。
-       层级 class 挂在 .idcard 内层，好让 tickDate 用 innerHTML 刷新时配色随之更新。 */
-    /* 晋升就绪度小条（v0.8 从「选区基本盘」上移到顶栏，与身份并列——玩家最该盯的「差多少能升」） */
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    const port = P.heroPortrait ? P.heroPortrait() : "";
+    return (port ? '<span class="idc-portrait"><img src="' + port + '" alt="' + escAttr(G.name) + '"' +
+        ' onerror="this.closest(\'.idc-portrait\').style.visibility=\'hidden\'"></span>' : "") +
+      '<span class="idc-info">' +
+        '<span class="idc-name">' + G.name + '</span>' +
+        '<span class="idc-age">' + G.age + ' 岁</span>' +
+      '</span>';
+  };
+  /* 组件②：职位 · 等级徽标 · 晋升条（原 identityHTML 的下半截，v0.10 拆出） */
+  P.officeProgHTML = function () {
+    const G = P.G;
+    return '<span class="idc-office">' + P.officeName() + '</span>' +
+      '<span class="idc-tier">等级 ' + (G.tier + 1) + '</span>' +
+      P.promoBarHTML();
+  };
+
+  /* 晋升就绪度：悬浮提示的完整文字（百分比 / 下一级 / 规则说明） */
+  P.promoTip = function () {
     const b = P.balance();
+    if (P.G.tier >= b.tierMax) return "已达权力顶点。";
+    const prog = P.promotionProgress();
+    return prog.note + "。晋升就绪度 " + prog.pct +
+      "＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。";
+  };
+  /* 晋升就绪度小条（纯进度条版）：只画条子，文字全部收进悬浮提示（hastip）。 */
+  P.promoBarHTML = function () {
+    const G = P.G;
+    const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    if (G.tier >= P.balance().tierMax) {
+      return '<span class="id-prog idc-prog atmax hastip" data-tip="' + escAttr(P.promoTip()) + '">' +
+        '<span class="idp-bar"><i style="width:100%"></i></span></span>';
+    }
+    const prog = P.promotionProgress();
+    return '<span class="id-prog idc-prog' + (prog.ready ? " ready" : "") + ' hastip" data-tip="' + escAttr(P.promoTip()) + '">' +
+      '<span class="idp-bar"><i style="width:' + prog.pct + '%"></i></span>' +
+      '</span>';
+  };
+  /* 晋升就绪度小条（完整版，带文字）：旧调用点兼容保留 */
+  P.promoChipHTML = function () {
+    const G = P.G;
+    const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
     let progChip;
-    if (G.tier >= b.tierMax) {
-      progChip = '<span class="id-prog atmax"><b>等级 ' + (G.tier + 1) + ' · 权力顶点</b></span>';
+    if (G.tier >= P.balance().tierMax) {
+      progChip = '<span class="id-prog atmax"><b>权力顶点</b></span>';
     } else {
       const prog = P.promotionProgress();
-      const tip = prog.note + "。晋升就绪度＝在位 40%＋声望 25%＋选民底气 20%＋组织关系 15%；满 60 进机会区间，但晋升仍需等一个空缺位置。";
-      progChip = '<span class="id-prog' + (prog.ready ? " ready" : "") + ' hastip" data-tip="' + escAttr(tip) + '">' +
+      progChip = '<span class="id-prog' + (prog.ready ? " ready" : "") + ' hastip" data-tip="' + escAttr(P.promoTip()) + '">' +
         '<span class="idp-cap">晋升</span>' +
         '<span class="idp-bar"><i style="width:' + prog.pct + '%"></i></span>' +
         '<span class="idp-pct">' + prog.pct + '</span>' +
         '<span class="idp-next">→ ' + prog.nextName + '</span>' +
         '</span>';
     }
-    const port = P.heroPortrait ? P.heroPortrait() : "";
-    return '<span class="idcard tier-' + G.tier + '">' +
-      (port ? '<span class="portrait"><img src="' + port + '" alt="' + escAttr(G.name) + '"' +
-        ' onerror="this.closest(\'.portrait\').style.visibility=\'hidden\'"></span>' : "") +
-      '<span class="id-tier">等级' + (G.tier + 1) + '</span>' +
-      '<span class="id-main">' +
-        '<span class="id-office">' + P.officeName() + '</span>' +
-        '<span class="id-sub">' +
-          '<span class="id-name">' + G.name + '</span>' +
-          '<span class="id-sep">·</span>' +
-          '<span class="id-age">' + G.age + ' 岁</span>' +
-          '<span class="id-sep">·</span>' +
-          '<span class="id-tenure">' + tenureTxt + '</span>' +
-        '</span>' +
-      '</span>' +
-      '<span class="id-vdiv"></span>' +
-      progChip +
-    '</span>';
+    return progChip;
   };
 
   /* ---------------- 职位卡：我现在是谁（状态面板顶部的一块） ----------------
@@ -182,11 +201,26 @@
       '<span class="vt vt-oppose"><i>反对</i><b>' + fmtNum(vp.oppose) + '</b></span>' +
       '<span class="vt-power hastip" data-tip="\u9009\u4e3e\u5e95\u6c14\uff1a\u4e09\u6863\u9009\u6c11\u7684\u7efc\u5408\u53ef\u6253\u5206，0–100">\u5e95\u6c14 <b>' + es.pct + '</b><em>/100</em></span>';
     const voterTip = "死忠=几乎必到的票；有好感=看你表现的可能票；反对=对手的票。选举判定主要吃死忠，其次好感；底气 0–100。";
+    /* v0.10 基本盘占比条：三档人数占三档合计的比例（死忠绿/好感金/反对红）。
+       非零段最小可视宽 2%（否则 268/2100 这种小段画不出来）；三档全 0 整条隐藏。 */
     const escAttr = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    const vt = vp.diehard + vp.warm + vp.oppose;
+    let voterBar = "";
+    if (vt > 0) {
+      const segW = function (v) { return Math.max(v / vt * 100, 2).toFixed(1); };
+      const segPct = Math.round(vp.diehard / vt * 100) + "% / " + Math.round(vp.warm / vt * 100) + "% / " + Math.round(vp.oppose / vt * 100) + "%";
+      const barTip = "基本盘结构（死忠/有好感/反对占有票盘子的比例）：" + segPct +
+        "——" + fmtNum(vp.diehard) + " / " + fmtNum(vp.warm) + " / " + fmtNum(vp.oppose) + "（合计 " + fmtNum(vt) + " 人）";
+      voterBar = '<div class="vbar hastip" data-tip="' + escAttr(barTip) + '">' +
+        (vp.diehard > 0 ? '<i class="vb-die" style="width:' + segW(vp.diehard) + '%"></i>' : "") +
+        (vp.warm > 0 ? '<i class="vb-warm" style="width:' + segW(vp.warm) + '%"></i>' : "") +
+        (vp.oppose > 0 ? '<i class="vb-opp" style="width:' + segW(vp.oppose) + '%"></i>' : "") +
+        '</div>';
+    }
     return '<div class="officecard">' +
       '<div class="oc-head"><span class="oc-title">选区基本盘</span>' +
         '<span class="oc-meta hastip" data-tip="' + escAttr(spectrumTip) + '">' + metaTxt + '</span></div>' +
-      '<div class="oc-rows"><div class="ocline hastip" data-tip="' + escAttr(voterTip) + '">' + voterLine + "</div></div>" +
+      '<div class="oc-rows"><div class="ocline hastip" data-tip="' + escAttr(voterTip) + '">' + voterLine + "</div>" + voterBar + "</div>" +
       "</div>";
   };
 
@@ -196,15 +230,33 @@
      · 第 2 行：职位卡 officeCard（职务·T层级（在位）｜州·选区规模｜选民池｜政治光谱｜晋升）
      原先右上角 .masthead .meta 与本条重复（姓名、年月各两遍），职务/在位/州也与职位卡重复，
      均已合并为各出现一次。 */
-  P.topStatus = function () {
-    const G = P.G, a = G.attr, b = P.balance();
+  /* 日期 / 时代 kicker —— 移到状态带左栏，轻量文字不与资源瓷贴抢戏 */
+  P.dateChipHTML = function () {
+    const G = P.G, b = P.balance();
+    const yrs = G.age - b.startAge + 1;
+    return '<div class="topstat"><div class="tsrow tsmeta">' +
+      '<span class="tchip"><span class="tk">日期</span><b>' + P.dateText() + ' · 第 ' + yrs + ' 个年头</b></span>' +
+      '</div></div>';
+  };
+  /* 资金显示分级缩写：随仕途增长宽度恒定，不把瓷贴撑爆/截断 ——
+     < $1M   → "$408k"（千位取整）
+     ≥ $1M   → "$1.23M"（< $10M 两位小数）/ "$12.3M"（≥ $10M 一位小数）
+     ≥ $1B   → "$1.23B"
+     负数带负号；等宽字体 + tabular 数字，位数变化不跳动。 */
+  P.fmtMoney = function (n) {
+    const s = n < 0 ? "-" : "";
+    const v = Math.abs(n);
+    if (v >= 1e9) return s + "$" + (v / 1e9).toFixed(2) + "B";
+    if (v >= 1e6) return s + "$" + (v / 1e6).toFixed(v >= 1e7 ? 1 : 2) + "M";
+    return s + "$" + Math.round(v / 1e3) + "k";
+  };
+  /* 资源瓷贴：声望 / 资金 / 人情 / 把柄（v0.9 把柄回归显示）。
+     小图标 + 名称 + 大号数值，按资源语义着色；bad 时整块转红示警。
+     v0.9.1：把柄数值不再带「份」字（窄栏里 4 枚瓷贴放不下会折行、高度参差）；
+     单位说明移进悬停提示。 */
+  P.resourcesHTML = function () {
+    const G = P.G;
     const esc = function (s) { return String(s).replace(/"/g, '&quot;'); };
-    /* 精简元信息 chip（时代/日期/轨道）——保持轻量文字，不与资源瓷贴抢戏 */
-    const chip = function (k, v, t) {
-      return '<span class="tchip"' + (t ? ' data-tip="' + esc(t) + '"' : '') +
-        '><span class="tk">' + k + '</span><b>' + v + '</b></span>';
-    };
-    /* 资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色；bad 时整块转红示警 */
     const stat = function (k, v, cls, icon, bad, t) {
       return '<span class="stat ' + cls + (bad ? ' bad' : '') + '"' +
         (t ? ' data-tip="' + esc(t) + '"' : '') + '>' +
@@ -214,24 +266,16 @@
     /* 图标用 currentColor 描边/填充，颜色由 .stat 的 --sc 变量决定，风格贴合纸面克制 */
     const ICON = {
       rep:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.1 6.6.6-5 4.4 1.5 6.5L12 16.9 5.9 20.1 7.4 13.6l-5-4.4 6.6-.6z"/></svg>',
-      intg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l7 2.6V12c0 4.3-2.9 7.4-7 9-4.1-1.6-7-4.7-7-9V5.6z"/></svg>',
       fun:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M16.5 6.5H10a3 3 0 000 6h4a3 3 0 010 6H7"/></svg>',
-      hp:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5S4 15.6 4 9.9C4 7.2 6 5.2 8.5 5.2c1.6 0 3 .9 3.5 2 .5-1.1 1.9-2 3.5-2C18 5.2 20 7.2 20 9.9c0 5.7-8 10.6-8 10.6z"/></svg>',
-      ap:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13z"/></svg>',
-      fav:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.4a3.2 3.2 0 010 5.9M18.5 20a5.5 5.5 0 00-2.8-4.6"/></svg>'
+      fav:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.4a3.2 3.2 0 010 5.9M18.5 20a5.5 5.5 0 00-2.8-4.6"/></svg>',
+      lev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l8 8M16 16l2-2M14 18l2-2"/></svg>'
     };
-    const yrs = G.age - b.startAge + 1;
-    /* v0.9：去掉「年代」概念（现在是按绝对年月推进的连续时间轴）与「轨道」（demo 期只一条轨道），
-       顶栏只保留日期。要恢复：把下面两个 chip 加回来即可。 */
-    return '<div class="tsrow tsmeta">' +
-        chip('日期', P.dateText() + ' · 第 ' + yrs + ' 个年头') +
-      '</div>' +
-      '<div class="tsrow statgrid">' +
+    return '<div class="topstat"><div class="tsrow statgrid">' +
         stat('声望', G.rep, 's-rep', ICON.rep, false, '名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。') +
-        stat('资金', '$' + (G.fun / 1000).toFixed(0) + 'k', 's-fun', ICON.fun, false, '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
+        stat('资金', P.fmtMoney(G.fun), 's-fun', ICON.fun, false, '竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。') +
         stat('人情', G.fav, 's-fav', ICON.fav, false, '攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。') +
-      '</div>' +
-      '<div class="tsrow tsoffice">' + P.officeCard() + '</div>';
+        stat('把柄', G.lev, 's-lev', ICON.lev, false, '别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。') +
+      '</div></div>';
   };
 
   /* ---------------- 竞选条（campaign.js 的界面投影） ----------------
@@ -261,18 +305,51 @@
       '</div>';
   };
 
-  /* ---------------- 状态区（v0.8 两栏重构） ----------------
-     顶栏只留游戏级操作后，原本散在「页面顶端 .topstat」+「左栏 .panel」两块的状态信息
-     合并进右栏顶部的 #statusbox，按重要度自上而下：
-       身份条 + 资源瓷贴 + 职位卡（.topstat，按 T0–T5 配色）
-       → 属性 / 派系 / 人脉 / 把柄 / 标签 / 日志（.sb-detail）
-     外壳 .sb.tier-N 供 CSS 按当前层级上色（职位徽标底色 + 状态区左描边）。 */
+  /* ---------------- 状态区（v0.10 组件化流式布局） ----------------
+     状态卡拆成原子块：注册表 P.STATUS_BLOCKS（id → HTML 工厂）+ 布局配置 P.STATUS_LAYOUT。
+     LAYOUT 项两种写法：
+       · 字符串        = 原子块 id，直接渲染；
+       · {cls,items,…} = 一个 flex 块（items 竖排），进 .idc-flow 参与 flex-wrap 自动换行；
+         collapse: "档案" = 该块在窄屏（≤600px）折叠，由 .idc-chip-toggle 展开收起。
+     以后把「人脉」单独挪到基本盘下面、或新增读数块 —— 只改这个数组，不动结构。 */
+  P.STATUS_BLOCKS = {
+    identity:   function () { return '<div class="idc-ident" id="ident">' + P.identityHTML() + '</div>'; },
+    officeProg: function () { return '<div class="idc-officeprog">' + P.officeProgHTML() + '</div>'; },
+    date:       function () { return '<div class="idc-date">' + P.dateText() + '</div>'; },
+    resources:  function () { return P.resourcesHTML(); },
+    officeCard: function () { return P.officeCard(); },
+    attrs:      function () { return P.statusRows().attrs; },
+    tags:       function () { return P.statusRows().tags; },
+    factions:   function () { return P.statusRows().factions; },
+    contacts:   function () { return P.statusRows().contacts; }
+  };
+  P.STATUS_LAYOUT = [
+    { cls: "idc-left",  items: ["identity", "officeProg"] },
+    { cls: "idc-facts", items: ["date", "resources", "officeCard"] },
+    { cls: "idc-chips", items: ["attrs", "tags", "factions", "contacts"], collapse: "档案" }
+  ];
+  P.toggleChips = function (btn) {
+    const box = btn.closest(".idc-chips");
+    if (!box) return;
+    const open = box.classList.toggle("open");
+    btn.textContent = (open ? "收起 ▴" : "档案 ▸");
+  };
   P.statusPanel = function () {
     const G = P.G;
-    return '<div class="sb tier-' + G.tier + '">' +
-      '<div class="topstat">' + P.topStatus() + '</div>' +
+    const render = function (it) {
+      if (typeof it === "string") {
+        const f = P.STATUS_BLOCKS[it];
+        return f ? f() : "";
+      }
+      const inner = it.items.map(render).join("");
+      const toggle = it.collapse
+        ? '<button type="button" class="btn tiny idc-chip-toggle" onclick="POTUS.toggleChips(this)">' + it.collapse + ' ▸</button>'
+        : "";
+      return '<div class="' + (it.cls || "") + '">' + inner + toggle + '</div>';
+    };
+    return '<div class="sb tier-' + G.tier + '"><div class="idc">' +
+      '<div class="idc-flow">' + P.STATUS_LAYOUT.map(render).join("") + '</div>' +
       P.campaignHTML() +
-      '<div class="panel sb-detail">' + P.statusDetailHTML() + '</div>' +
-      '</div>';
+      '</div></div>';
   };
 })();

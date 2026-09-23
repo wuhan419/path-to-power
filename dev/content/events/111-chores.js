@@ -20,11 +20,11 @@ POTUS.define("event", [
 
   /* ================= 基层 T0–2：社区里的人 ================= */
   {
-    id: "chore_eulogy", grade: "minor", category: "govt",
+    id: "chore_eulogy", brief: { lede: "老邻居过世，家属请你这个公职人说两句。", known: ["你手里没有稿子，全靠临场。", "讲一件真事最打动人，也最考验分寸。", "只念标准慰问稳，却显得敷衍。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
     minYear: 1980, maxYear: 1999, medium: ["print", "radio"],
     title: "一位老邻居过世，家人请你致悼词",
-    body: "殡仪馆坐满了人，大多是你在选举夜握过手的老面孔。家属说「您是本地公共服务的人，说两句吧」。你手里没有稿子。",
+    body: "{CITY}的殡仪馆坐满了人，大多是你在选举夜握过手的老面孔。家属说「您是本地公共服务的人，说两句吧」。你手里没有稿子。",
     choices: [
       {
         id: "heart", text: "放下稿子，讲一件你记得的、关于他的真事",
@@ -52,11 +52,11 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_ribbon", grade: "minor", category: "govt",
+    id: "chore_ribbon", brief: { lede: "翻新图书馆开张，志愿者就差一个剪彩的人。", known: ["他们图的不是你讲话，是你到场。", "顺手帮敲募款的门，能把事办实。", "送花篮缺席省事，却冷了现场的心。"], unknown: ["露面是加分，被拍到敷衍则减分。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "社区活动中心翻新剪彩，就差一个剪彩的人",
-    body: "一座翻新的图书馆侧翼要开张，志愿者举着剪刀等你到场。他们不图你说话，图的是「来了，就说明这事被当回事」。",
+    body: "在{PLACE}，一座翻新的图书馆侧翼要开张，志愿者举着剪刀等你到场。他们不图你说话，图的是「来了，就说明这事被当回事」。",
     choices: [
       {
         id: "show", text: "到场剪彩，顺便帮志愿者把募款的门挨家敲开",
@@ -84,11 +84,11 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_beat", grade: "minor", category: "govt",
+    id: "chore_beat", brief: { lede: "警察工会请你「体验一晚夜班巡逻」。", known: ["名义是了解一线，实为给配合者发奖状。", "真跟一条街能听见巷子里的真话。", "婉谢让给同僚不得罪，也丢了这张脸。"], unknown: ["作秀感若被看穿，反而丢了体面。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print"],
     title: "跟夜班巡警走一条街",
-    body: "警察工会照例邀请民意代表「体验一晚巡逻」。理由冠冕：了解一线。实际是工会在给配合它的人发奖状。",
+    body: "{CITY}的警察工会照例邀请民意代表「体验一晚巡逻」。理由冠冕：了解一线。实际是工会在给配合它的人发奖状。",
     choices: [
       {
         id: "walk", text: "真跟着走一条街，听巡警讲巷子里的事",
@@ -116,11 +116,11 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_dispute", grade: "minor", category: "govt",
+    id: "chore_dispute", brief: { lede: "两家邻居为一堵篱笆吵到你办公室。", known: ["一位是拉过票的老住户，一位是新搬来的。", "泡咖啡劝各退一步赌人情。", "翻地契按规矩断赌法理，却伤情面。"], unknown: ["偏了哪头，那头就记你一账。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
     minYear: 1980, maxYear: 1999,
     title: "两家邻居为一堵篱笆吵到你办公室",
-    body: "一位是给你拉过票的老住户，一位是刚搬来的年轻家庭。两家人为几寸地界争得脸红脖子粗，都要你「评评理」。",
+    body: "在{PLACE}，一位是给你拉过票的老住户，一位是刚搬来的年轻家庭。两家人为几寸地界争得脸红脖子粗，都要你「评评理」。",
     choices: [
       {
         id: "mediate", text: "泡两杯咖啡，把两边拉一块儿各退一步",
@@ -149,11 +149,11 @@ POTUS.define("event", [
 
   /* ================= 市政 T2–4：坐进市政厅 ================= */
   {
-    id: "chore_clinic", grade: "minor", category: "govt",
+    id: "chore_clinic", brief: { lede: "每周接待日，一屋子人来讨说法。", known: ["不少人不是要解决，是要有人肯听。", "逐个坐下来能真办成几件，最耗神。", "编成办事指南交助手，省事却远了距离。"], unknown: ["敷衍被看穿，善事也办成怨气。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "选民服务接待日：一屋子人来讨说法",
-    body: "每周的接待日，队伍排到门外：丢了补助的、被税务局缠上的、孩子进不了学区班的。他们不都要你解决问题，要的是「有人肯听」。",
+    body: "每周的接待日，{CITY}的队伍排到门外：丢了补助的、被税务局缠上的、孩子进不了学区班的。他们不都要你解决问题，要的是「有人肯听」。",
     choices: [
       {
         id: "case", text: "一个个坐下来办：打电话、追进度、把事真办成几件",
@@ -182,7 +182,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_budget", grade: "minor", category: "govt",
+    id: "chore_budget", brief: { lede: "要不要花钱修西桥，听证会上各有说法。", known: ["到场有货运工会、沿河商户和桥下住户。", "让每方说完再逐条回应稳，却拖。", "亮方案强推痛快，也得罪慢的人。"], unknown: ["压不住场，一场听证能吵成站队。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print"],
     title: "一场关于是否修补西桥的预算听证",
@@ -214,11 +214,11 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_school", grade: "minor", category: "govt",
+    id: "chore_school", brief: { lede: "小学读报活动，请你上一堂「公民课」。", known: ["一屋十岁孩子，问什么都有可能。", "认真讲透「政府干什么」最出彩。", "只念故事签书省力，也能出好照片。"], unknown: ["童言直问，一句含糊会被学回家。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 5, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "小学的读报活动，请你来上一堂「公民课」",
-    body: "校报小读者活动，老师把你请进教室，让一群十岁孩子问关于「当官」的一切问题。这活儿没风险，却也藏着一张好照片。",
+    body: "{CITY}的校报小读者活动，老师把你请进教室，让一群十岁孩子问关于「当官」的一切问题。这活儿没风险，却也藏着一张好照片。",
     choices: [
       {
         id: "teach", text: "认真上一堂，讲清楚「政府到底是干什么的」",
@@ -247,11 +247,11 @@ POTUS.define("event", [
 
   /* ================= 州级 T4–6：全州巡回 ================= */
   {
-    id: "chore_state_tour", grade: "minor", category: "govt",
+    id: "chore_state_tour", brief: { lede: "州情咨文后一周地方巡回，一天转三个县。", known: ["媒体要标题，党部要人头，你要别累垮。", "笑走每站铺开声量，最耗体力。", "砍两站深扎一处出内容，却失曝光。"], unknown: ["被拍到呵欠连天，巡回反成负报道。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv", "radio"],
     title: "州情咨文后的一周地方巡回",
-    body: "你的一场演讲要落到地方：一天转三个县，剪彩、午餐、圆桌。地方报纸想要标题，县党部想要人头，你自己只想要一张疲惫的脸别被拍到。",
+    body: "你的一场演讲要落到地方：一天转三个县，剪彩、午餐、圆桌。{PUB}想要标题，县党部想要人头，你自己只想要一张疲惫的脸别被拍到。",
     choices: [
       {
         id: "grin", text: "笑脸走完每一站，把话说到每个县的痛点上",
@@ -280,7 +280,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_flood", grade: "minor", category: "govt",
+    id: "chore_flood", brief: { lede: "上游泄洪迟了一步，几个镇被泡了。", known: ["人已撤出，损失要有人看、有人表态。", "赶赴现场赌执行力，也赌镜头前失态。", "坐镇后方催补助，钱实却缺了露面人情。"], unknown: ["去不去都可能错：像作秀，或像缺席。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "上游泄洪，几个镇被泡了",
@@ -314,11 +314,11 @@ POTUS.define("event", [
 
   /* ================= 联邦 T6+：选区服务的国家机器 ================= */
   {
-    id: "chore_casework", grade: "minor", category: "govt",
+    id: "chore_casework", brief: { lede: "联邦办公室的求助信堆成了山。", known: ["选区人把你当「在首都说得上话的人」。", "亲自盯最难的几封易办成，也易打包票。", "成立小组出清单治本，慢却像花架子。"], unknown: ["大话放出去却落空，反成对手弹药。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv", "radio"],
     title: "联邦选区办公室的求助信堆成了山",
-    body: "社保断缴、签证卡壳、退伍军人领不到补助——华盛顿的官僚把普通人卡得死去活来，他们写信找你这位「在首都说得上话的人」。",
+    body: "社保断缴、签证卡壳、退伍军人领不到补助——华盛顿的官僚把普通人卡得死去活来，{CITY}的人写信找你这位「在首都说得上话的人」。",
     choices: [
       {
         id: "fix", text: "把最难的几封亲自盯下来，逼联邦部门给答复",
@@ -347,11 +347,11 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_townhall", grade: "minor", category: "govt",
+    id: "chore_townhall", brief: { lede: "回选区开市民大会，五百人坐满体育馆。", known: ["有人质问，有人只看你还认不认乡音。", "来者不拒逐个答最见坦率，也最易被问倒。", "只讲准备好的三件事稳，却被嫌念稿。"], unknown: ["被本区数字问倒，沉默会被循环播。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 1999, medium: ["tv", "radio", "print"],
     title: "回选区开一场市民大会",
-    body: "体育馆里坐了五百人，麦克风在传，有人质问、有人诉苦、有人纯粹来看你这个「去了华盛顿的人」还认不认老家的口音。",
+    body: "{DISTRICT}的体育馆里坐了五百人，麦克风在传，有人质问、有人诉苦、有人纯粹来看你这个「去了华盛顿的人」还认不认老家的口音。",
     choices: [
       {
         id: "engage", text: "来者不拒，一个一个把话筒下的问题答完",
@@ -380,7 +380,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_vetvisit", grade: "minor", category: "govt",
+    id: "chore_vetvisit", brief: { lede: "退伍军人医院请你「英雄日」露个面。", known: ["他们要联邦的一双耳朵，你要一张握手照。", "真听并带回补助案，赢「靠得住」。", "只讲得体致敬稳，却像走过场。"], unknown: ["当拍照背景被老兵当场说穿，最伤。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "退伍军人医院的一次例行探访",

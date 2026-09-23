@@ -21,29 +21,29 @@ POTUS.define("event", [
    * 1981-03 · 里根遇刺未遂 —— 全国震惊的一枪（低层级也能撞上）
    * ==================================================================== */
   {
-    id: "rg81_shooting", grade: "mid", category: "media",
+    id: "rg81_shooting", photo: "era-1981.jpg", grade: "mid", category: "media",
     valence: "risk", dyn: true,
     minYear: 1981, maxYear: 1981, scoped: true, tierRaw: true, tierMin: 0, tierMax: 3, weight: 12, unique: true,
     medium: ["tv", "radio"], month: 3,
-    title: "直播里响起枪声，总统倒在血泊中",
+    title: "直播里响起枪声，里根总统倒在血泊中",
     body: "离开的车队刚停稳，六枪声从人群里炸开。电视信号切断了正常节目，全国第一次看一场刺杀在直播里发生。\n" +
-      "枪手很快被按倒。总统中弹进医院，而你的电话开始响——本地电视台要你的第一句话。",
+      "枪手小欣克利很快被按倒。里根总统中弹进医院，而你的电话开始响——本地电视台要你的第一句话。",
     brief: {
       lede: "举国错愕的几个钟头里，每一句脱口而出的话都会被录下来、回放很多年。",
       known: [
-        "总统一时半刻生死未卜，白宫新闻秘书语无伦次，宪政继承的传闻已经冒头。",
-        "本地电视台的连线就摆在你面前：他们要一个「本地民意代表」此刻的反应。",
+        "里根生死未卜，白宫发言人语无伦次，继任传闻已经冒头。",
+        "电视台连线就在你面前：他们要「本地民意代表」的即时反应。",
         "你清楚，这个镜头既可能是台阶，也可能是你政治生涯的终点。"
       ],
       rumor: [
-        "有人说枪手是冲着一个女演员去的，与政治无关——真假此刻没人说得清。",
-        "有人说这是对「整个华盛顿软骨头」的一记耳光，私下里竟有人拍手。"
+        "有人说枪手是冲着女演员朱迪福斯特，与政治无关。",
+        "有人说这是对「华盛顿软骨头」的耳光，私下有人拍手。"
       ],
       unknown: [
-        "总统会活下来，而且伤后声望不降反升——此刻还不知道的人包括所有等着落井下石的同僚。",
-        "你今晚这句话，会在二十年后的竞选广告里逐字重播。"
+        "里根会活下来、声望不降反升，无人料到。",
+        "你今晚这句话，二十年后会被逐字重播。"
       ],
-      terms: [{ k: "直播连线", v: "突发事件中电视网实时切入地方政客的采访，是「形象压过文字」时代的第一道考题。" }]
+      terms: [{ k: "直播连线", v: "突发事件中电视实时切入地方政客的采访。" }]
     },
     choices: [
       {
@@ -89,7 +89,7 @@ POTUS.define("event", [
    * 1982 · 失业潮 —— 战后最惨的冬天（基层视角，tierMin:0）
    * ==================================================================== */
   {
-    id: "rg82_unemp", grade: "mid", category: "civil",
+    id: "rg82_unemp", photo: "era-1982.jpg", grade: "mid", category: "civil",
     valence: "bane", dyn: true,
     minYear: 1982, maxYear: 1982, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 12, unique: true,
     medium: ["print", "radio", "tv"], month: 11,
@@ -99,19 +99,19 @@ POTUS.define("event", [
     brief: {
       lede: "当饥饿敲上门，温和的字眼听起来像推诿，激烈的手段又可能砸了饭碗。",
       known: [
-        "厂方说撑不住走了；银行说它按市场办事；只有那几百号人没有任何解释。",
+        "厂说撑不住走了，银行说按市场办事，只几百人没解释。",
         "失业救济要几周才批得下来，中间这几周，人们的餐桌上没有东西。",
         "党部担心闹事上电视，你的选民却只想看见你站到队伍里去。"
       ],
       rumor: [
-        "有人说厂子是被故意抽干资产的，老板早把设备转去了别的州。",
-        "有人说上面已有秘密纾困方案，只差一个「不闹事」的换法。"
+        "有人说厂子被故意抽干资产，老板早转走了设备。",
+        "有人说上面已有秘密纾困方案，只差别闹事。"
       ],
       unknown: [
-        "这轮衰退会持续多久、会不会逼出下一次大松绑——此刻没人知道。",
-        "你今天是对着镜头哭，还是对着厂门砸，会决定十年后他们把你当自己人还是叛徒。"
+        "这轮衰退会持续多久，会不会逼出松绑。",
+        "你对镜头哭还是砸厂门，十年后见分晓。"
       ],
-      terms: [{ k: "失业登记", v: "领取临时失业救济的前置。名额、排队与批款时延，在衰退期能压垮一个本已体面的家庭。" }]
+      terms: [{ k: "失业登记", v: "领失业救济的前置；排队批款常拖很久。" }]
     },
     choices: [
       {
@@ -120,7 +120,7 @@ POTUS.define("event", [
         base: 0.52, mods: [{ src: "fac", key: "base", w: 0.45 }, { src: "attr", key: "CHA", w: 0.3 }],
         cost: { ap: 1 },
         outcomes: {
-          crit: { body: "你带着人逼出了紧急救济，也成了本地「敢挡在别人前面」的名字。工会与街区记你这一份。", effects: { rep: 1.5, fac: { base: 14, labor: 10 }, contact: { union_boss: 8 }, flags: ["labor_champion"] } },
+          crit: { body: "你带着人逼出了紧急救济，也成了本地「敢挡在别人前面」的名字。工会与街区记你这一份。", effects: { rep: 1.5, fac: { base: 14, labor: 10 }, contact: { union_boss: 8, jackson: 6 }, flags: ["labor_champion"] } },
           ok: { body: "你把事闹到了桌上，钱虽不多，人却领你的情。", effects: { rep: 0.8, fac: { base: 8, labor: 5 }, contact: { union_boss: 4 } } },
           meh: { body: "你来了，可除了几张合影什么也没推动。", effects: { rep: 0.2, fac: { base: 3 } } },
           fail: { body: "你带头堵了厂门，却把想复工的人也一起堵在门外，怨气掉头冲你来。", effects: { rep: -1, fac: { base: -6, establishment: -6 } } },
@@ -158,7 +158,7 @@ POTUS.define("event", [
    * 1983-10 · 贝鲁特军营爆炸 —— 战争回到主街（外交/危机）
    * ==================================================================== */
   {
-    id: "rg83_beirut", grade: "mid", category: "foreign",
+    id: "rg83_beirut", photo: "era-1983.jpg", grade: "mid", category: "foreign",
     valence: "bane", dyn: true,
     minYear: 1983, maxYear: 1983, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 11, unique: true,
     medium: ["tv", "radio"], month: 10,
@@ -168,7 +168,7 @@ POTUS.define("event", [
     brief: {
       lede: "一场没人能解释「为什么」的死亡，正变成一道「你支持什么」的必答题。",
       known: [
-        "驻扎任务从调停变成了靶子，国防部至今说不清这支部队到底在执行什么命令。",
+        "驻守从调停变成靶子，国防部说不清这支部队的命令。",
         "阵亡者里有一个来自你选区，家里只是普通工薪，参军是为了学费。",
         "反战与挺战两拨人都想要你一句话。"
       ],
@@ -177,10 +177,10 @@ POTUS.define("event", [
         "有人说这不过是连环爆炸的第一响，后面还有更糟的。"
       ],
       unknown: [
-        "这桩爆炸最终会把美军彻底逐出黎巴嫩，并变成一个持续二十年的阴影——此刻还看不出来。",
-        "你现在怎么回应那位母亲，会被记进本地报，也记进对手的档案。"
+        "这爆炸会把美军逐出黎巴嫩。",
+        "你怎么回应那位母亲，会被两边记着。"
       ],
-      terms: [{ k: "多国部队", v: "1982 年后派驻黎巴嫩的维和部队，1983 年贝鲁特营地爆炸后被迫撤离，是美对外用兵史上的转折点。" }]
+      terms: [{ k: "多国部队", v: "派驻黎巴嫩的维和部队，爆炸后被迫撤离。" }]
     },
     choices: [
       {
@@ -236,18 +236,18 @@ POTUS.define("event", [
       lede: "一场在异国酒店关起门定下的汇率转向，账单与红利最后都落在你选区的车间和田里。",
       known: [
         "美元要贬，出口理论上更划算，可手头的进口原料也会变贵。",
-        "本地一家靠出口的大厂想拉你站台，一家靠进口零件的小厂怕被挤垮。",
+        "本地靠出口的大厂想拉你站台，靠进口的小厂怕被挤垮。",
         "上面把这叫「有序调整」，市面管这叫「美国不再说了算」。"
       ],
       rumor: [
-        "有人说这只是给日本开的第一张支票，后面还要它买更多美国国债。",
-        "有人说汇市操盘手早几个月就知道了风声，钱已被人提前赚走。"
+        "这只是给日本开的第一张支票，还要它买国债。",
+        "汇市操盘手早几个月就知风声，钱被提前赚走。"
       ],
       unknown: [
-        "这次转向会催生日本资产狂潮，多年后炸成一场大萧条——此刻无人预见。",
-        "今天你替谁背书，三年后汇率的账会找上门问你是谁的人。"
+        "这次转向会催生日本资产狂潮。",
+        "你今天替谁背书，三年后汇率会找上门。"
       ],
-      terms: [{ k: "广场协议", v: "1985 年五国同意联合压低美元。它短期改善了美国贸易，却被普遍认为催生了日本泡沫及其后的长期停滞。" }]
+      terms: [{ k: "广场协议", v: "五国联合压低美元，催生了日本泡沫。" }]
     },
     choices: [
       {
@@ -293,29 +293,29 @@ POTUS.define("event", [
    * 1986-01 · 挑战者号 —— 升空七秒（国家哀悼，低层级落点）
    * ==================================================================== */
   {
-    id: "rg86_challenger", grade: "mid", category: "general",
+    id: "rg86_challenger", photo: "rg86_challenger.jpg", grade: "mid", category: "general",
     valence: "risk", dyn: true,
     minYear: 1986, maxYear: 1986, scoped: true, tierRaw: true, tierMin: 0, tierMax: 3, weight: 11, unique: true,
     medium: ["tv", "radio"], month: 1,
     title: "全国的孩子都在教室里看着它升空",
-    body: "发射因天气推迟过一次，终于在一个晴朗的早晨升空。七十三秒后，天空裂成一团白烟。舱里有一位小学教师，全国的孩子本来在直播里看她上课。\n" +
+    body: "发射因天气推迟过一次，终于在一个晴朗的早晨升空。七十三秒后，天空裂成一团白烟。舱里有一位小学教师麦考利夫，全国的孩子本来在直播里看她上课。\n" +
       "学校停课，家长们不知所措，你所在社区的学校董事会希望有人出来说句话。",
     brief: {
       lede: "一场当着全体孩子面的死亡，把「怎么解释」这道题抛给了每一个大人。",
       known: [
-        "事故原因还未查清，NASA 口径混乱，O 形环的传闻已在工程师圈里传开。",
-        "社区里有一位遇难教师的亲属，孩子的同学整天不愿进教室。",
+        "原因未查清，NASA 口径混乱，O 形环传闻在传。",
+        "社区里有遇难教师麦考利夫的亲属，孩子的同学整天不愿进教室。",
         "学校董事会想要一个既有分量又不出错的声音，想到了你。"
       ],
       rumor: [
         "有人说这是官僚的赶工酿成的，早有人发过警告邮件。",
-        "有人说太空计划就此要停摆好几年，本地承包商的日子要难过。"
+        "有人说太空计划要停摆几年，本地承包商日子难过。"
       ],
       unknown: [
-        "调查委员会的结论会动摇公众对政府的信任，而那位教师的遗言式乐观将被反复引用多年。",
-        "你今天怎么对孩子们讲话，会被他们记一辈子，也会被人拿来做政治文章。"
+        "调查结论会动摇公众对政府的信任。",
+        "你怎么对孩子讲话，会被他们记一辈子。"
       ],
-      terms: [{ k: "挑战者号", v: "1986 年 1 月升空 73 秒后解体、七人罹难的航天飞机事故；一名平民教师随行，事故经电视直播举国目睹。" }]
+      terms: [{ k: "挑战者号", v: "航天飞机升空 73 秒后解体，七人遇难。" }]
     },
     choices: [
       {
@@ -361,7 +361,7 @@ POTUS.define("event", [
    *   靠 after/flags 续接：只有前幕演过，后幕才排得出（可断裂的串）。
    * ==================================================================== */
   {
-    id: "rg86_iran_open", grade: "mid", category: "foreign",
+    id: "rg86_iran_open", photo: "era-1986.jpg", grade: "mid", category: "foreign",
     valence: "risk", dyn: true,
     minYear: 1986, maxYear: 1986, scoped: true, tierRaw: true, tierMin: 2, tierMax: 5, weight: 12, unique: true,
     medium: ["print", "tv", "radio"], month: 11,
@@ -373,17 +373,17 @@ POTUS.define("event", [
       known: [
         "这事若属实，绕开了国会的拨款禁令——本身就悬在违法边缘。",
         "旧同僚只给你一句口信，没有任何文件、没有任何签字。",
-        "你若是应下来，将来东窗事发，第一个被问的「本地中间人」就是你。"
+        "你若应下来，事发时头一个被问的就是你这个中间人。"
       ],
       rumor: [
         "有人说人质那边确实有进展，这渠道在悄悄起作用。",
         "也有人说钱根本没去该去的地方，早被几个掮客中饱了。"
       ],
       unknown: [
-        "这会变成一场动摇整个白宫的特大调查——此刻知道内情的还只有几个核心人物。",
-        "你现在是拿不到任何承诺的：功劳是暗的，责任却是明晃晃等着人来查的。"
+        "这会演成动摇整个白宫的大调查。",
+        "功劳是暗的，责任却明晃晃等人来查。"
       ],
-      terms: [{ k: "伊朗门", v: "1980 年代中期美国被曝秘密向伊朗售武、并以所得资金援助尼加拉瓜反政府武装的丑闻，因绕过国会而酿成宪政风波。" }]
+      terms: [{ k: "伊朗门", v: "秘密卖武伊朗、以所得援尼加拉瓜的丑闻。" }]
     },
     choices: [
       {
@@ -425,7 +425,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "rg87_iran_hearings", grade: "major", category: "scandal",
+    id: "rg87_iran_hearings", photo: "rg87_iran_hearings.jpg", grade: "major", category: "scandal",
     valence: "bane", dyn: true,
     minYear: 1987, maxYear: 1987, scoped: true, tierRaw: true, tierMin: 2, tierMax: 6, weight: 14, unique: true,
     medium: ["tv", "print"], month: 7,
@@ -441,14 +441,14 @@ POTUS.define("event", [
         "全国都在看：一个地方人物怎么面对一桩全国丑闻。"
       ],
       rumor: [
-        "有人说核心人物已经开始互相指认，抢先交代的人会被换以轻判。",
+        "有人说核心人物开始互相指认，抢先交代的换轻判。",
         "也有人说这案子最后会不了了之，扛过镜头就是赢家。"
       ],
       unknown: [
-        "特检察官将会一路查到白宫最高层，多少人被定罪尚未可知。",
-        "你此刻的一个字，可能保住政治生命，也可能亲手葬送它。"
+        "特别检察官会一路查到白宫最高层。",
+        "你一个字，就可能保住或葬送政治生命。"
       ],
-      terms: [{ k: "听证直播", v: "重大丑闻中由国会召开、全国电视实况转播的取证听证会，公众第一次可实时见证政客被当面追问。" }]
+      terms: [{ k: "听证直播", v: "国会开、全国直播的取证听证会。" }]
     },
     choices: [
       {
@@ -501,18 +501,18 @@ POTUS.define("event", [
       lede: "全国已经翻篇，你的选区还没。这一回，是你自己去敲门问一句「还能不能算我一个」。",
       known: [
         "丑闻的核心人物或被轻判或被宽免，是非在公众眼里已相当模糊。",
-        "你在链条上的边缘角色，本地人人心里有数，却没人愿意第一个松口。",
+        "你在链上的边缘角色，本地人心里有数，却没人先松口。",
         "党机器正重新洗牌，你上一次的表态会被拿来做今天的价码。"
       ],
       rumor: [
-        "有人说上面准备发一批宽免，被牵连的人很快就能重新体面露面。",
-        "也有人说你这种边缘角色最没人护，出了事第一个被推出去。"
+        "有人说上面准备发一批宽免，被牵连的很快能露面。",
+        "也有说你这种边缘角色没人护，出事第一个被推。"
       ],
       unknown: [
-        "历史最终把这事记成一场「雷声大雨点小」，可你本地的账要现在就结。",
-        "这一局赌的是人心多久会忘——忘了你便是清白，没忘你便是污点。"
+        "历史会淡化，你本地的账却要现在结。",
+        "赌的是人心多久会忘——忘了你便清白。"
       ],
-      terms: [{ k: "宽免", v: "总统对已定罪或待定罪者的赦免。伊朗门中的宽免让许多中层免于追责，却也留下了是非未定的公众印象。" }]
+      terms: [{ k: "宽免", v: "总统对已定罪或待定罪者的赦免。" }]
     },
     choices: [
       {
@@ -548,6 +548,19 @@ POTUS.define("event", [
           fail: { body: "你反咬旧日同僚，被指「叛徒」，圈子两头都不再信你。", effects: { rep: -1.25, fac: { establishment: -8 } } },
           critfail: { body: "你切割太狠，把知情人的嘴一起得罪了。有人决定，要让你说清楚那年究竟做了什么。", effects: { rep: -2, fac: { establishment: -10, press: -6 }, flags: ["scandal_2", "investigation_open"] } }
         }
+      },
+      {
+        id: "mentor", text: "请奥尼尔替你背一句书：「那孩子守得住底线」",
+        note: "只有 1980 年你没跟着浪潮跑、留在原队伍时，才会结识这位铁了心的众议院议长。八年前那份「没跑」，如今换成他为你打的一个电话——可他的面子也有限，用一次少一次。",
+        req: { contact: "oneill" },
+        base: 0.46, mods: [{ src: "fac", key: "establishment", w: 0.35 }, { src: "attr", key: "CHA", w: 0.2 }],
+        outcomes: {
+          crit: { body: "众议院议长奥尼尔只打了一个电话。第二天，本地党机器里最会看风向的人主动约你吃饭——「上面说你还行」。一页尴尬被人脉轻轻翻了过去。", effects: { rep: 1.25, fac: { establishment: 10, base: 4 }, contact: { oneill: 3 }, flags: ["iran_survivor"] } },
+          ok: { body: "他替你说了话，清算的调门当场低了一截。人情记在他账上，你也记在自己心里。", effects: { rep: 0.6, fac: { establishment: 6 }, contact: { oneill: 2 } } },
+          meh: { body: "他的话还剩几分分量，不多，但够让门口那些人对你客气一点。", effects: { rep: 0.2 } },
+          fail: { body: "一个退了位的议长开口护人，反倒被看成「他还在那条线上」。你借的光，成了别人指你的证据。", effects: { rep: -1.2, fac: { press: -6, establishment: -5 }, contact: { oneill: -4 } } },
+          critfail: { body: "你想借旧权威脱身，可他的旧账本身就成了靶子——你们两个被一并写进了同一篇「那个年代的人脉网」。", effects: { rep: -2.2, fac: { press: -10, establishment: -8 }, contact: { oneill: -8 }, flags: ["scandal_1", "investigation_open"] } }
+        }
       }
     ]
   },
@@ -556,7 +569,7 @@ POTUS.define("event", [
    * 1987-10 · 黑色星期一 —— 一天跌掉两成（金融/危机，下行面）
    * ==================================================================== */
   {
-    id: "rg87_monday", grade: "major", category: "crisis",
+    id: "rg87_monday", photo: "rg87_monday.jpg", grade: "major", category: "crisis",
     valence: "bane", dyn: true,
     minYear: 1987, maxYear: 1987, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "print", "radio"], month: 10,
@@ -567,18 +580,18 @@ POTUS.define("event", [
       lede: "市场不讲情面，也不认你的资历；崩盘当天，公众只想要一个能让他们不砸柜台的人。",
       known: [
         "崩盘来得毫无征兆，监管者自己也解释不清原因。",
-        "本地不少选民把养老钱投进了基金，这一跌直接砍掉了他们的退休指望。",
-        "你的选区有一家券商与一家银行，都在等一个「上面有人」发话稳住局面。"
+        "本地不少选民把养老钱投进基金，这跌砍了退休指望。",
+        "你选区有家券商和银行，都在等「上面有人」发话稳局。"
       ],
       rumor: [
         "有人说这只是一个技术性回调，下周就能涨回来。",
-        "也有人说是程序化交易与日元问题引爆的，一场大萧条正开头。"
+        "有人说是程序化交易与日元引爆的，大萧条开头。"
       ],
       unknown: [
-        "央行会迅速注入流动性、市场会在几天内企稳——这是事后才有的结论。",
-        "你此刻的镇定或失态，会被当成你对「金钱与普通人」真实态度的证据。"
+        "央行会迅速注资，市场几天内企稳。",
+        "你此刻镇定还是失态，会被记很久。"
       ],
-      terms: [{ k: "黑色星期一", v: "1987 年 10 月 19 日全球股市单日暴跌，道指一天下挫逾两成，至今仍是金融史上标志性崩盘。" }]
+      terms: [{ k: "黑色星期一", v: "全球股市单日暴跌的标志性崩盘。" }]
     },
     choices: [
       {
@@ -623,7 +636,7 @@ POTUS.define("event", [
    * 1989-11 · 柏林墙倒塌 —— 历史馈赠的机遇面（boon）
    * ==================================================================== */
   {
-    id: "rg89_berlin", grade: "major", category: "foreign",
+    id: "rg89_berlin", photo: "era-1989.jpg", grade: "major", category: "foreign",
     valence: "boon", dyn: true,
     minYear: 1989, maxYear: 1989, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "print"], month: 11,
@@ -633,19 +646,19 @@ POTUS.define("event", [
     brief: {
       lede: "一块天赐的舞台：这是少数几个「只要站着、说人话」就能被历史照亮的时刻。",
       known: [
-        "墙正在被拆，两德走向合并已不可逆转，但统一的节奏与欧洲的反应还未定。",
+        "墙在被拆，两德合并已不可逆，但节奏与欧洲反应未定。",
         "本地东欧裔社区情绪高涨，把你当成「懂他们」的现成面孔。",
         "电视台在找各地的「反应镜头」，机会明晃晃摆在那里。"
       ],
       rumor: [
-        "有人说苏联会像往年一样派坦克回场，此刻的欢庆可能转眼成血。",
+        "有人说苏联会像往年派坦克回场，欢庆转眼成血。",
         "也有人说这一切不过是表演，铁幕背后的人还在掌权。"
       ],
       unknown: [
-        "苏联会在两年内解体，这场胜利叙事将定义整整一代人的对外政策。",
-        "谁抢在这个节点说对了话，谁的形象就会被焊进这段历史里。"
+        "苏联两年内解体，胜利叙事定义一代人。",
+        "谁在这节点说对话，就被焊进这段历史。"
       ],
-      terms: [{ k: "柏林墙", v: "1961 年筑起、隔开东西柏林的边墙；1989 年 11 月 9 日在大规模和平抗议与一次通告失误中被开放，成为冷战终结的象征。" }]
+      terms: [{ k: "柏林墙", v: "隔开东西柏林的边墙，1989 年被开放。" }]
     },
     choices: [
       {
@@ -688,7 +701,7 @@ POTUS.define("event", [
    * 1990-08 · 海湾危机 —— 萨达姆吞下科威特（外交/战争前夜）
    * ==================================================================== */
   {
-    id: "rg90_gulf", grade: "major", category: "foreign",
+    id: "rg90_gulf", photo: "era-1990.jpg", grade: "major", category: "foreign",
     valence: "risk", dyn: true,
     minYear: 1990, maxYear: 1990, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "radio", "cable"], month: 8,
@@ -704,13 +717,13 @@ POTUS.define("event", [
       ],
       rumor: [
         "有人说这是一场速战速决，打完就能收兵。",
-        "也有人说这是另一个泥潭的开始，会一停再停、拖成一场消耗。"
+        "也有人说这是另一个泥潭的开始，会拖成消耗。"
       ],
       unknown: [
-        "联盟会空前庞大、正面战争会很快，但战后的泥潭与长期驻留才刚刚开始。",
-        "你现在押哪一边，会决定你是「看得清的人」还是「跟着人流反悔的人」。"
+        "正面战争会很快，战后泥潭才刚开始。",
+        "你现在押哪边，是看清还是随大流。"
       ],
-      terms: [{ k: "海湾危机", v: "1990 年 8 月伊拉克入侵科威特引发的国际危机，随即招致以美国为首的多国部队集结，翌年初爆发海湾战争。" }]
+      terms: [{ k: "海湾危机", v: "1990 年伊拉克吞并科威特引发的危机。" }]
     },
     choices: [
       {
@@ -755,29 +768,29 @@ POTUS.define("event", [
    * 1984-11 · 「月亮竞选」—— 一场碾压式连任把全国版图重画
    * ==================================================================== */
   {
-    id: "rg84_landslide", grade: "mid", category: "political",
+    id: "rg84_landslide", photo: "era-1984.jpg", grade: "mid", category: "political",
     valence: "risk", dyn: true,
     minYear: 1984, maxYear: 1984, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 12, unique: true,
     medium: ["tv", "print", "radio"], month: 11,
     title: "「月亮竞选」：谁都想像月亮一样借光",
-    body: "经济回暖、人质回国、对手自乱阵脚。那位前演员眼看要拿下四十几个州连任，共和党连带扫下一大批席位——媒体管这叫「月亮竞选」。\n" +
+    body: "经济回暖、人质回国、对手自乱阵脚。里根眼看要拿下四十几个州连任，共和党连带扫下一大批席位——媒体管这叫「月亮竞选」。\n" +
       "顺风里，党部催你上台站台，捐主要你上桌分席位，连对手都在清算自问。浪潮能把人托起来，也能把押错了边的人一起埋进沙里。",
     brief: {
       lede: "在一场不属于你的海啸里，什么时候站、站到哪儿，比这一局赢不赢更要命。",
       known: [
-        "民调一边倒，胜局几乎已定；真正悬而未决的是它能带走多少个「顺带当选」的名字。",
-        "党部要你出席一连串联演，上头在盘算把哪些位置分给这次出力的人。",
+        "民调一边倒，胜局已定；悬着的是它能带走多少「顺带当选」。",
+        "党部要你出席一连串联演，上头在盘算把哪些位置分给出力的人。",
         "你清楚借来的光不是自己的光——潮水退了，谁在裸泳一目了然。"
       ],
       rumor: [
-        "有人说这股风顶多再吹两年，第二任期的麻烦已经在路上。",
-        "有人说只要你现在把招牌押上去，下一轮分蛋糕就有你一份。"
+        "有人说这股风顶多再吹两年，第二任期麻烦已在路上。",
+        "有人说你现在把招牌押上去，下轮分蛋糕就有你一份。"
       ],
       unknown: [
-        "这场横扫会在两年后变成「里根之后」的权力真空，被借光上位的人有不少会被一并清算。",
-        "你今天蹭上去的名字，将来会被对手当成「他自己什么都没赢过」的证据。"
+        "两年后这场横扫会变成权力真空。",
+        "你的名字会被当成什么都没赢过的证据。"
       ],
-      terms: [{ k: "月亮竞选", v: "指候选人借一股全国性浪潮「顺带」当选的现象；浪潮有多大，退得就有多狠——被带上来的人往往也最先被冲走。" }]
+      terms: [{ k: "月亮竞选", v: "借全国浪潮顺带当选；潮退时最先被冲走。" }]
     },
     choices: [
       {
@@ -803,6 +816,19 @@ POTUS.define("event", [
           fail: { body: "两头的风头都没你的份，有人说你「连站哪边都不敢说」。", effects: { rep: -0.15, fac: { establishment: -2 } } },
           critfail: { body: "你谁也没帮，等来的不是感激，是两边都把你当成了「靠不住的人」。", effects: { rep: -0.3, fac: { base: -2 } } }
         }
+      },
+      {
+        id: "host", text: "自掏腰包办一场捐款晚宴，把全国的风请到自己桌上",
+        note: "办局的人天生是局里的头一份——但这顿要花一大笔，钱不到位的人只能站在门外陪笑。",
+        base: 0.68, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "commercial", w: 0.2 }],
+        cost: { fun: 3 },
+        outcomes: {
+          crit: { body: "一桌人后来都成了「那顿饭上认识的」，你的名字和这股风绑得最紧，分席位时先问你。", effects: { rep: 1.5, fac: { establishment: 12, commercial: 6, base: 3 }, flags: ["reagan_belt"] } },
+          ok: { body: "晚宴办得齐整，党部把你当成「能攒局的人」，下次有位置先想到你。", effects: { rep: 0.7, fac: { establishment: 7, commercial: 3 } } },
+          meh: { body: "钱花了，菜凉了，该来的人没来几个，只落一句「他还挺热心」。", effects: { rep: 0.1, fac: { commercial: 2 } } },
+          fail: { body: "这场晚宴被说成「拿公众的钱给自己贴金」，捐款人没记下你的好。", effects: { rep: -0.8, fac: { press: -4, establishment: -3 } } },
+          critfail: { body: "宴席的账单和落选者的合影一起被翻出来，你成了「浪潮里最会给自己脸上贴金的那个」。", effects: { rep: -1.6, fac: { press: -6, base: -4 }, flags: ["scandal_1"] } }
+        }
       }
     ]
   },
@@ -811,29 +837,29 @@ POTUS.define("event", [
    * 1988-11 · 大选交接 —— 「里根之后」的第一把火
    * ==================================================================== */
   {
-    id: "rg88_election", grade: "mid", category: "political",
+    id: "rg88_election", photo: "era-1988.jpg", grade: "mid", category: "political",
     valence: "risk", dyn: true,
     minYear: 1988, maxYear: 1988, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 12, unique: true,
     medium: ["tv", "print", "radio"], month: 11,
     title: "总统两届将满，继任之争把整个党撕成两半",
-    body: "总统任期已满，继任之争把整个党撕成两半：一边要「延续」，一边要「翻新」。对手那边，一位南方州长把话讲得又软又稳。\n" +
+    body: "总统任期已满，继任之争把整个党撕成两半：举着里根大旗、要「延续」的副总统布什，对上要「翻新」的党内挑战者。对手那边，马萨诸塞州长杜卡基斯把话讲得又软又稳。\n" +
       "你这一层的人被迫选边。这场选举没有里根的光环罩着，赌错了方向，再没人替你兜底。",
     brief: {
       lede: "浪潮退去的头一场选举，比的不是谁嗓门大，是谁在风向未明时押对了注。",
       known: [
-        "现任的声望尚在高位，但继任者是谁、路线要不要变，党内自己先打了起来。",
+        "里根声望尚高，但接班的是谁、路线要不要变，党内先打了起来。",
         "对手把「和平与繁荣」挂在嘴边，试图把八年的功劳一并接过去。",
         "地方一级没人再能白搭顺风车，每一票都得自己挣。"
       ],
       rumor: [
-        "有人说这将是「一代人的接力」，跟着接班的人能吃到整整八年红利。",
-        "也有人说风向说变就变，现在跳上赢面那一边，两年后可能全成负资产。"
+        "有人说这是「一代人的接力」，跟着能吃到八年红利。",
+        "也有说风向说变就变，现在跳赢面两年后成负资产。"
       ],
       unknown: [
-        "这场交接会留下一个「什么都变了一点、又什么都没变」的局面，而经济在两年后就要转向。",
-        "你在这一局里的站队和打法，会被记成你到底是「有主张」还是「只会跟风」。"
+        "这场交接留下「什么都没变」的局面。",
+        "你这局的站队，是有主张还是只会跟风。"
       ],
-      terms: [{ k: "继任之争", v: "现任不能连任时，党内围绕「延续还是翻新」路线展开的接班争夺；地方政客往往被迫提前选边。" }]
+      terms: [{ k: "继任之争", v: "现任不能连任时，党内围绕接班路线的争夺。" }]
     },
     choices: [
       {
@@ -842,8 +868,8 @@ POTUS.define("event", [
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "fac", key: "base", w: 0.2 }],
         stake: { fun: true },
         outcomes: {
-          crit: { body: "你操盘的几记负面拳精准又不脏，选后论功行赏，你的名字进了「懂打仗」的小圈子。", effects: { rep: 1.25, fac: { establishment: 8, base: 4 } } },
-          ok: { body: "你打的牌见效了，虽不漂亮，却替一边抢下了关键几州。", effects: { rep: 0.4, fac: { establishment: 4 } } },
+          crit: { body: "你操盘的几记负面拳精准又不脏，选后论功行赏，你的名字进了「懂打仗」的小圈子。", effects: { rep: 1.25, fac: { establishment: 8, base: 4 }, contact: { atwater: 6 } } },
+          ok: { body: "你打的牌见效了，虽不漂亮，却替一边抢下了关键几州。", effects: { rep: 0.4, fac: { establishment: 4 }, contact: { atwater: 3 } } },
           meh: { body: "你的负面牌打得不痛不痒，反被对手借「团结」一句拉了回去。", effects: { rep: -0.3 } },
           fail: { body: "你操盘的一条黑料被证实是假的，火全烧到你身上——「是他授意的」。", effects: { rep: -1.25, fac: { press: -6, establishment: -4 }, flags: ["scandal_1"] } },
           critfail: { body: "伪造黑料、暗中操盘的事被掀了个底朝天。你从「竞选功臣」变成「调查对象」。", effects: { rep: -2, fac: { press: -8, establishment: -6 }, flags: ["scandal_2", "investigation_open"] } }
@@ -858,6 +884,19 @@ POTUS.define("event", [
           meh: { body: "这轮选举的喧嚣里没有你的声音，也没人记得黑你。", effects: {} },
           fail: { body: "两边打完回头都嫌你「选边选得太晚」。", effects: { rep: -0.15, fac: { establishment: -2 } } },
           critfail: { body: "你不肯碰脏活，却被自己支持的那一边当成「不肯出力的人」，悄悄划进了冷宫。", effects: { rep: -0.3, fac: { establishment: -2 } } }
+        }
+      },
+      {
+        id: "callins", text: "动用攒下的人情，请本地与教会的老朋友替这仗站台",
+        note: "平时攒的人情，就在这种时候变现：几张老脸能把一场冷仗焐热。可人情是花一件少一件的硬账——没攒够的人，开不了这个口。",
+        base: 0.64, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "base", w: 0.25 }],
+        cost: { fav: 3 },
+        outcomes: {
+          crit: { body: "你挨个拨通了那几本旧号码，基层与教堂的人为你站了出来——这股不靠钱的劲头，反比脏活更得人心。", effects: { rep: 1.3, fac: { base: 10, church: 4 }, voters: { warm: 400 } } },
+          ok: { body: "几个人情换来了几句真心的背书，你这一方稳住了阵脚。", effects: { rep: 0.6, fac: { base: 5 }, voters: { warm: 150 } } },
+          meh: { body: "你张了口，响应的人不多，场面没崩也没靠你翻盘。", effects: { rep: 0.1 } },
+          fail: { body: "你借的人情没兜住场，反倒欠下一笔「关键时刻不中用」的账。", effects: { rep: -0.6, fac: { base: -4 } } },
+          critfail: { body: "你四处求人的样子被对手拍成「他自己没人脉，还得靠别人施舍」，人情与名声一起见了底。", effects: { rep: -1.4, fac: { press: -4, base: -3 } } }
         }
       }
     ]
@@ -883,14 +922,14 @@ POTUS.define("event", [
         "有同僚已被传唤，名单上的下一个是谁没人敢说。"
       ],
       rumor: [
-        "有人说上面打算拿几个「边缘挂名的人」开刀交差，好保住真正的大鱼。",
+        "有人说上面要拿几个边缘挂名的开刀，保住大鱼。",
         "也有人说只要退钱就能了事，不会真有人进去。"
       ],
       unknown: [
-        "这场危机的最终账单由全体纳税人埋单，而追责的尺度和落点，取决于谁先被推出去。",
-        "你现在是主动切割、还是死扛、还是先退为敬，会决定档案袋最后合上还是打开。"
+        "账单由纳税人埋，追责看谁先被推出去。",
+        "你切割、死扛还是先退，档案袋合或开。"
       ],
-      terms: [{ k: "储贷危机", v: "1980 年代放松监管后大量储贷机构投机倒闭，酿成由联邦与纳税人兜底、并引发持续追责的重大金融丑闻。" }]
+      terms: [{ k: "储贷危机", v: "储贷投机倒闭，由纳税人兜底的丑闻。" }]
     },
     choices: [
       {
@@ -931,6 +970,285 @@ POTUS.define("event", [
         }
       }
     ]
+  },
+
+  /* ======================================================================
+   * 1980-04 · 鹰爪行动 —— 沙漠里的爆炸与举国的屈辱（1980 串·前奏）
+   * ==================================================================== */
+  {
+    id: "rg80_eagleclaw", grade: "mid", category: "foreign",
+    valence: "risk", dyn: true,
+    minYear: 1980, maxYear: 1980, scoped: true, tierRaw: true, tierMin: 0, tierMax: 3, weight: 12, unique: true,
+    medium: ["tv", "radio", "print"], month: 4,
+    title: "救人质行动在沙漠里烧成火球，八个人没能回来",
+    body: "德黑兰扣押美国人质已过半年。深夜突袭的直升机与运输机在沙漠集结点相撞起火，八名军人葬身异域的沙丘——行动还没碰上人质就已失败。\n" +
+      "电视反复播放燃烧的残骸，举国憋了半年的窝囊气一夜点燃。本地也有一户人家刚接到阵亡通知书——你可以去敲那扇门，也可以装作没这回事。",
+    brief: {
+      lede: "一场当众演砸的营救，把「我们是不是不行了」摆到每个客厅的茶几上。",
+      known: [
+        "五十余名美国人仍被扣在德黑兰，营救失败后连谈判都更像话柄。",
+        "八名阵亡者里有本地子弟，媒体正追着要一个「代表地方」的声音。",
+        "白宫把失败归咎于沙尘与机械故障，可没几个人信服。"
+      ],
+      rumor: [
+        "有人说行动太冒险，是替政治日程硬凑的。",
+        "有人说气象与协调的隐患早被察觉，为抢功瞒下。"
+      ],
+      unknown: [
+        "人质问题会成笼罩大选的阴影。",
+        "你对那户人家的姿态，街坊会记很多年。"
+      ],
+      terms: [{ k: "人质危机", v: "伊朗学生占美国使馆扣人质；营救惨败。" }]
+    },
+    choices: [
+      {
+        id: "condole", text: "登门慰问阵亡者家属，把话说到实处，不碰白宫的是非",
+        note: "最稳：哀悼不会出错，但也借不到「强硬」的光。",
+        base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
+        outcomes: {
+          crit: { body: "你在客厅里陪着那家人红了眼眶，没说一句场面话。本地记住「那种时候他真来了」。", effects: { rep: 1.2, fac: { base: 8, church: 4 } } },
+          ok: { body: "你得体地致意、默默帮忙，家属领你的情。", effects: { rep: 0.5, fac: { base: 5 } } },
+          meh: { body: "你去了，说了几句，谁都没特别记下。", effects: { rep: 0.1 } },
+          fail: { body: "你把慰问走成了竞选拜票，被家属当面问「你是来看他的还是来拉票的」。", effects: { rep: -0.4, fac: { press: -3 } } },
+          critfail: { body: "你在灵堂边接了个电话谈笑，照片上了本地报。", effects: { rep: -1, fac: { press: -5, base: -3 } } }
+        }
+      },
+      {
+        id: "hawk", text: "借这股屈辱喊话：要更强硬，把军事选项摆上台面",
+        note: "赌民意爱「硬气」；可一旦真升级出事，你推的每一把都在账上。",
+        base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "fac", key: "base", w: 0.2 }],
+        stake: { ap: true },
+        outcomes: {
+          crit: { body: "你在本地电台一句「不能再这样被人骑在头上」被反复转发，鹰派把你当成敢讲的自己人。", effects: { rep: 1.1, fac: { base: 8, military: 5 }, voters: { warm: 300 } } },
+          ok: { body: "你喊出了不少人的闷气，也被另一部分人记了脸。", effects: { rep: 0.4, fac: { base: 4 } } },
+          meh: { body: "此刻全国只想先救回人，你的喊话显得空洞。", effects: { rep: -0.2 } },
+          fail: { body: "在举国哀伤里你鼓噪开战，报上把你写成「拿死人的血要热度」。", effects: { rep: -1, fac: { press: -5, church: -4 } } },
+          critfail: { body: "你一句「早该炸平那里」被人逐字重播，连温和派都跟你划清界限。", effects: { rep: -1.6, fac: { press: -6, establishment: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "blame", text: "把矛头对准白宫的决策混乱，公开问责这场灾难性行动",
+        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.4 }],
+        outcomes: {
+          crit: { body: "你引经据典点出程序与情报的漏洞，被本地报夸成「少数敢讲清问题在哪的人」。", effects: { rep: 0.8, fac: { press: 5, base: 3 }, attr: { INT: 2 } } },
+          ok: { body: "你挑出了真问题，虽得罪人，也显出分量。", effects: { rep: 0.2, attr: { INT: 1 } } },
+          meh: { body: "你说了些技术性的批评，没多少人听得进去。", effects: { rep: -0.2 } },
+          fail: { body: "你追着白宫骂，被人反问「你有什么更好的办法」，答不上来。", effects: { rep: -0.9, fac: { establishment: -5 } } },
+          critfail: { body: "你越界甩出没证据的内幕指控，反被指为造谣。", effects: { rep: -1.5, fac: { establishment: -6, press: -4 }, flags: ["scandal_1"] } }
+        }
+      }
+    ]
+  },
+
+  /* ======================================================================
+   * 1980-11 · 里根当选 —— 保守主义回潮的分水岭（1980 串·爆发）
+   * ==================================================================== */
+  {
+    id: "rg80_election", photo: "era-1980.jpg", grade: "major", category: "political",
+    valence: "risk", dyn: true,
+    minYear: 1980, maxYear: 1980, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 14, unique: true,
+    medium: ["tv", "radio", "print"], month: 11,
+    after: { id: "rg80_eagleclaw", minMonthsAfter: 5 },
+    title: "「你比五年前过得更好吗？」——一句话改写了政治版图",
+    body: "一句大白话问进千家万户的客厅，卷走四十几个州，共和党几十年头一回夺回参议院，「沉默的大多数」第一次被点名为一支力量。\n" +
+      "潮水转向的夜里，本地两拨人都在等你表态：一拨急着跟新浪潮搭话，一拨要你守住原来的队伍。你站哪边，未来十年的资源就从哪边流向你。",
+    brief: {
+      lede: "一场不关政策、只关情绪的选举。读懂浪头的人，会跟着一起涨起来。",
+      known: [
+        "通胀、人质、失败的营救，早把卡特支持率拖穿。",
+        "里根以演员亲和力横扫电视，保守派正聚成新力量。",
+        "本地党机器分裂：建制想对冲，基层想跟上。"
+      ],
+      rumor: [
+        "有人说这不过又是一代人厌倦了，四年后就会转回去。",
+        "有人说这是真正的版图重画，一画就是二十年。"
+      ],
+      unknown: [
+        "这股联盟将重塑此后十年的议程。",
+        "你转向之夜押的边，是最显眼的一笔。"
+      ],
+      terms: [{ k: "政治版图重组", v: "里根当选，保守派与宗教右翼结成新联盟。" }]
+    },
+    choices: [
+      {
+        id: "bandwagon", text: "顺势靠拢新联盟：给崛起的浪潮递话、排队",
+        note: "赌这一波要执政十几年。押对一步登天，押错你就是党内那个「见风使舵」的。",
+        base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "base", w: 0.2 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你踩准了浪头，一夜之间从边缘人变成「新联盟里有头脸的人」，捐款与引荐都顺着这条线来。", effects: { rep: 1.5, fac: { establishment: 8, base: 6 }, lev: 1, contact: { atwater: 5 }, flags: ["reagan_belt"] } },
+          ok: { body: "你及时靠了过去，新朝的人记下了你的名字。", effects: { rep: 0.7, fac: { establishment: 6 }, flags: ["reagan_belt"] } },
+          meh: { body: "你递了话，可浪头没给你留位置。", effects: { rep: 0.1 } },
+          fail: { body: "你押错了本地的盘子，新盟友嫌你来得晚，老同僚骂你是叛徒。", effects: { rep: -1, fac: { establishment: -6, base: -4 } } },
+          critfail: { body: "你冲在最前替浪潮摇旗，浪潮却在本地输个精光，你被两头一起扫地出门。", effects: { rep: -1.8, fac: { base: -8, establishment: -6 }, flags: ["party_traitor"] } }
+        }
+      },
+      {
+        id: "hold", text: "留在原队伍：守住基本盘，不做墙头草",
+        base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
+        outcomes: {
+          crit: { body: "潮退之后你还站在原地，苦主们都认得你这份「没跑」。你在废墟里攒下了最硬的人情。", effects: { rep: 1, fac: { base: 8 }, contact: { oneill: 5 }, flags: ["loyal"] } },
+          ok: { body: "你没跟风向跑，基层记你的稳。", effects: { rep: 0.4, fac: { base: 4 }, flags: ["loyal"] } },
+          meh: { body: "你守住了队伍，可队伍正在散。", effects: {} },
+          fail: { body: "守的是输的一方，资源从此绕着你走。", effects: { rep: -0.7, fac: { establishment: -4 } } },
+          critfail: { body: "你既没跟上新局、又守不住旧盘，两头都觉得你没用。", effects: { rep: -1.5, fac: { base: -6, establishment: -4 } } }
+        }
+      },
+      {
+        id: "localist", text: "不押全国赌注：只谈本地的事，谁赢都照样办事",
+        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
+        outcomes: {
+          crit: { body: "你不掺和全国的风，专心把本地的水电气理顺——两拨人都还得来求你办事。", effects: { rep: 0.8, fac: { establishment: 4, base: 4 } } },
+          ok: { body: "你谁也没得罪，也谁都没深交。", effects: { rep: 0.3 } },
+          meh: { body: "你躲开了这轮站队，安稳无波。", effects: { rep: 0.1 } },
+          fail: { body: "风向大变时你「中立」成了「没担当」的代名词。", effects: { rep: -0.4 } },
+          critfail: { body: "谁赢了都没把你当自己人——机会来了也绕开你。", effects: { rep: -1, fac: { press: -4 } } }
+        }
+      },
+      {
+        id: "purse", text: "开一张大支票，直接坐进新联盟的筹建桌",
+        note: "钱能买来入场券：一步站到浪潮最前排。但要真金白银掏出去——家底不厚的人连门都进不去，只能眼看别人上桌。",
+        base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.25 }, { src: "fac", key: "commercial", w: 0.3 }],
+        cost: { fun: 3 },
+        outcomes: {
+          crit: { body: "你把第一笔大钱拍了上桌，「新联盟里出钱的那几个」名单当场添了你一个名字，全国的操盘手主动递来名片。", effects: { rep: 1.4, fac: { establishment: 12, commercial: 6 }, contact: { atwater: 6 }, flags: ["reagan_belt"] } },
+          ok: { body: "支票换来了入场券，庆功宴上你坐进主桌，名字被正式念了出来。", effects: { rep: 0.7, fac: { establishment: 7, commercial: 3 }, contact: { atwater: 3 }, flags: ["reagan_belt"] } },
+          meh: { body: "钱花了，浪头却没给你留位子，只换来一张边角合影。", effects: { rep: 0.1 } },
+          fail: { body: "你砸了重金，本地却翻了盘，钱打了水漂，还被老同僚笑「人傻钱多」。", effects: { rep: -0.6, fac: { establishment: -3, base: -4 } } },
+          critfail: { body: "一张大支票买了个「只会用钱砸」的名声，风头过后两头不认你，家底也见了底。", effects: { rep: -1.2, fac: { base: -6, press: -4 } } }
+        }
+      }
+    ]
+  },
+
+  /* ======================================================================
+   * 1986-04 · 空袭的黎波里 —— 越境打击与战争权之辩（中期补强）
+   * ==================================================================== */
+  {
+    id: "rg86_libya", grade: "mid", category: "foreign",
+    valence: "risk", dyn: true,
+    minYear: 1986, maxYear: 1986, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 11, unique: true,
+    medium: ["tv", "radio", "print"], month: 4,
+    title: "战机越过大西洋，把炸弹丢到的黎波里",
+    body: "柏林一家夜总会爆炸、死了美军士兵，华盛顿指认是卡扎菲策动，深夜空袭的黎波里与班加西，还炸死了卡扎菲的养女。全国直播里，第一次有人把「报复」二字说得这么直接。\n" +
+      "国会吵翻了：总统能不能不宣而战？本地派出去的兵，此刻正从海外基地起飞。你被记者堵在门口，要一句表态。",
+    brief: {
+      lede: "一场受欢迎的空袭，和一场关于「谁有权开战」的宪政追问，同时压到你面前。",
+      known: [
+        "多数民众当晚拍手叫好，觉得终于有人「硬了一回」。",
+        "批评者说这绕过国会、开了危险先例，也把海外人质置于报复风险。",
+        "本地有家庭的孩子就在参战部队里，他们只想他平安回来。"
+      ],
+      rumor: [
+        "有人说真正的目标是卡扎菲本人，这次是暗杀未遂。",
+        "有人说醉翁之意在秀肌肉，国内政治才是主场。"
+      ],
+      unknown: [
+        "报复会不会招来针对美国人的连环袭击。",
+        "你今晚站哪边，会跟你很久。"
+      ],
+      terms: [{ k: "战争权", v: "宣战权归国会、统帅权归总统的权限之争。" }]
+    },
+    choices: [
+      {
+        id: "back", text: "公开支持空袭：该还手时就还手",
+        base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "fac", key: "base", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你在镜头前的硬气正对上当晚的民意，被人当成「不怯场」的代表。", effects: { rep: 1.1, fac: { base: 6, military: 5 } } },
+          ok: { body: "你顺着民意站了台，掌声不少。", effects: { rep: 0.5, fac: { base: 3 } } },
+          meh: { body: "你说支持，语气平淡，没人特别记得。", effects: { rep: -0.1 } },
+          fail: { body: "随后针对美国人的报复性袭击上了新闻，有人翻出你当初鼓吹的「硬」。", effects: { rep: -0.9, fac: { press: -4 } } },
+          critfail: { body: "死难者名单越拉越长，你的名字和「把孩子们送上战场」被并排写进社论。", effects: { rep: -1.6, fac: { press: -6, church: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "warpowers", text: "质疑程序：总统不能不宣而战",
+        base: 0.42, mods: [{ src: "attr", key: "INT", w: 0.45 }],
+        outcomes: {
+          crit: { body: "在一片叫好里你稳住了讲宪政，事后被证明是把住了分寸，法律与舆论圈都记住你。", effects: { rep: 1, fac: { press: 5, establishment: 4 }, attr: { INT: 2 } } },
+          ok: { body: "你提出了正当的程序质疑，虽不合时宜，也显出骨头。", effects: { rep: 0.3, attr: { INT: 1 } } },
+          meh: { body: "你的程序论太书生气，爱国声浪一浪高过一浪。", effects: { rep: -0.3 } },
+          fail: { body: "在举国同仇的空气里你谈「程序」，被骂成拆自己的台。", effects: { rep: -1.1, fac: { base: -6 } } },
+          critfail: { body: "你被扣上「替对手说话」的帽子，对手把它裱起来挂进了竞选广告。", effects: { rep: -2, fac: { base: -8, press: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "personal", text: "只谈派出去的本地球：把孩子平安带回家",
+        base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "military", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你不谈大道理，只惦记那几家等信的父母——这份朴素最得人心，军属社区把你当自己人。", effects: { rep: 0.9, fac: { base: 5, military: 4 } } },
+          ok: { body: "你把镜头引向具体的人和家庭，稳妥又有人情。", effects: { rep: 0.4 } },
+          meh: { body: "你说的是家长里短，没蹭到热度，也没出错。", effects: { rep: 0.1 } },
+          fail: { body: "有人嫌你「只顾自己那几户」，不像个谈国事的人。", effects: { rep: -0.4 } },
+          critfail: { body: "就在你说「平安回来」的当口，第二拨伤亡的名单传到本地，你显得不合时宜。", effects: { rep: -1, fac: { press: -4 } } }
+        }
+      }
+    ]
+  },
+
+  /* ======================================================================
+   * 1987-06 · 推倒这堵墙 —— 勃兰登门前的一句喊话（冷战高点）
+   * ==================================================================== */
+  {
+    id: "rg87_wall", grade: "major", category: "foreign",
+    valence: "risk", dyn: true,
+    minYear: 1987, maxYear: 1987, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
+    medium: ["tv", "radio", "print"], month: 6,
+    title: "总统隔着一堵墙喊话：「把它拆了」",
+    body: "勃兰登堡门前，美国总统对着墙那头的对手点名喊话，要他「推倒这道墙」。全球镜头齐刷刷对准冷战最硬的伤疤，现场还有反核示威的喊声一度盖过演讲。\n" +
+      "一边是军控谈判正悄悄加速，一边是鹰派为这句话热血沸腾。本地电视台又要你那一句：这是勇气，还是拿和平冒险的逞口舌之快？",
+    brief: {
+      lede: "一句话把冷战的走向摆上台面——你可能在为终局欢呼，也可能在替一场误判背书。",
+      known: [
+        "墙那头刚上来一位年轻的改革者，说话方式与前任不同。",
+        "同一年，削减欧洲中程核武器的秘密谈判正在推进。",
+        "反核运动仍能让几座城市的街头水泄不通。"
+      ],
+      rumor: [
+        "有人说这话其实是讲给国内选民听的，外交效果存疑。",
+        "有人说对方若不让步，这话会被当成挑衅宣传。"
+      ],
+      unknown: [
+        "这墙两年后会自己倒塌，此刻没人敢信。",
+        "你今日的话，历史转弯时才见高下。"
+      ],
+      terms: [{ k: "勃兰登堡门", v: "柏林墙旁象征冷战的地标；里根在此喊话。" }]
+    },
+    choices: [
+      {
+        id: "echo", text: "高声呼应：这才是自由世界该有的硬气",
+        base: 0.48, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你把这句喊话接成本地的口号，保守阵营一致认你是「站得正的人」，党内资源开始向你倾斜。", effects: { rep: 1.4, fac: { establishment: 7, base: 5 }, flags: ["cold_hawk"] } },
+          ok: { body: "你顺势为强硬叫好，鹰派记你一功。", effects: { rep: 0.6, fac: { establishment: 4 }, flags: ["cold_hawk"] } },
+          meh: { body: "你附和了一句，谁都没往心里去。", effects: { rep: -0.1 } },
+          fail: { body: "缓和最终成了主旋律，你的高亢显得刺眼而时过境迁。", effects: { rep: -1, fac: { press: -4 } } },
+          critfail: { body: "军控协议签署那天，你当初「绝不妥协」的录音被人翻出来当反面教材。", effects: { rep: -1.7, fac: { press: -6, establishment: -4 } } }
+        }
+      },
+      {
+        id: "caution", text: "泼冷水：逞口舌之快，别真把对手逼到墙角",
+        base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.45 }],
+        outcomes: {
+          crit: { body: "你点破这更多是讲给国内听的姿态，事后被夸有远见，评论圈把你当「冷静的那几个之一」。", effects: { rep: 1.1, fac: { press: 5, establishment: 3 }, attr: { INT: 2 } } },
+          ok: { body: "你留了三分清醒，虽不合潮，也立了个有脑子的形象。", effects: { rep: 0.4, attr: { INT: 1 } } },
+          meh: { body: "在一片热血里你的谨慎没人爱听。", effects: { rep: -0.3 } },
+          fail: { body: "你被鹰派逮住「替对手找理由」，本地右翼报纸点名批你。", effects: { rep: -1, fac: { base: -6 } } },
+          critfail: { body: "「对共产主义软弱」的标签被贴到你竞选材料上，甩都甩不掉。", effects: { rep: -1.6, fac: { base: -8, establishment: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "local", text: "躲开宏大叙事：只谈本地的厂要不要接军备订单",
+        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
+        outcomes: {
+          crit: { body: "你把一句意识形态口号落回到了「本地有多少个饭碗」，务实的形象两头都买账。", effects: { rep: 0.8, fac: { base: 5, labor: 3 } } },
+          ok: { body: "你不蹭热度，只谈民生，稳当。", effects: { rep: 0.3 } },
+          meh: { body: "你谈你的工厂，没人接这茬。", effects: { rep: 0.05 } },
+          fail: { body: "历史大场面里你只惦记订单，被人笑「格局太小」。", effects: { rep: -0.4 } },
+          critfail: { body: "你算的军备账被曝出有利益关联，「主战还是主饱」的闲话跟着你。", effects: { rep: -1, fac: { press: -3 } } }
+        }
+      }
+    ]
   }
 ]);
 
@@ -940,17 +1258,22 @@ POTUS.define("event", [
  *   · 前幕 rg86_iran_open 若因层级/机缘没演，则后两幕 after 不成立、静默跳过——可断裂的串。
  * ==========================================================================*/
 POTUS.define("fixed", [
+  /* —— 1980 开场串（前奏→爆发）：demo 起点年不再是空窗 —— */
+  { event: "rg80_eagleclaw", year: 1980, month: 4, grade: "mid" },
+  { event: "rg80_election", year: 1980, month: 11, grade: "major" },
   { event: "rg81_shooting", year: 1981, month: 3, grade: "mid" },
   { event: "rg82_unemp", year: 1982, month: 11, grade: "mid" },
   { event: "rg83_beirut", year: 1983, month: 10, grade: "mid" },
   { event: "rg84_landslide", year: 1984, month: 11, grade: "mid" },
   { event: "rg85_plaza", year: 1985, month: 9, grade: "mid" },
   { event: "rg86_challenger", year: 1986, month: 1, grade: "mid" },
+  { event: "rg86_libya", year: 1986, month: 4, grade: "mid" },
   /* —— 伊朗门事件串（前奏→爆发→余波） —— */
   { event: "rg86_iran_open", year: 1986, month: 11, grade: "mid" },
   { event: "rg87_iran_hearings", year: 1987, month: 7, grade: "major" },
   { event: "rg89_iran_after", fromYear: 1988, toYear: 1989, month: 3, grade: "mid" },
   /* —— 独立大事件 —— */
+  { event: "rg87_wall", year: 1987, month: 6, grade: "major" },
   { event: "rg87_monday", year: 1987, month: 10, grade: "major" },
   { event: "rg88_election", year: 1988, month: 11, grade: "mid" },
   { event: "rg89_berlin", year: 1989, month: 11, grade: "major" },

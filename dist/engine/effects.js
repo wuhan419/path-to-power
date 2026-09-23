@@ -12,6 +12,13 @@
     attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = P.clamp(G.attr[k] + v[k], 0, 100); },
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
     fun: function (v, G) { G.fun += v; },
+    /* 学生贷款本金：事件里用 debt:-N 一次性抹平一笔欠款（不受标尺缩放，保持绝对额）。
+       还款/减免即视为按时，连续逾期计数 loanLate 归零；余额锁死不为负。 */
+    debt: function (v, G) {
+      G.debt = Math.max(0, Math.round((G.debt || 0) + v));
+      if (v < 0) G.loanLate = 0;
+      if (G.debt <= 0) { G.debt = 0; G.loanLate = 0; }
+    },
     /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
        本金 = 选项 cost.fun + 投注的 stake 资金 —— 结算前由 render.js 写进

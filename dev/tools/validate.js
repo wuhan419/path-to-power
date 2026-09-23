@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /* ============================================================================
  * POTUS · tools/validate.js
- * 一键校验：语法 → 加载 → 数据完整性 → 掷骰分布 → 数百局模拟 → 引擎/内容契约
+ * 一键校验：语法 → 加载 → 数据完整性 → 掷骰分布 → 生涯模拟（默认 20 局，--games 可调）→ 引擎/内容契约
  *
- * 用法：  node tools/validate.js
+ * 用法：  node tools/validate.js            （快速档，每次提交跑这个）
+ *         node tools/validate.js --games=300 --seed=20260921   （全量 A/B 平衡口径）
  * 特点：  自动读取 index.html 的内容清单，不会因为加了新内容包而失效。
  * 退出码：0 通过；1 有失败（可直接用于 CI / pre-commit）
  * ==========================================================================*/
@@ -34,7 +35,9 @@ global.localStorage = {
 global.getComputedStyle = () => ({ getPropertyValue: () => "" });
 global.alert = () => { }; global.confirm = () => true; global.prompt = () => "x";
 global.setTimeout = () => 0; global.setInterval = () => 1; global.clearInterval = () => { };
-global.URL = { createObjectURL: () => "", revokeObjectURL: () => { } };
+/* URL/Blob/FileReader 桩：必须是可实例化的函数（不能是普通对象）——
+   node 的 fs shim 会对 path 做 `instanceof URL` 判定，RHS 不可调用会直接 TypeError。 */
+global.URL = function URL() { }; global.URL.createObjectURL = () => ""; global.URL.revokeObjectURL = () => { };
 global.Blob = function () { }; global.FileReader = function () { };
 global.window = global;
 
@@ -691,6 +694,63 @@ console.log("\n== 动态投注汇率（身位 × 事件金额）==");
   check(P.officeSalary() === P.reg.officeSalary["electoral_3"], "officeSalary 应取 reg.officeSalary 的表值");
   P.G.track = "__none__";
   check(P.officeSalary() === P.reg.officeSalary["*_3"], "轨道 miss 应退到 *_tier 通配");
+
+  /* ⑨ 学生贷款：难度门 + 计息还款 + 归零锁死 + 不扣负（P.loanStep） */
+  {
+    const sl = P.balance().studentLoan || {};
+    check(sl.enabled === true, "studentLoan 应默认启用");
+    check(((sl.startDebt || {}).easy || 0) === 0 && ((sl.startDebt || {}).legendary || 0) === 0, "世家难度（easy/legendary）不应背学贷");
+    ["normal", "hard", "brutal"].forEach(function (d) {
+      check(((sl.startDebt || {})[d] || 0) > 0, d + " 难度应有开局学贷（>0）");
+    });
+    /* 无贷 → loanStep 返回 null、余额恒 0 */
+    P.G.debt = 0; P.G.fun = 500000; P.G.tier = 2; P.G.track = "electoral";
+    check(P.loanStep() === null, "余额为 0 时 loanStep 应返回 null（不产生任何扣款）");
+    check(P.G.debt === 0 && P.G.fun === 500000, "无贷时资金与余额都不应被改动");
+    /* 有贷 + 现金充足 + 高层：逐月还款，余额单调不升直至归零，绝不为负 */
+    P.G.debt = sl.startDebt.normal; P.G.fun = 5000000; P.G.tier = 6; P.G.track = "electoral";
+    let prev = P.G.debt, cleared = false, bad = 0;
+    for (let i = 0; i < 1200; i++) {
+      const r = P.loanStep();
+      if (!r) { cleared = true; break; }
+      if (!(r.remaining >= 0 && Number.isFinite(r.remaining)) || r.remaining > prev + 1) bad++;
+      prev = r.remaining;
+    }
+    check(bad === 0, "现金充足高层下学贷余额必须单调不升且非负（越界 " + bad + " 次）");
+    check(cleared, "联邦高层收入下学贷应在 1200 个月内还清（体现「收入越高越快清零」）");
+    check(P.G.debt === 0, "还清后余额应锁死为 0");
+    /* 低层 + 现金见底：月供被现金封顶，绝不把 fun 扣成负 */
+    P.G.debt = 40000; P.G.fun = 50; P.G.tier = 0; P.G.track = "electoral";
+    const lr = P.loanStep();
+    check(lr && P.G.fun >= 0, "现金见底时不得把资金扣成负数（本月少还/不还本）");
+    check(lr && P.G.debt > 0, "低层只够付息时学贷应仍挂着（还原多年后仍在还）");
+    /* 逾期跟踪：连续还不满 → loanLate 逐月累加；一次按时/结清即归零 */
+    P.G.debt = 60000; P.G.fun = 0; P.G.tier = 0; P.G.track = "electoral"; P.G.loanLate = 0;
+    let lateRun = 0;
+    for (let i = 0; i < 6; i++) { const r = P.loanStep(); if (r && r.pay < 1) lateRun++; }
+    check(P.G.loanLate >= 5, "现金持续见底、长期还不满时 loanLate 应逐月累加（实际 " + P.G.loanLate + "）");
+    check(lateRun >= 5, "无现金月份月供应被现金封顶压到近 0（本月不还本）");
+    P.G.fun = 5000000; P.loanStep();
+    check(P.G.loanLate === 0, "现金充裕、按时还满后 loanLate 应归零");
+    /* debt 效果处理器：一次性抹平贷款并清逾期 */
+    P.G.debt = 40000; P.G.loanLate = 20; P.applyEffects({ debt: -999999 });
+    check(P.G.debt === 0 && P.G.loanLate === 0, "debt 负值效果应清零余额并把 loanLate 归零");
+    /* 违约拖累事件：已注册、量级正确、cond 门控在逾期门槛之上才放行 */
+    const lde = P.evById ? P.evById("fin2_loan_default") : null;
+    check(!!lde, "应注册 fin2_loan_default（学贷长期违约压力事件）");
+    if (lde) {
+      check(lde.valence === "bane" && lde.unique === true, "fin2_loan_default 应为 bane + unique");
+      const lm = (P.balance().studentLoan || {}).lateMonths || 12;
+      P.G.debt = 60000; P.G.loanLate = lm;
+      check(lde.cond(P.G) === true, "逾期达门槛时违约事件 cond 应放行");
+      P.G.loanLate = 1;
+      check(lde.cond(P.G) === false, "未达逾期门槛时违约事件 cond 应挡住");
+      P.G.debt = 0; P.G.loanLate = 99;
+      check(lde.cond(P.G) === false, "已还清（余额0）时违约事件 cond 应挡住");
+    }
+    /* 复位，不污染后续校验 */
+    P.G.debt = 0; P.G.loanLate = 0;
+  }
 }
 
 /* ---------- 死局保护 ---------- */
@@ -719,11 +779,12 @@ console.log("\n== 死局保护 ==");
 
 /* ---------- 模拟对局（走真实的月度主循环） ----------
  * 可复现性：引擎一律用 Math.random()，那让"两次独立跑"必然有随机差异 ——
- * n=300 时某个结局 ±10 局完全可能是噪声，A/B 就没法定论。
+ * n 大时某个结局 ±10 局完全可能是噪声，A/B 就没法定论。
  * 所以模拟阶段把 Math.random 换成定种 PRNG（mulberry32），A/B 就能在**同一批生涯**上比较，
  * 差异的方差远小于两个独立比例的方差。
- *   node tools/validate.js                     → 300 局，种子 20260921
- *   node tools/validate.js --games=600 --seed=7 → 600 局，种子 7
+ *   node tools/validate.js                       → 默认 20 局快速校验（每次提交跑这个）
+ *   node tools/validate.js --games=300 --seed=20260921 → 300 局全量口径（A/B 平衡核验时显式开）
+ * 层级/结局分布对比只有在同 --games 同 --seed 下才可比；小样本单格差异是噪声，勿下结论。
  * 只影响本文件的模拟阶段，引擎与其它测试不受影响。 */
 function mulberry32(seed) {
   let s = (seed >>> 0) || 1;
@@ -738,7 +799,7 @@ const _argN = (name, dflt) => {
   const hit = process.argv.find(a => a.indexOf("--" + name + "=") === 0);
   return hit ? Number(hit.split("=")[1]) : dflt;
 };
-const GAMES = Math.max(1, Math.round(_argN("games", 300)));
+const GAMES = Math.max(1, Math.round(_argN("games", 20)));   /* 默认 20 局快速校验；300 局 A/B 用 --games=300 显式开 */
 const SEED = Math.round(_argN("seed", 20260921));
 const K = (o) => Object.keys(o);
 const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
@@ -767,6 +828,11 @@ const eraMix = {};
  * fallenGames：经历过下野的局数；baneNetAvg：威胁事件平均净损（伤害是否真实存在）。 */
 let valHit = { boon: 0, risk: 0, bane: 0 }, netSum = 0, netSq = 0, netN = 0;
 let streakBadGames = 0, fallenGames = 0, endFun = 0, baneNetSum = 0, baneNetN = 0;
+/* 8年 demo 窗口累计：只统计每局开局 8 年（≈1980—88）——玩家 demo 期真正看到的东西，
+   不被 55 年全生涯和后期时代稀释。fixed = 走 fixed 表的真实历史定点大事件（slot.eventId 有值，
+   上面「时代专属占比」按 ev.era 判、把这批 scoped/绝对年的真事件漏计了）。 */
+const demo = { draws: 0, cat: {}, grade: { major: 0, mid: 0, minor: 0 }, val: { boon: 0, risk: 0, bane: 0 }, fixed: 0, slotStats: [] };
+let monthRepeat = 0;                              // 同一自然月内同卡重演次数（回归检测，应为 0）
 for (let r = 0; r < games; r++) {
   let runCur = 0, runWorst = 0, demoTier = null;
   try {
@@ -787,11 +853,13 @@ for (let r = 0; r < games; r++) {
         yearMonths++;
         if (r !== "event") continue;          /* 平静月：成长已在 settleQuietMonth 结掉 */
         months++;
+        const _mset = new Set();                 // 本月已出现的真实卡 id —— 侦测「同月重复」回归
         for (let i = 0; i < G.monthPlan.length && !done; i++) {
           const slot = G.monthPlan[i];
           const ev = P.drawEvent(slot);
           if (!ev || !ev.choices || !ev.choices.length) throw new Error("drawEvent 返回空事件");
           draws++; yearSlots++;
+          if (!ev.filler) { if (_mset.has(ev.id)) monthRepeat++; else _mset.add(ev.id); }
           gradeHit[P.gradeOf(ev)] = (gradeHit[P.gradeOf(ev)] || 0) + 1;
           if (ev.filler) fillers++;
           catHit[ev.category || "—"] = (catHit[ev.category || "—"] || 0) + 1;
@@ -800,6 +868,13 @@ for (let r = 0; r < games; r++) {
             if (isSp) eraSpecific++; else eraGeneric++;
             const mm = eraMix[G.era] || (eraMix[G.era] = { sp: 0, gen: 0 });
             if (isSp) mm.sp++; else mm.gen++;
+          }
+          if (y < 8) {                              // 开局 8 年另计一份不受后期稀释的分布
+            demo.draws++;
+            const dcat = ev.category || "—"; demo.cat[dcat] = (demo.cat[dcat] || 0) + 1;
+            const dg = P.gradeOf(ev); if (demo.grade[dg] != null) demo.grade[dg]++;
+            const dv = P.valenceOf(ev); if (demo.val[dv] != null) demo.val[dv]++;
+            if (slot && slot.eventId) demo.fixed++;
           }
           if (P.mediumOK(ev)) medHit.none++; else medHit.gated++;
           /* 统计「月份降级」发生率（池子薄时引擎会放开月份限制，不算错误） */
@@ -852,6 +927,7 @@ for (let r = 0; r < games; r++) {
       }
       monthHist[months] = (monthHist[months] || 0) + 1;
       slotsPerYear.push(yearSlots);
+      if (y < 8) demo.slotStats.push(yearSlots);
       /* 静好岁月：这一年的平静月应该都被结算成"一段日子"（走的是 advanceMonth 的真实路径） */
       quietTotal += (G.quietMonths || []).length;
       (G.quietLog || []).forEach(function (e) { vigCount++; if (!e.text) vigEmpty++; });
@@ -893,7 +969,9 @@ return {
   netPerGame: games_ ? netSum / games_ : 0,
   streakBadGames: streakBadGames, fallenGames: fallenGames,
   endFunAvg: games_ ? endFun / games_ : 0,
-  baneNetAvg: baneNetN ? baneNetSum / baneNetN : 0
+  baneNetAvg: baneNetN ? baneNetSum / baneNetN : 0,
+  monthRepeat: monthRepeat,
+  demo: demo
 };
 }
 
@@ -982,6 +1060,19 @@ console.log("    按时代：" + Object.keys(eraMix).map(function (k) {
   const m = eraMix[k], t = m.sp + m.gen;
   return k + " " + (t ? (m.sp / t * 100).toFixed(1) : "0.0") + "%（" + m.sp + "/" + t + "）";
 }).join(" ｜ "));
+/* ---- 8年 demo 专项口径：开局前 8 年（≈1980-88），与 55 年全生涯分开看，不被高层/后期时代稀释 ---- */
+{
+  const d = sim.demo, DD = Math.max(1, d.draws), dg2 = Math.max(1, games);
+  const pct = (n) => (n / DD * 100).toFixed(1) + "%";
+  const dcat = Object.entries(d.cat).sort((a, b) => b[1] - a[1]).map(([k, v]) => (k.slice(0, 2) + " " + (v / dg2).toFixed(1) + "/局")).join("  ");
+  const dAvgSlots = d.slotStats.length ? (d.slotStats.reduce((a, b) => a + b, 0) / d.slotStats.length) : 0;
+  console.log("== 8年 demo 专项口径（开局≈1980-88·每局）==");
+  console.log("  demo 事件 " + (d.draws / dg2).toFixed(1) + " 个/局（每年 " + (d.draws / dg2 / 8).toFixed(1) + "）｜ demo 每年档期 " + dAvgSlots.toFixed(1) + "（全生涯 " + avgSlots.toFixed(1) + "）");
+  console.log("  demo 量级: 大 " + pct(d.grade.major) + " 中 " + pct(d.grade.mid) + " 小 " + pct(d.grade.minor) +
+    " ｜ demo 三值性: 机 " + pct(d.val.boon) + " 险 " + pct(d.val.risk) + " 危 " + pct(d.val.bane));
+  console.log("  demo 真实历史定点大事件: " + (d.fixed / dg2).toFixed(1) + " 个/局（走 fixed 表·占 demo 事件 " + pct(d.fixed) + "，这批不计入上面『时代专属』口径）");
+  console.log("  demo 分类: " + dcat);
+}
 /* ---- 体验指标面板（三值性 v2）：分布 / 净值 / 张力 ----
  * 这些数字是 --tune 网格搜索评分的同款观测；常规模式下打印供人工审读。 */
 {
@@ -999,8 +1090,10 @@ console.log("    按时代：" + Object.keys(eraMix).map(function (k) {
     check(streakBadGames / gn <= 0.20, "连环崩盘局占比过高（" + (streakBadGames / gn * 100).toFixed(1) + "%）——体验是挨打不是博弈");
   }
 }
+console.log("  同月重复卡回归检测: " + sim.monthRepeat + " 次（同一自然月内同卡重演，应为 0）");
+check(sim.monthRepeat === 0, "同一自然月内出现了重复卡 " + sim.monthRepeat + " 次——月内去重闸门失效");
 check(errs.length === 0, "模拟过程出现运行时错误");
-check(stakeEvents > 0, "300 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
+check(stakeEvents > 0, GAMES + " 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
 check(Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
 check(avgSlots >= 2 && avgSlots <= 12, "每年档期数应落在 2-12 之间（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
 check(draws / Math.max(1, games) >= 20, "每局平均事件数过少（" + (draws / Math.max(1, games)).toFixed(1) + "），月度节奏没生效");
@@ -1199,6 +1292,9 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     let next = 0, plain = 0;
     for (let i = 0; i < 2000; i++) {
       P.recentIds = [];
+      /* 本测试测的是「续集权重」，不是「去重」：每次抽取都当作一个全新的月份，
+         否则同月去重硬闸（_monthSeen）会把已抽中的续集在本月内永久排除，胜率失真。 */
+      P._monthSeen = []; P._monthKey = null;
       const picked = P.drawEvent({ grade: "mid" });
       if (picked.id === "__chain_next") next++; else if (picked.id === "__chain_plain") plain++;
     }
@@ -1361,7 +1457,9 @@ console.log("\n== 静好岁月 ==");
   check(GV.rep <= 100, "声望成长不应突破 100，实际 " + GV.rep);
   check(GV.contacts.fixer <= 100, "人脉好感应夹在 -100~100，实际 " + GV.contacts.fixer);
   const growthOf = function (age, months) {
-    GV.age = age; GV.attr = { CHA: 45, INT: 45, CUN: 45, INTG: 45 }; GV.rep = 5;
+    /* 起始属性故意压得很低（距 attrCap 留足余量），避免在长窗口里「撞到上限就停止生成成长」
+       —— 那会让年轻/年老两条曲线都饱和到同一个上限、抹平本该有的差距（旧版 45 起跳会饱和）。 */
+    GV.age = age; GV.attr = { CHA: 15, INT: 15, CUN: 15, INTG: 15 }; GV.rep = 5;
     GV.contacts = { fixer: 10 }; GV.lev = 0; GV.hp = 100; GV.fun = 50000; GV.fav = 0; GV.ap = 0;
     let g = 0;
     for (let i = 0; i < months; i++) {
@@ -1371,7 +1469,7 @@ console.log("\n== 静好岁月 ==");
     }
     return g;
   };
-  const young = growthOf(25, 300), old = growthOf(70, 300);
+  const young = growthOf(25, 200), old = growthOf(70, 200);
   check(young > old, "年轻时应该长得更快（attrAgeFade）：25 岁 " + young + " 次属性成长 vs 70 岁 " + old + " 次");
   /* v0.5.2 年龄曲线：老年 CHA/INT 会掉（下限 attrFloor），CUN 靠权重补偿，INTG 不随年龄变 */
   {
@@ -1520,7 +1618,7 @@ console.log("\n== 权重管线（身份 / 资源 → 抽中什么） ==");
   check(d1.total === d2.total, "同一局面下权重不稳定：" + d1.total + " vs " + d2.total);
 
   /* ---------- 诊断矩阵：换一种人，抽到的内容会变成什么 ---------- */
-  const CATS = ["career", "political", "media", "scandal", "finance", "romance", "civil", "crisis", "foreign", "shady", "general", "demo"];
+  const CATS = ["career", "campaign", "political", "media", "scandal", "finance", "romance", "civil", "crisis", "foreign", "shady", "general", "demo"];
 
   /* 造一个"人"：只改身份与资源，时代/年份固定，这样可比 */
   function mixFor(prof) {
@@ -1929,11 +2027,18 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(P.computeP(policyC).breakdown.some(function (b) { return /选民底气/.test(b.label); }),
       "内容可用 mods:[{src:\"voters\"}] 显式为政策推进类选项声明选民修正");
 
-    /* ④ 月卡要报出选民变化（否则玩家看不见"我什么都没干，但选民在动"） */
+    /* ④ 每月的账要报出选民变化（否则玩家看不见"我什么都没干，但选民在动"）。
+       v0.9：选区选民的自然增减已从静好成长（vignetteGrowth）搬到 monthlyLedger ——
+       现在有事/无事每月都动，所以断言改在 monthlyLedger 与其显示栏上。 */
     P.G.tier = 1; P.G.voters = { warm: 0, diehard: 0, oppose: 0 }; P.G.rep = 30;
-    const vg = P.vignetteGrowth(3);
-    check(!!vg.tally.voters && Object.keys(vg.tally.voters).length > 0, "静好结算里含选民变化（tally.voters）");
-    check(vg.notes.some(function (n) { return /选民/.test(n); }), "月卡成长行会报出选民变化");
+    P.G.year = 2010; P.G.ledgerYear = 2010; P.G.ledger = {};
+    const mrec = P.monthlyLedger(7);
+    check(!!mrec && !!mrec.voters && Object.keys(mrec.voters).length > 0, "每月的账里含选民变化（monthlyLedger.voters）");
+    check(P.ledgerBoxHTML([mrec]).indexOf("选民") >= 0, "结算栏会报出选民变化（好感/反对在动）");
+    /* 反向锁：vignetteGrowth 不再重复结选民（已搬走，避免双算） */
+    P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
+    check(!P.vignetteGrowth(3).tally.voters || Object.keys(P.vignetteGrowth(3).tally.voters).length === 0,
+      "静好成长不再重复结选民（voterDrift 已归 monthlyLedger 单点）");
     console.log("  ok：选民动态（自然增减有界/事件自动增减/显式优先/底气修正中心归零）");
   }
 

@@ -28,7 +28,9 @@ POTUS.define("balance", {
    * 「时代压力」写在 content/20-eras.js 的 era.pressure；
    * 「活跃度」由引擎按 丑闻/调查中/选举年/层级≥T4 自动叠加（见 engine/time.js）。
    */
-  activeChance: 0.12, activePressureMul: 0.04, activeBonusMul: 0.04,
+  /* 密度校准（用户反馈「随机事件太多」）：把无压力月的基线从 0.12 压到 0.10，
+     让平静的月份真正静下来；时代压力/活跃度照常把有大事的月份抬回去，不受影响。 */
+  activeChance: 0.10, activePressureMul: 0.04, activeBonusMul: 0.04,
   activeMin: 0.06, activeMax: 0.95,
   slotsBase: 1, slotsVariance: 1, slotsMax: 3,
   slotsPressureAt: 4, slotsBonusAt: 2,
@@ -93,6 +95,9 @@ POTUS.define("balance", {
        深州（任何倾向）→ 少数派的处境自带民权/舆论版面（反对者叙事有人看） */
     { when: { states: ["OH", "FL", "PA"] }, cats: { political: 1.4, media: 1.2 } },
     { when: { states: ["TX", "AL", "NY", "MA"] }, cats: { civil: 1.3, media: 1.1 } },
+    /* 铁锈带 · 摇摆州（demo 主角家乡锚点，见 content/12-states.js）：全国的贸易/工会/汽车/
+       钢铁叙事都落在这条街上，党务·民权·仕途类事件加权，让任何层级都更容易撞进时代主线。 */
+    { when: { states: ["OH"] }, cats: { political: 1.35, civil: 1.3, career: 1.15 } },
     /* 路线抉择的余波：走过哪条岔路，就更常遇到那条路的世界 */
     { when: { flags: ["cross_runner"] }, cats: { career: 1.3, civil: 1.2 } },
     { when: { flags: ["cross_staffer"] }, cats: { political: 1.3, shady: 1.2 } },
@@ -129,10 +134,12 @@ POTUS.define("balance", {
   /* 把柄的年度贬值率：每份把柄每年有一定概率失效（当事人下台、事情过去了）。
    * 调高 → 把柄更"易腐"，玩家更倾向于尽快用掉；调低 → 囤把柄成为主流打法。 */
   leverageDecayChance: 0.34,
+  /* 量级配比（用户反馈「小事雷同刷屏」）：下调 minor 基权、抬高 mid ——
+     把一部分「鸡毛蒜皮的重复日常」换成「有点分量的事」，随机感更实。 */
   gradeWeights: {
     major: { base: 0.25, perPressure: 0.5 },
-    mid: { base: 2.2, perPressure: 0.7 },
-    minor: { base: 7.0, perPressure: -0.5 }
+    mid: { base: 2.7, perPressure: 0.7 },
+    minor: { base: 5.6, perPressure: -0.5 }
   },
   gradeFallback: { major: ["major", "mid", "minor"], mid: ["mid", "minor"], minor: ["minor"] },
 
@@ -164,7 +171,9 @@ POTUS.define("balance", {
 
   /* 年度结算 */
   hpDecayMin: 1, hpDecayMax: 3, interestRate: 0.03, scandalDecayChance: 0.25,
-  blackswanChance: 0.18, recentCap: 20, retireAge: 74, aiCallCap: 80,
+  /* recentCap 20→40：非 unique 的 minor 卡过去在 20 档窗口滑过后即可重演，
+     这正是「8 年 demo 里同一事件撞上两次」的根因；抬到 40 基本覆盖整个 demo 档期。 */
+  blackswanChance: 0.18, recentCap: 40, retireAge: 74, aiCallCap: 80,
 
   /* 精力池：每年恢复 = apBase + floor(健康 / apHealthDiv)，夹在 [apMin, apMax] */
   apBase: 6, apHealthDiv: 25, apMin: 1, apMax: 12,
@@ -280,6 +289,22 @@ POTUS.define("balance", {
   /* 平静月的工资/开销（引擎 quietAccount 用）。salaryBase×(1+tier×salaryPerTier)，
      开销是随机的 livingMin..livingMax ×(1+tier×0.6)（位置越高、体面越贵）。 */
   quietAccount: { salaryBase: 2000, salaryPerTier: 2.2, livingMin: 800, livingMax: 2200 },
+
+  /* 学生贷款（普通难度以下的开局背贷 · 见 engine/core.js 的 P.loanStep）
+     设计意图：现实里奥巴马当总统还在还哈佛法学院的贷 —— 让金钱从开局就被一条
+     固定现金流咬住，越穷的难度越疼，把「钱」变成真资源。
+     · startDebt：按难度给本金，未列出的难度（easy/legendary）= 0（世家替你交了）。
+     · interestAnnual：年利率，按月计息（还不清就一直滚，还原多年后仍在还）。
+     · payShare：月供目标 ≈ 职位月薪 × payShare —— 收入越高还得越快，联邦高层才还得清。
+     · minPayment：每月最低还款额（现金见底则本月不还本、只挂息，不逼死玩家）。 */
+  studentLoan: {
+    enabled: true,
+    startDebt: { normal: 65000, hard: 42000, brutal: 28000 },
+    interestAnnual: 0.045, payShare: 0.25, minPayment: 120,
+    /* lateMonths：连续逾期多少个月仍还不上，才引来「催收/征信」压力事件。
+       长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
+    lateMonths: 12
+  },
 
   /* ---------- 选民池：选区规模按层级（注册选民数，近似值） ----------
    * 10 级由小到大：社区/学区 → 地方党区 → 市 → 州众选区 → 州参选区 → 全州 → 国会选区

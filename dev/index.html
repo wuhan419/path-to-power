@@ -20,6 +20,8 @@
 <!-- 三值性（机遇/风险/威胁）与动态经济标尺：内容写系数，抽中时按人物职级/能力折算 -->
 <script src="engine/scale.js"></script>
 <script src="engine/events.js"></script>
+<!-- 时代风味词典 + 占位符替换：让可重复事件每次都换真实面孔（{ORG}/{PLACE}/{MEET}…），词典在 content/09-flavor.js -->
+<script src="engine/flavor.js"></script>
 <!-- 时间：年 → 月 → 档期（一个月一回合、时代压力、大/中/小事量级） -->
 <script src="engine/time.js"></script>
 <!-- 主线：这个人这一辈子主要在过哪一条命（单线制，可换线；只加权不硬塞） -->
@@ -52,6 +54,8 @@
 <script src="content/06-media.js"></script>
 <!-- 人脉登记表：这一局里能反复出场的那些"人"（事件用 req.contact / effects.contact 引用） -->
 <script src="content/07-contacts.js"></script>
+<!-- 时代风味词典：可重复事件正文里的 {ORG}/{PLACE}/{MEET}/{PUB} 等占位符按当年填真实名词（配合 engine/flavor.js） -->
+<script src="content/09-flavor.js"></script>
 <!-- 静好岁月素材库：没有事件的月份里，主角的日子（时令/世相/案头/日常/心绪/收束） -->
 <script src="content/08-vignettes.js"></script>
 <!-- 事件配图的照片层：类型 → assets/events/<key>.jpg，缺图自动退回程序化 SVG -->

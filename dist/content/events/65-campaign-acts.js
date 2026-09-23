@@ -16,7 +16,7 @@ POTUS.define("event", [
 
   /* ========================= 等级1：地方公职（council）========================= */
   {
-    id: "camp_council_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_council_announce", brief: { lede: "第一次参选：交押金、凑签名、也要公开申报。", known: ["你还没什么名气，但选区小，认脸就能拉开差距。", "报名要够有效签名，漏一项就上不了选票。", "高调宣布赌人气，挨家摸底赌稳妥。"], unknown: ["开场若草率，会被当成凑数的候选人。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 0, tierMax: 0, weight: 1,
     title: "宣布：把名字放上选票",
     body: "报名要交押金、要凑够有效签名、要公开财务申报。你要么正式迈出这一步，要么先摸清水有多深。",
@@ -46,7 +46,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_council_grassroots", grade: "mid", category: "career", unique: false,
+    id: "camp_council_grassroots", brief: { lede: "地方选举投票率极低，跑腿就能定胜负。", known: ["几千张被动员的票就够决定结果。", "你有时间和双腿，缺的是曝光和钱。", "教会社团的场子能一次见一批人。"], unknown: ["只守不攻，热度会悄悄流失。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 0, tierMax: 0, weight: 1,
     title: "挨家挨户",
     body: "地方选举投票率低得惊人，一小撮被动员起来的人就能决定结果。你的竞选现在靠双腿。",
@@ -88,7 +88,7 @@ POTUS.define("event", [
 
   /* ========================= 等级2：市议员（city）========================= */
   {
-    id: "camp_city_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_city_announce", brief: { lede: "你要争一个真席位，对手是张老面孔。", known: ["现任干了多年，名字人人认识。", "正面硬碰赌声望，先组联盟赌根基。", "静观能避锋芒，却也可能错失先机。"], unknown: ["底牌亮太早，会被资深对手摸清。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 1, tierMax: 1, weight: 1,
     title: "签下参选表格",
     body: "这一次不是帮忙，是竞争一个真正的席位。对手可能干了很多年，名字人人认识。",
@@ -128,7 +128,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_city_townhall", grade: "mid", category: "career", unique: false,
+    id: "camp_city_townhall", brief: { lede: "第一次和对手同场，一问一答藏不住。", known: ["台下就是能投票的那批选民。", "讲政策求稳，抓把柄偏险，沉默无功无过。", "你比对手生涩，但也更显得新鲜。"], unknown: ["一句失言会被反复提起整场选战。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 1, tierMax: 1, weight: 1,
     title: "市政厅辩论会",
     body: "第一次和对手站在同一个屋檐下，面对同样一批选民。一问一答，藏不住也躲不掉。",
@@ -170,7 +170,7 @@ POTUS.define("event", [
 
   /* ========================= 等级3：州众议员（state）========================= */
   {
-    id: "camp_state_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_state_announce", brief: { lede: "选区从一条街扩大到一个县。", known: ["你需要一台真正的竞选机器和启动资金。", "高调开跑抢话题，先攒钱稳底盘。", "名气和钱，这时开始变成硬门槛。"], unknown: ["摊子铺太大又没钱，机器会空转。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 2, tierMax: 2, weight: 1,
     title: "宣布竞选州议会",
     body: "选区从一条街扩大到一个县。你第一次需要一台真正的竞选机器，和一笔像样的启动资金。",
@@ -200,7 +200,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_state_primary", grade: "mid", category: "career", unique: false,
+    id: "camp_state_primary", brief: { lede: "第一场硬仗在党内，赢提名才有大选。", known: ["拿不到本党提名，你根本上不了选票。", "动员基本盘赌人气，争取建制赌资源。", "不站队能两边不得罪，也可能两头不讨好。"], unknown: ["站错队，选后要在党内还债。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 2, tierMax: 2, weight: 1,
     title: "党内初选",
     body: "真正的第一场硬仗在自己党内。赢得提名，才有资格出现在大选的选票上。",
@@ -240,7 +240,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_state_rally", grade: "mid", category: "career", unique: false,
+    id: "camp_state_rally", brief: { lede: "大选前最后冲刺，每分注意力都要抢。", known: ["广告烧钱换曝光，拜票耗力换人心。", "金库有限，火力怎么分是一笔账。", "适度造势能不透支，也不至于烧穿。"], unknown: ["透支或省过头，都会把势头漏掉。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 2, tierMax: 2, weight: 1,
     title: "选战造势",
     body: "大选前的最后冲刺。广告、集会、拜票——每一分注意力都要抢。",
@@ -283,7 +283,7 @@ POTUS.define("event", [
 
   /* ========================= 等级4：州参议员（upper）========================= */
   {
-    id: "camp_upper_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_upper_announce", brief: { lede: "上院席位更少、盘子更大，位子将空。", known: ["一个现任即将离任，空位人人盯着。", "抢先定调赌先手，静观其变赌后劲。", "这一级的对手都更有分量。"], unknown: ["动作太慢，好位置会被别人先占。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 3, tierMax: 3, weight: 1,
     title: "瞄准参议院席位",
     body: "上半院席位更少、盘子更大。一个现任者即将离任，觊觎这个位置的人不止你一个。",
@@ -313,7 +313,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_upper_primary", grade: "mid", category: "career", unique: false,
+    id: "camp_upper_primary", brief: { lede: "一位资历更深的同党也想要这个席位。", known: ["初选是党内硬碰硬的对决。", "打新一代赌变革，讲资历赌稳妥。", "正面冲突伤和气，回避又难分高下。"], unknown: ["同党内耗，选后两边都难收场。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 3, tierMax: 3, weight: 1,
     title: "初选对决",
     body: "一位资历更深的同党也想要这个席位。初选是场硬碰硬。",
@@ -353,7 +353,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_upper_rally", grade: "mid", category: "career", unique: false,
+    id: "camp_upper_rally", brief: { lede: "全州跑一圈，从东边工厂到西边郊区。", known: ["密集巡回赌体力与声量，打关键县赌效率。", "体能和消息传播都在考验你。", "全跑一遍不现实，选哪里就是选择。"], unknown: ["顾此失彼，会凉掉没去到的那一片。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 3, tierMax: 3, weight: 1,
     title: "巡回拉票",
     body: "全州跑一圈，从东部的工厂城镇到西部的郊区。体能和消息，都在考验你。",
@@ -385,7 +385,7 @@ POTUS.define("event", [
 
   /* ========================= 等级5：全州公职（stwide）========================= */
   {
-    id: "camp_stwide_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_stwide_announce", brief: { lede: "第一次向全州自我介绍，多数人还不认识你。", known: ["大多数选民没听过你的名字。", "巡回宣告赌曝光，攒背书赌根基。", "慢经营省资源，却可能起量太迟。"], unknown: ["名字还不够响，等于没进入竞选。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 4, tierMax: 4, weight: 1,
     title: "全州性宣告",
     body: "第一次向整个州自我介绍。大多数选民根本不认识你，你的名字要和'另一个州'的州名一样响。",
@@ -425,7 +425,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_stwide_convention", grade: "mid", category: "career", unique: false,
+    id: "camp_stwide_convention", brief: { lede: "党在大会上决定提名给谁。", known: ["会场每一票都靠你几天前谈好的信任。", "逐名谈判赌精算，发动基层赌声浪。", "安静等待省事，但被动把结果交给别人。"], unknown: ["会前没谈够，台上就会冷场。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 4, tierMax: 4, weight: 1,
     title: "州党代表大会",
     body: "党在大会上决定把提名给谁。会场里的每一张票，都得靠你几天前就谈好的信任。",
@@ -465,7 +465,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_stwide_media", grade: "mid", category: "career", unique: false,
+    id: "camp_stwide_media", brief: { lede: "全州选举是注意力战争，上不了版面等于不存在。", known: ["州内电视和头版是你必须出现的战场。", "砸广告赌钱，造话题赌免费版面。", "只维持最低曝光，会慢慢被人忘掉。"], unknown: ["没有存在感，名字就带不起票。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 4, tierMax: 4, weight: 1,
     title: "打响全州知名度",
     body: "一场全州选举，是一场注意力战争。上不了州内的电视和头版，你就等于不存在。",
@@ -508,7 +508,7 @@ POTUS.define("event", [
 
   /* ========================= 等级6：联邦众议员（federal · ★胜利线）========================= */
   {
-    id: "camp_federal_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_federal_announce", brief: { lede: "从州议会到国会，是一次真正的跃迁。", known: ["你需要全国性筹款网络和一个华府故事。", "高规格启动赌声量，深耕本土赌人心。", "国会议题更硬，地方资历未必够用。"], unknown: ["故事讲不动，国会梦会停在半路。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 5, tierMax: 5, weight: 1,
     title: "宣布角逐国会席位",
     body: "从州议会到国会，是一次真正的跃迁。你需要全国性的筹款网络，和一个能打动华盛顿的故事。",
@@ -548,7 +548,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_federal_primary", grade: "mid", category: "career", unique: false,
+    id: "camp_federal_primary", brief: { lede: "一个花钱不眨眼的同党盯上了你的席位。", known: ["初选若输，国会更无从谈起。", "以在位优势稳住，或向基本盘打意识形态牌。", "不主动出击省事，却给了对手空间。"], unknown: ["轻敌不回应，会被自己人翻盘。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 5, tierMax: 5, weight: 1,
     title: "国会初选",
     body: "一个花钱不眨眼的同党挑战者盯上了你的席位。初选若输，国会更无从谈起。",
@@ -588,7 +588,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_federal_money", grade: "mid", category: "career", unique: false,
+    id: "camp_federal_money", brief: { lede: "国会竞选烧钱如水，金主的条件从不免费。", known: ["接下大额捐款能补金库，但欠下人情。", "走小额众筹慢而干净，钱来得费劲。", "维持现状，既不得罪金主也不缺钱。"], unknown: ["拿谁的钱，将来就可能替谁说话。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 5, tierMax: 5, weight: 1,
     title: "筹款与金主",
     body: "国会竞选烧钱如水。金主愿意开仓，但他们的条件也从不免费。",
@@ -628,7 +628,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_federal_swing", grade: "mid", category: "career", unique: false,
+    id: "camp_federal_swing", brief: { lede: "票数胶着，胜负定在最后几个郊区。", known: ["这一周你会把一切押上去。", "地毯拜票赌体力，全力动员赌投票率。", "摇摆选民没定见，一句宣传就可能倒向。"], unknown: ["最后押错地方，整场选战付诸东流。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 5, tierMax: 5, weight: 1,
     title: "摇摆选区的最后一周",
     body: "票数胶着，胜负就定在最后几个郊区。这一周你会把一切押上去。",
@@ -660,7 +660,7 @@ POTUS.define("event", [
 
   /* ========================= 等级7：联邦参议员 / 州长（senate）========================= */
   {
-    id: "camp_senate_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_senate_announce", brief: { lede: "覆盖全州的选战：要么全国人物，要么什么都不是。", known: ["对手多半已是叫得出名字的人。", "大片开场赌声量，白皮书开局赌深度。", "稳健入场不出错，却也难一鸣惊人。"], unknown: ["开场哑火，全州会把你当小角色。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 6, tierMax: 6, weight: 1,
     title: "宣布竞逐大位",
     body: "一场覆盖全州的选举。你要么现在就是一个全国性人物，要么什么都不是。",
@@ -700,7 +700,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_senate_primary", grade: "mid", category: "career", unique: false,
+    id: "camp_senate_primary", brief: { lede: "党内强敌环伺，初选比谁先露破绽。", known: ["初选不只比票多，也比谁先被抓到弱点。", "走中间赌最大公约数，点燃基本盘赌热情。", "你的记录会被自己人先审一遍。"], unknown: ["被拍到软肋，初选都撑不过。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 6, tierMax: 6, weight: 1,
     title: "全州初选",
     body: "党内强敌环伺。初选不仅要比谁票多，还要比谁先被拍到弱点。",
@@ -730,7 +730,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_senate_debate", grade: "mid", category: "career", unique: false,
+    id: "camp_senate_debate", brief: { lede: "一场直播，百万双眼睛，一句话顶半月广告。", known: ["辩论台上的表现会被反复播放。", "稳阵脚赌气度，抓破绽赌杀伤。", "不搏命不失态，稳妥却也难出彩。"], unknown: ["一句失态，会成为对手整季的素材。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 6, tierMax: 6, weight: 1,
     title: "电视辩论",
     body: "一场直播，百万双眼睛。辩论台上一句话，能顶半个月广告。",
@@ -770,7 +770,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_senate_swing", grade: "mid", category: "career", unique: false,
+    id: "camp_senate_swing", brief: { lede: "全州胜负缩到几个摇摆县，钱和人得堆上去。", known: ["摇摆县决定整个州的归属。", "全面包围赌资源，派盟友出征赌火力。", "守住现有带稳妥，却难有增量。"], unknown: ["资源撒得太薄，哪个县都打不穿。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 6, tierMax: 6, weight: 1,
     title: "争夺摇摆地区",
     body: "全州的胜负缩到了几个摇摆县。钱和人，都得堆到那几块地皮上。",
@@ -813,7 +813,7 @@ POTUS.define("event", [
 
   /* ========================= 等级8：副总统 / 总统候选人（vp）========================= */
   {
-    id: "camp_vp_announce", grade: "mid", category: "career", unique: false,
+    id: "camp_vp_announce", brief: { lede: "你不再只为自己竞选，党魁开始考虑你。", known: ["党魁在权衡把你放上那张全国海报。", "全国议题发声赌能见度，表忠心赌信任。", "你的名字需要开始配得上全国舞台。"], unknown: ["只刷脸不表态，会被当成局外人。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 7, tierMax: 7, weight: 1,
     title: "进入候选视野",
     body: "你不再是为自己一个人竞选。党魁开始考虑把你放上那张全国海报。",
@@ -843,7 +843,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_vp_vetting", grade: "mid", category: "career", unique: false,
+    id: "camp_vp_vetting", brief: { lede: "团队把你前半生翻了个底朝天。", known: ["他们找的不是你多好，而是会不会爆雷。", "全盘托出赌干净，提前包装赌稳妥。", "任何隐瞒一旦被挖出都是致命伤。"], unknown: ["藏着的旧事若被翻出，提名瞬间蒸发。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 7, tierMax: 7, weight: 1,
     title: "背景审查与试探",
     body: "团队把你的前半生翻了个底朝天。他们想找的不是你有多好，而是你会不会哪天爆雷。",
@@ -883,7 +883,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_vp_convention", grade: "mid", category: "career", unique: false,
+    id: "camp_vp_convention", brief: { lede: "提名在这一刻揭晓，全看数月谈下的信任。", known: ["能否站上讲台取决于过去谈好的每一笔。", "锁定代表赌精算，先修裂痕赌团结。", "静观其变省事，却把结果交给别人。"], unknown: ["票没数够，台上就不是你的位置。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 7, tierMax: 7, weight: 1,
     title: "全国代表大会",
     body: "提名在这一刻揭晓。你能不能站上那个讲台，取决于过去几个月谈好的每一笔信任。",
@@ -923,7 +923,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_vp_campaign", grade: "mid", category: "career", unique: false,
+    id: "camp_vp_campaign", brief: { lede: "你四处替本党站台，攒人脉也怕说错话。", known: ["助选帮你攒下全国人脉，也放大你的每句话。", "走遍各州赌体力，只打关键选战赌效率。", "说多错多，沉默又可能失掉曝光。"], unknown: ["一句失言会把功劳变成别人的弹药。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 7, tierMax: 7, weight: 1,
     title: "为全国助选奔走",
     body: "你四处替本党候选人站台，一边攒下全国人脉，一边担心自己说多错多。",
@@ -955,7 +955,7 @@ POTUS.define("event", [
 
   /* ========================= 等级9：总统（president · 火箭线破格才可及）========================= */
   {
-    id: "camp_pres_announce", grade: "major", category: "career", unique: false,
+    id: "camp_pres_announce", brief: { lede: "世界上最长最烧钱的竞选，从这一步开始。", known: ["你的每一步都会被全国放大审视。", "家乡宏大演说赌格局，社媒素人风暴赌热度。", "搭稳班子不出彩，却最抗风浪。"], unknown: ["开场定调失败，整场竞选一路补课。"] }, grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 8, tierMax: 8, weight: 1,
     title: "宣布竞选总统",
     body: "世界上最漫长、最烧钱的一场竞选。从这一刻起，你的每一步都会被全国放大。",
@@ -995,7 +995,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_pres_primary", grade: "major", category: "career", unique: false,
+    id: "camp_pres_primary", brief: { lede: "一场初选接一场，早期州决定你是势头还是泥潭。", known: ["早期州连胜能滚出不可逆的势头。", "全押早期赌爆发，拼代表数赌长线。", "一州一州的消耗会先耗垮钱包。"], unknown: ["久攻不下，退选的声音会党内先起。"] }, grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 8, tierMax: 8, weight: 1,
     title: "各州初选连胜",
     body: "一场初选接着一场。你要么在早期州连胜打出势头，要么在泥潭里被磨尽。",
@@ -1025,7 +1025,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_pres_nomination", grade: "major", category: "career", unique: false,
+    id: "camp_pres_nomination", brief: { lede: "代表大会：你需要过半代表票。", known: ["最后一批摇摆代表正在打量你值不值。", "逐派交易赌精算，基层浪潮赌声势。", "安静数票稳妥，却可能差最后几票。"], unknown: ["差一票过半，提名就旁落他人。"] }, grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 8, tierMax: 8, weight: 1,
     title: "锁定党内提名",
     body: "党代表大会。你需要过半代表票，而最后一批摇摆代表正在看你值不值得。",
@@ -1065,7 +1065,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_pres_debate", grade: "major", category: "career", unique: false,
+    id: "camp_pres_debate", brief: { lede: "亿万人在看，一句失言能断送大位。", known: ["这是全国级别的正面交锋。", "展格局赌稳重，钉对手赌杀伤。", "不失态也不搏命，稳却未必抢眼。"], unknown: ["一句口误会被循环播放到投票日。"] }, grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 8, tierMax: 8, weight: 1,
     title: "总统电视辩论",
     body: "亿万人在看。一句失言可能直接断送人主之位。",
@@ -1095,7 +1095,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_pres_swing", grade: "major", category: "career", unique: false,
+    id: "camp_pres_swing", brief: { lede: "选举人团游戏缩到几个摇摆州，最后七天。", known: ["赢下摇摆州才赢下整个大选。", "金库全开赌火力，亲赴集会赌人心。", "按节奏跑完关键州，稳而不猛。"], unknown: ["押错州，领先全国普选票也坐不上大位。"] }, grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 8, tierMax: 8, weight: 1,
     title: "摇摆州的最后冲刺",
     body: "选举人团的游戏缩到了几个摇摆州。最后七天，你把一切押上去。",

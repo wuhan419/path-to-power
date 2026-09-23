@@ -22,12 +22,15 @@
     P.app().innerHTML =
       '<div class="center" style="padding:26px 0">' +
       '<div class="masthead"><div class="title">权力之路</div>' +
-      '<div class="meta">一个美国小伙的从政之路<br>文字驱动 · 政治生涯模拟 · 引擎 v' + P.VERSION + "</div></div>" +
+      '<div class="meta">一个美国小伙的从政之路<br>文字驱动 · 政治生涯模拟</div></div>' +
       hero +
-      '<p class="muted">从社区里那个啥都没有的年轻人做起，在历史的浪潮里一步一步爬向权力顶点——或摔下去。<br>选择难度，投出命运，存档随时在手。</p>' +
+      '<p class="muted">《权力之路》是一款文字驱动的政治生涯模拟。你从 1980 年代一个一无所有的年轻人起步，' +
+      '在四十年美国政治的风浪里经营声望、金脉与人情，一路从社区议会爬向州府、国会，直至问鼎白宫——或在中途轰然倒下。</p>' +
+      '<p class="muted">玩法极简：选定难度与出身，开始你的从政路。每个月都会撞上真实历史事件与虚构风波' +
+      '（挑战者号、伊朗门、9·11、金融危机、大选年……），你只需为每一次抉择押下砝码。每个决定都在改写' +
+      '声望、资金、人情与把柄的天平，左右你的选民基本盘，决定你能否赢得选举、向上攀登。没有标准答案，' +
+      '多种结局，等你走出属于自己的权力之路。</p>' +
       '<button class="btn primary" onclick="POTUS.startCreate()">开始新游戏</button> ' +
-      '<button class="btn" onclick="POTUS.openLoad()">读取存档</button>' +
-      '<p class="hintline">内容规模：' + P.events.length + ' 个事件 · ' +
-      Object.keys(P.reg.ending).length + ' 条结局 · 5 档难度起步</p></div>';
+      '<button class="btn" onclick="POTUS.openLoad()">读取存档</button></div>';
   };
 })();

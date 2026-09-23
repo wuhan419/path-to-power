@@ -112,7 +112,53 @@ const nShortTitle = rows.filter(r => r.titleLen > 0 && r.titleLen < 8).length;
 /* ---------- 报告 ---------- */
 function pad(s, n) { s = String(s); return s.length >= n ? s : s + " ".repeat(n - s.length); }
 
-if (has("long")) {
+if (has("brief")) {
+  /* ---------- brief 篇幅审计（落实 CONTENT-SCHEMA §11.7 硬上限） ---------- */
+  /* 上限：总字 ≤300；lede ≤50；known ≤4条×≤30；rumor ≤2条×≤25；unknown ≤2条×≤20；terms ≤2个且解释≤20 */
+  const arr = (a) => Array.isArray(a) ? a : [];
+  const detail = has("detail");
+  const findings = [];
+  for (const ev of events.filter(fileFilter)) {
+    const b = ev.brief; if (!b) continue;
+    const lede = charCount(b.lede);
+    const known = arr(b.known), rumor = arr(b.rumor), unknown = arr(b.unknown), terms = arr(b.terms);
+    const knownSum = known.reduce((s, x) => s + charCount(x), 0);
+    const rumorSum = rumor.reduce((s, x) => s + charCount(x), 0);
+    const unkSum = unknown.reduce((s, x) => s + charCount(x), 0);
+    const termSum = terms.reduce((s, t) => s + charCount(t && t.k) + charCount(t && t.v), 0);
+    const totalWords = lede + knownSum + rumorSum + unkSum + termSum;
+    const probs = [];
+    if (totalWords > 300) probs.push("总字" + totalWords + ">300");
+    if (lede > 50) probs.push("lede" + lede + ">50");
+    if (known.length > 4) probs.push("known条数" + known.length + ">4");
+    known.forEach((x, i) => { if (charCount(x) > 30) probs.push("known#" + (i + 1) + "=" + charCount(x) + ">30"); });
+    if (rumor.length > 2) probs.push("rumor条数" + rumor.length + ">2");
+    rumor.forEach((x, i) => { if (charCount(x) > 25) probs.push("rumor#" + (i + 1) + "=" + charCount(x) + ">25"); });
+    if (unknown.length > 2) probs.push("unknown条数" + unknown.length + ">2");
+    unknown.forEach((x, i) => { if (charCount(x) > 20) probs.push("unknown#" + (i + 1) + "=" + charCount(x) + ">20"); });
+    if (terms.length > 2) probs.push("terms个" + terms.length + ">2");
+    terms.forEach((t, i) => { if (charCount(t && t.v) > 20) probs.push("terms#" + (i + 1) + "解释>20"); });
+    if (probs.length) findings.push({ file: fileOfId[ev.id] || "(未定位)", id: ev.id, grade: ev.grade || "-", totalWords, probs });
+  }
+  findings.sort((a, b) => b.totalWords - a.totalWords);
+  console.log("== brief 篇幅审计（§11.7 硬上限）：" + findings.length + " 个事件超标 ==");
+  let curFile = "";
+  for (const f of findings) {
+    if (f.file !== curFile) { curFile = f.file; console.log("  ── " + curFile + " ──"); }
+    console.log("  " + pad("T" + f.totalWords, 6) + " " + pad(f.grade, 6) + " " + pad(f.id, 26) + "  " + f.probs.join(", "));
+    if (detail) {
+      const ev = events.find(e => e.id === f.id); const b = ev.brief;
+      console.log("       lede: " + (b.lede || ""));
+      arr(b.known).forEach((x, i) => console.log("       known#" + (i + 1) + " (" + charCount(x) + "): " + x));
+      arr(b.rumor).forEach((x, i) => console.log("       rumor#" + (i + 1) + " (" + charCount(x) + "): " + x));
+      arr(b.unknown).forEach((x, i) => console.log("       unknown#" + (i + 1) + " (" + charCount(x) + "): " + x));
+      arr(b.terms).forEach((t, i) => console.log("       terms#" + (i + 1) + " (" + charCount(t && t.v) + "): " + (t && t.k) + "=" + (t && t.v)));
+    }
+  }
+  const byFile = {}; findings.forEach(f => { byFile[f.file] = (byFile[f.file] || 0) + 1; });
+  console.log("  ── 按文件汇总 ──");
+  Object.entries(byFile).sort((a, b) => b[1] - a[1]).forEach(([f, n]) => console.log("  " + pad(n, 4) + "  " + f));
+} else if (has("long")) {
   console.log("== body 超 " + LIMIT + " 字的事件（降序，共 " + nLong + " 个）==");
   rows.filter(r => r.longBody).sort((a, b) => b.bodyLen - a.bodyLen)
     .forEach(r => console.log("  " + pad(r.bodyLen, 5) + " 字  " + pad(r.file, 34) + "  " + r.id));

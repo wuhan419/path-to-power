@@ -111,6 +111,21 @@
     return segs.join("\n\n");
   };
 
+  /* 时代简报头版照：第一步全年份共用 era.jpg；第二步若有 era-<year>.jpg 则优先用之年专属头版。
+     onerror 回退保证「丢了某年图」也不会破版。 */
+  P.eraFrontPhoto = function (year) {
+    const dir = "assets/events/";
+    const specific = "era-" + year + ".jpg";
+    const generic = "era.jpg";
+    const alt = year + " 年 · 时代简报头版";
+    return '<figure class="art art-press era-front">' +
+      '<img src="' + dir + specific + '" alt="' + alt + '"' +
+      ' onerror="this.onerror=null;this.src=\'' + dir + generic + '\'">' +
+      '<span class="art-ptag">时代头版</span>' +
+      '<span class="art-pnum">卷宗 ' + year + "</span>" +
+      "</figure>";
+  };
+
   P.startYear = function (resume) {
     P.SCREEN = "game";
     const G = P.G, w = P.reg.worldline || {}, era = P.reg.era[G.era] || { name: G.era, brief: {} };
@@ -131,8 +146,9 @@
     P.app().innerHTML =
       P.topbarHTML() +
       '<div class="grid">' +
-      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + (w.name || era.name) +
+      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + (w.name || P.eraName() || era.name) +
       " · " + G.year + ' 年的世界</div><h2>' + G.year + "：时代简报</h2>" +
+      (typeof P.eraFrontPhoto === "function" ? P.eraFrontPhoto(G.year) : "") +
       '<div class="body">' + brief + "</div>" +
       '<div class="yearbar">' +
       "<div>时代压力：<b class=\"" + pl.cls + '">' + pl.text + "</b>（" + P.pressure().toFixed(1) + "／6）　·　压力越高，风波越多、越大。</div>" +
@@ -140,6 +156,7 @@
       "</div>" +
       '</div></div>' +
       '<aside class="col-right">' +
+      /* 右栏 = 上状态栏 + 下操作栏（#statusbox 必须在 .col-right 内，别放回顶部全宽） */
       '<div id="statusbox" class="statusbox">' + P.statusPanel() + '</div>' +
       '<div class="actbar"><div id="actbody"></div></div></aside></div>';
     document.body.className = "game era-" + G.era;
@@ -150,12 +167,12 @@
     P.tickDate();
   };
 
-  /* 从存档恢复：重建"当月"档期，不重头演这一年 */
+  /* 从存档恢复：重建"当月"档期，不重头演这一年。有事月直接进事件，不再过月历页。 */
   P.resumeMonth = function () {
     const G = P.G;
     const plan = (G.monthPlan && G.monthPlan.length) ? G.monthPlan : P.loadMonth(G.month || 1);
     if (!plan.length) { P.nextMonth(); return; }
-    P.renderMonthCard([]);
+    P.nextSlot();
   };
 
   /* 出一个档期：抽事件 → 出题。本月档期出完就推进月份。 */
@@ -170,48 +187,27 @@
     P.nextMonth();
   };
 
-  /* 推进到下一个月；平静月也出一张卡（逐月手动点继续），一年到头就年终结算 */
+  /* 推进到下一个月（v0.9）：
+   *   · 有事发生的月份不再有月历中间页 —— 直接进事件（需求①）；
+   *   · 连续平静月合并成一张卡再走（需求②）；每个月的"上班账"已由 advanceMonth→monthlyLedger 结清。
+   * 逐月推进直到撞到"有事的月"（停在该月、已装载 monthPlan）或一年走完。 */
   P.nextMonth = function () {
     const G = P.G;
-    const before = G.quietMonths.length;
-    const ok = P.advanceMonth();
-    const skipped = G.quietMonths.slice(before);
-    if (ok === "quiet") { P.renderQuietMonthCard(); return; }   // v0.5.2：平静月逐月出卡
+    const run = [];
+    let ok;
+    while (true) {
+      ok = P.advanceMonth();
+      if (ok === "quiet") { run.push(G.month); continue; }
+      break;                                   // ok === "event"（plan 已装载）或 false（年结束）
+    }
+    if (run.length) {
+      const nextCall = ok ? "POTUS.nextSlot()" : "POTUS.endYear()";
+      const label = ok ? "继续 →" : "进入年度结算 →";
+      P.renderQuietRun(run, nextCall, label);  // 连续的平静月 → 合并成一个页面
+      return;
+    }
     if (!ok) { P.endYear(); return; }
-    P.renderMonthCard(skipped);
-  };
-
-  /* ---------------- 平静月的月卡：一个月一个月地过 ----------------
-   * 用户 v0.5.2 的要求：连续平静月不许合并——每个月单独一张卡，手动点继续。
-   * 卡上交代：这个月做了什么（具体工作，素材按轨道/层级筛选）+ 这个月的账
-   * （工资进、开销出、顺手攒的人情/人脉）+ 引擎结算的成长。 */
-  P.renderQuietMonthCard = function () {
-    const G = P.G;
-    const box = P.$("#main");
-    if (!box) return;
-    const m = G.month;
-    /* 这个月的静好结算已经由 advanceMonth→settleQuietMonth 做掉了，这里只读 */
-    const entry = (G.quietLog || []).filter(function (e) { return e.year === G.year && e.month === m; })[0];
-    const gain = (entry && entry.gain) || {};
-    const workLine = P.quietWorkLine(m);            /* 具体做了什么（content/08 的素材） */
-    /* 账目行：工资/开销（引擎按职位与年代实算） + 静好结算的成长 */
-    const acct = P.quietAccount(m, gain);
-    const pl = P.pressureLabel();
-    box.innerHTML = '<div class="news fade monthcard quietcard">' +
-      '<div class="dateline"><span class="dt">' + G.year + " 年 " + m + " 月</span> · 平静的一个月</div>" +
-      "<h2>" + G.year + " 年 " + m + " 月</h2>" +
-      '<div class="mstrip"><div class="mlabel now quiet"><b>' + m + " 月</b><span>平静</span></div></div>" +
-      '<div class="quietwork"><span class="qw-tag">这个月</span><span class="qw-text">' + workLine + "</span></div>" +
-      (acct.html || "") +
-      (entry && entry.text ? '<div class="vig"><div class="vig-body">' +
-        entry.text.split(/\n\n+/).map(function (p) { return '<p class="vig-p">' + p + "</p>"; }).join("") +
-        "</div></div>" : "") +
-      '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b></div></div></div>";
-    /* 继续按钮 → 右栏 */
-    actClear();
-    actAppend('<div class="acthead">这个月过完了</div><button class="btn primary actbtn" onclick="POTUS.nextMonth()">继续 →</button>');
-    P.tickDate();
-    P.refreshPanel();
+    P.nextSlot();                              // 有事的月份（前面没有平静月）→ 直接进事件
   };
 
   /* 平静月的"这个月做了什么"：从素材表里按 轨道×层级 抽一条具体工作。
@@ -232,69 +228,87 @@
     return (w.texts && w.texts.length) ? P.pick(w.texts) : (w.text || "");
   };
 
-  /* 平静月的账目：工资按【职位】实算（reg.officeSalary 可给具体职位定月薪，
-     miss 才退到 tier 公式）- 开销（体面成本）+ 静好成长合并成一行筹码。
-     用户的原则：身份直接决定日常收益——市议员和联邦参议员的工资差一个数量级。 */
-  P.quietAccount = function (m, gain) {
-    const G = P.G, b = P.balance();
-    const q = b.quietAccount || {};
-    /* 工资只从 P.officeSalary() 取（reg.officeSalary → "*_tier" → 公式）。
-       v0.7 起投注的资金汇率也走同一个口径 —— "身份决定钱"只有一个来源。 */
-    const salary = P.officeSalary();
-    const living = P.rint((q.livingMin == null ? 800 : q.livingMin), (q.livingMax == null ? 2200 : q.livingMax)) * (1 + G.tier * 0.6);
-    const net = salary - Math.round(living);
-    G.fun += net;                                    /* 账当场入存档（平静月出卡即结算） */
+  /* 选民增减筹码：把一批 ledger 的 voters 合并成好感/死忠/反对三枚 chip（反对减少=好，配色随之）。 */
+  function voterChips(v) {
+    if (!v) return "";
+    const CN = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
+    const fmt = P.fmtVoterNum || function (x) { return String(x); };
+    let out = "";
+    ["warm", "diehard", "oppose"].forEach(function (k) {
+      const n = v[k]; if (!n) return;
+      const pos = n > 0, isOpp = (k === "oppose");
+      const good = isOpp ? !pos : pos;
+      out += '<span class="gchip2 ' + (good ? "good" : "bad") + '">' + CN[k] + " " + (pos ? "+" : "") + fmt(n) + "</span>";
+    });
+    return out;
+  }
+
+  /* 把若干个月的"上班账"合成一栏筹码：工资/开销/结余（求和）+ 学贷 + 选民（求和）+ 学贷余额小字。
+   * 纯显示 —— 钱已由 core.js monthlyLedger 在时间轴上结清，这里只读 ledger 记录、不再扣钱。 */
+  P.ledgerBoxHTML = function (recs, label) {
+    recs = (recs || []).filter(Boolean);
+    if (!recs.length) return "";
+    let salary = 0, living = 0, net = 0, loanPay = 0, cleared = false, debt = 0, late = 0;
+    const voters = {};
+    recs.forEach(function (r) {
+      salary += r.salary || 0; living += r.living || 0; net += r.net || 0;
+      loanPay += r.loanPay || 0; if (r.loanCleared) cleared = true;
+      if (r.voters) for (const k in r.voters) voters[k] = (voters[k] || 0) + r.voters[k];
+      debt = r.debt || 0; late = r.loanLate || 0;
+    });
     const items = [];
     items.push({ k: "工资", v: "+$" + (salary / 1000).toFixed(1) + "k", sign: 1 });
     items.push({ k: "开销", v: "-$" + (living / 1000).toFixed(1) + "k", sign: -1 });
     items.push({ k: "结余", v: (net >= 0 ? "+$" : "-$") + Math.abs(net / 1000).toFixed(1) + "k", sign: net >= 0 ? 1 : -1 });
-    const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
-    for (const k in (gain.attr || {})) items.push({ k: ATTR_CN[k] || k, v: "+" + gain.attr[k], sign: 1 });
-    if (gain.rep) items.push({ k: "声望", v: "+" + gain.rep, sign: 1 });
-    if (gain.contact) items.push({ k: "人脉好感", v: "+" + gain.contact, sign: 1 });
-    if (gain.fav) items.push({ k: "人情", v: "+" + gain.fav, sign: 1 });
-    if (gain.fun) items.push({ k: "额外进账", v: (gain.fun > 0 ? "+$" : "-$") + Math.abs(gain.fun / 1000).toFixed(1) + "k", sign: gain.fun > 0 ? 1 : -1 });
-    return {
-      net: net,
-      html: '<div class="gainbox"><span class="gtag">这个月的账</span>' +
-        items.map(function (x) {
-          const cls = x.sign > 0 ? "good" : x.sign < 0 ? "bad" : "";
-          return '<span class="gchip2 ' + cls + '">' + x.k + " " + x.v + "</span>";
-        }).join("") + "</div>"
-    };
+    if (loanPay > 0) items.push({ k: "学贷", v: "-$" + (loanPay / 1000).toFixed(1) + "k", sign: -1 });
+    let debtChip = "";
+    if (debt > 0) {
+      const lateTxt = late >= 3 ? " · 已逾期 " + late + " 月" : "";
+      debtChip = '<span class="gchip2 ' + (late >= 3 ? "bad" : "muted") + '">学贷余额 $' + (debt / 1000).toFixed(0) + "k" + lateTxt + "</span>";
+    } else if (cleared) {
+      debtChip = '<span class="gchip2 good">✓ 学贷还清</span>';
+    }
+    return '<div class="gainbox"><span class="gtag">' + (label || "这个月的账") + "</span>" +
+      items.map(function (x) {
+        const cls = x.sign > 0 ? "good" : x.sign < 0 ? "bad" : "";
+        return '<span class="gchip2 ' + cls + '">' + x.k + " " + x.v + "</span>";
+      }).join("") +
+      voterChips(voters) + debtChip + "</div>";
   };
 
-  /* 月历卡：把刚刚「静悄悄过去」的月份一次交代清楚，并把本月要发生什么亮出来 */
-  P.renderMonthCard = function (skipped) {
+  /* ---------------- 连续平静月合并成一张卡（v0.9 需求②） ----------------
+   * 把一段"什么都没发生"的月份并成一页交代：月历条列出这几个月（末月标 now）；
+   * 单月给一条具体工作、多月给一句概括；工资/学贷/选民读 monthlyLedger 已结的账；
+   * 静好岁月随笔 + 按部就班成长由 renderQuiet 出。继续按钮跳到调用方给的下一步。 */
+  P.renderQuietRun = function (months, nextCall, label) {
     const G = P.G;
     const box = P.$("#main");
     if (!box) return;
-    const gc = P.monthGradeCount();
-    const chips = ["major", "mid", "minor"].filter(function (g) { return gc[g]; })
-      .map(function (g) {
-        const d = P.reg.grade[g] || {};
-        return '<span class="gchip ' + (d.cls || "") + '">' + P.gradeName(g) + " ×" + gc[g] + "</span>";
-      }).join("");
+    months = (months || []).filter(function (m) { return m != null; });
+    if (!months.length) { P.nextSlot(); return; }
+    const n = months.length, first = months[0], last = months[n - 1];
+    const recs = months.map(function (m) { return (G.ledger && G.ledger[m]) || null; });
+    const acct = P.ledgerBoxHTML(recs, n === 1 ? "这个月的账" : "这 " + n + " 个月的账");
     let strip = "";
-    (skipped || []).forEach(function (m) {
-      strip += '<div class="mlabel quiet"><b>' + m + ' 月</b><span class="muted">平静</span></div>';
+    months.forEach(function (m) {
+      strip += '<div class="mlabel quiet' + (m === last ? " now" : "") + '"><b>' + m + ' 月</b><span>平静</span></div>';
     });
-    strip += '<div class="mlabel now"><b>' + G.month + " 月</b><span>有事发生</span>" + chips + "</div>";
+    const workHtml = n === 1
+      ? '<div class="quietwork"><span class="qw-tag">这个月</span><span class="qw-text">' + P.quietWorkLine(first) + "</span></div>"
+      : '<div class="quietwork"><span class="qw-tag">这几个月</span><span class="qw-text">按部就班，没有哪件事值得单独记一笔。</span></div>';
+    const quiet = P.renderQuiet(months);
     const pl = P.pressureLabel();
-    const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
-    /* 静好岁月：刚刚静悄悄过去的月份，不只是一行"平静"——写成一段日子给玩家看，
-       同时把"按部就班"的那点成长结算掉（同一个月只结算一次）。 */
-    const quiet = P.renderQuiet(skipped);
-    box.innerHTML = '<div class="news fade monthcard">' +
-      '<div class="dateline"><span class="dt">' + G.year + " 年 " + G.month + " 月</span> · 月历</div>" +
-      "<h2>" + G.year + " 年 " + G.month + " 月</h2>" +
+    const rangeTxt = n === 1 ? (G.year + " 年 " + first + " 月") : (G.year + " 年 " + first + " 月 – " + last + " 月");
+    const subtitle = n === 1 ? "平静的一个月" : ("平静地度过了 " + n + " 个月");
+    box.innerHTML = '<div class="news fade monthcard quietcard">' +
+      '<div class="dateline"><span class="dt">' + rangeTxt + "</span> · " + subtitle + "</div>" +
+      "<h2>" + rangeTxt + "</h2>" +
       '<div class="mstrip">' + strip + "</div>" +
+      workHtml + acct +
       (quiet.html || "") +
-      '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b>" +
-      (media ? "　·　媒介：" + media : "") + "</div></div></div>";
-    /* 继续按钮 → 右栏 */
+      '<div class="yearbar"><div>时代压力：<b class="' + pl.cls + '">' + pl.text + "</b></div></div></div>";
     actClear();
-    actAppend('<div class="acthead">本月</div><button class="btn primary actbtn" onclick="POTUS.nextSlot()">继续 →</button>');
+    actAppend('<div class="acthead">' + (n === 1 ? "这个月过完了" : "这几个月过完了") + '</div><button class="btn primary actbtn" onclick="' + nextCall + '">' + label + "</button>");
     P.tickDate();
     P.refreshPanel();
   };
@@ -568,6 +582,12 @@
     const standfirst = standfirstOf(ev);
     /* 档案编号：本局走到第几件事（不足三位补零），配合等宽字做档案标签 */
     const dno = String(((P.G.history || []).length) + 1).padStart(3, "0");
+    /* v0.9：有事发生的月份也把"本月上班的账"（工资/开销/学贷/选民）露在事件卡顶部。
+       只在本月第一件事上显示（避免同月多事件重复刷屏）；钱已由 advanceMonth→monthlyLedger 结清。 */
+    let settleHTML = "";
+    if (P.G.slotIndex === 1 && P.G.ledger && P.G.ledger[P.G.month]) {
+      settleHTML = P.ledgerBoxHTML([P.G.ledger[P.G.month]], "本月 · 身位结算");
+    }
     box.innerHTML =
       '<article class="news editorial fade">' +
       '<div class="stamp">档案</div>' +
@@ -580,6 +600,7 @@
           (ev.type ? '<span class="cchip">' + ev.type + "</span>" : "") +
         '</span>' +
       '</div>' +
+      settleHTML +
       chainHTML +
       '<h1 class="headline">' + (ev.title || "") + '</h1>' +
       (standfirst ? '<p class="standfirst">' + standfirst + "</p>" : "") +

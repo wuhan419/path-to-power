@@ -29,6 +29,14 @@
   /* v0.8 顶栏：左 = 游戏级操作（含「动态」弹窗）；右 = 核心身份徽标（取代旧标题
      “权力之路”）——姓名·职位·T层级·年龄·在位，像别的游戏的“等级栏”，按层级配色。
      徒章包在 #ident 里，随月份/事件刷新（见 topbar.js 的 identityHTML / refreshPanel）。 */
+  /* 时代名（视图层）：去时代化后开局统一从 1980 起，内容侧「保守回潮 (1980)」这类
+     年份后缀是遗留物 —— 展示层统一剥掉（内容文件不动，标题里年份由 kb-r 单独报）。 */
+  P.eraName = function () {
+    const G = P.G;
+    const raw = G ? (((P.reg.era || {})[G.era] || {}).name || G.era || "") : "";
+    return String(raw).replace(/\s*[（(]\d{4}[）)]\s*$/, "");
+  };
+
   P.topbarHTML = function () {
     let kicker = "";
     const G = P.G;
@@ -36,16 +44,18 @@
       const b = P.balance() || {};
       const startAge = b.startAge == null ? 25 : b.startAge;
       const yrs = (G.age || startAge) - startAge + 1;
-      const eraName = ((P.reg.era || {})[G.era] || {}).name || G.era;
       kicker = '<div class="kicker-band">' +
-        '<span>权力之路 · <b>' + eraName + '</b> · 第 ' + yrs + ' 个年头</span>' +
+        '<span class="kb-l">权力之路 · <b>' + P.eraName() + '</b> · 第 ' + yrs + ' 个年头</span>' +
+        '<span class="kb-ops">' + P.opsButtons() + '</span>' +
         '<span class="kb-r">' + G.year + ' 年 ' + (G.month || 1) + ' 月 · ' + (G.name || "") + '</span>' +
         '</div>';
     }
-    return kicker + '<header class="topbar">' +
-      '<div class="tb-ops">' + P.opsButtons() + '</div>' +
-      '<div class="tb-ident" id="ident">' + P.identityHTML() + '</div>' +
-      '</header>';
+    /* v0.9 框架收敛（不做大改）：原「有头像的标题栏」拆成两半——
+       ① 游戏级操作 + 标题/时代/年份 + 日期/姓名 → 收进这条黑色 kicker 条（就在这里）；
+       ② 身份证式状态卡（头像·姓名·年龄 / 等级·晋升·日期·资源·选区基本盘 / 标签·派系·人脉）
+          → 放进右栏状态带顶部（见 topbar.js 的 statusPanel() 里 #ident / .idc-id）。
+       骨架保持原样：左 = 事件；右 = 上状态栏 + 下操作栏。 */
+    return kicker;
   };
 
   /* ---------------- 悬浮说明气泡（固定层，避免被边栏 overflow 裁切） ----------------

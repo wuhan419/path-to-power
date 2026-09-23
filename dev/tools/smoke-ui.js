@@ -47,48 +47,47 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   console.log("  引擎 v" + P.VERSION + " ｜ 事件 " + P.events.length + " ｜ 时代 " + Object.keys(P.reg.era).length +
     " ｜ 类型 " + Object.keys(P.reg.category).length + " ｜ 媒介 " + Object.keys(P.reg.medium).length);
 
-  console.log("\n== 标题 → 建角 ==");
+  console.log("\n== 标题 → 建角（快速开局·选难度） ==");
   check(text().indexOf("开始新游戏") >= 0, "标题屏渲染出「开始新游戏」");
-  w.document.querySelector("button.primary").click();
-  check(text().indexOf("创建角色") >= 0, "点击后进入建角屏");
-  const opts = w.document.querySelectorAll(".opt");
-  check(opts.length >= 20, "建角选项被注册表自动生成（" + opts.length + " 个）");
-  for (const k of ["era", "origin", "talent", "entry", "party", "stance", "state"]) {
-    w.document.querySelector('.opt[onclick*="\'' + k + '\'"]').click();
-  }
-  /* v0.5：还要掷一次骰，建角才算齐 */
-  w.document.getElementById("rollBtn").click();
-  check(!!P.CSEL.rolled, "掷骰完成（CSEL.rolled）");
-  P.CSEL.name = "测试者";
-  const goBtn = btn("进入");
-  check(!!goBtn && !goBtn.disabled, "选满 6 项后「进入」按钮解禁");
-  goBtn.click();
+  w.document.querySelector("button.primary").click();          // 开始新游戏 → startCreate
+  check(text().indexOf("选择难度") >= 0, "点击后进入快速开局（选难度）屏");
+  const diffs = w.document.querySelectorAll(".opt-diff");
+  check(diffs.length >= 3, "难度选项被注册表自动生成（" + diffs.length + " 个）");
+  P.CSEL.name = "测试者";                                       // 姓名直接写进 CSEL（不依赖输入框事件）
+  const goBtn = btn("开始游戏");
+  check(!!goBtn, "建角屏有「开始游戏 →」按钮");
+  goBtn.click();                                               // confirmCreate → 进入第一年
   check(!!P.G && P.G.name === "测试者", "开局成功，P.G 已建立");
-  check(w.document.body.className.indexOf("era-") === 0, "时代皮肤已应用到 body");
+  check(/era-/.test(w.document.body.className), "时代皮肤已应用到 body");
   check(Array.isArray(P.G.monthPlan) && Array.isArray(P.G.doneIds), "存档结构已切到月回合（monthPlan / doneIds）");
 
-  /* ---------- 年卡 → 月历卡 → 档期 ---------- */
-  console.log("\n== 年卡 → 月历卡 → 档期 ==");
+  /* ---------- 年卡 → （有事直接事件 / 平静合并卡） → 档期 ---------- */
+  console.log("\n== 年卡 → 事件/平静 → 档期 ==");
   check(text().indexOf("时代简报") >= 0, "开局显示时代简报");
   check(/时代压力/.test(text()), "年卡上标出时代压力");
   check(/此刻存在的媒介/.test(text()), "年卡上列出本年存在的媒介");
   const yBtn = btn("进入 1 月");
   check(!!yBtn, "年卡上有「进入 1 月 →」按钮");
   yBtn.click();
-  check(!!w.document.querySelector(".mstrip"), "点击后进入月历卡（含月历条）");
-  check(!!w.document.querySelector(".mlabel.now"), "月历条标出本月");
+  /* v0.9 需求①：有事的月份不再有月历中间页——直接进事件；平静的月份合并成一张卡 */
+  const janEvent = w.document.querySelectorAll(".choice").length > 0 || !!w.document.querySelector(".editorial");
+  const janQuiet = !!w.document.querySelector(".quietcard");
+  check(janEvent || janQuiet, "点击后进入 1 月：有事→直接事件卡，或平静→平静月卡");
   check(P.G.month >= 1 && P.G.month <= 12, "月份落在 1-12：" + P.G.month);
   /* v0.5.6：原右上角 .masthead .meta 已合并进顶部状态条（去重），报头只留时代名 */
   check(!w.document.querySelector(".masthead .meta"), "右上角信息已合并进顶部状态条（报头不再有 .meta）");
-  const tsBar = w.document.querySelector(".topstat");
-  const ym = tsBar && (tsBar.textContent.match(/\d{4} 年 \d+ 月/) || [])[0];
+  const tsBar = (w.document.getElementById("statusbox") || {}).textContent || "";
+  const ym = (tsBar.match(/\d{4} 年 \d+ 月/) || [])[0];
   check(!!ym, "顶部状态条显示当前年月：" + (ym || "(无)"));
   const sBtn = btn("继续");
-  check(!!sBtn, "年卡上有「继续 →」按钮");
-  sBtn.click();
-  /* v0.5.2：1 月可能有事（选项）也可能平静（月卡）——两条路都合法 */
-  check(w.document.querySelectorAll(".choice").length > 0 || !!w.document.querySelector(".quietcard") || !!w.document.querySelector(".mstrip"),
-    "继续后进入 1 月：有事的月历卡或平静的月卡（渲染出了当月界面）");
+  if (sBtn) {
+    check(!!w.document.querySelector(".mstrip") && !!w.document.querySelector(".mlabel.now"), "平静月卡带月历条并标出末月");
+    sBtn.click();
+    check(w.document.querySelectorAll(".choice").length > 0 || !!w.document.querySelector(".quietcard") || !!w.document.querySelector(".editorial"),
+      "继续后推进：进入事件的选项或下一张平静卡（渲染出了当月界面）");
+  } else {
+    check(janEvent, "1 月有事：无中间页直接进事件（没有「继续」按钮，符合需求①）");
+  }
 
   /* ---------- 日期 + 量级 / 类型 / 媒介徽章 ---------- */
   console.log("\n== 日期 / 量级 / 类型 / 媒介 ==");
@@ -97,11 +96,13 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.G.year = 2008;
   P.G.month = 9;                     // 救市事件钉在 9 月 24 日
   P.presentEvent(crash, { grade: "major" });
-  const dt = w.document.querySelector(".dateline .dt");
-  check(!!dt && dt.textContent === "2008 年 9 月 24 日", "事件卡顶部显示精确日期：" + (dt && dt.textContent));
-  check(!!w.document.querySelector(".dateline .gchip.g-major"), "事件卡标出量级徽章「大事件」");
-  check(/危机/.test(w.document.querySelector(".dateline").textContent), "事件卡标出类型「危机」");
-  check(!!w.document.querySelector(".topstat") && w.document.querySelector(".topstat").textContent.indexOf("2008 年 9 月") >= 0, "顶部状态条同步当前日期");
+  const dt = w.document.querySelector(".dossier-head .dnum");
+  check(!!dt && /2008 年 9 月 24 日/.test(dt.textContent), "事件卡顶部显示精确日期：" + (dt && dt.textContent));
+  const dmeta = (w.document.querySelector(".dmeta") || {}).textContent || "";
+  check(!!w.document.querySelector(".dmeta .gchip") && /大/.test(dmeta), "事件卡标出量级徽章「大事件」");
+  check(/危机/.test(dmeta), "事件卡标出类型「危机」");
+  const tsAll = (w.document.getElementById("statusbox") || {}).textContent || "";
+  check(/2008 年 9 月/.test(tsAll), "顶部状态条同步当前日期");
   P.setMonth({ month: 3, day: 12 });
   check(P.G.month === 9, "更早的月份不应让时间回退（当前月仍为 9）");
 
@@ -110,7 +111,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.G.year = 2025;
   check(P.mediumOK(clip), "2025 年短视频事件可发生");
   P.presentEvent(clip, { grade: "major" });
-  check(/短视频/.test(w.document.querySelector(".dateline").textContent), "媒介徽章显示「短视频」");
+  check(/短视频/.test((w.document.querySelector(".dmeta") || {}).textContent || ""), "媒介徽章显示「短视频」");
   P.G.year = 1960;
   check(!P.mediumOK(clip), "1960 年短视频事件不可发生（媒介门控生效）");
   P.G.year = 2008;
@@ -119,22 +120,22 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   console.log("\n== 事件配图（照片 / 程序化 SVG 降级） ==");
   P.G.month = 9;
   P.presentEvent(crash, { grade: "major" });     // crash 是「危机」类型，有照片
-  const fig = w.document.querySelector(".news .art.art-photo");
-  check(!!fig, "有照片的类型在事件卡上渲染成照片卡（.art-photo）");
+  const fig = w.document.querySelector(".news .art.art-press");   /* 照片层类名：.art-photo → .art-press */
+  check(!!fig, "有照片的类型在事件卡上渲染成照片卡（.art-press）");
   const pimg = fig && fig.querySelector("img");
   check(!!pimg, "照片卡里有 <img>");
   check(!!pimg && pimg.getAttribute("src").indexOf("assets/events/crisis.jpg") >= 0,
     "照片指向登记的文件：" + (pimg && pimg.getAttribute("src")));
-  check(!!pimg && /art-photo-broken/.test(pimg.getAttribute("onerror") || ""),
+  check(!!pimg && /art-press-broken/.test(pimg.getAttribute("onerror") || ""),
     "照片挂了加载失败的降级钩子（onerror）");
-  const tag = fig && fig.querySelector(".art-tag");
-  check(!!tag && tag.textContent === "危机", "照片角标写着类型名：" + (tag && tag.textContent));
+  const tag = fig && fig.querySelector(".art-ptag");
+  check(!!tag && /危机/.test(tag.textContent), "照片角标写着类型名：" + (tag && tag.textContent));
   const back = fig && fig.querySelector(".art-back");
   check(!!back && !!back.querySelector("svg"), "照片底下垫着同类型的程序化 SVG（缺图时顶上）");
   /* 真的把加载失败演一遍：派发 error 事件，卡片应切到「破图态」 */
   if (pimg) {
     try { pimg.dispatchEvent(new w.Event("error")); } catch (e) { /* jsdom 不编译内联处理器时跳过 */ }
-    const broke = fig.classList.contains("art-photo-broken");
+    const broke = fig.classList.contains("art-press-broken");
     if (pimg.onerror || broke) {
       check(broke, "图片加载失败后卡片切到破图态（露出兜底 SVG）");
     } else {
@@ -147,7 +148,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     const npEv = P.events.find(e => noPhotoCats.indexOf(e.category) >= 0) ||
       { title: "无图事件", category: noPhotoCats[0], choices: [] };
     P.presentEvent(npEv, { grade: "mid" });
-    check(!w.document.querySelector(".news .art-photo"), "没照片的类型（" + npEv.category + "）不渲染照片卡");
+    check(!w.document.querySelector(".news .art-press"), "没照片的类型（" + npEv.category + "）不渲染照片卡");
     check(!!w.document.querySelector(".news svg.art"), "没照片的类型退回程序化 SVG");
   } else {
     console.log("  · 所有类型都有照片，跳过「缺图退 SVG」断言");
@@ -181,17 +182,30 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const gala = P.events.find(e => e.id === "demo_donor_gala");
   const hearing = P.events.find(e => e.id === "demo_hearing");
   check(!!gala && !!hearing, "演示包已被引擎自动注册");
-  P.G.fun = 50000;                       // 手动压到穷状态（基础盘 startFun 已是 1 万，这里独立设置）
+  /* v0.7 起代价金额按「身位 × 事件钱量级」动态换算（demo 里 fund 值已很小），
+     测试不再写死数字：只验两条规则——「付不起 → 禁用/缺少提示 or 保底放行」「付得起 → 代价：资金 标签」。 */
+  const funCosts = gala.choices.map(function (c) { return (c.cost && c.cost.fun) || 0; });
+  const dearIdx = funCosts.findIndex(function (v) { return v > 0; });
+  const maxFunCost = Math.max.apply(null, funCosts.concat([0]));
+  P.G.fun = 0;                              // 压到没钱
   P.presentEvent(gala, { grade: "minor" });
-  const chBtns = [...w.document.querySelectorAll(".choice")];
+  let chBtns = [...w.document.querySelectorAll(".choice")];
   check(chBtns.length === gala.choices.length, "渲染出全部选项");
-  const floorBtn = chBtns[0];
-  check(floorBtn.disabled, "$750k 的选项在只有 $50k 时被禁用");
-  check(floorBtn.textContent.indexOf("缺少资金") >= 0, "并给出「缺少资金」提示");
-  /* 代价标签的金额从内容算，不写死 —— 内容调价（$120k → $150k）不该弄坏 UI 测试 */
-  const costLabel = "代价：资金 $" + (gala.choices[1].cost.fun / 1000).toFixed(0) + "k";
-  check(chBtns[1].textContent.indexOf(costLabel) >= 0, "付得起的选项显示代价标签：" + costLabel);
-  check(chBtns[1].textContent.indexOf("可投入资源") >= 0, "带 stake 的选项标注「可投入资源」");
+  if (dearIdx >= 0) {
+    const b = chBtns[dearIdx];
+    check(b.disabled || !!w.document.querySelector(".choice.forced"),
+      "资金见底时高代价选项被禁用（或走保底放行一条）");
+    check(!b.disabled || b.textContent.indexOf("缺少") >= 0, "被禁用的选项说明「缺少…」");
+  }
+  /* 改到付得起：资金代价项显示「代价：资金」标签（金额随动态汇率，不写死） */
+  P.G.fun = maxFunCost + 5000;
+  P.presentEvent(gala, { grade: "minor" });
+  chBtns = [...w.document.querySelectorAll(".choice")];
+  check(dearIdx >= 0 && chBtns[dearIdx].textContent.indexOf("代价：资金") >= 0,
+    "付得起的选项显示代价标签「代价：资金 …」");
+  const stakeIdx = gala.choices.findIndex(function (c) { return !!c.stake; });
+  check(stakeIdx >= 0 && chBtns[stakeIdx].textContent.indexOf("可投入资源") >= 0,
+    "带 stake 的选项标注「可投入资源」");
 
   /* ---------- 投注面板 ---------- */
   console.log("\n== D&D 式投注面板（stake）==");
@@ -203,15 +217,15 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   w.document.querySelectorAll(".choice")[idx].click();
   const panel = w.document.getElementById("stake");
   check(!!panel, "点击带 stake 的选项后打开了投注面板");
-  check(!!w.document.getElementById("stFunPlus") && !!w.document.getElementById("stApPlus") && !!w.document.getElementById("stFav"),
-    "面板列出 资金 / 精力 / 人情 三种投入方式");
+  /* v0.9：精力已退役，投注面板只有 资金（可加减档）与 人情（重投开关） */
+  check(!!w.document.getElementById("stFunPlus") && !!w.document.getElementById("stFav"),
+    "面板列出 资金 / 人情 两种投入方式");
   check(w.document.getElementById("choices").style.display === "none", "投注时选项列表被收起来");
   check(!w.document.querySelector(".check-preview"), "投注面板不再显示判定目标值/胜率（掷骰对用户隐藏）");
   w.document.getElementById("stFunPlus").click();
   w.document.getElementById("stFunPlus").click();
-  w.document.getElementById("stApPlus").click();
   w.document.getElementById("stFav").click();
-  const pAfter = P.computeP(allIn, P.stakeInfo(allIn, { fun: 2, ap: 1, fav: true })).P;
+  const pAfter = P.computeP(allIn, P.stakeInfo(allIn, { fun: 2, fav: true })).P;
   check(pAfter > beforeP,
     "后台胜算仍随加码上升（引擎不变，只是不再显示）：" + beforeP.toFixed(3) + " → " + pAfter.toFixed(3));
 
@@ -226,17 +240,12 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const openStake = () => { w.document.querySelectorAll(".choice")[idx].click(); };
   const perFun = () => P.stakeSpec(allIn).fun.per;      /* v0.7：每档金额按身位 × 事件钱量级动态算 */
 
-  /* 精力：每点 +3%、上限 +9% → 只能投 3 点。过去能一路 + 到 12 点，第 4 点起纯属白花。 */
+  /* v0.9：精力投注轴退役（不再有 stApPlus / 精力行）。原「精力上限护栏」改验资金轴。 */
   w.document.getElementById("stBack").click();
-  P.G.fun = 3000000; P.G.ap = 12; P.G.fav = 3;
+  P.G.fun = 3000000; P.G.fav = 3;
   openStake();
-  check(P.stakeMax("ap", allIn) === 3, "精力上限 = cap÷w = 3 点（身上有 12 点也一样）");
-  for (let i = 0; i < 8; i++) { const b = w.document.getElementById("stApPlus"); if (b && !b.disabled) b.click(); }
-  check(valOf("精力") === 3, "连按 8 次 ＋ 后仍停在 3 点（实际 " + valOf("精力") + "）");
-  check(w.document.getElementById("stApPlus").disabled, "到顶后 ＋ 按钮被置灰（不再是「点了没反应」的活按钮）");
-  check(rowOf("精力").textContent.indexOf("加到顶") >= 0, "到顶后说明原因（精力已加到顶，不再显示具体加值百分比）");
-  const apOver = P.stakeInfo(allIn, { fun: 0, ap: 99 });
-  check(apOver.cost.ap === 3, "即便参数被灌成 99，也只扣 3 点精力（实际 " + apOver.cost.ap + "）");
+  check(P.stakeMax("ap", allIn) === 0, "精力已退役：stakeMax(\"ap\") 恒为 0");
+  check(!w.document.getElementById("stApPlus"), "投注面板不再渲染精力加减按钮 stApPlus");
 
   /* 资金：一档都投不起时，过去是"点了没反应" —— 现在置灰 + 说明原因 */
   w.document.getElementById("stBack").click();
@@ -339,20 +348,22 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   console.log("\n== 把柄 / 人脉 / 事件链（承前条）==");
   P.G.era = "2008_CRASH";
   P.G.tier = 2; P.G.lev = 2; P.G.fun = 3000000; P.G.ap = 8; P.G.fav = 3; P.G.rep = 40;
+  P.G.tierSince = P.monthSeq() - 15;                 // 让职位卡显示“在位 1 年余”，验证顶栏在位时长
   P.G.contacts = { columnist: 34, fixer: -25 };
 
   const showdown = P.events.find(e => e.id === "archive_showdown");
   check(!!showdown, "档案链第三幕（摊牌）已注册");
   P.presentEvent(showdown, { grade: "major" });
 
-  /* 状态面板：把柄份数 + 人脉（用登记表里的名字，不是 id） */
-  const panelTxt = w.document.querySelector(".panel").textContent;
-  check(panelTxt.indexOf("把柄 2 份") >= 0, "状态面板显示把柄份数：" + (panelTxt.match(/把柄 \d+ 份/) || [""])[0]);
-  check(panelTxt.indexOf("专栏作家") >= 0 && panelTxt.indexOf("老雷") >= 0, "人脉列表用登记表里的名字（专栏作家 / 老雷）");
-  check(panelTxt.indexOf("人脉") >= 0, "状态面板有「人脉」一节");
-  /* v0.5.6：职位卡（含"在位 N 个月"）已从左栏 .panel 提到顶部状态条 .topstat */
-  const topTxt = (w.document.querySelector(".topstat") || {}).textContent || "";
-  check(topTxt.indexOf("在职") >= 0 || topTxt.indexOf("在位") >= 0, "顶部状态条显示当前层级的在位月数");
+  /* 状态卡：把柄瓷贴（v0.9 回归）+ 人脉 chip（用登记表里的名字，不是 id） */
+  const sbTxt = (w.document.getElementById("statusbox") || {}).textContent || "";
+  check(/把柄/.test(sbTxt) && /2/.test(sbTxt), "状态卡显示把柄（瓷贴）");
+  check(sbTxt.indexOf("专栏作家") >= 0 && sbTxt.indexOf("掮客") >= 0, "人脉 chip 用登记表里的名字（专栏作家 / 掮客）");
+  check(sbTxt.indexOf("人脉") >= 0, "状态卡有「人脉」一节");
+  check(/等级 3/.test(sbTxt), "状态卡人物卡显示等级徽标");
+  /* 在位时长不再直接上屏（v0.8），收进晋升条悬浮提示 */
+  const progEl = w.document.querySelector(".statusbox .idc-prog");
+  check(!!progEl && /在位/.test(progEl.getAttribute("data-tip") || ""), "晋升条悬浮提示含在位/规则说明");
 
   /* 把柄作为代价：没有把柄 → 置灰 + 说明原因；有把柄 → 显示「代价：把柄 1」 */
   const findBtn = (kw) => [...w.document.querySelectorAll(".choice")].find(b => b.textContent.indexOf(kw) === 0);
@@ -397,37 +408,44 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const chain = w.document.querySelector(".chain");
   check(!!chain, "续集事件卡顶部渲染出「承前」条");
   check(chain.textContent.indexOf("承") >= 0, "承前条带「承 前」标签");
-  check(chain.textContent.indexOf("地下室里没有编号的那一格") >= 0, "承前条写出上一幕的标题");
+  check(chain.textContent.indexOf("没编号的卷宗") >= 0, "承前条写出上一幕的标题");
   check(chain.textContent.indexOf("4 个月前") >= 0, "承前条写出相隔多久：" + (chain.textContent.match(/\d+ 个月前/) || [""])[0]);
   /* 没有前情的事件不该长出承前条 */
   P.presentEvent(kill, { grade: "mid" });
   check(!w.document.querySelector(".chain"), "没有 after 的事件不渲染承前条");
 
-  /* ---------- 静好岁月：平静的月份也要有日子可看、有人可长 --------------
-   * 这里不靠随机数：直接给出"已经结算好的" quietLog（含成长明细），
-   * 断言的是渲染逻辑本身 —— 随机那一部分由 validate.js 的 300 局模拟覆盖。 */
-  console.log("\n== 静好岁月（逐月出卡：这个月做了什么 + 这个月的账） ==");
-  /* v0.5.2：平静月单独出卡（renderQuietMonthCard），旧的合并渲染仍保留给月历卡用 */
+  /* ---------- 上班的账 + 静好岁月 -----------------------------------------
+   * v0.9：日常结算（工资-开销/学贷/选民）已搬到时间轴，每月经手一次（有事/无事都算）。
+   * 这里不靠随机数：直接断言 monthlyLedger 的入账与幂等，以及合并卡的渲染。 */
+  console.log("\n== 上班的账（monthlyLedger） + 平静月合并卡（renderQuietRun） ==");
   P.G.year = 2010; P.G.month = 3; P.G.vigYear = 2010; P.G.vigMonth = 0;
+  P.G.ledgerYear = 2010; P.G.ledger = {};
   P.G.quietMonths = [1, 2];
   P.G.quietLog = [
     { year: 2010, month: 1, text: "一月。雪下了一场又一场，早上先铲出车道才能出门。", gain: { attr: { CHA: 1 }, hp: 0, rep: 1, contact: 0, fun: 0, ap: 0, fav: 0 } },
     { year: 2010, month: 2, text: "二月，残冬。你把手头的事一件一件地做完。", gain: { attr: { CHA: 1, INT: 1 }, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0 } }
   ];
-  /* 平静月的月卡：具体工作 + 账目（工资/开销/结余） + 逐月继续按钮 */
-  P.G.month = 1;
+  /* monthlyLedger：工资-开销当场入 G.fun，并记进 G.ledger（幂等） */
   const funB4 = P.G.fun;
-  P.renderQuietMonthCard();
-  check(!!w.document.querySelector(".quietcard"), "平静月渲染出独立的月卡（.quietcard）");
-  check(!!w.document.querySelector(".quietwork"), "月卡上有「这个月」工作行");
+  const rec1 = P.monthlyLedger(1);
+  check(!!rec1 && typeof rec1.net === "number" && typeof rec1.salary === "number", "monthlyLedger 结出这个月的账（结余 " + (rec1 && rec1.net) + "）");
+  check(P.G.fun !== funB4 || (rec1 && rec1.net === 0), "工资-开销当场入账（$" + (funB4 / 1000).toFixed(0) + "k → $" + (P.G.fun / 1000).toFixed(0) + "k）");
+  check(P.G.ledger[1] === rec1, "同一个月的账记进 G.ledger（供界面只读）");
+  const funAfter = P.G.fun;
+  P.monthlyLedger(1);
+  check(P.G.fun === funAfter, "重复结算同一个月不重复入账（幂等）");
+  /* 合并卡（单月）：具体工作 + 账目（工资/开销/结余，读 ledger）+ 静好随笔 + 继续按钮 */
+  P.renderQuietRun([1], "POTUS.nextSlot()", "继续 →");
+  check(!!w.document.querySelector(".quietcard"), "平静月渲染出合并卡（.quietcard）");
+  check(!!w.document.querySelector(".mstrip") && !!w.document.querySelector(".mlabel.now"), "合并卡带月历条并标出末月");
+  check(!!w.document.querySelector(".quietwork"), "卡上有「这个月」工作行");
   const qwTxt = w.document.querySelector(".qw-text").textContent;
   check(qwTxt.length >= 10, "工作行是具体的一件事：" + qwTxt.slice(0, 30) + "…");
-  check(!!w.document.querySelector(".gainbox"), "月卡上有「这个月的账」");
+  check(!!w.document.querySelector(".gainbox"), "卡上有「这个月的账」");
   const acctTxt = w.document.querySelector(".gainbox").textContent;
   check(acctTxt.indexOf("工资") >= 0 && acctTxt.indexOf("开销") >= 0 && acctTxt.indexOf("结余") >= 0,
     "账目含 工资/开销/结余：" + acctTxt.replace(/\s+/g, " ").slice(0, 60));
-  check(P.G.fun !== funB4, "工资-开销当场入账（$" + (funB4 / 1000).toFixed(0) + "k → $" + (P.G.fun / 1000).toFixed(0) + "k）");
-  check(!!btn("继续"), "平静月也有「继续 →」（逐月手动推进）");
+  check(!!btn("继续"), "平静月也有「继续 →」");
   /* renderQuiet（合并渲染）仍在被年终等场景引用：直接验证其输出 */
   P.G.quietMonths = [1, 2];
   const rq = P.renderQuiet([1, 2]);
@@ -444,64 +462,32 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   /* ---------- 大模型适配层已整体下架：引擎不再内置任何联网/模型能力，
    * 因此本冒烟不再断言任何 AI 按钮或润色入口（游戏本身自始至终不依赖网络）。 ---------- */
 
-  /* ---------- v0.5：掷骰建角 / VIP / 州选择 / 收益面板 / 选项说明 / 下野 ---------- */
-  console.log("\n== v0.5 掷骰建角 / VIP / 州 / 收益面板 / 下野 ==");
-  w.document.querySelector("button").click();                       // 回标题（退出按钮在工具条最左？不——直接重开）
+  /* ---------- 建角：demo 已简化为「快速开局」（选难度+姓名）；旧的全量建角（掷骰/选州/VIP）
+   * 作为引擎函数保留在本目录（便于回退），只是 renderCreate 不再走它。此处验快速开局 UI + 引擎级函数仍在。 ---------- */
+  console.log("\n== 建角（快速开局 UI + 引擎级掷骰/VIP/州函数保留）==");
   P.renderTitle();
-  w.document.querySelectorAll("button");                            // 触发一次渲染
   P.startCreate();
-  check(text().indexOf("出生州") >= 0, "建角屏出现「出生州」选择组");
-  check(text().indexOf("定命一掷") >= 0, "建角屏出现「定命一掷」掷骰块");
-  /* 州选项 */
-  const stateOpts = [...w.document.querySelectorAll('.opt[onclick*="\'state\'"]')];
-  check(stateOpts.length >= 5, "州选项被注册表自动生成（" + stateOpts.length + " 个）");
-  check(stateOpts.some(o => o.textContent.indexOf("摇摆州") >= 0 || o.textContent.indexOf("民主党地盘") >= 0 || o.textContent.indexOf("共和党地盘") >= 0),
-    "州选项标注了政治倾向");
-  stateOpts[0].click();
-  check(P.CSEL.state !== null, "州被选中");
-  /* 掷骰块 */
-  const rollBtn = w.document.getElementById("rollBtn");
-  check(!!rollBtn, "掷骰按钮存在");
-  rollBtn.click();
+  check(text().indexOf("选择难度") >= 0, "建角屏是快速开局：出现「选择难度」");
+  check(text().indexOf("姓名") >= 0, "建角屏要求填「姓名」（留空默认汤米）");
+  P.pickDifficulty("brutal");
+  check(P.CSEL.difficulty === "brutal" && P.CSEL.origin === "labor", "选难度会切换出身（炼狱→蓝领 labor）");
+  check(!!w.document.querySelector(".opt-diff.sel"), "当前难度在界面上高亮（.opt-diff.sel）");
+  /* 引擎级的定命一掷 / 自由点 / VIP / 州联动函数仍在（旧完整建角保留可回退） */
+  P.rollAttrs();
   check(!!P.CSEL.rolled && ["CHA", "INT", "CUN", "INTG"].every(k => typeof P.CSEL.rolled[k] === "number"),
-    "掷出四属性");
-  check(w.document.querySelectorAll(".rattr").length === 4, "四张属性牌渲染出来");
-  check(!!w.document.getElementById("vipcode"), "掷骰块里出现 VIP 充值码输入");
-  /* 加点按钮真实可点 */
-  const plusBtn = w.document.querySelector("[data-spend=\"CHA,1\"]");
-  check(!!plusBtn && !plusBtn.disabled, "魅力 ＋ 按钮可点");
-  if (plusBtn) { const before = P.CSEL.rolled.CHA + (P.CSEL.spent.CHA || 0); plusBtn.click(); const after = P.CSEL.rolled.CHA + (P.CSEL.spent.CHA || 0); check(after === before + 1, "点击 ＋ 后魅力加 1 点（" + before + "→" + after + "）"); }
-  const minusBtn = w.document.querySelector("[data-spend=\"CHA,-1\"]");
-  if (minusBtn) minusBtn.click();
-  /* VIP 码：测试阶段无限用 */
-  w.localStorage.removeItem("potus_vip_used");
-  const vipInput = w.document.getElementById("vipcode");
-  const vipBtn = w.document.getElementById("vipBtn");
-  check(!!vipInput && !!vipBtn, "充值码输入框与兑换按钮存在");
-  const freeBefore = P.CSEL.freeExtra || 0;
-  if (vipInput && vipBtn) {
-    vipInput.value = "VIP5";
-    vipBtn.click();
-    check((P.CSEL.freeExtra || 0) === freeBefore + 5, "兑换 VIP5 后自由点 +5（" + freeBefore + "→" + P.CSEL.freeExtra + "）");
-    check(text().indexOf("VIP +5") >= 0, "界面显示「含 VIP +5」");
-    /* 第二次兑换：renderCreate 会重建 DOM，必须重新取输入框再填再点 */
-    const vipInput2 = w.document.getElementById("vipcode");
-    const vipBtn2 = w.document.getElementById("vipBtn");
-    vipInput2.value = "VIP5";
-    vipBtn2.click();                                               // 测试阶段同码可无限用
-    check((P.CSEL.freeExtra || 0) === freeBefore + 10, "测试阶段同一个码可无限重复兑换（" + freeBefore + "→+" + ((P.CSEL.freeExtra || 0) - freeBefore) + "）");
-  }
-  /* 建角走完整流程 */
-  for (const k of ["era", "origin", "talent", "entry", "party", "stance", "state"]) {
-    const o = w.document.querySelector(".opt[onclick*=\"" + k + "\"]");
-    if (o) o.click();
-  }
-  P.CSEL.name = "掷骰测试者";
-  const goBtn2 = btn("进入");
-  check(!!goBtn2 && !goBtn2.disabled, "掷骰+选州+选满后「进入」按钮解禁");
-  goBtn2.click();
-  check(!!P.G && P.G.state !== "", "开局成功且记录了出生州");
-  check(!!w.document.querySelector(".topstat") && /\d+ 年 \d+ 月/.test(w.document.querySelector(".topstat").textContent), "顶部状态条显示日期");
+    "rollAttrs() 仍能掷出四属性（引擎保留）");
+  P.spendAttr("CHA", 1);
+  check((P.CSEL.spent.CHA || 0) === 1, "spendAttr() 仍能把自由点洒到属性上");
+  check(typeof P.vipActivate("NOPE_X") === "string", "无效 VIP 码被拒（vipActivate 返回错误原因）");
+  check(P.vipActivate("VIP5") === null, "合法 VIP5 码可激活（引擎保留）");
+  check(typeof P.stateWindFor === "function" && typeof P.stateWindFor("OH", "D") === "number",
+    "stateWindFor() 仍给出州对党派的顺逆风（数值）");
+  /* 确认开局：走快速开局，出生州由系统自动填（铁锈带 OH），难度/出身写进存档 */
+  P.CSEL.difficulty = "hard"; P.CSEL.origin = "immigrant"; P.CSEL.name = "快速开局测试者";
+  P.confirmCreate();
+  check(!!P.G && P.G.name === "快速开局测试者" && P.G.difficulty === "hard", "开局成功，记录姓名与难度");
+  check(!!P.G.state, "出生州由系统自动填（demo 铁锈带锚点）");
+  check(/\d+ 年 \d+ 月/.test((w.document.getElementById("statusbox") || {}).textContent || ""), "顶部状态条显示日期");
   check(!!P.G.yearStartSnap, "年初快照已建立（年终叙事的对比基准）");
 
   /* ---------- 收益结算面板 + 判定明细折叠 ---------- */
@@ -523,13 +509,13 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   } else {
     console.log("  · 该事件无 note，跳过说明折叠断言");
   }
-  /* 事件卡主次顺序：正文 body 在插画 art 之前 */
+  /* 事件卡主次顺序（v0.10 头版社论版式）：标题→导语→配图→正文，图在正文之前 */
   const newsEl = w.document.querySelector(".news");
   const bodyEl = newsEl && newsEl.querySelector(".body");
   const artEl = newsEl && newsEl.querySelector(".art");
   if (bodyEl && artEl) {
-    check(bodyEl.compareDocumentPosition(artEl) & w.document.defaultView.Node.DOCUMENT_POSITION_FOLLOWING,
-      "事件卡顺序：正文在配图之前（描述→图→选项）");
+    check(artEl.compareDocumentPosition(bodyEl) & w.document.defaultView.Node.DOCUMENT_POSITION_FOLLOWING,
+      "事件卡顺序：配图在正文之前（标题→导语→图→正文）");
   }
   /* 真掷一次骰看结算 */
   const ch0 = ev5.choices[0];
@@ -576,41 +562,35 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(text().indexOf("平静的月份") >= 0, "年终卡统计了平静的月份数（文字已逐月出过，不再重复）");
   check(!!btn("进入"), "年终结算卡上有进入下一年的按钮");
 
-  /* ---------- 三栏布局：操作栏必须真的在 .grid 内（右侧），不能掉到下面 ----------
-     回归事故：startYear 模板多写了一个 </div>，导致 .grid 被提前闭合，
-     <aside id="actbar"> 变成 .grid 的兄弟（#app 的子节点）→ 整条操作链掉到中间栏下面。 */
-  console.log("\n== 三栏布局（左状态 · 中事件 · 右操作） ==");
+  /* ---------- 两栏布局（v0.8+）：左=事件 #main，右=.col-right（上状态卡 + 下操作栏） ----------
+     回归事故记忆（v0.5.5）：模板多写一个 </div> 会把 .grid 提前闭合、右栏掉到 #app 下。
+     这里锁住「.grid 直接子元素 = main + col-right」与「.actbar 在右栏内」。 */
+  console.log("\n== 两栏布局（左事件 · 右状态+操作） ==");
   const gridEl = w.document.querySelector(".grid");
-  check(!!gridEl, "存在三栏容器 .grid");
+  check(!!gridEl, "存在两栏容器 .grid");
   const kids = gridEl ? [...gridEl.children] : [];
-  check(kids.length === 3, ".grid 恰好 3 个子元素（左/中/右），实际 " + kids.length);
-  check(!!gridEl && kids[0] && kids[0].classList.contains("col-left"), ".grid 第 1 列 = .col-left（状态）");
-  check(!!gridEl && kids[1] && kids[1].id === "main", ".grid 第 2 列 = #main（事件正文）");
-  check(!!gridEl && kids[2] && kids[2].id === "actbar" && kids[2].classList.contains("col-right"),
-    ".grid 第 3 列 = .col-right#actbar（操作）——在右侧，不会掉到下面");
-  const abEl = w.document.getElementById("actbar");
-  check(!!abEl && abEl.parentNode === gridEl, "#actbar 的父节点就是 .grid（不是 #app 兄弟）");
+  check(kids.length === 2, ".grid 恰好 2 个子元素（事件 / 右栏），实际 " + kids.length);
+  check(!!gridEl && kids[0] && kids[0].id === "main", ".grid 第 1 列 = #main（事件正文）");
+  check(!!gridEl && kids[1] && kids[1].classList.contains("col-right"), ".grid 第 2 列 = .col-right（状态+操作）——在右侧，不会掉到下面");
+  const abEl = w.document.querySelector(".grid .col-right .actbar");
+  check(!!abEl && kids[1] && abEl.closest(".col-right") === kids[1], ".actbar 在右栏内（操作不掉到栏目外）");
+  check(!!w.document.querySelector(".grid #actbody"), "操作容器 #actbody 存在");
 
-  /* ---------- 顶部区合并（v0.5.6）：右上角信息 + 左栏职位卡 都收进 .topstat 且不重复 ---------- */
-  console.log("\n== 顶部状态条（合并右上角信息 + 职位卡，去重） ==");
-  const topbar = w.document.querySelector(".topstat");
-  check(!!topbar, "存在顶部状态条 .topstat");
-  const topRows = topbar ? [...topbar.querySelectorAll(".tsrow")] : [];
-  check(topRows.length === 3, ".topstat 有 3 行（元信息 + 资源瓷贴 + 职位卡），实际 " + topRows.length);
-  const ocEl = w.document.querySelector(".topstat .officecard");
-  check(!!ocEl, "职位卡 .officecard 已在顶部状态条内（从左栏提上来）");
-  check(!w.document.querySelector(".col-left .officecard"), "左栏 .col-left 内已无职位卡");
-  check(!!ocEl && /选区规模/.test(ocEl.textContent), "职位卡含选区规模");
-  check(!!ocEl && /政治光谱/.test(ocEl.textContent), "职位卡含政治光谱");
-  check(!!ocEl && /选民/.test(ocEl.textContent), "职位卡含选民池");
-  check(!!ocEl && /晋升/.test(ocEl.textContent), "职位卡含晋升进度");
-  check(!!topbar && /轨道/.test(topbar.textContent), "顶部条含轨道（原报头信息已并入）");
-  check(!!topbar && /第 \d+ 个年头/.test(topbar.textContent), "顶部条含「第 N 个年头」（原报头信息已并入）");
-  /* 去重：职务/在位/州 现在只在职位卡里出现一次，不应再有顶层 chip */
-  check(!!topbar && !/tchip[^>]*><span class="tk">职务/.test(topbar.innerHTML), "顶部条不再重复「职务」chip（已并入职位卡）");
-  check(!!topbar && !/tchip[^>]*><span class="tk">在位/.test(topbar.innerHTML), "顶部条不再重复「在位」chip（已并入职位卡）");
-  check(!!topbar && !/tchip[^>]*><span class="tk">状态/.test(topbar.innerHTML), "顶部条不再重复「状态」chip（州已并入职位卡）");
-  check(!!gridEl && !w.document.querySelector(".toolbar .muted"), "工具条不再重复「姓名 · 年份」");
+  /* ---------- 状态卡（v0.10 组件化）：.idc-flow 流式块 + 选区基本盘 + chips 行 ---------- */
+  console.log("\n== 状态卡（组件化流式布局） ==");
+  const sbBox = w.document.getElementById("statusbox");
+  check(!!sbBox && !!sbBox.querySelector(".idc-flow"), "#statusbox 内有组件化容器 .idc-flow");
+  const ocEl = w.document.querySelector(".statusbox .officecard");
+  check(!!ocEl, "职位卡 .officecard 在状态卡内");
+  check(!w.document.querySelector(".col-event .officecard"), "事件栏内无职位卡");
+  check(!!ocEl && /选区 \d/.test(ocEl.textContent), "职位卡含选区规模读数");
+  check(!!ocEl && /死忠/.test(ocEl.textContent) && /有好感/.test(ocEl.textContent) && /反对/.test(ocEl.textContent),
+    "职位卡含选民三档（死忠/有好感/反对）");
+  check(!!sbBox && !!sbBox.querySelector(".idc-chips .sbrow"), "状态卡含 chips 行（标签/派系/人脉）");
+  check(!!sbBox && !!sbBox.querySelector(".idc-chip-toggle"), "窄屏折叠开关 .idc-chip-toggle 存在（桌面端由 CSS 隐藏）");
+  const kickerEl = w.document.querySelector(".kicker-band");
+  check(!!kickerEl && /第 \d+ 个年头/.test(kickerEl.textContent), "顶栏含「第 N 个年头」");
+  check(!!kickerEl && !/[（(]\d{4}[）)]/.test(kickerEl.textContent), "时代名不再带年份后缀 (YYYY)");
 
   /* ---------- 悬浮说明气泡：必须挂在滚动边栏之外，才不会被 overflow:auto 裁切 ---------- */
   console.log("\n== 悬浮说明气泡（不越出边栏 / 不被裁切） ==");
@@ -637,7 +617,7 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   vG.tier = 1;                                     /* 选区 6 万 */
   vG.voters = { warm: 0, diehard: 0, oppose: 0 };
   vG.rep = 30; vG.track = "electoral";
-  check(!!w.document.querySelector(".topstat .officecard"), "职位卡在顶部状态条内");
+  check(!!w.document.querySelector(".statusbox .officecard"), "职位卡在状态卡内");
   /* 推进若干平静月：选民应当自己长起来（这是"没实装"的直接反证） */
   for (let i = 0; i < 24; i++) P.voterDrift();
   const vpNow = P.voterPools();
@@ -645,13 +625,22 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     "24 个平静月后三档都不再是 0（" + vpNow.warm + "/" + vpNow.diehard + "/" + vpNow.oppose + "）");
   check(vpNow.warm > vpNow.oppose, "「有好感」涨得比「反对」多（自然增长是正收益）");
   P.refreshPanel();
-  const ocTxt = (w.document.querySelector(".topstat .officecard") || {}).textContent || "";
-  check(/死忠 \d/.test(ocTxt) && /有好感 \d/.test(ocTxt) && /反对 \d/.test(ocTxt),
+  const ocTxt = (w.document.querySelector(".statusbox .officecard") || {}).textContent || "";
+  check(/死忠\s*\d/.test(ocTxt) && /有好感\s*\d/.test(ocTxt) && /反对\s*\d/.test(ocTxt),
     "职位卡把三档人数显示出来了");
-  check(/选举底气 \d+\/100/.test(ocTxt), "职位卡显示选举底气读数：" + (ocTxt.match(/选举底气 \d+\/100/) || [""])[0]);
-  /* 月卡成长行 */
-  const vgRow = P.vignetteGrowth(3);
-  check(vgRow.notes.some(n => /好感选民/.test(n)), "月卡成长行报出选民变化：" + vgRow.notes.filter(n => /选民/.test(n)).join(" / "));
+  check(/底气 \d+\/100/.test(ocTxt), "职位卡显示底气读数：" + (ocTxt.match(/底气 \d+\/100/) || [""])[0]);
+  check(!!w.document.querySelector(".statusbox .vbar"), "基本盘占比条（.vbar）已随三档人数渲染");
+  /* chip 幅度底色：派系/人脉按正负 + 幅度分档上淡底（三档封顶） */
+  P.G.faction.base = 45; P.refreshPanel();
+  check(!!w.document.querySelector('.statusbox .qchip.tint-p3'), "派系 chip 幅度底色分档（|v|≥40 → tint-p3）");
+  /* v0.9：选民增减已从「静好成长」迁到「每月的账」——落在 monthlyLedger.voters，由合并卡账目栏报出 */
+  P.G.year = 2010; P.G.ledgerYear = 2010; P.G.ledger = {};
+  const vrec = P.monthlyLedger(6);
+  check(!!vrec && !!vrec.voters && Object.keys(vrec.voters).length > 0,
+    "每月的账里含选民变化（monthlyLedger.voters）");
+  check(/选民/.test(P.ledgerBoxHTML([vrec])), "合并卡账目栏报出选民变化（好感/死忠/反对在动）");
+  check(!P.vignetteGrowth(3).tally.voters || Object.keys(P.vignetteGrowth(3).tally.voters).length === 0,
+    "静好成长不再重复结选民（voterDrift 已归 monthlyLedger 单点）");
   /* 晋升类选项吃选民修正（判定明细则在真实结算里显示） */
   const contestCh = { base: 0.5, outcomes: { ok: { effects: { tier: 1 } } } };
   check(P.isContestChoice(contestCh), "晋升类选项被识别（会自动吃选民底气修正）");

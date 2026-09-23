@@ -193,13 +193,8 @@
         G.fav = P.clamp(G.fav + 1, 0, 20);
         tally.fav = (tally.fav || 0) + 1;
       }
-      /* 选民（v0.6）：平静的日子里你也在见人、办事、被人议论 —— 在任本身就会攒下
-         "有好感"，也会攒下"反对"，只是比事件慢得多。数值由 core.js 的 voterDrift()
-         按选区规模向目标均值回归算出（挂机不会挂满，事件赢来的超额支持会缓慢回落）。 */
-      if (P.voterDrift) {
-        const vd = P.voterDrift();
-        if (vd) for (const vk in vd) tally.voters[vk] = (tally.voters[vk] || 0) + vd[vk];
-      }
+      /* v0.9：选区选民的自然增减已从"静好成长"里搬出 —— 改由 core.js 的 monthlyLedger
+         在时间轴上每月结一次（有事/无事月都动），所以这里不再重复 voterDrift，以免双算。 */
     }
 
     /* 显示名与状态栏对齐：属性一律中文名（魅力/智力/手腕/诚信），人脉好感不再叫"人情往来" */

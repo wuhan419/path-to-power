@@ -6,10 +6,14 @@
 #       dist/。dist/index.html 双击即玩（file:// 协议、零依赖、零构建）。
 #
 # 用法（在项目任意目录均可，脚本自己定位）：
-#   bash dev/tools/package.sh            # 自检 + 打包（推荐，一键发布）
+#   bash dev/tools/package.sh            # 自检(快速·30局) + 打包（推荐，日常发布）
+#   bash dev/tools/package.sh --full     # 自检跑完整 300 局生涯模拟（发布大版本前深度验）
 #   bash dev/tools/package.sh --fast     # 跳过自检，只打包
 #   bash dev/tools/package.sh --check    # 只自检，不打包
 #   bash dev/tools/package.sh --help     # 看说明
+#
+# 自检提速：validate.js 的结构校验（语法/引用/三值性/死局保护等）与模拟局数无关，
+#           耗时主要来自「生涯模拟」；默认降到 30 局即可快速放行，需深验时用 --full。
 #
 # 安全边界（本脚本只会「写」/「删」dist/ 这一个目录，绝不碰其它任何路径）：
 #   1) 删除前校验 DIST 必须严格等于「项目根/dist」，且非空串、非 /、非源码目录
@@ -26,14 +30,16 @@ VALIDATE="$DEV_ROOT/tools/validate.js"
 
 # ---------- 参数解析 ----------
 MODE="all"
+VGAMES="30"                      # 自检生涯模拟局数：默认 30（快速放行，日常默认走这档），--full 走 300
 for arg in "$@"; do
   case "$arg" in
+    --full)                       VGAMES="300" ;;
     --fast|--no-validate)   MODE="package" ;;
     --check|--validate-only) MODE="validate" ;;
     -h|--help)
-      sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
-    *) echo "✗ 未知参数：$arg（支持 --fast / --check / --help）" >&2; exit 2 ;;
+    *) echo "✗ 未知参数：$arg（支持 --full / --fast / --check / --help）" >&2; exit 2 ;;
   esac
 done
 
@@ -65,8 +71,8 @@ run_validate() {
   if ! command -v node >/dev/null 2>&1; then
     echo "✗ 未找到 node，无法自检（如需跳过请用 --fast）" >&2; exit 1
   fi
-  echo "▶ 自检：node tools/validate.js"
-  node "$VALIDATE"
+  echo "▶ 自检：node tools/validate.js --games=$VGAMES"
+  node "$VALIDATE" --games="$VGAMES"
   echo "✓ 自检通过"
 }
 

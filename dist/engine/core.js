@@ -19,6 +19,10 @@ POTUS.reg = {
   worldline: {},
   fixed: [],
   category: {}, grade: {}, medium: {}, contact: {}, newsOutlets: {}, ending: [], npc: {}, balance: {},
+  /* 风味词典（让可重复事件每次呈现不同真实细节）：token 大写名 → [{minYear,maxYear,text}]。
+     事件正文写 {ORG} {PLACE} {MEET} 等占位符，抽取时由 engine/flavor.js 按当年选词填入。
+     见 content/09-flavor.js。 */
+  flavor: {},
   /* 出生州：每州带政治倾向（D/R/S 摇摆），建角时选择，影响派系起点与事件倾斜。
      见 content/12-states.js。事件/倾向表可用 when.states 引用。 */
   state: {},
@@ -68,6 +72,12 @@ POTUS.define = function (kind, payload) {
     return;
   }
   if (kind === "news") { Object.assign(POTUS.reg.newsOutlets, payload); return; }
+  /* 风味词典是"逐 token 累加"：多个内容包可各自往同一个 token 追加候选词 */
+  if (kind === "flavor") {
+    const f = POTUS.reg.flavor;
+    for (const tok in payload) f[tok] = (f[tok] || []).concat([].concat(payload[tok]));
+    return;
+  }
   /* 静好岁月的片段是"累加"而不是"覆盖"——允许多个内容文件各自添一段人生 */
   if (kind === "vignette") {
     const v = POTUS.reg.vignette;
@@ -574,7 +584,7 @@ POTUS.withEventVoters = function (effects, ev, choice, outcome, tierName) {
 };
 
 /* ---------- 职位月薪（"身位值多少钱"的唯一口径） ----------
- * 平静月的工资与投注的资金汇率都从这里取，保证"身份决定钱"只有一个来源：
+ * 每月的上班工资与投注的资金汇率都从这里取，保证"身份决定钱"只有一个来源：
  *   reg.officeSalary["track_tier"] → miss 退 "*_tier" → 再退公式 salaryBase×(1+tier×salaryPerTier)。
  * 内容（content/14-offices.js）可以按轨道给不同薪级 —— 财富轨道 T5 就是比选举轨道 T5 有钱。
  * 改工资表 = 同时改了日常收入与投注价码，这**是有意的**：两者本来就该同源。 */
@@ -589,6 +599,67 @@ POTUS.officeSalary = function () {
     v = Math.round((q.salaryBase == null ? 2000 : q.salaryBase) * (1 + G.tier * (q.salaryPerTier == null ? 2.2 : q.salaryPerTier)));
   }
   return Number(v) || 0;
+};
+
+/* ---------- 学生贷款：一个月的计息 + 还款 ----------
+ * 由每月上班账（core.js 的 monthlyLedger）调用，与工资/开销同一个时机、同一口径。
+ * 规则：
+ *   1) 先按月利率对余额计息（还不清就一直滚 —— 还原「多年后仍在还」）；
+ *   2) 月供目标 = max(minPayment, 月薪 × payShare)，随收入上升而加速；
+ *   3) 月供被「当前欠款」与「可用现金」双重封顶 —— 掏不出就本月不还本、只挂息，绝不把 fun 扣成负；
+ *   4) 余额到 0 就锁死为 0，之后不再产生任何影响（cleared 供界面显示「已还清」）。
+ * 返回 null 表示本月无贷（无余额 / 未启用）；否则返回 {interest, pay, principal, remaining, cleared}。 */
+POTUS.loanStep = function () {
+  const G = POTUS.G, s = (POTUS.balance() || {}).studentLoan || {};
+  if (!G || !s.enabled) return null;
+  if (G.debt == null) G.debt = 0;
+  if (G.debt <= 0) { G.debt = 0; return null; }
+  if (G.loanLate == null) G.loanLate = 0;
+  const rate = s.interestAnnual == null ? 0.045 : s.interestAnnual;
+  const interest = Math.round(G.debt * rate / 12);
+  G.debt += interest;                                    /* 先计息 */
+  const salary = Math.max(0, POTUS.officeSalary ? POTUS.officeSalary() : 0);
+  const share = s.payShare == null ? 0.25 : s.payShare;
+  const minPay = s.minPayment == null ? 120 : s.minPayment;
+  const target = Math.min(G.debt, Math.max(minPay, Math.round(salary * share)));  /* 本月应还 */
+  let pay = target;
+  pay = Math.min(pay, Math.max(0, Math.round(G.fun || 0)));   /* 现金见底则少还 / 不还 */
+  pay = Math.max(0, pay);
+  G.fun -= pay;
+  G.debt = Math.max(0, Math.round(G.debt - pay));
+  const cleared = G.debt <= 0;
+  if (cleared) { G.debt = 0; G.loanLate = 0; }
+  else if (pay < target) G.loanLate++;                   /* 没能还满 → 连续逾期 +1 */
+  else G.loanLate = 0;                                   /* 按时还满 → 逾期归零 */
+  return { interest: interest, pay: pay, principal: pay - interest, remaining: G.debt, cleared: cleared, late: G.loanLate };
+};
+
+/* ---------- 每月"上班"的账（时间轴上跑，有事/无事月都结算一次） ----------
+ * v0.9：日常收入过去只在平静月结算，导致"越忙（等级/压力越高→事件月越多）反而越赚不到工资"的倒挂。
+ * 现在把"工资 - 体面开销 + 学贷还款 + 选区选民自然增减"统一搬到每月经手一次，收益才真正跟着身位走。
+ *   · 工资只从 POTUS.officeSalary() 取（与投注汇率同一口径）；
+ *   · 先进工资、后还学贷（loanStep 会拿现金封顶还款，顺序有意）；
+ *   · 幂等：同一个月只结一次，结果记进 G.ledger[month]（随存档持久化），界面只读不再扣钱。 */
+POTUS.monthlyLedger = function (m) {
+  const G = POTUS.G;
+  if (!G || m == null) return null;
+  if (G.ledgerYear !== G.year) { G.ledgerYear = G.year; G.ledger = {}; }
+  if (!G.ledger) G.ledger = {};
+  if (G.ledger[m]) return G.ledger[m];
+  const q = POTUS.balance().quietAccount || {};
+  const salary = POTUS.officeSalary();
+  const living = Math.round(POTUS.rint(q.livingMin == null ? 800 : q.livingMin, q.livingMax == null ? 2200 : q.livingMax) * (1 + G.tier * 0.6));
+  const net = salary - living;
+  G.fun += net;                                             /* 工资进、开销出 */
+  const loan = POTUS.loanStep ? POTUS.loanStep() : null;    /* 学贷计息 + 还款（动用上面的现金） */
+  const voters = POTUS.voterDrift ? POTUS.voterDrift() : null; /* 选区选民自然增减 */
+  const rec = {
+    month: m, salary: salary, living: living, net: net,
+    loanPay: (loan && loan.pay) || 0, loanInterest: (loan && loan.interest) || 0, loanCleared: !!(loan && loan.cleared),
+    voters: voters || null, debt: G.debt || 0, loanLate: G.loanLate || 0
+  };
+  G.ledger[m] = rec;
+  return rec;
 };
 
 POTUS.stamp = function (eventId) {
@@ -614,9 +685,13 @@ POTUS.migrate = function (G) {
   if (G.slotIndex == null) G.slotIndex = 0;
   if (G.slotCount == null) G.slotCount = 0;
   if (G.monthPlan == null) G.monthPlan = [];
+  if (G.ledger == null) G.ledger = {};                       // v0.9 每月上班账（幂等结算），旧存档补空表
+  if (G.ledgerYear == null) G.ledgerYear = G.year;
   if (G.curMonth != null && G.month === 1) G.month = G.curMonth;   // 尽量接住旧存档的月份
   /* v0.4 新增状态 */
   if (G.lev == null) G.lev = 0;                           // 把柄（旧存档没有 = 0 份）
+  if (G.debt == null) G.debt = 0;                         // 学生贷款余额（旧存档没有 = 0）
+  if (G.loanLate == null) G.loanLate = 0;                 // 学贷连续逾期月数
   if (G.contacts == null) G.contacts = {};                // 人脉好感表
   if (G.doneSeq == null) G.doneSeq = {};                  // 事件发生时的"月份序号"，事件链靠它算间隔
   if (G.tierSince == null) G.tierSince = POTUS.monthSeq() - (G.tier || 0) * 12;  // 在位时长
@@ -646,18 +721,63 @@ POTUS.migrate = function (G) {
 
 POTUS.autosave = function () { try { localStorage.setItem(SAVE_KEY + "_auto", POTUS.serialize()); } catch (e) { } };
 
-/* ---------- v0.5.4 存档系统重做 ----------
- * 痛点（用户反馈+自查）：prompt 丑、同名静默覆盖、无删除、保存时间没展示、默认名没信息量。
- * 新方案：
- *   key   = SAVE_KEY + "_" + saveAt 时间戳（永不碰撞；改名不改 key）
- *   索引  = saveNames {key: {name, at}}——列表排序、展示全走它
- *   默认名 = 「{年}年{月}月 · {职位}」——一眼认出这是哪个时期的档
- *   删除  = 每档一个 ×（防误删：先变成"确认删除"再点一次生效） */
-function saveIndex() {
-  try { return JSON.parse(localStorage.getItem(SAVE_KEY + "_names") || "{}") || {}; } catch (e) { return {}; }
+/* ---------- v0.6 存档系统：固定存档位 ----------
+ * 用户反馈：无限时间戳档长期堆积、不便管理。改为固定 8 个手动存档位 + 1 个自动存档位。
+ *   存档位 = SAVE_KEY + "_slot0" … "_slot7"（覆盖即写回同一位，永不堆积）
+ *   元信息 = 名字/时间写进序列化后的 G（saveName / saveAt），不再维护单独索引
+ *   自动档 = SAVE_KEY + "_auto"（沿用，每步刷新，读取列表置顶、不可改名/删除）
+ *   旧档  = 首次进存/读档时，把历史时间戳档按时间倒序导入前 8 个空位再清理旧 key
+ * 交互：保存=选位写入（占用位两段确认覆盖）；读取=选位载入；占用位支持重命名(✎)与删除(×)。 */
+const SLOT_COUNT = 8;
+function slotKey(i) { return SAVE_KEY + "_slot" + i; }
+function slotDefaultName(i) { return "存档位 " + (i + 1); }
+function readSlotRaw(i) { return localStorage.getItem(slotKey(i)); }
+function escHtml(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function escAttr(s) { return escHtml(s).replace(/"/g, "&quot;"); }
+/* 写 localStorage：捕获配额写满，给出明确告警而不是静默失败 */
+function safeSetItem(k, v) {
+  try { localStorage.setItem(k, v); return true; }
+  catch (e) {
+    const full = e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED" || e.code === 22 || e.code === 1014);
+    alert(full ? "浏览器存储空间已满，保存失败。请先删除部分存档后重试。" : "保存失败：" + (e && e.message ? e.message : e));
+    return false;
+  }
 }
-function writeSaveIndex(idx) {
-  try { localStorage.setItem(SAVE_KEY + "_names", JSON.stringify(idx)); } catch (e) { }
+/* 职位名（默认档名用）：track_tier → *_tier → officeFallback，与 saveBrief 同口径 */
+function officeNameFor(G) {
+  const oTable = POTUS.reg.office || {};
+  const fb = POTUS.balance().officeFallback || [];
+  const hit = oTable[(G.track || "*") + "_" + (G.tier || 0)] || oTable["*_" + (G.tier || 0)];
+  return hit ? (typeof hit === "string" ? hit : hit.name) : (fb[G.tier || 0] || "");
+}
+function defaultSaveName(G) {
+  const o = officeNameFor(G);
+  return (G.year || "") + "年" + (G.month || 1) + "月 · " + G.name + (o ? "（" + o + "）" : "");
+}
+/* 一次性迁移：把 v0.5.4 及更早的时间戳档导入固定存档位，然后删除旧 key 与索引 */
+function migrateOldSaves() {
+  try { if (localStorage.getItem(SAVE_KEY + "_slots_v6") === "1") return; } catch (e) { return; }
+  const olds = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || k.indexOf(SAVE_KEY + "_") !== 0) continue;
+      if (k === SAVE_KEY + "_auto" || k === SAVE_KEY + "_names" || k.indexOf(SAVE_KEY + "_slot") === 0) continue;
+      let at = 0; try { at = JSON.parse(localStorage.getItem(k) || "{}").saveAt || 0; } catch (e) { }
+      olds.push({ k: k, at: at });
+    }
+  } catch (e) { }
+  olds.sort(function (a, b) { return b.at - a.at; });
+  let idx = {}; try { idx = JSON.parse(localStorage.getItem(SAVE_KEY + "_names") || "{}") || {}; } catch (e) { }
+  for (let j = 0; j < olds.length && j < SLOT_COUNT; j++) {
+    let g; try { g = JSON.parse(localStorage.getItem(olds[j].k) || ""); } catch (e) { continue; }
+    if (!g) continue;
+    g.saveName = g.saveName || (idx[olds[j].k] && idx[olds[j].k].name) || slotDefaultName(j);
+    if (!g.saveAt) g.saveAt = olds[j].at || 0;
+    try { localStorage.setItem(slotKey(j), JSON.stringify(g)); } catch (e) { }
+  }
+  for (let m = 0; m < olds.length; m++) { try { localStorage.removeItem(olds[m].k); } catch (e) { } }
+  try { localStorage.removeItem(SAVE_KEY + "_names"); localStorage.setItem(SAVE_KEY + "_slots_v6", "1"); } catch (e) { }
 }
 function fmtAgo(at) {
   if (!at) return "";
@@ -669,51 +789,73 @@ function fmtAgo(at) {
   return new Date(at).toLocaleDateString();
 }
 
-/* 保存对话框（modal 版，替掉原生 prompt） */
+/* 存档位缩略预览：复用顶栏头像口径 hero-<难度>-<层级>.jpg，图缺失时退化为等级纯色块。
+   等级色由 .saveline.tier-N 注入的 --tier 变量驱动（与顶栏/状态区同一套色阶）。 */
+function slotThumbHTML(b) {
+  const t = (b && b.tier) || 0, d = (b && b.diff) || "normal";
+  const src = "assets/heroes/hero-" + d + "-" + t + ".jpg";
+  return '<span class="svthumb"><img src="' + src + '" alt="" decoding="async" ' +
+    'onerror="this.closest(\'.svthumb\').classList.add(\'noimg\')">' +
+    '<span class="svlvl">等级' + (t + 1) + "</span></span>";
+}
+
+/* 保存对话框：命名 + 选固定存档位写入。占用位两段确认覆盖，绝不新建堆积档。 */
 POTUS.quickSave = function () {
+  migrateOldSaves();
   const old = document.querySelector(".modal"); if (old) old.remove();
-  const G = POTUS.G;
-  /* 默认名带时期信息：玩家存十个档也能分清 */
-  const oName = (function () {
-    const oTable = POTUS.reg.office || {};
-    const fb = POTUS.balance().officeFallback || [];
-    const hit = oTable[(G.track || "*") + "_" + G.tier] || oTable["*_" + G.tier];
-    return hit ? (typeof hit === "string" ? hit : hit.name) : (fb[G.tier] || "");
-  })();
-  const defName = G.year + "年" + (G.month || 1) + "月 · " + G.name + (oName ? "（" + oName + "）" : "");
+  const G = POTUS.G; if (!G) return;
+  const defName = defaultSaveName(G);
+  let rows = "";
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const raw = readSlotRaw(i);
+    const b = raw ? POTUS.saveBrief(raw) : null;
+    if (b) {
+      rows += '<div class="saverow"><button class="btn saveline tier-' + (b.tier || 0) + '" onclick="POTUS.saveToSlot(' + i + ',this)">' +
+        slotThumbHTML(b) +
+        '<span class="svbody">' +
+        "<b>存档位 " + (i + 1) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
+        "<small>" + escHtml(b.line) + "</small>" +
+        "<small>" + escHtml(b.line2) + "</small>" +
+        '<small class="svcta">点击覆盖保存到此位</small></span></button></div>';
+    } else {
+      rows += '<div class="saverow"><button class="btn saveline svel" onclick="POTUS.saveToSlot(' + i + ',this)">' +
+        '<span class="svthumb svel-ph" aria-hidden="true"></span>' +
+        '<span class="svbody"><b>空存档位 ' + (i + 1) + "</b>" +
+        '<small class="svcta">点击保存到此位</small></span></button></div>';
+    }
+  }
   const m = document.createElement("div");
   m.className = "modal";
   m.onclick = function (e) { if (e.target === m) m.remove(); };
-  m.innerHTML = '<div class="box"><h3>保存存档</h3>' +
-    '<label class="airow">存档名称<input type="text" id="svName" value="' + defName.replace(/"/g, "&quot;") + '" maxlength="40"></label>' +
-    '<div class="airow" style="display:flex;gap:8px"><button class="btn primary" id="svGo">保存</button>' +
-    '<button class="btn" id="svCancel">取消</button></div>' +
-    '<p class="hintline" id="svMsg"></p></div>';
+  m.innerHTML = '<div class="box savemodal"><h3>保存存档</h3>' +
+    '<label class="airow">存档名称<input type="text" id="svName" value="' + escAttr(defName) + '" maxlength="40"></label>' +
+    '<div class="slotlist">' + rows + "</div>" +
+    '<p class="hintline" id="svMsg"></p>' +
+    '<button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div>';
   document.body.appendChild(m);
   const inp = document.getElementById("svName");
   if (inp) { inp.focus(); inp.select(); }
-  const cancel = document.getElementById("svCancel");
-  if (cancel) cancel.onclick = function () { m.remove(); };
-  const go = document.getElementById("svGo");
-  if (go) go.onclick = function () {
-    const name = (document.getElementById("svName").value || "").trim() || defName;
-    try {
-      const at = Date.now();
-      G.saveName = name; G.saveAt = at;
-      const key = SAVE_KEY + "_" + at;
-      localStorage.setItem(key, POTUS.serialize());
-      const idx = saveIndex(); idx[key] = { name: name, at: at };
-      writeSaveIndex(idx);
-      POTUS.autosave();                            // 手动保存同时刷新自动档
-      const msg = document.getElementById("svMsg");
-      if (msg) msg.textContent = "已保存「" + name + "」";
-      setTimeout(function () { m.remove(); }, 650);
-    } catch (e) {
-      const msg = document.getElementById("svMsg");
-      if (msg) msg.textContent = "保存失败：" + e.message;
-    }
-  };
-  if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") go.click(); };
+};
+
+/* 保存到指定存档位：占用位先两段确认，再写回同一 key（覆盖） */
+POTUS.saveToSlot = function (i, btn) {
+  const G = POTUS.G; if (!G) return;
+  const occupied = !!readSlotRaw(i);
+  const cta = btn ? btn.querySelector(".svcta") : null;
+  if (occupied && btn && btn.dataset.armed !== "1") {
+    btn.dataset.armed = "1";
+    if (cta) { cta.dataset.orig = cta.textContent; cta.textContent = "再次点击确认覆盖！"; }
+    btn.classList.add("danger");
+    setTimeout(function () { if (btn.isConnected) { btn.dataset.armed = ""; btn.classList.remove("danger"); if (cta) cta.textContent = cta.dataset.orig || "点击覆盖保存到此位"; } }, 2500);
+    return;
+  }
+  const name = ((document.getElementById("svName") || {}).value || "").trim() || defaultSaveName(G);
+  G.saveName = name; G.saveAt = Date.now();
+  if (!safeSetItem(slotKey(i), POTUS.serialize())) return;
+  POTUS.autosave();
+  const msg = document.getElementById("svMsg");
+  if (msg) msg.textContent = "已保存到「存档位 " + (i + 1) + "」· " + name;
+  setTimeout(function () { const mm = document.querySelector(".modal"); if (mm) mm.remove(); }, 750);
 };
 
 /* 存档的简要状态（读档列表用）——解析失败返回 null */
@@ -734,56 +876,83 @@ POTUS.saveBrief = function (raw) {
         (party ? " · " + party : "") + (st ? " · " + st : ""),
       line2: "声望 " + (G.rep || 0) + " · 资金 $" + ((G.fun || 0) / 1000).toFixed(0) + "k" +
         (G.voters ? " · 死忠 " + (G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard) : ""),
+      office: oName, tier: G.tier || 0, diff: G.difficulty || "normal",
       at: G.saveAt
     };
   } catch (e) { return null; }
 };
 
-/* 删除存档（两段确认防误删） */
-POTUS.delSave = function (key, btn) {
+/* 重命名某个存档位（独立小弹窗，改完刷新列表） */
+POTUS.renameSlot = function (i) {
+  const raw = readSlotRaw(i); if (!raw) return;
+  let g; try { g = JSON.parse(raw); } catch (e) { return; }
+  const cur = g.saveName || slotDefaultName(i);
+  const old = document.querySelector(".modal"); if (old) old.remove();
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = '<div class="box"><h3>重命名 · 存档位 ' + (i + 1) + '</h3>' +
+    '<label class="airow">存档名称<input type="text" id="rnName" maxlength="40" value="' + escAttr(cur) + '"></label>' +
+    '<div class="airow" style="display:flex;gap:8px"><button class="btn primary" id="rnGo">确定</button>' +
+    '<button class="btn" id="rnCancel">取消</button></div></div>';
+  document.body.appendChild(m);
+  const inp = document.getElementById("rnName"); if (inp) { inp.focus(); inp.select(); }
+  function commit() {
+    const nm = ((inp && inp.value) || "").trim() || slotDefaultName(i);
+    g.saveName = nm;
+    if (safeSetItem(slotKey(i), JSON.stringify(g))) { m.remove(); POTUS.openLoad(); }
+  }
+  document.getElementById("rnCancel").onclick = function () { m.remove(); POTUS.openLoad(); };
+  document.getElementById("rnGo").onclick = commit;
+  if (inp) inp.onkeydown = function (e) { if (e.key === "Enter") commit(); };
+};
+
+/* 删除存档位（两段确认防误删） */
+POTUS.delSlot = function (i, btn) {
   if (btn.dataset.armed !== "1") {
     btn.dataset.armed = "1";
     btn.textContent = "确认删";
     btn.classList.add("danger");
-    setTimeout(function () { btn.dataset.armed = ""; btn.textContent = "×"; btn.classList.remove("danger"); }, 2500);
+    setTimeout(function () { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "×"; btn.classList.remove("danger"); } }, 2500);
     return;
   }
-  try { localStorage.removeItem(key); } catch (e) { }
-  const idx = saveIndex(); delete idx[key]; writeSaveIndex(idx);
-  POTUS.openLoad();                                 // 重开列表
+  try { localStorage.removeItem(slotKey(i)); } catch (e) { }
+  POTUS.openLoad();
 };
 
+/* 读取/管理列表：自动档置顶 + 8 个固定存档位；占用位可载入/重命名(✎)/删除(×)，空位灰显 */
 POTUS.openLoad = function () {
+  migrateOldSaves();
   const old = document.querySelector(".modal"); if (old) old.remove();
-  /* 收集（key → brief），按保存时间倒序：最新的在最上 */
-  const entries = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (!k || k.indexOf(SAVE_KEY + "_") !== 0) continue;
-    if (k === SAVE_KEY + "_names") continue;
-    const brief = POTUS.saveBrief(localStorage.getItem(k) || "");
-    entries.push({ key: k, brief: brief, auto: k === SAVE_KEY + "_auto" });
-  }
-  entries.sort(function (a, b) {
-    if (a.auto) return -1;
-    if (b.auto) return 1;
-    return (b.brief && b.brief.at || 0) - (a.brief && a.brief.at || 0);
-  });
   let html = '<div class="modal" onclick="if(event.target===this)this.remove()"><div class="box savemodal"><h3>读取存档</h3>';
-  if (!entries.length) html += '<p class="muted">还没有任何存档。</p>';
-  entries.forEach(function (e) {
-    const b = e.brief;
-    const nm = e.auto ? "自动存档" : (b ? b.name : e.key.replace(SAVE_KEY + "_", "档 "));
-    const ago = b && b.at ? fmtAgo(b.at) : (e.auto ? "实时" : "");
-    html += '<div class="saverow">' +
-      '<button class="btn saveline" onclick="POTUS.doLoad(\'' + e.key + '\')">' +
-      "<b>" + nm + (ago ? ' <i class="ago">' + ago + "</i>" : "") + "</b>" +
-      "<small>" + (b ? b.line : "（无法读取）") + "</small>" +
-      (b ? "<small>" + b.line2 + "</small>" : "") +
-      "</button>" +
-      (e.auto ? "" : '<button class="btn svdel" onclick="POTUS.delSave(\'' + e.key + '\',this)">×</button>') +
-      "</div>";
-  });
+  let any = false;
+  const autoRaw = localStorage.getItem(SAVE_KEY + "_auto");
+  const ab = autoRaw ? POTUS.saveBrief(autoRaw) : null;
+  if (ab) {
+    any = true;
+    html += '<div class="saverow"><button class="btn saveline tier-' + (ab.tier || 0) + '" onclick="POTUS.doLoad(\'' + SAVE_KEY + '_auto\')">' +
+      slotThumbHTML(ab) +
+      '<span class="svbody"><b>自动存档 <i class="ago">实时</i></b>' +
+      "<small>" + escHtml(ab.line) + "</small>" +
+      "<small>" + escHtml(ab.line2) + "</small></span></button></div>";
+  }
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const raw = readSlotRaw(i);
+    const b = raw ? POTUS.saveBrief(raw) : null;
+    if (b) {
+      any = true;
+      html += '<div class="saverow">' +
+        '<button class="btn saveline tier-' + (b.tier || 0) + '" onclick="POTUS.doLoad(\'' + slotKey(i) + '\')">' +
+        slotThumbHTML(b) +
+        '<span class="svbody"><b>存档位 ' + (i + 1) + " · " + escHtml(b.name) + (b.at ? ' <i class="ago">' + fmtAgo(b.at) + "</i>" : "") + "</b>" +
+        "<small>" + escHtml(b.line) + "</small>" +
+        "<small>" + escHtml(b.line2) + "</small></span></button>" +
+        '<button class="btn svedit" title="重命名" onclick="POTUS.renameSlot(' + i + ')">✎</button>' +
+        '<button class="btn svdel" title="删除" onclick="POTUS.delSlot(' + i + ',this)">×</button>' +
+        "</div>";
+    } else {
+      html += '<div class="saverow saverow-empty"><span class="slotempty">存档位 ' + (i + 1) + " · 空</span></div>";
+    }
+  }
+  if (!any) html += '<p class="muted">还没有任何存档。开始游戏后点「保存」写入存档位。</p>';
   html += '<hr><button class="btn" onclick="this.closest(\'.modal\').remove()">关闭</button></div></div>';
   const m = document.createElement("div"); m.innerHTML = html; document.body.appendChild(m.firstElementChild);
 };
@@ -837,7 +1006,7 @@ POTUS.renderLoadedScreen = function () {
     POTUS.topbarHTML() +
     '<div class="grid"><div id="main" class="col-event"><div class="news fade"><div class="dateline">已载入存档</div>' +
     '<div class="body">' + POTUS.G.year + " 年 " + (POTUS.G.month || 1) + " 月。</div></div></div>" +
-    '<aside class="col-right"><div id="statusbox" class="statusbox">' + POTUS.statusPanel() + '</div>' +
+    '<aside class="col-right">' +
     '<div class="actbar"><div id="actbody"><div class="acthead">继续你的政治生涯</div>' +
     '<button class="btn primary actbtn" onclick="POTUS.startYear(true)">继续 →</button></div></div></aside></div>';
 };

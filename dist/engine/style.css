@@ -42,22 +42,23 @@
   /* 资源瓷贴：小图标 + 名称 + 大号数值，按资源语义着色（--sc 控主色，--sc-bg 控底）。
      v0.8 减法后只剩 3 项 → flex:1 等分铺满整行、内容居中，避免右侧留白 */
   .topstat .statgrid{gap:8px}
-  .topstat .stat{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;
-    padding:5px 10px;border:1px solid var(--sc-bd,var(--line));border-left:3px solid var(--sc,var(--muted));
-    border-radius:3px;background:var(--sc-bg,#fff);line-height:1.15}
+  .topstat .stat{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;
+    padding:5px 8px 5px 9px;border:1px solid var(--sc-bd,var(--line));border-left:3px solid var(--sc,var(--muted));
+    border-radius:3px;background:var(--sc-bg,#fff);line-height:1.15;white-space:nowrap}
   .topstat .stat .sicon{display:inline-flex;align-items:center;color:var(--sc,var(--muted))}
   .topstat .stat .sicon svg{width:15px;height:15px;display:block}
   /* 名称与数值同一行（不堆叠）→ 整条变矮、拉长铺满 */
-  .topstat .stat .sbody{display:inline-flex;align-items:baseline;gap:6px}
-  .topstat .stat .slab{display:inline;font-size:12.5px;letter-spacing:.5px;color:var(--muted)}
+  .topstat .stat .sbody{display:inline-flex;align-items:baseline;gap:5px;min-width:0}
+  .topstat .stat .slab{display:inline;font-size:12px;letter-spacing:.5px;color:var(--muted)}
   .topstat .stat .sval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;
-    font-size:16px;color:var(--sc,var(--ink))}
+    font-size:15px;color:var(--sc,var(--ink))}
   .topstat .s-rep {--sc:#7a1f1f;--sc-bg:#f6e9e6;--sc-bd:#d8b0a8}
   .topstat .s-intg{--sc:#3a4a63;--sc-bg:#e9edf4;--sc-bd:#b4c0d4}
   .topstat .s-fun {--sc:#7a5a00;--sc-bg:#f5ecd2;--sc-bd:#d8c48a}
   .topstat .s-hp  {--sc:#2f6b3a;--sc-bg:#e7f1e7;--sc-bd:#a9cbae}
   .topstat .s-ap  {--sc:#1f6b6b;--sc-bg:#e3efef;--sc-bd:#a5c9c9}
   .topstat .s-fav {--sc:#6b2d6b;--sc-bg:#f0e7f0;--sc-bd:#cba8cb}
+  .topstat .s-lev {--sc:#3c3833;--sc-bg:#eae7e1;--sc-bd:#bdb6a8}  /* 把柄：中性石墨（黑材料的冷灰调），与声望/资金/人情同族 */
   .topstat .stat.bad{--sc:var(--bad);--sc-bg:#f7e2e0;--sc-bd:#d8a09a}
   /* 职位徽标：officeCard 首行，实心主色块，一眼看到"我现在是谁" */
   .officecard .jobbadge{flex:0 0 auto;margin:0 6px 2px 0;padding:4px 12px;align-self:center;
@@ -108,26 +109,7 @@
     border-bottom:2px double var(--line);padding:2px 2px 8px;margin-bottom:12px}
   .topbar .tb-ops{display:flex;gap:8px;flex-wrap:wrap}
   .topbar .tb-title{font-size:20px;font-weight:700;letter-spacing:3px;color:var(--accent);white-space:nowrap}
-  /* 顶栏身份徽标（v0.8）：突出「主角是谁」——层级牌 + 职位主视觉（大）+ 姓名·年龄·在位（小淡注）。
-     字号拉开对比：职位 20px 特粗（身份焦点）、层级牌实心色块、副行 12px 灰。--tier 由 .idcard.tier-N 注入。 */
-  .tb-ident{display:flex;align-items:center;justify-content:flex-end;min-width:0}
-  .idcard{display:inline-flex;align-items:center;gap:11px}
-  .id-tier{flex:0 0 auto;min-width:42px;height:42px;padding:0 8px;border-radius:9px;
-    display:inline-flex;align-items:center;justify-content:center;
-    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;font-weight:800;letter-spacing:0;
-    color:#fff;background:var(--tier,var(--muted));border:1px solid rgba(0,0,0,.14);
-    box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
-  .idcard.tier-5 .id-tier,.idcard.tier-6 .id-tier{color:#2a2200;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
-  .idcard.tier-9 .id-tier{box-shadow:inset 0 0 0 2px rgba(212,175,55,.85),0 0 6px rgba(212,175,55,.5)}
-  .id-main{display:flex;flex-direction:column;line-height:1.1;text-align:right;min-width:0}
-  .id-office{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--tier,var(--ink));white-space:nowrap}
-  .id-sub{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;flex-wrap:wrap;
-    font-size:12px;color:var(--muted);margin-top:3px}
-  .id-sub .id-name{font-weight:700;color:var(--ink);letter-spacing:.5px}
-  .id-sub .id-sep{opacity:.45}
-  .id-sub .id-age,.id-sub .id-tenure{font-variant-numeric:tabular-nums}
-  /* 顶栏徒章右侧：竖分隔 + 晋升就绪度小条（晋升 [进度条] 61 →下一级），随 tier 配色、就绪转绿 */
-  .id-vdiv{width:1px;align-self:stretch;background:var(--line);opacity:.35;margin:3px 0}
+  /* 晋升就绪度小条（id-prog，身份证右侧第二行）：随 tier 配色（--tier 由 .sb.tier-N 注入）、就绪转绿 */
   .id-prog{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:var(--muted)}
   .id-prog .idp-cap{letter-spacing:1px;font-weight:700;color:var(--tier,var(--accent))}
   .id-prog .idp-bar{position:relative;width:64px;height:7px;background:#d9d0bb;border:1px solid var(--line);border-radius:4px;overflow:hidden}
@@ -147,7 +129,7 @@
   body.game .topbar{flex:0 0 auto}
   body.game .grid{flex:1 1 auto;min-height:0;align-items:stretch}
   body.game .col-event,body.game .col-right{height:100%;overflow:auto;padding-right:2px}
-  body.game .statusbox{flex:0 1 auto;overflow:auto;min-height:0;max-height:62%}
+  body.game .statusbox{flex:0 0 auto;overflow:visible;min-height:0;max-height:none}
   body.game .actbar{flex:1 1 auto;overflow:auto;min-height:0}
   .acthead{font-size:12px;letter-spacing:3px;color:var(--accent);font-weight:700;
     border-bottom:2px solid var(--accent);padding-bottom:4px;margin-bottom:10px}
@@ -169,7 +151,7 @@
   }
   /* 状态区（右栏顶）：合并原 topstat + 左栏 panel。.sb.tier-N 驱动级别配色 */
   .statusbox{background:none;border:0;padding:0}
-  .sb{display:flex;flex-direction:column;gap:10px;border-left:4px solid var(--tier,var(--muted));padding-left:10px}
+  .sb{display:flex;flex-direction:column;gap:10px}
   .sb .topstat{margin:0}
   .sb-detail{font-size:13px;padding:6px 9px}
   .sb-detail h3{margin:7px 0 3px;font-size:11.5px;letter-spacing:1px;color:var(--accent);border:0;padding:0}
@@ -182,6 +164,13 @@
   .qchip .qval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;color:var(--ink)}
   .qchip .pos{color:var(--good);font-weight:700}
   .qchip .neg{color:var(--bad);font-weight:700}
+  /* chip 底色分档（v0.10）：正=淡绿、负=淡红，幅度越大底色越深（三档封顶，文字保持可读） */
+  .qchip.tint-p1{background:#f0f5e7}
+  .qchip.tint-p2{background:#e3efcf;border-color:#c4dba0}
+  .qchip.tint-p3{background:#d4e8b4;border-color:#a9cc7d}
+  .qchip.tint-n1{background:#fbf1ef}
+  .qchip.tint-n2{background:#f8e3de;border-color:#e6bfb5}
+  .qchip.tint-n3{background:#f4d3ca;border-color:#dda192}
   .log-sm{font-size:11px;line-height:1.45;color:var(--muted);margin-top:5px;
     border-top:1px dotted var(--line);padding-top:4px;max-height:none;overflow:visible}
   .sb-detail .log{max-height:none;overflow:visible}
@@ -195,10 +184,10 @@
   .tag-more{background:#e9dfc7;color:var(--muted);font-style:italic;border-style:dashed}
   .tag.scandal{background:#f3dede;color:var(--bad);border-color:#c49a9a;font-weight:700}
   /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑） */
-  .sb.tier-0,.idcard.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2{--tier:#3a4a63}
-  .sb.tier-3,.idcard.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5{--tier:#caa53a}
-  .sb.tier-6,.idcard.tier-6{--tier:#b8862f}.sb.tier-7,.idcard.tier-7{--tier:#9a2f2f}.sb.tier-8,.idcard.tier-8{--tier:#6a1f6b}
-  .sb.tier-9,.idcard.tier-9{--tier:#14142b}
+  .sb.tier-0,.idcard.tier-0,.saveline.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1,.saveline.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2,.saveline.tier-2{--tier:#3a4a63}
+  .sb.tier-3,.idcard.tier-3,.saveline.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4,.saveline.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5,.saveline.tier-5{--tier:#caa53a}
+  .sb.tier-6,.idcard.tier-6,.saveline.tier-6{--tier:#b8862f}.sb.tier-7,.idcard.tier-7,.saveline.tier-7{--tier:#9a2f2f}.sb.tier-8,.idcard.tier-8,.saveline.tier-8{--tier:#6a1f6b}
+  .sb.tier-9,.idcard.tier-9,.saveline.tier-9{--tier:#14142b}
   .sb .jobbadge{background:var(--tier,var(--accent))}
   .sb.tier-5 .jobbadge{color:#3a2f00}.sb.tier-5 .jobbadge b{color:#241c00}
   /* stats panel */
@@ -224,22 +213,24 @@
   .chain .chain-body{color:#5a5344}
   /* choices */
   .choices{margin-top:12px;display:flex;flex-direction:column;gap:9px}
-  .choice{border:1px solid var(--line);background:#fff;padding:10px 13px;cursor:pointer;
-    font-size:15px;transition:.12s;text-align:left;font-family:inherit;color:var(--ink)}
-  .choice:hover:not(:disabled){background:var(--era3);color:#1a1a1a;transform:translateX(3px)}
+  .choice{border:1px solid var(--line);background:#fbf7ec;padding:10px 13px;cursor:pointer;
+    font-size:15px;transition:.12s;text-align:left;font-family:inherit;color:var(--ink);
+    box-shadow:2px 2px 0 rgba(0,0,0,.08)}
+  .choice:hover:not(:disabled){background:var(--paper2);border-color:var(--accent);color:var(--ink);transform:translateX(3px)}
   .choice:disabled{opacity:.45;cursor:not-allowed}
   .choice .hint{display:block;font-size:12px;color:var(--muted);margin-top:3px}
   .choice .req{display:block;font-size:11.5px;color:var(--bad);margin-top:2px}
-  /* 保底选项：所有选项都被资源/门槛堵死时，引擎放行的那一个 */
-  .choice.forced{border-color:#b8860b;background:#fdf8ea}
-  .choice.forced:hover{background:#f7edd2;color:#1a1a1a}
-  .choice .req.forced-tag{color:#8a6100;font-weight:700}
+  /* 保底选项：所有选项都被资源/门槛堵死时，引擎放行的那一个（主题暖金描边 + 奶油底，区别于普通选项） */
+  .choice.forced{border-color:var(--warm);background:#f6efdc}
+  .choice.forced:hover{background:#f1e8cf;color:var(--ink);border-color:var(--accent)}
+  .choice .req.forced-tag{color:var(--warm);font-weight:700}
   /* buttons */
-  button.btn{font-family:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);
-    padding:8px 14px;cursor:pointer;font-size:14px;transition:.12s}
-  button.btn:hover:not(:disabled){background:var(--line);color:#fff}
+  button.btn{font-family:inherit;border:1px solid var(--line);background:var(--paper2);color:var(--ink);
+    padding:8px 14px;cursor:pointer;font-size:14px;transition:.12s;box-shadow:2px 2px 0 rgba(0,0,0,.08)}
+  button.btn:hover:not(:disabled){background:var(--line);color:#fff;box-shadow:none}
   button.btn:disabled{opacity:.35;cursor:not-allowed}
-  button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:none}
+  button.btn.primary:hover:not(:disabled){background:#5e1717;color:#fff}
   .toolbar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);
     padding:8px 0;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;z-index:5}
   /* create screen */
@@ -386,7 +377,16 @@
   /* 存档系统 v0.5.4：条目 + 行布局 + 删除按钮 + 时间标注 */
   .savemodal .box{max-width:560px}
   .saverow{display:flex;gap:6px;align-items:stretch;margin:6px 0}
-  .saveline{display:block;flex:1;min-width:0;text-align:left;padding:8px 10px}
+  .saveline{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-align:left;padding:8px 10px}
+  .svbody{flex:1;min-width:0}
+  .svthumb{position:relative;flex:0 0 auto;width:46px;height:54px;border-radius:6px;overflow:hidden;
+    background:#fbf7ec;border:1px solid var(--line);box-shadow:inset 0 0 0 2px var(--tier,transparent)}
+  .svthumb img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) sepia(.22) contrast(1.05)}
+  .svthumb.noimg img{display:none}
+  .svthumb.noimg{background:var(--tier,#8a8478)}
+  .svthumb.svel-ph{background:repeating-linear-gradient(45deg,rgba(0,0,0,.05),rgba(0,0,0,.05) 4px,transparent 4px,transparent 8px);border-style:dashed;box-shadow:none}
+  .svlvl{position:absolute;left:0;right:0;bottom:0;font-size:9px;line-height:1.5;text-align:center;
+    color:#fff;background:var(--tier,#555);opacity:.92;letter-spacing:.5px}
   .saveline b{display:block;font-size:14px}
   .saveline b .ago{font-style:normal;font-weight:400;font-size:11px;color:#8a6100;margin-left:6px}
   .saveline small{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:400}
@@ -394,6 +394,19 @@
   .svdel{flex:none;width:34px;font-size:16px;color:#9c2b2b;border-color:#c49a9a}
   .svdel:hover{background:#9c2b2b;color:#fff}
   .svdel.danger{background:#9c2b2b;color:#fff;font-size:11px}
+  /* 存档系统 v0.6：固定 8 档 + 自动档——存档位列表、重命名按钮、空位灰显、行动提示 */
+  .box.savemodal{max-width:560px}
+  .slotlist{max-height:min(58vh,460px);overflow-y:auto;margin:4px 0 2px;padding-right:2px}
+  .saveline.danger{border-color:#9c2b2b;box-shadow:inset 0 0 0 1px #9c2b2b}
+  .saveline.danger .svcta{color:#fff;font-weight:600}
+  .svcta{margin-top:4px;color:#8a6100;font-style:italic}
+  .saveline.svel{opacity:.72;border-style:dashed}
+  .saveline.svel b{color:var(--muted);font-weight:600}
+  .saveline.svel:hover{opacity:1}
+  .svedit{flex:none;width:34px;font-size:14px;color:#2a5a8c;border-color:#9ab4c8}
+  .svedit:hover{background:#2a5a8c;color:#fff}
+  .saverow-empty{display:flex;align-items:center;margin:6px 0}
+  .slotempty{flex:1;padding:8px 10px;border:1px dashed rgba(0,0,0,.16);border-radius:6px;color:var(--muted);font-size:12.5px;background:rgba(0,0,0,.03)}
   /* 状态词条的悬停说明（data-tip 气泡）：原生 title 延迟一秒且不显眼，自定义气泡即时出现。
      关键：左右边栏 .col-left/.col-right 是 overflow:auto 的滚动容器，若沿用 ::after 绝
      对定位，气泡一旦超出栏宽就会被裁掉（截图里文字被切）。改为挂在 <body> 上的 fixed 层
@@ -436,9 +449,10 @@
     border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:7px}
   .officecard .oc-title{font-size:11.5px;letter-spacing:2px;font-weight:700;color:var(--accent);white-space:nowrap}
   .officecard .oc-meta{font-size:11.5px;color:var(--muted);text-align:right;overflow-wrap:anywhere}
-  .officecard .ocline{font-size:12.5px;color:var(--ink)}
+  .officecard .ocline{font-size:12.5px;color:var(--ink);display:flex;align-items:flex-end;
+    justify-content:space-between;gap:8px}
   /* 选民三档：小标签在上、大数字在下，三档并排 + 右侧底气读数 */
-  .officecard .vt{display:inline-flex;flex-direction:column;align-items:center;gap:1px;margin-right:15px;vertical-align:top}
+  .officecard .vt{display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;margin-right:0;vertical-align:top}
   .officecard .vt i{font-style:normal;font-size:10.5px;letter-spacing:.5px;color:var(--muted)}
   .officecard .vt b{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:18px;font-weight:800;line-height:1}
   .officecard .vt-die b{color:var(--good)}
@@ -587,21 +601,97 @@
      v0.9 · 报刊档案风（对齐 mockup-event-v3-archive.html）
      顶栏 kicker 条 / 身份头像 / 事件卡 = 头版社论（大标题 + 斜体导语 + 头版图）
      ======================================================================== */
-  /* 顶栏 kicker 条：时代 · 年份 · 第几个年头（仅对局中存在 G 时由 shell.js 注入） */
-  .kicker-band{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;
-    font-size:11.5px;letter-spacing:1px;color:#e9e1cf;
-    background:var(--ink);padding:5px 12px;margin:0 0 10px;border-bottom:2px solid var(--accent)}
-  .kicker-band b{color:#fff;font-weight:700}
-  .kicker-band .kb-r{font-family:var(--mono);font-size:11px;color:#cfc6ad}
+  /* 顶栏 kicker 条：时代 · 年份 · 第几个年头（仅对局中存在 G 时由 shell.js 注入）。
+     v0.9.1：黑底 → 纸面浅底（与报纸卡同族），描边 + 时代色下划线收边 */
+  .kicker-band{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    font-size:11.5px;letter-spacing:1px;color:var(--muted);flex:0 0 auto;
+    background:linear-gradient(180deg,#f1e9d5,#e9dfc8);padding:4px 12px;margin:0 0 10px;
+    border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:3px}
+  .kicker-band .kb-l{color:var(--ink)}
+  .kicker-band b{color:var(--accent);font-weight:700}
+  .kicker-band .kb-r{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  /* 游戏级操作（动态/保存/读取/导出/导入/退出）：纸面上的墨色描边小钮 */
+  .kicker-band .kb-ops{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .kicker-band .kb-ops .btn{background:transparent;color:var(--ink);border:1px solid var(--line);
+    padding:2px 9px;font-size:11.5px;line-height:1.55;letter-spacing:.5px}
+  .kicker-band .kb-ops .btn:hover:not(:disabled){background:var(--ink);color:#f4efe3;border-color:var(--ink)}
+  .kicker-band .kb-ops .btn:disabled{opacity:.4;cursor:not-allowed}
 
-  /* 身份徽标里的头像（难度×层级 → assets/heroes/hero-<难度>-<层级>.jpg） */
-  .tb-ident .portrait{flex:0 0 auto;width:54px;height:58px;padding:3px;background:#fbf7ec;
-    border:1px solid var(--line);box-shadow:2px 2px 0 rgba(0,0,0,.16);position:relative;align-self:center}
-  .tb-ident .portrait img{display:block;width:100%;height:100%;object-fit:cover;
+  /* 身份证式状态卡（v0.10 组件化流式布局）：
+     .idc-flow = flex-wrap 容器，原子块按容器宽度自由组合、放不下自动换行：
+       .idc-left  = 组件①人物卡（头像·姓名·年龄）+ 组件②（职位·等级·晋升条）竖排，固定 122px
+       .idc-facts = 日期 + 资源瓷贴 2×2 + 选区基本盘（含三档占比条），弹性
+       .idc-chips = 能力/标签/派系/人脉 chip 行，弹性；窄屏（≤600px）折叠成「档案 ▸」
+     组件注册表与默认排布见 topbar.js 的 P.STATUS_BLOCKS / P.STATUS_LAYOUT。 */
+  .idc{border:1px solid var(--line);background:#fbf7ec;padding:10px 12px;box-shadow:2px 2px 0 rgba(0,0,0,.06)}
+  .idc-flow{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:stretch}
+  .idc-left{flex:0 0 122px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .idc-ident{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+  .idc-officeprog{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;
+    border-top:1px dotted var(--line);padding-top:5px}
+  .idc-portrait{flex:0 0 auto;width:114px;height:122px;padding:3px;background:#fbf7ec;
+    border:1px solid var(--line);box-shadow:2px 2px 0 rgba(0,0,0,.16);position:relative}
+  .idc-portrait img{display:block;width:100%;height:100%;object-fit:cover;
     filter:grayscale(1) sepia(.22) contrast(1.05)}
-  .tb-ident .portrait::after{content:"";position:absolute;inset:0;pointer-events:none;
+  .idc-portrait::after{content:"";position:absolute;inset:0;pointer-events:none;
     background-image:radial-gradient(rgba(0,0,0,.2) 1px,transparent 1.4px);background-size:3px 3px;
     mix-blend-mode:multiply;opacity:.45}
+  .idc-name{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:.5px;text-align:center;line-height:1.15}
+  .idc-age{font-size:11.5px;color:var(--muted);text-align:center}
+  /* 职位 + 等级徽标 + 纯晋升条：聚在头像下方，像人物卡 */
+  .idc-office{font-size:12.5px;font-weight:800;color:var(--accent);text-align:center;
+    line-height:1.35;padding-top:3px;border-top:1px dotted var(--line);width:100%}
+  .idc-tier{font-size:9.5px;letter-spacing:1.5px;font-weight:700;color:#fff;background:var(--accent);
+    padding:1px 8px;border-radius:9px;white-space:nowrap}
+  /* 纯进度条（无文字）：占满左栏宽，悬浮看「晋升就绪度 → 下一级」的完整说明 */
+  .id-prog.idc-prog{display:block;width:100%;cursor:help}
+  .id-prog.idc-prog .idp-bar{display:block;width:100%}
+  .idc-age + .idc-office + .idc-tier{margin-top:-1px}
+  /* 事实块：日期 + 资源（固定 2×2）+ 选区基本盘（职位/晋升在左栏人物卡） */
+  .idc-facts{flex:1 1 180px;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .idc-facts .topstat{border:0;background:none;padding:0;margin:0;font-size:13px}
+  .idc-facts .officecard{border:0;background:none;padding:0;margin:0}
+  .idc-facts .officecard .oc-head{margin-top:3px;padding-top:6px;border-top:1px dotted var(--line)}
+  /* 资源瓷贴固定 2×2 两行：字号再收一号，长数值（$1.23M）也放得下、不超出底图 */
+  .idc-facts .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 6px}
+  .idc-facts .stat{flex:none;min-width:0}
+  .idc-facts .stat .sicon svg{width:13px;height:13px}
+  .idc-facts .stat .slab{font-size:11px}
+  .idc-facts .stat .sval{font-size:13.5px}
+  /* 右栏顶部小日期行 */
+  .idc-date{font-size:10.5px;color:var(--muted);text-align:right;letter-spacing:.5px}
+  /* chips 块（能力/标签/派系/人脉）：独立 flex 项，宽屏排在第三列、窄容器自动换行占满整行 */
+  .idc-chips{flex:1 1 200px;min-width:0}
+  .idc-chips .sbrow{margin:2px 0}
+  .idc-chips .sblab{flex:0 0 26px;font-size:10.5px;padding-top:2px}
+  .idc-chips .qchip{font-size:11px;padding:0 7px}
+  /* 窄屏折叠：≤600px 时 chip 行默认收起，点「档案 ▸」展开（桌面端按钮不显示） */
+  .idc-chip-toggle{display:none;align-self:flex-start;margin-top:2px}
+  /* 基本盘占比条：三档人数占合计的比例（死忠绿/好感金/反对红），最小可视宽 2% */
+  .officecard .vbar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;
+    border:1px solid var(--line);background:#fff}
+  .officecard .vbar i{display:block;height:100%;flex:0 1 auto}
+  .officecard .vb-die{background:var(--good)}
+  .officecard .vb-warm{background:#d9b93f}
+  .officecard .vb-opp{background:var(--bad)}
+  /* 手机竖屏（≤600px）：字号随屏收一号、头像缩窄、chips 折叠（配合 .idc-chip-toggle） */
+  @media(max-width:600px){
+    .idc{padding:8px 10px}
+    .idc-flow{gap:8px 10px}
+    .idc-left{flex-basis:96px}
+    .idc-portrait{width:92px;height:100px}
+    .idc-name{font-size:13.5px}
+    .idc-office{font-size:11.5px}
+    .idc-facts .stat .slab{font-size:10px}
+    .idc-facts .stat .sval{font-size:12px}
+    .officecard .vt b{font-size:15px}
+    .officecard .oc-meta{font-size:10.5px}
+    .idc-chips .sbrow{display:none}          /* 默认收起 */
+    .idc-chips.open .sbrow{display:flex}     /* 点「档案 ▸」展开 */
+    .idc-chip-toggle{display:inline-block}
+    .news .body{font-size:14px;line-height:1.85}
+    .vig-body{font-size:14px}
+  }
 
   /* 事件卡 = 头版社论 */
   .news.editorial{border:1px solid var(--line);background:#fbf7ec;padding:16px 18px 18px;margin:10px 0;

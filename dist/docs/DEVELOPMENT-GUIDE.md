@@ -310,7 +310,7 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
 
 | 想要的效果 | 用哪个 | 玩家看到什么 |
 |---|---|---|
-| 没资格，压根选不了 | `req` | 按钮灰掉 +「需要 T3 以上」/「需要先认识「老雷」」 |
+| 没资格，压根选不了 | `req` | 按钮灰掉 +「需要 T3 以上」/「需要先认识「掮客」」 |
 | 能选，但要先付钱/人情/把柄 | `cost` | 按钮上「代价：资金 $400k」/「代价：把柄 1」 |
 | 可押可不押，玩家自己赌 | `stake` | 点开后弹投注面板，自己拖金额 |
 | 给「人情」这个资源找独特价值 | `stake: { fav: true }` | 「花 1 点，获得重投（取优）」 |
@@ -564,11 +564,11 @@ POTUS.define("entry", {
 ```js
 // ① content/07-contacts.js —— 先登记（只写设定，不写年代）
 POTUS.define("contact", {
-  fixer: { name: "老雷", role: "掮客", tag: "门路", note: "他不解决问题，他介绍解决问题的人。" }
+  fixer: { name: "掮客", role: "牵线搭桥的门路", tag: "门路", note: "他不解决问题，他介绍解决问题的人。" }
 });
 
 // ② 事件里引用 —— 门槛 / 好感 / 断交
-{ id: "ask", text: "让老雷替你牵一根线", req: { contact: "fixer" }, … }   // 不认识就点不动
+{ id: "ask", text: "让掮客替你牵一根线", req: { contact: "fixer" }, … }   // 不认识就点不动
 { id: "deep", contacts: ["fixer", "lobbyist"], … }                        // 事件级：两个都要认识
 effects: { contact: { fixer: 12 } }        // +12（第一次出现即"从此认识"）
 effects: { forget: ["fixer"] }             // 彻底断掉（你把他卖了）

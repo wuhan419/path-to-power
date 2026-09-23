@@ -14,6 +14,12 @@
    *   · 姓名留空 → 默认「汤米」
    * 老的完整建角（八选 + 掷骰 + VIP）函数都还在本文件里，只是不再被 renderCreate 调用，便于回退。 */
   const DEMO_ERA = "1980_REAGAN";
+  /* demo 主角的家乡锚点：铁锈带 · 摇摆州 · 俄亥俄（扬斯敦）。为什么是它 ——
+   *   · 摇摆州：每一次大选两党都得来这里敲门，你站在聚光灯底下（任何层级都能撞上全国叙事）；
+   *   · 铁锈带：去工业化 / 工会 / 汽车 / 钢铁 / 贸易协定这些时代主线全砸在自家门口，
+   *     从街头发传单到国会投票，历史一路都能顺着这条街找上你。
+   * 于是主角不必身居高位也天然"在场"。州定义与市 / 选区见 content/12-states.js。 */
+  const DEMO_HOME_STATE = "OH";
   /* 五档难度：出身（吃 10-characters.js 的资源梯度）+ bonus（在出身之上再叠一笔开局增量）。
    * bonus 走 applyEffects，支持的键与事件效果一致：fun / rep / fav / lev / fac / attr。
    *   —— 精力(ap)、健康(hp) 已在 v0.9 退役，这里不再出现。
@@ -34,12 +40,25 @@
     const lo = r.min == null ? 35 : r.min, hi = r.max == null ? 55 : r.max;
     return { CHA: P.rint(lo, hi), INT: P.rint(lo, hi), CUN: P.rint(lo, hi), INTG: P.rint(lo, hi) };
   }
+  /* 家乡标签：把州定义里的 city / district 拼成一句人话（扬斯敦 · 俄亥俄 · 第 17 选区）。
+     缺市/选区就退回州名，保证任何州都能显示；与 engine/flavor.js 的 {HOME}/{CITY}/{DISTRICT} 同源。 */
+  function homeLabel(sid) {
+    const d = (P.stateDef && P.stateDef(sid)) || {};
+    const st = d.name || sid || "";
+    const parts = [];
+    if (d.city) parts.push(d.city);
+    if (st) parts.push(st);
+    if (d.district) parts.push(d.district);
+    return parts.join(" · ") || st;
+  }
   function fillDefaults(C) {
     C.era = DEMO_ERA;
     C.entry = "insider";                    // 从志愿者/助理做起，tier0 —— 契合晋升阶梯的第一格
     C.stance = "establishment";
     C.party = P.chance(0.5) ? "D" : "R";    // 随机党派，给重复开局留点变化
-    C.state = randKey(P.reg.state);
+    /* 家乡固定成铁锈带俄亥俄：让 demo 主角无论什么层级都更容易卷入 1980—2020 的历史大事件
+       （州若被内容方删掉则退回随机，绝不卡死开局）。 */
+    C.state = P.reg.state[DEMO_HOME_STATE] ? DEMO_HOME_STATE : randKey(P.reg.state);
     C.talent = randKey(P.reg.talent);
     C.rolled = autoRoll(); C.spent = {}; C.rerolled = {}; C.freeExtra = 0;
   }
@@ -224,6 +243,7 @@
       party: C.party, stance: C.stance, state: C.state || "",
       attr: attr, faction: {},
       fun: b.startFun, rep: b.startRep, hp: b.startHp, ap: b.startAp, fav: b.startFav, lev: b.startLev || 0,
+      debt: 0, loanLate: 0,
       tier: (P.reg.entry[C.entry] || {}).tier || 0,
       score: 0, flags: [], history: [], log: [],
       contacts: {},
@@ -248,8 +268,13 @@
     if (Object.keys(stateFx).length) P.applyEffects({ fac: stateFx });
     /* 难度资源梯度：在出身/起点/州的效果之上，再叠一档难度增量（可正可负） */
     P.applyEffects((DIFFS[C.difficulty] || {}).bonus);
+    /* 学生贷款：普通难度以下（normal/hard/brutal）开局背贷；世家（easy/legendary）无贷。
+       余额存进 G.debt，每月由 P.loanStep 在平静月结算时计息 + 还款（见 core.js / stage.js）。 */
+    const sl = (b.studentLoan || {});
+    P.G.debt = (sl.enabled && sl.startDebt) ? (sl.startDebt[C.difficulty] || 0) : 0;
+    if (P.G.debt > 0) P.pushLog("开局欠着学生贷款 $" + (P.G.debt / 1000).toFixed(0) + "k —— 每月从结余里还一点，收入越高还得越快。");
     P.pushLog("开局：" + name + "，" + era.name + "，" + (P.reg.origin[C.origin] || {}).name + "出身，" +
-      (C.state ? P.stateName(C.state) + "，" : "") +
+      (C.state ? homeLabel(C.state) + "，" : "") +
       (P.reg.entry[C.entry] || {}).name + "，" + (P.reg.party[C.party] || {}).name + "/" + (P.reg.stance[C.stance] || {}).name + "。");
     document.body.className = "era-" + C.era;
     P.startYear();

@@ -224,6 +224,9 @@
       G.month = m;
       /* 竞选链：每月推一次（推幕 / 选情流失 / 崩盘判定）。主线 arc 已停用，这里只推竞选。 */
       if (P.campaignTick) P.campaignTick(m);
+      /* v0.9：每月经手结一次"上班的账"（工资-开销 / 学贷 / 选民增减），有事无事都算，
+         这样收益才跟着身位走 —— 幂等记入 G.ledger，界面只读不再重复扣钱。 */
+      if (P.monthlyLedger) P.monthlyLedger(m);
       const plan = P.planMonth(m);
       if (plan.length) {
         G.monthPlan = plan;

@@ -41,12 +41,26 @@
       })
     },
 
-    /* 仕途：晋升、选举、任命 */
+    /* 仕途：晋升、任命、轨道里程碑（委任/操盘/财富/名人的 prog_*） */
     career: {
       name: "仕途", ink: "#2f4f6b", base: "#dde6ef",
       art: art(function (ev, ink) {
         return '<path d="M18 90h22V72h22V54h22V36h18" fill="none" stroke="' + ink + '" stroke-width="4"/>' +
           '<circle cx="102" cy="34" r="7" fill="' + ink + '"/>';
+      })
+    },
+
+    /* 竞选：把名字放上选票的那一连串流程——宣战/初选/造势/筹款/辩论/摇摆/投票日。
+       这是一套独立玩法（引擎 engine/campaign.js 一幕幕强制推进），从「仕途」里
+       单独摘出来，配它自己的头版图。见 content/61-campaigns.js 与 events/65-campaign-acts.js。 */
+    campaign: {
+      name: "竞选", ink: "#33507e", base: "#dbe2f0",
+      art: art(function (ev, ink) {
+        return '<rect x="26" y="56" width="68" height="36" rx="3" fill="' + ink + '" opacity=".8"/>' +
+          '<rect x="40" y="52" width="40" height="7" rx="2" fill="' + ink + '"/>' +
+          '<rect x="52" y="54" width="16" height="3" fill="' + ink + '" opacity=".3"/>' +
+          '<rect x="47" y="24" width="22" height="29" fill="' + ink + '" opacity=".55" transform="rotate(15 58 38)"/>' +
+          '<path d="M37 74h46" stroke="' + ink + '" stroke-width="3" opacity=".45"/>';
       })
     },
 

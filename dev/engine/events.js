@@ -228,6 +228,12 @@
     const G = P.G, b = P.balance();
     slot = slot || { grade: "minor" };
   
+    /* 同一自然月内绝不允许同一张卡重演（用户铁律，优先于「避免填充器」）。
+       跨月自动清空。它比 recentIds 更高一级：即便走到最后一级兑底（放开近期窗口），
+       也不会挑本月已经演过的那张。 */
+    const _mk = G.year + ":" + G.month;
+    if (P._monthKey !== _mk) { P._monthKey = _mk; P._monthSeen = []; }
+  
     /* 玩家快照 + 类型计数：整次抽取共用一份（含所有降级 pass），
        避免为几十个事件各造一遍。 */
     const snap = P.snap();
@@ -235,7 +241,7 @@
   
     if (slot.eventId) {
       const hit = P.evById(slot.eventId);
-      if (hit) return P.realize(P._markDrawn(hit, true));   // 时代脚本：一局只演一次
+      if (hit) { P._monthSeen.push(hit.id); return P.flavorFill(P.realize(P._markDrawn(hit, true))); }   // 时代脚本：一局只演一次
     }
   
     const fallback = b.gradeFallback || {};
@@ -260,6 +266,7 @@
         for (let i = 0; i < chain.length; i++) {
           let pool = P.events.filter(function (e) {
             if (!P.eligible(e, pass >= 3, snap) || P.gradeOf(e) !== chain[i]) return false;
+            if (P._monthSeen.indexOf(e.id) >= 0) return false;   // 本月已演过：任何降级都不再选它
             if (P.valenceOf(e) !== wantVal) return false;
             if (pass === 0) return e.month === m;
             if (pass === 1) return e.month == null;
@@ -267,7 +274,7 @@
           });
           if (!pool.length) continue;
           if (pass === 2) pool = P._seasonal(pool);
-          if (pool.length) return P.realize(P._markDrawn(weighted(pool, snap, counts)));
+          if (pool.length) { const chosen = weighted(pool, snap, counts); P._monthSeen.push(chosen.id); return P.flavorFill(P.realize(P._markDrawn(chosen))); }
         }
       }
     }
