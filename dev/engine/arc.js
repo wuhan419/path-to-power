@@ -345,7 +345,7 @@
     _curKey = null; _candKey = null;
     const def = P.arcDef(id);
     if (def && def.onStart) P.applyEffects(def.onStart);
-    P.pushLog("主线开始：" + ((def && def.name) || id));
+    P.pushLog(P.t("ui.arc.logStart", "主线开始：{name}", { name: (def && def.name) || id }));
     return G.arc;
   }
 
@@ -363,8 +363,11 @@
     }
     _candKey = null;              // arcLog 的状态变了，候选记忆立刻作废（保险起见）
     if (status === STATUS.DONE && def && def.onEnd) P.applyEffects(def.onEnd);
-    P.pushLog("主线" + (status === STATUS.DONE ? "走完" : status === STATUS.FADED ? "淡出" : "让位") +
-      "：" + ((def && def.name) || G.arc.id));
+    P.pushLog(status === STATUS.DONE
+      ? P.t("ui.arc.logDone", "主线走完：{name}", { name: (def && def.name) || G.arc.id })
+      : status === STATUS.FADED
+      ? P.t("ui.arc.logFaded", "主线淡出：{name}", { name: (def && def.name) || G.arc.id })
+      : P.t("ui.arc.logDropped", "主线让位：{name}", { name: (def && def.name) || G.arc.id }));
     /* 走完 / 淡出之后要**空一段**再开下一条（balance.arc.cooldownMonths）。
      * 为什么需要：不空的话，线一走完当月的 tick 就会立刻接上一条，一辈子读起来
      * 像一份连续的主线清单，而不是"人生有过几段"。空窗期的那些月份由
@@ -571,18 +574,23 @@
     const cur = P.arcCurrent();
     if (!cur) return [];
     const out = [], g = cur.def.gate || {};
-    const NAME = { tracks: "轨道", parties: "党派", stances: "姿态", origins: "出身", entries: "起点", talents: "天赋", tiers: "层级" };
+    const NAME = {
+      tracks: P.t("ui.arc.dimTracks", "轨道"), parties: P.t("ui.arc.dimParties", "党派"),
+      stances: P.t("ui.arc.dimStances", "姿态"), origins: P.t("ui.arc.dimOrigins", "出身"),
+      entries: P.t("ui.arc.dimEntries", "起点"), talents: P.t("ui.arc.dimTalents", "天赋"),
+      tiers: P.t("ui.arc.dimTiers", "层级")
+    };
     for (const k in NAME) {
       if (g[k] == null) continue;
       const v = [].concat(g[k])[0];
       const def = P.reg[{ tracks: "track", parties: "party", stances: "stance", origins: "origin", entries: "entry", talents: "talent", tiers: null }[k]];
-      out.push(NAME[k] + "：" + (def && def[v] ? def[v].name : v));
+      out.push(P.t("ui.arc.whyRow", "{label}：{name}", { label: NAME[k], name: (def && def[v] ? def[v].name : v) }));
     }
-    if (g.minTier != null) out.push("层级 ≥ T" + g.minTier);
-    if (g.minRep != null) out.push("声望 ≥ " + g.minRep);
-    if (g.minLev != null) out.push("把柄 ≥ " + g.minLev);
-    if (g.minFun != null) out.push("资金 ≥ " + g.minFun);
-    if (g.flags) out.push("已有标记 " + [].concat(g.flags).join("/"));
+    if (g.minTier != null) out.push(P.t("ui.arc.gateMinTier", "层级 ≥ T{n}", { n: g.minTier }));
+    if (g.minRep != null) out.push(P.t("ui.arc.gateMinRep", "声望 ≥ {n}", { n: g.minRep }));
+    if (g.minLev != null) out.push(P.t("ui.arc.gateMinLev", "把柄 ≥ {n}", { n: g.minLev }));
+    if (g.minFun != null) out.push(P.t("ui.arc.gateMinFun", "资金 ≥ {n}", { n: g.minFun }));
+    if (g.flags) out.push(P.t("ui.arc.gateFlags", "已有标记 {flags}", { flags: [].concat(g.flags).join("/") }));
     return out;
   };
 })();
