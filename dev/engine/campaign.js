@@ -174,7 +174,7 @@
     G.campaignLog.push({ id: id, from: seq, to: null, status: STATUS.ACTIVE });
     _curKey = null; _candKey = null;
     if (def && def.onStart) P.applyEffects(def.onStart);
-    P.pushLog("竞选开打：" + ((def && def.office) || id) + " —— 你把自己的名字放上了选票。");
+    P.pushLog(P.t("ui.campaign.start", "竞选开打：{office} —— 你把自己的名字放上了选票。", { office: ((def && def.office) || id) }));
     return G.campaign;
   }
 
@@ -203,7 +203,7 @@
           for (const k in mtr) mtr[k] = Math.max(0, mtr[k] - drift);
           /* 幕间闸门：任一表跌破当前幕或全局的 abortBelow → 当场败选。 */
           if (checkAbort(def, stages[G.campaign.stageIdx], mtr, b)) {
-            end(STATUS.LOST, "选情崩了：" + ((def && def.office) || G.campaign.id) + " 竞选就此夭折。");
+            end(STATUS.LOST, P.t("ui.campaign.abortLost", "选情崩了：{office} 竞选就此夭折。", { office: ((def && def.office) || G.campaign.id) }));
             G.campaign = null;
           } else {
             /* 推幕：当前幕已演出 → 结算该幕选情增减 → 进下一幕（可连跳）。 */
@@ -212,9 +212,9 @@
               if (G.campaign.stageIdx >= stages.length) {
                 // 链走完 = 投票日已演。真正的胜负看 tier 是否抵达目标级（末幕掷骰可能落败）。
                 if (G.tier >= fnum(def.tier, 1e9)) {
-                  end(STATUS.WON, "你赢下了这场选举：" + ((def && def.office) || def.name || G.campaign.id) + "。");
+                  end(STATUS.WON, P.t("ui.campaign.won", "你赢下了这场选举：{office}。", { office: ((def && def.office) || def.name || G.campaign.id) }));
                 } else {
-                  end(STATUS.LOST, "票开箱了，但你没能拿下：" + ((def && def.office) || G.campaign.id) + " 落败。");
+                  end(STATUS.LOST, P.t("ui.campaign.ballotLost", "票开箱了，但你没能拿下：{office} 落败。", { office: ((def && def.office) || G.campaign.id) }));
                 }
                 G.campaign = null; break;
               }
@@ -227,14 +227,14 @@
                 G.campaign.stageIdx++; G.campaign.since = P.monthSeq(); G.campaign.played++;
                 // 进入新幕先过一次 abort（防止 delta 反而把自己推进了败局）
                 if (checkAbort(def, stages[G.campaign.stageIdx], mtr, b)) {
-                  end(STATUS.LOST, "选情崩了：" + ((def && def.office) || G.campaign.id) + " 竞选就此夭折。");
+                  end(STATUS.LOST, P.t("ui.campaign.abortLost", "选情崩了：{office} 竞选就此夭折。", { office: ((def && def.office) || G.campaign.id) }));
                   G.campaign = null; break;
                 }
                 continue;
               }
               // 窗口内始终没演出来 = 竞选不能干等 —— 直接崩盘（区别于主线的"跳幕"）。
               if (step.maxMonths != null && elapsed > step.maxMonths) {
-                end(STATUS.LOST, "竞选节奏拖垮了你：" + ((def && def.office) || G.campaign.id) + " 无功而返。");
+                end(STATUS.LOST, P.t("ui.campaign.paceLost", "竞选节奏拖垮了你：{office} 无功而返。", { office: ((def && def.office) || G.campaign.id) }));
                 G.campaign = null; break;
               }
               break;

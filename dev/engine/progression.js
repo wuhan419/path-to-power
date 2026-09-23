@@ -27,7 +27,7 @@
     P.G.endingReason = reason || "default";
     const rules = P.reg.ending.slice().sort(function (a, b) { return (b.priority || 0) - (a.priority || 0); });
     for (let i = 0; i < rules.length; i++) if (matchWhen(rules[i].when)) return rules[i];
-    return { title: "中场", grade: "C", body: "故事仍在继续，但这一局到此为止。" };
+    return { title: P.t("ui.progression.endMidpointTitle", "中场"), grade: "C", body: P.t("ui.progression.endMidpointBody", "故事仍在继续，但这一局到此为止。") };
   };
 
   /* 评分（权重可被 balance.scoreWeights 覆盖） */
@@ -54,20 +54,21 @@
     let body = rule.body || "";
     if (typeof body === "function") body = body(P.G, P);
     body = String(body).replace("{age}", P.G.age).replace("{tier}", P.G.tier).replace("{track}", track.name);
-    const bio = P.makeNews("生涯终章：" + rule.title);
+    const bio = P.makeNews(P.t("ui.progression.careerFinal", "生涯终章：{title}", { title: rule.title }));
     P.G.history.push(bio);
     P.app().innerHTML =
       '<div class="ending fade">' +
       "<h1>" + rule.title + "</h1>" +
       '<div class="grade">' + (rule.grade || "C") + "</div>" +
-      '<div class="news"><div class="dateline">史学家评语</div><div class="body">' + body + "</div></div>" +
-      '<div class="news"><div class="dateline">评分</div><div class="body">权力分数 ' + s.power + " ｜ 道德分数 " + s.moral + "<br>" +
-      "最高等级 " + (P.G.tier + 1) + "（" + track.name + "）｜ " + party.name + "/" + stance.name + "<br>" +
-      "终局年龄 " + P.G.age + " ｜ 净资产 $" + (P.G.fun / 1000).toFixed(0) + "k ｜ 丑闻等级 " + P.scandalLevel() + "</div></div>" +
+      '<div class="news"><div class="dateline">' + P.t("ui.progression.historian", "史学家评语") + '</div><div class="body">' + body + "</div></div>" +
+      '<div class="news"><div class="dateline">' + P.t("ui.progression.scoreTitle", "评分") + '</div><div class="body">' +
+      P.t("ui.progression.scoreLine", "权力分数 {power} ｜ 道德分数 {moral}", { power: s.power, moral: s.moral }) + "<br>" +
+      P.t("ui.progression.rankLine", "最高等级 {tier}（{track}）｜ {party}/{stance}", { tier: P.G.tier + 1, track: track.name, party: party.name, stance: stance.name }) + "<br>" +
+      P.t("ui.progression.finalLine", "终局年龄 {age} ｜ 净资产 ${net}k ｜ 丑闻等级 {scandal}", { age: P.G.age, net: (P.G.fun / 1000).toFixed(0), scandal: P.scandalLevel() }) + "</div></div>" +
       '<div class="center" style="margin-top:14px">' +
-      '<button class="btn primary" onclick="POTUS.renderTitle()">回到标题</button> ' +
-      '<button class="btn" onclick="POTUS.exportSave()">导出本局</button></div>' +
-      '<p class="hintline">引擎 v' + P.VERSION + "。内容包可继续扩充，引擎无需改动。</p></div>";
-    P.pushLog("终局：" + rule.title + " (" + (rule.grade || "C") + ")");
+      '<button class="btn primary" onclick="POTUS.renderTitle()">' + P.t("ui.progression.backTitle", "回到标题") + '</button> ' +
+      '<button class="btn" onclick="POTUS.exportSave()">' + P.t("ui.progression.exportSave", "导出本局") + '</button></div>' +
+      '<p class="hintline">' + P.t("ui.progression.engineNote", "引擎 v{v}。内容包可继续扩充，引擎无需改动。", { v: P.VERSION }) + "</p></div>";
+    P.pushLog(P.t("ui.progression.endLog", "终局：{title} ({grade})", { title: rule.title, grade: (rule.grade || "C") }));
   };
 })();
