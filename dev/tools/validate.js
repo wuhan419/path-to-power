@@ -72,6 +72,10 @@ try {
 
 let fail = 0;
 const check = (c, m) => { if (!c) { console.log("  ✗ " + m); fail++; } };
+/* 断言"界面有没有交代某件事"时按中文措辞取串：引擎串提取成 P.t(key, "中文") 之后，
+   --lang=en 下渲染的是英文，硬编码中文的断言会假红。行为断言与被测语言无关。
+   注意：取串的那一句要写进 ZH(() => …) 里，在外面算好的字符串已经翻过了。 */
+const ZH = P.i18n.withZh;
 
 /* ---------- 多语言覆盖层自检（content/i18n/，契约见 docs/I18N.md） ---------- */
 (function l10nSelfCheck() {
@@ -260,10 +264,12 @@ console.log("\n== 背景卡 / 时间 ==");
   };
   P.confirmCreate();
   P.G.year = 2008; P.G.month = 9;
-  check(P.dateText({}) === "2008 年 9 月", "dateText 缺省应用当前月：" + P.dateText({}));
-  check(P.dateText({ day: 24 }) === "2008 年 9 月 24 日", "dateText 应拼接日：" + P.dateText({ day: 24 }));
+  /* 日期串按中文措辞比对：topbar 的 dateText 提取成 P.t 后，英文下渲染 "Sep 2008"，
+     这里要锁的是"取当前月 / 拼日期 / 支持 year 覆盖"这三条行为，不是月份用什么语言写。 */
+  check(ZH(() => P.dateText({})) === "2008 年 9 月", "dateText 缺省应用当前月：" + P.dateText({}));
+  check(ZH(() => P.dateText({ day: 24 })) === "2008 年 9 月 24 日", "dateText 应拼接日：" + P.dateText({ day: 24 }));
   P.G.month = 5;
-  check(P.dateText({ year: 1974, day: 9 }) === "1974 年 5 月 9 日", "dateText 应支持 year 覆盖：" + P.dateText({ year: 1974, day: 9 }));
+  check(ZH(() => P.dateText({ year: 1974, day: 9 })) === "1974 年 5 月 9 日", "dateText 应支持 year 覆盖：" + P.dateText({ year: 1974, day: 9 }));
   /* setMonth：月份更晚 → 推进；更早 → 保持在当前月不回退 */
   P.G.month = 1; P.setMonth({ month: 3 });
   check(P.G.month === 3, "setMonth 应把当前月推进到事件月份");
@@ -273,7 +279,7 @@ console.log("\n== 背景卡 / 时间 ==");
   check(P.G.month === 9, "更早的月份不应让时间回退（当前月仍为 9）");
 
   const ev = withBrief[0];
-  const h = P.briefHTML(ev);
+  const h = ZH(() => P.briefHTML(ev));
   check(h.indexOf("你确知的") >= 0 && h.indexOf("你尚不知道的") >= 0, "briefHTML 应渲染出三段认知边界");
   check(h.indexOf("brief-head") >= 0 && h.indexOf("toggleBrief") >= 0, "briefHTML 应带可折叠的按钮");
   check(P.briefHTML({ id: "x" }) === "", "无 brief 的事件不应渲染背景卡");
@@ -569,7 +575,7 @@ console.log("\n== 资源经济 / 投注 ==");
   check(withStake.P > noStake, "投注资金/人情后胜算应提高（" + noStake + " → " + withStake.P + "）");
   check(st.cost.fun === 2 * tPer && st.cost.fav === 1, "投注花费计算错误：" + JSON.stringify(st.cost));
   check(st.reroll === true, "投入人情应获得重投（advantage）");
-  check(withStake.breakdown.some(b => b.label.indexOf("投入") === 0), "判定明细应包含『投入·』条目");
+  check(ZH(() => P.computeP(tChoice, st).breakdown.some(b => b.label.indexOf("投入") === 0)), "判定明细应包含『投入·』条目");
   check(withStake.target === Math.round(withStake.P * 100), "target 应与胜算一致");
 
   /* 上限：狂投也不能突破 0.95 */
@@ -708,10 +714,10 @@ console.log("\n== 动态投注汇率（身位 × 事件金额）==");
   check(rp.per <= rp.ceiling + 1e-9, "抹零不得把价码抬到事件锚之上");
 
   /* ⑦ 界面文案必须说得清价码来源（动态汇率不能是新的黑箱） */
-  const note = P.stakeRateNote(smallCh, "mid");
+  const note = ZH(() => P.stakeRateNote(smallCh, "mid"));
   check(note.indexOf("月薪") >= 0 && note.indexOf("钱量级") >= 0, "汇率说明应同时交代身位与事件金额：" + note);
-  check(P.stakeRateNote(nomoneyCh, "mid").indexOf("没写钱") >= 0, "没写钱的事件应说明『只按身位算』");
-  check(P.stakeRateNote(fixedCh, "mid").indexOf("剧情写定") >= 0, "写死 per 的事件应说明『价码由剧情写定』");
+  check(ZH(() => P.stakeRateNote(nomoneyCh, "mid")).indexOf("没写钱") >= 0, "没写钱的事件应说明『只按身位算』");
+  check(ZH(() => P.stakeRateNote(fixedCh, "mid")).indexOf("剧情写定") >= 0, "写死 per 的事件应说明『价码由剧情写定』");
   check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
     "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
 
@@ -1213,7 +1219,7 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   P.G.lev = 0; const prNoLev = P.pressure();
   P.G.lev = (b.bonusPressure.leverageAt == null ? 3 : b.bonusPressure.leverageAt);
   check(P.pressure() > prNoLev, "手中把柄达到 leverageAt 后应抬高活跃度（" + prNoLev + " → " + P.pressure() + "）");
-  check(P.bonusReason().indexOf("把柄在手") >= 0, "活跃度理由里应写明「把柄在手」");
+  check(ZH(() => P.bonusReason()).indexOf("把柄在手") >= 0, "活跃度理由里应写明「把柄在手」");
   P.G.lev = 0;
 
   /* --- 人脉（contacts）：第一次接触即"从此认识"，好感夹在 -100~100 --- */
@@ -1494,7 +1500,7 @@ console.log("\n== 静好岁月 ==");
     GV.contacts = { fixer: 10 }; GV.lev = 0; GV.hp = 100; GV.fun = 50000; GV.fav = 0; GV.ap = 0;
     let g = 0;
     for (let i = 0; i < months; i++) {
-      const r = P.vignetteGrowth(1);
+      const r = ZH(() => P.vignetteGrowth(1));
       /* 只数属性条目（魅力/智力/手腕/诚信开头）——资金/精力/人情与年龄无关 */
       g += r.notes.filter(function (n) { return /[魅力智力手腕诚信]/.test(n.slice(0, 2)); }).length;
     }
@@ -1523,7 +1529,7 @@ console.log("\n== 静好岁月 ==");
   /* --- 7) 渲染：只读不写（重复渲染不能让属性再长一次） --- */
   GV.year = 2010; GV.month = 6; GV.vigYear = 2010; GV.vigMonth = 0; GV.quietLog = [];
   for (let m = 1; m <= 6; m++) { GV.month = m; P.settleQuietMonth(m); }
-  const html = P.renderQuiet([1, 2, 3, 4, 5, 6]);
+  const html = ZH(() => P.renderQuiet([1, 2, 3, 4, 5, 6]));
   check(html.html.indexOf("静好岁月") >= 0, "renderQuiet 应渲染出「静好岁月」卡");
   check(html.html.indexOf("2010 年") >= 0, "卡片上应标出年份");
   check(html.html.indexOf("另有") >= 0, "超过 maxShown 的月份应被收成一句「另有 N 个月」");
@@ -2047,7 +2053,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(P.isContestChoice({ base: 0.5, outcomes: { ok: { effects: { rep: 5 } } } }) === false,
       "普通事件不被误判为晋升类");
     P.G.voters = { warm: 30000, diehard: 12000, oppose: 500 };
-    const pHi2 = P.computeP(contestC);
+    /* 整次判定都在中文措辞下算：breakdown 的 label 是玩家可见串，
+       只包断言会把已经渲染成英文的 label 拿出来比中文。胜算数值与语言无关。 */
+    const pHi2 = ZH(() => P.computeP(contestC));
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
     const pLo2 = P.computeP(contestC);
     check(pHi2.P > pLo2.P,
@@ -2055,7 +2063,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(pHi2.breakdown.some(function (b) { return /选民底气/.test(b.label); }),
       "判定明细里出现「选民底气」一项");
     const policyC = { base: 0.5, mods: [{ src: "voters", w: 0.12 }], outcomes: { ok: { effects: { rep: 3 } } } };
-    check(P.computeP(policyC).breakdown.some(function (b) { return /选民底气/.test(b.label); }),
+    check(ZH(() => P.computeP(policyC)).breakdown.some(function (b) { return /选民底气/.test(b.label); }),
       "内容可用 mods:[{src:\"voters\"}] 显式为政策推进类选项声明选民修正");
 
     /* ④ 每月的账要报出选民变化（否则玩家看不见"我什么都没干，但选民在动"）。
@@ -2065,7 +2073,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     P.G.year = 2010; P.G.ledgerYear = 2010; P.G.ledger = {};
     const mrec = P.monthlyLedger(7);
     check(!!mrec && !!mrec.voters && Object.keys(mrec.voters).length > 0, "每月的账里含选民变化（monthlyLedger.voters）");
-    check(P.ledgerBoxHTML([mrec]).indexOf("选民") >= 0, "结算栏会报出选民变化（好感/反对在动）");
+    check(ZH(() => P.ledgerBoxHTML([mrec])).indexOf("选民") >= 0, "结算栏会报出选民变化（好感/反对在动）");
     /* 反向锁：vignetteGrowth 不再重复结选民（已搬走，避免双算） */
     P.G.voters = { warm: 0, diehard: 0, oppose: 0 };
     check(!P.vignetteGrowth(3).tally.voters || Object.keys(P.vignetteGrowth(3).tally.voters).length === 0,

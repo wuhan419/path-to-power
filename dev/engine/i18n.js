@@ -158,6 +158,15 @@ var POTUS = window.POTUS = window.POTUS || {};
       /* 覆盖层是 boot 时一次性并进去的，切语言只能重载 */
       if (typeof location !== "undefined") location.reload();
     },
+    /* 临时用中文措辞跑一段代码，跑完还原。给测试工具用：
+       界面串提取成 P.t 之后，"断言里写死中文"会在 --lang=en 下必然假红——
+       断言测的是引擎行为（有没有交代价码来源），跟渲染语言无关。
+       注意只换 UI 取串这一层：内容覆盖层是 applyLang 单向并进去的，不能回退。 */
+    withZh(fn) {
+      const prevUi = P.locale.ui, prevLang = P.locale.lang;
+      P.locale.ui = dicts.zh; P.locale.lang = "zh";
+      try { return fn(); } finally { P.locale.ui = prevUi; P.locale.lang = prevLang; }
+    },
     applyLang,
     /* 覆盖层里可安全改写的文本键（校验与派活时按这个白名单卡） */
     textKeys: "title body lede known rumor unknown terms name desc text texts bodyTpl " +
