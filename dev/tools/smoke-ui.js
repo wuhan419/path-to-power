@@ -5,6 +5,7 @@
  * 覆盖：标题 → 建角 → 年卡 → 月历卡 → 档期事件
  *       → 量级 / 类型 / 媒介 徽章 → 日期 → 背景卡（折叠展开）
  *       → 代价标签 / 资源不足变灰 → 投注面板 → 掷骰 → D&D 判定明细 → 结算
+ *       → 对局内语言切换（顶栏中/EN + 无顶栏屏的 #langdock，点击写 potus_lang）
  *
  * 用法：  node tools/smoke-ui.js
  * 依赖：  jsdom（已装在 ~/.workbuddy/binaries/node/workspace）
@@ -472,6 +473,18 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.pickDifficulty("brutal");
   check(P.CSEL.difficulty === "brutal" && P.CSEL.origin === "labor", "选难度会切换出身（炼狱→蓝领 labor）");
   check(!!w.document.querySelector(".opt-diff.sel"), "当前难度在界面上高亮（.opt-diff.sel）");
+  /* ---------- w45：对局内语言切换 —— 建角屏没有顶栏，走全局 #langdock 兜底 ---------- */
+  await sleep(0);                       // dock 可见性由 MutationObserver 同步，先让微任务落地
+  const dock = w.document.getElementById("langdock");
+  check(!!dock, "全局语言 dock 已挂载（#langdock）");
+  check(!!dock && dock.style.display !== "none", "建角屏（顶栏缺席）dock 可见");
+  check(!!dock && !!dock.querySelector('button[data-lang="en"]') && !!dock.querySelector('button[data-lang="zh"]'),
+    "dock 渲染出 中 / EN 两枚切换按钮");
+  check(!!dock && dock.querySelector('button[data-lang="zh"]').disabled, "当前语言（zh）按钮置灰");
+  check(!!dock && !dock.querySelector('button[data-lang="en"]').disabled, "目标语言（EN）按钮可点");
+  dock.querySelector('button[data-lang="en"]').click();
+  check(w.localStorage.getItem("potus_lang") === "en", "点击 EN 后 localStorage.potus_lang=en（随后整页重载生效）");
+  w.localStorage.removeItem("potus_lang");   // jsdom 里 reload 不落地的，清掉再走后续断言
   /* 引擎级的定命一掷 / 自由点 / VIP / 州联动函数仍在（旧完整建角保留可回退） */
   P.rollAttrs();
   check(!!P.CSEL.rolled && ["CHA", "INT", "CUN", "INTG"].every(k => typeof P.CSEL.rolled[k] === "number"),
@@ -489,6 +502,12 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!P.G.state, "出生州由系统自动填（demo 铁锈带锚点）");
   check(/\d+ 年 \d+ 月/.test((w.document.getElementById("statusbox") || {}).textContent || ""), "顶部状态条显示日期");
   check(!!P.G.yearStartSnap, "年初快照已建立（年终叙事的对比基准）");
+  /* ---------- w45：回对局 —— 语言切换应在顶栏（kicker 条 .kb-ops 尾部），dock 让位 ---------- */
+  await sleep(0);
+  const bandSw = w.document.querySelector('.kicker-band button[data-lang="en"]');
+  check(!!bandSw, "对局中顶栏（kicker 条）渲染出中/EN 语言切换");
+  check(!!bandSw && bandSw.closest(".kb-ops") !== null, "语言切换挂在 .kb-ops 操作组内（沿用顶栏按钮样式）");
+  check(!!dock && dock.style.display === "none", "回对局后 dock 隐藏（同一时刻只出现一个入口）");
 
   /* ---------- 收益结算面板 + 判定明细折叠 ---------- */
   console.log("\n== 收益结算面板 ==");
@@ -530,6 +549,10 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
       "收益面板排在结果正文之后（叙事为主，对账为辅）");
   }
   check(!w.document.querySelector("details.check"), "结算不再呈现折叠的「判定明细」（d100/目标/加值已全部隐藏）");
+  /* ---------- w45：事件屏 —— 事件/结算卡只换 #main，顶栏语言切换应仍在场 ---------- */
+  check(!!w.document.querySelector(".news .result") || !!w.document.querySelector(".news"), "事件卡区在场（.news）");
+  check(!!w.document.querySelector('.kicker-band button[data-lang="en"]'),
+    "事件屏（事件卡渲染期间）顶栏中/EN 切换仍可见");
 
   /* ---------- 下野（软 BE）：afterEvent 补交代，游戏继续 ---------- */
   console.log("\n== 下野（软 BE）与硬结局 ==");

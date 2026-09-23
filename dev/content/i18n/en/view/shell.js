@@ -22,6 +22,9 @@ POTUS.define("l10n", {
 
     /* 启动兜底提示 */
     "ui.shell.noContentTitle": "No content pack loaded",
-    "ui.shell.noContentHint": "Provide at least one era content pack under content/ and add it to the manifest in index.html."
+    "ui.shell.noContentHint": "Provide at least one era content pack under content/ and add it to the manifest in index.html.",
+
+    /* 全局语言 dock（建角/终局等无顶栏屏的兜底入口；措辞对齐 ui.title.langLabel） */
+    "ui.shell.langDock": "Language: "
   }
 });

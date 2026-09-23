@@ -335,6 +335,23 @@
     const open = box.classList.toggle("open");
     btn.textContent = (open ? P.t("ui.topbar.chipsClose", "收起 ▴") : P.t("ui.topbar.chipsOpen", "档案 ▸"));
   };
+  /* ---------------- 语言切换（对局内常驻入口，w45） ----------------
+     与标题屏 langBar 同一机制：点非当前语言的按钮 → P.i18n.setLang 写
+     localStorage.potus_lang 后整页重载（覆盖层是 boot 时一次性并进去的，不能热切），
+     当前语言的按钮置灰。紧凑两枚小钮「中 / EN」——语言自称按母语书写，两语下都印 中/EN。
+     摆放：对局中/事件屏挂在 kicker 顶栏 .kb-ops 尾部（shell.js 的 topbarHTML）；
+     建角/终局这类不渲染顶栏的屏由 shell.js 全局 #langdock 复用本工厂兜底。 */
+  P.langSwitchHTML = function () {
+    const cur = P.locale.lang;
+    const esc = function (s) { return String(s).replace(/"/g, "&quot;"); };
+    const b = function (code, label) {
+      return '<button type="button" class="btn tiny lang-sw" data-lang="' + code + '"' +
+        (cur === code ? " disabled" : ' onclick="POTUS.i18n.setLang(\'' + code + '\')"') + ">" + label + "</button>";
+    };
+    return '<span class="lang-sw" style="display:inline-flex;align-items:center;gap:4px"' +
+      ' title="' + esc(P.t("ui.topbar.langTip", "切换界面语言（重载后生效）")) + '">' +
+      b("zh", P.t("ui.topbar.langZh", "中")) + b("en", P.t("ui.topbar.langEn", "EN")) + "</span>";
+  };
   P.statusPanel = function () {
     const G = P.G;
     const render = function (it) {
@@ -343,8 +360,10 @@
         return f ? f() : "";
       }
       const inner = it.items.map(render).join("");
+      /* 折叠钮文案在取用点过 P.t（布局常量只存中文原文兜底），与 toggleChips 共用
+         ui.topbar.chipsOpen，保证初始渲染和点击后的文案一致 */
       const toggle = it.collapse
-        ? '<button type="button" class="btn tiny idc-chip-toggle" onclick="POTUS.toggleChips(this)">' + it.collapse + ' ▸</button>'
+        ? '<button type="button" class="btn tiny idc-chip-toggle" onclick="POTUS.toggleChips(this)">' + P.t("ui.topbar.chipsOpen", it.collapse + " ▸") + '</button>'
         : "";
       return '<div class="' + (it.cls || "") + '">' + inner + toggle + '</div>';
     };
