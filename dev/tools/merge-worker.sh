@@ -88,8 +88,18 @@ for b in "${RESOLVED[@]}"; do
   fi
   echo "▶ 合并 $b"
   if ! git merge --no-ff -m "merge $b" "$b"; then
+    # 唯一允许自动和解的文件 = dev/index.html 的生成器托管区：多个分支各自往同一区
+    # 追加 <script> 行，必然撞车；但内容以第 3 步重生成准，所以取我方版本继续即可。
+    conflicted=$(git diff --name-only --diff-filter=U)
+    only_html=$(printf '%s\n' "$conflicted" | grep -v '^dev/index\.html$' | grep -c . || true)
+    if [ "$only_html" = "0" ] && [ -n "$conflicted" ]; then
+      echo "  · 只有 index.html 托管区冲突 → 取我方版本，稍后由 gen-manifest 重生成"
+      git checkout --ours dev/index.html && git add dev/index.html
+      git commit --no-edit || { echo "✗ 合并提交失败" >&2; exit 1; }
+      continue
+    fi
     echo "✗ $b 合并冲突，merge 已保留现场（未 abort）：请人工和解后 git commit" >&2
-    git status --short | sed 's/^/  /'
+    printf '%s\n' "$conflicted" | sed 's/^/  ✗ /'
     exit 1
   fi
 done
