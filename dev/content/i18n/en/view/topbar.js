@@ -79,6 +79,11 @@ POTUS.define("l10n", {
 
     /* 档案折叠钮 */
     "ui.topbar.chipsClose": "Hide ▴",
-    "ui.topbar.chipsOpen": "Dossier ▸"
+    "ui.topbar.chipsOpen": "Dossier ▸",
+
+    /* 顶栏语言切换（对局内入口；中/EN 是语言自称，英文侧照写不译） */
+    "ui.topbar.langTip": "Switch UI language (takes effect after the page reloads)",
+    "ui.topbar.langZh": "中",
+    "ui.topbar.langEn": "EN"
   }
 });
