@@ -149,9 +149,20 @@ POTUS.define("l10n", {
     "ui.stage.valBoon": "Boon: even handled badly, it won't cost you.",
     "ui.stage.valBane": "Threat: ignore it and you pay; play it well and it turns around.",
     "ui.stage.valRisk": "Risk: bet or don't — both are choices.",
+    /* 三值性徽标（P.VAL_LABEL 为加载期常量，取用点现翻：ui.stage.valLabel.<val>） */
+    "ui.stage.valLabel.boon": "Opportunity",
+    "ui.stage.valLabel.risk": "Risk",
+    "ui.stage.valLabel.bane": "Threat",
     "ui.stage.yourChoices": "Your choices",
     "ui.stage.stakeHint": "Invest resources for better odds",
     "ui.stage.noteTag": "Note",
+
+    /* 判定五档徽章（P.TIER_LABEL 为加载期常量，取用点现翻：ui.stage.tierBadge.<tier>） */
+    "ui.stage.tierBadge.crit": "★ Critical success",
+    "ui.stage.tierBadge.ok": "✓ Success",
+    "ui.stage.tierBadge.meh": "~ Scraped through",
+    "ui.stage.tierBadge.fail": "✗ Failure",
+    "ui.stage.tierBadge.critfail": "☠ Critical failure",
 
     /* ---------------- 结算与头条（resolveChoice / afterEvent） ---------------- */
     "ui.stage.newsLead": "In controversy: {t}",

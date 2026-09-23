@@ -19,6 +19,7 @@ POTUS.define("l10n", {
     "ui.core.gradeMinor": "Minor",
     "ui.core.catGeneral": "General",
     "ui.core.contactSomeone": "Someone",
+    "ui.core.factionUnknown": "Other",
 
     /* VIP 充值码提示 */
     "ui.core.vipEmpty": "Enter a code",

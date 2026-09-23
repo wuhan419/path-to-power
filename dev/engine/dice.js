@@ -31,7 +31,8 @@
     if (m.src === "voters") {
       const e = P.voterEdge ? P.voterEdge() : 0;
       const w = m.w == null ? 0.06 : m.w;
-      return { v: e * w, label: "选民底气 " + P.electionStrength().pct + "%" };
+      /* 「选民底气 X%」：validate.js 的相关断言已包进 ZH(() => …)，可放心提取 */
+      return { v: e * w, label: P.t("ui.dice.modVoters", "选民底气 {pct}%", { pct: P.electionStrength().pct }) };
     }
     return { v: 0, label: null };
   }
@@ -235,7 +236,7 @@
     if (vdyn.enabled !== false && P.isContestChoice(choice)) {
       apply({ src: "voters", w: vdyn.contestW == null ? 0.08 : vdyn.contestW });
     }
-    if (stake && stake.bonus) { p += stake.bonus; (stake.parts || []).forEach(function (x) { if (x.pct) bd.push({ label: "投入·" + x.label, pct: x.pct }); }); }
+    if (stake && stake.bonus) { p += stake.bonus; (stake.parts || []).forEach(function (x) { if (x.pct) bd.push({ label: P.t("ui.dice.investLabel", "投入·{label}", { label: x.label }), pct: x.pct }); }); }
     const Pv = P.clamp(p, 0.05, 0.95);
     return { P: Pv, target: Math.round(Pv * 100), breakdown: bd };
   };
@@ -266,11 +267,15 @@
     return { tier: better.tier, roll: better.roll, rolls: [a.roll, b.roll], rerolled: true };
   };
 
-  /* 给玩家看的模糊档位 */
+  /* 给玩家看的模糊档位。fuzzLabels 是 boot 前生成的常量表（BALANCE_DEFAULTS /
+     content 01-config 各有一份，后者覆盖前者），所以中文原文留在数据里、
+     在取用点现翻：key = ui.dice.fuzz.<档位下标>，档位边界仍走 fuzzBands，数值零改动。 */
   P.fuzzy = function (p) {
     const b = P.balance(), bands = b.fuzzBands, labels = b.fuzzLabels;
-    for (let i = 0; i < bands.length; i++) if (p < bands[i]) return labels[i];
-    return labels[labels.length - 1];
+    let i = bands.length;
+    for (let j = 0; j < bands.length; j++) if (p < bands[j]) { i = j; break; }
+    if (i >= bands.length) i = labels.length - 1;
+    return P.t("ui.dice.fuzz." + i, labels[i]);
   };
 
   P.TIER_LABEL = { crit: "★ 大成功", ok: "✓ 成功", meh: "~ 勉强过关", fail: "✗ 失败", critfail: "☠ 大失败" };

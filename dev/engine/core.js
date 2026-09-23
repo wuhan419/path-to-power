@@ -347,7 +347,8 @@ POTUS.yearOK = function (ev) {
 
 POTUS.factionName = function (k) {
   const f = POTUS.reg.faction[k];
-  return f ? (f.name || k) : (k || POTUS.reg.factionUnknown);
+  /* reg.factionUnknown 是加载期常量「其他」，英文覆盖层 boot 后才就位 → 在取用点过 t() */
+  return f ? (f.name || k) : (k || POTUS.t("ui.core.factionUnknown", POTUS.reg.factionUnknown));
 };
 POTUS.scandalLevel = function () {
   const lv = POTUS.G.flags.filter(function (f) { return f.indexOf("scandal_") === 0; })
