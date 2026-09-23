@@ -587,7 +587,7 @@
     const val = P.valenceOf(ev);
     const vchip = '<span class="vchip ' + val + '" title="' +
       (val === "boon" ? P.t("ui.stage.valBoon", "机会：再糟的处理也不会亏") : val === "bane" ? P.t("ui.stage.valBane", "威胁：不处理必有代价，处理得好能翻盘") : P.t("ui.stage.valRisk", "风险：搏与不搏都是路")) + '">'
-      + (P.VAL_LABEL[val] || val) + "</span>";
+      + P.t("ui.stage.valLabel." + val, P.VAL_LABEL[val] || val) + "</span>";
     /* 主次顺序：标题 → 承前 → 正文（主角视角发生了什么）→ 插画 → 背景卡（折叠）→ 选项 */
     const standfirst = standfirstOf(ev);
     /* 档案编号：本局走到第几件事（不足三位补零），配合等宽字做档案标签 */
@@ -721,7 +721,8 @@
        ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
     P.applyEffects(effFinal);
     P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
-    const label = P.TIER_LABEL[res.tier] || res.tier;
+    /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
+    const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
     const div = document.createElement("div");
     div.className = "result " + res.tier + " fade";
     /* 档位做成小徽章（按档位配色），叙事正文独立成段 —— 一眼看清"结果如何"，

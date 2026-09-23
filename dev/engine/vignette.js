@@ -33,7 +33,8 @@
   const SLOTS = ["season", "world", "work", "life", "self", "close"];
   const SLOT_NAME = { season: "时令", world: "世相", work: "案头", life: "日常", self: "心绪", close: "收束" };
   P.VIGNETTE_SLOTS = SLOTS;
-  P.vignetteSlotName = function (s) { return SLOT_NAME[s] || s; };
+  /* SLOT_NAME 是加载期常量：中文原文留在表里兜底，取用点现翻（key = ui.vignette.slot.<slot>） */
+  P.vignetteSlotName = function (s) { return P.t("ui.vignette.slot." + s, SLOT_NAME[s] || s); };
 
   function inArr(list, v) { return !list || list.indexOf(v) >= 0; }
 

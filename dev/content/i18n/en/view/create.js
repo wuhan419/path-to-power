@@ -3,7 +3,8 @@
  * 建角屏（engine/view/create.js）界面串的英文分片。
  * 约定见 docs/I18N.md：中文原文是引擎里的兜底，这里只登记英文；
  * {x} 占位符两侧同名。属性名复用 ui.attr.*、副题复用 ui.title.sub（均在 en/ui.js）。
- * 注：难度名与难度说明（DIFFS）是加载期立即执行的串，本轮未提取，故无对应 key。
+ * 注：难度名与难度说明（DIFFS）为加载期常量，已在取用点提取：
+ *   key = ui.create.diff.<难度>.label / .note（diffLabel()/diffNote()）。
  * ==========================================================================*/
 POTUS.define("l10n", {
   lang: "en",
@@ -19,6 +20,18 @@ POTUS.define("l10n", {
     "ui.create.summary": "Difficulty <b>{d}</b> · Background <b>{o}</b> · Entry <b>{e}</b>. The starting year, party and talent are set for you; you can switch them later in-game.",
     "ui.create.entryInsider": "Straight in (start as a volunteer)",
     "ui.create.defaultName": "Tommy",
+
+    /* ---- 难度名 + 难度说明（DIFFS，取用点提取，key = ui.create.diff.<id>.label/note） ---- */
+    "ui.create.diff.legendary.label": "Legendary",
+    "ui.create.diff.legendary.note": "A dynasty's own dynasty · Start with $3.0M · +15 reputation, +6 favors, +5 to every attribute — born on a silver spoon, the road paved all the way.",
+    "ui.create.diff.easy.label": "Easy",
+    "ui.create.diff.easy.note": "Political family · Start with $1.2M · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
+    "ui.create.diff.normal.label": "Normal",
+    "ui.create.diff.normal.note": "Business / law school elite · Start with $400k · +15 Wit, but the grassroots don't trust you.",
+    "ui.create.diff.hard.label": "Hard",
+    "ui.create.diff.hard.note": "Second-generation immigrant · Self-made (no starting cash) · +20 base but -20 establishment — climbing purely on grit.",
+    "ui.create.diff.brutal.label": "Brutal",
+    "ui.create.diff.brutal.note": "Blue-collar worker · Not a penny to your name ($0) · Only the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
 
     /* ---- 定命一掷 / 自由点 / VIP 码（rollBlockHTML） ---- */
     "ui.create.rollTitle": "Roll Your Fate",

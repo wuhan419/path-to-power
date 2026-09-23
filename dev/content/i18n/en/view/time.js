@@ -3,8 +3,8 @@
  * 引擎 engine/time.js（时间轴 / 时代压力 / 档期）界面串的英文表。
  * 契约见 docs/I18N.md §2：中文原文就是兜底，本表没登记的 key 在英文界面显中文。
  *
- * 有意**不给英文**的一条（补上前要先解掉门禁里的中文断言，见 dev/tools/validate.js）：
- *   ui.time.reason.leverage —— validate.js 在 --lang=en 下仍断言 bonusReason() 含「把柄在手」。
+ * w44 补齐：ui.time.reason.leverage —— validate.js 断言已改成 ZH(() => …) locale 感知，
+ *   在 --lang=en 下可安全给英文。
  * ==========================================================================*/
 
 POTUS.define("l10n", {
@@ -22,6 +22,7 @@ POTUS.define("l10n", {
     "ui.time.reason.investigation": "Under investigation",
     "ui.time.reason.election": "Election year",
     "ui.time.reason.tierHigh": "High office",
+    "ui.time.reason.leverage": "Leverage in hand",
 
     /* 时间读数 */
     "ui.time.monthLabel": "Month {M}",

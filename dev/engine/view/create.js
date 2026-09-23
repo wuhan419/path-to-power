@@ -23,7 +23,9 @@
   /* 五档难度：出身（吃 10-characters.js 的资源梯度）+ bonus（在出身之上再叠一笔开局增量）。
    * bonus 走 applyEffects，支持的键与事件效果一致：fun / rep / fav / lev / fac / attr。
    *   —— 精力(ap)、健康(hp) 已在 v0.9 退役，这里不再出现。
-   * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。 */
+   * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。
+   * 注意：label/note 是加载期立即求值的中文原文（此时 boot 还没套用英文覆盖层），
+   * 所以取用点一律走 diffLabel()/diffNote() 现取现翻，key = ui.create.diff.<id>.label/note。 */
   const DIFFS = {
     legendary: { label: "传奇", origin: "dynasty", note: "政治世家中的世家 · 开局资金 $3.0M · 声望 +15、人情 +6、天赋全属性 +5 —— 含着金汤匙落地，一路都有人铺",
       bonus: { fun: 1800000, rep: 7, fav: 4, fac: { establishment: 10 }, attr: { CHA: 5, INT: 5, CUN: 5, INTG: 5 } } },
@@ -33,6 +35,8 @@
     brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 家无余财 $0 · 只有工会与基层，且起步声望更低、建制更冷 —— 真正的从零开始",
       bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
   };
+  function diffLabel(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".label", d.label) : "—"; }
+  function diffNote(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".note", d.note) : ""; }
   function randKey(map) { const ks = Object.keys(map); return ks[Math.floor(Math.random() * ks.length)]; }
   /* 给四属性各掷一把（35-55），自动开局用，不再让玩家手动洒自由点 */
   function autoRoll() {
@@ -199,11 +203,12 @@
     let h = '<h3 style="margin:14px 0 4px">' +
       P.t("ui.create.diffHeading", "选择难度（＝你的出身与初始资源）") + "</h3>";
     for (const id in DIFFS) {
-      const d = DIFFS[id], sel = C.difficulty === id ? " sel" : "";
+      const sel = C.difficulty === id ? " sel" : "";
+      const label = diffLabel(id), note = diffNote(id);
       h += '<div class="opt opt-diff' + sel + '" onclick="POTUS.pickDifficulty(\'' + id + '\')">' +
-        '<img class="opt-port" src="assets/heroes/hero-' + id + '-0.jpg" alt="' + d.label +
+        '<img class="opt-port" src="assets/heroes/hero-' + id + '-0.jpg" alt="' + label +
         '" onerror="this.style.visibility=\'hidden\'">' +
-        '<div class="opt-body"><b>' + d.label + "</b><small>" + d.note + "</small></div></div>";
+        '<div class="opt-body"><b>' + label + "</b><small>" + note + "</small></div></div>";
     }
     const oInfo = P.reg.origin[C.origin] || {};
     P.app().innerHTML =
@@ -222,7 +227,7 @@
       '<p class="hintline">' + P.t("ui.create.summary",
         "难度 <b>{d}</b>　出身 <b>{o}</b>　起点 <b>{e}</b>。开局年份、党派、天赋等由系统自动定，游戏里可再切换。",
         {
-          d: C.difficulty ? DIFFS[C.difficulty].label : "—",
+          d: diffLabel(C.difficulty),
           o: oInfo.name || "—",
           e: P.t("ui.create.entryInsider", "直接入行（从志愿者做起）")
         }) + "</p></div>";
