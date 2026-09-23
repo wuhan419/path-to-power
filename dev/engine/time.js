@@ -56,22 +56,22 @@
   /* 当前活跃度由什么顶起来的（界面用） */
   P.bonusReason = function () {
     const G = P.G, w = P.balance().bonusPressure || {}, out = [];
-    if (P.scandalLevel() > 0) out.push("丑闻缠身");
-    if (P.hasFlag("investigation_open")) out.push("正被调查");
-    if (P.electionYear()) out.push("选举年");
-    if (G.tier >= (w.tierHighAt == null ? 4 : w.tierHighAt)) out.push("身居高位");
-    if ((G.lev || 0) >= (w.leverageAt == null ? 3 : w.leverageAt)) out.push("把柄在手");
+    if (P.scandalLevel() > 0) out.push(P.t("ui.time.reason.scandal", "丑闻缠身"));
+    if (P.hasFlag("investigation_open")) out.push(P.t("ui.time.reason.investigation", "正被调查"));
+    if (P.electionYear()) out.push(P.t("ui.time.reason.election", "选举年"));
+    if (G.tier >= (w.tierHighAt == null ? 4 : w.tierHighAt)) out.push(P.t("ui.time.reason.tierHigh", "身居高位"));
+    if ((G.lev || 0) >= (w.leverageAt == null ? 3 : w.leverageAt)) out.push(P.t("ui.time.reason.leverage", "把柄在手"));
     return out;
   };
 
   /* 按月给出可读的压力描述（界面用） */
   P.pressureLabel = function (v) {
     if (v == null) v = P.pressure();
-    if (v < 1.6) return { text: "平静", cls: "calm" };
-    if (v < 2.6) return { text: "常有波澜", cls: "uneasy" };
-    if (v < 3.6) return { text: "多事之秋", cls: "tense" };
-    if (v < 4.6) return { text: "动荡", cls: "storm" };
-    return { text: "断层边缘", cls: "abyss" };
+    if (v < 1.6) return { text: P.t("ui.time.pressure.calm", "平静"), cls: "calm" };
+    if (v < 2.6) return { text: P.t("ui.time.pressure.uneasy", "常有波澜"), cls: "uneasy" };
+    if (v < 3.6) return { text: P.t("ui.time.pressure.tense", "多事之秋"), cls: "tense" };
+    if (v < 4.6) return { text: P.t("ui.time.pressure.storm", "动荡"), cls: "storm" };
+    return { text: P.t("ui.time.pressure.abyss", "断层边缘"), cls: "abyss" };
   };
 
   /* ---------- 按压力抽一个量级 ---------- */
@@ -207,7 +207,7 @@
   };
 
   /* ---------- 推进：月 → 月 → 年 ---------- */
-  P.monthLabel = function (m) { return (m == null ? P.G.month : m) + " 月"; };
+  P.monthLabel = function (m) { return P.t("ui.time.monthLabel", "{M} 月", { M: (m == null ? P.G.month : m) }); };
 
   /* 从当前月开始向前推进，跳过平静的月份；遇到有档期的月份就停下并返回 true。
      注意 month = 0 是"年初、还没进过任何月份"的哨兵值，不是"1 月"——
@@ -259,7 +259,8 @@
   P.slotLabel = function () {
     const G = P.G;
     if (!G.slotCount) return "";
-    return "本月第 " + Math.min(G.slotIndex, G.slotCount) + "/" + G.slotCount + " 件事";
+    return P.t("ui.time.slotLabel", "本月第 {N}/{T} 件事",
+      { N: Math.min(G.slotIndex, G.slotCount), T: G.slotCount });
   };
 
   /* 当月量级概览（界面用）：{major:1, mid:0, minor:2} */
