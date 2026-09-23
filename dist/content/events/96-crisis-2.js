@@ -422,7 +422,7 @@ POTUS.define("event", [
    * 5) 银行挤兑 —— 储蓄者恐慌里的领导角色（本包核心）
    * ======================================================================== */
   {
-    id: "cri2_bank_run", era: ["1974_WATERGATE", "2008_CRASH"], tierMin: 1, tierMax: 5, weight: 13,
+    id: "cri2_bank_run", era: ["2008_CRASH"], tierMin: 1, tierMax: 5, weight: 13,
     grade: "major", valence: "bane", dyn: true, category: "crisis", unique: true,
     title: "银行门口的队伍在星期五凌晨排起来了",
     body: "先是经济版的传闻，然后是停车场里的口耳相传。星期五早上七点，选区那家银行门口排了两百人。\n" +

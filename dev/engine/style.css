@@ -92,10 +92,8 @@
   .campbar .cmp-meter em{font-style:normal;font-family:"SF Mono",Menlo,Consolas,monospace;
     font-weight:700;color:var(--ink);min-width:18px}
   .campbar .cmp-meter.low em{color:var(--bad)}
-  /* era skin */
+  /* era skin（1960_CAMELOT / 1974_WATERGATE 已随 pre-1980 死内容清理；其余时代走默认变量） */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
-  body.era-1960_CAMELOT{--era1:#3a4a63;--era2:#5a6f9c;--era3:#caa53a;--accent:#3a4a63}
-  body.era-1974_WATERGATE{--era1:#4a3a2a;--era2:#7a1f1f;--era3:#b08a3a;--accent:#7a1f1f}
   /* newspaper card */
   .news{border:1px solid var(--line);background:#fbf7ec;padding:14px 16px;margin:10px 0;
     box-shadow:2px 2px 0 rgba(0,0,0,.08)}
@@ -306,6 +304,10 @@
   .art-press-broken img{display:none}
   .art-press-broken::after,.art-press-broken::before{display:none}
   .art-press-broken .art-back{display:block}
+  /* 时代简报头版：比事件配图略矮的横幅，作为简报的「报头大图」 */
+  .art-press.era-front{margin:10px 0 6px}
+  .art-press.era-front img{height:174px}
+  .art-press.era-front .art-ptag{font-size:11px;letter-spacing:1.5px}
   a.link{color:var(--accent)}
   /* ending */
   .ending{border:3px double var(--line);padding:18px;background:#fbf7ec}

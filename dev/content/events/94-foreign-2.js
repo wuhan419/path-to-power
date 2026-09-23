@@ -20,7 +20,7 @@ POTUS.define("event", [
     id: "for2_trade_trip",
     grade: "mid", category: "foreign",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 0, tierMax: 2, weight: 12,
     brief: {
       lede: "代表团的名单上有你的名字——排在最后一位，但它在名单上。",
@@ -92,7 +92,7 @@ POTUS.define("event", [
     id: "for2_lobbyist_foreign",
     grade: "major", unique: true, category: "foreign",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 2, tierMax: 5, weight: 10,
     brief: {
       lede: "那张支票的抬头是一家你从没听说过的国内公司——但介绍人说话的口音是外交部的。",
@@ -165,7 +165,7 @@ POTUS.define("event", [
     id: "for2_spy_contact",
     grade: "mid", category: "foreign",
     valence: "bane", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 2, tierMax: 5, weight: 11,
     brief: {
       lede: "他记得你女儿的钢琴比赛名次——你只跟妻子提过一次，还是在电话里。",
@@ -237,7 +237,7 @@ POTUS.define("event", [
     id: "for2_refugee_vote",
     grade: "mid", category: "foreign",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 1, tierMax: 4, weight: 11,
     brief: {
       known: [
@@ -308,7 +308,7 @@ POTUS.define("event", [
     id: "for2_summit_invite",
     grade: "major", unique: true, category: "foreign",
     valence: "boon", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 3, tierMax: 5, weight: 10,
     brief: {
       lede: "请柬是烫金的，麦克风是开着的——这两件事同时成立时，外交官都要背发言稿。",

@@ -15,7 +15,7 @@ POTUS.define("event", [
     id: "pol2_primary_fight",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 1, tierMax: 3, minTenure: 10, weight: 16,
     brief: {
       lede: "真正的敌人不在对面——在你自己党的初选名单上。",
@@ -88,7 +88,7 @@ POTUS.define("event", [
     id: "pol2_whip_count",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 2, tierMax: 5, minTenure: 18, weight: 18,
     brief: {
       lede: "一场差距在两票以内的表决，你的票和你的眼睛都有价钱。",
@@ -171,7 +171,7 @@ POTUS.define("event", [
     id: "pol2_party_convention",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 1, tierMax: 4, minTenure: 20, weight: 14,
     brief: {
       lede: "全国代表大会的席位不是选出来的，是熬出来的。",
@@ -243,7 +243,7 @@ POTUS.define("event", [
     id: "pol2_endorsement_tree",
     grade: "minor", unique: true, category: "political",
     valence: "boon", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 0, tierMax: 5, minTenure: 6, weight: 15,
     brief: {
       lede: "背书是政治学里的以物易物：你的名字，换别人的名字。",
@@ -314,7 +314,7 @@ POTUS.define("event", [
     id: "pol2_purge",
     grade: "major", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 2, tierMax: 5, minTenure: 24, weight: 20,
     brief: {
       lede: "一夜之间，你的派系成了党内的脏字。",

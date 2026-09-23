@@ -5,7 +5,7 @@
  *   外加一幕「意外之财的余波」：来路琢磨过的钱，两年后有人来对账。
  * ==========================================================================*/
 
-const FIN2_ERAS = ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"];
+const FIN2_ERAS = ["2008_CRASH"];
 
 function out(body, effects) { return { body: body, effects: effects || {} }; }
 

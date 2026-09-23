@@ -18,7 +18,7 @@ POTUS.define("event", [
     id: "cross_first_fork",
     grade: "major", unique: true, category: "career",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 0, tierMax: 1, minTenure: 8, weight: 24,
     brief: {
       lede: "两条路同时开了口：一张选票，和一张工牌。",
@@ -89,7 +89,7 @@ POTUS.define("event", [
     id: "cross_ngo_machine",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 1, tierMax: 2, minTenure: 12, weight: 18,
     brief: {
       lede: "一边是理想的名片，一边是权力的门卡。",
@@ -159,7 +159,7 @@ POTUS.define("event", [
     id: "cross_state_federal",
     grade: "major", unique: true, category: "career",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 2, tierMax: 3, minTenure: 24, weight: 20,
     tracks: ["electoral", "appointment"],
     brief: {
@@ -231,7 +231,7 @@ POTUS.define("event", [
     id: "cross_wh_governor",
     grade: "major", unique: true, category: "career",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     tierMin: 3, tierMax: 4, minTenure: 24, weight: 18,
     tracks: ["electoral", "appointment", "operative"],
     brief: {

@@ -467,7 +467,7 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   const fakeEv = P.events.find(e => e.id === "media_deepfake");
   const blogEv = P.events.find(e => e.id === "media_blog_drop");
   check(!!shortEv && !!fakeEv && !!blogEv, "媒介时间轴演示包应已注册");
-  G.era = "1960_CAMELOT"; G.flags = []; G.tier = 0; G.doneIds = []; P.recentIds = [];
+  G.era = "2008_CRASH"; G.flags = []; G.tier = 0; G.doneIds = []; P.recentIds = [];
   G.year = 1700;
   check(!P.mediumOK(tvEv), "1700 年不应放行「电视」事件");
   check(!P.mediumOK(blogEv), "1700 年不应放行「互联网」事件");

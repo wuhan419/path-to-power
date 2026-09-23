@@ -21,7 +21,7 @@ POTUS.define("event", [
    * 1. 落选之夜 —— 竞选失败的三种熬法
    * ------------------------------------------------------------------ */
   {
-    id: "setback_loss", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_loss", era: ["2008_CRASH"],
     tierMin: 0, tierMax: 4, weight: 13,
     grade: "major", valence: "bane", dyn: true, unique: true, category: "career",
     cond: function (G, P) { return P.electionYear(); },        // 选举年才有落选
@@ -91,7 +91,7 @@ POTUS.define("event", [
    * 2. 掀翻 —— 你是坎托，台下沉睡着一个无名者（T2+ 民选官员的被挑战）
    * ------------------------------------------------------------------ */
   {
-    id: "setback_primary_upset", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_primary_upset", era: ["2008_CRASH"],
     tierMin: 1, tierMax: 4, weight: 9,
     grade: "major", valence: "bane", dyn: true, unique: true, category: "political",
     tracks: ["electoral"],
@@ -162,7 +162,7 @@ POTUS.define("event", [
    * 3. 被本党抛弃 —— 切尼时刻（投了违背党意的一票之后）
    * ------------------------------------------------------------------ */
   {
-    id: "setback_party_purge", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_party_purge", era: ["2008_CRASH"],
     tierMin: 2, tierMax: 5, weight: 9,
     grade: "major", valence: "bane", dyn: true, unique: true, category: "political",
     brief: {
@@ -232,7 +232,7 @@ POTUS.define("event", [
    * 4. 媒体围攻 —— 加里·哈特时刻（48 小时定向爆破）
    * ------------------------------------------------------------------ */
   {
-    id: "setback_press_pile", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_press_pile", era: ["2008_CRASH"],
     tierMin: 1, tierMax: 5, weight: 10,
     grade: "mid", valence: "bane", dyn: true, category: "media",
     brief: {
@@ -314,7 +314,7 @@ POTUS.define("event", [
    * 5. 健康红灯 —— 身体先于仕途投票
    * ------------------------------------------------------------------ */
   {
-    id: "setback_health", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_health", era: ["2008_CRASH"],
     tierMin: 1, tierMax: 5, weight: 8,
     grade: "mid", valence: "bane", dyn: true, unique: true, category: "general",
     cond: function (G, P) { return (G.hp || 100) < 55; },
@@ -384,7 +384,7 @@ POTUS.define("event", [
    * 6. 家里的账单 —— 竞选毁掉的从来不是候选人一个人
    * ------------------------------------------------------------------ */
   {
-    id: "setback_family", era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    id: "setback_family", era: ["2008_CRASH"],
     tierMin: 0, tierMax: 4, weight: 9,
     grade: "mid", valence: "bane", dyn: true, category: "romance",
     minTenure: 18,

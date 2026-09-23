@@ -13,7 +13,7 @@ POTUS.define("event", [
     id: "state_red_minority",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     states: ["TX", "AL"], parties: ["D"],
     tierMin: 0, tierMax: 2, weight: 20,
     brief: {
@@ -82,7 +82,7 @@ POTUS.define("event", [
     id: "state_swing_final",
     grade: "major", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     states: ["OH", "FL", "PA"], electionNote: true,
     tierMin: 1, tierMax: 4, weight: 18,
     fromYear: 1960, toYear: 2022,
@@ -166,7 +166,7 @@ POTUS.define("event", [
     id: "state_blue_minority",
     grade: "mid", unique: true, category: "political",
     valence: "risk", dyn: true,
-    era: ["2008_CRASH", "1960_CAMELOT", "1974_WATERGATE"],
+    era: ["2008_CRASH"],
     states: ["NY", "MA"], parties: ["R"],
     tierMin: 0, tierMax: 2, weight: 18,
     brief: {
