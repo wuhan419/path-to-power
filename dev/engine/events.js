@@ -290,9 +290,9 @@
     const pack = P.reg.filler[G.era] || P.reg.filler["*"];
     if (!pack) return P._safetyFiller(grade);
     if (typeof pack === "function") return pack(P, G, grade);
-    const topic = P.pick(pack.topics || ["一桩地方丑闻"]);
-    const act = P.pick(pack.acts || ["你被卷进"]);
-    const tpl = pack.bodyTpl || "{act}{topic}。你必须在聚光灯下做出选择。";
+    const topic = P.pick(pack.topics || [P.t("ui.events.fillerTopic", "一桩地方丑闻")]);
+    const act = P.pick(pack.acts || [P.t("ui.events.fillerAct", "你被卷进")]);
+    const tpl = pack.bodyTpl || P.t("ui.events.fillerBodyTpl", "{act}{topic}。你必须在聚光灯下做出选择。");
     const cats = pack.categories || ["general"];
     return {
       id: "filler_" + Math.random().toString(36).slice(2, 8),
@@ -315,11 +315,11 @@
       return {
         id: "safe", text: text, base: 0.5, mods: [{ src: "attr", key: attrKey, w: 0.4 }],
         outcomes: {
-          crit: { body: "你处理得很漂亮。", effects: { rep: 4, fac: { base: 6 } } },
-          ok: { body: "平稳落地。", effects: { rep: 2, fac: { base: 3 } } },
-          meh: { body: "勉强过关，略有损失。", effects: { rep: 1, fac: { base: -2 } } },
-          fail: { body: "事情没成。", effects: { rep: -2, fac: { base: -4 } } },
-          critfail: { body: "局面失控。", effects: { rep: -5, fac: { press: -6 }, flags: ["scandal_1"] } }
+          crit: { body: P.t("ui.events.safeCrit", "你处理得很漂亮。"), effects: { rep: 4, fac: { base: 6 } } },
+          ok: { body: P.t("ui.events.safeOk", "平稳落地。"), effects: { rep: 2, fac: { base: 3 } } },
+          meh: { body: P.t("ui.events.safeMeh", "勉强过关，略有损失。"), effects: { rep: 1, fac: { base: -2 } } },
+          fail: { body: P.t("ui.events.safeFail", "事情没成。"), effects: { rep: -2, fac: { base: -4 } } },
+          critfail: { body: P.t("ui.events.safeCritfail", "局面失控。"), effects: { rep: -5, fac: { press: -6 }, flags: ["scandal_1"] } }
         }
       };
     };
@@ -327,8 +327,8 @@
       id: "filler_safe_" + Math.random().toString(36).slice(2, 8),
       era: [P.G.era], tierMin: 0, tierMax: 99, weight: 1, filler: true,
       unique: false, grade: grade || "minor", category: "general", valence: "risk",
-      title: "一桩地方丑闻", body: "你被卷进一桩地方丑闻。必须在聚光灯下做出选择。",
-      choices: [mk("高调处理，抢占道德高地", "CHA"), mk("低调摆平，用关系解决", "CUN")]
+      title: P.t("ui.events.fillerTopic", "一桩地方丑闻"), body: P.t("ui.events.safeBody", "你被卷进一桩地方丑闻。必须在聚光灯下做出选择。"),
+      choices: [mk(P.t("ui.events.safeChoiceHi", "高调处理，抢占道德高地"), "CHA"), mk(P.t("ui.events.safeChoiceLow", "低调摆平，用关系解决"), "CUN")]
     };
   };
 
@@ -337,8 +337,8 @@
     const era = P.reg.era[P.G.era] || {};
     const wl = P.reg.worldline || {};
     const wOut = wl.outlets && (wl.outlets[P.G.year] || wl.outlets["*"]);
-    const outlets = wOut || P.reg.newsOutlets[P.G.era] || era.outlets || ["本报"];
-    const tpl = wl.newsTpl || era.newsTpl || "【{outlet}】{year}年{month}月｜{name}：{headline}";
+    const outlets = wOut || P.reg.newsOutlets[P.G.era] || era.outlets || [P.t("ui.events.newsOutlet", "本报")];
+    const tpl = wl.newsTpl || era.newsTpl || P.t("ui.events.newsTpl", "【{outlet}】{year}年{month}月｜{name}：{headline}");
     return tpl.replace("{outlet}", P.pick(outlets)).replace("{year}", P.G.year)
       .replace("{month}", P.G.month || 1)
       .replace("{name}", P.G.name).replace("{headline}", headline);
