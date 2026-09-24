@@ -14,7 +14,8 @@
 #   2) 逐个 --no-ff 合并分支；任一分支合并冲突 → 立刻 merge --abort 并停下报告
 #   3) 重跑 gen-manifest（index.html 托管区**一律以重生成为准**，不去手工和解）
 #   4) 批末统一跑门禁：validate --games=20 --lang=zh / --games=1 --lang=en /
-#      gen-manifest --check / choice-audit（flagged 数只准等于基线，不准变多）
+#      gen-manifest --check / choice-audit（flagged 数只准等于基线，不准变多）/
+#      i18n-events --only=event（事件卡缺译叶子只准持平或下降，新卡必须自带英文覆盖层）
 #   5) 门禁不过：不自动回滚（合并提交是有用信息），只打印 HEAD 与失败项，由人决定
 #
 # 安全边界：本脚本只在主库工作树里跑 git merge / node，绝不 push、绝不 reset --hard、
@@ -26,6 +27,7 @@ MAIN_ROOT="${MAIN_ROOT:-/d/workspace/path2power}"
 DEV="$MAIN_ROOT/dev"
 BASE_BRANCH="main"
 FLAGGED_BASELINE=3          # 基线：见 docs/PARALLEL-CONTENT-WORK.md §6.3
+I18N_MISS="${I18N_MISS:-97}"   # 事件卡缺译叶子基线（实测值，见 docs/I18N.md §8）。缺译清零后把它改成 0。
 GAMES_FULL=20
 
 DRY=0; GATE=1; LANG_ONLY=0; BRANCHES=()
@@ -133,6 +135,12 @@ echo "  摘要：$json"
 if [ "$n" = "-1" ]; then echo "  ✗ 无法解析 choice-audit 输出" >&2; fail=$((fail+1));
 elif [ "$n" -gt "$FLAGGED_BASELINE" ]; then echo "  ✗ flagged 从 $FLAGGED_BASELINE 涨到 $n —— 退回 worker 重塑取舍" >&2; fail=$((fail+1));
 else FLAGGED_BASELINE=$n; echo "  ✓ flagged = $n（新基线已抬到 $n）"; fi
+
+echo "▶ i18n 事件卡缺译叶子数（基线 $I18N_MISS，只准持平或下降）"
+im=$(node tools/i18n-events.js --only=event --json 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const j=JSON.parse(s);const e=j.find(r=>r.kind==='event');console.log(e?e.missing:-1)}catch(x){console.log(-1)}})")
+if [ "$im" = "-1" ]; then echo "  ✗ 无法解析 i18n-events 输出" >&2; fail=$((fail+1));
+elif [ "$im" -gt "$I18N_MISS" ]; then echo "  ✗ 缺译从 $I18N_MISS 涨到 $im —— 新卡没写英文覆盖层，退回 worker 补" >&2; fail=$((fail+1));
+else I18N_MISS=$im; echo "  ✓ 缺译 = $im（基线已降到 $im）"; fi
 
 echo
 if [ "$fail" = "0" ]; then
