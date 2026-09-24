@@ -9,6 +9,8 @@
  *     （写了即 protectedHits，validate 直接判失败）。
  *   · kind 与中文侧一致：card（并入 P.reg.card）。卡 id 被 rollRarity/adoptCards/
  *     keepCard 与 spare 消费，保持稳定。
+ *   · desc 里的数字必须跟中文侧同一把标尺（1 单位 = +10 属性 = $25k）：
+ *     白 +10/$25k、蓝 +20/$50k、紫 +30/$75k、橙 合计 +40。改中文就改这里。
  * ==========================================================================*/
 
 POTUS.define("l10n", {
@@ -17,42 +19,42 @@ POTUS.define("l10n", {
     card: {
       hometown: {
         name: "Family Help",
-        desc: "Your parents press their savings into your hands: starting cash +$60k"
+        desc: "Your parents press their savings into your hands: starting cash +$25k"
       },
       softie: {
         name: "Soft Touch",
-        desc: "Everyone trusts your word and remembers you kindly, but the Establishment thinks you're a pushover: Grassroots +8 · Establishment -5"
+        desc: "Everyone trusts your word and remembers you kindly, but the Establishment thinks you're a pushover: Credibility +10 · Grassroots +8 · Establishment -5"
       },
       loudmouth: {
         name: "Loudmouth",
-        desc: "You say the quiet part loud and the room never goes cold - it's just that nobody takes your word seriously anymore: Charisma +5"
+        desc: "You say the quiet part loud and the room never goes cold - it's just that nobody takes your word seriously anymore: Charisma +10 · Credibility -10"
       },
       nerd: {
         name: "Test-Taker",
-        desc: "Bonus to Intellect checks, hopeless at small talk: Intellect +5 · Charisma -4, +10% Intellect checks",
+        desc: "Bonus to Intellect checks, hopeless at small talk: Intellect +10 · Charisma -10, +10% Intellect checks"
       },
       churchkid: {
         name: "Church Regular",
-        desc: "A steady congregation network and a word people take to the bank: Church +10 · Grassroots +5"
+        desc: "A steady congregation network and a word people take to the bank: Credibility +10 · Church +10 · Grassroots +5"
       },
-      orator_card: { name: "Born Orator", desc: "Charisma checks +15%" },
-      quant_card: { name: "Numbers Brain", desc: "Intellect checks +15%; smell a crisis early" },
+      orator_card: { name: "Born Orator", desc: "Charisma +20, Charisma checks +15%" },
+      quant_card: { name: "Numbers Brain", desc: "Intellect +20, Intellect checks +15%; smell a crisis early" },
       trust_fund: {
         name: "Trust Fund",
-        desc: "Starting cash +$400k, at the price of a whiff of money - and promises people quietly doubt"
+        desc: "Starting cash +$50k, at the price of a whiff of money - and promises people quietly doubt: Credibility -10"
       },
       union_kin: {
         name: "Union Family",
-        desc: "Unions +25 · Grassroots +10 · Favors +1: one generation's organizing base"
+        desc: "Unions +20 · Grassroots +10 · Favors +1: one generation's organizing base"
       },
       press_buddy: {
         name: "Press Darling",
-        desc: "The media likes you and gives you the benefit of the doubt: Press +10, plus Press-faction check bonuses"
+        desc: "The media likes you and gives you the benefit of the doubt: Press +20, plus Press-faction check bonuses"
       },
       iron_stomach: { name: "Iron Stomach", desc: "Health decays more slowly - you can outlast any schedule" },
       backroom: {
         name: "Backroom Apprentice",
-        desc: "Shrewd maneuvering, just a little off the books - and nobody believes your on-the-record word: Cunning +6, +12% Cunning checks"
+        desc: "Shrewd maneuvering, just a little off the books - and nobody believes your on-the-record word: Cunning +20 · Credibility -10, +12% Cunning checks"
       },
       gambler_card: {
         name: "Gambler's Instinct",
@@ -61,11 +63,11 @@ POTUS.define("l10n", {
       koi: { name: "Lucky Charms", desc: "Luck +5% on every check - luck is a kind of skill" },
       old_money: {
         name: "Old Money",
-        desc: "Starting cash +$800k; Establishment and Wall Street both open their doors (Grassroots -10)"
+        desc: "Starting cash +$75k; Establishment and Wall Street both open their doors (Grassroots -10)"
       },
       silver_tongue: {
         name: "Silver Tongue",
-        desc: "Charisma near the ceiling and a head start on reputation: Charisma +18 · Reputation +12"
+        desc: "Charisma near the ceiling and a head start on reputation: Charisma +30 · Reputation +12"
       },
       magnetic: {
         name: "Grassroots Magnet",
@@ -73,15 +75,15 @@ POTUS.define("l10n", {
       },
       global_icon: {
         name: "Global Icon",
-        desc: "The Schwarzenegger / Trump route: nationwide fame from day one, reputation sky-high - and the Establishment wary of you"
+        desc: "The Schwarzenegger / Trump route: nationwide fame from day one, Charisma +40 · Reputation +45 - and the Establishment wary of you"
       },
       half_god: {
         name: "Half-Divine Physique",
-        desc: "Every gift soars and even your word carries - while the body won't age: Charisma / Intellect / Cunning +12 each, health decay near zero"
+        desc: "Every gift soars and even your word carries - while the body won't age: Charisma / Intellect / Cunning / Credibility +10 each, health decay near zero"
       },
       destiny: {
         name: "Destiny's Child",
-        desc: "The full luxury start - luck, skill and patrons: Luck +10%, crit odds x1.5, Favors +3, three attributes +6 each"
+        desc: "The full luxury start - luck, skill and patrons: Luck +10%, crit odds x1.5, Favors +3, three attributes +10 each"
       },
       immortal: {
         name: "Deathproof Legend",

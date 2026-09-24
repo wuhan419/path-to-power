@@ -2087,11 +2087,32 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
 
   /* --- v0.12 #20 建角自由点模型（定命一掷已删）+ 周目元进度 + 作弊码 --- */
   const b5 = P.balance();
-  check(b5.freePoints >= 1 && b5.freePoints <= 60, "freePoints 基础值合理（20）：" + b5.freePoints);
+  check(b5.freePoints >= 1 && b5.freePoints <= 60, "freePoints 基础值合理（一周目 12）：" + b5.freePoints);
   check(b5.freeCapPerAttr >= 1 && (b5.freeCapMax == null || b5.freeCapMax >= b5.freeCapPerAttr), "单维软上限：基础 ≤ 封顶");
   check(b5.freeAttrPerPoint === 10, "汇率：1 点 = +10 属性");
   check(b5.freeFunPerPoint === 25000, "汇率：1 点 = +$25k 金钱");
   check(!b5.rollAttrs, "定命一掷已删：balance 不应再有 rollAttrs");
+  /* #20 收尾定稿：一周目 12 点；单维上限 = 属性 100 所需的点数（100 / 每点 10 = 10 点） */
+  check(b5.freePoints === 12, "一周目池子 = 12 点：" + b5.freePoints);
+  check(b5.freeCapPerAttr === Math.floor(100 / b5.freeAttrPerPoint),
+    "单维上限 = 点到属性 100 所需点数（" + b5.freeCapPerAttr + " 点）");
+
+  /* 卡池标尺（#20 收尾）：1 单位 = +10 属性 = $25k，钱卡 = 稀有度 × $25k；
+     白/蓝的属性增益严格 = 稀有度 × 10（紫/橙只要求不超过档位，多维合计另算）。
+     被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
+  const CARDS = P.reg.card || {};
+  Object.keys(CARDS).forEach(function (id) {
+    const c = CARDS[id], r = c.rarity || 1, fx = c.effects || {};
+    if (typeof fx.fun === "number" && fx.fun > 0) {
+      check(fx.fun === r * 25000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $25k：" + fx.fun);
+    }
+    const av = fx.attr || {};
+    const pos = Object.keys(av).map(function (k) { return av[k]; }).filter(function (v) { return v > 0; });
+    if (!pos.length) return;
+    const mx = Math.max.apply(null, pos);
+    check(mx <= r * 10, "卡 " + id + "（" + r + " 档）单维属性增益 ≤ 稀有度 × 10：" + mx);
+    if (r <= 2) check(mx === r * 10, "白/蓝卡属性增益严格对齐标尺（" + r + " 档 = +" + (r * 10) + "）：" + id);
+  });
 
   /* 周目 meta：无记录 = 一周目，额度 = 基础值，单维上限 = 基础软上限 */
   const _loopRaw = [P.metaLoopKey, P.metaFreeKey].map(k => { try { return localStorage.getItem(k); } catch (e) { return null; } });
@@ -2101,17 +2122,24 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.freePool() === b5.freePoints, "一周目额度 = 基础值：" + P.freePool());
   check(P.freeCap() === b5.freeCapPerAttr, "一周目单维上限 = 基础：" + P.freeCap());
 
-  /* 分配夹取（spendPoint）：属性吃满前 ① 单维软上限 ② 属性 1-99 硬顶；金钱档不受 cap、
+  /* 分配夹取（spendPoint）：属性吃满前 ① 单维软上限 ② 属性 100 硬顶；金钱档不受 cap、
      吸收剩余额度；总额恒 ≤ 额度；减点不为负。 */
   P.startCreate();
   const ATTR3 = ["CHA", "INT", "CUN"], POOL0 = P.freePool(), CAP0 = P.freeCap();
   for (let i = 0; i < 200; i++) P.spendPoint("CHA", 1);
   check(P.CSEL.spent.CHA <= CAP0, "CHA 分配不超单维软上限 " + CAP0 + "：" + P.CSEL.spent.CHA);
-  check((b5.startAttr.CHA + P.CSEL.spent.CHA * b5.freeAttrPerPoint) <= 99, "属性分配不越过 1-99 硬顶");
+  check((b5.startAttr.CHA + P.CSEL.spent.CHA * b5.freeAttrPerPoint) <= 100, "属性分配不越过 100 硬顶");
   ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
   const usedSum = ATTR3.concat(["FUN"]).reduce(function (a, k) { return a + (P.CSEL.spent[k] || 0); }, 0);
   check(usedSum === POOL0, "四格灌满后总分配 = freePool（" + usedSum + "／" + POOL0 + "）");
-  check(P.CSEL.spent.FUN > 0, "属性到顶后多出来的点自动落进金钱档（不受 cap）：" + P.CSEL.spent.FUN);
+  /* 单维可一路点到属性 100（=10 点，旧的 6 点封顶已废）：一周目 12 点不够三围全满，
+     所以先借一笔作弊额度把三围灌满，再看多出来的点是否落进不受 cap 的金钱档。 */
+  P.CSEL.cheatPts = 30;
+  ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
+  check(ATTR3.every(function (k) { return (P.CSEL.spent[k] || 0) === 10; }),
+    "三围各可点到 10 点 = 属性 100（单维不再 6 点封顶）：" + ATTR3.map(k => k + ":" + P.CSEL.spent[k]).join(" "));
+  check(P.CSEL.spent.FUN > 0, "三围全满后多出来的点自动落进金钱档（不受 cap）：" + P.CSEL.spent.FUN);
+  P.CSEL.cheatPts = 0;
   for (let i = 0; i < 300; i++) P.spendPoint("FUN", -1);
   check(P.CSEL.spent.FUN >= 0, "减点不应为负：" + P.CSEL.spent.FUN);
 
@@ -2134,6 +2162,14 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.cheatParse("woshishabi0") === 0, "woshishabi0（不加点）视为未命中");
   check(P.cheatParse("wjk100") === 0, "旧码形 wjk100 已作废，未命中返回 0");
   check(P.cheatParse("") === 0 && P.cheatParse("hello") === 0, "空 / 乱码静默返回 0，不给提示");
+  /* 界面入口 submitCheat()（第 3 步加点屏的输入框 + 「兑换」按钮走的就是它）：
+     直接传码兑换 → 累加本局作弊点 → 额度变大 → 并且给得出中文反馈（不再静默）。 */
+  P.startCreate();
+  check(P.submitCheat("woshishabi3") === 3, "submitCheat('woshishabi3') → +3 点");
+  check(P.CSEL.cheatPts === 3, "作弊点累加进本局：" + P.CSEL.cheatPts);
+  check(P.freePool(P.CSEL.cheatPts) === POOL0 + 3, "额度随作弊点变大：" + P.freePool(P.CSEL.cheatPts));
+  check(/3/.test(P.CSEL.cheatMsg || ""), "兑换给得出反馈（不再静默）：" + P.CSEL.cheatMsg);
+  check(P.submitCheat("nope") === 0 && /不对/.test(P.CSEL.cheatMsg || ""), "错码给出提示且不加分：" + P.CSEL.cheatMsg);
   /* 连打：woshishabi10 不能被读成 woshishabi1 + 残 0——数字攒着，settle 一次才结算 */
   P.cheatReset();
   "woshishabi1".split("").forEach(function (c) { P.cheatFeed(c); });

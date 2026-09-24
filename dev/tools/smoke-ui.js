@@ -56,8 +56,9 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(diffs.length >= 3, "难度选项被注册表自动生成（" + diffs.length + " 个）");
   P.CSEL.name = "测试者";                                       // 姓名直接写进 CSEL（不依赖输入框事件）
   P.createStep(3);                                             // 三步向导：走到第 3 步（加点）才出「开始游戏」
-  /* 真实玩家会洒满 20 自由点；测试角色也得洒，否则三围全 0 → 判定概率贴地板，投注看不出动效。
-     这里按三维各 5 点（≈中性 50）+ 金钱 5 点，还原旧 startAttr 45 起步的手感。 */
+  /* 真实玩家会洒满自由点（一周目 12 点，周目/作弊码会更多）；测试角色也得洒，否则三围全 0 →
+     判定概率贴地板，投注看不出动效。这里按三围各 5 点（≈中性 50）+ 金钱 5 点，
+     还原旧 startAttr 45 起步的手感（合计 20 点 ≈ 用过作弊码或二周目）。 */
   P.CSEL.spent = { CHA: 5, INT: 5, CUN: 5, FUN: 5 };
   P.renderCreate();
   const goBtn = btn("开始游戏");
@@ -501,9 +502,21 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const rattrN = w.document.querySelectorAll(".rattr").length;
   check(rattrN === 4, "第 3 步四个分配去处（魅力/智力/手腕/金钱），诚信不在其中：" + rattrN);
   check(text().indexOf("诚信") < 0, "加点屏不出现「诚信」字样（已退为幕后属性）");
-  /* 定命一掷已删：不再有掷骰 / 重掷入口 */
-  check(typeof P.rollAttrs === "undefined" && !w.document.getElementById("cheatcode"),
-    "掷骰函数与作弊码输入框都已从界面/引擎撤下");
+  /* 定命一掷已删：不再有掷骰 / 重掷入口。作弊码反过来：#20 收尾后【显式】摆一个输入框 */
+  check(typeof P.rollAttrs === "undefined", "定命一掷的掷骰函数已撤下");
+  {
+    const cheatIn0 = w.document.getElementById("cheatcode");
+    check(!!cheatIn0, "作弊码输入框常驻在第 3 步加点屏（不再隐藏）");
+    if (cheatIn0) {
+      cheatIn0.value = "woshishabi4";
+      check(P.submitCheat() === 4, "输入 woshishabi4 点「兑换」→ +4 点");
+      check((P.CSEL.cheatPts || 0) === 4, "作弊点计入本局额度：" + P.CSEL.cheatPts);
+      check(/4/.test(P.CSEL.cheatMsg || ""), "兑换后在界面给出反馈（不再静默）：" + P.CSEL.cheatMsg);
+      const cheatIn1 = w.document.getElementById("cheatcode");   // 重绘后是新节点
+      if (cheatIn1) cheatIn1.value = "badcode";
+      check(P.submitCheat() === 0 && (P.CSEL.cheatPts || 0) === 4, "错码不加点，并给出提示");
+    }
+  }
   /* 自由点分配 API 仍在（新名 spendPoint，旧名 spendAttr 作别名） */
   P.spendPoint("CHA", 1);
   check((P.CSEL.spent.CHA || 0) === 1, "spendPoint() 能把自由点洒到属性上");

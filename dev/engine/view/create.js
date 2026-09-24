@@ -46,6 +46,8 @@
    * 诚信 INTG 不在其中：它只能靠游戏内选择后天涨跌（内容里 239 处判定权重照常生效）。 */
   const ATTR_TARG = ["CHA", "INT", "CUN"];           // 吃属性点、受单维软上限约束
   const ALLOC_TARG = ["CHA", "INT", "CUN", "FUN"];   // 四个分配去处（FUN=金钱，不受 cap）
+  /* 属性硬顶：三围从 startAttr 打底、1 点 = +10，能一路点到 100（旧口径 99 已放宽到满值）。 */
+  const ATTR_HARD_MAX = 100;
   /* 家乡标签：把州定义里的 city / district 拼成一句人话（扬斯敦 · 俄亥俄 · 第 17 选区）。
      缺市/选区就退回州名，保证任何州都能显示；与 engine/flavor.js 的 {HOME}/{CITY}/{DISTRICT} 同源。 */
   function homeLabel(sid) {
@@ -69,6 +71,7 @@
     /* 自由点分配（定命一掷已删）：spent 记四格各洒了几点，cheatPts 记本局作弊码累加。 */
     C.spent = { CHA: 0, INT: 0, CUN: 0, FUN: 0 };
     C.cheatPts = 0;
+    C.cheatInput = ""; C.cheatMsg = "";      // 作弊码输入框：未提交的内容 + 上一次的兑换反馈
     /* v0.12 #20：开局抽好一批天赋卡呈现（换难度不重掷，"换一批"按钮才重掷） */
     C.offer = P.gachaCfg().enabled ? P.rollCardOffer() : [];
     C.picks = [];
@@ -131,8 +134,9 @@
       d = Math.min(d, left);                              // 不越过剩余额度
       if (ATTR_TARG.indexOf(k) >= 0) {
         d = Math.min(d, cap - cur);                        // 属性受单维软上限
-        const base = (b.startAttr || {})[k] || 0;          // 属性 1-99 硬顶
-        d = Math.min(d, Math.floor((99 - base) / per) - cur < 0 ? 0 : Math.floor((99 - base) / per) - cur);
+        const base = (b.startAttr || {})[k] || 0;          // 属性硬顶 100（能一路点到满值）
+        const room = Math.floor((ATTR_HARD_MAX - base) / per) - cur;
+        d = Math.min(d, room < 0 ? 0 : room);
       }
       if (d <= 0) return;
     } else {
@@ -143,9 +147,11 @@
     P.renderCreate();
   };
   P.spendAttr = P.spendPoint;                              /* 兼容旧名 */
-  /* ---------- 隐藏作弊码：键盘连打 woshishabiN 静默注自由点（无任何界面入口） ----------
-   * 只在建角屏生效；焦点在输入框（如姓名）时不听，避免把码字打进去。
-   * 命中不给任何提示——唯一"反馈"是下一行自由点总额自己变大。 */
+  /* ---------- 作弊码（v0.12 #20 收尾：不再隐藏，界面直接给输入框；键盘连打仍可用） ----------
+   * 码面 = woshishabiN → +N 自由点（夹到 balance.cheatMax=10），可多次累加。
+   * ① 界面入口：allocHTML() 末尾的输入框 + 「兑换」按钮（Enter 也可提交）→ P.submitCheat()；
+   * ② 键盘连打：保留旧彩蛋路径，只在建角屏生效，焦点在输入框时不听（免得把码字打进姓名栏）。
+   * 两条路都落到同一个计数器 C.cheatPts，额度与提示由 P.freePool/P.renderCreate 现算。 */
   let cheatListenerOn = false;
   function installCheatListener() {
     if (cheatListenerOn || typeof document === "undefined") return;
@@ -169,6 +175,30 @@
     });
   }
 
+  /* 作弊码兑换（界面入口）：读输入框 → 解析 → 累加本局作弊点，并把结果说清楚（不再静默）。
+   * 传 code 可直接调用（测试/脚本）；不传则取 #cheatcode 输入框的值。
+   * 返回本次注入的点数（未命中 0）——UI 反馈写在 C.cheatMsg，重绘后显示在输入框下方。 */
+  P.submitCheat = function (code) {
+    const C = P.CSEL;
+    if (!C) return 0;
+    let raw = code;
+    if (raw == null) {
+      const el = (typeof document !== "undefined") ? document.getElementById("cheatcode") : null;
+      raw = el ? el.value : "";
+    }
+    const pts = P.cheatParse(raw);
+    if (pts > 0) {
+      C.cheatPts = (C.cheatPts || 0) + pts;
+      C.cheatMsg = P.t("ui.create.cheatOk", "已注入 +{n} 自由点（本局作弊累计 +{total}）",
+        { n: pts, total: C.cheatPts });
+    } else {
+      C.cheatMsg = P.t("ui.create.cheatBad", "这个码不对——试试 woshishabi10。");
+    }
+    C.cheatInput = "";
+    if (typeof P.renderCreate === "function") P.renderCreate();
+    return pts;
+  };
+
   /* 建角页的「自由点分配 + 作弊码」整块（内联 onclick，POTUS.* 方法渲染后即生效） */
   function allocHTML() {
     const b = P.balance(), C = P.CSEL, spent = C.spent || {};
@@ -186,7 +216,7 @@
     let h = '<h3 style="margin:14px 0 4px">' + P.t("ui.create.allocTitle", "分配自由点") +
       '　<small class="muted">' + P.t("ui.create.loopTag", "第 {n} 周目", { n: loop }) + "</small></h3>";
     h += '<div class="muted alloc-rate">' + P.t("ui.create.allocRate",
-      "1 点 = +{per} 魅力/智力/手腕　·　1 点 = +${fun}k 金钱　·　单维上限 {cap} 点",
+      "1 点 = +{per} 魅力/智力/手腕　·　1 点 = +${fun}k 金钱　·　单维可一路点到 100",
       { per: per, fun: (funPer / 1000).toFixed(0), cap: cap }) + "</div>";
     h += '<div class="rollgrid">';
     ALLOC_TARG.forEach(function (k) {
@@ -216,7 +246,13 @@
       (P.readBonusFree() > 0 ? P.t("ui.create.poolMeta",
         "　·　一周目 {base} ＋ 周目累计 {bonus}", { base: b.freePoints, bonus: P.readBonusFree() }) : "") +
       "</div>";
-    /* 隐藏作弊码：界面上不给任何入口，纯靠键盘连打 woshishabiN 静默注点（见 installCheatListener）。 */
+    /* 作弊码入口（不再隐藏）：一个常驻输入框，输入 woshishabiN 兑换 N 点（上限 10，可累加） */
+    h += '<div class="cheatbox">' +
+      '<input type="text" id="cheatcode" autocomplete="off" placeholder="' +
+      P.t("ui.create.cheatPlaceholder", "作弊码：woshishabi10（兑换 +10 点）") + '">' +
+      '<button class="btn tiny" onclick="POTUS.submitCheat()">' +
+      P.t("ui.create.cheatBtn", "兑换") + "</button></div>";
+    if (C.cheatMsg) h += '<div class="cheatmsg">' + C.cheatMsg + "</div>";
     return h;
   }
 
@@ -369,6 +405,13 @@
         }) + "</p></div>";
     const inp = P.$("#pname");
     if (inp) inp.oninput = function (e) { P.CSEL.name = e.target.value; };
+    /* 作弊码输入框：把未提交的内容留在 C.cheatInput（重绘不丢字），回车直接兑换 */
+    const cc = P.$("#cheatcode");
+    if (cc) {
+      cc.value = C.cheatInput || "";
+      cc.oninput = function (e) { C.cheatInput = e.target.value; };
+      cc.onkeydown = function (e) { if (e.key === "Enter") P.submitCheat(); };
+    }
   };
 
   P.confirmCreate = function () {
@@ -384,7 +427,7 @@
     const sp = C.spent || {};
     const attr = Object.assign({}, b.startAttr);
     ATTR_TARG.forEach(function (k) {
-      attr[k] = P.clamp((attr[k] || 0) + (sp[k] || 0) * per, 0, 99);
+      attr[k] = P.clamp((attr[k] || 0) + (sp[k] || 0) * per, 0, ATTR_HARD_MAX);
     });
     const startMoney = (sp.FUN || 0) * funPer;   // 分配给「金钱」的自由点 → 开局资金
     /* 出生州对党派的顺风/逆风：写进起点派系（深州同党 +建制，逆风党 -建制+基层的同情） */

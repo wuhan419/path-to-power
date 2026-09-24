@@ -606,6 +606,10 @@
   .rleft.done{color:var(--good);font-weight:700}
   .viprow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
   .viprow input[type=text]{width:220px}
+  /* v0.12 #20 收尾：作弊码输入框常驻（不再隐藏），与自由点分配块同一屏 */
+  .cheatbox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 2px}
+  .cheatbox input[type=text]{width:260px;max-width:100%}
+  .cheatmsg{font-size:12px;color:var(--muted);margin:2px 0 6px}
   /* v0.12 #20 开局天赋卡墙：抽出来的卡一张一格，按稀有度描边，选中高亮、名额满时压暗 */
   .gwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
   .gcard{position:relative;border:2px solid var(--line);background:#fbf7ec;border-radius:6px;

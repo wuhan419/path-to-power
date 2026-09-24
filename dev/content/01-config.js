@@ -14,14 +14,14 @@ POTUS.define("balance", {
      v0.12 #20 定稿：定命一掷删除，属性直接吃 startAttr 打底，自由点分配到四个去处。
      汇率（与天赋卡价值同一把尺）：1 点 = +10 魅力/智力/手腕 = +$25k 金钱。
 
-     ⚠ freePoints:20 是【一周目】的池子大小，不是常量 —— 这是个多周目成长游戏：
+     ⚠ freePoints:12 是【一周目】的池子大小，不是常量 —— 这是个多周目成长游戏：
        每局结算领「+2 自由点」就永久累计（core.js loopFreeBonus / readBonusFree），
        实际额度 = freePoints + 累计周目奖励，池子随周目变大。
-     ⚠ 单维上限也必须跟着涨，否则池子变大多出来的点只能全灌进金钱档，属性这条腿成长不了。
-       所以下面是【软上限】：实际上限 = min(freeCapMax, freeCapPerAttr + floor(额外点/6))，
-       即每多 6 点额度、单维多开 1 点。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点），
-       freeCapMax 8 保证正常周目不会把三维全拉满（24 > 20 仍要取舍）。 */
-  freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
+     ⚠ 单维上限 = 「能点到属性值 100 为止」，不再按点数封顶：
+       三围从 startAttr(0) 起步、1 点 = +10，所以加到 100 正好 10 点 ——
+       freeCapPerAttr / freeCapMax 都定成 10，即单维最多洒 10 点（属性上限 100 的等价点数）。
+       freeCapGrow 仍保留：周目/作弊送的点继续抬【总额度】，单维这 10 点已够灌满一维。 */
+  freePoints: 12, freeCapPerAttr: 10, freeCapMax: 10, freeCapGrow: 6,
 
   /* ---- 开局天赋卡墙（v0.12 #20 · engine/core.js POTUS.gachaCfg 消费，卡定义在 content/15-cards.js）----
      难度 = 能选几张卡（不再 = 出身发多少钱）；各档开局资金全部搬进卡池（见 15-cards.js 的钱卡）。

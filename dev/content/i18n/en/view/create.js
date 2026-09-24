@@ -55,11 +55,16 @@ POTUS.define("l10n", {
     /* ---- 自由点分配（allocHTML；定命一掷已删，三围/资金从 0 起） ---- */
     "ui.create.allocTitle": "Spend Your Free Points",
     "ui.create.loopTag": "Run no. {n}",
-    "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · max {cap} points per attribute",
+    "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · any single attribute can be pushed to 100",
     "ui.create.allocMoney": "Cash",
     "ui.create.capped": "max",
     "ui.create.freePoints": "Free points: <b>{left}</b> of {total} left",
     "ui.create.poolMeta": " · first run {base} + run bonuses {bonus}",
+    /* 作弊码输入框（#20 收尾：不再隐藏，常驻在第 3 步加点屏） */
+    "ui.create.cheatPlaceholder": "Cheat code: woshishabi10 (redeem +10 points)",
+    "ui.create.cheatBtn": "Redeem",
+    "ui.create.cheatOk": "+{n} free points injected ({total} from cheats this run)",
+    "ui.create.cheatBad": "That code doesn't work — try woshishabi10.",
 
     /* ---- 开局日志（confirmCreate） ---- */
     "ui.create.loanLog": "You start ${v}k deep in student loans — a slice of each month's surplus goes to the debt; the more you earn, the faster it clears.",
