@@ -22,7 +22,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------------------------------- 1 */
       {
         id: "shady_oneshot",
-        title: "You find a fast score that only ever works once",
+        title: "You Find a Fast Score That Only Ever Works Once",
         body: "Two afternoons of asking around tells you everything: every kid in this town who wants out is missing the same thing, and nobody sells it. You found a source.\n" +
           "The catch: a run like this works once. Do it twice and you stop being the guy who happened to know a guy — you become the guy who does this.",
         brief: {
@@ -150,7 +150,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------------------------------- 3 */
       {
         id: "shady_file",
-        title: "Somebody presses a file into your hands that could end a man",
+        title: "Somebody Presses a File Into Your Hands That Could End a Man",
         body: "A man presses a manila envelope into your hands and walks. No name. Inside: a photocopied personnel record. An official now in office signed one document, three years ago,\n" +
           "that would keep him, his family, and the two men who bankrolled him awake at night.\n" +
           "You are holding the thing that makes one man do what you say.",
@@ -279,7 +279,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------------------------------- 5 */
       {
         id: "shady_union",
-        title: "You ask the union boss to stump for you",
+        title: "You Ask the Union Boss to Stump for You",
         body: "The meeting room in the union hall smells like burnt coffee and old carpet. The boss hears you out for ten minutes, then asks one question: \"What do you want my people to do?\"\n" +
           "Get that answer wrong, and for the rest of your life you never walk back into this building.",
         brief: {
@@ -343,7 +343,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------------------- 5b */
       {
         id: "shady_union_collect",
-        title: "The union comes to collect the promise you made two years ago",
+        title: "The Union Comes to Collect the Promise You Made Two Years Ago",
         body: "The council votes next week on an outsourcing contract. The phone rings — it's the boss himself.\n" +
           "\"Two years ago you said the hand that signs is one of ours,\" he says. \"Next week, let's see how that hand votes.\"\n" +
           "This time he doesn't want a promise. He wants your actual vote — and your favor is coming due.",
@@ -409,7 +409,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------------------------------- 6 */
       {
         id: "shady_launder",
-        title: "Someone wants to hand you a pile of money that can never be seen",
+        title: "Someone Wants to Hand You a Pile of Money That Can Never Be Seen",
         body: "Someone is offering money too big to refuse, with one condition: don't ask where it came from.\n" +
           "The accountant sits across from you and draws, in pencil, three routes for washing it. Under each route he writes the same line: once it's in, there is no clean way out.",
         brief: {

@@ -34,7 +34,7 @@ POTUS.define("l10n", {
       /* ---------------- 筹款与金主 ---------------- */
       {
         id: "camp_federal_money",
-        title: "Donors open their vaults, and their conditions",
+        title: "Donors Open Their Vaults, and Their Conditions",
         body: "A congressional campaign burns cash like fuel. The donors will open their vaults — but their terms are never free.",
         brief: {
           lede: "Congress is bought, not wooed. Donor money never comes free.",
@@ -87,7 +87,7 @@ POTUS.define("l10n", {
       /* ---------------- 摇摆选区的最后一周 ---------------- */
       {
         id: "camp_federal_swing",
-        title: "The last week in the swing district",
+        title: "The Last Week in the Swing District",
         body: "The polls are a dead heat, and the race will turn on a handful of suburbs. This week you wager everything.",
         brief: {
           lede: "Dead-even polls. A few suburbs decide it all.",
@@ -129,7 +129,7 @@ POTUS.define("l10n", {
       /* ---------------- 宣布竞逐大位 ---------------- */
       {
         id: "camp_senate_announce",
-        title: "Statewide: a national figure or a nobody",
+        title: "Statewide: A National Figure or a Nobody",
         body: "This race covers the whole state. At this level, you are a national name now — or you are nothing.",
         brief: {
           lede: "Statewide race: national figure, or nobody at all.",
@@ -182,7 +182,7 @@ POTUS.define("l10n", {
       /* ---------------- 全州初选 ---------------- */
       {
         id: "camp_senate_primary",
-        title: "A primary where rivals circle",
+        title: "A Primary Where Rivals Circle",
         body: "Strong rivals inside your own party. The primary is not only about who gets more votes — it is about who finds a weakness first, yours or theirs.",
         brief: {
           lede: "Rivals inside the party. Whoever cracks first loses.",
@@ -224,7 +224,7 @@ POTUS.define("l10n", {
       /* ---------------- 电视辩论 ---------------- */
       {
         id: "camp_senate_debate",
-        title: "Live on air before a million eyes",
+        title: "Live on Air Before a Million Eyes",
         body: "One live broadcast, a million watching eyes. On this stage, a single line is worth two weeks of ads.",
         brief: {
           lede: "Live TV, a million eyes: one line beats two weeks of ads.",
@@ -277,7 +277,7 @@ POTUS.define("l10n", {
       /* ---------------- 争夺摇摆地区 ---------------- */
       {
         id: "camp_senate_swing",
-        title: "The state comes down to a few counties",
+        title: "The State Comes Down to a Few Counties",
         body: "The statewide decision has shrunk to a handful of swing counties. All the money and all the people go there.",
         brief: {
           lede: "The whole state hangs on a few swing counties.",
@@ -330,7 +330,7 @@ POTUS.define("l10n", {
       /* ---------------- 进入候选视野 ---------------- */
       {
         id: "camp_vp_announce",
-        title: "The party's leaders start saying your name",
+        title: "The Party's Leaders Start Saying Your Name",
         body: "You are no longer campaigning only for yourself. The party's leaders are weighing whether to put you on the national ticket.",
         brief: {
           lede: "It stops being about you. The party weighs your name.",
@@ -372,7 +372,7 @@ POTUS.define("l10n", {
       /* ---------------- 背景审查与试探 ---------------- */
       {
         id: "camp_vp_vetting",
-        title: "They turn over your entire life",
+        title: "They Turn Over Your Entire Life",
         body: "The vetting team turns your past inside out. They are not asking how good you are — only where you might blow up.",
         brief: {
           lede: "The screening team audits your whole life.",
@@ -425,7 +425,7 @@ POTUS.define("l10n", {
       /* ---------------- 全国代表大会 ---------------- */
       {
         id: "camp_vp_convention",
-        title: "The nomination is decided on the floor",
+        title: "The Nomination Is Decided on the Floor",
         body: "The nomination is announced this hour. Whether you stand at that podium depends on every trust you banked these past months.",
         brief: {
           lede: "The moment of decision: months of deals, one roll call.",
@@ -520,7 +520,7 @@ POTUS.define("l10n", {
       /* ---------------- 宣布竞选总统 ---------------- */
       {
         id: "camp_pres_announce",
-        title: "Declaring your candidacy for president",
+        title: "Declaring Your Candidacy for President",
         body: "The longest, most expensive campaign on earth begins. From this step on, the whole country examines every move you make.",
         brief: {
           lede: "The longest, costliest race on earth starts here.",
@@ -573,7 +573,7 @@ POTUS.define("l10n", {
       /* ---------------- 各州初选连胜 ---------------- */
       {
         id: "camp_pres_primary",
-        title: "The grind of state-by-state primaries",
+        title: "The Grind of State-by-State Primaries",
         body: "One primary after another. Win the early states and build momentum — or get ground down in the mud.",
         brief: {
           lede: "State after state. The early contests write the story.",
@@ -615,7 +615,7 @@ POTUS.define("l10n", {
       /* ---------------- 锁定党内提名 ---------------- */
       {
         id: "camp_pres_nomination",
-        title: "The convention: a majority of delegates",
+        title: "The Convention: A Majority of Delegates",
         body: "The national convention. You need a majority of delegates, and the last uncommitted ones are deciding whether you are worth their vote.",
         brief: {
           lede: "The nomination takes a majority. Holdouts decide.",
@@ -668,7 +668,7 @@ POTUS.define("l10n", {
       /* ---------------- 总统电视辩论 ---------------- */
       {
         id: "camp_pres_debate",
-        title: "Millions are watching for one mistake",
+        title: "Millions Are Watching for One Mistake",
         body: "Hundreds of millions are watching. One slip here could hand away the presidency itself.",
         brief: {
           lede: "Hundreds of millions watching. One slip can be fatal.",
@@ -710,7 +710,7 @@ POTUS.define("l10n", {
       /* ---------------- 摇摆州的最后冲刺 ---------------- */
       {
         id: "camp_pres_swing",
-        title: "The final seven days in swing states",
+        title: "The Final Seven Days in Swing States",
         body: "The Electoral College shrinks the race to a few swing states. Seven days left. You wager everything.",
         brief: {
           lede: "The map shrinks to a few states. Seven days left.",

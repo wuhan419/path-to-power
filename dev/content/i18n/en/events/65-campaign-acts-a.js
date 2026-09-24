@@ -19,7 +19,7 @@ POTUS.define("l10n", {
     event: [
       {
         id: "camp_council_announce",
-        title: "The announcement: put your name on the ballot",
+        title: "The Announcement: Put Your Name on the Ballot",
         body: "Filing to run means a deposit, valid signatures, and a public financial disclosure. Either take the step officially, or size up the water before you jump.",
         brief: {
           lede: "Your first race ever: pay the filing fee, gather signatures, disclose your finances.",
@@ -307,7 +307,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_state_rally",
-        title: "The final campaign push",
+        title: "The Final Campaign Push",
         body: "The last sprint before the general election. Ads, rallies, handshakes — every scrap of attention has to be seized.",
         brief: {
           lede: "The last sprint before the election. Fight for every ounce of attention.",
@@ -360,7 +360,7 @@ POTUS.define("l10n", {
       /* ========================= 等级4：州参议员（upper）========================= */
       {
         id: "camp_upper_announce",
-        title: "Eyeing the state senate seat",
+        title: "Eyeing the State Senate Seat",
         body: "The upper chamber: fewer seats, bigger stakes. An incumbent is leaving, and you are not the only one circling the opening.",
         brief: {
           lede: "The upper chamber has fewer seats and bigger stakes. One is opening.",
@@ -493,7 +493,7 @@ POTUS.define("l10n", {
       /* ========================= 等级5：全州公职（stwide）========================= */
       {
         id: "camp_stwide_announce",
-        title: "Introducing yourself to the whole state",
+        title: "Introducing Yourself to the Whole State",
         body: "Your first self-introduction to an entire state. Most voters have never heard of you. By November, your name has to ring like a household word.",
         brief: {
           lede: "Your first introduction to a whole state. Most voters do not know you.",
@@ -544,7 +544,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_stwide_convention",
-        title: "The state party convention",
+        title: "The State Party Convention",
         body: "The party decides its nomination inside this hall. Every vote here rests on trust you brokered days ago.",
         brief: {
           lede: "At the convention, the party hands out its nomination.",
@@ -595,7 +595,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_stwide_media",
-        title: "Becoming a household name",
+        title: "Becoming a Household Name",
         body: "A statewide race is a war for attention. If you are not on local TV and the front page, you might as well not be running.",
         brief: {
           lede: "A statewide race is an attention war. No coverage, no candidate.",

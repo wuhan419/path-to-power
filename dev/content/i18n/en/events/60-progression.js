@@ -74,7 +74,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_state",
-        title: "A seat opens in the state legislature",
+        title: "A Seat Opens in the State Legislature",
         body: "Some tell you to wait. An open seat waits for no one.",
         brief: {
           lede: "A chair in the statehouse is empty. Someone suggests you fill it.",
@@ -561,7 +561,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_upper",
-        title: "A state senate seat opens in your region, if you want it",
+        title: "A State Senate Seat Opens in Your Region, If You Want It",
         body: "From one more assembly member to the senator for your district: a bigger map, and a bigger stake.",
         brief: {
           lede: "You have banked enough seniority in the assembly, and someone hints that a chair could be kept for you in the senate.",
@@ -665,7 +665,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_vp",
-        title: "Someone calls about the vice presidency",
+        title: "Someone Calls About the Vice Presidency",
         body: "A national slot is waving at you: join the ticket, or keep your independence and wait for the next round.",
         brief: {
           lede: "You are already standing at the center of the national stage. Now a bigger call is coming in.",
