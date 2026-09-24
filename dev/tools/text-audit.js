@@ -134,6 +134,18 @@ const nNoBrief = rows.filter(r => !r.hasBrief).length;
 /* 标题过短：中文看字数，英文看词数（"A Change in the Air" 才 4 个英文词但绝不短） */
 const nShortTitle = rows.filter(r => r.titleLen > 0 && r.titleLen < 8 && r.titleWords < 4).length;
 
+/* 英文标题体例：规范是 sentence case（docs/I18N.md §4），即只首词与专有名词大写。
+   并行分片各写各的，Title Case 会悄悄混进来，肉眼扫一遍不值当，所以量化：
+   4 词以上、且除首词外 ≥60% 的单词以大写字母开头 ⇒ 判成 Title Case。
+   误判方向是漏判（专有名词多的句子不算），不会冤枉 sentence case 的正常标题。 */
+function isTitleCase(s) {
+  const w = String(s || "").trim().split(/\s+/).filter(Boolean);
+  if (w.length < 4) return false;
+  const rest = w.slice(1);
+  return rest.filter(x => /^[A-Z]/.test(x)).length / rest.length >= 0.6;
+}
+const titleCaseRows = LANG === "en" ? rows.filter(r => isTitleCase(r.title)) : [];
+
 /* ---------- 报告 ---------- */
 function pad(s, n) { s = String(s); return s.length >= n ? s : s + " ".repeat(n - s.length); }
 
@@ -195,6 +207,10 @@ if (has("brief")) {
   console.log("== 全部标题（" + (ONLY_FILE ? "仅 " + ONLY_FILE : total + " 个事件") + "）供肉眼审视「是否一目了然」==");
   rows.slice().sort((a, b) => a.file.localeCompare(b.file) || a.id.localeCompare(b.id)).forEach(r =>
     console.log("  " + pad(r.file.replace(/^content\//, ""), 30) + "  " + pad("T" + r.titleLen, 4) + " B" + pad(r.bodyLen, 4) + "  " + r.title + "   ⟨" + r.id + "⟩"));
+} else if (has("tcase")) {
+  console.log("== 英文标题写成 Title Case 的（应为 sentence case，共 " + titleCaseRows.length + " 个）==");
+  titleCaseRows.sort((a, b) => a.file.localeCompare(b.file) || a.id.localeCompare(b.id)).forEach(r =>
+    console.log("  " + pad(r.file.replace(/^content\//, ""), 32) + "  " + pad(r.id, 24) + "  " + r.title));
 } else {
   console.log("== POTUS 事件文字审计（语言 " + (P.locale ? P.locale.lang : LANG) + "，上限 " + LIMIT + " 字/正文）==");
   console.log("  事件总数        : " + total);
@@ -202,5 +218,6 @@ if (has("brief")) {
   console.log("  缺 body         : " + nNoBody);
   console.log("  缺 brief        : " + nNoBrief + "  →  --nobrief");
   console.log("  标题 <8 字(可疑): " + nShortTitle + "  →  --titles 逐条审视");
+  if (LANG === "en") console.log("  标题 Title Case: " + titleCaseRows.length + "  →  --tcase（规范是 sentence case，见 docs/I18N.md §4）");
   console.log("  （标题是否一目了然需人工判断；--titles 可加 --file=xx 只看一个文件）");
 }
