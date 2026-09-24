@@ -202,6 +202,14 @@
       if (ok === "quiet") { run.push(G.month); continue; }
       break;                                   // ok === "event"（plan 已装载）或 false（年结束）
     }
+    /* 学贷断供等"账本型"终局在月度结算里挂上 pendingHardEnd —— 平静月没有 afterEvent，
+       这里补一道：下一个月结算完成即收口，不押后到下一个事件。 */
+    if (G.pendingHardEnd) {
+      const why = G.pendingHardEnd;
+      G.pendingHardEnd = null;
+      P.ending(why);
+      return;
+    }
     if (run.length) {
       const nextCall = ok ? "POTUS.nextSlot()" : "POTUS.endYear()";
       const label = ok ? P.t("ui.stage.continue", "继续 →") : P.t("ui.stage.toYearEnd", "进入年度结算 →");
@@ -268,7 +276,9 @@
     if (loanPay > 0) items.push({ k: P.t("ui.stage.ledgerLoan", "学贷"), v: "-$" + (loanPay / 1000).toFixed(1) + "k", sign: -1 });
     let debtChip = "";
     if (debt > 0) {
-      const lateTxt = late >= 3 ? P.t("ui.stage.loanLate", " · 已逾期 {late} 月", { late: late }) : "";
+      const lim = P.loanLateLimit ? P.loanLateLimit() : 0;
+      const lateTxt = late >= 3 ? P.t("ui.stage.loanLate", " · 已逾期 {late} 月", { late: late }) +
+        (lim > 0 ? P.t("ui.stage.loanDoom", "（再断供 {left} 个月信用破产）", { left: Math.max(1, lim - late) }) : "") : "";
       debtChip = '<span class="gchip2 ' + (late >= 3 ? "bad" : "muted") + '">' +
         P.t("ui.stage.loanBalance", "学贷余额 ${amt}k", { amt: (debt / 1000).toFixed(0) }) + lateTxt + "</span>";
     } else if (cleared) {
@@ -393,6 +403,16 @@
     return String(n);
   }
   P.fmtVoterNum = fmtVoterNum;      /* v0.6：月卡（vignette.js）也要按同样口径显示选民变化 */
+  /* hardEnd 的预览标签：理由不同，死法不同。prison/framed 是铁窗，disgrace/ruined/purged
+     是社会性死亡，其余（assassinated/bankrupt…）各按各的收口 —— 一律裸显"入狱"会把
+     清算线的"丧命"剧透错方向。 */
+  P.hardEndLabel = function (r) {
+    r = String(r == null ? "disgrace" : r);
+    if (r === "prison" || r === "framed") return P.t("ui.stage.prison", "入狱");
+    if (r === "disgrace" || r === "ruined" || r === "purged") return P.t("ui.stage.disgraced", "身败名裂");
+    if (r === "bankrupt") return P.t("ui.stage.bankrupt", "信用破产");
+    return P.t("ui.stage.doomed", "丧命");
+  };
   P.gainSummary = function (eff) {
     const P_ = window.POTUS, G = P_.G;
     const out = [];
@@ -408,12 +428,20 @@
       const pct = Math.round(eff.funMul * 100);
       if (pct) {
         const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
-        const amt = base != null ? Math.round(base * eff.funMul / 1000) : null;
-        out.push({
-          k: P.t("ui.stage.res.fun", "资金"),
-          v: P.t("ui.stage.funMulPct", "{pct}%（本金）", { pct: (pct >= 0 ? "+" : "") + pct }) + (amt != null && amt !== 0 ? (amt >= 0 ? " ≈+$" : " ≈-$") + Math.abs(amt) + "k" : ""),
-          sign: eff.funMul
-        });
+        /* 口径说清楚：本金在选下这项时已扣，这里给的是"这一单回款到账多少"。
+           赚 80% = 投 5k 回 9k（5×1.8）；亏 60% = 投 5k 只回 2k。 */
+        const fmtK = n => (Math.abs(n) >= 100 ? Math.round(n / 1000) : Math.round(n / 100) / 10) + "k";
+        let v;
+        if (base != null && pct >= 0) {
+          v = P.t("ui.stage.funMulGain", "回款 ${v}（本金 ${b} 赚 {p}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), p: pct });
+        } else if (base != null) {
+          v = P.t("ui.stage.funMulLoss", "回款 ${v}（本金 ${b} 已亏 {l}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), l: -pct });
+        } else {
+          /* 没有本金声明（req/cost/投注全空）：引擎侧这笔会空转（effects.js），显示同样不给金额 */
+          v = P.t("ui.stage.funMulPct", "{pct}%（本金）", { pct: (pct >= 0 ? "+" : "") + pct });
+        }
+        out.push({ k: P.t("ui.stage.res.fun", "资金"), v: v, sign: pct >= 0 ? 1 : -1,
+          tip: base != null ? P.t("ui.stage.stakeTip", STAKE_TIP) : null });
       }
     }
     if (eff.fav) out.push({ k: P.t("ui.stage.res.fav", "人情"), v: eff.fav, sign: eff.fav });
@@ -446,7 +474,13 @@
       }
     }
     if (eff.fall) out.push({ k: P.t("ui.stage.fallen", "下野"), v: eff.fall >= 2 ? P.t("ui.stage.fallHard", "重挫") : P.t("ui.stage.fallSoft", "跌落"), sign: -1, flag: true });
-    if (eff.hardEnd) out.push({ k: P.t("ui.stage.endgame", "终局"), v: eff.hardEnd === "prison" ? P.t("ui.stage.prison", "入狱") : P.t("ui.stage.disgraced", "身败名裂"), sign: -1, flag: true });
+    if (eff.hardEnd) out.push({ k: P.t("ui.stage.endgame", "终局"), v: P.hardEndLabel(eff.hardEnd), sign: -1, flag: true });
+    /* 树敌：count 效果里带 wrath_ 前缀的键 = 给某个群体攒了仇恨（负面，红字）。
+       能力 counters（cap_*）刻意不显示，仇恨 counters 必须显示 —— 玩家得知道谁记恨上自己了。 */
+    if (eff.count) for (const ck in eff.count) {
+      if (ck.indexOf("wrath_") !== 0 || !eff.count[ck]) continue;
+      out.push({ k: P.t("ui.stage.wrath", "树敌"), v: (P.wrathInfo ? P.wrathInfo(ck.slice(6)).name : ck.slice(6)) + " " + (eff.count[ck] > 0 ? "+" : "") + eff.count[ck], sign: -1, flag: true });
+    }
     return out;
   };
   function gainBoxHTML(eff) {
@@ -460,8 +494,8 @@
            另：原先这里会拼出两个 class 属性（class="gchip2" class="good"），
            浏览器忽略后者 —— 正负分色其实一直没生效，这里一并修掉。 */
         const plus = (typeof x.v === "number" && x.v > 0 && !x.flag) ? "+" : "";
-        const tipAttr = x.tip ? ' hastip" data-tip="' + String(x.tip).replace(/"/g, "&quot;") + '"' : '"';
-        return '<span class="' + cls + tipAttr + ">" + x.k + " " + plus + x.v + "</span>";
+        const tipAttr = x.tip ? ' hastip" data-tip="' + String(x.tip).replace(/"/g, "&quot;") + '"' : "";
+        return '<span class="' + cls + tipAttr + '">' + x.k + " " + plus + x.v + "</span>";
       }).join("") + "</div>";
   }
 
@@ -480,11 +514,27 @@
   function _rwUsd(v) { return (v < 0 ? "-" : "+") + "$" + (Math.abs(v) / 1000).toFixed(0) + "k"; }
   function _rwVoter(v) { return (v > 0 ? "+" : "") + fmtVoterNum(v); }
   function _rwPct(v) { return (v > 0 ? "+" : "") + Math.round(v) + "%"; }
-  function _rwChip(k, lo, hi, fmt, flip) {
+  function _rwChip(k, lo, hi, fmt, flip, tip, note) {
     let sign = (lo >= 0 && hi >= 0) ? 1 : (hi <= 0 && lo <= 0) ? -1 : 0;
     if (flip) sign = -sign;
     const cls = sign > 0 ? "good" : sign < 0 ? "bad" : "";
-    return { k: k, v: (lo === hi) ? fmt(lo) : fmt(lo) + "~" + fmt(hi), cls: cls };
+    return { k: k, v: (lo === hi) ? fmt(lo) : fmt(lo) + "~" + fmt(hi), cls: cls, tip: tip || null, note: note || null };
+  }
+  /* 「仅某一档生效」角标（v0.12）：某效果只出现在单个结果档（如只在 crit 的 层级+1），
+     区间式预览会让人以为"成功就有"。只在整条选项有 ≥2 个生效档时才标注，单结果选项不啰嗦。 */
+  const TIER_NAME_KEY = { crit: ["ui.stage.tierName.crit", "大成功"], ok: ["ui.stage.tierName.ok", "成功"], meh: ["ui.stage.tierName.meh", "勉强过关"], fail: ["ui.stage.tierName.fail", "失败"], critfail: ["ui.stage.tierName.critfail", "大失败"] };
+  function _mkSeen() {
+    const seen = {};
+    return {
+      mark: function (id, t) { (seen[id] = seen[id] || []); if (seen[id].indexOf(t) < 0) seen[id].push(t); },
+      /* live = 该选项实际参与预览的档数 */
+      note: function (id, live) {
+        const ts = seen[id] || [];
+        if (live < 2 || ts.length !== 1) return null;
+        const d = TIER_NAME_KEY[ts[0]];
+        return P.t("ui.stage.onlyTier", "仅{t}", { t: P.t(d[0], d[1]) });
+      }
+    };
   }
   /* ---------------- 竖屏紧凑：强度模糊预览 ----------------
    * 手机竖屏不当攻略本：只看成功档（crit/ok；无掷骰的单结果选项就取其唯一档）的
@@ -505,46 +555,64 @@
     a.forEach(function (v) { if (Math.abs(v) > Math.abs(best)) best = v; });
     return best;
   }
+  /* 树敌预览：扫**所有**结果档的 count 效果，只要有任何一档会攒下 wrath_，
+     这一手就点warning —— 仇恨是延时炸弹，不像数值那样只在成功档出现才有意义。 */
+  function _rwFeud(outs) {
+    const seen = [];
+    ["crit", "ok", "meh", "fail", "critfail"].forEach(function (t) {
+      const e = outs[t] && outs[t].effects;
+      if (!e || !e.count) return;
+      for (const ck in e.count) {
+        if (ck.indexOf("wrath_") !== 0 || !(e.count[ck] > 0)) continue;
+        const g = ck.slice(6);
+        if (seen.indexOf(g) < 0) seen.push(g);
+      }
+    });
+    return seen.map(function (g) { return (P.wrathInfo ? P.wrathInfo(g).name : g); });
+  }
   P.rewardPreviewCompact = function (ch) {
     const outs = (ch && ch.outcomes) || {};
     const all = ["crit", "ok", "meh", "fail", "critfail"];
-    let hasFall = false, hasEnd = false;
+    let hasFall = false; const ends = {};
     all.forEach(function (t) {
       const e = outs[t] && outs[t].effects;
       if (!e) return;
       if (e.fall) hasFall = true;
-      if (e.hardEnd) hasEnd = true;
+      if (e.hardEnd) ends[e.hardEnd] = 1;
     });
     const risk = [];
-    if (hasEnd) risk.push(P.t("ui.stage.prison", "入狱"));
+    Object.keys(ends).forEach(function (r) {
+      const l = P.hardEndLabel(r); if (risk.indexOf(l) < 0) risk.push(l);
+    });
     if (hasFall) risk.push(P.t("ui.stage.fallen", "下野"));
     let good = ["crit", "ok"].filter(function (t) { return outs[t] && outs[t].effects; });
     if (!good.length) good = all.filter(function (t) { return outs[t] && outs[t].effects; });
     const scal = {}, voters = { diehard: [], warm: [], oppose: [] }, fac = {}, attr = {}, funMul = [];
     let up = false;
+    const seen = _mkSeen();
     good.forEach(function (t) {
       const e = outs[t].effects;
-      for (const k in REW_SCAL) if (typeof e[k] === "number") (scal[k] = scal[k] || []).push(e[k]);
-      if (typeof e.funMul === "number") funMul.push(e.funMul);
-      if (e.voters) for (const vk in voters) if (typeof e.voters[vk] === "number") voters[vk].push(e.voters[vk]);
-      if (e.fac) for (const f in e.fac) (fac[f] = fac[f] || []).push(e.fac[f]);
-      if (e.attr) for (const a in e.attr) (attr[a] = attr[a] || []).push(e.attr[a]);
-      if (e.tier > 0) up = true;
+      for (const k in REW_SCAL) if (typeof e[k] === "number") { (scal[k] = scal[k] || []).push(e[k]); seen.mark("s:" + k, t); }
+      if (typeof e.funMul === "number") { funMul.push(e.funMul); seen.mark("fm", t); }
+      if (e.voters) for (const vk in voters) if (typeof e.voters[vk] === "number") { voters[vk].push(e.voters[vk]); seen.mark("v:" + vk, t); }
+      if (e.fac) for (const f in e.fac) { (fac[f] = fac[f] || []).push(e.fac[f]); seen.mark("f:" + f, t); }
+      if (e.attr) for (const a in e.attr) { (attr[a] = attr[a] || []).push(e.attr[a]); seen.mark("a:" + a, t); }
+      if (e.tier > 0) { up = true; seen.mark("tier+", t); }
     });
     const chips = [];
-    const put = function (k, v, th, flip) {
+    const put = function (k, v, th, flip, tip) {
       if (flip) v = -v;                       // 反对者增加 = 坏事（与完整版 _rwChip 同约定）
       const s = _rwTicks(v, th);
       if (!s) return;
-      chips.push({ k: k, v: s, cls: v > 0 ? "good" : v < 0 ? "bad" : "" });
+      chips.push({ k: k, v: s, cls: v > 0 ? "good" : v < 0 ? "bad" : "", tip: tip || null });
     };
     if (scal.rep) put(P.t("ui.stage.res.rep", "声望"), _rwPeak(scal.rep), RW_TICK.scal);
     if (scal.fun) put(P.t("ui.stage.res.fun", "资金"), _rwPeak(scal.fun), RW_TICK.fun);
-    if (funMul.length) put(P.t("ui.stage.principal", "本金"), _rwPeak(funMul) * 100, RW_TICK.pct);
+    if (funMul.length) put(P.t("ui.stage.principal", "本金回报"), _rwPeak(funMul) * 100, RW_TICK.pct, false, STAKE_TIP);
     if (voters.diehard.length) put(P.t("ui.stage.voterDiehard", "死忠"), _rwPeak(voters.diehard), RW_TICK.voter);
     if (voters.warm.length) put(P.t("ui.stage.voterWarm", "好感选民"), _rwPeak(voters.warm), RW_TICK.voter);
     if (voters.oppose.length) put(P.t("ui.stage.voterOppose", "反对者"), _rwPeak(voters.oppose), RW_TICK.voter, true);
-    if (up) chips.push({ k: P.t("ui.stage.tierLabel", "层级"), v: "↑", cls: "gflag" });
+    if (up) chips.push({ k: P.t("ui.stage.tierLabel", "层级"), v: "↑", cls: "gflag", note: seen.note("tier+", good.length) });
     ["fav", "lev"].forEach(function (k) {
       if (scal[k]) put(P.t("ui.stage.res." + k, REW_SCAL[k]), _rwPeak(scal[k]), RW_TICK.scal);
     });
@@ -553,7 +621,7 @@
         put(P.factionName(x.f), _rwPeak(fac[x.f]), RW_TICK.fac);
       });
     Object.keys(attr).forEach(function (a) { put(P.t("ui.stage.attr." + a, REW_ATTR[a] || a), _rwPeak(attr[a]), RW_TICK.attr); });
-    return { chips: chips, risk: risk };
+    return { chips: chips, risk: risk, feud: _rwFeud(outs) };
   };
   P.rewardPreview = function (ch) {
     if (P.compactUI()) return P.rewardPreviewCompact(ch);
@@ -561,47 +629,58 @@
     const tiers = ["crit", "ok", "meh", "fail", "critfail"];
     const scal = {}, voters = { diehard: [], warm: [], oppose: [] }, fac = {}, attr = {};
     const funMul = [];
-    let hasFall = false, hasEnd = false, up = false, down = false;
+    let hasFall = false, ends = {}, up = false, down = false;
+    const seen = _mkSeen();
+    let liveTiers = 0;
     tiers.forEach(function (t) {
       const e = outs[t] && outs[t].effects;
       if (!e) return;
-      for (const k in REW_SCAL) if (typeof e[k] === "number") (scal[k] = scal[k] || []).push(e[k]);
-      if (typeof e.funMul === "number") funMul.push(e.funMul);
-      if (e.voters) for (const vk in voters) if (typeof e.voters[vk] === "number") voters[vk].push(e.voters[vk]);
-      if (e.fac) for (const f in e.fac) (fac[f] = fac[f] || []).push(e.fac[f]);
-      if (e.attr) for (const a in e.attr) (attr[a] = attr[a] || []).push(e.attr[a]);
+      liveTiers++;
+      for (const k in REW_SCAL) if (typeof e[k] === "number") { (scal[k] = scal[k] || []).push(e[k]); seen.mark("s:" + k, t); }
+      if (typeof e.funMul === "number") { funMul.push(e.funMul); seen.mark("fm", t); }
+      if (e.voters) for (const vk in voters) if (typeof e.voters[vk] === "number") { voters[vk].push(e.voters[vk]); seen.mark("v:" + vk, t); }
+      if (e.fac) for (const f in e.fac) { (fac[f] = fac[f] || []).push(e.fac[f]); seen.mark("f:" + f, t); }
+      if (e.attr) for (const a in e.attr) { (attr[a] = attr[a] || []).push(e.attr[a]); seen.mark("a:" + a, t); }
       if (e.fall) hasFall = true;
-      if (e.hardEnd) hasEnd = true;
-      if (e.tier > 0) up = true;
-      if (e.tier < 0) down = true;
+      if (e.hardEnd) ends[e.hardEnd] = 1;
+      if (e.tier > 0) { up = true; seen.mark("tier+", t); }
+      if (e.tier < 0) { down = true; seen.mark("tier-", t); }
     });
     const chips = [];
-    if (scal.rep) chips.push(_rwChip(P.t("ui.stage.res.rep", "声望"), _rmin(scal.rep), _rmax(scal.rep), _rwSigned));
-    if (scal.fun) chips.push(_rwChip(P.t("ui.stage.res.fun", "资金"), _rmin(scal.fun), _rmax(scal.fun), _rwUsd));
-    if (funMul.length) chips.push(_rwChip(P.t("ui.stage.principal", "本金"), _rmin(funMul) * 100, _rmax(funMul) * 100, _rwPct));
-    if (voters.diehard.length) chips.push(_rwChip(P.t("ui.stage.voterDiehard", "死忠"), _rmin(voters.diehard), _rmax(voters.diehard), _rwVoter));
-    if (voters.warm.length) chips.push(_rwChip(P.t("ui.stage.voterWarm", "好感选民"), _rmin(voters.warm), _rmax(voters.warm), _rwVoter));
-    if (voters.oppose.length) chips.push(_rwChip(P.t("ui.stage.voterOppose", "反对者"), _rmin(voters.oppose), _rmax(voters.oppose), _rwVoter, true));
-    if (up || down) chips.push({ k: P.t("ui.stage.tierLabel", "层级"), v: (up && down) ? "↑↓" : (up ? "↑" : "↓"), cls: (down && !up) ? "bad" : "gflag" });
-    ["fav", "lev"].forEach(function (k) { if (scal[k]) chips.push(_rwChip(P.t("ui.stage.res." + k, REW_SCAL[k]), _rmin(scal[k]), _rmax(scal[k]), _rwSigned)); });
+    if (scal.rep) chips.push(_rwChip(P.t("ui.stage.res.rep", "声望"), _rmin(scal.rep), _rmax(scal.rep), _rwSigned, false, null, seen.note("s:rep", liveTiers)));
+    if (scal.fun) chips.push(_rwChip(P.t("ui.stage.res.fun", "资金"), _rmin(scal.fun), _rmax(scal.fun), _rwUsd, false, null, seen.note("s:fun", liveTiers)));
+    if (funMul.length) chips.push(_rwChip(P.t("ui.stage.principal", "本金回报"), _rmin(funMul) * 100, _rmax(funMul) * 100, _rwPct, false, STAKE_TIP, seen.note("fm", liveTiers)));
+    if (voters.diehard.length) chips.push(_rwChip(P.t("ui.stage.voterDiehard", "死忠"), _rmin(voters.diehard), _rmax(voters.diehard), _rwVoter, false, null, seen.note("v:diehard", liveTiers)));
+    if (voters.warm.length) chips.push(_rwChip(P.t("ui.stage.voterWarm", "好感选民"), _rmin(voters.warm), _rmax(voters.warm), _rwVoter, false, null, seen.note("v:warm", liveTiers)));
+    if (voters.oppose.length) chips.push(_rwChip(P.t("ui.stage.voterOppose", "反对者"), _rmin(voters.oppose), _rmax(voters.oppose), _rwVoter, true, null, seen.note("v:oppose", liveTiers)));
+    if (up || down) chips.push({ k: P.t("ui.stage.tierLabel", "层级"), v: (up && down) ? "↑↓" : (up ? "↑" : "↓"), cls: (down && !up) ? "bad" : "gflag",
+      note: (up && down) ? null : seen.note(up ? "tier+" : "tier-", liveTiers) });
+    ["fav", "lev"].forEach(function (k) { if (scal[k]) chips.push(_rwChip(P.t("ui.stage.res." + k, REW_SCAL[k]), _rmin(scal[k]), _rmax(scal[k]), _rwSigned, false, null, seen.note("s:" + k, liveTiers))); });
     Object.keys(fac).map(function (f) { return { f: f, s: Math.abs(_rmin(fac[f])) + Math.abs(_rmax(fac[f])) }; })
       .sort(function (a, b) { return b.s - a.s; }).slice(0, 2).forEach(function (x) {
-        chips.push(_rwChip(P.factionName(x.f), _rmin(fac[x.f]), _rmax(fac[x.f]), _rwSigned));
+        chips.push(_rwChip(P.factionName(x.f), _rmin(fac[x.f]), _rmax(fac[x.f]), _rwSigned, false, null, seen.note("f:" + x.f, liveTiers)));
       });
-    Object.keys(attr).forEach(function (a) { chips.push(_rwChip(P.t("ui.stage.attr." + a, REW_ATTR[a] || a), _rmin(attr[a]), _rmax(attr[a]), _rwSigned)); });
+    Object.keys(attr).forEach(function (a) { chips.push(_rwChip(P.t("ui.stage.attr." + a, REW_ATTR[a] || a), _rmin(attr[a]), _rmax(attr[a]), _rwSigned, false, null, seen.note("a:" + a, liveTiers))); });
     const risk = [];
-    if (hasEnd) risk.push(P.t("ui.stage.prison", "入狱"));
+    Object.keys(ends).forEach(function (r) {
+      const l = P.hardEndLabel(r); if (risk.indexOf(l) < 0) risk.push(l);
+    });
     if (hasFall) risk.push(P.t("ui.stage.fallen", "下野"));
-    return { chips: chips, risk: risk };
+    return { chips: chips, risk: risk, feud: _rwFeud(outs) };
   };
-  function rewChipHTML(c) { return '<span class="gchip2 ' + c.cls + '">' + c.k + " " + c.v + "</span>"; }
+  function rewChipHTML(c) {
+    const tip = c.tip ? ' hastip" data-tip="' + String(c.tip).replace(/"/g, "&quot;") : "";
+    return '<span class="gchip2 ' + c.cls + tip + '">' + c.k + " " + c.v +
+      (c.note ? '<i class="gnote">' + c.note + "</i>" : "") + "</span>";
+  }
   function rewLineHTML(rew) {
-    if (!rew.chips.length && !rew.risk.length) return "";
+    if (!rew.chips.length && !rew.risk.length && !(rew.feud && rew.feud.length)) return "";
     const show = rew.chips.slice(0, REW_INLINE), more = rew.chips.slice(REW_INLINE);
     return '<span class="rewline"><span class="gtag">' + P.t("ui.stage.rewardTag", "回报") + "</span>" +
       show.map(rewChipHTML).join("") +
       (more.length ? '<span class="gchip2 rew-more">' + P.t("ui.stage.moreItems", "＋{n} 项", { n: more.length }) + "</span>" : "") +
       (rew.risk.length ? '<span class="rew-risk">' + P.t("ui.stage.riskNote", "⚠ 有{r}风险", { r: rew.risk.join("/") }) + "</span>" : "") +
+      (rew.feud && rew.feud.length ? '<span class="rew-feud">' + P.t("ui.stage.feudNote", "⚠ 树敌：{f}", { f: rew.feud.join("/") }) + "</span>" : "") +
       "</span>";
   }
 
@@ -635,6 +714,8 @@
     return ODDS_SCALE[ODDS_SCALE.length - 1];
   }
   const ODDS_TIP = "这一手成功的把握：受选项本身、你的天赋、以及选区选民底气共同影响；投入资金可以往上加，但每次判定本身仍然有运气。";
+  /* 投资筹码的口径说明：按【本金利润率】显示（80% = 投 5k 回 9k，即本金+八成利润） */
+  const STAKE_TIP = "选下这项时本金已垫付；这里的百分比是本金的回报率：赚 80% = 投 5k 回 9k（含本金），亏 60% = 投 5k 回 2k。";
 
   P.presentEvent = function (ev, slot) {
     P.tickDate();
@@ -719,13 +800,13 @@
       const stakeSpec = P.stakeSpec(ch);
       const rew = P.rewardPreview(ch);
       const btn = document.createElement("button");
-      btn.className = "choice" + (isForced ? " forced" : "");
+      const _odds = oddsOf(ch);
+      btn.className = "choice" + (isForced ? " forced" : "") + (_odds ? " odds-bg " + _odds.cls : "");
       btn.disabled = !!blocked;
       /* 掷骰对用户隐藏：不报胜算百分比，只用一句话给「把握」的手感；
          风险的量由三值性徽标 + 把握档位 + 回报区间共同传达。 */
       const hint = stakeSpec ? '<span class="hint">' + P.t("ui.stage.stakeHint", "可投入资源，搏更大把握") + "</span>" : "";
-      const odds = oddsOf(ch);
-      const oddsHTML = odds ? '<span class="odds ' + odds.cls + ' hastip" data-tip="' + P.t("ui.stage.oddsTip", ODDS_TIP) + '">' + P.t(odds.key, odds.label) + "</span>" : "";
+      const oddsHTML = _odds ? '<span class="odds ' + _odds.cls + ' hastip" data-tip="' + P.t("ui.stage.oddsTip", ODDS_TIP) + '">' + P.t(_odds.key, _odds.label) + "</span>" : "";
       /* 代价可能「有键但无内容」（例如只写了已退役的 ap/hp），先算出文本再决定渲不渲染 */
       const costTxt = ch.cost ? resText(ch.cost) : "";
       btn.innerHTML = ch.text + oddsHTML + hint +
@@ -789,8 +870,10 @@
     const effFinal = P.withEventVoters
       ? P.withEventVoters(out.effects, ev, ch, out, res.tier)
       : (out.effects || {});
-    /* 投资本金基数：选项 cost + 投注的资金 —— funMul 按它算回报（不是总余额） */
-    G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
+    /* 投资本金基数：选项 cost + 入场费门槛 req.fun + 投注的资金 —— funMul 按它算回报（不是总余额）。
+       v0.12：req.fun 也计入（"账上要有 60 万才吃得下这单"= 60 万压进这单）；
+       三者全空的 funMul 在 effects.js 空转告警，绝不再拿总余额乘倍数。 */
+    G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (ch.req && ch.req.fun ? ch.req.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、

@@ -12,6 +12,9 @@ POTUS.VERSION = "0.4.0";
 POTUS.reg = {
   era: {}, origin: {}, talent: {}, entry: {}, track: {}, party: {}, stance: {},
   faction: {}, factionUnknown: "其他", blackswan: {}, filler: {},
+  /* 仇家群体（清算系统）：仇恨值藏在 G.counters["wrath_<组>"]，门槛判定走现成的
+     countMin/countMax/countEq 词汇。内容见 content/01-config.js 的 wrath 登记。 */
+  wrath: {},
   /* 连续时间轴（去"时代"化改造）：worldline 是按年键控的全局世界线
      （pressure/brief/outlets/blackswan 一律按绝对年份取），fixed 是全局
      "定点事件表"——到某年某月必发的历史大事件与事件串。见 content/21-worldline.js。
@@ -664,9 +667,25 @@ POTUS.loanStep = function () {
   G.debt = Math.max(0, Math.round(G.debt - pay));
   const cleared = G.debt <= 0;
   if (cleared) { G.debt = 0; G.loanLate = 0; }
-  else if (pay < target) G.loanLate++;                   /* 没能还满 → 连续逾期 +1 */
-  else G.loanLate = 0;                                   /* 按时还满 → 逾期归零 */
+  /* 断供定义 = 连本月利息都没覆盖住（余额开始真实增长）。
+     不用 pay<target：升职工资一涨、月供目标跳档，会把按时交钱的人误判成老赖。 */
+  else if (pay < interest) G.loanLate++;                  /* 没能还满 → 连续逾期 +1 */
+  else G.loanLate = 0;                                    /* 按时还满 → 逾期归零 */
+  /* 死亡螺旋收口：连续断供到难度上限 → 信用破产。走 hardEnd 同一管道
+     （pendingHardEnd → P.ending(reason)），判定点与其他终局一致。 */
+  const lim = POTUS.loanLateLimit ? POTUS.loanLateLimit() : 0;
+  if (lim > 0 && G.loanLate >= lim && !G.pendingHardEnd) G.pendingHardEnd = "bankrupt";
   return { interest: interest, pay: pay, principal: pay - interest, remaining: G.debt, cleared: cleared, late: G.loanLate };
+};
+
+/* 连续断供多少个月触发信用破产（0/缺省 = 不启用）。按难度分档：
+   越是白手起家，银行越不留情 —— 见 content/01-config.js studentLoan.lateLimit。 */
+POTUS.loanLateLimit = function () {
+  const G = POTUS.G, s = (POTUS.balance() || {}).studentLoan || {};
+  if (!G || !s.enabled || !(G.debt > 0)) return 0;
+  const byDiff = s.lateLimit || {};
+  const v = byDiff[G.difficulty || "normal"];
+  return v == null ? 0 : v;
 };
 
 /* ---------- 负债设底：触到谷底则由家人/金主托一把 ----------
@@ -751,6 +770,14 @@ POTUS.migrate = function (G) {
   if (G.ledger == null) G.ledger = {};                       // v0.9 每月上班账（幂等结算），旧存档补空表
   if (G.ledgerYear == null) G.ledgerYear = G.year;
   if (G.curMonth != null && G.month === 1) G.month = G.curMonth;   // 尽量接住旧存档的月份
+  /* v0.12 存档迁移：时代锚点选择器下线后，旧存档可能是 1990/2008 等开局年份。
+     年龄与年份在活树里始终同步步进（G.age++ / G.year++），所以工龄（age-startAge）可信：
+     平移 G.year = 当前时代 startYear + 工龄，人物年龄、履历年限都不重算。 */
+  if (G.era && G.era !== "1980_REAGAN" && POTUS.reg.era["1980_REAGAN"]) {
+    const sa = (POTUS.balance() || {}).startAge || 24;
+    G.year = POTUS.reg.era["1980_REAGAN"].startYear + Math.max(0, (G.age || sa) - sa);
+    G.era = "1980_REAGAN";
+  }
   /* v0.4 新增状态 */
   if (G.lev == null) G.lev = 0;                           // 把柄（旧存档没有 = 0 份）
   if (G.debt == null) G.debt = 0;                         // 学生贷款余额（旧存档没有 = 0）

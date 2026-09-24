@@ -79,6 +79,7 @@ POTUS.define("l10n", {
     "ui.stage.ledgerLoan": "Loan",
     "ui.stage.loanBalance": "Loan balance ${amt}k",
     "ui.stage.loanLate": " · {late} months late",
+    "ui.stage.loanDoom": "（credit collapse in {left} months）",
     "ui.stage.loanCleared": "✓ Loans paid off",
     "ui.stage.monthSettle": "This month · Standing",
 
@@ -115,8 +116,18 @@ POTUS.define("l10n", {
     /* ---------------- 收益结算（gainSummary / gainBoxHTML） ---------------- */
     "ui.stage.thisMove": "This move",
     "ui.stage.funMulPct": "{pct}% of principal",
-    "ui.stage.principal": "Principal",
+    "ui.stage.funMulGain": "payout ${v} (principal ${b} + {p}%)",
+    "ui.stage.funMulLoss": "payout ${v} (principal ${b} lost {l}%)",
+    "ui.stage.stakeTip": "The principal is paid up front when you pick this; the percentage is the return ON TOP of it: +80% means $5k in pays $9k back, -60% pays $2k.",
+    "ui.stage.principal": "Principal return",
     "ui.stage.tierLabel": "Tier",
+    /* 单档专属角标：仅{t} */
+    "ui.stage.onlyTier": "{t} only",
+    "ui.stage.tierName.crit": "critical",
+    "ui.stage.tierName.ok": "success",
+    "ui.stage.tierName.meh": "scraping through",
+    "ui.stage.tierName.fail": "failure",
+    "ui.stage.tierName.critfail": "critical failure",
     "ui.stage.statusTag": "Status",
     "ui.stage.clearedTag": "Cleared",
     "ui.stage.fallen": "Downfall",
@@ -125,12 +136,16 @@ POTUS.define("l10n", {
     "ui.stage.endgame": "Career end",
     "ui.stage.prison": "Prison",
     "ui.stage.disgraced": "Disgraced",
+    "ui.stage.bankrupt": "Credit Ruin",
+    "ui.stage.doomed": "Death",
+    "ui.stage.wrath": "Enmity",
 
     /* ---------------- 回报预览（rewardPreview / rewLineHTML） ---------------- */
     "ui.stage.rewardTag": "Reward",
     "ui.stage.rewardDetail": "Reward details",
     "ui.stage.moreItems": "+{n}",
     "ui.stage.riskNote": "⚠ Risk of {r}",
+    "ui.stage.feudNote": "⚠ Feud: {f}",
 
     /* ---------------- 成功把握档位 ---------------- */
     "ui.stage.odds.l5": "In the bag",

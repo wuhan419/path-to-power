@@ -84,17 +84,19 @@ POTUS.define("fixed", [
 | 段 | 归属 | 说明 |
 |---|---|---|
 | `events/105—111` | 存量，冻结 | 1980s/1990s/2001/2016 时代卡、事件串、家务卡 |
-| `events/120—129` | **Track B 新串**（1991—2024 定点大事） | 4 年一带，见 §4 |
-| `events/130—149` | Track B 预留第二轮 | 补密度/补漏 |
-| `events/150—179` | 空闲 | 未来主题包（不并发） |
+| `events/120—128` | Track B 新串（1991—2024 定点大事） | 4 年一带，**已全部完工**，见 §4 |
+| `events/129—133` | 补薄轮次（gapfill） | 已用完：129/130/131/132/133 五轮补薄卡 |
+| `events/140—149` | **主题包段（已启用）** | 140 = 清算包 `140-reckoning.js`；此后新开主题包**占用即在本表登记** |
+| `events/134—139, 141—149` | 预留（空位） | 主题包/补薄备用段，未经本表登记不得占用 |
+| `events/150—179` | 空闲 | 未来主题包（不并发），启用前先在上表登记 |
 | `events/5x, 6x, 8x, 9x` | 存量，冻结 | 机制类/补充类 |
 | `content/i18n/en/lines/` | **Track A 英文覆盖**（Track B 新卡） | 与卡片同名：一分片对一卡片文件 |
-| `content/i18n/en/events/` | **Track A 英文覆盖**（存量卡） | 与存量源文件同名 |
-| `content/i18n/en/view/` | **Track A** 引擎 UI 串 | 一视图文件对一分片（`content/i18n/en/ui.js` 是总入口样板） |
+| `content/i18n/en/events/` | **Track A 英文覆盖**（存量卡） | 与存量源文件同名（唯一例外：`65-campaign-acts` 拆 `-a`/`-b` 两片，见 I18N.md §1） |
+| `content/i18n/en/view/` | **Track A** 引擎 UI 串 | 一视图文件对一分片（`ui.leftbar`/`ui.title` 的键收在总入口 `content/i18n/en/ui.js`） |
 
 ### 2.2 事件 id 前缀
 
-新卡一律 `ln{YY}_{slug}`（**ln** = line，`YY` = 锚定年份后两位）：
+`ln{YY}_{slug}`（**ln** = line，`YY` = 锚定年份后两位）**只约束年代线新卡**：
 
 ```
 ln91_ussr      1991 年苏联解体
@@ -102,7 +104,8 @@ ln95_okc       1995 年俄克拉荷马城爆炸
 ln05katrina    → 写作 ln05_katrina（2005 年卡特里娜）
 ```
 
-年份带互斥 ⇒ 前缀天然不撞。禁止使用 `rg / gulf / wt / soc / sca / boon / prog / chore / enc / camp` 这些已有前缀。
+**主题包允许专属前缀**（先例：清算包 `reck_*`，见 `140-reckoning.js`）——开包时把自己的前缀随段位一起登记进 §2.1 表。
+年份带互斥 ⇒ `ln` 前缀天然不撞。禁止使用 `rg / gulf / wt / soc / sca / boon / prog / chore / enc / camp` 这些已有前缀。
 choice id 在**同一事件内**唯一即可，建议 `{动词}_{名词}`（`back_bill` / `attack_leader`），不要用 `a/b/c`。
 
 > 存量卡里已有 `2008_crash_offer` 这种**年份前缀**写法，是历史遗留，不作为新卡范例。
@@ -111,16 +114,17 @@ choice id 在**同一事件内**唯一即可，建议 `{动词}_{名词}`（`bac
 
 ## 3. Worktree 工作流（我串行合并）
 
-主库固定在 `D:\workspace\path2power`（分支 `main`），worker 库放 `D:\workspace\ptp-w\w{NN}`
-（D 盘 1.5T 可用；C 盘只剩 14G，**不要**在 C 盘建 worktree）。
+主库 = 你的 checkout 根（下文示例用 macOS 形式记作 `~/work/path2power`，分支 `main`），
+worker 库放同级的 `~/work/ptp-w/w{NN}`。worktree 建在**空间充裕的盘**即可（可用容量以本机实测为准，
+别建在快满的系统盘上）。合并方脚本 `merge-worker.sh` 的主仓路径用环境变量 `MAIN_ROOT` 指到同一位置。
 
 ```bash
 # 合并方开一个 worker 库
-cd /d/workspace/path2power
-git worktree add -b content/w01-1991-94 /d/workspace/ptp-w/w01 main
+cd ~/work/path2power
+git worktree add -b content/w01-1991-94 ~/work/ptp-w/w01 main
 
 # worker 干活（在自己的库里）
-cd /d/workspace/ptp-w/w01
+cd ~/work/ptp-w/w01
 node dev/tools/gen-manifest.js            # 注册你的新文件（只动托管区）
 node dev/tools/validate.js --games=1 --lang=zh   # 快线
 node dev/tools/text-audit.js --file=120-line-1991-94
@@ -129,7 +133,7 @@ git commit -am "content(w01): 1991—1994 定点大事 6 张 + 世界线按年�
 git push origin content/w01-1991-94       # 或：告知合并方分支名，由本地合并
 
 # 合并方（串行，一次一个分支）
-cd /d/workspace/path2power
+cd ~/work/path2power
 git merge --no-ff content/w01-1991-94
 node dev/tools/gen-manifest.js            # 重新生成清单（吞掉 index.html 冲突）
 git add dev/index.html && git commit --no-edit  # 若产生新提交
@@ -142,6 +146,8 @@ node dev/tools/validate.js --games=1 --lang=en
 2. `dev/index.html` 冲突**一律不和解**：合并方重跑 `gen-manifest.js` 覆盖托管区。
 3. 一个 worker 一个分支，只碰自己 §4/§5 名下文件。分支名 `content/w{NN}-{band}`。
 4. 提交信息前缀：`content(wNN): …` / `i18n(wNN): …`。
+5. **现行实况**：除 `content/wNN-*` 派活分支外，还存在 `dev/*` 阶段分支（如 `dev/reckoning-be`、
+   `dev/economy-i18n`）——那是引擎+内容联动的阶段工作，不套 worker 一人一分支纪律，由合并方直接指挥。
 
 ---
 
@@ -172,6 +178,12 @@ node dev/tools/density-scan.js --root=dist   # 量发布件
 `minor` = 地方性或风味锚点（每带最多 1 个，别把串灌满）。
 
 ### 4.2 波段分配（每带 = 一个 worker = 一个文件）
+
+> **历史存档（已完工）**：B1—B9 九个年带连同后续 gapfill 轮次（`content/w5x-gapfill`，
+> 落盘为 `129—133-line-gap-*.js`）已全部合并进 main，密度达标（见 §4.1 实跑）。
+> 本节整体保留，作为**下一轮同类派活的模板**。补薄轮次口径一句话：
+> 由 `density-scan` 点出偏薄年份才开工，一轮 = 一个 worker = 一个 `content/wNN-gapfill` 分支，
+> 新卡落进带 `gap` 的文件（或按 §2.1 登记的新段位文件），中英双语同卡同交。
 
 **卡数下限 8，上限 10**（同一历史年里可合并同主题的两件事）。
 **每张存量卡只允许一个年带钉它**，按事件年份归属；跨带重复 `fixed` 会导致同一事件一局演两次。
@@ -226,24 +238,10 @@ grep -rn 'year: 19' dev/content/21-worldline.js dev/content/events/110-line-1980
 
 细节契约看 `docs/I18N.md`；这里只分地。
 
-### 5.1 引擎 UI 串提取（`P.t`）
+### 5.1 引擎 UI 串提取（`P.t`）——已全部完成
 
-一个 worker 一个文件，改完在 `content/i18n/en/view/{file}.js` 写英文：
-
-| 优先级 | 文件 | 待提取串（约） |
-|---|---|---|
-| ✅已完成 | `view/title.js`、`view/leftbar.js` | — |
-| A1 | `view/stage.js` | 123 |
-| A2 | `core.js` | 70 |
-| A3 | `view/topbar.js` | 51 |
-| A4 | `view/create.js` | 34 |
-| A5 | `view/actions.js` | ~30 |
-| A6 | `view/vignette.js` | ~25 |
-| A7 | `engine/events.js` | ~25 |
-| A8 | `engine/dice.js`、`engine/time.js` | ~20 |
-| A9 | 其余（`news.js`/`save.js`/`shell.js`…） | ~30 |
-
-规则：
+界面提取已全部完成（`i18n-coverage` 实测十屏 0% 中文，`en/view/` 16 片齐），
+进度与分片对照见 [`I18N.md`](I18N.md) §8，本节旧分配表作废删除。下列规则对**新加的引擎中文串**仍然有效：
 - `P.t("ui.{file}.{key}", "中文原文", params)` —— **中文原文就是兜底**，不建 zh 字典。
 - 带标点/模板的整句放进一个 key，不要在英文里拼接中文标点。
 - 只改字符串取用，**不许**顺手重构逻辑。
@@ -251,7 +249,8 @@ grep -rn 'year: 19' dev/content/21-worldline.js dev/content/events/110-line-1980
 ### 5.2 存量卡英文覆盖
 
 `content/i18n/en/events/{源文件名}.js`，一文件一分片，一个 worker 认领 1—2 个源文件。
-**存量已清零**：276 张事件卡 + 24 类注册表的英文缺译叶子实测 0（`i18n-events.js` 全表绿），
+**存量已清零**：全部事件卡 + 注册表的英文缺译叶子实测 0（`i18n-events.js` 全表绿；
+卡数/片数一律以工具输出为准、不手写计数，快照 2026-09-24 事件覆盖层为 34 片），
 所以这一节现在只对**新卡**生效——新卡必须自带英文分片，否则 §6.3 的缺译门禁直接拒收。
 
 新卡（Track B）由**同一个 worker 顺手写双语**：卡片写中文，英文放
@@ -305,18 +304,30 @@ node dev/tools/i18n-events.js --only=event       # 缺译：新卡必须自带�
 node dev/tools/text-audit.js --lang=en --tcase   # 英文标题体例：你写的标题不得是 Title Case
 ```
 
-`choice-audit` 的基线（合并方核对用）：**多选项事件 296 ｜ 占优 0 ｜ 过平 0 ｜ 同轴 3**。
-存量 3 个同轴事件是**反面教材，不是模板**：`sca2_coverup_after`、`rg81_patco`、`boon2016_goviral`。
-> 合并方规则：合并后 `flagged` 集合必须是基线集合的**超集不变**（即只允许 3 → 3）。
-> 新增一个 id 出现在 flagged 里 ⇒ 退回 worker 重塑取舍，不得合并。
+`choice-audit` 基线（合并方核对用）：**以实跑为准**（快照 2026-09-24：**多选项事件 306 ｜ 占优 1 ｜ 过平 0 ｜ 同轴 3**，
+flagged 集合共 4 个）。同轴 3 个存量事件是**反面教材，不是模板**：`sca2_coverup_after`、`rg81_patco`、`boon2016_goviral`。
+> 合并方规则：合并后 `flagged` 集合不得比基线集合新增——新增一个 id 出现在 flagged 里 ⇒ 退回 worker 重塑取舍，不得合并。
+>
+> **⚠ 活冲突（§6.3 注，待拍板）**：快照里的"占优 1"是新清算卡 `reck_agy_file`（v0.12 引入），
+> 而 `merge-worker.sh` 的 `FLAGGED_BASELINE` 仍写死 3——现在每次合并都会被它拦红。
+> 两个出口二选一，**等用户拍板**：重塑 `reck_agy_file` 的取舍消掉占优，或把棘轮基线正式抬到 4。
+> 拍板前两数并存，别偷偷改脚本。
 
-> **别为「每年档期 ≤12」挪史实**。`validate` 尾部的这条上限是统计均值，单条生涯噪声极大
-> （同一份内容 `--games=1` 能跑出 8.7 也能跑出 12.1），所以它在 `STAT_MIN=8` 下和结局数、
+> **别为「每年档期 ≤13」挪史实**。`validate` 尾部的这条上限（commit 60c3ac6 由 12 抬到 13：
+> gap 填充卡本意就是加密空档年，20 局样本实测 12.3）是统计均值，单条生涯噪声极大
+> （同一份内容 `--games=1` 能跑出 8.7 也能跑出 12+），所以它在 `STAT_MIN=8` 下和结局数、
 > 投注数一样自动跳过，只在合并方的 `--games=20` 这一侧硬判。快通道若因它报警，
 > 那是快线该跳过的项，不是你的卡排错了月份——**不要**为了凑绿把事件挪到别的月份。
 
+> **数字统一原则**：本文件凡手工统计数（事件卡数 / 缺译数 / flagged 基线 / 覆盖率）**一律以工具输出为准，
+> 文里出现的只是带日期的快照**。改数先跑工具，别反向改工具迁就文档。
+
+> **学贷校准跑法（工具矩阵备查，与并发无关）**：动 `balance.studentLoan` 前后跑
+> `node dev/tools/validate.js --diff=normal|hard|brutal --games=100`，看尾部「学贷断供」面板
+> （每局最长连续逾期中位/p90/峰值、信用破产局数）——断供触底阈值 normal 6 / hard 4 / brutal 3 个月是校准目标，不是巧合。
+
 > **本地化走同一条规矩**：新卡没有英文覆盖层，就等于给 `i18n-events` 的缺译榜添一条；
-> 合并门禁的基线现在是**硬零**（276 张卡已全部英文化），任何一条缺译都直接退回。写中文卡的同时把
+> 合并门禁的基线现在是**硬零**（存量卡已全部英文化，张数以 `i18n-events.js` 输出为准），任何一条缺译都直接退回。写中文卡的同时把
 > `content/i18n/en/**` 对应那一份一起写完，别留给"以后统一补"。
 > 同理，`text-audit --lang=en --tcase` 的合并基线也是**硬零**：英文标题从第一个字就写 sentence case，
 > 别指望合并方替你洗。
@@ -328,7 +339,8 @@ node dev/tools/text-audit.js --lang=en --tcase   # 英文标题体例：你写�
 
 ## 7. 并发规模（按本机实测）
 
-本机：**i9-12900H，20 逻辑核，31.7GB 内存**；D 盘可用 1.5TB，C 盘仅剩 14GB。
+并发规模**以本机实测为准**：先在本机跑一轮 `--games=1` 计时与内存占用，再决定同时开几个 worker，
+别照抄别人机器的核数结论（初代作业机为 20 逻辑核级别，仅供量级参考）。
 
 单 worker 一轮校验 ≈ 60—90s 纯 CPU（`--games=1`），`choice-audit` 全树扫描 ≈ 40s，
 每局内存占用 <300MB。门禁是 CPU 密集而非 IO 密集。

@@ -328,13 +328,14 @@
     officeCard: function () { return P.officeCard(); },
     attrs:      function () { return P.statusRows().attrs; },
     tags:       function () { return P.statusRows().tags; },
+    wrath:      function () { return P.statusRows().wrath; },
     factions:   function () { return P.statusRows().factions; },
     contacts:   function () { return P.statusRows().contacts; }
   };
   P.STATUS_LAYOUT = [
     { cls: "idc-left",  items: ["identity", "officeProg"] },
     { cls: "idc-facts", items: ["date", "resources", "officeCard"] },
-    { cls: "idc-chips", items: ["attrs", "tags", "factions", "contacts"], collapse: "档案" }
+    { cls: "idc-chips", items: ["attrs", "tags", "wrath", "factions", "contacts"], collapse: "档案" }
   ];
   P.toggleChips = function (btn) {
     const box = btn.closest(".idc-chips");
@@ -356,6 +357,9 @@
     const f = G.faction || {};
     for (const k in f) m["fac_" + k] = f[k] || 0;
     if (P.myContacts) P.myContacts().forEach(function (c) { m["ct_" + (c.id != null ? c.id : c.name)] = c.favor || 0; });
+    /* 仇家仇恨值：与 chip 的 data-diff="wrath_<组>" 对齐，树敌那一手会被标红 */
+    const wr = (G.counters) || {};
+    for (const k in wr) if (k.indexOf("wrath_") === 0) m[k] = wr[k] || 0;
     return m;
   };
   P.flashStatusDiffs = function (prev) {

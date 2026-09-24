@@ -140,8 +140,8 @@ POTUS.define("event", [
         note: "选区会爱你，党不会。跨线不是一票，是小本子上单独开一页的那种记账。",
         base: 0.4, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
-          crit: { body: "你投出了决定性的跨线一票，当晚回选区的机场有人拉了横幅。领袖在记者面前说「党内容得下不同声音」——他手里的名单没这么宽容，但选区的电话排到了下周。", effects: { rep: 2, fac: { base: 12, establishment: -6 }, voters: { warm: 400, diehard: 150 } } },
-          ok: { body: "跨线投了，表决输了一个座位。选区的报纸给了你头版，党团的会议没给你好脸。", effects: { rep: 1.25, fac: { base: 8, establishment: -8 }, voters: { warm: 250 } } },
+          crit: { body: "你投出了决定性的跨线一票，当晚回选区的机场有人拉了横幅。领袖在记者面前说「党内容得下不同声音」——他手里的名单没这么宽容，但选区的电话排到了下周。", effects: { rep: 2, fac: { base: 12, establishment: -6 }, voters: { warm: 400, diehard: 150 }, count: { wrath_establishment: 12 } } },
+          ok: { body: "跨线投了，表决输了一个座位。选区的报纸给了你头版，党团的会议没给你好脸。", effects: { rep: 1.25, fac: { base: 8, establishment: -8 }, voters: { warm: 250 }, count: { wrath_establishment: 10 } } },
           meh: { body: "你的跨线票没能改变结果。两边各记了一笔：对面收下了，本党记住了。", effects: { rep: 0.4, fac: { base: 3, establishment: -5 } } },
           fail: { body: "跨线投票、表决还是通过了。你选区的受益没兑现，党的处分先到了：委员会分配你被调去了最闲的那个。", effects: { rep: -0.2, fac: { base: 2, establishment: -9 } } },
           critfail: { body: "你的跨线成了领袖口中的「叛党样本」，在党团会议上被点了名。基层的掌声传不到议会大厦，你的办公室被换到了地下室。", effects: { rep: -1.5, fac: { establishment: -14, base: 4 }, flags: ["party_traitor"] } }

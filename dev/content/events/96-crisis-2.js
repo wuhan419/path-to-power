@@ -140,8 +140,8 @@ POTUS.define("event", [
         base: 0.42, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "labor", w: 0.3 }],
         cost: { ap: 3, fav: 1 },
         outcomes: {
-          crit: { body: "你凑出来的方案让总部把关停推迟了四年，附加了保留一千二百个岗位的书面条款。签字那天你站在厂门口，身后的横幅是工会自己做的。", effects: { rep: 1.5, fac: { labor: 18, base: 12, commercial: 6, establishment: 6 }, voters: { diehard: 900, warm: 1500 }, flags: ["plant_defender"] } },
-          ok: { body: "厂没救成全部，但保住了仓储和物流那一块——四百个岗位。工会头目对你的评价是：「他真的去谈了。」这句话在那个圈子里值一个初选。", effects: { rep: 0.9, fac: { labor: 12, base: 7 }, voters: { diehard: 500, warm: 900 }, flags: ["plant_defender"] } },
+          crit: { body: "你凑出来的方案让总部把关停推迟了四年，附加了保留一千二百个岗位的书面条款。签字那天你站在厂门口，身后的横幅是工会自己做的。", effects: { rep: 1.5, fac: { labor: 18, base: 12, commercial: 6, establishment: 6 }, voters: { diehard: 900, warm: 1500 }, flags: ["plant_defender"], count: { wrath_money: 12 } } },
+          ok: { body: "厂没救成全部，但保住了仓储和物流那一块——四百个岗位。工会头目对你的评价是：「他真的去谈了。」这句话在那个圈子里值一个初选。", effects: { rep: 0.9, fac: { labor: 12, base: 7 }, voters: { diehard: 500, warm: 900 }, flags: ["plant_defender"], count: { wrath_money: 8 } } },
           meh: { body: "方案交上去了，总部的回函用了很多「认真研究」和「表示感谢」。你把这封回函读了两遍——每一遍都读出同一个意思。", effects: { rep: 0.3, fac: { labor: 6, base: 2 }, voters: { warm: 400 } } },
           fail: { body: "州里的配套资金没批下来，救厂方案在委员会里散了架。你在广播里解释了三次「过程」，听众只记住了「没成」。", effects: { rep: -0.6, fac: { labor: 4, base: -8, commercial: -4 }, voters: { oppose: 700 } } },
           critfail: { body: "你许诺的减税在州议会撕破了预算，其他选区的议员公开拿你当反面教材。厂照关，税照减，你的名字成了「打水漂」的代名词。", effects: { rep: -1.25, fac: { labor: -6, base: -12, establishment: -8, commercial: -6 }, voters: { oppose: 1500 }, flags: ["scandal_2"] } }

@@ -58,7 +58,7 @@
     const startYear = era.startYear || (P.G.year - ((P.G.age || 0) - (P.balance().startAge || 24)));
     let body = rule.body || "";
     if (typeof body === "function") body = body(P.G, P);
-    body = String(body).replace("{age}", P.G.age).replace("{tier}", P.G.tier).replace("{track}", track.name);
+    body = String(body).replace("{age}", P.G.age).replace("{tier}", P.G.tier).replace("{track}", track.name).replace("{late}", P.G.loanLate || 0);
     const bio = P.makeNews(P.t("ui.progression.careerFinal", "生涯终章：{title}", { title: rule.title }));
     P.G.history.push(bio);
     P.app().innerHTML =

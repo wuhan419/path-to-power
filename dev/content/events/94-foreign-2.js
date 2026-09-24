@@ -264,8 +264,8 @@ POTUS.define("event", [
         note: "人道的高地和媒体的版面都是真的；反对者的名单也是真的——他们会记得更久。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "church", w: 0.2 }],
         outcomes: {
-          crit: { body: "你那晚的话被两家报纸引用、一家电视台转播：「我们衡量一个社区，看它开门的方式。」三个月后，过渡住房的就业率全州第一——数字归了你的选区，故事归了你。", effects: { rep: 1.5, fac: { church: 10, base: 6, press: 8 }, voters: { warm: 1800, diehard: 400, oppose: 1200 } } },
-          ok: { body: "欢迎会办得体面，冬衣募到了，孩子们入了学。社区里支持你的人更坚定了，反对你的人开始组织。", effects: { rep: 1, fac: { church: 7, base: 4 }, voters: { warm: 1100, diehard: 250, oppose: 900 } } },
+          crit: { body: "你那晚的话被两家报纸引用、一家电视台转播：「我们衡量一个社区，看它开门的方式。」三个月后，过渡住房的就业率全州第一——数字归了你的选区，故事归了你。", effects: { rep: 1.5, fac: { church: 10, base: 6, press: 8 }, voters: { warm: 1800, diehard: 400, oppose: 1200 }, count: { wrath_opposition: 12 } } },
+          ok: { body: "欢迎会办得体面，冬衣募到了，孩子们入了学。社区里支持你的人更坚定了，反对你的人开始组织。", effects: { rep: 1, fac: { church: 7, base: 4 }, voters: { warm: 1100, diehard: 250, oppose: 900 }, count: { wrath_opposition: 8 } } },
           meh: { body: "你讲了话，鼓了掌，帮了忙。版面很小，人情很实。", effects: { rep: 0.6, fac: { church: 4 }, voters: { warm: 500, oppose: 400 } } },
           fail: { body: "两周后过渡住房出了治安小案——与本区居民无关的一桩——但留言板把它钉在了你的讲台上。", effects: { rep: -0.8, fac: { base: -5, church: 3, press: -3 }, voters: { warm: 300, diehard: 100, oppose: 1600 } } },
           critfail: { body: "你那句「我们欢迎他们」被对手剪进了广告，背景音乐配的是本区学校减班的旧闻。下一份民调里，「文化」成了你最弱的栏目。", effects: { rep: -1.5, fac: { base: -10, press: -5 }, voters: { warm: 200, diehard: 100, oppose: 3200 } } }

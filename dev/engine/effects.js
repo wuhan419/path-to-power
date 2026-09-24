@@ -21,11 +21,12 @@
     },
     /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
-       本金 = 选项 cost.fun + 投注的 stake 资金 —— 结算前由 render.js 写进
-       G.__stakeBase（applyEffects 按它计算）。没有本金声明时退化为按余额
-       （旧语义兼容，但内容侧不应该再这样用）。 */
+       本金 = 选项 cost.fun（或入场费 req.fun）+ 投注的 stake 资金 —— 结算前由 stage.js
+       resolveChoice 写进 G.__stakeBase。v0.12 收紧旧兜底：没有本金声明时【不再】
+       按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。 */
     funMul: function (v, G) {
-      const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : Math.max(0, G.fun);
+      const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : 0;
+      if (!base) { console.warn("[POTUS] funMul 没有本金声明（cost.fun / req.fun / 投注都为空），本笔收益空转"); return; }
       G.fun += Math.round(base * v);
     },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },

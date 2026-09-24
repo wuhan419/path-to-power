@@ -183,6 +183,9 @@
   /* 标签行里的溢出收敛与丑闻语义 */
   .tag-more{background:#e9dfc7;color:var(--muted);font-style:italic;border-style:dashed}
   .tag.scandal{background:#f3dede;color:var(--bad);border-color:#c49a9a;font-weight:700}
+  /* 仇家 chip：红底 + 名单感（谁记恨你、攒了多少） */
+  .qchip.wrath{background:#f6e2df;border-color:#c49a9a}
+  .qchip.wrath b{color:#9c2b2b}
   /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑） */
   .sb.tier-0,.idcard.tier-0,.saveline.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1,.saveline.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2,.saveline.tier-2{--tier:#3a4a63}
   .sb.tier-3,.idcard.tier-3,.saveline.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4,.saveline.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5,.saveline.tier-5{--tier:#caa53a}
@@ -328,12 +331,30 @@
   .odds-l3{color:#5a6b1f;background:#f0f2d9;border-color:#c0c98a}
   .odds-l4{color:#2f6b3a;background:#e9f3e8;border-color:#9fc7a0}
   .odds-l5{color:#1d5a24;background:#e0f0dd;border-color:#7fbf84}
+  /* 把握铺底：整个选项栏底色按六档色阶从左侧色条渐入（左浓右淡），
+     不选它也能一眼扫出这局的风险分布。色条 + 同色描边取代默认边框。 */
+  .choice.odds-bg{border-color:color-mix(in srgb, currentColor 18%, #d8cfb8);background-clip:border-box;
+    background-image:linear-gradient(90deg, rgba(var(--odds-rgb), .30) 0, rgba(var(--odds-rgb), .08) 55%, rgba(var(--odds-rgb), .02) 100%),
+                     linear-gradient(90deg, currentColor 0, currentColor 100%);
+    background-size:100% 100%, 4px 100%;background-position:0 0, 0 0;background-repeat:no-repeat}
+  .choice.odds-bg:hover:not(:disabled){background-image:linear-gradient(90deg, rgba(var(--odds-rgb), .40) 0, rgba(var(--odds-rgb), .14) 55%, rgba(var(--odds-rgb), .04) 100%),
+                     linear-gradient(90deg, currentColor 0, currentColor 100%)}
+  .choice.odds-bg:disabled{opacity:.6}
+  .choice.odds-bg .odds{background:rgba(255,255,255,.62)}
+  .choice.odds-bg.odds-l0{color:#8a1f1f;--odds-rgb:168,40,36}
+  .choice.odds-bg.odds-l1{color:#9c4a1f;--odds-rgb:190,100,45}
+  .choice.odds-bg.odds-l2{color:#7a5a00;--odds-rgb:196,164,60}
+  .choice.odds-bg.odds-l3{color:#4a6b12;--odds-rgb:140,175,70}
+  .choice.odds-bg.odds-l4{color:#2f6b3a;--odds-rgb:90,165,105}
+  .choice.odds-bg.odds-l5{color:#1d5a24;--odds-rgb:60,150,80}
   .choice:disabled .odds{opacity:.5}
   /* 选项回报区间预览（掷骰前）：代价之下再给一行“这条路能捞到什么”的摆动幅度 */
 .choice .rewline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px}
 .choice .rewline .gtag{font-size:11px;letter-spacing:2px;color:var(--muted)}
 .choice .rewline .gchip2{font-size:12px;padding:1px 8px}
 .choice .rew-risk{font-size:11px;color:#9c2b2b;background:#f8eeee;border:1px solid #c49a9a;
+    border-radius:9px;padding:1px 8px;font-weight:600}
+.choice .rew-feud{font-size:11px;color:#7a4a12;background:#f6efdf;border:1px solid #d8bf8f;
     border-radius:9px;padding:1px 8px;font-weight:600}
 .choice .gchip2.rew-more{color:var(--muted);font-weight:400;background:#f2efe6}
   /* 事件三值性徽标：机遇（绿）/ 风险（橙）/ 威胁（红） */
@@ -580,6 +601,8 @@
   .gchip2.good{color:#2f6b3a;border-color:#8fae94;background:#eef5ee}
   .gchip2.bad{color:#9c2b2b;border-color:#c49a9a;background:#f8eeee}
   .gchip2.gflag{color:#5a4a6b;border-color:#a99aba;background:#f2eef6;font-weight:400}
+  /* 「仅大成功」角标：这条效果只在某一个结果档出现（v0.12） */
+  .gchip2 .gnote{font-style:normal;font-weight:400;font-size:10.5px;opacity:.72;margin-left:4px;letter-spacing:0}
   /* 年终随笔：三段人话，衬线、首行缩进、上边一道双线 */
   .ytales{border-top:1px double var(--line);border-bottom:1px double var(--line);
     margin:10px 0;padding:10px 2px;background:transparent}
@@ -598,7 +621,7 @@
   details.check[open] .check-line{margin-top:5px}
 
   /* ==========================================================================
-     v0.9 · 报刊档案风（对齐 mockup-event-v3-archive.html）
+     v0.9 · 报刊档案风（原型 mockup-event-v3-archive.html 已归档删除）
      顶栏 kicker 条 / 身份头像 / 事件卡 = 头版社论（大标题 + 斜体导语 + 头版图）
      ======================================================================== */
   /* 顶栏 kicker 条：时代 · 年份 · 第几个年头（仅对局中存在 G 时由 shell.js 注入）。

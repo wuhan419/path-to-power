@@ -46,6 +46,8 @@ POTUS.define("l10n", {
     "ui.leftbar.scandalTip": "Scandal level: the higher it is, the easier you are attacked and the harder it is to bury.",
     "ui.leftbar.row.attrs": "Ability",
     "ui.leftbar.row.tags": "Tags",
+    "ui.leftbar.row.wrath": "Enemies",
+    "ui.leftbar.wrathTip": "Wrath: {v}. This debt never expires — once it piles up, they come for you.",
     "ui.leftbar.row.factions": "Factions",
     "ui.leftbar.row.contacts": "Contacts"
   }

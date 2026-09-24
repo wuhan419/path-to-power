@@ -623,15 +623,20 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   const funMaxRich = P.stakeMax("fun", funCh);
   console.log("  资金：每档 +4%、上限 +30% → 最多 " + funMaxRich + " 档");
   check(Math.abs(funMaxRich * 0.04 - 0.30) < 0.05, "资金满档应能吃到接近 +30% 的上限，实际 +" + (funMaxRich * 0.04 * 100).toFixed(0) + "%");
-  check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= funMaxRich * per, "资金扣款不该超过上限允许的档数");
+  check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= P.G.fun, "资金扣款不得超过现有资金");
 
-  /* 余额是第二道闸：钱只够 5 档时就该被夹到 5 档 */
+  /* v0.12 资金闸：单档 ≤ 资金×6%×量级系数 → 满档 8 档最多吃掉四成多资产；
+     余额夹档仍在（stakeMax 用 floor(fun/per)），只是闸由钱包决定、价码自己随行就市 */
   P.G.fun = per * 5;
-  check(P.stakeMax("fun", funCh) === 5, "钱只够 5 档时应被余额夹到 5，实际 " + P.stakeMax("fun", funCh));
-  check(P.stakeInfo(funCh, { fun: 5 }).cost.fun === per * 5, "扣款应等于档数×汇率");
+  {
+    const p2 = P.stakeSpec(funCh).fun.per;         // 价码跟着新家底重算
+    const max2 = P.stakeMax("fun", funCh);
+    check(max2 * p2 <= P.G.fun, "钱只够几档就该被夹在几档内（" + max2 + " 档 × " + P.fmtUsd(p2) + " > " + P.fmtUsd(P.G.fun) + "）");
+    check(P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun === max2 * p2, "扣款应等于档数×汇率，实际 " + P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun);
+  }
 
   /* 一档都投不起 → 上限必须是 0（界面据此把 ＋ 置灰并说明原因，而不是"点了没反应"） */
-  P.G.fun = per - 1; P.G.fav = 0;
+  P.G.fun = 300; P.G.fav = 0;                     // 低于 perMin：几何均也被抹到 $500 下限
   const favCh = { id: "__fav", text: "t", base: 0.4, stake: { fav: true }, outcomes: {} };
   check(P.stakeMax("fun", funCh) === 0, "钱不够一档时资金上限应为 0（正是『资金＋点了没用』的成因）");
   check(P.stakeMax("fav", favCh) === 0, "没人情时人情上限应为 0");
@@ -648,12 +653,12 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(P.stakeMax("fav", favCh) === 1 || P.G.fav === 0, "有人情时人情应可投 1 点");
 }
 
-/* ---------- 动态投注汇率（v0.7） ----------
+/* ---------- 动态投注汇率（v0.7 两锚；v0.12 加资金闸） ----------
  * 用户实测反馈的 bug：过去每档固定 $250k，于是
  *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏形同虚设；
  *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码与事情的钱量级脱钩。
- * 现在 per = min(√(身位锚 × 事件锚), 事件锚)，身位锚 = 职位月薪 × 3 × gradeMul，
- * 事件锚 = 事件钱量级 × 0.25（同时是总投入硬顶：8 档 ≤ 2× 事件钱量级）。 */
+ * v0.12 再修：③ 投入金额和掌握的资金成正比（否则前期没资格、后期太鸡肋）。
+ * 现在 per = min(∛(身位锚 × 事件锚 × 资金闸), 资金闸)，资金闸 = 现有资金 × 6% × gradeMul。 */
 console.log("\n== 动态投注汇率（身位 × 事件金额）==");
 {
   P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "汇率测试" };
@@ -682,17 +687,29 @@ console.log("\n== 动态投注汇率（身位 × 事件金额）==");
   check(P.stakePot(nomoneyCh) === 0 && P.stakePot(smallCh) === 400000, "stakePot 应认出选项的钱量级");
   check(P.stakePot(CL({ fun: 30000 }, { ok: { effects: { funMul: 2 } } })) === 60000, "funMul 应折算回美元（$30k × 2.0 = $60k）");
 
-  /* ③ 硬顶：8 档总投入 ≤ 2 × 事件钱量级 —— 杜绝"花 $250k 搏 $50k" */
-  let worstRatio = 0;
+  /* ③ v0.12 资金闸：单档 ≤ 资金×6%×量级系数（满档 8 档 ≤ 近半家底）；
+        旧"8 档 ≤ 2× 事件钱量级"随事件锚硬顶一起退役——富豪为大生意出大钱是设计目标 */
+  let worstPer = 0, worstHalf = 0;
   for (const c of [tinyCh, smallCh, CL({ fun: 2000000 })]) {
     for (const t of [0, 3, P.balance().tierMax]) {
-      P.G.tier = t; P.G.track = "wealth";
-      const pot = P.stakePot(c), per = P.stakeFunPer(c).per;
-      worstRatio = Math.max(worstRatio, per * 8 / pot);
+      for (const cash of [20000, 200000, 5000000]) {
+        P.G.tier = t; P.G.track = "wealth"; P.G.fun = cash;
+        const sp = P.stakeFunPer(c);
+        const gmul = (P.balance().stakeRates.fun.gradeMul || {})[P.G.__curGrade || "mid"];
+        worstPer = Math.max(worstPer, sp.per / (cash * 0.06 * (gmul == null ? 1 : gmul)));
+        worstHalf = Math.max(worstHalf, sp.per * 8 / cash);
+      }
     }
   }
-  console.log("  8 档总投入 ÷ 事件钱量级 的最坏比值：" + worstRatio.toFixed(2) + "×");
-  check(worstRatio <= 2 + 1e-9, "8 档总投入永远不得超过事件钱量级的 2 倍，实际 " + worstRatio.toFixed(2) + "×");
+  console.log("  单档 ÷ 资金闸 的最坏比值：" + worstPer.toFixed(2) + "× ｜ 8 档总投入 ÷ 家底 最坏 " + (worstHalf * 100).toFixed(0) + "%");
+  check(worstPer <= 1.1, "单档不得超过资金闸（6%×量级系数），实际 " + worstPer.toFixed(2) + "×");
+  check(worstHalf <= 0.6, "满档总投入不得超过六成家底，实际 " + (worstHalf * 100).toFixed(0) + "%");
+
+  /* ③b 钱包成正比（用户报的核心诉求）：同一事件，富人单档必须比穷人贵 */
+  P.G.tier = 3; P.G.track = "wealth";
+  P.G.fun = 20000; const poorPer = P.stakeFunPer(smallCh).per;
+  P.G.fun = 2000000; const richPer = P.stakeFunPer(smallCh).per;
+  check(richPer > poorPer * 3, "同一事件：大款单档价码应显著高于小兵（投入与掌握的资金成正比），" + P.fmtUsd(poorPer) + " → " + P.fmtUsd(richPer));
 
   /* ④ 用户报的核心 bug 已修：小兵也投得起第一档 */
   P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;    // 开局家底
@@ -833,6 +850,8 @@ const _argN = (name, dflt) => {
 };
 const GAMES = Math.max(1, Math.round(_argN("games", 20)));   /* 默认 20 局快速校验；300 局 A/B 用 --games=300 显式开 */
 const SEED = Math.round(_argN("seed", 20260921));
+/* --diff=normal|hard|brutal|... 锁定难度跑生涯模拟（学贷断供校准用）；缺省 normal */
+const SIM_DIFF = (process.argv.find(a => a.indexOf("--diff=") === 0) || "").split("=")[1] || "normal";
 const K = (o) => Object.keys(o);
 const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
   entries = K(P.reg.entry), parties = K(P.reg.party), stances = K(P.reg.stance);
@@ -865,10 +884,18 @@ let streakBadGames = 0, fallenGames = 0, endFun = 0, baneNetSum = 0, baneNetN = 
    上面「时代专属占比」按 ev.era 判、把这批 scoped/绝对年的真事件漏计了）。 */
 const demo = { draws: 0, cat: {}, grade: { major: 0, mid: 0, minor: 0 }, val: { boon: 0, risk: 0, bane: 0 }, fixed: 0, slotStats: [] };
 let monthRepeat = 0;                              // 同一自然月内同卡重演次数（回归检测，应为 0）
+/* 单卡终身衰减（idRepeatMul）的效果面板：每张真实卡相邻两次被抽的间隔（月）。
+   衰减做没做对，看两个数就够：间隔 <12 个月的重演占比、单局同卡最多抽几次。 */
+let repGaps = [], repWorst = { id: null, n: 0 };
+/* 学贷断供面板（--diff 校准用）：每局最长连续逾期、破产局数/次数 */
+let loanLateAll = [], loanBankruptGames = 0, loanBankruptEvents = 0;
 for (let r = 0; r < games; r++) {
-  let runCur = 0, runWorst = 0, demoTier = null;
+  let runCur = 0, runWorst = 0, demoTier = null, hardEnded = false;
+  const idSeq = {};                                // 本局每张真实卡被抽中的 monthSeq 序列
+  /* 学贷断供观测（难度校准）：本局最长连续逾期月数 + 是否因此破产 */
+  let maxLate = 0, thisBankrupt = 0;
   try {
-    P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r };
+    P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r, difficulty: SIM_DIFF };
     P.confirmCreate();
     const G = P.G, b = P.balance();
     let done = false;
@@ -883,6 +910,14 @@ for (let r = 0; r < games; r++) {
         const r = P.advanceMonth();
         if (!r) break;
         yearMonths++;
+        maxLate = Math.max(maxLate, G.loanLate || 0);
+        /* 账本型 BE（学贷断供在月度结算里挂 pendingHardEnd）：与 stage.js nextMonth 同口径收口 */
+        if (G.pendingHardEnd) {
+          const rule = P.evaluateEnding(G.pendingHardEnd);
+          if (G.pendingHardEnd === "bankrupt") { thisBankrupt++; loanBankruptEvents++; }
+          endings[rule.id] = (endings[rule.id] || 0) + 1;
+          hardEnded = true; G.pendingHardEnd = null; done = true; break;
+        }
         if (r !== "event") continue;          /* 平静月：成长已在 settleQuietMonth 结掉 */
         months++;
         const _mset = new Set();                 // 本月已出现的真实卡 id —— 侦测「同月重复」回归
@@ -892,6 +927,12 @@ for (let r = 0; r < games; r++) {
           if (!ev || !ev.choices || !ev.choices.length) throw new Error("drawEvent 返回空事件");
           draws++; yearSlots++;
           if (!ev.filler) { if (_mset.has(ev.id)) monthRepeat++; else _mset.add(ev.id); }
+          {                                          // 同卡重演间隔（idRepeatMul 效果面板）
+            const seq = (idSeq[ev.id] || (idSeq[ev.id] = []));
+            if (seq.length) repGaps.push(P.monthSeq() - seq[seq.length - 1]);
+            seq.push(P.monthSeq());
+            if (seq.length > repWorst.n) repWorst = { id: ev.id, n: seq.length };
+          }
           gradeHit[P.gradeOf(ev)] = (gradeHit[P.gradeOf(ev)] || 0) + 1;
           if (ev.filler) fillers++;
           catHit[ev.category || "—"] = (catHit[ev.category || "—"] || 0) + 1;
@@ -954,6 +995,11 @@ for (let r = 0; r < games; r++) {
             if (net <= -0.25) { runCur++; if (runCur > runWorst) runWorst = runCur; } else runCur = 0;
           }
           P.applyEffects(out.effects);
+          if (G.pendingHardEnd) {
+            const rule = P.evaluateEnding(G.pendingHardEnd);
+            endings[rule.id] = (endings[rule.id] || 0) + 1;
+            hardEnded = true; G.pendingHardEnd = null; done = true;
+          }
           if (G.hp <= 0) done = true;
         }
       }
@@ -977,7 +1023,7 @@ for (let r = 0; r < games; r++) {
       if (G.hp <= 0) { const rule = P.evaluateEnding("death_health"); endings[rule.id] = (endings[rule.id] || 0) + 1; done = true; }
     }
     games_++;
-    if (P.G.hp > 0) { const rule = P.evaluateEnding("retire"); endings[rule.id] = (endings[rule.id] || 0) + 1; }
+    if (P.G.hp > 0 && !hardEnded) { const rule = P.evaluateEnding("retire"); endings[rule.id] = (endings[rule.id] || 0) + 1; }
     tiers["T" + P.G.tier] = (tiers["T" + P.G.tier] || 0) + 1;
     if (demoTier == null) demoTier = P.G.tier;          // 8 年内就出局（死亡）→ 用终局层级
     demoTiers["T" + demoTier] = (demoTiers["T" + demoTier] || 0) + 1;
@@ -985,6 +1031,8 @@ for (let r = 0; r < games; r++) {
     if (runWorst >= 4) streakBadGames++;
     if ((P.G.fallenCount || 0) > 0) fallenGames++;
     endFun += P.G.fun || 0;
+    loanLateAll.push(maxLate);
+    if (thisBankrupt) loanBankruptGames++;
   } catch (e) { errs.push(e.message); if (errs.length > 5) break; }
 }
 const avgSlots = slotsPerYear.reduce((a, b) => a + b, 0) / Math.max(1, slotsPerYear.length);
@@ -1003,6 +1051,8 @@ return {
   endFunAvg: games_ ? endFun / games_ : 0,
   baneNetAvg: baneNetN ? baneNetSum / baneNetN : 0,
   monthRepeat: monthRepeat,
+  repGaps: repGaps, repWorst: repWorst,
+  loanLateAll: loanLateAll, loanBankruptGames: loanBankruptGames, loanBankruptEvents: loanBankruptEvents,
   demo: demo
 };
 }
@@ -1076,10 +1126,25 @@ console.log("  运行时错误: " + (errs.length ? errs.slice(0, 5).join(" | ") 
 console.log("  层级分布【8年demo快照】: " + JSON.stringify(sim.demoTiers) + "   ← 玩家真实视角：多数应到市议员、少数摸联邦众、总统仅异数");
 console.log("  层级分布【生涯终局55年】: " + JSON.stringify(tiers) + "   ← 跑满 lifespan，含破格火箭线");
 console.log("  结局分布: " + JSON.stringify(endings));
+{   /* 学贷断供面板：普通人格（随机选项）下连续逾期的分布与破产率 —— lateLimit 校准的读数 */
+  const ll = (sim.loanLateAll || []).slice().sort((a, b) => a - b);
+  const q = (p) => ll.length ? ll[Math.min(ll.length - 1, Math.floor(ll.length * p))] : 0;
+  const lim = (P.balance().studentLoan || {}).lateLimit || {};
+  console.log("  学贷断供【" + SIM_DIFF + "·每局最长连续逾期】: 中位 " + q(0.5) + " ｜ p90 " + q(0.9) + " ｜ 峰值 " + (ll[ll.length - 1] || 0) +
+    " ｜ 信用破产 " + sim.loanBankruptGames + "/" + games + " 局（共 " + sim.loanBankruptEvents + " 次） ｜ 现行阈值 " + JSON.stringify(lim));
+}
 console.log("  每年档期 平均 " + avgSlots.toFixed(1) + " 个 ｜ 每年有事发生的月数分布 " + JSON.stringify(monthHist));
 console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + " 个 ｜ 量级 " + JSON.stringify(gradeHit) +
   " ｜ 填充 " + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%" +
   " ｜ 月份降级 " + (dateDrift / Math.max(1, draws) * 100).toFixed(1) + "%");
+{   /* 同卡重演间隔面板：idRepeatMul（单卡终身衰减）的读数。
+     衰减没生效 → <12 个月的重演会明显占比；衰减过猛 → 老卡全躺尸、填充率飙升。 */
+  const g = (sim.repGaps || []).slice().sort((a, b) => a - b);
+  const qq = (p) => g.length ? g[Math.min(g.length - 1, Math.floor(g.length * p))] : 0;
+  const lt12 = g.filter(x => x < 12).length;
+  console.log("  同卡重演【间隔/月】: 共 " + g.length + " 次（" + (g.length / Math.max(1, games)).toFixed(1) + " 次/局） ｜ 中位 " + qq(0.5) +
+    " ｜ <12 个月 " + (g.length ? (lt12 / g.length * 100).toFixed(1) : "0") + "% ｜ 单局同卡最多 " + sim.repWorst.n + " 次（" + sim.repWorst.id + "）");
+}
 console.log("  类型分布: " + JSON.stringify(catHit));
 console.log("  投注观测：押过钱的判定 " + (stakeEvents / Math.max(1, draws) * 100).toFixed(1) + "% 次" +
   "（平均 " + (stakeFunTiers / Math.max(1, stakeEvents)).toFixed(2) + " 档）" +
@@ -1333,8 +1398,11 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     for (let i = 0; i < 2000; i++) {
       P.recentIds = [];
       /* 本测试测的是「续集权重」，不是「去重」：每次抽取都当作一个全新的月份，
-         否则同月去重硬闸（_monthSeen）会把已抽中的续集在本月内永久排除，胜率失真。 */
+         否则同月去重硬闸（_monthSeen）会把已抽中的续集在本月内永久排除，胜率失真。
+         单卡硬冷却（idRepelMonths）同理会拦两张合成卡 —— 也逐次抹掉：
+         两候选同等抹除，比值口径不变。 */
       P._monthSeen = []; P._monthKey = null;
+      delete P.G.doneSeq.__chain_plain; delete P.G.doneSeq.__chain_next;
       const picked = P.drawEvent({ grade: "mid" });
       if (picked.id === "__chain_next") next++; else if (picked.id === "__chain_plain") plain++;
     }
@@ -1343,6 +1411,72 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     console.log("  续集加权：抽取 " + (next + plain) + " 次里续集占 " + (rate * 100).toFixed(1) +
       "%（权重倍数 " + b.chainWeightMul + " → 理论 " + (want * 100).toFixed(1) + "%）");
     check(Math.abs(rate - want) < 0.08, "已解锁的续集应被 chainWeightMul 明显加权（实测 " + (rate * 100).toFixed(1) + "% vs 理论 " + (want * 100).toFixed(1) + "%）");
+  }
+
+  /* --- 单卡终身衰减（idRepeatMul）：演过一次的事，再找上你的概率要显著下降 ---
+   * 用户反馈「记者采访/出书/保释反复出现，不现实」。类别级 repeatBias 管不了单卡，
+   * 这里钉死三件事：没演过=不衰减；演过=恰好乘 idRepeatMul；debuff 续燃（rereq 满足）=豁免。 */
+  check(b.idRepeatMul != null && b.idRepeatMul > 0 && b.idRepeatMul < 1,
+    "balance.idRepeatMul 应在 (0,1)（默认 0.15；1=关闭衰减）");
+  {
+    P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {};
+    const plainEv = P.events.find(function (e) { return e.id === "__chain_plain"; });
+    check(P.idRepeatFactor(plainEv) === 1, "没演过的卡不该衰减（因子应为 1）");
+    P.stamp("__chain_plain");
+    check(Math.abs(P.idRepeatFactor(plainEv) - b.idRepeatMul) < 1e-9,
+      "演过一次后衰减因子应恰为 idRepeatMul，实际 " + P.idRepeatFactor(plainEv));
+    const uniqEv = P.events.find(function (e) { return e.id === "archive_get"; });
+    P.stamp(uniqEv.id);
+    check(P.idRepeatFactor(uniqEv) === 0, "unique 卡演过后因子应为 0（虽然 eligible 已经拦了，防御性双保险）");
+
+    /* debuff 续燃示范：sca2_family_member 靠 rereq 豁免衰减 */
+    const rrEv = P.events.find(function (e) { return e.id === "sca2_family_member"; });
+    check(!!rrEv && !!rrEv.rereq, "sca2_family_member 应声明 rereq（麻烦的家人：捞过一次人就会被再次捞）");
+    P.G.era = "__T";
+    P.stamp("sca2_family_member");
+    check(Math.abs(P.idRepeatFactor(rrEv) - b.idRepeatMul) < 1e-9, "rereq 未满足时，该卡照样吃衰减");
+    P.addFlag("sca2_family_hidden");
+    check(P.idRepeatFactor(rrEv) === 1, "rereq 满足（debuff 在手）时应豁免衰减");
+    P.G.flags = [];
+  }
+
+  /* --- 职级绑定：小人物没人出书、没人爆料；保释这类事也有层级上限 --- */
+  {
+    const tierOf = function (id) { return P.events.find(function (e) { return e.id === id; }); };
+    const enemy = tierOf("med2_press_enemy");
+    check(enemy && enemy.tierMin >= 3, "对等头的报纸爆料不该找上 tier<3 的小人物（med2_press_enemy.tierMin）");
+    const columnist = tierOf("press_columnist");
+    check(columnist && columnist.tierMin >= 1, "专栏编辑在饭局上不理 tier0 无名者（press_columnist.tierMin）");
+    const fam = tierOf("sca2_family_member");
+    check(fam && fam.tierMax != null && fam.tierMax <= 4, "家人惹祸是大人物之下的事（sca2_family_member.tierMax≤4）");
+  }
+
+  /* --- 硬冷却的作用域（v0.12）：只管随机卡池的单发，重复性系统一律不吃 ---
+   * 用户红线：降频别误伤「本来就会发生多次」的竞选幕 / 公务 / 晋升重试。
+   * 三道结构性保证，逐条钉死：
+   *   1) 竞选幕与时代脚本走 slot.eventId 定点档期 —— drawEvent 直接 return，根本不进 eligible；
+   *   2) 日常公务走 time.js 的 choreEligible 独立通道 —— 不经过这里的冷却闸；
+   *   3) prog_* 晋升卡在 eligible 里显式豁免 —— 失败后每年重试是设计。 */
+  {
+    P.G.era = "__T"; P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
+    P.G.tierSince = P.monthSeq();                   // prog_repel 挂了 minTenure:0，把在位计时摆正
+    P.define("event", [
+      { id: "__repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "general", title: "t", body: "t" },
+      { id: "prog_repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "career", minTenure: 0, title: "t", body: "t" }
+    ]);
+    const rc = P.evById("__repel"), pc = P.evById("prog_repel");
+    const _ym = P.G.year * 12 + P.G.month;               // monthSeq 快照，测完好戻
+    check(P.eligible(rc, true), "没演过的卡当然可抽");
+    P.stamp("__repel"); P.stamp("prog_repel");
+    check(!P.eligible(rc, true), "普通单发卡演过后，硬冷却窗口内连 pass3（ignoreRecent）都不该放行");
+    check(P.eligible(pc, true), "prog_* 晋升卡演过就该立刻可重试 —— 冷却闸不许碰晋升脊柱");
+    const forced = P.drawEvent({ eventId: "__repel", grade: "minor" });
+    check(forced && forced.id === "__repel", "定点档期（竞选幕/时代脚本/公务）冷却中照样必出 —— 它不经 eligible");
+    P.G.month += 24;                                     // 熬过 24 个月窗口
+    check(P.eligible(rc, true), "冷却到期后该卡应重回卡池");
+    P.G.year = Math.floor(_ym / 12); P.G.month = _ym % 12;  // 还原月份（后面的测试也算 monthSeq）
+    /* 公务通道自查：chore 卡演过后 choreEligible 不该拦（冷却闸不许注入通道误伤） */
+    P.G.doneSeq = {};
   }
 
   /* --- 在位时长（minTenure）：晋升要熬够月份 --- */
@@ -1895,6 +2029,49 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   P.G.pendingHardEnd = null;
   P.applyEffects({ hardEnd: "disgrace" });
   check(P.G.pendingHardEnd === "disgrace", "hardEnd 应写入 pendingHardEnd");
+  /* --- v0.12 仇家链路：count(wrath_*) 攒恨 → countMin 门槛 →（清算事件）hardEnd ---
+   * 仇恨直接做成 counters（G.counters["wrath_<组>"]）：复用现成的 count 效果键与
+   * countMin/countMax/countEq 条件词汇，引擎零新增判定代码。这里把这条链焊死：
+   * 任何一环被改坏（比如给 count 加了上限、或 snap 漏了 counters），清算内容会静默失效。 */
+  const _svCounters = P.G.counters;
+  P.G.counters = {};
+  P.applyEffects({ count: { wrath_press: 7 } });
+  P.applyEffects({ count: { wrath_press: 5 } });
+  check(P.G.counters.wrath_press === 12, "仇恨 counter 应累加（7+5，实际 " + P.G.counters.wrath_press + "）");
+  P.applyEffects({ count: { wrath_press: -99 } });
+  check(P.G.counters.wrath_press === 0, "仇恨下限 0（安抚可以削恨，不能削成负数）");
+  P.applyEffects({ count: { wrath_press: 10 } });
+  check(P.when({ countMin: { wrath_press: 10 } }) === true, "攒够仇恨后 countMin 门槛应放行");
+  check(P.when({ countMin: { wrath_press: 11 } }) === false, "差一点时 countMin 不应放行");
+  /* 内容侧用到的每个 wrath_ 组都必须登记在 reg.wrath（chip 名字/悬停说明的来源） */
+  const wrathUsed = {};
+  [JSON.stringify(P.events), JSON.stringify(P.reg.ending)].forEach(function (blob) {
+    const re = /"wrath_([A-Za-z][A-Za-z0-9_]*)"/g; let mm;
+    while ((mm = re.exec(blob))) wrathUsed[mm[1]] = 1;
+  });
+  Object.keys(wrathUsed).forEach(function (g) {
+    check(!!(P.reg.wrath || {})[g], "事件/结局用到未登记的仇家群体 wrath_" + g + "（应写进 01-config.js 的 wrath 表）");
+  });
+  /* --- v0.12 清算 BE 收口：内容里每个 hardEnd 理由都必须落到一条真结局规则 ---
+   * 理由拼错（或忘了加 when:{reason:...} 规则）不会报错——玩家会掉进 default「中场」，
+   * 黑色幽默成就静默丢失。这里把 hardEnd→ending 的映射扫死。 */
+  const hardReasons = {};
+  (function scan(v) {
+    if (!v || typeof v !== "object") return;
+    if (Array.isArray(v)) { v.forEach(scan); return; }
+    for (const k in v) {
+      if (k === "hardEnd" && typeof v[k] === "string") hardReasons[v[k]] = 1;
+      else scan(v[k]);
+    }
+  })(P.events.map(function (e) { return { choices: (e.choices || []).map(function (c) { return { outcomes: c.outcomes, cost: c.cost }; }) }; }));
+  Object.keys(hardReasons).forEach(function (r) {
+    const hit = P.reg.ending.some(function (rule) { return rule.when && rule.when.reason === r; });
+    check(hit, "hardEnd 理由「" + r + "」没有对应的结局规则（应在 40-endings.js 注册 when:{reason:...}）");
+  });
+  /* 引擎侧 BE（学贷断供在 core.js loanStep 里挂 hardEnd，不经内容）同样必须有落点 */
+  check(P.reg.ending.some(function (rule) { return rule.when && rule.when.reason === "bankrupt"; }),
+    "引擎断供 BE 理由「bankrupt」没有对应的结局规则（40-endings.js）");
+  P.G.counters = _svCounters;
   /* 结局规则：disgrace / 东山再起 / 从谷底收场 都已注册 */
   check(P.reg.ending.some(function (r) { return r.id === "disgrace"; }), "结局规则应注册 disgrace（身败名裂）");
   check(P.reg.ending.some(function (r) { return r.id === "retire_comeback"; }), "结局规则应注册 retire_comeback（东山再起）");
@@ -2148,6 +2325,22 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
       });
     });
     check(!badMul.length, "funMul 超出 [-1,+3] 合理区间：" + badMul.join("、"));
+    /* v0.12 本金声明闸：funMul 必须有本金可乘（cost.fun 或入场费 req.fun）。
+       旧语义"没本金按总余额乘"已被引擎废除（家底 $1M 点一下变 $2.2M 的漏洞），
+       漏写的卡片现在结算时空转——这里在内容期就把它揪出来。 */
+    const noPrincipal = [];
+    P.events.forEach(function (ev) {
+      const rv = ev.dyn ? P.realize(ev) : ev;
+      (rv.choices || []).forEach(function (ch) {
+        const hasMul = ["crit", "ok", "meh", "fail", "critfail"].some(function (t) {
+          return (((ch.outcomes || {})[t] || {}).effects || {}).funMul != null;
+        });
+        if (!hasMul) return;
+        const principal = Math.abs((ch.cost && ch.cost.fun) || 0) || Math.abs((ch.req && ch.req.fun) || 0);
+        if (!principal) noPrincipal.push(ev.id + "/" + ch.id);
+      });
+    });
+    check(!noPrincipal.length, "funMul 选项没有任何本金声明（cost.fun / req.fun 都没有）：" + noPrincipal.join("、"));
     const mulCount = P.events.reduce(function (a, ev) {
       return a + (ev.choices || []).reduce(function (b, ch) {
         return b + ["crit", "ok", "meh", "fail", "critfail"].filter(function (t) {
