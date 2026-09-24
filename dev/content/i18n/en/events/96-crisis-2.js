@@ -22,7 +22,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_flood",
-        title: "The Day the River Crossed the Rail Culvert",
+        title: "The day the river crossed the rail culvert",
         body: "At three in the morning the river swallowed the old rail culvert. Three low blocks of your district are underwater; the church steeple is now the command post.\n" +
           "You stand on dry ground with three roads ahead of you: into the water, into the office, in front of the camera.",
         brief: {
@@ -110,7 +110,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_plant_closure",
-        title: "The Big Employer's Notice Fits on One Page",
+        title: "The big employer's notice fits on one page",
         body: "This morning the district's biggest plant taped a notice to the gate: closing in eighteen months, 2,300 jobs.\n" +
           "The union chair phoned your office by noon: \"We need to know whose side you are on.\"\n" +
           "Headquarters is a thousand miles away, and no chair in that boardroom is yours — but your district will watch how you move those chairs.",
@@ -175,7 +175,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_plant_after",
-        title: "A Year After the Closure, District Unemployment Doubles — Front Page",
+        title: "A year after the closure, district unemployment doubles — front page",
         body: "The state labor department's quarterly numbers landed, and the local paper put them on page one: district unemployment at 11 percent, double the pre-closure rate.\n" +
           "Beside the figures sit your own words from these eighteen months — sentence by sentence, like a bank statement.",
         brief: {
@@ -239,7 +239,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_epidemic",
-        title: "The County Hospital Turned Its Hallways Into Isolation Wards",
+        title: "The county hospital turned its hallways into isolation wards",
         body: "It crossed over from the next county; now it is yours. The hospital lined its halls with quarantine beds, and half the school-closure notices are already printed.\n" +
           "Clinics post queue rules at the door; pharmacy shelves strip bare by afternoon. Everyone is waiting for someone to speak — and, out of habit, looks toward City Hall. Even the lowest office in it.",
         brief: {
@@ -315,7 +315,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_grid_failure",
-        title: "Four Minutes After the Whole City Went Dark",
+        title: "Four minutes after the whole city went dark",
         body: "Rush hour, and the city goes black. Traffic lights die, elevators stop, the water plant's backup pumps fail to switch over.\n" +
           "The utility's phone lines are jammed; emergency management waits on you: when will it be fixed, who pays, whose fault is it?\n" +
           "Three questions — get any one wrong and it is a political wreck. And all three are due tonight.",
@@ -392,7 +392,7 @@ POTUS.define("l10n", {
        * ------------------------------------------------------------------ */
       {
         id: "cri2_bank_run",
-        title: "By Friday Dawn the Line at the Bank Had Begun",
+        title: "By Friday dawn the line at the bank had begun",
         body: "First the business-page rumors, then the parking-lot whispers. At seven Friday morning, two hundred people stand outside the district's bank.\n" +
           "The cash behind the counters will not last past noon. Panic needs no proof — only a starting point, and one morning when nobody in charge shows up.",
         brief: {
