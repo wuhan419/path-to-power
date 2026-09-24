@@ -19,7 +19,7 @@ POTUS.define("l10n", {
       /* ================= 基层 T0–2 ================= */
       {
         id: "chore_eulogy",
-        title: "An Old Neighbor Dies and His Family Asks You to Speak",
+        title: "An old neighbor dies and his family asks you to speak",
         body: "The funeral home in {CITY} is packed with the faces you shook on election night. The family tells you that as the town's public servant you should say a few words. You have no script.",
         brief: {
           lede: "An old neighbor dies; the family wants the public servant in you to say a word.",
@@ -57,7 +57,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_ribbon",
-        title: "A Community-Center Ribbon-Cutting Is Short One Pair of Hands",
+        title: "A community-center ribbon-cutting is short one pair of hands",
         body: "At {PLACE} a renovated library wing is ready to open. Volunteers hold the scissors and wait for you. They do not want a speech - they want proof the work counts.",
         brief: {
           lede: "A renovated library wing opens, and the volunteers just need someone to cut the ribbon.",
@@ -96,7 +96,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_beat",
-        title: "Riding One Block with the Night Patrol",
+        title: "Riding one block with the night patrol",
         body: "The police union in {CITY} invites elected officials, as it does every year, to ride a night shift. The stated reason is to see the front line. The real reason: the union hands out awards to those who work it.",
         brief: {
           lede: "The police union invites you to try a night on patrol.",
@@ -135,7 +135,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_dispute",
-        title: "Two Neighbors Drag a Fence Dispute into Your Office",
+        title: "Two neighbors drag a fence dispute into your office",
         body: "In {PLACE}, one side is an old hand who turned out votes for you; the other is a young family that just moved in. Both are red-faced over a few inches of ground, and both want you to settle it.",
         brief: {
           lede: "Two neighbors bring a fence dispute all the way to your office.",
@@ -175,7 +175,7 @@ POTUS.define("l10n", {
       /* ================= 市政 T2–4 ================= */
       {
         id: "chore_clinic",
-        title: "Constituent Clinic Day: A Room Full of People Seeking Justice",
+        title: "Constituent clinic day: a room full of people seeking justice",
         body: "Every weekly clinic day the line in {CITY} runs out the door: a lost benefit, a tax notice, a child stuck outside a school zone. Not all of them want it solved. They want proof someone will listen.",
         brief: {
           lede: "It is open-office hour, and the room is full of people demanding answers.",
@@ -214,7 +214,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_budget",
-        title: "A Budget Hearing on Whether to Repair the West Bridge",
+        title: "A budget hearing on whether to repair the west bridge",
         body: "The town's old bridge leaks every year and gets patched every year. This year it needs real money. Testifying: a trucking union, the riverfront shopkeepers, and one resident holding a sign reading the bridge is my home.",
         brief: {
           lede: "Should the town spend to fix the west bridge? The hearing has every take but yours.",
@@ -253,7 +253,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_school",
-        title: "A School Newspaper Day Asks You to Teach a Civics Lesson",
+        title: "A school newspaper day asks you to teach a civics lesson",
         body: "At a student-newspaper event in {CITY}, a teacher steers you into a room and lets a class of ten-year-olds ask everything they have about being an official. No risk here - and one good photo hiding in it.",
         brief: {
           lede: "A school paper-day event asks you to teach a lesson on civics.",
@@ -293,7 +293,7 @@ POTUS.define("l10n", {
       /* ================= 州级 T4–6 ================= */
       {
         id: "chore_state_tour",
-        title: "A One-Week Local Tour After the State of the State",
+        title: "A one-week local tour after the State of the State",
         body: "Your speech has to land in the counties: three a day, a ribbon, a lunch, a roundtable. {PUB} wants a headline, the county chairs want warm bodies, and you just hope no one photographs how tired you look.",
         brief: {
           lede: "A week of local stops after the State of the State: three counties a day.",
@@ -332,7 +332,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_flood",
-        title: "Upstream Releases Late and Several Towns Go Under",
+        title: "Upstream releases late and several towns go under",
         body: "It rained three days straight, and the water authority's notice to release the gates came too late. Several towns flood. Everyone got out, but the losses need someone to look and someone to speak. The state cameras are already rolling.",
         brief: {
           lede: "An upstream water release comes too late; several towns are under water.",
@@ -372,7 +372,7 @@ POTUS.define("l10n", {
       /* ================= 联邦 T6+ ================= */
       {
         id: "chore_casework",
-        title: "The Federal Casework Mailbag Piles Up",
+        title: "The federal casework mailbag piles up",
         body: "A lapsed social-security check, a visa stuck, a veteran's benefit unpaid - Washington's bureaucracy grinds ordinary people to dust, and folks in {CITY} write to you, the one who can be heard in the capital.",
         brief: {
           lede: "The federal office's help-line mail has piled into a mountain.",
@@ -411,7 +411,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_townhall",
-        title: "Back Home for a Town Hall in Your District",
+        title: "Back home for a town hall in your district",
         body: "Five hundred people fill the gym in {DISTRICT}. The microphone passes hand to hand: someone challenges you, someone vents, someone simply came to hear whether you, the one who went to Washington, still talk like home.",
         brief: {
           lede: "A town hall back in the district: five hundred people in a gymnasium.",
@@ -450,7 +450,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_vetvisit",
-        title: "A Routine Visit to the Veterans' Hospital",
+        title: "A routine visit to the veterans' hospital",
         body: "The veterans' hospital invites you to appear on Heroes Day. They want a federal pair of ears; you want the photo of a handshake, of you listening to them.",
         brief: {
           lede: "A veterans' hospital asks you to make an appearance on Heroes Day.",

@@ -23,7 +23,7 @@ POTUS.define("l10n", {
       /* ---------- 1) 广播时代（radio） ---------- */
       {
         id: "media_fireside",
-        title: "A Radio Station Offers You a Fixed Evening Talk Show",
+        title: "A radio station offers you a fixed evening talk show",
         body: "The station wants a weekly evening talk: thirty minutes, one microphone, no pictures.\n" +
           "Your team calls it wasted time — nobody can see your face, so nobody will remember you.",
         brief: {
@@ -71,7 +71,7 @@ POTUS.define("l10n", {
       /* ---------- 2) 电视时代（tv） ---------- */
       {
         id: "media_tv_spot",
-        title: "You Pay a Fortune for Thirty Seconds in Prime Time",
+        title: "You pay a fortune for thirty seconds in prime time",
         body: "The station's ad department gives you a price: thirty seconds, prime time — enough to turn one man into a face the whole country recognizes.\n" +
           "The price is nearly all your money. Your opponent bought the same hour yesterday.",
         brief: {
@@ -130,7 +130,7 @@ POTUS.define("l10n", {
       /* ---------- 3) 有线电视时代（cable） ---------- */
       {
         id: "media_cable_show",
-        title: "A Cable News Midnight Show Makes You Its Target",
+        title: "A cable news midnight show makes you its target",
         body: "The midnight talk show on the 24-hour news channel has used you for target practice three weeks running.\n" +
           "Its ratings are small. But its audience is exactly the crowd that turns out for party primaries.",
         brief: {
@@ -179,7 +179,7 @@ POTUS.define("l10n", {
       /* ---------- 4) 互联网时代（internet / blogs） ---------- */
       {
         id: "media_blog_drop",
-        title: "An Anonymous Blog Posts Three of Your Internal Documents",
+        title: "An anonymous blog posts three of your internal documents",
         body: "A blog nobody had ever heard of posts scans of three letterhead documents.\n" +
           "The scans are real — and the content is what you said at a closed meeting three years ago.",
         brief: {
@@ -241,7 +241,7 @@ POTUS.define("l10n", {
       /* ---------- 5) 短视频时代（shortvideo） ---------- */
       {
         id: "media_viral_clip",
-        title: "A Fifteen-Second Clip of You Kneeling to a Child Goes Viral",
+        title: "A fifteen-second clip of you kneeling to a child goes viral",
         body: "Fifteen seconds — passed a hundred million times in forty-eight hours.\n" +
           "In the clip, after one campaign event, you crouch down to a group of kids and say one thing, very slowly.\n" +
           "The shooter is a volunteer nobody knows. No plan, no malice — he just raised his phone.",
@@ -290,7 +290,7 @@ POTUS.define("l10n", {
       /* ---------- 6) 合成影像时代（deepfake） ---------- */
       {
         id: "media_deepfake",
-        title: "A Deepfake Impersonating You Circulates Overnight",
+        title: "A deepfake impersonating you circulates overnight",
         body: "A two-minute video moves through the night: you on screen, saying something you never said.\n" +
           "The lip-sync is close. The voice is close. It takes your team forty minutes to confirm — that is not you.",
         brief: {

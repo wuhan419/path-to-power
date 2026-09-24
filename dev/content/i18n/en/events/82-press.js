@@ -18,7 +18,7 @@ POTUS.define("l10n", {
       /* ============ 1) 借笔 ============ */
       {
         id: "press_columnist",
-        title: "At Dinner You Are Introduced to the City Paper's Column Editor",
+        title: "At dinner you are introduced to the city paper's column editor",
         body: "The city paper's seventh page runs a column three times a week, six hundred words a turn. The man who writes it is fifty-one and has spent twenty-two years on that page. The same pen that lifts someone up buries them, and he has never seen the difference.\n" +
           "At dinner someone introduces you. He is sizing you up as he shakes your hand, like he is gauging a story's length.",
         brief: {
@@ -82,7 +82,7 @@ POTUS.define("l10n", {
       /* ============ 2) 挡笔 ============ */
       {
         id: "press_blackout",
-        title: "A Story Exposing You Runs Next Thursday",
+        title: "A story exposing you runs next Thursday",
         body: "You learn what the story will say three days before readers do.\n" +
           "A reporter who has covered City Hall for seventeen years stitched three things together: money you took last March, something you said in a council corridor, and a person you have never explained.\n" +
           "The story is with the editor now. It prints Thursday. You have three days.",
@@ -158,7 +158,7 @@ POTUS.define("l10n", {
       /* ============ 3) 用笔 ============ */
       {
         id: "press_kill",
-        title: "Someone Begs You to Kill a True Story About Your Ally",
+        title: "Someone begs you to kill a true story about your ally",
         body: "This time someone comes to you.\n" +
           "The story is not about you, it is about a man who promised you his votes. Every line is true, every line checks out. And once it prints, the strongest beam you have in this district snaps.\n" +
           "The other side does not want money. He wants one sentence, a word from you that means let it go, from inside his own trade.",
@@ -234,7 +234,7 @@ POTUS.define("l10n", {
       /* ============ 4) 拥有笔 ============ */
       {
         id: "press_own_outlet",
-        title: "You Consider Buying the Whole Local Paper",
+        title: "You consider buying the whole local paper",
         body: "The outlet is for sale.\n" +
           "Not closing - the owner is old, neither son wants it, and the asking price is a third under real value.\n" +
           "Your accountant lays three pages in front of you. The last line on the third reads: at the current price you will lose two hundred thousand a year after you buy it, and what you get cannot be entered on the books.",
