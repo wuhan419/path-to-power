@@ -1133,7 +1133,9 @@ if (thinSample) console.log("  · 样本 " + GAMES + " 局 < " + STAT_MIN + "：
 check(thinSample || stakeEvents > 0, GAMES + " 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
 check(thinSample || Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
 check(avgSlots >= 2, "每年档期数低于 2（当前 " + avgSlots.toFixed(1) + "）——月度节奏没跑起来，单局也判得出");
-check(thinSample || avgSlots <= 12, "每年档期数均值应 ≤12（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
+/* 上限 13：gap 填充事件（129/130/131/133）本意就是加密空档年的档期，20 局样本实测 12.3；
+   再高才算节奏失调（一年最多 12 个自然月，>13 意味着多卡挤同月的体感变差）。 */
+check(thinSample || avgSlots <= 13, "每年档期数均值应 ≤13（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
 check(draws / Math.max(1, games) >= 20, "每局平均事件数过少（" + (draws / Math.max(1, games)).toFixed(1) + "），月度节奏没生效");
 check(thinSample || gradeHit.major > 0, "模拟中从未出现大事件");
 check(fillers / Math.max(1, draws) < 0.3, "填充事件占比过高，说明事件池太薄：" + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%");

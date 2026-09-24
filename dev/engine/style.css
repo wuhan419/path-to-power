@@ -765,14 +765,21 @@
     .kicker-band .kb-l{font-size:10px}
     .kicker-band .kb-ops .btn{padding:5px 7px;font-size:11px}
 
-    /* ---- 三区竖排：display:contents 把 #statusbox / .actbar 提升进 .grid，order 排 状态→事件→选择 ---- */
+    /* ---- 三区竖排：display:contents 把 #statusbox / .actbar 提升进 .grid，order 排 状态→事件→选择。
+       ⚠ display:flex 必须显式恢复：≤820px 通用窄屏块把 body.game #app 改回 display:block
+       （整页滚动模式），只补高度不补 flex 时 .grid{flex:1} 失效——事件栏按内容撑高，
+       操作栏被顶出 100dvh 又被 overflow:hidden 裁掉，玩家够不着「继续」（真机实测）。
+       高度预算（合计 ≤100dvh，各区内部自滚，谁超长都挤不掉别人）：
+         顶栏 auto ｜ 状态 ≤28vh ｜ 事件 44vh 基准可伸缩(≥30vh) ｜ 操作 ≤42vh 且保底 128px。 ---- */
     body.game{overflow:hidden}
-    body.game #app{height:100vh;height:100dvh}
+    body.game #app{display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0}
+    .kicker-band{flex:0 0 auto}
     .grid{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0}
     .col-right{display:contents}
-    #statusbox{order:1;flex:0 0 auto}
-    .col-event{order:2;flex:1 1 auto;min-height:0;overflow:auto;padding-right:2px}
-    .actbar{order:3;flex:0 0 auto;max-height:44vh;overflow:auto}
+    #statusbox{order:1;flex:0 0 auto;max-height:28vh;overflow:auto;overscroll-behavior:contain}
+    .col-event{order:2;flex:1 1 44vh;min-height:30vh;overflow:auto;padding-right:2px;
+      -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .actbar{order:3;flex:0 1 auto;min-height:128px;max-height:42vh;overflow:auto;overscroll-behavior:contain}
 
     /* ---- 状态栏压成两行：
        行1 = 小头像·姓名（左） + 四枚资源瓷贴（右，自适应 2×2/3+1）；
@@ -802,11 +809,11 @@
     .idc-tier{font-size:8.5px;padding:1px 6px;letter-spacing:1px}
     .idc-chips{order:4;flex:1 1 100%}
 
-    /* ---- 事件卡：默认只标题，点标题展开；本月结算/承前链也折进展开态 ---- */
+    /* ---- 事件卡：默认只标题，点标题展开；本月结算不折（全折了玩家看不到账，不像话），
+       只压成 11px 紧凑版常驻标题下方 ---- */
     .news.editorial{padding:9px 11px;margin:0}
     .news.editorial .stamp,.news.editorial .dossier-head{display:none}
-    .news.editorial .gainbox{display:none;font-size:11px;margin:8px 0 0}
-    .news.editorial.expanded .gainbox{display:block}
+    .news.editorial .gainbox{font-size:11px;margin:8px 0 0}
     .news.editorial h1.headline{font-size:16px;margin:0;padding-right:0;line-height:1.35;
       cursor:pointer;-webkit-tap-highlight-color:transparent}
     .news.editorial h1.headline::after{content:" ▾";font-family:inherit;font-weight:700;
@@ -822,6 +829,23 @@
     .art-press.era-front img{height:auto;max-height:22vh}
     .brief-slot{display:none}           /* 背景折叠：竖屏不进卡片流 */
     .ledgerbox,.ledger{font-size:11px}
+
+    /* ---- 平静月卡（monthcard/quietcard）：与事件卡同一套折叠 ——
+       默认留 标题+这个月的账（紧凑），点标题展开 月历条/静好岁月随笔。
+       用 :not(.expanded) 隐藏，恢复时不必逐条重宣各子块原本的 display。 ---- */
+    .monthcard{padding:9px 11px;margin:0}
+    .monthcard h2{font-size:16px;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .monthcard h2::after{content:" ▾";font-family:inherit;font-weight:700;
+      font-size:13px;letter-spacing:0;color:var(--muted)}
+    .monthcard.expanded h2::after{content:" ▴"}
+    .monthcard.expanded h2{margin-bottom:8px}
+    .monthcard:not(.expanded) .dateline,
+    .monthcard:not(.expanded) .mstrip,
+    .monthcard:not(.expanded) .quietwork,
+    .monthcard:not(.expanded) .vig,
+    .monthcard:not(.expanded) .yearbar{display:none}
+    .monthcard .gainbox{font-size:11px}
+    .monthcard .quietwork,.monthcard .vig-body{font-size:13.5px;line-height:1.8}
 
     /* ---- 选择栏：压缩字号 + 模糊回报（stage.js 紧凑预览产出 +/++/+++ 强度） ---- */
     .acthead{font-size:10.5px;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:3px}
