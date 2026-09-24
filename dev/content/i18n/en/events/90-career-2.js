@@ -87,7 +87,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_committee_seat",
-        title: "The Committee List Goes Final Next Week, and Your Name Is Still in Pencil",
+        title: "The committee list goes final next week, and your name is still in pencil",
         body: "First lesson of a governing chamber: your name is worth whatever someone else is willing to erase. Assignment season has begun.",
         brief: {
           lede: "The committee list goes final next week. Your name is still written in pencil.",
@@ -281,7 +281,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_cabinet_call",
-        title: "They Are Shopping for a Department Head, and Your Phone Rang",
+        title: "They are shopping for a department head, and your phone rang",
         body: "The incoming administration's transition team is screening names. Two departments are on the table: one burns in the hand, one gathers dust. The highlight of the appointment track — or the moment you get politely placed in a display case.",
         brief: {
           lede: "A call from the transition team: the president-elect wants to talk to you about a department.",
@@ -348,7 +348,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_cabinet_after",
-        title: "Six Months In, the Appointment Comes Up for Reckoning",
+        title: "Six months in, the appointment comes up for reckoning",
         body: "That phone call half a year ago put you here. Now the accounts settle: is this job better than you thought, or colder?",
         brief: {
           lede: "The honeymoon of an appointment lasts six months. Today is the first day of month seven.",
@@ -399,7 +399,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_burnout",
-        title: "You Sat in the Parking Lot Forty Minutes, Unable to Make Yourself Get Out",
+        title: "You sat in the parking lot forty minutes, unable to make yourself get out",
         body: "Your body has filed a motion ahead of your calendar. Push through, step back for half a pace, or hand it to one person you trust. You have to pick one.",
         brief: {
           lede: "Today you sat in the parking lot for forty minutes because you could not remember why to get out of the car.",
