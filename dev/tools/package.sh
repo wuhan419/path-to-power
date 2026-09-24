@@ -17,7 +17,7 @@
 #
 # 安全边界（本脚本只会「写」/「删」dist/ 这一个目录，绝不碰其它任何路径）：
 #   1) 删除前校验 DIST 必须严格等于「项目根/dist」，且非空串、非 /、非源码目录
-#   2) rsync --delete 之前先确认 dev/ 源码完整（防止源意外为空把目标清空）
+#   2) 整体复制 dev/ 之前先确认源码完整（防止源意外为空把目标清空）
 #   3) 全程使用脚本自算的绝对路径，不接受任何外部传入的删除目标
 # ============================================================================
 set -euo pipefail
@@ -90,19 +90,19 @@ build_dist() {
   if [ -d "$DIST" ]; then rm -rf -- "$DIST"; fi
   mkdir -p "$DIST"
 
-  # 游戏本体 = index.html + engine/ + content/ + assets/；排除开发工具与文档
-  rsync -a --delete \
-    --exclude 'tools/' \
-    --exclude 'docs/' \
-    --exclude '.DS_Store' \
-    --exclude '*.bak*' \
-    --exclude 'node_modules/' \
-    "$DEV_ROOT/" "$DIST/"
+  # 游戏本体 = index.html + engine/ + content/ + assets/；排除开发工具与文档。
+  # 不用 rsync：这台机器的 Git Bash 没装它（脚本因此在这台机器上从来没跑通过）。
+  # 先整体复制、再从已过关护栏的 $DIST 里删掉非发布项——语义等价，且只依赖 cp/find。
+  cp -a "$DEV_ROOT/." "$DIST/"
+  rm -rf -- "$DIST/tools" "$DIST/docs" "$DIST/node_modules"
+  find "$DIST" -name '.DS_Store' -delete 2>/dev/null || true
+  find "$DIST" -name '*.bak*' -delete 2>/dev/null || true
 
   # 设计文档 docs/ 一并纳入 dist（GitHub Pages 只发布 dist/，文档要随包走）
   if [ -d "$PROJ_ROOT/docs" ]; then
     mkdir -p "$DIST/docs"
-    rsync -a --delete --exclude '.DS_Store' "$PROJ_ROOT/docs/" "$DIST/docs/"
+    cp -a "$PROJ_ROOT/docs/." "$DIST/docs/"
+    find "$DIST/docs" -name '.DS_Store' -delete 2>/dev/null || true
     echo "  ✓ 已打包 docs/ → dist/docs/（$(find "$DIST/docs" -type f | wc -l | tr -d ' ') 个文件）"
   fi
 

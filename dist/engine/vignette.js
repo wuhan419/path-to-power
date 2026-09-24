@@ -33,7 +33,8 @@
   const SLOTS = ["season", "world", "work", "life", "self", "close"];
   const SLOT_NAME = { season: "时令", world: "世相", work: "案头", life: "日常", self: "心绪", close: "收束" };
   P.VIGNETTE_SLOTS = SLOTS;
-  P.vignetteSlotName = function (s) { return SLOT_NAME[s] || s; };
+  /* SLOT_NAME 是加载期常量：中文原文留在表里兜底，取用点现翻（key = ui.vignette.slot.<slot>） */
+  P.vignetteSlotName = function (s) { return P.t("ui.vignette.slot." + s, SLOT_NAME[s] || s); };
 
   function inArr(list, v) { return !list || list.indexOf(v) >= 0; }
 
@@ -198,24 +199,31 @@
     }
 
     /* 显示名与状态栏对齐：属性一律中文名（魅力/智力/手腕/诚信），人脉好感不再叫"人情往来" */
-    const ATTR_CN = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
+    const ATTR_CN = {
+      CHA: P.t("ui.vignette.attr.CHA", "魅力"), INT: P.t("ui.vignette.attr.INT", "智力"),
+      CUN: P.t("ui.vignette.attr.CUN", "手腕"), INTG: P.t("ui.vignette.attr.INTG", "诚信")
+    };
     const notes = [];
-    for (const k in tally.attr) notes.push((ATTR_CN[k] || k) + " +" + tally.attr[k]);
-    if (tally.rep) notes.push("声望 +" + tally.rep);
-    if (tally.contact) notes.push("人脉好感 +" + tally.contact);
+    for (const k in tally.attr) notes.push(P.t("ui.vignette.note.attr", "{NAME} +{N}", { NAME: (ATTR_CN[k] || k), N: tally.attr[k] }));
+    if (tally.rep) notes.push(P.t("ui.vignette.note.rep", "声望 +{N}", { N: tally.rep }));
+    if (tally.contact) notes.push(P.t("ui.vignette.note.contactFav", "人脉好感 +{N}", { N: tally.contact }));
     if (tally.fun) {
       const k = Math.round(tally.fun / 1000);
-      if (k !== 0) notes.push("资金 " + (k > 0 ? "+$" : "-$") + Math.abs(k) + "k");
+      if (k !== 0) notes.push(P.t("ui.vignette.note.money", "资金 {V}k", { V: (k > 0 ? "+$" : "-$") + Math.abs(k) }));
     }
-    if (tally.fav) notes.push("人情 +" + tally.fav);
+    if (tally.fav) notes.push(P.t("ui.vignette.note.fav", "人情 +{N}", { N: tally.fav }));
     /* 选民（v0.6）：有变化才写进月卡 —— 让玩家看见"我什么都没干，但选民在动" */
     if (tally.voters) {
-      const VCN = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
+      const VCN = {
+        warm: P.t("ui.vignette.voter.warm", "好感选民"),
+        diehard: P.t("ui.vignette.voter.diehard", "死忠"),
+        oppose: P.t("ui.vignette.voter.oppose", "反对者")
+      };
       const fmt = P.fmtVoterNum || function (x) { return String(x); };
       ["warm", "diehard", "oppose"].forEach(function (vk) {
         const n = tally.voters[vk];
         if (!n) return;
-        notes.push(VCN[vk] + " " + (n > 0 ? "+" : "") + fmt(n));
+        notes.push(P.t("ui.vignette.note.voters", "{NAME} {D}", { NAME: VCN[vk], D: (n > 0 ? "+" : "") + fmt(n) }));
       });
     }
     return { notes: notes, n: n, tally: tally };
@@ -238,7 +246,7 @@
     const roll = P.rollVignette(m);
     const entry = { year: G.year, month: m, text: roll.text, parts: roll.parts || {}, gain: g.tally };
     G.quietLog.push(entry);
-    if (g.notes.length) P.pushLog("静好岁月（" + m + " 月）：" + g.notes.join(" · "));
+    if (g.notes.length) P.pushLog(P.t("ui.vignette.log.quiet", "静好岁月（{M} 月）：", { M: m }) + g.notes.join(" · "));
     return entry;
   };
 
@@ -276,30 +284,38 @@
       tally.fun += g.fun || 0; tally.ap += g.ap || 0; tally.fav += g.fav || 0;
       for (const vk in (g.voters || {})) tally.voters[vk] = (tally.voters[vk] || 0) + g.voters[vk];
     });
-    const ATTR_CN2 = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
+    const ATTR_CN2 = {
+      CHA: P.t("ui.vignette.attr.CHA", "魅力"), INT: P.t("ui.vignette.attr.INT", "智力"),
+      CUN: P.t("ui.vignette.attr.CUN", "手腕"), INTG: P.t("ui.vignette.attr.INTG", "诚信")
+    };
     const notes = [];
-    for (const k in tally.attr) notes.push((ATTR_CN2[k] || k) + " +" + tally.attr[k]);
-    if (tally.rep) notes.push("声望 +" + tally.rep);
-    if (tally.contact) notes.push("人脉好感 +" + tally.contact);
+    for (const k in tally.attr) notes.push(P.t("ui.vignette.note.attr", "{NAME} +{N}", { NAME: (ATTR_CN2[k] || k), N: tally.attr[k] }));
+    if (tally.rep) notes.push(P.t("ui.vignette.note.rep", "声望 +{N}", { N: tally.rep }));
+    if (tally.contact) notes.push(P.t("ui.vignette.note.contactFav", "人脉好感 +{N}", { N: tally.contact }));
     if (tally.fun) {
       const kf = Math.round(tally.fun / 1000);
-      if (kf !== 0) notes.push("资金 " + (kf > 0 ? "+$" : "-$") + Math.abs(kf) + "k");
+      if (kf !== 0) notes.push(P.t("ui.vignette.note.money", "资金 {V}k", { V: (kf > 0 ? "+$" : "-$") + Math.abs(kf) }));
     }
-    if (tally.fav) notes.push("人情 +" + tally.fav);
+    if (tally.fav) notes.push(P.t("ui.vignette.note.fav", "人情 +{N}", { N: tally.fav }));
     /* 选民（v0.6）：把这几个月的选民净变化也报出来 */
-    const _VCN2 = { warm: "好感选民", diehard: "死忠", oppose: "反对者" };
+    const _VCN2 = {
+      warm: P.t("ui.vignette.voter.warm", "好感选民"),
+      diehard: P.t("ui.vignette.voter.diehard", "死忠"),
+      oppose: P.t("ui.vignette.voter.oppose", "反对者")
+    };
     const _fmtV = P.fmtVoterNum || function (x) { return String(x); };
     ["warm", "diehard", "oppose"].forEach(function (vk) {
       const n = tally.voters[vk];
       if (!n) return;
-      notes.push(_VCN2[vk] + " " + (n > 0 ? "+" : "") + _fmtV(n));
+      notes.push(P.t("ui.vignette.note.voters", "{NAME} {D}", { NAME: _VCN2[vk], D: (n > 0 ? "+" : "") + _fmtV(n) }));
     });
 
     const id = "vig" + (++_seq);
     const y = G.year;
     const range = shown.length === 1
-      ? (y + " 年 " + shown[0].month + " 月")
-      : (y + " 年 " + shown[0].month + " 月 – " + shown[shown.length - 1].month + " 月");
+      ? P.t("ui.vignette.range.single", "{Y} 年 {M} 月", { Y: y, M: shown[0].month })
+      : P.t("ui.vignette.range.span", "{Y} 年 {M1} 月 – {M2} 月",
+        { Y: y, M1: shown[0].month, M2: shown[shown.length - 1].month });
 
     _store[id] = {
       kind: "vignette",
@@ -314,17 +330,19 @@
         return '<p class="vig-p" data-month="' + e.month + '">' + e.text.replace(/\n\n/g, "</p><p class=\"vig-p\">") + "</p>";
       }).join("");
     } else {
-      body = '<p class="vig-p muted">这一段日子平静得没有留下什么。</p>';
+      body = '<p class="vig-p muted">' + P.t("ui.vignette.empty", "这一段日子平静得没有留下什么。") + "</p>";
     }
-    if (leftover > 0) body += '<p class="vig-more muted">另有 ' + leftover + " 个月同样无声无息地过去了。</p>";
+    if (leftover > 0) body += '<p class="vig-more muted">' +
+      P.t("ui.vignette.leftover", "另有 {N} 个月同样无声无息地过去了。", { N: leftover }) + "</p>";
 
     const growHTML = notes.length
-      ? '<div class="vig-growth"><span class="vig-gtag">按部就班</span>' + notes.join("　·　") + "</div>"
+      ? '<div class="vig-growth"><span class="vig-gtag">' + P.t("ui.vignette.growthTag", "按部就班") + '</span>' +
+        notes.join(P.t("ui.vignette.growthSep", "　·　")) + "</div>"
       : "";
 
     return {
       html: '<div class="vig" id="' + id + '">' +
-        '<div class="vig-head"><span class="vig-title">' + (v.title || "静好岁月") + '</span>' +
+        '<div class="vig-head"><span class="vig-title">' + (v.title || P.t("ui.vignette.title", "静好岁月")) + '</span>' +
         '<span class="vig-range">' + range + "</span></div>" +
         '<div class="vig-body">' + body + "</div>" + growHTML + "</div>",
       months: want, growth: { notes: notes, tally: tally }, id: id

@@ -49,7 +49,7 @@
       const bypass = v >= 2;
       if (v > 0 && !bypass && P.monthsAtTier && P.monthsAtTier() < need) {
         G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
-        if (P.pushLog) P.pushLog("资历还差着：" + P.monthsAtTier() + "/" + need + " 个月——位子的事再等等（声望+3）。");
+        if (P.pushLog) P.pushLog(P.t("ui.effects.tierGate", "资历还差着：{have}/{need} 个月——位子的事再等等（声望+3）。", { have: P.monthsAtTier(), need: need }));
         return;
       }
       /* 离开本级前登记：你确实坐过这一级（跳级时只登记起点，中间级留白 → 资历债） */
@@ -70,8 +70,8 @@
         }
         /* 胜利线里程碑：首次抵达 demo 目标级（默认等级 7 / 联邦众议员）记一笔高光，不结束游戏 */
         if (b.victoryTier != null && G.tier > before && G.tier >= b.victoryTier && before < b.victoryTier && P.pushLog) {
-          P.pushLog("★ 里程碑：你踏进了全国政治的中心舞台（等级 " + (G.tier + 1) +
-            "：" + (P.tierName ? P.tierName(G.tier) : "") + "）。");
+          P.pushLog(P.t("ui.effects.milestone", "★ 里程碑：你踏进了全国政治的中心舞台（等级 {n}：{name}）。",
+            { n: G.tier + 1, name: (P.tierName ? P.tierName(G.tier) : "") }));
         }
       }
     },
@@ -133,7 +133,7 @@
       G.fallenCount = (G.fallenCount || 0) + 1;
       G.fallenShieldUntil = P.monthSeq() + 12;    // 12 个月保护期
       G.fallenThisTurn = true;                    // afterEvent 会据此补一段"下野"的交代
-      P.pushLog("下野：你从等级 " + (from + 1) + " 摔到了等级 " + (G.tier + 1) + "。政治生命还在，但台阶要重新爬。");
+      P.pushLog(P.t("ui.effects.fallen", "下野：你从等级 {from} 摔到了等级 {to}。政治生命还在，但台阶要重新爬。", { from: from + 1, to: G.tier + 1 }));
     },
 
     /* 硬 BE：政治生命就此终结。v = 结局理由（"prison" 入狱 / "disgrace" 身败名裂）。

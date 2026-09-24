@@ -23,7 +23,9 @@
   /* 五档难度：出身（吃 10-characters.js 的资源梯度）+ bonus（在出身之上再叠一笔开局增量）。
    * bonus 走 applyEffects，支持的键与事件效果一致：fun / rep / fav / lev / fac / attr。
    *   —— 精力(ap)、健康(hp) 已在 v0.9 退役，这里不再出现。
-   * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。 */
+   * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。
+   * 注意：label/note 是加载期立即求值的中文原文（此时 boot 还没套用英文覆盖层），
+   * 所以取用点一律走 diffLabel()/diffNote() 现取现翻，key = ui.create.diff.<id>.label/note。 */
   const DIFFS = {
     legendary: { label: "传奇", origin: "dynasty", note: "政治世家中的世家 · 开局资金 $3.0M · 声望 +15、人情 +6、天赋全属性 +5 —— 含着金汤匙落地，一路都有人铺",
       bonus: { fun: 1800000, rep: 7, fav: 4, fac: { establishment: 10 }, attr: { CHA: 5, INT: 5, CUN: 5, INTG: 5 } } },
@@ -33,6 +35,8 @@
     brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 家无余财 $0 · 只有工会与基层，且起步声望更低、建制更冷 —— 真正的从零开始",
       bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
   };
+  function diffLabel(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".label", d.label) : "—"; }
+  function diffNote(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".note", d.note) : ""; }
   function randKey(map) { const ks = Object.keys(map); return ks[Math.floor(Math.random() * ks.length)]; }
   /* 给四属性各掷一把（35-55），自动开局用，不再让玩家手动洒自由点 */
   function autoRoll() {
@@ -152,14 +156,18 @@
     const total = (b.freePoints == null ? 8 : b.freePoints) + (P.CSEL.freeExtra || 0);
     const used = ["CHA", "INT", "CUN", "INTG"].reduce(function (a, x) { return a + (P.CSEL.spent[x] || 0); }, 0);
     const cap = b.freeCapPerAttr == null ? 15 : b.freeCapPerAttr;
-    const ATTR_NAME = { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" };
+    const ATTR_NAME = {
+      CHA: P.t("ui.attr.CHA", "魅力"), INT: P.t("ui.attr.INT", "智力"),
+      CUN: P.t("ui.attr.CUN", "手腕"), INTG: P.t("ui.attr.INTG", "诚信")
+    };
     const usedCodes = P.vipUsedList();
-    let h = '<h3 style="margin:14px 0 4px">定命一掷 <button class="btn tiny" id="rollBtn">' +
-      (P.CSEL.rolled ? "重掷全部" : "掷骰") + "</button></h3>";
+    let h = '<h3 style="margin:14px 0 4px">' + P.t("ui.create.rollTitle", "定命一掷") +
+      ' <button class="btn tiny" id="rollBtn">' +
+      (P.CSEL.rolled ? P.t("ui.create.rollAll", "重掷全部") : P.t("ui.create.rollOnce", "掷骰")) + "</button></h3>";
     if (!P.CSEL.rolled) {
-      h += '<div class="muted" style="font-size:13px">还没掷。四属性各在 ' +
-        (r.min == null ? 35 : r.min) + "-" + (r.max == null ? 55 : r.max) +
-        " 之间 —— 命运发牌，你决定怎么打。</div>";
+      h += '<div class="muted" style="font-size:13px">' + P.t("ui.create.rollHint",
+        "还没掷。四属性各在 {lo}-{hi} 之间 —— 命运发牌，你决定怎么打。",
+        { lo: r.min == null ? 35 : r.min, hi: r.max == null ? 55 : r.max }) + "</div>";
       return h;
     }
     h += '<div class="rollgrid">';
@@ -171,54 +179,66 @@
       h += '<div class="rattr"><b>' + ATTR_NAME[k] + "</b>" +
         '<span class="rval">' + (base + sp) + "</span>" +
         (sp ? '<i class="rspent">+' + sp + "</i>" : "") +
-        '<button class="btn tiny" ' + (rer ? "disabled" : "") + ' data-reroll="' + k + '">重掷</button>' +
+        '<button class="btn tiny" ' + (rer ? "disabled" : "") + ' data-reroll="' + k + '">' +
+        P.t("ui.create.reroll", "重掷") + "</button>" +
         '<span class="rctrl"><button class="btn tiny" ' + (canDown ? "" : "disabled") + ' data-spend="' + k + ',-1">−</button>' +
         '<button class="btn tiny" ' + (canUp ? "" : "disabled") + ' data-spend="' + k + ',1">＋</button></span>' +
         "</div>";
     });
     h += "</div>";
-    h += '<div class="rleft' + (used >= total ? " done" : "") + '">自由点：还剩 <b>' + (total - used) + "</b>／" + total +
-      (P.CSEL.freeExtra ? '（含 VIP +' + P.CSEL.freeExtra + "）" : "") +
-      "　·　单属性最多 +" + cap + "</div>";
-    h += '<div class="viprow"><input type="text" id="vipcode" placeholder="充值码（VIP1/VIP5/VIP20/VIP50…）">' +
-      '<button class="btn tiny" id="vipBtn">兑换</button>' +
-      (usedCodes.length ? '<span class="muted" style="font-size:11.5px">已激活：' + usedCodes.join("、") + "</span>" : "") +
+    h += '<div class="rleft' + (used >= total ? " done" : "") + '">' +
+      P.t("ui.create.freePoints", "自由点：还剩 <b>{left}</b>／{total}", { left: total - used, total: total }) +
+      (P.CSEL.freeExtra ? P.t("ui.create.vipExtra", "（含 VIP +{n}）", { n: P.CSEL.freeExtra }) : "") +
+      P.t("ui.create.capNote", "　·　单属性最多 +{cap}", { cap: cap }) + "</div>";
+    h += '<div class="viprow"><input type="text" id="vipcode" placeholder="' +
+      P.t("ui.create.vipPlaceholder", "充值码（VIP1/VIP5/VIP20/VIP50…）") + '">' +
+      '<button class="btn tiny" id="vipBtn">' + P.t("ui.create.vipBtn", "兑换") + "</button>" +
+      (usedCodes.length ? '<span class="muted" style="font-size:11.5px">' + P.t("ui.create.vipUsed", "已激活：") + usedCodes.join("、") + "</span>" : "") +
       "</div>";
     return h;
   }
 
   P.renderCreate = function () {
     const C = P.CSEL;
-    let h = '<h3 style="margin:14px 0 4px">选择难度（＝你的出身与初始资源）</h3>';
+    let h = '<h3 style="margin:14px 0 4px">' +
+      P.t("ui.create.diffHeading", "选择难度（＝你的出身与初始资源）") + "</h3>";
     for (const id in DIFFS) {
-      const d = DIFFS[id], sel = C.difficulty === id ? " sel" : "";
+      const sel = C.difficulty === id ? " sel" : "";
+      const label = diffLabel(id), note = diffNote(id);
       h += '<div class="opt opt-diff' + sel + '" onclick="POTUS.pickDifficulty(\'' + id + '\')">' +
-        '<img class="opt-port" src="assets/heroes/hero-' + id + '-0.jpg" alt="' + d.label +
+        '<img class="opt-port" src="assets/heroes/hero-' + id + '-0.jpg" alt="' + label +
         '" onerror="this.style.visibility=\'hidden\'">' +
-        '<div class="opt-body"><b>' + d.label + "</b><small>" + d.note + "</small></div></div>";
+        '<div class="opt-body"><b>' + label + "</b><small>" + note + "</small></div></div>";
     }
     const oInfo = P.reg.origin[C.origin] || {};
     P.app().innerHTML =
-      '<div class="create"><div class="masthead"><div class="title">权力之路 · 快速开局</div>' +
-      '<div class="meta">一个美国小伙的从政之路</div></div>' +
+      '<div class="create"><div class="masthead"><div class="title">' + P.t("ui.create.quickTitle", "权力之路 · 快速开局") + "</div>" +
+      '<div class="meta">' + P.t("ui.title.sub", "一个美国小伙的从政之路") + "</div></div>" +
       '<p class="hintline" style="margin:8px 0 2px">' +
-      '你只需要挑一个<b>难度</b>、给个<b>名字</b>，就能从社区里那个啥都没有的年轻人开始，一步一步往上爬。</p>' +
+      P.t("ui.create.intro",
+        "你只需要挑一个<b>难度</b>、给个<b>名字</b>，就能从社区里那个啥都没有的年轻人开始，一步一步往上爬。") + "</p>" +
       h +
-      '<h3 style="margin:14px 0 4px">姓名（留空默认叫「汤米」）</h3>' +
-      '<input type="text" id="pname" placeholder="不填就叫汤米" value="' + (C.name || "") + '" style="width:100%">' +
+      '<h3 style="margin:14px 0 4px">' + P.t("ui.create.nameLabel", "姓名（留空默认叫「汤米」）") + "</h3>" +
+      '<input type="text" id="pname" placeholder="' + P.t("ui.create.namePlaceholder", "不填就叫汤米") +
+      '" value="' + (C.name || "") + '" style="width:100%">' +
       '<div style="margin-top:16px" class="center">' +
-      '<button class="btn primary" onclick="POTUS.confirmCreate()">开始游戏 →</button> ' +
-      '<button class="btn" onclick="POTUS.renderTitle()">返回</button></div>' +
-      '<p class="hintline">难度 <b>' + (C.difficulty ? DIFFS[C.difficulty].label : "—") + "</b>" +
-      "　出身 <b>" + (oInfo.name || "—") + "</b>" +
-      "　起点 <b>直接入行（从志愿者做起）</b>。开局年份、党派、天赋等由系统自动定，游戏里可再切换。</p></div>";
+      '<button class="btn primary" onclick="POTUS.confirmCreate()">' + P.t("ui.create.startBtn", "开始游戏 →") + "</button> " +
+      '<button class="btn" onclick="POTUS.renderTitle()">' + P.t("ui.create.back", "返回") + "</button></div>" +
+      '<p class="hintline">' + P.t("ui.create.summary",
+        "难度 <b>{d}</b>　出身 <b>{o}</b>　起点 <b>{e}</b>。开局年份、党派、天赋等由系统自动定，游戏里可再切换。",
+        {
+          d: diffLabel(C.difficulty),
+          o: oInfo.name || "—",
+          e: P.t("ui.create.entryInsider", "直接入行（从志愿者做起）")
+        }) + "</p></div>";
     const inp = P.$("#pname");
     if (inp) inp.oninput = function (e) { P.CSEL.name = e.target.value; };
   };
 
   P.confirmCreate = function () {
     const C = P.CSEL, b = P.balance();
-    const name = (C.name || "汤米").trim() || "汤米";
+    const dfltName = P.t("ui.create.defaultName", "汤米");
+    const name = (C.name || dfltName).trim() || dfltName;
     const era = P.reg.era[C.era];
     /* 属性：掷骰 + 自由点；没掷过（旧调用方/测试）就用平衡表的 startAttr */
     let attr;
@@ -272,10 +292,21 @@
        余额存进 G.debt，每月由 P.loanStep 在平静月结算时计息 + 还款（见 core.js / stage.js）。 */
     const sl = (b.studentLoan || {});
     P.G.debt = (sl.enabled && sl.startDebt) ? (sl.startDebt[C.difficulty] || 0) : 0;
-    if (P.G.debt > 0) P.pushLog("开局欠着学生贷款 $" + (P.G.debt / 1000).toFixed(0) + "k —— 每月从结余里还一点，收入越高还得越快。");
-    P.pushLog("开局：" + name + "，" + era.name + "，" + (P.reg.origin[C.origin] || {}).name + "出身，" +
-      (C.state ? homeLabel(C.state) + "，" : "") +
-      (P.reg.entry[C.entry] || {}).name + "，" + (P.reg.party[C.party] || {}).name + "/" + (P.reg.stance[C.stance] || {}).name + "。");
+    if (P.G.debt > 0) P.pushLog(P.t("ui.create.loanLog",
+      "开局欠着学生贷款 ${v}k —— 每月从结余里还一点，收入越高还得越快。",
+      { v: (P.G.debt / 1000).toFixed(0) }));
+    const home = C.state ? homeLabel(C.state) : "";
+    P.pushLog(home
+      ? P.t("ui.create.startLogHome", "开局：{name}，{era}，{origin}出身，{home}，{entry}，{party}/{stance}。", {
+        name: name, era: era.name, origin: (P.reg.origin[C.origin] || {}).name, home: home,
+        entry: (P.reg.entry[C.entry] || {}).name, party: (P.reg.party[C.party] || {}).name,
+        stance: (P.reg.stance[C.stance] || {}).name
+      })
+      : P.t("ui.create.startLog", "开局：{name}，{era}，{origin}出身，{entry}，{party}/{stance}。", {
+        name: name, era: era.name, origin: (P.reg.origin[C.origin] || {}).name,
+        entry: (P.reg.entry[C.entry] || {}).name, party: (P.reg.party[C.party] || {}).name,
+        stance: (P.reg.stance[C.stance] || {}).name
+      }));
     document.body.className = "era-" + C.era;
     P.startYear();
   };

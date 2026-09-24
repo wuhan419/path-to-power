@@ -12,12 +12,12 @@
      存档 / 读档 / 导出 / 导入 / 退出。大模型功能、以及任何实名收款/打赏入口
      均已整体移除（公开发包的政治题材不应携带可定位到作者身份的渠道）。 */
   P.opsButtons = function () {
-    return '<button class="btn" onclick="POTUS.openLog()">动态</button>' +
-      '<button class="btn" onclick="POTUS.quickSave()">保存</button>' +
-      '<button class="btn" onclick="POTUS.openLoad()">读取</button>' +
-      '<button class="btn" onclick="POTUS.exportSave()">导出</button>' +
-      '<button class="btn" onclick="POTUS.importSave()">导入</button>' +
-      '<button class="btn" onclick="if(confirm(\'确定放弃本局？\'))POTUS.renderTitle()">退出</button>';
+    return '<button class="btn" onclick="POTUS.openLog()">' + P.t("ui.shell.log", "动态") + '</button>' +
+      '<button class="btn" onclick="POTUS.quickSave()">' + P.t("ui.shell.save", "保存") + '</button>' +
+      '<button class="btn" onclick="POTUS.openLoad()">' + P.t("ui.shell.load", "读取") + '</button>' +
+      '<button class="btn" onclick="POTUS.exportSave()">' + P.t("ui.shell.export", "导出") + '</button>' +
+      '<button class="btn" onclick="POTUS.importSave()">' + P.t("ui.shell.import", "导入") + '</button>' +
+      '<button class="btn" onclick="if(confirm(\'' + P.t("ui.shell.quitConfirm", "确定放弃本局？") + '\'))POTUS.renderTitle()">' + P.t("ui.shell.quit", "退出") + '</button>';
   };
   P.toolbarHTML = function () {
     return '<div class="toolbar">' + P.opsButtons() + "</div>";
@@ -45,9 +45,9 @@
       const startAge = b.startAge == null ? 25 : b.startAge;
       const yrs = (G.age || startAge) - startAge + 1;
       kicker = '<div class="kicker-band">' +
-        '<span class="kb-l">权力之路 · <b>' + P.eraName() + '</b> · 第 ' + yrs + ' 个年头</span>' +
-        '<span class="kb-ops">' + P.opsButtons() + '</span>' +
-        '<span class="kb-r">' + G.year + ' 年 ' + (G.month || 1) + ' 月 · ' + (G.name || "") + '</span>' +
+        '<span class="kb-l">' + P.t("ui.shell.game", "权力之路") + ' · <b>' + P.eraName() + '</b> · ' + P.t("ui.shell.yearNth", "第 {n} 个年头", { n: yrs }) + '</span>' +
+        '<span class="kb-ops">' + P.opsButtons() + (P.langSwitchHTML ? P.langSwitchHTML() : "") + '</span>' +
+        '<span class="kb-r">' + P.t("ui.shell.date", "{y} 年 {m} 月", { y: G.year, m: G.month || 1 }) + ' · ' + (G.name || "") + '</span>' +
         '</div>';
     }
     /* v0.9 框架收敛（不做大改）：原「有头像的标题栏」拆成两半——
@@ -125,11 +125,45 @@
     window.addEventListener("resize", hideTip);
   }
 
+  /* ---------------- 全局语言切换 dock（顶栏缺席屏的兜底入口，w45） ----------------
+     对局中/事件屏的语言开关挂在 kicker 顶栏 .kb-ops 尾部（见上方 topbarHTML）；
+     建角/终局屏不渲染顶栏（topbarHTML 只在有 G.year 时出条），这里在 <body> 挂一枚
+     固定小 dock 兜底，按钮复用 topbar.js 的 langSwitchHTML 工厂。顶栏在场或标题屏
+     （title.js 自带完整 langBar）时自动隐藏，全屏幕同一时刻只出现一个入口。
+     与悬浮气泡同款宿主检查：validate.js / i18n-coverage.js 的 DOM stub 下安静跳过。 */
+  function langDockHost() {
+    return typeof document !== "undefined" && document &&
+      typeof document.createElement === "function" &&
+      document.body && typeof document.body.appendChild === "function" &&
+      typeof MutationObserver !== "undefined";
+  }
+  function mountLangDock() {
+    if (!langDockHost()) return;   // 无真 DOM 宿主（门禁 stub）：不挂
+    const dock = document.createElement("div");
+    dock.id = "langdock";
+    dock.style.cssText = "position:fixed;top:8px;right:10px;z-index:15;display:none;align-items:center;gap:4px";
+    dock.innerHTML = '<span class="muted" style="font-size:11px">' + P.t("ui.shell.langDock", "语言：") + "</span>" +
+      (P.langSwitchHTML ? P.langSwitchHTML() : "");
+    document.body.appendChild(dock);
+    const sync = function () {
+      const band = document.querySelector(".kicker-band");
+      dock.style.display = (!band && P.SCREEN !== "title") ? "inline-flex" : "none";
+    };
+    const app = P.app ? P.app() : null;
+    if (app && app.nodeType) {
+      try { new MutationObserver(sync).observe(app, { childList: true, subtree: true }); } catch (e) { }
+    }
+    sync();
+  }
+
   /* ---------------- 启动 ---------------- */
   P.boot = function () {
+    /* 语言覆盖层必须在任何渲染之前并入注册表（读 localStorage / ?lang=） */
+    if (P.i18n) P.i18n.boot();
     bindTooltip();
+    mountLangDock();
     if (!Object.keys(P.reg.era).length) {
-      P.app().innerHTML = '<div class="center" style="padding:40px"><h2>未加载任何内容包</h2><p class="muted">请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。</p></div>';
+      P.app().innerHTML = '<div class="center" style="padding:40px"><h2>' + P.t("ui.shell.noContentTitle", "未加载任何内容包") + '</h2><p class="muted">' + P.t("ui.shell.noContentHint", "请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。") + '</p></div>';
       return;
     }
     P.renderTitle();

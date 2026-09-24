@@ -55,20 +55,25 @@
     if (!f || !f.__rate) return "";
     const r = f.__rate, per = f.per;
     const g = grade || (P.G && P.G.__curGrade) || "mid";
-    if (r.source === "content") return "每档 " + P.fmtUsd(per) + " —— 这一注的价码由剧情写定。";
+    if (r.source === "content") return P.t("ui.actions.perTierContent", "每档 {v} —— 这一注的价码由剧情写定。", { v: P.fmtUsd(per) });
     const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
     const gm = (d.gradeMul || {})[g];
-    const tierSide = "身位基准 " + P.fmtUsd(r.anchor) + "（月薪 " + P.fmtUsd(P.officeSalary()) + " × " + months + " 个月" +
-      (gm != null && gm !== 1 ? " × 事件量级 " + gm : "") + "）";
+    const tierSide = P.t("ui.actions.tierBase", "身位基准 {a}（月薪 {s} × {m} 个月{gm}）", {
+      a: P.fmtUsd(r.anchor), s: P.fmtUsd(P.officeSalary()), m: months,
+      gm: (gm != null && gm !== 1) ? P.t("ui.actions.gradeMul", " × 事件量级 {g}", { g: gm }) : ""
+    });
     if (r.pot > 0) {
-      const matterSide = "事情价码 " + P.fmtUsd(r.ceiling) + "（事件钱量级 " + P.fmtUsd(r.pot) + " 的 " +
-        Math.round((d.potShare == null ? 0.25 : d.potShare) * 100) + "%）";
-      return "每档 " + P.fmtUsd(per) + "：" + tierSide + "，" + matterSide +
-        (r.source === "pot"
-          ? " —— 事情比你的手笔小，价码按事情封顶（投满也花不到这件事的两倍）。"
-          : " —— 取两者之间：位子越高越贵，但不会超过这件事本身值多少。");
+      const matterSide = P.t("ui.actions.matterBase", "事情价码 {c}（事件钱量级 {p} 的 {pct}%）", {
+        c: P.fmtUsd(r.ceiling), p: P.fmtUsd(r.pot), pct: Math.round((d.potShare == null ? 0.25 : d.potShare) * 100)
+      });
+      return P.t("ui.actions.rateNote", "每档 {v}：{t}，{m}{tail}", {
+        v: P.fmtUsd(per), t: tierSide, m: matterSide,
+        tail: r.source === "pot"
+          ? P.t("ui.actions.tailPot", " —— 事情比你的手笔小，价码按事情封顶（投满也花不到这件事的两倍）。")
+          : P.t("ui.actions.tailMid", " —— 取两者之间：位子越高越贵，但不会超过这件事本身值多少。")
+      });
     }
-    return "每档 " + P.fmtUsd(per) + "：" + tierSide + "。这件事没写钱，只按身位算。";
+    return P.t("ui.actions.rateNoteSeat", "每档 {v}：{t}。这件事没写钱，只按身位算。", { v: P.fmtUsd(per), t: tierSide });
   };
 
   P.renderStake = function () {
@@ -81,11 +86,12 @@
       const per = Math.max(1, spec.fun.per || 0);
       const mx = P.stakeMax("fun", ch), atMax = st.fun >= mx;
       const note = mx === 0
-        ? "资金不足：每档需 " + P.fmtUsd(per) + "，你现在只有 " + P.fmtUsd(P.G.fun)
+        ? P.t("ui.actions.fundsShort", "资金不足：每档需 {need}，你现在只有 {have}", { need: P.fmtUsd(per), have: P.fmtUsd(P.G.fun) })
         : (atMax
-          ? "已经加到这项的上限了"
-          : "每档 " + P.fmtUsd(per) + "，投得越多把握越大（最多 " + mx + " 档，余额 " + P.fmtUsd(P.G.fun) + "）");
-      rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>资金</b>' +
+          ? P.t("ui.actions.atMax", "已经加到这项的上限了")
+          : P.t("ui.actions.fundsHint", "每档 {per}，投得越多把握越大（最多 {mx} 档，余额 {bal}）",
+            { per: P.fmtUsd(per), mx: mx, bal: P.fmtUsd(P.G.fun) }));
+      rows.push('<div class="stake-row' + (mx === 0 ? " off" : "") + '"><b>' + P.t("ui.actions.funds", "资金") + '</b>' +
         '<button class="btn" id="stFunMinus"' + (st.fun <= 0 ? " disabled" : "") + '>−</button>' +
         '<span class="stake-val">' + P.fmtUsd(st.fun * per) + "</span>" +
         '<button class="btn" id="stFunPlus"' + (atMax ? " disabled" : "") + '>＋</button>' +
@@ -93,18 +99,20 @@
     }
     if (spec.fav) {
       const canFav = P.stakeMax("fav", ch) >= 1;
-      rows.push('<div class="stake-row' + (canFav ? "" : " off") + '"><b>人情</b><label class="stake-check"><input type="checkbox" id="stFav" ' +
-        (st.fav ? "checked" : "") + (canFav ? "" : " disabled") + "> 花 1 点，获得<b>重投（取优）</b></label>" +
-        '<span class="stake-note">' + (canFav ? "（人情 " + P.G.fav + "）" : "没有人情可以动用") + "</span></div>");
+      rows.push('<div class="stake-row' + (canFav ? "" : " off") + '"><b>' + P.t("ui.actions.favors", "人情") + '</b><label class="stake-check"><input type="checkbox" id="stFav" ' +
+        (st.fav ? "checked" : "") + (canFav ? "" : " disabled") + "> " +
+        P.t("ui.actions.favSpend", "花 1 点，获得<b>重投（取优）</b>") + "</label>" +
+        '<span class="stake-note">' + (canFav ? P.t("ui.actions.favCount", "（人情 {n}）", { n: P.G.fav }) : P.t("ui.actions.noFavors", "没有人情可以动用")) + "</span></div>");
     }
     const rateNote = P.stakeRateNote(ch, s.ev && s.ev.grade);
     const box = document.createElement("div");
     box.className = "stake"; box.id = "stake";
-    box.innerHTML = "<h3>投入资源，搏更大把握</h3>" +
-      '<div class="stake-note" style="margin:-4px 0 6px;font-size:11.5px;color:var(--muted)">加码只是让这一票更稳，不改变事情本身的回报 —— 量力而行。</div>' + rows.join("") +
+    box.innerHTML = "<h3>" + P.t("ui.actions.stakeTitle", "投入资源，搏更大把握") + "</h3>" +
+      '<div class="stake-note" style="margin:-4px 0 6px;font-size:11.5px;color:var(--muted)">' +
+      P.t("ui.actions.stakeNote", "加码只是让这一票更稳，不改变事情本身的回报 —— 量力而行。") + "</div>" + rows.join("") +
       (rateNote ? '<div class="stake-rate">' + rateNote + "</div>" : "") +
-      '<div class="stake-actions"><button class="btn primary" id="stGo">确认判定</button>' +
-      '<button class="btn" id="stBack">返回</button></div>';
+      '<div class="stake-actions"><button class="btn primary" id="stGo">' + P.t("ui.actions.confirm", "确认判定") + "</button>" +
+      '<button class="btn" id="stBack">' + P.t("ui.actions.back", "返回") + "</button></div>";
     /* v0.5.x 修正：判定栏（投注面板）归入右栏（#actbar）顶部，与「操作在右栏」的三栏设计一致，
        也满足「判定栏在提示栏（选项胜算）之上」——而不是错误地塞进中栏、落在背景卡下面 */
     const _bar = document.getElementById("actbody");

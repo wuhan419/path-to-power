@@ -16,22 +16,23 @@
     }
     if (m.src === "fac") {
       const v = (G.faction[m.key] || 0) / 100 * (m.w == null ? 0.3 : m.w);
-      return { v: v, label: "派系·" + P.factionName(m.key) };
+      return { v: v, label: P.t("ui.dice.modFac", "派系·{v}", { v: P.factionName(m.key) }) };
     }
-    if (m.src === "flag") { const v = P.hasFlag(m.key) ? m.w : 0; return { v: v, label: "状态·" + m.key }; }
-    if (m.src === "talent") { const v = G.talent === m.key ? m.w : 0; return { v: v, label: "天赋·" + m.key }; }
-    if (m.src === "track") { const v = G.track === m.key ? m.w : 0; return { v: v, label: "轨道·" + m.key }; }
-    if (m.src === "party") { const v = G.party === m.key ? m.w : 0; return { v: v, label: "党派·" + m.key }; }
-    if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: "姿态·" + m.key }; }
-    if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: "等级 " + (G.tier + 1) }; }
-    if (m.src === "res" && m.key === "fun") { const v = G.fun >= (m.min || 0) ? m.w : 0; return { v: v, label: "资金充足" }; }
+    if (m.src === "flag") { const v = P.hasFlag(m.key) ? m.w : 0; return { v: v, label: P.t("ui.dice.modFlag", "状态·{v}", { v: m.key }) }; }
+    if (m.src === "talent") { const v = G.talent === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modTalent", "天赋·{v}", { v: m.key }) }; }
+    if (m.src === "track") { const v = G.track === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modTrack", "轨道·{v}", { v: m.key }) }; }
+    if (m.src === "party") { const v = G.party === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modParty", "党派·{v}", { v: m.key }) }; }
+    if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modStance", "姿态·{v}", { v: m.key }) }; }
+    if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: P.t("ui.tier.level", "等级 {n}", { n: G.tier + 1 }) }; }
+    if (m.src === "res" && m.key === "fun") { const v = G.fun >= (m.min || 0) ? m.w : 0; return { v: v, label: P.t("ui.dice.modFunOk", "资金充足") }; }
     /* v0.6 选民底气：voterEdge() ∈ [-1,1]（自然均衡点处为 0）。
        内容可以用 mods: [{ src: "voters", w: 0.08 }] 显式声明，
        晋升/连任类选项则由 computeP 自动附加（见下）。 */
     if (m.src === "voters") {
       const e = P.voterEdge ? P.voterEdge() : 0;
       const w = m.w == null ? 0.06 : m.w;
-      return { v: e * w, label: "选民底气 " + P.electionStrength().pct + "%" };
+      /* 「选民底气 X%」：validate.js 的相关断言已包进 ZH(() => …)，可放心提取 */
+      return { v: e * w, label: P.t("ui.dice.modVoters", "选民底气 {pct}%", { pct: P.electionStrength().pct }) };
     }
     return { v: 0, label: null };
   }
@@ -205,13 +206,13 @@
       if (steps > 0) {
         const b = Math.min(steps * (spec.fun.w || 0.04), spec.fun.cap || 0.30);
         out.cost.fun = steps * per; out.bonus += b;
-        out.parts.push({ label: "资金 " + P.fmtUsd(out.cost.fun), pct: b * 100 });
+        out.parts.push({ label: P.t("ui.dice.stakeFun", "资金 {amt}", { amt: P.fmtUsd(out.cost.fun) }), pct: b * 100 });
       }
     }
     if (spec.fav && st.fav) {
       const n = Math.min(st.fav, P.G.fav);
       out.cost.fav = n; out.reroll = n > 0;
-      out.parts.push({ label: "人情 " + n + "（重投取优）", pct: 0 });
+      out.parts.push({ label: P.t("ui.dice.stakeFav", "人情 {n}（重投取优）", { n: n }), pct: 0 });
     }
     return out;
   };
@@ -219,7 +220,7 @@
   /* 选项的胜算：base + 选项修饰符 + 天赋全局修饰符 + 投注，限制在 [0.05, 0.95] */
   P.computeP = function (choice, stake) {
     let p = choice.base;
-    const bd = [{ label: "基础", pct: choice.base * 100 }];
+    const bd = [{ label: P.t("ui.dice.baseOdds", "基础"), pct: choice.base * 100 }];
     const apply = function (m) {
       const r = evalMod(m);
       if (r.v) { p += r.v; bd.push({ label: r.label, pct: r.v * 100 }); }
@@ -235,7 +236,7 @@
     if (vdyn.enabled !== false && P.isContestChoice(choice)) {
       apply({ src: "voters", w: vdyn.contestW == null ? 0.08 : vdyn.contestW });
     }
-    if (stake && stake.bonus) { p += stake.bonus; (stake.parts || []).forEach(function (x) { if (x.pct) bd.push({ label: "投入·" + x.label, pct: x.pct }); }); }
+    if (stake && stake.bonus) { p += stake.bonus; (stake.parts || []).forEach(function (x) { if (x.pct) bd.push({ label: P.t("ui.dice.investLabel", "投入·{label}", { label: x.label }), pct: x.pct }); }); }
     const Pv = P.clamp(p, 0.05, 0.95);
     return { P: Pv, target: Math.round(Pv * 100), breakdown: bd };
   };
@@ -266,11 +267,15 @@
     return { tier: better.tier, roll: better.roll, rolls: [a.roll, b.roll], rerolled: true };
   };
 
-  /* 给玩家看的模糊档位 */
+  /* 给玩家看的模糊档位。fuzzLabels 是 boot 前生成的常量表（BALANCE_DEFAULTS /
+     content 01-config 各有一份，后者覆盖前者），所以中文原文留在数据里、
+     在取用点现翻：key = ui.dice.fuzz.<档位下标>，档位边界仍走 fuzzBands，数值零改动。 */
   P.fuzzy = function (p) {
     const b = P.balance(), bands = b.fuzzBands, labels = b.fuzzLabels;
-    for (let i = 0; i < bands.length; i++) if (p < bands[i]) return labels[i];
-    return labels[labels.length - 1];
+    let i = bands.length;
+    for (let j = 0; j < bands.length; j++) if (p < bands[j]) { i = j; break; }
+    if (i >= bands.length) i = labels.length - 1;
+    return P.t("ui.dice.fuzz." + i, labels[i]);
   };
 
   P.TIER_LABEL = { crit: "★ 大成功", ok: "✓ 成功", meh: "~ 勉强过关", fail: "✗ 失败", critfail: "☠ 大失败" };

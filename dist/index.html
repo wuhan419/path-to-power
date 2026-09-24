@@ -13,6 +13,9 @@
      引擎（稳定，一般不需要改动）
      ======================================================================= -->
 <script src="engine/core.js"></script>
+<!-- 本地化地基：P.t(key, 中文原文) 取串 + POTUS.define("l10n") 覆盖层按结构合并。
+     中文无需字典（内联字面量即兜底），英文只写覆盖层，见 docs/I18N.md -->
+<script src="engine/i18n.js"></script>
 <!-- 统一的声明式条件求值器：事件门槛 / 结局规则 / 静好片段 / 主线 gate 共用这一套词汇 -->
 <script src="engine/when.js"></script>
 <script src="engine/dice.js"></script>
@@ -134,6 +137,96 @@
 <!-- 例：新增 2016 时代
      <script src="content/events/53-era-2016.js"></script>
      并在 content/20-eras.js 里补上该时代的 era 定义 -->
+
+<!-- ==========================================================================
+     以下为生成器托管区，请勿手工编辑 —— node dev/tools/gen-manifest.js 重写
+     （新增内容文件后跑一次即可，不必再来 index.html 里加 <script>）
+     ======================================================================= -->
+<!-- BEGIN content-auto-manifest -->
+<script src="content/events/120-line-1991-94.js"></script><!-- auto: 连续时间轴 · 1991—1994 定点大事件（w01 / Track B · B1 带）。 -->
+<script src="content/events/121-line-1995-98.js"></script><!-- auto: 连续时间轴 · 1995—1998 定点大事（w02 带）。 -->
+<script src="content/events/122-line-1999-02.js"></script><!-- auto: 连续时间轴 · 1999—2002 定点大事件（Track B3）。 -->
+<script src="content/events/123-line-2003-06.js"></script><!-- auto: 连续时间轴 · 2003—2006 定点大事件（Track B · w04）。 -->
+<script src="content/events/124-line-2007-10.js"></script><!-- auto: 连续时间轴 · 2007—2010 定点大事件（B5 年带）。 -->
+<script src="content/events/125-line-2011-14.js"></script><!-- auto: 连续时间轴 · 债务上限到弗格森：占领运动之后的四个年头。 -->
+<script src="content/events/126-line-2015-18.js"></script><!-- auto: 连续时间轴 · 2015—2018 定点大事（Track B · B7 波段）。 -->
+<script src="content/events/127-line-2019-21.js"></script><!-- auto: 连续时间轴 · 2019—2021 定点大事（Track B · B8 波段，见 docs/PARALLEL-CONTENT-WORK.… -->
+<script src="content/events/128-line-2022-24.js"></script><!-- auto: 连续时间轴 · 2022—2024 定点大事件（Track B9，worker w11）。 -->
+<!-- END content-auto-manifest -->
+
+<!-- BEGIN i18n-manifest -->
+<script src="content/i18n/zh.js"></script>
+<script src="content/i18n/en/events/105-era-1980.js"></script>
+<script src="content/i18n/en/events/106-era-1990.js"></script>
+<script src="content/i18n/en/events/107-era-2001.js"></script>
+<script src="content/i18n/en/events/108-era-2016.js"></script>
+<script src="content/i18n/en/events/109-boon-fill.js"></script>
+<script src="content/i18n/en/events/110-line-1980s.js"></script>
+<script src="content/i18n/en/events/111-chores.js"></script>
+<script src="content/i18n/en/events/50-era-2008.js"></script>
+<script src="content/i18n/en/events/54-era-waves.js"></script>
+<script src="content/i18n/en/events/55-media-timeline.js"></script>
+<script src="content/i18n/en/events/60-progression.js"></script>
+<script src="content/i18n/en/events/62-crossroads.js"></script>
+<script src="content/i18n/en/events/64-states.js"></script>
+<script src="content/i18n/en/events/65-campaign-acts-a.js"></script>
+<script src="content/i18n/en/events/65-campaign-acts-b.js"></script>
+<script src="content/i18n/en/events/70-demo-resources.js"></script>
+<script src="content/i18n/en/events/80-shady.js"></script>
+<script src="content/i18n/en/events/82-press.js"></script>
+<script src="content/i18n/en/events/84-archive.js"></script>
+<script src="content/i18n/en/events/86-enclave.js"></script>
+<script src="content/i18n/en/events/88-finance-2.js"></script>
+<script src="content/i18n/en/events/90-career-2.js"></script>
+<script src="content/i18n/en/events/91-scandal-2.js"></script>
+<script src="content/i18n/en/events/93-media-2.js"></script>
+<script src="content/i18n/en/events/94-foreign-2.js"></script>
+<script src="content/i18n/en/events/95-political-2.js"></script>
+<script src="content/i18n/en/events/96-crisis-2.js"></script>
+<script src="content/i18n/en/events/97-setbacks.js"></script>
+<script src="content/i18n/en/lines/120-line-1991-94.js"></script>
+<script src="content/i18n/en/lines/121-line-1995-98.js"></script>
+<script src="content/i18n/en/lines/122-line-1999-02.js"></script>
+<script src="content/i18n/en/lines/123-line-2003-06.js"></script>
+<script src="content/i18n/en/lines/124-line-2007-10.js"></script>
+<script src="content/i18n/en/lines/125-line-2011-14.js"></script>
+<script src="content/i18n/en/lines/126-line-2015-18.js"></script>
+<script src="content/i18n/en/lines/127-line-2019-21.js"></script>
+<script src="content/i18n/en/lines/128-line-2022-24.js"></script>
+<script src="content/i18n/en/reg/01-config.js"></script>
+<script src="content/i18n/en/reg/05-categories.js"></script>
+<script src="content/i18n/en/reg/06-media.js"></script>
+<script src="content/i18n/en/reg/07-contacts.js"></script>
+<script src="content/i18n/en/reg/08-vignettes.js"></script>
+<script src="content/i18n/en/reg/09-flavor.js"></script>
+<script src="content/i18n/en/reg/10-characters.js"></script>
+<script src="content/i18n/en/reg/11-arcs.js"></script>
+<script src="content/i18n/en/reg/12-states.js"></script>
+<script src="content/i18n/en/reg/13-year-tales.js"></script>
+<script src="content/i18n/en/reg/14-offices.js"></script>
+<script src="content/i18n/en/reg/20-eras.js"></script>
+<script src="content/i18n/en/reg/21-worldline.js"></script>
+<script src="content/i18n/en/reg/30-fillers.js"></script>
+<script src="content/i18n/en/reg/40-endings.js"></script>
+<script src="content/i18n/en/reg/61-campaigns.js"></script>
+<script src="content/i18n/en/ui.js"></script>
+<script src="content/i18n/en/view/actions.js"></script>
+<script src="content/i18n/en/view/arc.js"></script>
+<script src="content/i18n/en/view/campaign.js"></script>
+<script src="content/i18n/en/view/core.js"></script>
+<script src="content/i18n/en/view/create.js"></script>
+<script src="content/i18n/en/view/dice.js"></script>
+<script src="content/i18n/en/view/effects.js"></script>
+<script src="content/i18n/en/view/events.js"></script>
+<script src="content/i18n/en/view/flavor.js"></script>
+<script src="content/i18n/en/view/progression.js"></script>
+<script src="content/i18n/en/view/scale.js"></script>
+<script src="content/i18n/en/view/shell.js"></script>
+<script src="content/i18n/en/view/stage.js"></script>
+<script src="content/i18n/en/view/time.js"></script>
+<script src="content/i18n/en/view/topbar.js"></script>
+<script src="content/i18n/en/view/vignette.js"></script>
+<!-- END i18n-manifest -->
 
 <script>POTUS.boot();</script>
 </body>

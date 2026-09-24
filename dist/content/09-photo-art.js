@@ -82,8 +82,8 @@
       return '<figure class="art art-press">' +
         '<img src="' + dir + encodeURIComponent(file) + '" alt="' + esc(ev.title || "") + '"' +
         ' onerror="this.closest(\'.art-press\').classList.add(\'art-press-broken\')">' +
-        (tag ? '<span class="art-ptag">头版 · ' + esc(tag) + "</span>" : "") +
-        '<span class="art-pnum">卷宗 ' + pnum + "</span>" +
+        (tag ? '<span class="art-ptag">' + P.t("ui.photo.frontTag", "头版") + " · " + esc(tag) + "</span>" : "") +
+        '<span class="art-pnum">' + P.t("ui.photo.dossierNo", "卷宗 {n}", { n: pnum }) + "</span>" +
         (back ? '<span class="art-back" aria-hidden="true">' + back + "</span>" : "") +
         "</figure>";
     } catch (e) {
