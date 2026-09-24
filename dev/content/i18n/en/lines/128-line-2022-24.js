@@ -8,6 +8,8 @@
  *   · known / rumor / unknown are WHOLE-ARRAY replacements — give every entry.
  *   · Structural keys (id/era/minYear/tierMin/weight/base/mods/effects/flags/
  *     req/cost …) are engine-protected; writing them fails validate.
+ *   · worldline brief / outlets are overlaid here too, one key per year that the
+ *     zh side has. pressure is numeric and stays untouched.
  *   · English is rewritten, not translated: 2nd person, present tense, short
  *     sentences. Real institutions (the Fed, the Supreme Court, the FDIC).
  *     No full names of real people — offices only.
@@ -566,6 +568,20 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* Worldline 2022—2024 · English overlay (outlets: real US media of those years). */
+    worldline: {
+      brief: {
+        "2022": "Prices run ahead of pay, and the Supreme Court tears up fifty years of settled rules. Both halves are sure the country is being ruined by the wrong people, and the midterms are argued that way.",
+        "2023": "Banks fall one after another on the news, and Washington treats the nation's credit like a bomb with a countdown on it. People are tired enough to ask only for no new bad news — until autumn, when a distant war reaches the local campus.",
+        "2024": "Gunshots, a swapped-in candidate and two realities fed by algorithms, counted on the same night: the country uses one ballot to ask whether everyone still lives in the same country."
+      },
+      outlets: {
+        "2022": ["The New York Times", "CNN", "Fox News", "USA Today", "Twitter"],
+        "2023": ["CNN", "Fox News", "X (formerly Twitter)", "Substack newsletters", "AI-generated content accounts"],
+        "2024": ["CNN", "Fox News", "X (formerly Twitter)", "Short-video platforms", "AI voice cloning and generated accounts"]
+      }
+    }
   }
 });

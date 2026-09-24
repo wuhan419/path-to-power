@@ -8,6 +8,8 @@
  *   · known / rumor / unknown 是纯字符串数组 —— 整体替换，必须整条给全。
  *   · 结构性键（era / minYear / tierMin / weight / base / mods / effects / flags /
  *     req / cost …）由引擎保护，写了会触发 validate 报错，所以这里一律不写。
+ *   · worldline 的 brief / outlets 同样在这里整体改写，年份键与中文一一对应；
+ *     pressure 是数值，不写。
  *   · 英文按英语重写：第二人称、现在时、短句；机构用真实英文名
  *     （CNN、Standard & Poor's、NSA、FEMA、Wall Street Journal）。
  * ==========================================================================*/
@@ -674,6 +676,22 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线 · 2011—2014 英文覆盖（outlets 均为当年真实存在的美国媒体）。 */
+    worldline: {
+      brief: {
+        "2011": "The decade of war gets a full stop, and the wallet is cut open in public: people begin to wonder who the word \"recovery\" is actually meant for.",
+        "2012": "Election year. Every disaster lands one week before the vote, and every word of comfort is converted into ballots.",
+        "2013": "People are busy checking their own call records while finding out the government cannot even issue paychecks — anger and embarrassment mix into one thing.",
+        "2014": "On one street people hold up names and dodge flash-bangs; who polices, and whom policing serves, start to look like two different questions."
+      },
+      outlets: {
+        "2011": ["CNN", "USA Today", "The Huffington Post", "Salon", "Breitbart News", "Politico"],
+        "2012": ["CNN", "The New York Times", "USA Today", "Politico", "The Daily Beast", "The Huffington Post"],
+        "2013": ["CNN", "USA Today", "The Washington Post", "Slate", "Twitter", "Breitbart News"],
+        "2014": ["CNN", "Vox", "The Intercept", "USA Today", "The New York Times", "Breitbart News"]
+      }
+    }
   }
 });

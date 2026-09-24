@@ -9,6 +9,8 @@
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，这里一条都不写。
  *   · 经济字段是系数，不涉及文案，不用管。
+ *   · worldline 的 brief / outlets 同样在英文层整体改写（年份键与中文一一对应）；
+ *     pressure 是数值，不写。
  *
  * 英文写法：重写而非直译。第二人称、现在时、短句；引语用破折号而不是引号；
  * 机构名用真实英文（CNN、Fox News、Wall Street Journal、Lehman Brothers、AIG）。
@@ -679,6 +681,22 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线 · 2007—2010 英文覆盖（outlets 均为当年真实存在的美国媒体，条数与中文一致）。 */
+    worldline: {
+      brief: {
+        "2007": "Paper wealth keeps rising while the foundations of the houses are already cracking. Everyone senses that something is wrong, and no one can put it into words.",
+        "2008": "A corner of the order collapses in public, and names that never stood before appear on the ballot. The mood of the year is: so it really does break.",
+        "2009": "The money goes out to rescue somebody else, and the bill arrives at your own house. People in the street start saying the word \"government\" with less respect.",
+        "2010": "The oil on the water gets gathered up; the accounts under it do not close. Anger moves from the plaza into the polling station."
+      },
+      outlets: {
+        "2007": ["The Wall Street Journal", "The New York Times", "CNN", "USA Today", "The Huffington Post"],
+        "2008": ["The Wall Street Journal", "The Washington Post", "CNN", "The Huffington Post", "BuzzFeed", "Twitter"],
+        "2009": ["The New York Times", "CNN", "USA Today", "BuzzFeed", "Twitter", "NBC"],
+        "2010": ["The Wall Street Journal", "The Washington Post", "CNN", "Fox News", "Breitbart News", "Twitter"]
+      }
+    }
   }
 });
