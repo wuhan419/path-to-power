@@ -750,7 +750,7 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 4. `effects` 的键名与取值范围（含 `count` 仇恨计数、`camp` 选情、`fall`、`hardEnd`、`setTrack/setStance`、`contact/forget`）
 5. `mods` 的 `src` 枚举与计算公式
 6. 结局规则的 `when` 字段与 `priority` 语义；`reason` 词汇（含 `career_end` 与清算/学贷各死因）
-7. 存档结构 `POTUS.G` 的字段名（含 `counters` / 学贷 `balance.studentLoan` / 选民池），存档兼容性依赖它
+7. 存档结构 `POTUS.G` 的字段名（含 `counters` / 学贷组 `debt/debtAccr/loanLate/loanCaps/forbear*/pslf*` / 选民池 / `saveVer` 存档格式戳），存档兼容性依赖它；破坏性变更走 §6.5 的硬零版本门禁（`balance.studentLoan` 参数则归 CONTENT-SCHEMA §10/§15 管）
 8. 资源键名固定为 `fun / fav / rep / lev`（`ap` 精力、`hp` 健康为**休眠字段**，效果空操作），投注键名固定为 `fun / fav`（`POTUS.stakeSpec/stakeInfo/computeP` 的入参契约）
 9. `brief` 的分段键名固定为 `lede / known / rumor / unknown / terms`；`terms` 元素形状固定为 `{k, v}`
 10. `month` 取值 1-12、`day` 取值 1-31；引擎的日期口径 `POTUS.dateText(ev)` 与报头/状态面板同步
@@ -772,6 +772,13 @@ node tools/validate.js     # 必须"全部通过"（改了平衡参数再加跑 
 NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools/smoke-ui.js
 ```
 校验脚本会自动读取 `index.html` 的清单（含两个托管区），因此新加的文件也会被一并校验。
+
+### 6.5 存档格式版本（v0.12 #26，硬零兼容）
+- `core.js` 的 `POTUS.SAVE_FORMAT = 12`：`serialize()` 时盖进 `G.saveVer`；`doLoad` / `importSave` 在 `migrate()` **之前**按 `SAVE_FORMAT_MIN` 硬校验。
+- 旧档没有软着陆：读档弹「旧政权」对话框只给**删档 / 开新局**；列表里灰显删除-only；自动档在启动路径静默丢弃。**存档上的破坏性变更不做迁移**。
+- 什么时候必须 `SAVE_FORMAT` 与 `SAVE_FORMAT_MIN` 一起 +1（两值恒等 = 硬零策略的体现）：
+  - 改已有字段**语义**（例：学贷从按月复利改成单利+年度资本化，v0.12 #25 就是升 12 的那一刀）；删字段；把"字段缺失=另一行为"改成"=再行为"。
+  - **只加字段、由 `migrate()` 补默认值 → 不升版本**，旧档照常载入。
 
 ---
 
@@ -885,7 +892,7 @@ choices: [
 | 掷骰分布 | 1 万次投掷，验证 crit≈15%、critfail≈3% |
 | 资源经济 | 投注加值/花费计算、余额夹取、95% 封顶、advantage 分布优于单次；**投注三锚 + 资金闸**（`stakeFunPer` 单调性、per 夹取、`stakeMax` 双闸：`ceil(cap÷w)`=8 档与余额） |
 | 把柄 / 人脉 / 事件链 / 在位时长 | `lev` 可加/可花/不为负、`bonusPressure.leverage`（≥3 份顶活跃度）与年度衰减；人脉引用完整性；`after` 链闭合与窗口门控、续集加权实测 ≈90%；`minTenure` 合法性与 `monthsAtTier` 门控；`count/countMin/countMax/countEq` 仇恨计数闭环（wrath 登记 ↔ 事件引用） |
-| 学贷 / 生涯结算 | `studentLoan` 各难度开局本金、月供/计息/断供判定、连续断供超 `lateLimit` → `bankrupt`；`endYear 2025` → `career_end` 七条 `career_*` 结局与 `president_done` 分支可达 |
+| 学贷 / 生涯结算 | `studentLoan` 各难度开局本金、单利计息/1 月资本化/月供/断供判定、缓交与 PSLF 全生命周期、连续断供超 `lateLimit` → `bankrupt`；存档版本门禁（`saveVer` < `SAVE_FORMAT_MIN` 判旧）；`endYear 2025` → `career_end` 七条 `career_*` 结局与 `president_done` 分支可达 |
 | 静好岁月 / 每月的账 | 片段注册完整性、时令 12 月覆盖、槽位兜底、极端处境都拼得出文字；`settleQuietMonth` 幂等、成长不越界且随年龄衰减；`monthlyLedger` 入账与幂等（工资/开销/学贷/选民单点结算） |
 | 事件配图（照片层） | 登记类型 key 在 `reg.category` 内；**`fs.existsSync` 逐文件检查照片在磁盘上**；缺图退 SVG；`ev.photo` 覆盖与关闭 |
 | i18n | 多语言覆盖层自检：`--lang=en` 下至少有一张卡变英文（覆盖层没生效会响）；l10n 定义形状合法 |
@@ -942,7 +949,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 **当前真实限制（v0.12）**
 - **内容量已不是主要瓶颈**（306 张卡 + 全年代线），质量瓶颈换成了**选项权衡**与**文字打磨**：`tools/choice-audit.js` 报出的"占优/过平"选项仍是逐卡回炉清单，`tools/text-audit.js` 的长 body 同理。
 - **清算线是刻意的roguelike式劝退设计**：仇恨永不衰减、前哨战(≥25)与清算(≥55)两拍、fail/critfail **即死无保底**（assassinated/framed/ruined/purged 四条 BE + 学贷 bankrupt）。新内容引用 `countMin/countMax/countEq` 时要想清楚这条线要不要留活口——目前的答案是"不留，但每条都有泄压阀（低头/交钱/示好可削恨）"。
-- **学贷螺旋只有三档难度生效**（normal 65k / hard 42k / brutal 28k；easy/legendary 开局无贷），断供口径（当月还款<利息）与 `lateLimit`（6/4/3）靠 `validate.js --diff=X --games=100` 的校准面板盯着，改曲线必须重新校准。
+- **学贷螺旋只有三档难度生效**（normal 65k / hard 42k / brutal 28k；easy/legendary 开局无贷）。v0.12 #25 起为**单利+年度资本化**：月息进欠息桶 `debtAccr`（桶内不再生息）、每年 1 月资本化进本金；断供口径（当月还款 < 当月新息）与 `lateLimit`（6/4/3，**待 #19 按新物理重校**）靠 `validate.js --diff=X --games=100` 的校准面板盯着，改曲线必须重新校准。玩家侧有两扇正当门：缓交（`forbear`，声望换月数）与 PSLF（`pslf`，低层公职 120 月豁免）。
 - **多支路主线已砍掉**：`engine/arc.js` 与 `content/11-arcs.js` 保留在仓库但**不加载**；要复活需要重新过设计评审。
 - **NPC 关系图 / 关系面板还没有**（`reg.npc` 预留未实现），人脉本质仍是"有名字的 NPC + 好感度"。
 - **轨道切换（"变节"）只有设计，未实现**。
@@ -974,7 +981,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | ~~定命一掷（旧建角）~~ | 掷骰/自由点/VIP 码：`balance.rollAttrs/freePoints/vipCodes` —— **遗留路径**，函数保留、入口不再走 | view/create.js（保留函数） |
 | 生涯线 1980→2025 | 无需配置：`balance.endYear: 2025` 硬墙 → `career_end` 结算 7 条 `career_*`；`president_done` 区分前总统，当总统不再即时结束 | view/stage.js `endYear/nextYear`、progression.js、40-endings.js |
 | 清算线（v0.12） | 效果 `count: { wrath_<组>: +n }` 攒恨；门槛 `countMin/countMax/countEq`；仇家登记 `POTUS.define("wrath")`；死因 `hardEnd: "assassinated"\|"framed"\|"ruined"\|"purged"` | core.js `reg.wrath`、effects.js `count`、when.js、140-reckoning.js |
-| 学贷螺旋（v0.12） | 无需配置：`balance.studentLoan`（startDebt 按难度 65k/42k/28k；断供=当月还款<利息；连续断供 ≥lateLimit 6/4/3 → `bankrupt`）；长期违约压力事件走 flag | core.js `P.loanStep`、validate `--diff` 校准面板 |
+| 学贷螺旋（v0.12，#25 新物理） | 无需配置：`balance.studentLoan`（startDebt 按难度 65k/42k/28k；**单利**月息进欠息桶、1 月资本化；断供=当月还款<当月新息；连续断供 ≥lateLimit 6/4/3 → `bankrupt`；`forbear` 缓交额度、`pslf` 公职豁免门槛）；长期违约压力事件走 flag | core.js `P.loanStep/forbearInfo/startForbear`、topbar 贷款面板、validate `--diff` 校准面板 |
 | 投注三锚+资金闸 | 一般不用配；特例 `{ per, w, cap }` 覆盖。`per = min(∛(A×X×G), G)`，A=月薪×3×量级、X=事件钱×25%、G=资金×6%/档 | dice.js `stakeFunPer` |
 | ap/hp 退役 | 新内容**不要写** `ap`/`hp`；残留写法空操作 | effects.js 顶注、dice.js |
 | 单卡终身衰减 | 无需配置：`idRepeatMul: 0.15`（撞过一次的普通卡权重终身 ×0.15）；"会回来的麻烦"用 `rereq`（when 词汇）声明再解锁 | events.js 权重处 |
@@ -1034,7 +1041,10 @@ A：两件事分开放：
   不是开局就有的。想快点点亮面板，去走 `80-shady.js` / `82-press.js` / `86-enclave.js` 里的接触型事件。
 
 **Q：怎么突然就背上 / 还清了学生贷款？**
-A：normal/hard/brutal 三档开局带贷（65k/42k/28k），每月按职位月薪的 25% 设还款目标、月供还盖不过利息 = 一次"断供"，**连续断供超 lateLimit（6/4/3 个月）直接 `bankrupt` 收线**。当官是还清贷款的正路——职位月薪是月供的锚。设计动机与校准方法见 §10 与 `engine/core.js` 的 `P.loanStep` 顶注。
+A：normal/hard/brutal 三档开局带贷（65k/42k/28k）。**单利**：月息进欠息桶（桶不再生息），每年 1 月资本化进本金；每月按职位月薪的 25% 设还款目标、月供盖不过当月新息 = 一次"断供"，**连续断供超 lateLimit（6/4/3，#19 重校中）直接 `bankrupt` 收线**。喘气有两条正当路：花声望**申请缓交**（一次 6 个月、全局至多 24，冻结期不记断供），或在低层公职连续按时供款满 120 个月吃 **PSLF 豁免**（本金+欠息一笔勾销，结算屏挂成就）。当官仍是还清贷款的正路——职位月薪是月供的锚。设计动机与校准方法见 §10 与 `engine/core.js` 的 `P.loanStep` 顶注。
+
+**Q：旧存档点开提示「这份存档属于旧政权」，是不是 bug？**
+A：不是，是刻意门禁（§6.5）：机制大改（如学贷新物理）会让旧档里的字段语义对不上，带病续档比删档更坑。硬零兼容、不写迁移——删档或开新局，二选一。
 
 **Q：被清算死了，是不是 bug？**
 A：不是。大收益选项会往 `wrath_*` 仇恨计数里攒恨，≥25 出前哨战（有泄压阀：低头/交钱/示好可以削恨），≥55 出清算正局；**仇恨永不衰减、清算正局 fail/critfail 即死、无保底**——这是 v0.12 刻意立的 roguelike 张力。不想死就别把每组人都得罪光，或者在 25 那一拍就低头。
@@ -1090,7 +1100,7 @@ A：可以（`python3 -m http.server`），但**不必要**。设计目标就是
 | **定点表（fixed）** | 全局定点事件表：`POTUS.define("fixed", [{event, year, month, …}])`，到点必发；`era.scheduled` 是它的兼容前身 |
 | **生涯线 / 2025 硬墙（endYear）** | 一局 = 1980→2025 的一条命。到点触发 `career_end` 成就结算（7 条 `career_*` 结局，`president_done` 区分前总统）；当总统**不再**即时结束游戏 |
 | **仇恨值 / 清算（wrath / reckoning）** | 大收益选项用效果 `count:{wrath_<组>:+n}` 攒恨（五组仇家登记在 `POTUS.define("wrath")`）；`when` 词汇 `countMin/countMax/countEq` 出门槛。恨 ≥25 出前哨战（有泄压阀）、≥55 出清算——**fail/critfail 即死无保底、仇恨永不衰减**，死因 `assassinated/framed/ruined/purged` |
-| **学贷（studentLoan）/ 断供（bankrupt）** | 普通及以下难度的开局背贷（65k/42k/28k）。断供 = 当月还款盖不过利息；连续断供超 `lateLimit`（6/4/3）→ 信用破产 BE。月供锚在职位月薪上——升官是还债的正路 |
+| **学贷（studentLoan）/ 断供（bankrupt）** | 普通及以下难度的开局背贷（65k/42k/28k）。**单利**月息进欠息桶、每年 1 月资本化进本金；断供 = 当月还款盖不过当月新息；连续断供超 `lateLimit`（6/4/3，#19 重校中）→ 信用破产 BE。缓交（声望换月数）与 PSLF（低层公职 120 月豁免）是两条正当泄压阀。月供锚在职位月薪上——升官是还债的正路 |
 | **投注档（stake step）** | 投注面板里按一次 ＋ 的粒度。**档数是动态价码**：每档金额 `per = min(∛(A × X × G), G)` —— 身位锚 A=职位月薪×3×量级系数、事件锚 X=事件钱量级×25%、资金闸 G=现有资金×6%/档（v0.12 三锚立方根，旧"两锚 √ + 事件钱硬顶"已退役）。档数仍受 `ceil(cap÷w)`=8 与余额双重限制；人情 1 点换一次重投取优 |
 | **单卡终身衰减（`idRepeatMul`）** | 撞过一次的非 unique 卡权重终身 ×0.15（叠加 `recentCap` 去重窗口）；"会回来的麻烦"要用 `rereq`（when 词汇）显式再解锁 |
 | **保底选项（fallback）** | 一个事件里既无 `cost` 也无 `req` 的那个选项。保证玩家资源见底时仍能推进；`validate.js` 强制每个事件都有（清算正局除外——即死是设计） |

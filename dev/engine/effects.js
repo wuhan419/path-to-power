@@ -13,11 +13,26 @@
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
     fun: function (v, G) { G.fun += v; },
     /* 学生贷款本金：事件里用 debt:-N 一次性抹平一笔欠款（不受标尺缩放，保持绝对额）。
-       还款/减免即视为按时，连续逾期计数 loanLate 归零；余额锁死不为负。 */
+       还款/减免即视为按时，连续逾期计数 loanLate 归零；余额与今年欠息桶一并锁死不为负。 */
     debt: function (v, G) {
       G.debt = Math.max(0, Math.round((G.debt || 0) + v));
       if (v < 0) G.loanLate = 0;
-      if (G.debt <= 0) { G.debt = 0; G.loanLate = 0; }
+      if (G.debt <= 0) { G.debt = 0; G.debtAccr = 0; G.loanLate = 0; }
+    },
+    /* v0.12 #20 天赋卡墙：事件效果可直接增删卡（addCard:"id" / removeCard:"id" 或数组）。
+       入墙只登记卡面，一次性 effects 不在此结算（那是建角选卡时 adoptCards 的事）；
+       removeCard 顺带把同名的免死痕迹清掉。未知卡 id 告警现形，与 funMul 同一纪律。 */
+    addCard: function (v, G) {
+      [].concat(v).forEach(function (id) {
+        if (!P.reg.card[id]) { console.warn("[POTUS] addCard 引用了未登记的卡: " + id); return; }
+        if (!Array.isArray(G.cards)) G.cards = [];
+        if (G.cards.indexOf(id) < 0) G.cards.push(id);
+      });
+    },
+    removeCard: function (v, G) {
+      [].concat(v).forEach(function (id) {
+        if (Array.isArray(G.cards)) G.cards = G.cards.filter(x => x !== id);
+      });
     },
     /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。

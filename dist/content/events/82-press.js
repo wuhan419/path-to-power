@@ -32,7 +32,7 @@ POTUS.define("event", [
    * 1) 借笔 —— 让那支笔第一次写你，而且写的是好话
    * ======================================================================== */
   {
-    id: "press_columnist", era: PRESS_ERAS, tierMin: 0, tierMax: 4, weight: 10,
+    id: "press_columnist", era: PRESS_ERAS, tierMin: 1, tierMax: 4, weight: 10,
     grade: "minor", valence: "risk", dyn: true, category: "media", medium: "print",
     title: "你在饭局上被介绍给本市报纸的专栏编辑",
     body: "本市报纸的第七版有一个专栏，每周三次，每次六百字。写它的人今年五十一岁，\n" +
@@ -118,7 +118,7 @@ POTUS.define("event", [
    * 2) 挡笔 —— 有人要在报上写你，而你手上第一次有"不敢被写的东西"
    * ======================================================================== */
   {
-    id: "press_blackout", era: PRESS_ERAS, tierMin: 1, tierMax: 5, weight: 11,
+    id: "press_blackout", era: PRESS_ERAS, tierMin: 2, tierMax: 5, weight: 11,
     grade: "mid", valence: "bane", dyn: true, category: "media", medium: "print",
     title: "一篇要爆料你的稿子下周四见报",
     body: "你比读者早三天知道那篇稿子要写什么。\n" +

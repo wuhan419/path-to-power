@@ -164,6 +164,17 @@
   .qchip .qval{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;color:var(--ink)}
   .qchip .pos{color:var(--good);font-weight:700}
   .qchip .neg{color:var(--bad);font-weight:700}
+  /* v0.12 #20 天赋卡墙：档案里的持卡瓷贴，左侧一小条稀有度色标，hover 看卡面说明 */
+  .gchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1.3;
+    border:1px solid var(--line);border-radius:11px;padding:2px 9px 2px 5px;background:#fbf7ec;cursor:help}
+  .gchip i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;background:#9aa3ad}
+  .gchip.spent{opacity:.5;text-decoration:line-through}
+  .gchip.spent i{background:var(--muted)}
+  /* v0.12 #20 终局保卡区：一行提示 + 每张卡一个按稀有度描边的小按钮 */
+  .keepbox{margin:10px 0 2px;padding:8px 10px;border:1px dotted var(--line);background:#f7f3e8}
+  .keeplab{font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:6px}
+  .gkeep{border-width:2px;border-radius:12px}
+  .kept{font-size:13px;color:var(--good);font-weight:700}
   /* chip 底色分档（v0.10）：正=淡绿、负=淡红，幅度越大底色越深（三档封顶，文字保持可读） */
   .qchip.tint-p1{background:#f0f5e7}
   .qchip.tint-p2{background:#e3efcf;border-color:#c4dba0}
@@ -183,6 +194,9 @@
   /* 标签行里的溢出收敛与丑闻语义 */
   .tag-more{background:#e9dfc7;color:var(--muted);font-style:italic;border-style:dashed}
   .tag.scandal{background:#f3dede;color:var(--bad);border-color:#c49a9a;font-weight:700}
+  /* 仇家 chip：红底 + 名单感（谁记恨你、攒了多少） */
+  .qchip.wrath{background:#f6e2df;border-color:#c49a9a}
+  .qchip.wrath b{color:#9c2b2b}
   /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑） */
   .sb.tier-0,.idcard.tier-0,.saveline.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1,.saveline.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2,.saveline.tier-2{--tier:#3a4a63}
   .sb.tier-3,.idcard.tier-3,.saveline.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4,.saveline.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5,.saveline.tier-5{--tier:#caa53a}
@@ -328,12 +342,30 @@
   .odds-l3{color:#5a6b1f;background:#f0f2d9;border-color:#c0c98a}
   .odds-l4{color:#2f6b3a;background:#e9f3e8;border-color:#9fc7a0}
   .odds-l5{color:#1d5a24;background:#e0f0dd;border-color:#7fbf84}
+  /* 把握铺底：整个选项栏底色按六档色阶从左侧色条渐入（左浓右淡），
+     不选它也能一眼扫出这局的风险分布。色条 + 同色描边取代默认边框。 */
+  .choice.odds-bg{border-color:color-mix(in srgb, currentColor 18%, #d8cfb8);background-clip:border-box;
+    background-image:linear-gradient(90deg, rgba(var(--odds-rgb), .30) 0, rgba(var(--odds-rgb), .08) 55%, rgba(var(--odds-rgb), .02) 100%),
+                     linear-gradient(90deg, currentColor 0, currentColor 100%);
+    background-size:100% 100%, 4px 100%;background-position:0 0, 0 0;background-repeat:no-repeat}
+  .choice.odds-bg:hover:not(:disabled){background-image:linear-gradient(90deg, rgba(var(--odds-rgb), .40) 0, rgba(var(--odds-rgb), .14) 55%, rgba(var(--odds-rgb), .04) 100%),
+                     linear-gradient(90deg, currentColor 0, currentColor 100%)}
+  .choice.odds-bg:disabled{opacity:.6}
+  .choice.odds-bg .odds{background:rgba(255,255,255,.62)}
+  .choice.odds-bg.odds-l0{color:#8a1f1f;--odds-rgb:168,40,36}
+  .choice.odds-bg.odds-l1{color:#9c4a1f;--odds-rgb:190,100,45}
+  .choice.odds-bg.odds-l2{color:#7a5a00;--odds-rgb:196,164,60}
+  .choice.odds-bg.odds-l3{color:#4a6b12;--odds-rgb:140,175,70}
+  .choice.odds-bg.odds-l4{color:#2f6b3a;--odds-rgb:90,165,105}
+  .choice.odds-bg.odds-l5{color:#1d5a24;--odds-rgb:60,150,80}
   .choice:disabled .odds{opacity:.5}
   /* 选项回报区间预览（掷骰前）：代价之下再给一行“这条路能捞到什么”的摆动幅度 */
 .choice .rewline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px}
 .choice .rewline .gtag{font-size:11px;letter-spacing:2px;color:var(--muted)}
 .choice .rewline .gchip2{font-size:12px;padding:1px 8px}
 .choice .rew-risk{font-size:11px;color:#9c2b2b;background:#f8eeee;border:1px solid #c49a9a;
+    border-radius:9px;padding:1px 8px;font-weight:600}
+.choice .rew-feud{font-size:11px;color:#7a4a12;background:#f6efdf;border:1px solid #d8bf8f;
     border-radius:9px;padding:1px 8px;font-weight:600}
 .choice .gchip2.rew-more{color:var(--muted);font-weight:400;background:#f2efe6}
   /* 事件三值性徽标：机遇（绿）/ 风险（橙）/ 威胁（红） */
@@ -403,6 +435,11 @@
   .saveline.svel{opacity:.72;border-style:dashed}
   .saveline.svel b{color:var(--muted);font-weight:600}
   .saveline.svel:hover{opacity:1}
+  /* v0.12 存档格式门禁：旧格式档在读取列表里灰显不可载入，只留删除钮 */
+  .saverow-stale .saveline.stale{border:1px dashed var(--line);border-radius:6px;
+    background:rgba(0,0,0,.03);opacity:.66;cursor:default}
+  .saveline.stale b{color:var(--muted)}
+  .stalebadge{font-style:normal;font-weight:400;font-size:11px;color:#9c2b2b;margin-left:6px}
   .svedit{flex:none;width:34px;font-size:14px;color:#2a5a8c;border-color:#9ab4c8}
   .svedit:hover{background:#2a5a8c;color:#fff}
   .saverow-empty{display:flex;align-items:center;margin:6px 0}
@@ -569,6 +606,16 @@
   .rleft.done{color:var(--good);font-weight:700}
   .viprow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
   .viprow input[type=text]{width:220px}
+  /* v0.12 #20 开局天赋卡墙：抽出来的卡一张一格，按稀有度描边，选中高亮、名额满时压暗 */
+  .gwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+  .gcard{position:relative;border:2px solid var(--line);background:#fbf7ec;border-radius:6px;
+    padding:18px 10px 10px;cursor:pointer;min-height:92px;transition:box-shadow .12s,opacity .12s}
+  .gcard b{display:block;font-size:14px;margin-bottom:3px}
+  .gcard small{display:block;font-size:11.5px;line-height:1.5;color:var(--muted)}
+  .gcard.sel{background:#fff8e2}
+  .gcard.dim{opacity:.42}
+  .grar{position:absolute;top:0;left:0;color:#fff;font-size:10px;font-weight:700;
+    padding:1px 8px;border-radius:0 0 6px 0;letter-spacing:1px}
   /* 收益结算：结果正文下方的一排筹码 */
   .gainbox{margin:8px 0;padding:7px 10px;border:1px dotted var(--line);background:#f7f3e8;
     display:flex;flex-wrap:wrap;gap:5px;align-items:center}
@@ -580,6 +627,13 @@
   .gchip2.good{color:#2f6b3a;border-color:#8fae94;background:#eef5ee}
   .gchip2.bad{color:#9c2b2b;border-color:#c49a9a;background:#f8eeee}
   .gchip2.gflag{color:#5a4a6b;border-color:#a99aba;background:#f2eef6;font-weight:400}
+  /* 「仅大成功」角标：这条效果只在某一个结果档出现（v0.12） */
+  .gchip2 .gnote{font-style:normal;font-weight:400;font-size:10.5px;opacity:.72;margin-left:4px;letter-spacing:0}
+  /* 学贷面板（v0.12 改制）：资源瓷贴下方一行筹码 —— 本金/欠息/缓交/PSLF 进度。
+     gchip2 复用结算筹码样式，缺的 .muted 在这里只压灰，不新增观感。 */
+  .loanline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:3px 0 2px}
+  .loanline .gchip2.muted{color:var(--muted);font-weight:600;background:#f2efe6}
+  .loanline .forbear-btn{font-size:11.5px;padding:1px 9px;border-radius:9px}
   /* 年终随笔：三段人话，衬线、首行缩进、上边一道双线 */
   .ytales{border-top:1px double var(--line);border-bottom:1px double var(--line);
     margin:10px 0;padding:10px 2px;background:transparent}
@@ -598,7 +652,7 @@
   details.check[open] .check-line{margin-top:5px}
 
   /* ==========================================================================
-     v0.9 · 报刊档案风（对齐 mockup-event-v3-archive.html）
+     v0.9 · 报刊档案风（原型 mockup-event-v3-archive.html 已归档删除）
      顶栏 kicker 条 / 身份头像 / 事件卡 = 头版社论（大标题 + 斜体导语 + 头版图）
      ======================================================================== */
   /* 顶栏 kicker 条：时代 · 年份 · 第几个年头（仅对局中存在 G 时由 shell.js 注入）。
@@ -752,6 +806,21 @@
   .create .opt-body b{font-size:15px;letter-spacing:.5px}
   .create .opt-body small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
 
+  /* 建角三步向导（难度 → 抽卡 → 加点）：步序指示 + 底部导航 */
+  .stepbar{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0 2px}
+  .stepbar .step{display:inline-flex;align-items:center;gap:5px;font-size:12px;letter-spacing:.5px;
+    color:var(--muted);cursor:pointer;user-select:none;padding:3px 10px;border:1px solid var(--line);
+    border-radius:14px;background:#fff}
+  .stepbar .step b{display:inline-grid;place-items:center;width:17px;height:17px;font-size:11px;
+    border-radius:50%;background:var(--line);color:#fff}
+  .stepbar .step.on{color:var(--ink);border-color:var(--era1);background:var(--era3);font-weight:700}
+  .stepbar .step.on b{background:var(--era1)}
+  .stepbar .step.done b{background:var(--good)}
+  .stepbar .stepsep{color:var(--line);font-style:normal;font-size:15px;line-height:1}
+  .create-nav{display:flex;gap:10px;margin-top:18px}
+  .create-nav .btn{flex:1 1 0;margin:0}
+  .createmsg{margin-top:8px;font-size:12.5px;color:var(--bad)}
+
   /* ================= 手机竖屏（portrait）：三区竖排 + 信息密度收窄 =================
    * 目标（真机反馈版）：上=状态栏（两行内：头像·姓名｜资源，职位·等级另起一行）、
    * 中=事件栏（默认只标题，点标题才展开 正文/本月结算/档案头）、下=选择栏（回报只给
@@ -858,4 +927,17 @@
     .result{font-size:13px;margin:8px 0}
     .result .rbody{font-size:13px;line-height:1.7}
     .actbtn{padding:10px;margin-top:8px}
+
+    /* ---- 建角三步向导：一屏一步，导航钉在底部常驻可达（硬性要求同顶栏） ---- */
+    .create{padding-bottom:78px}                 /* 让开底部导航的高度，末屏不被遮 */
+    .create-nav{position:sticky;bottom:0;z-index:5;margin-top:12px;padding:8px 0 2px;
+      background:linear-gradient(to top,var(--paper) 68%,rgba(255,255,255,0))}
+    .create-nav .btn{flex:1 1 0;min-height:44px;font-size:14.5px}
+    .stepbar{flex-wrap:nowrap;gap:4px}
+    .stepbar .step{padding:3px 7px;font-size:11px}
+    .stepbar .stepsep{font-size:13px}
+    /* 加点屏在窄屏下逐属性换行，−10/−5/+5/+10 四枚键不至于挤成一团 */
+    .rollgrid{grid-template-columns:1fr;gap:6px}
+    /* 抽卡墙：窄屏两列，卡面小字仍可辨 */
+    .gwall{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px}
   }

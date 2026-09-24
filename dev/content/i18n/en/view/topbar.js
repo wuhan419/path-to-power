@@ -75,6 +75,21 @@ POTUS.define("l10n", {
     "ui.topbar.tipFun": "Money for campaigning and back-room work. Most key actions burn cash, and so does raising the stakes; at zero you can barely move.",
     "ui.topbar.tipFav": "Connections banked and owed. Call in favors for help — or get called in by old debts.",
     "ui.topbar.tipLev": "Secrets others cannot afford to surface, counted in pieces. Hold them and you can force concessions at the worst possible moment — but they expire once the person falls or the story dies down.",
+    /* ---------------- 学贷面板（v0.12：单利 / 缓交 / PSLF） ---------------- */
+    "ui.topbar.loanBal": "Loan ${v}k",
+    "ui.topbar.loanBalTip": "Student loan principal. Interest accrues monthly on simple interest; this year's unpaid interest capitalizes into principal each January. Miss payments {lim} months running and your credit collapses.",
+    "ui.topbar.loanBalTipOff": "Student loan principal. Interest accrues monthly on simple interest; this year's unpaid interest capitalizes into principal each January.",
+    "ui.topbar.loanAccr": "Interest ${v}k",
+    "ui.topbar.loanAccrTip": "Interest piled up this year (not yet capitalized). It joins principal in January; payments fill this bucket first, then hit principal.",
+    "ui.topbar.forbearLeft": "Forbearance · {n} mo left",
+    "ui.topbar.forbearActiveTip": "Forbearance freeze: no payments, no late marks — but interest keeps piling up. At the end it all capitalizes into principal and your credit report takes the hit (Reputation loss).",
+    "ui.topbar.forbearBtn": "Request forbearance",
+    "ui.topbar.forbearBtnTip": "Freeze payments for {per} months: no payments, no late marks; interest still accrues. On resume it capitalizes into principal and Reputation -{rep}. Lifetime quota left: {q} months.",
+    "ui.topbar.pslfProg": "PSLF {m}/{n}",
+    "ui.topbar.pslfTip": "Public Service Loan Forgiveness: while holding public office, every month paid on time (no forbearance, at least the month's interest covered) counts. Bank {n} qualifying months and the remaining loan is wiped clean. Months below the tier bar don't count.",
+    "ui.topbar.pslfBadge": "✓ Loan forgiven (PSLF)",
+    "ui.topbar.pslfDoneTip": "Public Service Loan Forgiveness granted — you traded a decade of public paychecks for this debt's end.",
+    "ui.topbar.loanClearedShort": "✓ Loan repaid",
 
     /* 竞选条 */
     "ui.topbar.campLeft": "{n} month(s) left in this act",

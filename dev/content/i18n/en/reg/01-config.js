@@ -87,6 +87,7 @@ POTUS.define("l10n", {
         president_done: { name: "Ex-President", desc: "Your term has ended", effect: "Retirement ending graded by your presidency" },
         fallen: { name: "Fell Once", desc: "You were knocked off the stage", effect: "Climbing back to T3+ before retiring = the comeback ending; otherwise the rock-bottom one. The topbar spectrum keeps a 'fall' mark" },
         owns_media: { name: "Media Owner", desc: "A pen answers to you", effect: "Unlocks the 'Owner of the Fourth Estate' retirement ending" },
+        pslf_forgiven: { name: "Loan Forgiven", desc: "Ten years of public service, paid on time — the feds wiped the rest of your student debt", effect: "The career-settlement screen stamps the PSLF achievement line" },
         mentor: { name: "Has a Mentor", desc: "Someone guides you and speaks for you in the room", effect: "Unlocks mentor-only follow-up events (key party moments)" },
         shady_start: { name: "Dirty Start", desc: "Your first fortune wasn't clean", effect: "Unlocks the gray-trade chain — dirty money pulls you deeper" },
         union_backing: { name: "Union Backing", desc: "Organized labor stands behind you", effect: "Unlocks union-backing events; betray it and eat the backlash" },

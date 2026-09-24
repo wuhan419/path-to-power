@@ -78,6 +78,8 @@ POTUS.define("l10n", {
     "ui.stage.ledgerNet": "Net",
     "ui.stage.ledgerLoan": "Loan",
     "ui.stage.loanBalance": "Loan balance ${amt}k",
+    "ui.stage.loanAccr": " + ${amt}k interest",
+    "ui.stage.loanFrozen": " · forbearance",
     "ui.stage.loanLate": " · {late} months late",
     "ui.stage.loanDoom": "（credit collapse in {left} months）",
     "ui.stage.loanCleared": "✓ Loans paid off",

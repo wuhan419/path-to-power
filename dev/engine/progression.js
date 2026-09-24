@@ -14,6 +14,16 @@
     return (P.G.year - base) % cycle === 0;
   };
 
+  /* v0.12 #20 二周目保卡：终局结算时从本局持有的卡里挑一张跨局保留（存 localStorage，不进存档）。
+     chooseKeepCard 由结算页按钮调用：写入后把 #keepbox 换成"已保留"回执。 */
+  P.chooseKeepCard = function (id) {
+    if (!P.reg.card || !P.reg.card[id]) return;
+    P.keepCardSet(id);
+    const box = document.getElementById("keepbox");
+    if (box) box.innerHTML = '<div class="kept">' + P.t("ui.progression.keepDone",
+      "✓ 已保留「{card}」——下周目开局它必定出现在你的卡墙里。", { card: P.cardName(id) }) + "</div>";
+  };
+
   /* 声明式条件求值：直接交给统一的 P.when()（engine/when.js）。
    * 结局规则用的 trackIn / ageMin / repMin / reason 等拼写都被 when.js 认成别名，
    * 所以这里不再自己维护一套词汇 —— 三套老词汇已经合成一套。 */
@@ -55,6 +65,20 @@
     const peak = (P.G.peakTier != null ? P.G.peakTier : P.G.tier);
     const peakOffice = (P.officeNameAt ? P.officeNameAt(peak) : "") || P.t("ui.progression.tierLevel", "等级 {n}", { n: peak + 1 });
     const wasPresident = P.hasFlag("president_done");
+    /* v0.12 #20 橙卡跨局解锁闸：本局当过总统 → 永久点亮 everPresident，下周目橙卡进池。 */
+    if (wasPresident && P.markEverPresident) P.markEverPresident();
+    /* 二周目保卡区：本局持有几张卡就能挑几张之一跨局带走（keepQuota 张以内）。 */
+    const gachaOn = (P.balance().gacha || {}).enabled !== false;
+    const keepIds = ((P.G.cards || []).filter(id => P.reg.card[id]));
+    const keepHTML = (gachaOn && keepIds.length)
+      ? '<div id="keepbox" class="keepbox"><div class="keeplab">' + P.t("ui.progression.keepPrompt",
+        "★ 挑一张天赋卡带进下周目（会出现在下周目的开局卡墙上）：") + "</div>" +
+        keepIds.map(function (id) {
+          const c = P.reg.card[id] || {};
+          const col = { 1: "#9aa3ad", 2: "#3d8fd1", 3: "#8b5cf6", 4: "#e8930c" }[c.rarity || 1];
+          return '<button class="btn tiny gkeep" style="border-color:' + col + '" onclick="POTUS.chooseKeepCard(\'' + id + '\')">' + P.cardName(id) + "</button>";
+        }).join(" ") + "</div>"
+      : "";
     const startYear = era.startYear || (P.G.year - ((P.G.age || 0) - (P.balance().startAge || 24)));
     let body = rule.body || "";
     if (typeof body === "function") body = body(P.G, P);
@@ -75,7 +99,12 @@
       "<br>" +
       P.t(wasPresident ? "ui.progression.wasPresident" : "ui.progression.noPresident",
         wasPresident ? "✓ 曾入主白宫" : "— 未入白宫") + "<br>" +
-      P.t("ui.progression.finalLine", "终局年龄 {age} ｜ 净资产 ${net}k ｜ 丑闻等级 {scandal}", { age: P.G.age, net: (P.G.fun / 1000).toFixed(0), scandal: P.scandalLevel() }) + "</div></div>" +
+      /* v0.12 PSLF 成就印：任何终局都挂这一行（不抢结局标题，但整排结算里必须有名字） */
+      (P.G.pslfDone || P.hasFlag("pslf_forgiven")
+        ? P.t("ui.progression.pslfLine", "✓ 公职贷款豁免（PSLF）：{n} 个月公职按时供款，学生贷款一笔勾销",
+          { n: (((P.balance() || {}).studentLoan || {}).pslf || {}).months || 120 }) + "<br>"
+        : "") +
+      P.t("ui.progression.finalLine", "终局年龄 {age} ｜ 净资产 ${net}k ｜ 丑闻等级 {scandal}", { age: P.G.age, net: (P.G.fun / 1000).toFixed(0), scandal: P.scandalLevel() }) + keepHTML + "</div></div>" +
       '<div class="center" style="margin-top:14px">' +
       '<button class="btn primary" onclick="POTUS.renderTitle()">' + P.t("ui.progression.backTitle", "回到标题") + '</button> ' +
       '<button class="btn" onclick="POTUS.exportSave()">' + P.t("ui.progression.exportSave", "导出本局") + '</button></div>' +

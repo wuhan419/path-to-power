@@ -234,6 +234,8 @@
     (choice.mods || []).forEach(apply);
     const tal = P.reg.talent[P.G.talent];
     if (tal && tal.mods) tal.mods.forEach(apply);
+    /* v0.12 #20：卡墙上的 mods 与旧单卡天赋同权叠加（多卡各自出一条 breakdown） */
+    if (P.cardMods) P.cardMods().forEach(apply);
     /* v0.6：晋升/连任类选项自动吃「选民底气」修正（±contestW）。
        这一条让"选民"真的影响晋升：票仓不稳的人在晋升判定上会吃亏，
        票仓扎实的人更容易抓住机会。中心点对齐自然均衡点，故不推翻既有平衡。
@@ -249,13 +251,14 @@
 
   P.TIER_RANK = { critfail: 0, fail: 1, meh: 2, ok: 3, crit: 4 };
 
-  /* 五档判定。天赋可声明 critMul / critfailBoost */
+  /* 五档判定。天赋/卡可声明 critMul / critfailBoost；#20 起 Luck 卡给全局 +百分点
+     （luckPct 在 p100 上加成，meh 上限与 critfail 下界都从 p100 派生，自动跟随） */
   P.rollTier = function (p) {
-    const p100 = Math.round(p * 100);
+    const p100 = Math.min(99, Math.round(p * 100) + (P.luckPct ? P.luckPct() : 0));
     const roll = P.rint(1, 100);
     const tal = P.reg.talent[P.G.talent] || {};
-    const critMul = tal.critMul || 1;
-    const cfMul = tal.critfailBoost || 1;
+    const critMul = Math.max(tal.critMul || 1, ...P.activeCards().map(c => c.critMul || 1));
+    const cfMul = Math.max(tal.critfailBoost || 1, ...P.activeCards().map(c => c.critfailBoost || 1));
     if (roll <= Math.round(p100 * 0.30 * critMul)) return { tier: "crit", roll: roll };
     if (roll <= p100) return { tier: "ok", roll: roll };
     const mehCap = Math.min(p100 + 25, 100 - 5 * cfMul - 1);

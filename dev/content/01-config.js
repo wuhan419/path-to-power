@@ -5,8 +5,44 @@
  * ==========================================================================*/
 POTUS.define("balance", {
   /* 建角初始值 */
-  startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
-  startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
+  startAge: 24, startFun: 0, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
+  /* 开局三围与资金全 0（硬核从零）：魅力/智力/手腕靠 20 自由点自己洒，钱靠分配点/钱卡挣。
+     判定中性点在 50（dice.js），所以没点到的维会吃负修正——这是自甘风险的偏科代价。
+     诚信 INTG 是幕后属性、不在建角分配位，固定 50 = 中性，不受玩家摆布。 */
+  startAttr: { CHA: 0, INT: 0, CUN: 0, INTG: 50 },
+  /* ---- 建角自由点（覆盖 engine/core.js BALANCE_DEFAULTS）----
+     v0.12 #20 定稿：定命一掷删除，属性直接吃 startAttr 打底，自由点分配到四个去处。
+     汇率（与天赋卡价值同一把尺）：1 点 = +10 魅力/智力/手腕 = +$25k 金钱。
+
+     ⚠ freePoints:20 是【一周目】的池子大小，不是常量 —— 这是个多周目成长游戏：
+       每局结算领「+2 自由点」就永久累计（core.js loopFreeBonus / readBonusFree），
+       实际额度 = freePoints + 累计周目奖励，池子随周目变大。
+     ⚠ 单维上限也必须跟着涨，否则池子变大多出来的点只能全灌进金钱档，属性这条腿成长不了。
+       所以下面是【软上限】：实际上限 = min(freeCapMax, freeCapPerAttr + floor(额外点/6))，
+       即每多 6 点额度、单维多开 1 点。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点），
+       freeCapMax 8 保证正常周目不会把三维全拉满（24 > 20 仍要取舍）。 */
+  freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
+
+  /* ---- 开局天赋卡墙（v0.12 #20 · engine/core.js POTUS.gachaCfg 消费，卡定义在 content/15-cards.js）----
+     难度 = 能选几张卡（不再 = 出身发多少钱）；各档开局资金全部搬进卡池（见 15-cards.js 的钱卡）。
+     四档稀有度 白1/蓝2/紫3/橙4，每个呈现卡位【独立】掷一次稀有度，再在该档内等概率抽一张。
+     概率随周目递增（loopRarity，第 N 周目覆盖第 N 档，未写的档自动兜底）：
+       一周目压蓝（93/6/0.9/0.1），二三周目逐步抬蓝紫，越玩越容易撞好东西。
+     橙卡受跨局 meta 门槛：只有当过总统（everPresident，localStorage 记录）后才进池，周目不提前放橙。 */
+  gacha: {
+    enabled: true,
+    offer: 12,                     // 开局呈现几张供挑选
+    loopRarity: {
+      1: { 1: 93, 2: 6, 3: 0.9, 4: 0.1 },      // 一周目：蓝卡明显收着
+      2: { 1: 88, 2: 10, 3: 1.7, 4: 0.25 },    // 二周目
+      3: { 1: 82, 2: 14, 3: 3.2, 4: 0.5 }      // 三周目及以后（再往后沿用这档）
+    },
+    orangeRarity: 4,               // 哪一档是"橙"（受总统门槛解锁的命卡档）
+    picks: { brutal: 1, hard: 2, normal: 3, easy: 4, legendary: 5 },  // 难度 → 可选几张卡
+    keepQuota: 1,                  // 二周目可跨局保留几张卡
+    spareRepPenalty: 15            // 免死卡挡下一次致命结局时扣的声望
+  },
+
   tierMin: 0, tierMax: 9,
   /* 生涯终点年：从开局（1980）一路打到 2025 再结算成就，做到总统不再即终局。
      挂点在 engine/view/stage.js 的 endYear / nextYear。死亡/入狱/被迫害等仍可提前结束。 */
@@ -315,10 +351,19 @@ POTUS.define("balance", {
   /* 学生贷款（普通难度以下的开局背贷 · 见 engine/core.js 的 P.loanStep）
      设计意图：现实里奥巴马当总统还在还哈佛法学院的贷 —— 让金钱从开局就被一条
      固定现金流咬住，越穷的难度越疼，把「钱」变成真资源。
+     v0.12 改制：按月复利改「单利 + 年度资本化」—— 每月利息进 G.debtAccr 欠息桶、
+     不滚本金，每年 1 月（loanStep 内）才把桶并入本金。利息不再无声利滚利，
+     「缓交几个月」和「拖一整年」是两种量级的决定，玩家读得懂、也算得清。
      · startDebt：按难度给本金，未列出的难度（easy/legendary）= 0（世家替你交了）。
-     · interestAnnual：年利率，按月计息（还不清就一直滚，还原多年后仍在还）。
+     · interestAnnual：年利率，按单利月度计提（进欠息桶，年内不滚）。
      · payShare：月供目标 ≈ 职位月薪 × payShare —— 收入越高还得越快，联邦高层才还得清。
-     · minPayment：每月最低还款额（现金见底则本月不还本、只挂息，不逼死玩家）。 */
+     · minPayment：每月最低还款额（现金见底则本月少还、绝不扣成负）。
+     · forbear：缓交（Forbearance）—— 主动申请、冻结月供：
+         maxMonths 终身额度（月），perMonths 单次申请上限，repCost 恢复时扣声望
+         （征信留痕），且恢复当月桶内欠息资本化进本金。
+     · pslf：公职贷款豁免（Public Service Loan Forgiveness）——
+         months 个合格月（在任、未缓交、当月还款盖住利息）后，本金+欠息一笔清零，
+         并解锁成就；minTier 起才算合格（基层志愿不算数）。 */
   studentLoan: {
     enabled: true,
     startDebt: { normal: 65000, hard: 42000, brutal: 28000 },
@@ -327,10 +372,12 @@ POTUS.define("balance", {
        长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
     lateMonths: 12,
     /* lateLimit：连续断供多少个月 → 信用破产（hardEnd "bankrupt"，见 core.js loanStep）。
-       断供 = 当月连利息都没交上（余额在增长），部分还款且盖住利息即重新计时。
+       断供 = 当月连利息都没交上（欠息桶在增长），部分还款且盖住利息即重新计时。
        按难度分档，未列出的难度（easy/legendary，开局无贷）= 不启用。
-       数值由 --diff=X --games=100 生涯模拟校准（validate.js「学贷断供」面板）。 */
+       ⚠ 单利改制后断供分布会变，此组数值待 #19 用新物理重新校准（cap 99 测量）。 */
     lateLimit: { normal: 6, hard: 4, brutal: 3 },
+    forbear: { maxMonths: 24, perMonths: 6, repCost: 3 },
+    pslf: { months: 120, minTier: 1 },
   },
 
   /* 负债设底（engine/core.js 的 POTUS.enforceDebtFloor）
@@ -464,6 +511,7 @@ POTUS.define("balance", {
     president_done: { name: "曾任总统", desc: "你的任期结束了", effect: "退休结局按总统评价" },
     fallen: { name: "下野过", desc: "你从台上摔下来过", effect: "爬回 T3+ 退休=「东山再起」结局；否则=「从谷底收场」；顶栏光谱挂「下野」印记" },
     owns_media: { name: "拥有媒体", desc: "一支笔在你手里", effect: "解锁「话语权的所有者」退休结局" },
+    pslf_forgiven: { name: "学贷已豁免", desc: "十年公职按时供款，剩余学贷被联邦一笔勾销", effect: "生涯结算屏挂 PSLF 成就印" },
     /* —— 事件链钥匙（有它才解锁后续专属事件） —— */
     mentor: { name: "导师", desc: "有人愿意指点你、在房间里替你说话", effect: "解锁导师后续专属事件（党内关键场合指路）" },
     shady_start: { name: "走过灰路", desc: "你的第一桶金不干净", effect: "解锁灰产后续专属事件链（脏钱越陷越深）" },

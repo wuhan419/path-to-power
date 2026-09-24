@@ -11,6 +11,9 @@ POTUS.VERSION = "0.4.0";
 /* ---------- 注册表：内容通过 POTUS.define() 写入这里，引擎只读 ---------- */
 POTUS.reg = {
   era: {}, origin: {}, talent: {}, entry: {}, track: {}, party: {}, stance: {},
+  /* 天赋卡墙（v0.12 #20 开局抽卡）：内容见 content/15-cards.js，契约见 docs/CONTENT-SCHEMA.md §17。
+     可叠加字段（mods/critMul/luckPct/...）由 P.activeCards() 家族聚合，引擎各读点消费。 */
+  card: {},
   faction: {}, factionUnknown: "其他", blackswan: {}, filler: {},
   /* 仇家群体（清算系统）：仇恨值藏在 G.counters["wrath_<组>"]，门槛判定走现成的
      countMin/countMax/countEq 词汇。内容见 content/01-config.js 的 wrath 登记。 */
@@ -134,23 +137,36 @@ POTUS.define = function (kind, payload) {
 
 /* ---------- 默认平衡参数（content 的 balance 包可覆盖任意项） ---------- */
 const BALANCE_DEFAULTS = {
-  startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0, startLev: 0,
-  startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
+  startAge: 24, startFun: 0, startRep: 0, startHp: 100, startAp: 8, startFav: 0, startLev: 0,
+  /* 三围/资金开局全 0（硬核从零，见 content/01-config.js 同名字段的说明）；
+     诚信 INTG 是幕后中性属性，固定 50，不进建角分配。 */
+  startAttr: { CHA: 0, INT: 0, CUN: 0, INTG: 50 },
   tierMin: 0, tierMax: 9,
   /* v0.11 P1：生涯终点年 —— 游戏一路打到 2025 再结算成就，而非做到总统即终局。
      endYear 是唯一权威（挂在 stage.js endYear/nextYear）；死亡/入狱等仍可提前结束。 */
   endYear: 2025,
 
-  /* ---- 建角掷骰：定命一掷 + 自由点 ----
-   * rollAttrs   四属性各掷一次的范围（默认 35-55，d20+35 的味道）
-   * rerolls     每个属性可以单独重掷几次（天命不公，给你一次反悔的机会）
-   * freePoints  掷完之后可自由分配的点数（VIP 充值码在此之上追加，见 vipCodes）
-   * freeCapPerAttr  单属性最多接受的加点 —— 防止把一维堆成怪物、其余躺平 */
-  rollAttrs: { min: 35, max: 55, rerolls: 1 },
-  freePoints: 8, freeCapPerAttr: 15,
-  /* VIP 充值码（测试码表）：输入匹配即给本局追加自由点。
-   * 已激活的码记在 localStorage（单机防重复）。正式运营前整个表都会换掉。 */
-  vipCodes: { "VIP1": 1, "VIP5": 5, "VIP20": 20, "VIP50": 50 },
+  /* ---- 建角自由点（v0.12 #20：定命一掷已删除，不再掷骰）----
+   * 属性直接吃 startAttr 打底，freePoints 点在四个去处之间分配：
+   *   魅力 / 智力 / 手腕 → 每点 freeAttrPerPoint 属性
+   *   金钱             → 每点 freeFunPerPoint 美元（加进开局资金）
+   * freeCapPerAttr 单维点数上限：属性打底 45、硬顶 99，单维最多吃 5~6 点就到顶。
+   * 诚信 INTG 不在建角分配位里（字段与内容全保留，纯靠选择后天涨跌）。
+   *
+   * ⚠ freePoints 是【一周目基础值】，不是常量：这是一个会长大的元进度池 ——
+   *   每局结算时选「+2 自由点」就永久累计（见 loopFreeBonus / readBonusFree），
+   *   实际额度 = freePoints + 累计周目奖励。
+   * ⚠ 单维上限也随额度伸缩（软上限）：实际上限 = min(freeCapMax,
+   *   freeCapPerAttr + floor(额外点 / freeCapGrow))。否则池子变大多出来的点只能全灌进金钱档，
+   *   属性成长这条腿就断了。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点）。 */
+  freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
+  freeAttrPerPoint: 10, freeFunPerPoint: 25000,
+  /* 每局结算选「加点」这一支时，永久追加多少自由点（与"保留一张天赋卡"互斥，二选一）。 */
+  loopFreeBonus: 2,
+  /* 隐藏作弊码（测试彩蛋，界面上不出现任何入口）：连打 `woshishabi` + 数字即注点，
+   * woshishabi1 → +1 自由点 …… woshishabi10 → +10；超过 10 一律夹到 10。可重复打、累加。
+   * 命中与否都不给任何提示 —— 它只通过"自由点突然变多"这件事自己显形。 */
+  cheatEnabled: true, cheatPrefix: "woshishabi", cheatMax: 10,
 
   /* ---- 时间：一个月一回合，一年 12 个月 ----
    * 一个「档期」= 一次需要玩家决策的事件。平静的月份会被自动跳过（只留一行月历记录）。
@@ -433,28 +449,77 @@ POTUS.stateWindFor = function (stateId, party) {
   return -s.strength;                            // 逆风：-1~-3（拉拢少数派的地形）
 };
 
-/* ---------- VIP 充值码（测试码表；正式运营前整表替换） ----------
- * 测试阶段：同一个码可以无限次使用（用户 v0.5.2 决定）——方便反复试手感。
- * 正式运营前把无限用关掉：把 INFINITE 置 false 即恢复"一码一用"（记 localStorage）。
- * 返回 null = 激活成功；返回字符串 = 失败原因。 */
-POTUS.vipInfinite = true;
-POTUS.vipActivate = function (code) {
-  const b = POTUS.balance();
-  const codes = b.vipCodes || {};
-  const key = String(code || "").trim().toUpperCase();
-  if (!key) return POTUS.t("ui.core.vipEmpty", "请输入充值码");
-  if (codes[key] == null) return POTUS.t("ui.core.vipUnknown", "没有这个码：{k}", { k: key });
-  if (!POTUS.vipInfinite) {
-    let used = [];
-    try { used = JSON.parse(localStorage.getItem("potus_vip_used") || "[]"); } catch (e) { used = []; }
-    if (used.indexOf(key) >= 0) return POTUS.t("ui.core.vipUsed", "这个码已经用过了");
-    used.push(key);
-    try { localStorage.setItem("potus_vip_used", JSON.stringify(used)); } catch (e) { }
-  }
-  return null;
+/* ---------- 多周目元进度（v0.12 #20：这是个会成长的多周目游戏） ----------
+ * 全部存 localStorage，跨局生效、不进单局存档 —— 与 everPresident / keepCard 同一套。
+ *   周目数   ：本次是第几周目（1 起）。决定掷牌稀有度概率（越高周目等级卡越多）。
+ *   自由点池 ：每局结算领「+2 自由点」永久累计，让建角可分配的点数随周目变大。
+ * 读失败（无痕/沙箱）一律退回 0 / 第 1 周目，绝不让建角卡死。 */
+POTUS.metaLoopKey = "potus_meta_loop_v1";
+POTUS.metaFreeKey = "potus_meta_freept_v1";
+POTUS.metaReadInt = function (key) {
+  try {
+    const n = parseInt(localStorage.getItem(key) || "0", 10);
+    return isFinite(n) && n > 0 ? n : 0;
+  } catch (e) { return 0; }
 };
-POTUS.vipUsedList = function () {
-  try { return JSON.parse(localStorage.getItem("potus_vip_used") || "[]"); } catch (e) { return []; }
+POTUS.metaWriteInt = function (key, n) {
+  try { localStorage.setItem(key, String(n | 0)); } catch (e) { }
+};
+/* 本次要开的是第几周目：已完成的局数 + 1 */
+POTUS.currentLoop = function () { return POTUS.metaReadInt(POTUS.metaLoopKey) + 1; };
+/* 一局走到结算 → 周目数 +1（挂在 career_end 结算屏，与 markEverPresident 同一处） */
+POTUS.bumpLoop = function () { POTUS.metaWriteInt(POTUS.metaLoopKey, POTUS.metaReadInt(POTUS.metaLoopKey) + 1); };
+/* 周目累计送了多少自由点 */
+POTUS.readBonusFree = function () { return POTUS.metaReadInt(POTUS.metaFreeKey); };
+POTUS.addBonusFree = function (n) {
+  n = Math.max(0, n | 0);
+  if (!n) return POTUS.readBonusFree();
+  POTUS.metaWriteInt(POTUS.metaFreeKey, POTUS.readBonusFree() + n);
+  return POTUS.readBonusFree();
+};
+/* 建角实际可分配的自由点：一周目基础值 + 周目累计奖励 (+ 本局临时 extra，如作弊码) */
+POTUS.freePool = function (extra) {
+  const b = POTUS.balance();
+  return (b.freePoints == null ? 20 : b.freePoints) + POTUS.readBonusFree() + (extra || 0);
+};
+/* 单维软上限：额度每多 freeCapGrow 点、单维多开 1 点，封顶 freeCapMax。
+ * 不这么算的话周目/作弊送的点只能全灌进金钱档，属性成长会早早锁死。 */
+POTUS.freeCap = function (extra) {
+  const b = POTUS.balance();
+  const base = b.freeCapPerAttr == null ? 6 : b.freeCapPerAttr;
+  const hard = b.freeCapMax == null ? base : b.freeCapMax;
+  const grow = b.freeCapGrow == null ? 6 : b.freeCapGrow;
+  return Math.min(hard, base + Math.floor((POTUS.readBonusFree() + (extra || 0)) / Math.max(1, grow)));
+};
+
+/* ---------- 隐藏作弊码（测试彩蛋；不面向玩家、界面无入口、命中不提示） ----------
+ * 码面 = cheatPrefix + 数字：`woshishabi5` → +5 自由点。数字 > cheatMax(10) 一律夹到 10。
+ * 可连打累加。返回命中到的点数（未命中返回 0）——**不给任何错误原因**，静默。 */
+POTUS.cheatParse = function (code) {
+  const b = POTUS.balance();
+  if (!b.cheatEnabled) return 0;
+  const pre = b.cheatPrefix || "woshishabi";
+  const m = new RegExp("^" + pre + "(\\d+)$", "i").exec(String(code == null ? "" : code).trim());
+  if (!m) return 0;
+  let n = parseInt(m[1], 10);
+  if (!(n > 0)) return 0;
+  const max = b.cheatMax == null ? 10 : b.cheatMax;
+  return n > max ? max : n;             // "超过10算10"
+};
+/* 连打识别：把逐个字符喂进来，攒出一个完整码就返回它该注的点数（否则 0）。
+ * 数字先"攒着"不急着判——否则 woshishabi10 会在敲到 1 时就被当成 woshishabi1 提前命中；
+ * 等下一个非数字键、或由调用方的短定时器 settle 一次，才真正结算。 */
+POTUS.cheatBuf = "";
+POTUS.cheatReset = function () { POTUS.cheatBuf = ""; };
+POTUS.cheatFeed = function (ch, settle) {
+  const b = POTUS.balance(), pre = b.cheatPrefix || "woshishabi";
+  if (ch === "\b" || ch === "Backspace") { POTUS.cheatBuf = ""; return 0; }
+  POTUS.cheatBuf = (POTUS.cheatBuf + String(ch == null ? "" : ch)).slice(-24);
+  if (!settle && /\d$/.test(String(ch))) return 0;         // 数字：再等等，可能是 10
+  const m = new RegExp(pre + "(\\d{1,3})\\s*$", "i").exec(POTUS.cheatBuf);
+  if (!m) return 0;
+  POTUS.cheatBuf = "";
+  return POTUS.cheatParse(pre + m[1]);
 };
 
 
@@ -552,7 +617,9 @@ POTUS.voterDrift = function () {
   const monthly = d.monthly == null ? 0.05 : d.monthly;
   const trackMul = (d.track && d.track[G.track] != null) ? d.track[G.track] : 1;
   const repMul = (d.repWeight == null ? 0.6 : d.repWeight) + (G.rep || 0) / 100;
-  const k = monthly * trackMul * repMul;
+  /* 天赋卡「选民增速」类：向目标回归的速度乘算（cardSum 缺卡时为 0 → ×1 不干扰） */
+  const cardMul = POTUS.cardSum ? (1 + POTUS.cardSum("voterDriftMul")) : 1;
+  const k = monthly * trackMul * repMul * cardMul;
   const cur = POTUS.voterPools();
   const out = {};
   ["warm", "diehard", "oppose"].forEach(function (key) {
@@ -639,43 +706,132 @@ POTUS.officeSalary = function () {
   return Number(v) || 0;
 };
 
-/* ---------- 学生贷款：一个月的计息 + 还款 ----------
- * 由每月上班账（core.js 的 monthlyLedger）调用，与工资/开销同一个时机、同一口径。
+/* ---------- 学生贷款：一个月的计息 + 还款（v0.12 改制：单利 + 年度资本化） ----------
+ * 由每月上班账（monthlyLedger）调用，与工资/开销同一个时机、同一口径。
  * 规则：
- *   1) 先按月利率对余额计息（还不清就一直滚 —— 还原「多年后仍在还」）；
+ *   1) 利息按单利月度计提进「今年欠息桶」G.debtAccr —— 桶不滚利息，
+ *      每年 1 月才资本化并入本金（缓交恢复时也立即资本化）。利滚利就此绝迹：
+ *      「这个月没还上利息」和「拖一整年」是两种读得懂的量级；
  *   2) 月供目标 = max(minPayment, 月薪 × payShare)，随收入上升而加速；
- *   3) 月供被「当前欠款」与「可用现金」双重封顶 —— 掏不出就本月不还本、只挂息，绝不把 fun 扣成负；
- *   4) 余额到 0 就锁死为 0，之后不再产生任何影响（cleared 供界面显示「已还清」）。
- * 返回 null 表示本月无贷（无余额 / 未启用）；否则返回 {interest, pay, principal, remaining, cleared}。 */
+ *   3) 还款先进欠息桶、再抵本金；被「总欠款」与「可用现金」双重封顶 ——
+ *      掏不出就本月少还，绝不把 fun 扣成负；
+ *   4) 断供 = 本月还款没盖住当月新息（桶在真实增长）→ loanLate +1；盖住即归零；
+ *      连续断供到难度上限（loanLateLimit）→ pendingHardEnd="bankrupt"；
+ *   5) 缓交（forbear）：冻结期内不还款、不记逾期（既不 +1 也不清零），欠息照常进桶；
+ *      恢复当月桶并入本金、扣一笔声望（征信留痕）；
+ *   6) PSLF 公职豁免：在任（tier≥minTier）、非缓交、当月还款盖住利息 = 一个合格月；
+ *      攒满 pslf.months → 本金+欠息一笔清零、记成就 flag。
+ * 返回 null 表示本月无贷；否则返回
+ *   {interest, pay, principal, remaining, cleared, late, bucket, frozen, capitalized, pslfForgiven}。 */
 POTUS.loanStep = function () {
   const G = POTUS.G, s = (POTUS.balance() || {}).studentLoan || {};
   if (!G || !s.enabled) return null;
   if (G.debt == null) G.debt = 0;
-  if (G.debt <= 0) { G.debt = 0; return null; }
+  if (G.debtAccr == null) G.debtAccr = 0;
+  if (G.debt <= 0) {                              /* 余额已清：欠息若还有，转成本金，不留孤儿桶 */
+    if (G.debtAccr > 0) { G.debt = G.debtAccr; G.debtAccr = 0; }
+    else return null;
+  }
   if (G.loanLate == null) G.loanLate = 0;
   const rate = s.interestAnnual == null ? 0.045 : s.interestAnnual;
+  const seq = POTUS.monthSeq();
+  /* 缓交冻结判定：forbearUntil 是"冻结到的月份序号"（含）；恢复判定看上月是否在冻 */
+  const frozen = !!(G.forbearUntil && seq <= G.forbearUntil);
+  const wasFrozen = !!G.forbearActive;
+  let capitalized = 0;
+  if (wasFrozen && !frozen) {                     /* 缓交期满恢复：欠息立即资本化 + 征信留痕 */
+    const f = s.forbear || {};
+    capitalized = G.debtAccr;
+    G.debt += capitalized; G.debtAccr = 0;
+    G.loanCaps = (G.loanCaps || 0) + 1;
+    const repCost = f.repCost == null ? 3 : f.repCost;
+    if (repCost > 0) G.rep = POTUS.clamp((G.rep || 0) - repCost, 0, 100);
+    G.forbearUntil = 0;
+    POTUS.pushLog(POTUS.t("ui.core.forbearResume",
+      "缓交期结束，恢复还款。这一年多攒下的利息 ${acc}k 并入学贷本金，征信上多了一笔缓交记录（声望 -{rep}）。",
+      { acc: (capitalized / 1000).toFixed(1), rep: repCost }));
+  } else if (!frozen && G.month === 1 && G.debtAccr > 0) {   /* 年度资本化：每年 1 月欠息并入本金 */
+    capitalized = G.debtAccr;
+    G.debt += capitalized; G.debtAccr = 0;
+    G.loanCaps = (G.loanCaps || 0) + 1;
+  }
   const interest = Math.round(G.debt * rate / 12);
-  G.debt += interest;                                    /* 先计息 */
+  G.debtAccr += interest;                          /* 单利进桶：桶内欠息本月起不再生息 */
+  G.forbearActive = frozen;
+  if (frozen) {                                    /* 冻结：不还款、不记逾期，欠息照攒 */
+    return { interest: interest, pay: 0, principal: 0, remaining: G.debt, cleared: false, late: G.loanLate, bucket: G.debtAccr, frozen: true, capitalized: capitalized, pslfForgiven: false };
+  }
   const salary = Math.max(0, POTUS.officeSalary ? POTUS.officeSalary() : 0);
   const share = s.payShare == null ? 0.25 : s.payShare;
   const minPay = s.minPayment == null ? 120 : s.minPayment;
-  const target = Math.min(G.debt, Math.max(minPay, Math.round(salary * share)));  /* 本月应还 */
-  let pay = target;
-  pay = Math.min(pay, Math.max(0, Math.round(G.fun || 0)));   /* 现金见底则少还 / 不还 */
-  pay = Math.max(0, pay);
+  const totalOwed = G.debt + G.debtAccr;
+  const target = Math.min(totalOwed, Math.max(minPay, Math.round(salary * share)));
+  let pay = Math.max(0, Math.min(target, Math.max(0, Math.round(G.fun || 0))));   /* 现金见底则少还 */
   G.fun -= pay;
-  G.debt = Math.max(0, Math.round(G.debt - pay));
+  const toBucket = Math.min(pay, G.debtAccr);      /* 先填欠息桶 */
+  G.debtAccr -= toBucket;
+  const principalPay = Math.min(pay - toBucket, G.debt);
+  G.debt = Math.max(0, G.debt - principalPay);     /* 再抵本金 */
   const cleared = G.debt <= 0;
-  if (cleared) { G.debt = 0; G.loanLate = 0; }
-  /* 断供定义 = 连本月利息都没覆盖住（余额开始真实增长）。
+  if (cleared) { G.debt = 0; G.debtAccr = 0; G.loanLate = 0; }
+  /* 断供定义 = 连本月新息都没覆盖住（欠息桶在增长）。
      不用 pay<target：升职工资一涨、月供目标跳档，会把按时交钱的人误判成老赖。 */
-  else if (pay < interest) G.loanLate++;                  /* 没能还满 → 连续逾期 +1 */
-  else G.loanLate = 0;                                    /* 按时还满 → 逾期归零 */
+  else if (pay < interest) G.loanLate++;           /* 没能还满 → 连续逾期 +1 */
+  else G.loanLate = 0;                             /* 按时还满 → 逾期归零 */
+  /* PSLF：公职合格月 —— 在任、还款盖住当月新息才计数（缓交月在上分支已排除） */
+  let pslfForgiven = false;
+  const pf = s.pslf || {};
+  if (!cleared && pf.months > 0 && (G.tier || 0) >= (pf.minTier == null ? 1 : pf.minTier) && pay >= interest) {
+    G.pslfMonths = (G.pslfMonths || 0) + 1;
+    if (G.pslfMonths >= pf.months && !G.pslfDone) {
+      G.pslfDone = true;
+      G.debt = 0; G.debtAccr = 0; G.loanLate = 0;
+      if (G.flags.indexOf("pslf_forgiven") < 0) G.flags.push("pslf_forgiven");
+      pslfForgiven = true;
+      POTUS.pushLog(POTUS.t("ui.core.pslfDone",
+        "公职贷款豁免生效：{n} 个月的按时还款换来了剩余学贷一笔勾销（本金加欠息全免）。当年借的那笔钱，终于不再咬着你。",
+        { n: pf.months }));
+    }
+  }
   /* 死亡螺旋收口：连续断供到难度上限 → 信用破产。走 hardEnd 同一管道
      （pendingHardEnd → P.ending(reason)），判定点与其他终局一致。 */
   const lim = POTUS.loanLateLimit ? POTUS.loanLateLimit() : 0;
   if (lim > 0 && G.loanLate >= lim && !G.pendingHardEnd) G.pendingHardEnd = "bankrupt";
-  return { interest: interest, pay: pay, principal: pay - interest, remaining: G.debt, cleared: cleared, late: G.loanLate };
+  return { interest: interest, pay: pay, principal: principalPay, remaining: G.debt, cleared: cleared, late: G.loanLate, bucket: G.debtAccr, frozen: false, capitalized: capitalized, pslfForgiven: pslfForgiven };
+};
+
+/* ---------- 学贷缓交（Forbearance）：主动冻结还款的窗口 ----------
+ * 政策参数见 01-config.js studentLoan.forbear：
+ *   maxMonths 终身额度 / perMonths 单次上限 / repCost 恢复时扣声望。
+ * 冻结期内：不扣钱、不记逾期（loanLate 原地不动，不算按时也不算断供）、欠息照常进桶；
+ * 期满由 loanStep 统一收尾（桶资本化 + 扣声望 + 日志）。 */
+POTUS.forbearInfo = function () {
+  const G = POTUS.G, s = (POTUS.balance() || {}).studentLoan || {};
+  const f = s.forbear || {};
+  const max = f.maxMonths == null ? 24 : f.maxMonths;
+  const per = f.perMonths == null ? 6 : f.perMonths;
+  const used = G ? (G.forbearUsed || 0) : 0;
+  const active = !!(G && G.forbearUntil && POTUS.monthSeq() <= G.forbearUntil);
+  const leftMonths = active ? Math.max(0, G.forbearUntil - POTUS.monthSeq() + 1) : 0;
+  return {
+    enabled: !!s.enabled && f.maxMonths > 0,
+    active: active, leftMonths: leftMonths,
+    used: used, quota: Math.max(0, max - used), per: per,
+    canStart: !!(s.enabled && f.maxMonths > 0 && G && G.debt > 0 && !active && (max - used) > 0)
+  };
+};
+POTUS.startForbear = function (months) {
+  const G = POTUS.G; if (!G) return false;
+  const info = POTUS.forbearInfo();
+  if (!info.canStart) return false;
+  months = Math.max(1, Math.min(months | 0 || info.per, info.per, info.quota));
+  G.forbearUntil = POTUS.monthSeq() + months - 1;   /* 含本月共 months 个月 */
+  G.forbearUsed = (G.forbearUsed || 0) + months;
+  G.forbearActive = true;
+  POTUS.pushLog(POTUS.t("ui.core.forbearStart",
+    "你向贷款机构申请了 {n} 个月缓交：这几个月不用还款、也不算逾期，但利息照攒（到期时并入本金，征信留痕）。",
+    { n: months }));
+  return true;
 };
 
 /* 连续断供多少个月触发信用破产（0/缺省 = 不启用）。按难度分档：
@@ -737,12 +893,202 @@ POTUS.monthlyLedger = function (m) {
   const rec = {
     month: m, salary: salary, living: living, net: net,
     loanPay: (loan && loan.pay) || 0, loanInterest: (loan && loan.interest) || 0, loanCleared: !!(loan && loan.cleared),
+    loanFrozen: !!(loan && loan.frozen),
     bailout: !!bailout,
-    voters: voters || null, debt: G.debt || 0, loanLate: G.loanLate || 0
+    voters: voters || null, debt: G.debt || 0, debtAccr: G.debtAccr || 0, loanLate: G.loanLate || 0
   };
   G.ledger[m] = rec;
   return rec;
 };
+
+/* ---------- 天赋卡墙与开局抽卡（v0.12 #20 · 《人生重开》式逐位掷稀有度） ----------
+ * 单表参数在 balance.gacha；卡定义在 reg.card（content/15-cards.js）。
+ * 四档稀有度：白=1 蓝=2 紫=3 橙=4。每个呈现卡位【独立掷一次稀有度】（权重见 rarityW），
+ *   再在该稀有度内等概率抽一张、去重 —— 于是"少数几选里撞出橙卡"才是它上瘾的核心。
+ * 橙卡受跨局 meta 门槛：只有当过总统（everPresident，localStorage 记录）后才进池，
+ *   未解锁时橙权重强制 0（其余档按比例归一），一周目最多抽到紫。
+ * 卡面字段分三类：
+ *   effects:{...}   入选即一次性结算（走 applyEffects，如开局资金卡）；
+ *   聚合字段        mods[]/critMul/critfailBoost/hpDecayMul/luckPct/attrBonus/voterDriftMul —— 持有时持续生效，多卡叠加；
+ *   spare:["why"]   免死金牌（顶级橙卡）：pendingHardEnd 命中列表时豁免一次、卡烧毁、进 G.spentCards 留痕。
+ * 二周目保卡存 localStorage（跨局 meta，不进存档）。 */
+POTUS.gachaCfg = function () {
+  const g = (POTUS.balance() || {}).gacha || {};
+  return {
+    enabled: g.enabled !== false,
+    offer: g.offer == null ? 12 : g.offer,
+    rarityW: POTUS.rarityWForLoop(POTUS.currentLoop(), g),
+    loopRarity: g.loopRarity || null,
+    orangeRarity: g.orangeRarity == null ? 4 : g.orangeRarity,
+    picks: g.picks || { brutal: 1, hard: 2, normal: 3, easy: 4, legendary: 5 },
+    keepQuota: g.keepQuota == null ? 1 : g.keepQuota,
+    spareRepPenalty: g.spareRepPenalty == null ? 15 : g.spareRepPenalty
+  };
+};
+/* 第 loop 周目用哪一档稀有度权重：有周目表就查表（超出最高档取最后一档），
+   否则退回旧的单一 rarityW。返回一份新对象，不改配置。 */
+POTUS.rarityWForLoop = function (loop, g) {
+  g = g || (POTUS.balance() || {}).gacha || {};
+  const table = g.loopRarity;
+  if (!table) return g.rarityW || { 1: 89, 2: 10, 3: 1, 4: 0.1 };
+  const keys = Object.keys(table).map(Number).sort(function (a, b) { return a - b; });
+  if (!keys.length) return g.rarityW || { 1: 89, 2: 10, 3: 1, 4: 0.1 };
+  let pick = keys[0];
+  for (let i = 0; i < keys.length; i++) { if (keys[i] <= loop) pick = keys[i]; }
+  return Object.assign({}, table[pick]);
+};
+/* 跨局 meta：是否当过总统（橙卡解锁闸）。与"本局 president_done"无关，是历史最高荣誉。 */
+POTUS.metaEverKey = "potus_meta_everpresident_v1";
+POTUS.everPresident = function () {
+  try { return localStorage.getItem(POTUS.metaEverKey) === "1"; } catch (e) { return false; }
+};
+POTUS.markEverPresident = function () { try { localStorage.setItem(POTUS.metaEverKey, "1"); } catch (e) { } };
+/* 本局可选几张：难度=选择自由度；表外难度（缺省）给 1 张保底 */
+POTUS.cardPickCount = function (difficulty) {
+  const g = POTUS.gachaCfg();
+  return g.picks[difficulty] == null ? 1 : g.picks[difficulty];
+};
+POTUS.keepCardKey = "potus_keepcard_v1";
+POTUS.keepCardGet = function () {
+  try {
+    const raw = localStorage.getItem(POTUS.keepCardKey);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.filter(id => POTUS.reg.card[id]).slice(0, POTUS.gachaCfg().keepQuota) : [];
+  } catch (e) { return []; }
+};
+POTUS.keepCardSet = function (id) {
+  try {
+    if (!id || !POTUS.reg.card[id]) localStorage.removeItem(POTUS.keepCardKey);
+    else localStorage.setItem(POTUS.keepCardKey, JSON.stringify([id]));
+  } catch (e) { /* 隐私模式写不进就算了 */ }
+};
+/* 掷一次稀有度（按权重；未解锁总统则剔除橙档后归一）。返回稀有度数值。 */
+POTUS.rollRarity = function () {
+  const g = POTUS.gachaCfg();
+  const unlocked = POTUS.everPresident();
+  const byR = POTUS.cardsByRarity();
+  const weights = {};
+  let total = 0;
+  Object.keys(g.rarityW).forEach(function (r) {
+    if (!byR[r] || !byR[r].length) return;                 /* 该档没卡，跳过 */
+    if (Number(r) === g.orangeRarity && !unlocked) return;  /* 橙卡未解锁，剔除 */
+    weights[r] = g.rarityW[r]; total += g.rarityW[r];
+  });
+  if (!total) return 1;
+  let roll = Math.random() * total;
+  const keys = Object.keys(weights).map(Number).sort(function (a, b) { return a - b; });
+  for (let i = 0; i < keys.length; i++) {
+    roll -= weights[keys[i]];
+    if (roll < 0) return keys[i];
+  }
+  return keys[keys.length - 1];
+};
+POTUS.cardsByRarity = function () {
+  const byR = {};
+  for (const id in POTUS.reg.card) {
+    const r = POTUS.reg.card[id].rarity || 1;
+    (byR[r] = byR[r] || []).push(id);
+  }
+  return byR;
+};
+/* 呈现 offer 张：逐位独立掷稀有度 → 该档内等概率抽一张、去重；某档抽空则回落到白档补位。
+   保卡必现（顶掉一张非保卡）。返回 id 数组。 */
+POTUS.rollCardOffer = function () {
+  const g = POTUS.gachaCfg(), byR = POTUS.cardsByRarity(), out = [], used = {};
+  /* 可补位的档：非空、且若为橙档则须已解锁总统（跟 rollRarity 同一套门禁）。升序，低档优先补。 */
+  const unlocked = POTUS.everPresident();
+  const fillTiers = Object.keys(byR).map(Number).sort(function (a, b) { return a - b; })
+    .filter(function (r) { return byR[r].length && !(r === g.orangeRarity && !unlocked); });
+  const takeFrom = function (r) {
+    const pool = (byR[r] || []).filter(id => !used[id]);
+    if (!pool.length) return null;
+    const id = pool[Math.floor(Math.random() * pool.length)];
+    used[id] = 1; out.push(id); return id;
+  };
+  /* 够多少给多少：卡池比 offer 小时不硬凑，避免死循环。 */
+  const poolSize = fillTiers.reduce(function (n, r) { return n + byR[r].length; }, 0);
+  const want = Math.min(g.offer, poolSize);
+  for (let i = 0; i < want; i++) {
+    /* 先按权重掷档；掷中的档已抽空 → 从最低可用档逐级补位，绝不凑不满（旧版只回落到白档，白档 5 张抽完后就断供）。 */
+    if (takeFrom(POTUS.rollRarity())) continue;
+    for (let t = 0; t < fillTiers.length && out.length < want; t++) {
+      if (takeFrom(fillTiers[t])) break;
+    }
+  }
+  /* 保卡必现：不在池里就顶掉一张非保卡（保卡本就是玩家钦定的，宁可挤别人） */
+  const keep = POTUS.keepCardGet();
+  keep.forEach(function (id) {
+    if (used[id] || !POTUS.reg.card[id]) return;
+    const idx = out.findIndex(x => keep.indexOf(x) < 0);
+    if (idx >= 0) { used[out[idx]] = 0; out[idx] = id; used[id] = 1; }
+    else { out.push(id); used[id] = 1; }
+  });
+  return out;
+};
+/* 持卡查询：G.cards 是本局卡墙（id 数组），spentCards 记录烧掉的免死卡 */
+POTUS.activeCards = function () {
+  const G = POTUS.G;
+  return ((G && G.cards) || []).map(id => POTUS.reg.card[id]).filter(Boolean);
+};
+POTUS.hasCard = function (id) { const G = POTUS.G; return !!(G && G.cards && G.cards.indexOf(id) >= 0); };
+/* 卡面展示名：加载期中文快照会被 boot 前求值冻结，取用点必须现翻（与 diffLabel 同一纪律） */
+POTUS.cardName = function (id) {
+  const c = POTUS.reg.card[id];
+  return c ? POTUS.t("card." + id + ".name", c.name || id) : id;
+};
+POTUS.cardDesc = function (id) {
+  const c = POTUS.reg.card[id];
+  return c ? POTUS.t("card." + id + ".desc", c.desc || "") : "";
+};
+POTUS.cardSum = function (field) {
+  return POTUS.activeCards().reduce(function (s, c) { return s + (typeof c[field] === "number" ? c[field] : 0); }, 0);
+};
+POTUS.cardMods = function () {
+  return POTUS.activeCards().reduce(function (a, c) { return c.mods ? a.concat(c.mods) : a; }, []);
+};
+/* 全局判定加 Luck（百分点）：既有天赋卡与未来机制共用一个读数口 */
+POTUS.luckPct = function () { return POTUS.cardSum("luckPct"); };
+/* 免死豁免：命中某张持卡的 spare 列表则烧毁该卡并返回卡 id（spareHardEnd 消费）。 */
+POTUS.trySpare = function (why) {
+  const G = POTUS.G;
+  if (!G) return null;
+  const hit = (G.cards || []).filter(id => { const c = POTUS.reg.card[id]; return c && (c.spare || []).indexOf(why) >= 0; })[0];
+  if (!hit) return null;
+  G.cards = G.cards.filter(x => x !== hit);
+  G.spentCards = (G.spentCards || []).concat([hit]);
+  return hit;
+};
+/* 硬 BE 收口前的免死闸（stage.js 两处消费点调用）：
+   返回 true = 本次死亡被卡豁免（pendingHardEnd 已清、卡烧毁、扣一笔声望），调用方继续正常推进；
+   返回 false = 无免死卡，照常走向 P.ending(why)。 */
+POTUS.spareHardEnd = function () {
+  const G = POTUS.G;
+  if (!G || !G.pendingHardEnd) return false;
+  const why = G.pendingHardEnd;
+  const hit = POTUS.trySpare(why);
+  if (!hit) return false;
+  G.pendingHardEnd = null;
+  const g = POTUS.gachaCfg();
+  const rp = (g.spareRepPenalty == null ? 15 : g.spareRepPenalty);
+  if (rp > 0) G.rep = POTUS.clamp((G.rep || 0) - rp, 0, 100);
+  POTUS.pushLog(POTUS.t("ui.core.spareLog",
+    "「{card}」替你把命挡下来了 —— 声望 −{rep}，这张卡烧掉了。",
+    { card: POTUS.cardName(hit), rep: rp }));
+  return true;
+};
+/* 把选择的卡落进本局：入卡墙 + 结算一次性 effects（applyEffects 会立即改资源，须在开局资源之后调用） */
+POTUS.adoptCards = function (ids) {
+  const G = POTUS.G;
+  if (!G) return;
+  (ids || []).forEach(function (id) {
+    const c = POTUS.reg.card[id];
+    if (!c || G.cards.indexOf(id) >= 0) return;
+    G.cards.push(id);
+    if (c.effects) POTUS.applyEffects(c.effects);
+  });
+};
+/* 局内增删卡的效果键在 effects.js 注册（addCard/removeCard）。 */
 
 POTUS.stamp = function (eventId) {
   const G = POTUS.G;
@@ -753,7 +1099,14 @@ POTUS.stamp = function (eventId) {
 
 /* ---------- 存档 ---------- */
 const SAVE_KEY = "potus_save_v1";
-POTUS.serialize = function () { return JSON.stringify(POTUS.G); };
+/* v0.12 存档格式门禁：saveVer 记录存档的内容格式号（结构演进时 +1 —— 本次 12：
+   学贷改单利制，旧档的 debt 里混着历史复利，语义已不可信）。
+   低于 SAVE_FORMAT_MIN 的旧档一律硬拒：不迁移、不向下兼容 —— 载入/导入只给
+   「删档 / 开新局」两条路（黑色幽默弹窗），读取列表里的旧档只留删除钮。 */
+POTUS.SAVE_FORMAT = 12;
+const SAVE_FORMAT_MIN = 12;
+POTUS.saveIsStale = function (G) { return !!G && ((G.saveVer || 0) < SAVE_FORMAT_MIN); };
+POTUS.serialize = function () { const G = POTUS.G; if (G) G.saveVer = POTUS.SAVE_FORMAT; return JSON.stringify(G); };
 
 /* 存档迁移：把旧版存档补齐到当前形状（月回合 / 把柄 / 人脉 / 事件链 / 在位时长） */
 POTUS.migrate = function (G) {
@@ -782,7 +1135,19 @@ POTUS.migrate = function (G) {
   if (G.lev == null) G.lev = 0;                           // 把柄（旧存档没有 = 0 份）
   if (G.debt == null) G.debt = 0;                         // 学生贷款余额（旧存档没有 = 0）
   if (G.loanLate == null) G.loanLate = 0;                 // 学贷连续逾期月数
+  /* v0.12 学贷改制（单利+年度资本化 / 缓交 / PSLF）：旧存档缺的新字段一律补默认，
+     欠息桶从 0 起算 —— 旧档本金里已含历史复利，不重复计。 */
+  if (G.debtAccr == null) G.debtAccr = 0;                 // 今年欠息桶（年度资本化前进本金）
+  if (G.loanCaps == null) G.loanCaps = 0;                 // 累计资本化次数（调试/统计）
+  if (G.forbearUntil == null) G.forbearUntil = 0;         // 缓交冻结截止月序号（0=未在缓交）
+  if (G.forbearUsed == null) G.forbearUsed = 0;           // 已用缓交月数（终身额度）
+  if (G.forbearActive == null) G.forbearActive = false;   // 上月是否处于缓交（恢复收尾判定）
+  if (G.pslfMonths == null) G.pslfMonths = 0;             // PSLF 合格月累计
+  if (G.pslfDone == null) G.pslfDone = false;             // PSLF 豁免已生效
   if (G.bailouts == null) G.bailouts = 0;                 // v0.11 负债设底：本局被接济次数
+  /* v0.12 #20 天赋卡墙：旧档没有卡墙 = 空墙（单卡天赋继续按 legacy 生效），不升存档版本 */
+  if (!Array.isArray(G.cards)) G.cards = [];
+  if (!Array.isArray(G.spentCards)) G.spentCards = [];
   if (G.peakTier == null) G.peakTier = G.tier || 0;       // v0.11 P1：生涯峰值层级（成就结算用）
   if (G.contacts == null) G.contacts = {};                // 人脉好感表
   if (G.doneSeq == null) G.doneSeq = {};                  // 事件发生时的"月份序号"，事件链靠它算间隔
@@ -808,6 +1173,7 @@ POTUS.migrate = function (G) {
   if (G.yearStartSnap == null) G.yearStartSnap = null;   // startYear 时会重建
   delete G.beatIndex; delete G.beatCount; delete G.beatMonth; delete G.curMonth;
   G.version = POTUS.VERSION;
+  G.saveVer = POTUS.SAVE_FORMAT;
   return G;
 };
 
@@ -817,7 +1183,11 @@ POTUS.autosave = function () { try { localStorage.setItem(SAVE_KEY + "_auto", PO
    成功返回 true；无 auto 档 / 载入失败返回 false，交回调用方走正常 boot。 */
 POTUS.resumeAutoSave = function () {
   try {
-    if (!localStorage.getItem(SAVE_KEY + "_auto")) return false;
+    const raw = localStorage.getItem(SAVE_KEY + "_auto");
+    if (!raw) return false;
+    /* 切语言重载的静默路径：旧格式 auto 档直接弃档回标题（不做弹窗），
+       下一次正常游戏的 autosave 会覆盖它 */
+    try { if (POTUS.saveIsStale(JSON.parse(raw))) { localStorage.removeItem(SAVE_KEY + "_auto"); return false; } } catch (e) { return false; }
     POTUS.doLoad("auto");
     return POTUS.SCREEN === "game" && !!POTUS.G;
   } catch (e) { return false; }
@@ -983,6 +1353,7 @@ POTUS.saveBrief = function (raw) {
         POTUS.t("ui.core.statFun", "资金 ${v}k", { v: ((G.fun || 0) / 1000).toFixed(0) }) +
         (G.voters ? " · " + POTUS.t("ui.core.statDiehard", "死忠 {v}", { v: G.voters.diehard >= 10000 ? (G.voters.diehard / 10000).toFixed(1) + "万" : G.voters.diehard }) : ""),
       office: oName, tier: G.tier || 0, diff: G.difficulty || "normal",
+      stale: POTUS.saveIsStale(G),
       at: G.saveAt
     };
   } catch (e) { return null; }
@@ -1034,16 +1405,31 @@ POTUS.openLoad = function () {
   const ab = autoRaw ? POTUS.saveBrief(autoRaw) : null;
   if (ab) {
     any = true;
-    html += '<div class="saverow"><button class="btn saveline tier-' + (ab.tier || 0) + '" onclick="POTUS.doLoad(\'' + SAVE_KEY + '_auto\')">' +
-      slotThumbHTML(ab) +
-      '<span class="svbody"><b>' + POTUS.t("ui.core.autoSave", "自动存档") + ' <i class="ago">' + POTUS.t("ui.core.live", "实时") + '</i></b>' +
-      "<small>" + escHtml(ab.line) + "</small>" +
-      "<small>" + escHtml(ab.line2) + "</small></span></button></div>";
+    if (ab.stale) {
+      /* v0.12 格式门禁：旧档只读展示 + 删除，不提供载入（auto 位无索引可删，下次游戏自然覆盖） */
+      html += '<div class="saverow saverow-stale"><span class="saveline stale">' +
+        '<span class="svbody"><b>' + POTUS.t("ui.core.autoSave", "自动存档") + ' · <i class="stalebadge">' + POTUS.t("ui.core.staleBadge", "旧格式 · 不可载入") + '</i></b>' +
+        "<small>" + escHtml(ab.line) + "</small></span></span></div>";
+    } else {
+      html += '<div class="saverow"><button class="btn saveline tier-' + (ab.tier || 0) + '" onclick="POTUS.doLoad(\'' + SAVE_KEY + '_auto\')">' +
+        slotThumbHTML(ab) +
+        '<span class="svbody"><b>' + POTUS.t("ui.core.autoSave", "自动存档") + ' <i class="ago">' + POTUS.t("ui.core.live", "实时") + '</i></b>' +
+        "<small>" + escHtml(ab.line) + "</small>" +
+        "<small>" + escHtml(ab.line2) + "</small></span></button></div>";
+    }
   }
   for (let i = 0; i < SLOT_COUNT; i++) {
     const raw = readSlotRaw(i);
     const b = raw ? POTUS.saveBrief(raw) : null;
-    if (b) {
+    if (b && b.stale) {
+      any = true;
+      html += '<div class="saverow saverow-stale"><span class="saveline stale">' +
+        '<span class="svbody"><b>' + POTUS.t("ui.core.slot", "存档位 {n}", { n: i + 1 }) + " · " + escHtml(b.name) +
+        ' · <i class="stalebadge">' + POTUS.t("ui.core.staleBadge", "旧格式 · 不可载入") + '</i></b>' +
+        "<small>" + escHtml(b.line) + "</small></span></span>" +
+        '<button class="btn svdel" title="' + POTUS.t("ui.core.del", "删除") + '" onclick="POTUS.delSlot(' + i + ',this)">×</button>' +
+        "</div>";
+    } else if (b) {
       any = true;
       html += '<div class="saverow">' +
         '<button class="btn saveline tier-' + (b.tier || 0) + '" onclick="POTUS.doLoad(\'' + slotKey(i) + '\')">' +
@@ -1067,12 +1453,38 @@ POTUS.doLoad = function (key) {
     const full = key === "auto" ? SAVE_KEY + "_auto" : (key.indexOf(SAVE_KEY + "_") === 0 ? key : SAVE_KEY + "_" + key);
     const s = localStorage.getItem(full);
     if (!s) { alert(POTUS.t("ui.core.noSave", "无存档")); return; }
-    POTUS.G = POTUS.migrate(JSON.parse(s));
+    const g = JSON.parse(s);
+    if (POTUS.saveIsStale(g)) { POTUS.staleSaveDialog(full); return; }   /* v0.12 格式门禁：旧档硬拒 */
+    POTUS.G = POTUS.migrate(g);
     document.body.className = "era-" + POTUS.G.era;
     const m = document.querySelector(".modal"); if (m) m.remove();
     POTUS.renderLoadedScreen();
     POTUS.SCREEN = "game";
   } catch (e) { alert(POTUS.t("ui.core.loadFailed", "读取失败：{e}", { e: e.message })); }
+};
+/* 旧格式存档硬拒弹窗（v0.12 学贷改制格式闸）：只有「删档」「开新局」两个出口，
+   不给「强行继续」—— 旧账本的口径错误会一路污染新物理，宁可归零。
+   fullKey 传入则可删该 key；null（文件导入来路不明）只留开新局。 */
+POTUS.staleSaveDialog = function (fullKey) {
+  const old = document.querySelector(".modal"); if (old) old.remove();
+  const m = document.createElement("div"); m.className = "modal";
+  let html = '<div class="box"><h3>' + POTUS.t("ui.core.staleTitle", "这份存档属于旧政权") + '</h3>' +
+    '<p>' + POTUS.t("ui.core.staleBody",
+      "审计署稽核查了这份账本：它记于旧财政体系治下 —— 那时学贷利息按月滚进本金，还欠着一笔银行从未告诉你的复利。新政府已改行单利制并开放缓交，旧口径的账目无法并入新账本。按规定只有两个选项：销毁归档，或从头另立一户。") + '</p>' +
+    '<div class="airow" style="display:flex;gap:8px">';
+  if (fullKey) html += '<button class="btn danger" id="stDel">' + POTUS.t("ui.core.staleDel", "删档") + "</button>";
+  html += '<button class="btn primary" id="stNew">' + POTUS.t("ui.core.staleNew", "开新局") + "</button></div></div>";
+  m.innerHTML = html;
+  document.body.appendChild(m);
+  const del = document.getElementById("stDel");
+  if (del) del.onclick = function () {
+    try { localStorage.removeItem(fullKey); } catch (e) { }
+    m.remove(); POTUS.openLoad();
+  };
+  document.getElementById("stNew").onclick = function () {
+    m.remove();
+    if (POTUS.renderTitle) POTUS.renderTitle();
+  };
 };
 POTUS.exportSave = function () {
   try {
@@ -1088,7 +1500,11 @@ POTUS.importSave = function () {
     const f = inp.files[0]; if (!f) return;
     const r = new FileReader();
     r.onload = function () {
-      try { POTUS.G = POTUS.migrate(JSON.parse(r.result)); document.body.className = "era-" + POTUS.G.era; POTUS.renderLoadedScreen(); POTUS.SCREEN = "game"; }
+      try {
+        const g = JSON.parse(r.result);
+        if (POTUS.saveIsStale(g)) { POTUS.staleSaveDialog(null); return; }   /* 旧格式导入档：硬拒（文件不在手里，只留开新局） */
+        POTUS.G = POTUS.migrate(g); document.body.className = "era-" + POTUS.G.era; POTUS.renderLoadedScreen(); POTUS.SCREEN = "game";
+      }
       catch (e) { alert(POTUS.t("ui.core.importFailed", "导入失败：{e}", { e: e.message })); }
     };
     r.readAsText(f);

@@ -78,6 +78,15 @@ POTUS.define("l10n", {
 
     /* 负债设底（enforceDebtFloor）：触到谷底时的接济旁白，低层靠家人、高层靠金主 */
     "ui.core.bailoutLow": "Dead broke—family scraped together a loan to keep you afloat: funds back to ${amt}k, but you lost face (Rep -{rep}). Bailout #{n} this run.",
-    "ui.core.bailoutHigh": "Out of cash—old allies and a donor floated you: funds back to ${amt}k, but word gets around (Rep -{rep}). Bailout #{n} this run."
+    "ui.core.bailoutHigh": "Out of cash—old allies and a donor floated you: funds back to ${amt}k, but word gets around (Rep -{rep}). Bailout #{n} this run.",
+
+    /* 学贷改制（v0.12）：缓交旁白 + PSLF 豁免 + 旧格式存档硬拒弹窗 */
+    "ui.core.forbearResume": "Forbearance ends; payments resume. The interest piled up along the way — ${acc}k — folds into the loan principal, and the credit report keeps a forbearance mark (Rep -{rep}).",
+    "ui.core.pslfDone": "Public Service Loan Forgiveness granted: {n} months of on-time payments in public office erase whatever the loan still owed (principal and interest both). The debt that chased you since college finally stops running.",
+    "ui.core.staleTitle": "This save belongs to a former administration",
+    "ui.core.staleBody": "The Inspector General has reviewed this ledger. It was kept under the old fiscal regime — back then loan interest compounded monthly, and the bank never mentioned the surcharge. The new administration has moved to simple interest and opened a forbearance window; accounts on the old basis cannot be merged into the new books. Regulations allow exactly two options: burn the archive, or start a fresh run.",
+    "ui.core.staleDel": "Burn the archive",
+    "ui.core.staleNew": "Start a fresh run",
+    "ui.core.staleBadge": "Old format · cannot load"
   }
 });

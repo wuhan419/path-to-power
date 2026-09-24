@@ -160,9 +160,9 @@ POTUS.define("event", [
         cost: { fun: 4 }, stake: { fun: true },
         outcomes: {
           crit: s2Out("中间人收钱、交带、当面消磁，流程熟练得像做过一百次。你从此对每一间书房里的每一件电器保持礼貌的警觉。",
-            { attr: { CUN: 2 }, fac: { commercial: 3 }, flags: ["sca2_tape_bought"] }),
+            { attr: { CUN: 2 }, fac: { commercial: 3 }, flags: ["sca2_tape_bought"], count: { wrath_press: 6 } }),
           ok: s2Out("母带到手了。你把它锁进保险箱，然后开始等 —— 等第二封信，或者等它永远不来。",
-            { attr: { CUN: 1 }, flags: ["sca2_tape_bought", "compromised"] }),
+            { attr: { CUN: 1 }, flags: ["sca2_tape_bought", "compromised"], count: { wrath_press: 12 } }),
           meh: s2Out("钱付了，带子拿到手 —— 是翻录的。母带在谁那里，对方没说。",
             { hp: -1, flags: ["compromised"] }),
           fail: s2Out("付钱这件事被记下来了。现在你有两个秘密：那段话，和为了盖住那段话的这笔转账。",
@@ -195,7 +195,11 @@ POTUS.define("event", [
    * 3) 家人惹祸
    * ======================================================================== */
   {
-    id: "sca2_family_member", era: SCA2_ERAS, tierMin: 0, tierMax: 5, weight: 10,
+    id: "sca2_family_member", era: SCA2_ERAS, tierMin: 0, tierMax: 4, weight: 10,
+    /* v0.12 单卡终身衰减的「debuff 续燃」示范：默认这通电话一辈子撞一次就淡出；
+       但只要你按下过一次连夜捞人（sca2_family_hidden 在手 = 你把柄递到了中间人手里），
+       家人就还会惹祸 —— 豁免衰减，这条线重新亮起来。（engine/events.js idRepeatFactor） */
+    rereq: { flags: ["sca2_family_hidden"] },
     grade: "mid", valence: "bane", dyn: true, category: "scandal",
     title: "凌晨两点的保释电话",
     body: "你弟弟在郊区被拦下来了。酒驾，车里还坐着一个你竞选金主的儿子。\n" +
@@ -230,9 +234,9 @@ POTUS.define("event", [
         cost: { fun: 1.75, ap: 1, fav: 1 },
         outcomes: {
           crit: s2Out("天亮前，这次拦截变成了一次「口头警告」。地方版的记者睡了个好觉。那位中间人只说了一句：「下不为例 —— 我是说你的电话，不是他。」",
-            { attr: { CUN: 2 }, contact: { fixer: 10 }, flags: ["sca2_family_hidden"] }),
+            { attr: { CUN: 2 }, contact: { fixer: 10 }, flags: ["sca2_family_hidden"], count: { wrath_agency: 12 } }),
           ok: s2Out("按住了。报上没有名字，只有一个「郊区拦停」的简讯。你弟弟欠你的，从今天起换了一种记法。",
-            { attr: { CUN: 1 }, contact: { fixer: 6 }, flags: ["sca2_family_hidden", "compromised"] }),
+            { attr: { CUN: 1 }, contact: { fixer: 6 }, flags: ["sca2_family_hidden", "compromised"], count: { wrath_agency: 9 } }),
           meh: s2Out("名字按住了，程序没按住：他被吊销驾照九十天，而你多了一个知道你全部底细的中间人。",
             { hp: -0.8, contact: { fixer: 4 }, flags: ["sca2_family_hidden"] }),
           fail: s2Out("有人把「候选人弟弟被特殊处理」的风声递给了报社。新闻的主角从酒驾变成了特权。",
@@ -426,9 +430,9 @@ POTUS.define("event", [
         base: 0.48, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "attr", key: "CHA", w: 0.2 }],
         outcomes: {
           crit: s2Out("你咬死了「查无此事」四个字，天天照常上班。三周后，对方的「关键证人」被发现拿过两家阵营的钱，整篇报道被撤回。你的铜墙是从这一次硬扛里铸出来的。",
-            { rep: 1.25, fac: { base: 10, press: 6 }, notFlags: ["scandal_2"], flags: ["sca2_hold"] }),
+            { rep: 1.25, fac: { base: 10, press: 6 }, notFlags: ["scandal_2"], flags: ["sca2_hold"], count: { wrath_agency: 8 } }),
           ok: s2Out("扛过去了。没有撤回，也没有实锤 —— 那件事以「有争议」的名义挂在你的维基页面第三段，但你的任期没断。",
-            { rep: 0.3, flags: ["sca2_hold"] }),
+            { rep: 0.3, flags: ["sca2_hold"], count: { wrath_agency: 6 } }),
           meh: s2Out("扛成了拉锯战。每周一个新说法，你的议程从此只剩这一件事。",
             { rep: -0.2, hp: -0.6, flags: ["sca2_hold"] }),
           fail: s2Out("窗口关了：那份你赌它不存在的文件，出现在了第二个记者的邮箱里。你的第一句否认现在成了罪状第一条。",

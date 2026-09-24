@@ -8,13 +8,13 @@
 
   /* v0.8 视图层隐藏清单：这些项从面板上撤下，但**引擎数值与判定一律不动**（值照旧参与
      结算/门槛/掷骰）。与「属性减法」的冻结为常量策略对应，后续彻底重构再回到引擎层。
-     · attr INT/INTG：智力/诚信——不再上面板
-     · attr CHA/CUN：玩法大改造后 demo 期整条「能力」先隐藏（属性仍由出身模板给、
-       仍照旧参与判定，只是不上面板减少噪声；要恢复展示把 CHA/CUN 从下表删掉即可）
+     · attr：v0.12 #20 定稿——建角改自由点分配后，玩家只看**魅力/智力/手腕**三维（金钱走资源条）。
+       **诚信 INTG 撤下展示**：它仍是活跃的幕后属性（239 处判定权重照常吃它、事件照常涨跌它），
+       只是不再上面板、不再写进卡面（卡面改为"你的话没人当真"这类模糊措辞）。引擎数值与判定一律不动。
      · res hp/ap/intg：健康/精力/公信力（公信力并入声望）——不再上资源瓷贴
      · fac press/labor/religious/intel：媒体/工会（常量）+ 宗教/情报（死轴）——不再上派系区 */
   P.UI_HIDE = {
-    attr: { INT: 1, INTG: 1, CHA: 1, CUN: 1 },
+    attr: { INTG: 1 },
     res: { hp: 1, ap: 1, intg: 1 },
     fac: { press: 1, labor: 1, religious: 1, intel: 1 }
   };
@@ -286,6 +286,64 @@
       '</div></div>';
   };
 
+  /* ---------------- 学贷面板（v0.12 改制：单利 + 缓交 + PSLF 的实时读数） ----------------
+     只在「还背着贷 / 攒过 PSLF / 已豁免」时出现，一行筹码：
+       本金 · 今年欠息（资本化前的单利桶） · 缓交状态或申请入口 · PSLF 进度。
+     缓交不自动触发 —— 是玩家看见欠息攒起来之后主动按的钮；点了立刻冻结还款与逾期计数。 */
+  P.loanPanelHTML = function () {
+    const G = P.G;
+    const s = (P.balance() || {}).studentLoan || {};
+    if (!s.enabled) return "";
+    const pf = s.pslf || {};
+    const has = (G.debt || 0) > 0 || (G.debtAccr || 0) > 0;
+    if (!has && !G.pslfDone && !(G.pslfMonths > 0)) return "";
+    const esc = function (v) { return String(v == null ? "" : v).replace(/"/g, "&quot;"); };
+    const k = function (v) { return (v / 1000).toFixed(1); };
+    const info = P.forbearInfo ? P.forbearInfo() : { canStart: false, active: false, quota: 0, per: 0, leftMonths: 0 };
+    const chips = [];
+    if (has) {
+      const late = G.loanLate || 0;
+      const lim = P.loanLateLimit ? P.loanLateLimit() : 0;
+      const balTip = lim > 0 ? P.t("ui.topbar.loanBalTip",
+        "学生贷款本金。每月按单利计提利息、今年攒下的欠息在 1 月并入本金；连续断供 {lim} 个月将信用破产。", { lim: lim })
+        : P.t("ui.topbar.loanBalTipOff", "学生贷款本金。每月按单利计提利息、今年攒下的欠息在 1 月并入本金。");
+      chips.push('<span class="gchip2' + (late >= 3 ? " bad" : " muted") + ' hastip" data-tip="' + esc(balTip) + '">' +
+        P.t("ui.topbar.loanBal", "学贷 ${v}k", { v: k(G.debt || 0) }) + "</span>");
+      if ((G.debtAccr || 0) > 0) {
+        chips.push('<span class="gchip2 muted hastip" data-tip="' + esc(P.t("ui.topbar.loanAccrTip", "今年新攒的欠息（还没并进本金），1 月资本化；还款先填它、再抵本金。")) + '">' +
+          P.t("ui.topbar.loanAccr", "欠息 ${v}k", { v: k(G.debtAccr) }) + "</span>");
+      }
+      if (info.active) {
+        chips.push('<span class="gchip2 muted hastip" data-tip="' + esc(P.t("ui.topbar.forbearActiveTip", "缓交冻结中：本月不还款、不计逾期，但欠息照常攒；期满一次性并入本金并扣声望（征信留痕）。")) + '">' +
+          P.t("ui.topbar.forbearLeft", "缓交中 · 剩 {n} 月", { n: info.leftMonths }) + "</span>");
+      } else if (info.canStart) {
+        chips.push('<button type="button" class="btn tiny forbear-btn hastip" data-tip="' +
+          esc(P.t("ui.topbar.forbearBtnTip", "申请 {per} 个月缓交：冻结还款与逾期计数，欠息照攒；恢复时并入本金、声望 -{rep}。终身额度剩 {q} 个月。",
+            { per: info.per, rep: ((s.forbear || {}).repCost == null ? 3 : s.forbear.repCost), q: info.quota })) +
+          '" onclick="POTUS.forbearClick()">' + P.t("ui.topbar.forbearBtn", "申请缓交") + "</button>");
+      }
+      if (pf.months > 0 && !G.pslfDone && ((G.tier || 0) >= (pf.minTier == null ? 1 : pf.minTier) || (G.pslfMonths || 0) > 0)) {
+        chips.push('<span class="gchip2 muted hastip" data-tip="' + esc(P.t("ui.topbar.pslfTip",
+          "公职贷款豁免：任公职期间按时还款（不缓交、还满当月利息）攒 {n} 个合格月，剩余学贷一笔勾销。层级低于门槛的月份不计数。", { n: pf.months })) + '">' +
+          P.t("ui.topbar.pslfProg", "豁免进度 {m}/{n}", { m: Math.min(G.pslfMonths || 0, pf.months), n: pf.months }) + "</span>");
+      }
+    } else if (G.pslfDone) {
+      chips.push('<span class="gchip2 good hastip" data-tip="' + esc(P.t("ui.topbar.pslfDoneTip", "公职贷款豁免已生效——用整段公职生涯换掉了这笔债。")) + '">' +
+        P.t("ui.topbar.pslfBadge", "✓ 学贷已豁免") + "</span>");
+    } else if ((G.pslfMonths || 0) > 0) {
+      chips.push('<span class="gchip2 good">' + P.t("ui.topbar.loanClearedShort", "✓ 学贷还清") + "</span>");
+    }
+    return '<div class="loanline">' + chips.join("") + "</div>";
+  };
+  /* 缓交按钮：冻结生效 → 刷新面板 + 落盘（这是一次真实的财务决定，即时保存） */
+  P.forbearClick = function () {
+    const info = P.forbearInfo ? P.forbearInfo() : null;
+    if (!info || !info.canStart) return;
+    if (!P.startForbear(info.per)) return;
+    if (P.autosave) P.autosave();
+    if (P.refreshPanel) P.refreshPanel();
+  };
+
   /* ---------------- 竞选条（campaign.js 的界面投影） ----------------
    * 只在有一场活跃竞选时出现：这一场在选什么、走到第几幕、这一幕的窗口还剩几个月、
    * 选情表（动量 / 金库）的实时读数。让玩家看得见"这是一场一连串事件的竞选"，而不是一锤子买卖。 */
@@ -325,6 +383,7 @@
     officeProg: function () { return '<div class="idc-officeprog">' + P.officeProgHTML() + '</div>'; },
     date:       function () { return '<div class="idc-date">' + P.dateText() + '</div>'; },
     resources:  function () { return P.resourcesHTML(); },
+    loan:       function () { return P.loanPanelHTML(); },
     officeCard: function () { return P.officeCard(); },
     attrs:      function () { return P.statusRows().attrs; },
     tags:       function () { return P.statusRows().tags; },
@@ -334,8 +393,8 @@
   };
   P.STATUS_LAYOUT = [
     { cls: "idc-left",  items: ["identity", "officeProg"] },
-    { cls: "idc-facts", items: ["date", "resources", "officeCard"] },
-    { cls: "idc-chips", items: ["attrs", "tags", "wrath", "factions", "contacts"], collapse: "档案" }
+    { cls: "idc-facts", items: ["date", "resources", "loan", "officeCard"] },
+    { cls: "idc-chips", items: ["attrs", "cards", "tags", "wrath", "factions", "contacts"], collapse: "档案" }
   ];
   P.toggleChips = function (btn) {
     const box = btn.closest(".idc-chips");

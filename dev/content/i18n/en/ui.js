@@ -49,6 +49,9 @@ POTUS.define("l10n", {
     "ui.leftbar.row.wrath": "Enemies",
     "ui.leftbar.wrathTip": "Wrath: {v}. This debt never expires — once it piles up, they come for you.",
     "ui.leftbar.row.factions": "Factions",
-    "ui.leftbar.row.contacts": "Contacts"
+    "ui.leftbar.row.contacts": "Contacts",
+    "ui.leftbar.row.cards": "Talents",
+    "ui.leftbar.cardSpent": "(blocked one fatal ending already, then burned up)",
+    "ui.core.spareLog": "\u300c{card}\u300d took the bullet for you — Reputation −{rep}, and this card is gone."
   }
 });

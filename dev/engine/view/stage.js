@@ -203,8 +203,8 @@
       break;                                   // ok === "event"（plan 已装载）或 false（年结束）
     }
     /* 学贷断供等"账本型"终局在月度结算里挂上 pendingHardEnd —— 平静月没有 afterEvent，
-       这里补一道：下一个月结算完成即收口，不押后到下一个事件。 */
-    if (G.pendingHardEnd) {
+       这里补一道：下一个月结算完成即收口，不押后到下一个事件。免死卡先过一遍闸。 */
+    if (G.pendingHardEnd && !(P.spareHardEnd && P.spareHardEnd())) {
       const why = G.pendingHardEnd;
       G.pendingHardEnd = null;
       P.ending(why);
@@ -261,13 +261,14 @@
   P.ledgerBoxHTML = function (recs, label) {
     recs = (recs || []).filter(Boolean);
     if (!recs.length) return "";
-    let salary = 0, living = 0, net = 0, loanPay = 0, cleared = false, debt = 0, late = 0;
+    let salary = 0, living = 0, net = 0, loanPay = 0, cleared = false, debt = 0, late = 0, accr = 0, frozen = false;
     const voters = {};
     recs.forEach(function (r) {
       salary += r.salary || 0; living += r.living || 0; net += r.net || 0;
       loanPay += r.loanPay || 0; if (r.loanCleared) cleared = true;
       if (r.voters) for (const k in r.voters) voters[k] = (voters[k] || 0) + r.voters[k];
       debt = r.debt || 0; late = r.loanLate || 0;
+      accr = r.debtAccr || 0; frozen = !!r.loanFrozen;
     });
     const items = [];
     items.push({ k: P.t("ui.stage.ledgerSalary", "工资"), v: "+$" + (salary / 1000).toFixed(1) + "k", sign: 1 });
@@ -280,7 +281,9 @@
       const lateTxt = late >= 3 ? P.t("ui.stage.loanLate", " · 已逾期 {late} 月", { late: late }) +
         (lim > 0 ? P.t("ui.stage.loanDoom", "（再断供 {left} 个月信用破产）", { left: Math.max(1, lim - late) }) : "") : "";
       debtChip = '<span class="gchip2 ' + (late >= 3 ? "bad" : "muted") + '">' +
-        P.t("ui.stage.loanBalance", "学贷余额 ${amt}k", { amt: (debt / 1000).toFixed(0) }) + lateTxt + "</span>";
+        P.t("ui.stage.loanBalance", "学贷余额 ${amt}k", { amt: (debt / 1000).toFixed(0) }) +
+        (accr > 0 ? P.t("ui.stage.loanAccr", " + 欠息 ${amt}k", { amt: (accr / 1000).toFixed(1) }) : "") +
+        (frozen ? P.t("ui.stage.loanFrozen", " · 缓交中") : "") + lateTxt + "</span>";
     } else if (cleared) {
       debtChip = '<span class="gchip2 good">' + P.t("ui.stage.loanCleared", "✓ 学贷还清") + "</span>";
     }
@@ -447,7 +450,12 @@
     if (eff.fav) out.push({ k: P.t("ui.stage.res.fav", "人情"), v: eff.fav, sign: eff.fav });
     if (eff.lev) out.push({ k: P.t("ui.stage.res.lev", "把柄"), v: eff.lev, sign: eff.lev });
     if (eff.tier != null && eff.tier !== 0) out.push({ k: P.t("ui.stage.tierLabel", "层级"), v: (eff.tier > 0 ? "T↑" : "T↓"), sign: eff.tier });
-    if (eff.attr) for (const a in eff.attr) { if (!eff.attr[a]) continue; out.push({ k: P.t("ui.stage.attr." + a, { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" }[a] || a), v: eff.attr[a], sign: eff.attr[a] }); }
+    /* 属性变化：展示范围与面板同源（P.UI_HIDE.attr）——诚信已撤下展示，幕后照改，这里不报账。 */
+    if (eff.attr) for (const a in eff.attr) {
+      if (!eff.attr[a]) continue;
+      if (P_.UI_HIDE && P_.UI_HIDE.attr && P_.UI_HIDE.attr[a]) continue;
+      out.push({ k: P.t("ui.stage.attr." + a, { CHA: "魅力", INT: "智力", CUN: "手腕", INTG: "诚信" }[a] || a), v: eff.attr[a], sign: eff.attr[a] });
+    }
     if (eff.fac) for (const f in eff.fac) { if (!eff.fac[f]) continue; out.push({ k: P_.factionName(f), v: eff.fac[f], sign: eff.fac[f] }); }
     if (eff.contact) for (const c in eff.contact) { if (!eff.contact[c]) continue; out.push({ k: P_.contactName(c), v: eff.contact[c], sign: eff.contact[c] }); }
     /* 状态词条：只在 tagNames 里登记过的才翻译（scandal_n 这类内部标记不翻） */
@@ -922,8 +930,9 @@
     /* 事件效果可能把资金一次扣穿：过一遍负债设底，触底即被接济（有代价），再判生死去留。 */
     if (P.enforceDebtFloor) P.enforceDebtFloor();
     if (G.hp <= 0) return P.ending("death_health");
-    /* 硬 BE：事件效果键 hardEnd 已写入 pendingHardEnd（入狱/身败名裂）—— 政治生命就此终结 */
-    if (G.pendingHardEnd) {
+    /* 硬 BE：事件效果键 hardEnd 已写入 pendingHardEnd（入狱/身败名裂）—— 政治生命就此终结。
+       v0.12 #20：免死卡先过闸（烧毁一张换一次活口），挡下了就继续正常推进。 */
+    if (G.pendingHardEnd && !(P.spareHardEnd && P.spareHardEnd())) {
       const why = G.pendingHardEnd;
       G.pendingHardEnd = null;
       return P.ending(why);
@@ -965,7 +974,9 @@
     const b = P.balance(), G = P.G;
     G.age++;
     const tal = P.reg.talent[G.talent] || {};
-    const decay = tal.hpDecayMul == null ? 1 : tal.hpDecayMul;
+    /* 健康衰减系数：旧单卡天赋与卡墙（hpDecayMul）取最小者（多重护身只吃最强的一份） */
+    const cardDecay = P.activeCards ? P.activeCards().map(c => c.hpDecayMul).filter(x => x != null) : [];
+    const decay = Math.min(tal.hpDecayMul == null ? 1 : tal.hpDecayMul, ...cardDecay.map(Number));
     G.hp = P.clamp(G.hp - Math.round(P.rint(b.hpDecayMin, b.hpDecayMax) * decay), 0, 100);
     if (G.fun > 0) G.fun = Math.round(G.fun * (1 + b.interestRate));
     // 精力按健康恢复：健康是"精力上限"的来源，健康差 → 每年可投入的资源变少
