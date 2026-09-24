@@ -109,7 +109,7 @@
     "tiers", "months", "notMonths",
     "flags", "notFlags", "contacts", "after", "cond", "reason",
     "countMin", "countMax", "countEq",
-    "minTier", "tierMin", "maxTier", "tierMax",
+    "minTier", "tierMin", "maxTier", "tierMax", "tierRaw",
     "minYear", "maxYear", "minAge", "ageMin", "maxAge", "ageMax",
     "minRep", "repMin", "maxRep", "minHp", "maxHp", "minFun", "funMin", "maxFun",
     "minFav", "maxFav", "minLev", "maxLev", "minContacts", "maxContacts",

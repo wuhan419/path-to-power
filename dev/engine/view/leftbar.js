@@ -70,10 +70,10 @@
       const lv = a >= 40 ? 3 : a >= 15 ? 2 : 1;
       return " tint-" + (v > 0 ? "p" : "n") + lv;
     };
-    /* 能力：可见属性内联（智力等已隐藏） */
+    /* 能力：可见属性内联（智力等已隐藏）。data-diff/data-val 供选择后红绿高亮对照。 */
     const attrChips = ["CHA", "INT", "CUN"].filter(function (k) { return !hideAttr[k]; })
       .map(function (k) {
-        return '<span class="qchip"><b>' + ATTR_CN[k] + '</b><span class="qval">' + a[k] + "</span></span>";
+        return '<span class="qchip" data-diff="attr_' + k + '" data-val="' + a[k] + '"><b>' + ATTR_CN[k] + '</b><span class="qval">' + a[k] + "</span></span>";
       }).join("");
     /* 派系：仅可见且非 0 的，内联 */
     let facChips = "";
@@ -81,11 +81,11 @@
       if (hideFac[k]) continue;
       const v = G.faction[k] || 0;
       if (v === 0) continue;
-      facChips += '<span class="qchip' + tint(v) + '"><b>' + P.factionName(k) + '</b><span class="' + (v > 0 ? "pos" : "neg") + '">' + sgn(v) + "</span></span>";
+      facChips += '<span class="qchip' + tint(v) + '" data-diff="fac_' + k + '" data-val="' + v + '"><b>' + P.factionName(k) + '</b><span class="' + (v > 0 ? "pos" : "neg") + '">' + sgn(v) + "</span></span>";
     }
     /* 人脉：内联（前 5） */
     const ctChips = P.myContacts().slice(0, 5).map(function (c) {
-      return '<span class="qchip' + tint(c.favor) + '"' + (c.role ? ' data-tip="' + String(c.role).replace(/"/g, "&quot;") + '"' : "") + '><b>' + c.name +
+      return '<span class="qchip' + tint(c.favor) + '" data-diff="ct_' + c.id + '" data-val="' + (c.favor || 0) + '"' + (c.role ? ' data-tip="' + String(c.role).replace(/"/g, "&quot;") + '"' : "") + '><b>' + c.name +
         '</b><span class="' + (c.favor >= 30 ? "pos" : c.favor <= -20 ? "neg" : "") + '">' + sgn(c.favor) + "</span></span>";
     }).join("");
     /* 状态标签（导师/走过灰路… 这类 buff 式「际遇」，不含丑闻/黑天鹅）：单独成排。

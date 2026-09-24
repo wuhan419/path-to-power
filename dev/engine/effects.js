@@ -55,6 +55,8 @@
       /* 离开本级前登记：你确实坐过这一级（跳级时只登记起点，中间级留白 → 资历债） */
       if (v > 0) { if (!G.counters) G.counters = {}; G.counters["served_" + before] = 1; }
       G.tier = P.clamp(G.tier + v, b.tierMin, b.tierMax);
+      /* 记录生涯峰值层级：下野会拉低 G.tier，但"做到过哪一级"要按峰值算（2025 成就结算用）。 */
+      G.peakTier = Math.max(G.peakTier == null ? G.tier : G.peakTier, G.tier);
       /* 层级一变就重置"在位时长"，晋升台阶的门槛（ev.minTenure）靠它计量；
          同时重算选民池——升位=选区扩大，旧地盘的人只能带过来一小部分（跳级带得更少） */
       if (G.tier !== before) {

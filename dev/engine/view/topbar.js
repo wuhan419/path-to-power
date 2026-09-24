@@ -126,17 +126,18 @@
    * 参考真实政治人物的履历表述：职务 → 选区/机构 → 基本盘 → 光谱定位。
    * 机制在引擎，名词表在内容（reg.office：按 track×tier 查，miss 就用 officeFallback）。
    * 铁杆选民 = 声望 × 基层派系好感 的量纲换算（千人）；光谱 = 党派 + 姿态 + 关键标记。 */
-  P.officeName = function () {
+  P.officeNameAt = function (tier) {
     const G = P.G;
     const table = P.reg.office || {};
-    const key = (G.track || "*") + "_" + G.tier;
-    const hit = table[key] || table["*_" + G.tier];
+    const key = (G.track || "*") + "_" + tier;
+    const hit = table[key] || table["*_" + tier];
     if (hit) return typeof hit === "string" ? hit : hit.name;
     return (P.reg.officeFallback || [
       P.t("ui.topbar.fbNobody", "无名之辈"), P.t("ui.topbar.fbInsider", "圈内人"), P.t("ui.topbar.fbLocal", "地方官员"), P.t("ui.topbar.fbLocalVet", "地方资深"), P.t("ui.topbar.fbStateNew", "州级新人"),
       P.t("ui.topbar.fbStateFig", "州级人物"), P.t("ui.topbar.fbFed", "联邦官员"), P.t("ui.topbar.fbNational", "全国性人物"), P.t("ui.topbar.fbHeavy", "重量级人物"), P.t("ui.topbar.peak", "权力顶点")
-    ])[G.tier] || P.t("ui.topbar.tierLevel", "等级 {n}", { n: G.tier + 1 });
+    ])[tier] || P.t("ui.topbar.tierLevel", "等级 {n}", { n: tier + 1 });
   };
+  P.officeName = function () { return P.officeNameAt(P.G.tier); };
   /* ---------------- 晋升进度条（v0.5.2 用户设计） ----------------
    * 进度不是"经验值"，是"你准备好了吗"的综合读数：
    *   在位时长（熬）40% + 声望 25% + 选民底气 20% + 组织关系 15%
@@ -257,13 +258,16 @@
   /* 资源瓷贴：声望 / 资金 / 人情 / 把柄（v0.9 把柄回归显示）。
      小图标 + 名称 + 大号数值，按资源语义着色；bad 时整块转红示警。
      v0.9.1：把柄数值不再带「份」字（窄栏里 4 枚瓷贴放不下会折行、高度参差）；
-     单位说明移进悬停提示。 */
+       单位说明移进悬停提示。
+     v0.11：每枚瓷贴带 data-diff/data-val —— 选择结算后由 P.flashStatusDiffs 对照上一次快照，
+       给真正变动的读数标红/绿并挂 ±delta 角标，让玩家一眼看见「这一手改变了什么」。 */
   P.resourcesHTML = function () {
     const G = P.G;
     const esc = function (s) { return String(s).replace(/"/g, '&quot;'); };
-    const stat = function (k, v, cls, icon, bad, t) {
+    const stat = function (k, v, cls, icon, bad, t, diffKey, diffVal) {
       return '<span class="stat ' + cls + (bad ? ' bad' : '') + '"' +
-        (t ? ' data-tip="' + esc(t) + '"' : '') + '>' +
+        (t ? ' data-tip="' + esc(t) + '"' : '') +
+        (diffKey ? ' data-diff="' + diffKey + '" data-val="' + diffVal + '"' : "") + '>' +
         '<span class="sicon">' + icon + '</span>' +
         '<span class="sbody"><span class="slab">' + k + '</span><b class="sval">' + v + '</b></span></span>';
     };
@@ -275,10 +279,10 @@
       lev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l8 8M16 16l2-2M14 18l2-2"/></svg>'
     };
     return '<div class="topstat"><div class="tsrow statgrid">' +
-        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。")) +
-        stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。")) +
-        stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。")) +
-        stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。")) +
+        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。"), "rep", G.rep) +
+        stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。"), "fun", G.fun) +
+        stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。"), "fav", G.fav) +
+        stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。"), "lev", G.lev || 0) +
       '</div></div>';
   };
 
@@ -335,8 +339,67 @@
   P.toggleChips = function (btn) {
     const box = btn.closest(".idc-chips");
     if (!box) return;
+    box.classList.remove("auto-open");   // 玩家手动接管：取消自动展开的收回定时器
     const open = box.classList.toggle("open");
     btn.textContent = (open ? P.t("ui.topbar.chipsClose", "收起 ▴") : P.t("ui.topbar.chipsOpen", "档案 ▸"));
+  };
+  /* ---------------- 选择后「什么变了」红绿高亮（v0.11） ----------------
+   * statusVals() 把状态栏里所有展示型数值拍成一张扁平快照（原始数，不含格式化）。
+   * resolveChoice 在扣费/结算前拍一张、渲染后交 flashStatusDiffs 对照：
+   *   · 变高的读数标绿 + 「+n」角标、变低的标红 + 「−n」，约 2.6 秒后自动淡去；
+   *   · 只对带 data-diff 的元素生效（资源瓷贴 / 属性 / 派系 / 人脉 chip），
+   *     竖屏默认折叠的档案 chip 虽被标上但看不见，等玩家展开档案时角标仍在，无害。 */
+  P.statusVals = function () {
+    const G = P.G, m = { rep: G.rep, fun: G.fun, fav: G.fav, lev: G.lev || 0 };
+    const a = G.attr || {};
+    ["CHA", "INT", "CUN"].forEach(function (k) { m["attr_" + k] = a[k] || 0; });
+    const f = G.faction || {};
+    for (const k in f) m["fac_" + k] = f[k] || 0;
+    if (P.myContacts) P.myContacts().forEach(function (c) { m["ct_" + (c.id != null ? c.id : c.name)] = c.favor || 0; });
+    return m;
+  };
+  P.flashStatusDiffs = function (prev) {
+    if (!prev || typeof document === "undefined" || !document.getElementById) return;
+    const box = document.getElementById("statusbox");
+    if (!box || !box.querySelectorAll) return;
+    const fmtDelta = function (key, d) {
+      const sign = d > 0 ? "+" : "-";
+      if (key === "fun") return sign + "$" + Math.round(Math.abs(d) / 1000) + "k";
+      return sign + Math.abs(d);
+    };
+    let touchedChips = false;                    // 有无变动落在默认收起的「档案」块里
+    box.querySelectorAll("[data-diff]").forEach(function (el) {
+      const key = el.getAttribute("data-diff");
+      const cur = Number(el.getAttribute("data-val"));
+      if (!(key in prev) || !isFinite(cur)) return;
+      const d = cur - prev[key];
+      if (!d) return;
+      el.classList.remove("chg-up", "chg-down");
+      void el.offsetWidth;                       // 强制回流，保证连续两次选择都能重放动画
+      el.classList.add(d > 0 ? "chg-up" : "chg-down");
+      const old = el.querySelector(".chg"); if (old) old.remove();
+      const badge = document.createElement("span");
+      badge.className = "chg " + (d > 0 ? "u" : "d");
+      badge.textContent = fmtDelta(key, d);
+      (el.querySelector(".sbody") || el).appendChild(badge);
+      if (el.closest && el.closest(".idc-chips") && !el.closest(".idc-chips.open")) touchedChips = true;
+    });
+    /* 档案默认收起（竖屏省地方）：若这一手改到了收起中的属性/派系/人脉，自动展开几秒，
+       让红绿角标被看见，然后收回 —— 省地方与"看得清影响"两全。按钮文案交回 toggleChips，
+       这里只挪 class，几秒后收回；玩家若已手动点开则尊重其状态，不强行收起。 */
+    let autoOpened = null;
+    if (touchedChips) {
+      const chips = box.querySelector(".idc-chips:not(.open)");
+      if (chips) { chips.classList.add("open", "auto-open"); autoOpened = chips; }
+    }
+    setTimeout(function () {
+      if (autoOpened && autoOpened.classList.contains("auto-open")) autoOpened.classList.remove("open", "auto-open");
+    }, 4200);
+    setTimeout(function () {
+      if (!document.getElementById("statusbox")) return;
+      document.querySelectorAll("#statusbox .chg-up,#statusbox .chg-down").forEach(function (e) { e.classList.remove("chg-up", "chg-down"); });
+      document.querySelectorAll("#statusbox .chg").forEach(function (b) { b.remove(); });
+    }, 2600);
   };
   /* ---------------- 语言切换（对局内常驻入口，w45） ----------------
      与标题屏 langBar 同一机制：点非当前语言的按钮 → P.i18n.setLang 写

@@ -486,7 +486,77 @@
     const cls = sign > 0 ? "good" : sign < 0 ? "bad" : "";
     return { k: k, v: (lo === hi) ? fmt(lo) : fmt(lo) + "~" + fmt(hi), cls: cls };
   }
+  /* ---------------- 竖屏紧凑：强度模糊预览 ----------------
+   * 手机竖屏不当攻略本：只看成功档（crit/ok；无掷骰的单结果选项就取其唯一档）的
+   * 回报，具体数值换成 +/++/+++ 三档强度（阈值 RW_TICK），最大摆动那笔算强度。
+   * 真正落到多少，结算屏会告诉玩家（flashStatusDiffs 红绿高亮已兜底）。 */
+  P.compactUI = function () {
+    return !!(window.matchMedia && window.matchMedia("(max-width:820px) and (orientation:portrait)").matches);
+  };
+  const RW_TICK = { fun: [30000, 100000], scal: [6, 15], pct: [100, 250], voter: [60, 200], fac: [10, 25], attr: [2, 5] };
+  function _rwTicks(v, th) {
+    if (!v) return "";
+    const a = Math.abs(v);
+    const n = a >= th[1] ? 3 : a >= th[0] ? 2 : 1;
+    return (v < 0 ? "-" : "+").repeat(n);
+  }
+  function _rwPeak(a) {
+    let best = 0;
+    a.forEach(function (v) { if (Math.abs(v) > Math.abs(best)) best = v; });
+    return best;
+  }
+  P.rewardPreviewCompact = function (ch) {
+    const outs = (ch && ch.outcomes) || {};
+    const all = ["crit", "ok", "meh", "fail", "critfail"];
+    let hasFall = false, hasEnd = false;
+    all.forEach(function (t) {
+      const e = outs[t] && outs[t].effects;
+      if (!e) return;
+      if (e.fall) hasFall = true;
+      if (e.hardEnd) hasEnd = true;
+    });
+    const risk = [];
+    if (hasEnd) risk.push(P.t("ui.stage.prison", "入狱"));
+    if (hasFall) risk.push(P.t("ui.stage.fallen", "下野"));
+    let good = ["crit", "ok"].filter(function (t) { return outs[t] && outs[t].effects; });
+    if (!good.length) good = all.filter(function (t) { return outs[t] && outs[t].effects; });
+    const scal = {}, voters = { diehard: [], warm: [], oppose: [] }, fac = {}, attr = {}, funMul = [];
+    let up = false;
+    good.forEach(function (t) {
+      const e = outs[t].effects;
+      for (const k in REW_SCAL) if (typeof e[k] === "number") (scal[k] = scal[k] || []).push(e[k]);
+      if (typeof e.funMul === "number") funMul.push(e.funMul);
+      if (e.voters) for (const vk in voters) if (typeof e.voters[vk] === "number") voters[vk].push(e.voters[vk]);
+      if (e.fac) for (const f in e.fac) (fac[f] = fac[f] || []).push(e.fac[f]);
+      if (e.attr) for (const a in e.attr) (attr[a] = attr[a] || []).push(e.attr[a]);
+      if (e.tier > 0) up = true;
+    });
+    const chips = [];
+    const put = function (k, v, th, flip) {
+      if (flip) v = -v;                       // 反对者增加 = 坏事（与完整版 _rwChip 同约定）
+      const s = _rwTicks(v, th);
+      if (!s) return;
+      chips.push({ k: k, v: s, cls: v > 0 ? "good" : v < 0 ? "bad" : "" });
+    };
+    if (scal.rep) put(P.t("ui.stage.res.rep", "声望"), _rwPeak(scal.rep), RW_TICK.scal);
+    if (scal.fun) put(P.t("ui.stage.res.fun", "资金"), _rwPeak(scal.fun), RW_TICK.fun);
+    if (funMul.length) put(P.t("ui.stage.principal", "本金"), _rwPeak(funMul) * 100, RW_TICK.pct);
+    if (voters.diehard.length) put(P.t("ui.stage.voterDiehard", "死忠"), _rwPeak(voters.diehard), RW_TICK.voter);
+    if (voters.warm.length) put(P.t("ui.stage.voterWarm", "好感选民"), _rwPeak(voters.warm), RW_TICK.voter);
+    if (voters.oppose.length) put(P.t("ui.stage.voterOppose", "反对者"), _rwPeak(voters.oppose), RW_TICK.voter, true);
+    if (up) chips.push({ k: P.t("ui.stage.tierLabel", "层级"), v: "↑", cls: "gflag" });
+    ["fav", "lev"].forEach(function (k) {
+      if (scal[k]) put(P.t("ui.stage.res." + k, REW_SCAL[k]), _rwPeak(scal[k]), RW_TICK.scal);
+    });
+    Object.keys(fac).map(function (f) { return { f: f, s: Math.abs(_rwPeak(fac[f])) }; })
+      .sort(function (a, b) { return b.s - a.s; }).slice(0, 2).forEach(function (x) {
+        put(P.factionName(x.f), _rwPeak(fac[x.f]), RW_TICK.fac);
+      });
+    Object.keys(attr).forEach(function (a) { put(P.t("ui.stage.attr." + a, REW_ATTR[a] || a), _rwPeak(attr[a]), RW_TICK.attr); });
+    return { chips: chips, risk: risk };
+  };
   P.rewardPreview = function (ch) {
+    if (P.compactUI()) return P.rewardPreviewCompact(ch);
     const outs = (ch && ch.outcomes) || {};
     const tiers = ["crit", "ok", "meh", "fail", "critfail"];
     const scal = {}, voters = { diehard: [], warm: [], oppose: [] }, fac = {}, attr = {};
@@ -602,7 +672,6 @@
     }
     box.innerHTML =
       '<article class="news editorial fade">' +
-      '<div class="stamp">' + P.t("ui.stage.stamp", "档案") + "</div>" +
       '<div class="dossier-head">' +
         '<span class="dnum">DOSSIER // EVENT NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
         '<span class="dmeta">' + vchip +
@@ -616,7 +685,10 @@
       chainHTML +
       '<h1 class="headline">' + (ev.title || "") + '</h1>' +
       (standfirst ? '<p class="standfirst">' + standfirst + "</p>" : "") +
-      P.artSVG(ev) +
+      /* 红色橡皮章：盖在头条图右上角（用户设计）。artSVG 恒有返回（兜底垫片），
+         包一层 .art-slot 作定位容器，章子从图上沿斜压下来。 */
+      '<div class="art-slot">' + P.artSVG(ev) +
+        '<div class="stamp">' + P.t("ui.stage.stamp", "档案") + "</div></div>" +
       '<div class="body">' + (ev.body || "") + "</div>" +
       '</article>' +
       /* 背景卡在事件框下面（中栏底部）：想细看的人展开，不挡任何东西 */
@@ -628,7 +700,9 @@
       choicesHost = document.createElement("div");
       choicesHost.className = "choices act-choices";
       choicesHost.id = "choices";
-      cbox.innerHTML = '<div class="acthead">' + P.t("ui.stage.yourChoices", "你的选择") + "</div>";
+      cbox.innerHTML = '<div class="acthead">' + P.t("ui.stage.yourChoices", "你的选择") +
+        (P.compactUI() ? '<span class="ah-hint">' + P.t("ui.stage.pickHint", "成功收益越大，失败的损失可能越大") + "</span>" : "") +
+        "</div>";
       cbox.appendChild(choicesHost);
     }
     const cTarget = choicesHost || P.$("#choices");
@@ -704,6 +778,7 @@
 
   /* ---------------- 判定与结算 ---------------- */
   P.resolveChoice = function (ev, ch, st) {
+    const prevVals = P.statusVals ? P.statusVals() : null;   // 扣费/结算前拍一张，供「什么变了」红绿高亮对照
     const info = st ? P.stakeInfo(ch, st) : null;
     const r = P.computeP(ch, info);
     const res = P.rollTierAdv(r.P, !!(info && info.reroll));
@@ -755,6 +830,7 @@
     btn.onclick = function () { P.afterEvent(); };
     mainInsert(btn);
     P.refreshPanel();
+    if (P.flashStatusDiffs) P.flashStatusDiffs(prevVals);   // 状态栏标出这一手改变了什么
     P.autosave();
   };
 
@@ -771,7 +847,9 @@
     }
     if (P.hasFlag("prison") || P.hasFlag("scandal_5")) return P.ending("prison");
     if (G.age >= b.retireAge) return P.ending("retire");
-    if (G.tier >= b.tierMax && !P.hasFlag("president_done")) { P.addFlag("president_done"); return P.ending("president"); }
+    /* v0.11 P1：入主白宫不再是终局。达成最高层级时只记「曾任总统」状态，游戏继续打到 2025。
+       完整任期/连任/表现分机制见 P2；此处先让「总统成为一种可继续任职的状态」。 */
+    if (G.tier >= b.tierMax && !P.hasFlag("president_done")) { P.addFlag("president_done"); }
     /* 软 BE「下野」：fall 效果已把层级/声望/标记处理完。这里单独出一页交代卡，
        玩家点「继续」才推进 —— 不然 nextSlot 会立刻把这一页冲掉。游戏继续，东山再起留给后面。 */
     if (G.fallenThisTurn) {
@@ -876,10 +954,23 @@
       '</div>';
     // v0.5.4：年终「进入 N 年 →」继续按钮进右栏 #actbar（清理上一事件残留结算，操作不滚动中栏）
     actClear();
-    actAppend('<button class="btn primary actbtn" onclick="POTUS.nextYear()">' + P.t("ui.stage.enterYear", "进入 {y} 年 →", { y: (G.year + 1) }) + "</button>");
+    const endY = b.endYear == null ? 2025 : b.endYear;
+    if (G.year >= endY) {
+      /* v0.11 P1：打到终点年（2025）——不再进入下一年，改为弹出生涯成就结算。 */
+      actAppend('<button class="btn primary actbtn" onclick="POTUS.careerEnd()">' + P.t("ui.stage.settleCareer", "查看生涯结算 →") + "</button>");
+    } else {
+      actAppend('<button class="btn primary actbtn" onclick="POTUS.nextYear()">' + P.t("ui.stage.enterYear", "进入 {y} 年 →", { y: (G.year + 1) }) + "</button>");
+    }
     P.tickDate();
     P.refreshPanel();
   };
 
-  P.nextYear = function () { P.G.year++; P.startYear(); };
+  /* 生涯结算入口：走到 2025 终点年后由年终结算屏的按钮触发（见 endYear）。 */
+  P.careerEnd = function () { P.ending("career_end"); };
+
+  P.nextYear = function () {
+    const b = P.balance(), endY = b.endYear == null ? 2025 : b.endYear;
+    if (P.G.year >= endY) return P.careerEnd();     // 保险：越不过终点年
+    P.G.year++; P.startYear();
+  };
 })();
