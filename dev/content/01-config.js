@@ -12,7 +12,7 @@ POTUS.define("balance", {
   startAttr: { CHA: 0, INT: 0, CUN: 0, INTG: 50 },
   /* ---- 建角自由点（覆盖 engine/core.js BALANCE_DEFAULTS）----
      v0.12 #20 定稿：定命一掷删除，属性直接吃 startAttr 打底，自由点分配到四个去处。
-     汇率（与天赋卡价值同一把尺）：1 点 = +10 魅力/智力/手腕 = +$25k 金钱。
+     汇率（与天赋卡价值同一把尺）：1 点 = +10 魅力/智力/手腕 = +$2k 金钱。
 
      ⚠ freePoints:12 是【一周目】的池子大小，不是常量 —— 这是个多周目成长游戏：
        每局结算领「+2 自由点」就永久累计（core.js loopFreeBonus / readBonusFree），

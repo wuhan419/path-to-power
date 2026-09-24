@@ -9,8 +9,8 @@
  *     （写了即 protectedHits，validate 直接判失败）。
  *   · kind 与中文侧一致：card（并入 P.reg.card）。卡 id 被 rollRarity/adoptCards/
  *     keepCard 与 spare 消费，保持稳定。
- *   · desc 里的数字必须跟中文侧同一把标尺（1 单位 = +10 属性 = $25k）：
- *     白 +10/$25k、蓝 +20/$50k、紫 +30/$75k、橙 合计 +40。改中文就改这里。
+ *   · desc 里的数字必须跟中文侧同一把标尺（1 单位 = +10 属性 = $2k · #36 定标）：
+ *     白 +10/$2k、蓝 +20/$4k、紫 +30/$6k、橙 合计 +40。改中文就改这里。
  * ==========================================================================*/
 
 POTUS.define("l10n", {
@@ -19,7 +19,7 @@ POTUS.define("l10n", {
     card: {
       hometown: {
         name: "Family Help",
-        desc: "Your parents press their savings into your hands: starting cash +$25k"
+        desc: "Your parents press their savings into your hands: starting cash +$2k"
       },
       softie: {
         name: "Soft Touch",
@@ -41,7 +41,7 @@ POTUS.define("l10n", {
       quant_card: { name: "Numbers Brain", desc: "Intellect +20, Intellect checks +15%; smell a crisis early" },
       trust_fund: {
         name: "Trust Fund",
-        desc: "Starting cash +$50k, at the price of a whiff of money - and promises people quietly doubt: Credibility -10"
+        desc: "Starting cash +$4k, at the price of a whiff of money - and promises people quietly doubt: Credibility -10"
       },
       union_kin: {
         name: "Union Family",
@@ -63,7 +63,7 @@ POTUS.define("l10n", {
       koi: { name: "Lucky Charms", desc: "Luck +5% on every check - luck is a kind of skill" },
       old_money: {
         name: "Old Money",
-        desc: "Starting cash +$75k; Establishment and Wall Street both open their doors (Grassroots -10)"
+        desc: "Starting cash +$6k; Establishment and Wall Street both open their doors (Grassroots -10)"
       },
       silver_tongue: {
         name: "Silver Tongue",

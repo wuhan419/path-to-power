@@ -160,7 +160,7 @@ const BALANCE_DEFAULTS = {
    *   freeCapPerAttr + floor(额外点 / freeCapGrow))。否则池子变大多出来的点只能全灌进金钱档，
    *   属性成长这条腿就断了。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点）。 */
   freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
-  freeAttrPerPoint: 10, freeFunPerPoint: 25000,
+  freeAttrPerPoint: 10, freeFunPerPoint: 2000,   /* #36：1 点 = +10 属性 = $2k */
   /* 每局结算选「加点」这一支时，永久追加多少自由点（与"保留一张天赋卡"互斥，二选一）。 */
   loopFreeBonus: 2,
   /* 隐藏作弊码（测试彩蛋，界面上不出现任何入口）：连打 `woshishabi` + 数字即注点，

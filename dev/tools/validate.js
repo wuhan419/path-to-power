@@ -2090,21 +2090,21 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(b5.freePoints >= 1 && b5.freePoints <= 60, "freePoints 基础值合理（一周目 12）：" + b5.freePoints);
   check(b5.freeCapPerAttr >= 1 && (b5.freeCapMax == null || b5.freeCapMax >= b5.freeCapPerAttr), "单维软上限：基础 ≤ 封顶");
   check(b5.freeAttrPerPoint === 10, "汇率：1 点 = +10 属性");
-  check(b5.freeFunPerPoint === 25000, "汇率：1 点 = +$25k 金钱");
+  check(b5.freeFunPerPoint === 2000, "汇率：1 点 = +$2k 金钱");
   check(!b5.rollAttrs, "定命一掷已删：balance 不应再有 rollAttrs");
   /* #20 收尾定稿：一周目 12 点；单维上限 = 属性 100 所需的点数（100 / 每点 10 = 10 点） */
   check(b5.freePoints === 12, "一周目池子 = 12 点：" + b5.freePoints);
   check(b5.freeCapPerAttr === Math.floor(100 / b5.freeAttrPerPoint),
     "单维上限 = 点到属性 100 所需点数（" + b5.freeCapPerAttr + " 点）");
 
-  /* 卡池标尺（#20 收尾）：1 单位 = +10 属性 = $25k，钱卡 = 稀有度 × $25k；
+  /* 卡池标尺（#20 收尾 · #36 重标）：1 单位 = +10 属性 = $2k，钱卡 = 稀有度 × $2k；
      白/蓝的属性增益严格 = 稀有度 × 10（紫/橙只要求不超过档位，多维合计另算）。
      被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
   const CARDS = P.reg.card || {};
   Object.keys(CARDS).forEach(function (id) {
     const c = CARDS[id], r = c.rarity || 1, fx = c.effects || {};
     if (typeof fx.fun === "number" && fx.fun > 0) {
-      check(fx.fun === r * 25000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $25k：" + fx.fun);
+      check(fx.fun === r * 2000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $2k：" + fx.fun);
     }
     const av = fx.attr || {};
     const pos = Object.keys(av).map(function (k) { return av[k]; }).filter(function (v) { return v > 0; });
@@ -2189,7 +2189,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   P.CSEL = mkCsel({ CHA: 2, INT: 0, CUN: 0, FUN: 3 }); P.confirmCreate();
   check(P.G.attr.CHA === baseAttr.CHA + 20, "CHA 分配 2 点 = +20 属性（" + baseAttr.CHA + "→" + P.G.attr.CHA + "）");
   check(P.G.attr.INTG === baseAttr.INTG, "诚信不参与建角分配，固定打底：" + P.G.attr.INTG);
-  check(P.G.fun === baseFun + 3 * 25000, "金钱档 3 点 = +$75k 开局资金（" + baseFun + "→" + P.G.fun + "）");
+  check(P.G.fun === baseFun + 3 * 2000, "金钱档 3 点 = +$6k 开局资金（" + baseFun + "→" + P.G.fun + "）");
   check(P.G.state === states[0], "confirmCreate 应记住出生州");
   const wind = P.stateWindFor(states[0], K(P.reg.party)[0]);
   if (wind > 0) check(P.G.faction.establishment > 0, "顺风州开局应给建制派加成");

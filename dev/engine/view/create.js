@@ -203,7 +203,7 @@
   function allocHTML() {
     const b = P.balance(), C = P.CSEL, spent = C.spent || {};
     const per = b.freeAttrPerPoint == null ? 10 : b.freeAttrPerPoint;
-    const funPer = b.freeFunPerPoint == null ? 25000 : b.freeFunPerPoint;
+    const funPer = b.freeFunPerPoint == null ? 2000 : b.freeFunPerPoint;
     const total = P.freePool(C.cheatPts);
     const cap = P.freeCap(C.cheatPts);
     const used = usedPoints(C);
@@ -423,7 +423,7 @@
        CSEL 也可能被外部（测试/旧调用方）直接塞进来而没有 spent，故兜底成空分配。
        三围开局真·0（硬核从零），未分配的维停在 0（与 effects.js 属性下限一致）。 */
     const per = b.freeAttrPerPoint == null ? 10 : b.freeAttrPerPoint;
-    const funPer = b.freeFunPerPoint == null ? 25000 : b.freeFunPerPoint;
+    const funPer = b.freeFunPerPoint == null ? 2000 : b.freeFunPerPoint;
     const sp = C.spent || {};
     const attr = Object.assign({}, b.startAttr);
     ATTR_TARG.forEach(function (k) {
