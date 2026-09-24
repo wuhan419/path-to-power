@@ -127,7 +127,8 @@ if [ "$LANG_ONLY" = "1" ]; then
   run node tools/validate.js --games="$GAMES_FULL" --lang=zh
   run node tools/validate.js --games=1 --lang=en
 else
-  run node tools/validate.js --games=1 --lang=zh
+  # 内容合并走全样本：年均档期上限这类统计断言只在 20 局下判得出（单局噪声见 validate.js 尾注）
+  run node tools/validate.js --games="$GAMES_FULL" --lang=zh
   run node tools/validate.js --games=1 --lang=en
 fi
 echo "▶ choice-audit flagged 计数（基线 $FLAGGED_BASELINE，只准持平）"
