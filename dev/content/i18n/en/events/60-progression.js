@@ -25,7 +25,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_council",
-        title: "Your Name on a Ballot for the First Time",
+        title: "Your name on a ballot for the first time",
         body: "The district is small, but this is the step from the person who helps out to the person running. Either you gain ground you own, or you go back to square one.",
         brief: {
           lede: "For the first time someone says it to you seriously: put your name on a ballot.",
@@ -613,7 +613,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_stwide",
-        title: "Widen the Map to the Whole State",
+        title: "Widen the map to the whole state",
         body: "A statewide office is on the board. Take it, and you stop belonging to one district.",
         brief: {
           lede: "Winning one district is one thing. Being known in every county is another.",

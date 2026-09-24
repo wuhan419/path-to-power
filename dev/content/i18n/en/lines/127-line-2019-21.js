@@ -140,7 +140,7 @@ POTUS.define("l10n", {
       /* 2019-08 · 埃尔帕索与代顿枪击 */
       {
         id: "ln19_shooting",
-        title: "Twenty-Four Hours, Two Cities: Blood at the Superstore and on the Bar Street",
+        title: "Twenty-four hours, two cities: blood at the superstore and on the bar street",
         body: "Saturday: 23 dead at a border-city Walmart, an online 'invader' manifesto left behind, the shooter driving hundreds of miles just to pick that store. Sunday: gunfire on a bar street in Dayton, Ohio — 10 dead, the killer down within 30 seconds.\n" +
           "The nation lights candles for the same thing a third time. The vigil wax is not cold before two camps in your district line up: one says words carry blood, one says guns keep you alive. Town hall is tomorrow and the agenda has blown up.",
         brief: {

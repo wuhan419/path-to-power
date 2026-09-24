@@ -478,7 +478,7 @@ POTUS.define("l10n", {
       /* ---------------- 为全国助选奔走 ---------------- */
       {
         id: "camp_vp_campaign",
-        title: "Barnstorming for the Ticket",
+        title: "Barnstorming for the ticket",
         body: "You campaign across the country for your party's ticket — banking national contacts, and dreading one more gaffe.",
         brief: {
           lede: "You stump for the party: networking, with a live wire in hand.",

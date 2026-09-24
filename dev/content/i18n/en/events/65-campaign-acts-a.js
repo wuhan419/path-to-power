@@ -59,7 +59,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_council_grassroots",
-        title: "Door to Door",
+        title: "Door to door",
         body: "Turnout in local elections is shockingly low. A small, motivated crowd decides the result. Right now your campaign runs on foot.",
         brief: {
           lede: "Local turnout is tiny. Elbow grease alone can decide this race.",
@@ -112,7 +112,7 @@ POTUS.define("l10n", {
       /* ========================= 等级2：市议员（city）========================= */
       {
         id: "camp_city_announce",
-        title: "Signing the Papers",
+        title: "Signing the papers",
         body: "This time you are not helping out. You are contesting a real seat — against a fixture whose name everyone already knows.",
         brief: {
           lede: "You are running for a real seat now. The rival is a familiar face.",
@@ -163,7 +163,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_city_townhall",
-        title: "Town Hall Debate",
+        title: "Town hall debate",
         body: "Your first time under one roof with the opponent, facing the same voters. Question and answer — nowhere to hide, nothing to duck.",
         brief: {
           lede: "First stage with your opponent. Question and answer, with nothing to hide behind.",
@@ -256,7 +256,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_state_primary",
-        title: "The Party Primary",
+        title: "The party primary",
         body: "The first real fight is inside your own party. Win the nomination, or your name never reaches the general-election ballot.",
         brief: {
           lede: "The first hard fight is intra-party. Win the nomination or there is no general election.",
@@ -400,7 +400,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_upper_primary",
-        title: "Primary Showdown",
+        title: "Primary showdown",
         body: "A same-party rival with deeper tenure wants this seat too. The primary will be a fistfight.",
         brief: {
           lede: "A senior party rival wants the same seat you do.",
@@ -451,7 +451,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_upper_rally",
-        title: "The Stump Tour",
+        title: "The stump tour",
         body: "One loop of the whole state — eastern factory towns to western suburbs. Your stamina and your message both get tested.",
         brief: {
           lede: "A full loop of the state: factory towns in the east, suburbs in the west.",
@@ -699,7 +699,7 @@ POTUS.define("l10n", {
       },
       {
         id: "camp_federal_primary",
-        title: "The Congressional Primary",
+        title: "The congressional primary",
         body: "A challenger from your own party — one who never flinches at spending — has targeted your seat. Lose the primary, and Congress stops existing.",
         brief: {
           lede: "A same-party challenger who burns money without blinking wants your seat.",

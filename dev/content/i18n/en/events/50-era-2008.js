@@ -82,7 +82,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_tea_party",
-        title: "Tea Party Taxpayers Pack the Hall and Demand an Answer on the Banks",
+        title: "Tea Party taxpayers pack the hall and demand an answer on the banks",
         body: "A crowd calling itself the tea party fills the hall to the walls. They want your answer:\n" +
           "should Washington print one more dollar?",
         brief: {

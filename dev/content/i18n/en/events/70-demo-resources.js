@@ -105,7 +105,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 示范 2：资金门槛变灰 */
       {
         id: "demo_donor_gala",
-        title: "The Donors' Dinner",
+        title: "The donors' dinner",
         body: "Tonight the thirty richest people in the city sit at one table. You are an invited \"prospect\" — you go there to get money, not to spend it.\n" +
           "Of course, holding up the room has its own price.",
         brief: {

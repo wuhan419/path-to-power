@@ -296,8 +296,10 @@ node dev/tools/text-audit.js --lang=en --tcase   # 英文标题体例：你写�
 > 新增一个 id 出现在 flagged 里 ⇒ 退回 worker 重塑取舍，不得合并。
 
 > **本地化走同一条规矩**：新卡没有英文覆盖层，就等于给 `i18n-events` 的缺译榜添一条；
-> 合并门禁按 `--only=event --max=5` 拦（当前实测 0.6%）。写中文卡的同时把
+> 合并门禁的基线现在是**硬零**（276 张卡已全部英文化），任何一条缺译都直接退回。写中文卡的同时把
 > `content/i18n/en/**` 对应那一份一起写完，别留给"以后统一补"。
+> 同理，`text-audit --lang=en --tcase` 的合并基线也是**硬零**：英文标题从第一个字就写 sentence case，
+> 别指望合并方替你洗。
 > 两个坑：① `text-audit.js --file=` 只映射 `content/events/` 的中文源，**对英文分片是空转**，
 > 英文侧篇幅要用一次性 boot(en) 脚本读实卡自测、交稿前删掉；② 覆盖层里 `known/rumor/unknown/terms`
 > 这类纯字符串数组是**整体替换**，元素个数必须与中文严格一致，多一个少一个都会被 `validate` 判失败。

@@ -29,7 +29,7 @@ DEV="$MAIN_ROOT/dev"
 BASE_BRANCH="main"
 FLAGGED_BASELINE=3          # 基线：见 docs/PARALLEL-CONTENT-WORK.md §6.3
 I18N_MISS="${I18N_MISS:-0}"     # 事件卡缺译叶子基线：276 张卡已全部英文化，所以是硬零——新卡必须自带英文覆盖层（见 docs/I18N.md §8）
-TCASE="${TCASE:-157}"           # 英文标题写成 Title Case 的条数基线：规范是 sentence case，存量正在洗，只准降不准升
+TCASE="${TCASE:-0}"             # 英文标题 Title Case 条数：39 条存量已全部洗清，所以是硬零 —— 新卡标题必须 sentence case（规范见 docs/I18N.md §4）
 GAMES_FULL=20
 
 DRY=0; GATE=1; LANG_ONLY=0; BRANCHES=()
