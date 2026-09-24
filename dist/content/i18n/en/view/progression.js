@@ -17,11 +17,14 @@ POTUS.define("l10n", {
     "ui.progression.rankLine": "Highest office: {office} (Level {tier} · {track}) · {party}/{stance}",
     "ui.progression.wasPresident": "✓ Held the presidency",
     "ui.progression.noPresident": "— Never reached the White House",
+    "ui.progression.pslfLine": "✓ Public Service Loan Forgiveness: {n} months of on-time payments in public office wiped the student loan clean",
     "ui.progression.tierLevel": "Level {n}",
     "ui.progression.finalLine": "Ended at age {age} · Net worth ${net}k · Scandal Lv {scandal}",
     "ui.progression.backTitle": "Back to title",
     "ui.progression.exportSave": "Export this run",
     "ui.progression.engineNote": "Engine v{v}. Content packs keep growing; the engine needs no changes.",
-    "ui.progression.endLog": "Ending: {title} ({grade})"
+    "ui.progression.endLog": "Ending: {title} ({grade})",
+    "ui.progression.keepPrompt": "★ Take one talent card into your next run (it will appear on next run's starting card wall):",
+    "ui.progression.keepDone": "✓ Kept “{card}” — it's guaranteed to show up on your card wall next run."
   }
 });

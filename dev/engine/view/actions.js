@@ -58,22 +58,30 @@
     if (r.source === "content") return P.t("ui.actions.perTierContent", "每档 {v} —— 这一注的价码由剧情写定。", { v: P.fmtUsd(per) });
     const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
     const gm = (d.gradeMul || {})[g];
+    const gmul = gm == null ? 1 : gm;
     const tierSide = P.t("ui.actions.tierBase", "身位基准 {a}（月薪 {s} × {m} 个月{gm}）", {
       a: P.fmtUsd(r.anchor), s: P.fmtUsd(P.officeSalary()), m: months,
       gm: (gm != null && gm !== 1) ? P.t("ui.actions.gradeMul", " × 事件量级 {g}", { g: gm }) : ""
     });
+    /* v0.12 资金闸：价码跟钱包成正比，说明里必须报这个数（≤ 资金×6%×量级系数） */
+    const cash = (P.G && P.G.fun) || 0;
+    const walletSide = cash > 0 ? P.t("ui.actions.walletBase", "钱袋上限 {w}（现有资金 {c} 的 {p}%）", {
+      w: P.fmtUsd(r.gate), c: P.fmtUsd(cash), p: Math.round((d.cashStakeShare == null ? 0.06 : d.cashStakeShare) * gmul * 100)
+    }) : "";
     if (r.pot > 0) {
       const matterSide = P.t("ui.actions.matterBase", "事情价码 {c}（事件钱量级 {p} 的 {pct}%）", {
         c: P.fmtUsd(r.ceiling), p: P.fmtUsd(r.pot), pct: Math.round((d.potShare == null ? 0.25 : d.potShare) * 100)
       });
       return P.t("ui.actions.rateNote", "每档 {v}：{t}，{m}{tail}", {
         v: P.fmtUsd(per), t: tierSide, m: matterSide,
-        tail: r.source === "pot"
-          ? P.t("ui.actions.tailPot", " —— 事情比你的手笔小，价码按事情封顶（投满也花不到这件事的两倍）。")
-          : P.t("ui.actions.tailMid", " —— 取两者之间：位子越高越贵，但不会超过这件事本身值多少。")
+        tail: (walletSide ? P.t("ui.stage.wideSep", "　·　") + walletSide : "") +
+          P.t("ui.actions.tailCash", " —— 三样取中，再由你的钱袋封顶：家底越厚单档越有肉，压满也不到半副身家。")
       });
     }
-    return P.t("ui.actions.rateNoteSeat", "每档 {v}：{t}。这件事没写钱，只按身位算。", { v: P.fmtUsd(per), t: tierSide });
+    return P.t("ui.actions.rateNoteSeat", "每档 {v}：{t}{w}。这件事没写钱，按身位和你的钱袋算。", {
+      v: P.fmtUsd(per), t: tierSide,
+      w: walletSide ? P.t("ui.stage.wideSep", "　·　") + walletSide : ""
+    });
   };
 
   P.renderStake = function () {

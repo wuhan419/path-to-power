@@ -37,6 +37,28 @@
     return parts.join(" ");
   };
 
+  /* ---------------- 仇家（清算系统的仇恨读数） ----------------
+   * 仇恨值就是 G.counters["wrath_<组>"]：大收益选项攒恨（effects 的 count 键），
+   * 攒够门槛由 140-reckoning 的清算事件找上门（when 的 countMin）。
+   * 与"玩家看不见"的能力 counters 相反 —— 仇恨必须摆在台面上，
+   * 树敌警告（选项预览）和仇家名单（档案）都从这两个查表函数出。 */
+  P.wrathInfo = function (g) {
+    const w = (P.reg.wrath || {})[g];
+    if (!w) return { name: g, desc: "" };
+    const name = typeof w === "string" ? w : w.name || g;
+    return { name: name, desc: (typeof w === "object" && w.desc) || "" };
+  };
+  P.wrathList = function () {
+    const c = (P.G && P.G.counters) || {};
+    const out = [];
+    for (const k in c) {
+      if (k.indexOf("wrath_") !== 0 || !(c[k] > 0)) continue;
+      out.push({ g: k.slice(6), v: c[k] });
+    }
+    out.sort(function (a, b) { return b.v - a.v; });
+    return out;
+  };
+
   /* 状态区刷新：v0.8 两栏重构后，完整状态（topstat + 详情）由 topbar.js 的
      P.statusPanel() 统一产出，写进右栏顶部的 #statusbox。
      属性/派系/人脉等「详情」部分见下方 P.statusDetailHTML()。 */
@@ -70,8 +92,9 @@
       const lv = a >= 40 ? 3 : a >= 15 ? 2 : 1;
       return " tint-" + (v > 0 ? "p" : "n") + lv;
     };
-    /* 能力：可见属性内联（智力等已隐藏）。data-diff/data-val 供选择后红绿高亮对照。 */
-    const attrChips = ["CHA", "INT", "CUN"].filter(function (k) { return !hideAttr[k]; })
+    /* 能力：展示哪些属性由 P.UI_HIDE.attr 决定（v0.12 #20：诚信已撤下展示，只剩魅力/智力/手腕）。
+       data-diff/data-val 供选择后红绿高亮对照。 */
+    const attrChips = ["CHA", "INT", "CUN", "INTG"].filter(function (k) { return !hideAttr[k]; })
       .map(function (k) {
         return '<span class="qchip" data-diff="attr_' + k + '" data-val="' + a[k] + '"><b>' + ATTR_CN[k] + '</b><span class="qval">' + a[k] + "</span></span>";
       }).join("");
@@ -107,17 +130,38 @@
       ? '<span class="tag scandal hastip" data-tip="' + P.t("ui.leftbar.scandalTip", "丑闻等级：越高越容易被攻击、也更难消除。") + '">'
         + P.t("ui.leftbar.scandal", "丑闻 Lv") + sc + "</span>" : "";
     const statusChips = scandal + tagChips + tagMore;
+    /* 仇家：仇恨 counter 排行榜（攒了多少恨 = 他们出手的把握有多大）。永不衰减。 */
+    const wrathChips = P.wrathList().map(function (w) {
+      const wi = P.wrathInfo(w.g);
+      const tip = (wi.desc ? wi.desc + " " : "") +
+        P.t("ui.leftbar.wrathTip", "仇恨值 {v}。这笔账不会过期——攒够了，他们就会动手。", { v: w.v });
+      return '<span class="qchip wrath hastip" data-diff="wrath_' + w.g + '" data-val="' + w.v +
+        '" data-tip="' + String(tip).replace(/"/g, "&quot;") + '"><b>' + wi.name +
+        '</b><span class="neg">' + w.v + "</span></span>";
+    }).join("");
     const row = function (lab, chips) { return '<div class="sbrow"><span class="sblab">' + lab + '</span><span class="qchips">' + chips + '</span></div>'; };
+    /* 天赋卡墙（v0.12 #20）：本局持有的卡按稀有度描边；烧掉的免死卡留一条压暗的"已用"痕。 */
+    const RAR_COLOR = { 1: "#9aa3ad", 2: "#3d8fd1", 3: "#8b5cf6", 4: "#e8930c" };
+    const cardChips = (G.cards || []).map(function (id) {
+      const c = P.reg.card[id] || {};
+      const col = RAR_COLOR[c.rarity || 1] || RAR_COLOR[1];
+      const tip = (P.cardDesc(id) || "").replace(/"/g, "&quot;");
+      return '<span class="gchip hastip" style="border-color:' + col + '" data-tip="' + tip + '"><i style="background:' + col + '"></i>' + P.cardName(id) + "</span>";
+    }).concat((G.spentCards || []).map(function (id) {
+      return '<span class="gchip spent hastip" data-tip="' + (P.cardName(id) || "") + P.t("ui.leftbar.cardSpent", "（已挡过一次致命结局，烧毁了）") + '"><i></i>' + P.cardName(id) + "</span>";
+    })).join("");
     return {
       attrs: attrChips ? row(P.t("ui.leftbar.row.attrs", "能力"), attrChips) : "",
+      cards: cardChips ? row(P.t("ui.leftbar.row.cards", "天赋"), cardChips) : "",
       tags: statusChips ? row(P.t("ui.leftbar.row.tags", "标签"), statusChips) : "",
+      wrath: wrathChips ? row(P.t("ui.leftbar.row.wrath", "仇家"), wrathChips) : "",
       factions: row(P.t("ui.leftbar.row.factions", "派系"), facChips || '<span class="muted">—</span>'),
       contacts: row(P.t("ui.leftbar.row.contacts", "人脉"), ctChips || '<span class="muted">—</span>')
     };
   };
-  /* 兼容旧调用点：四行按默认顺序拼接 */
+  /* 兼容旧调用点：各行按默认顺序拼接 */
   P.statusDetailHTML = function () {
     const r = P.statusRows();
-    return r.attrs + r.tags + r.factions + r.contacts;
+    return r.attrs + r.cards + r.tags + r.wrath + r.factions + r.contacts;
   };
 })();

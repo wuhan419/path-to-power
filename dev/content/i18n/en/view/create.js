@@ -11,8 +11,8 @@ POTUS.define("l10n", {
   ui: {
     /* ---- 快速开局屏（renderCreate） ---- */
     "ui.create.quickTitle": "Path to Power · Quick Start",
-    "ui.create.diffHeading": "Choose a difficulty (that means your background and starting resources)",
-    "ui.create.intro": "Just pick a <b>difficulty</b> and a <b>name</b> — you start as a young nobody in your hometown, and climb one rung at a time.",
+    "ui.create.diffHeading": "Choose a difficulty (that means your background + how many talent cards you may pick)",
+    "ui.create.intro": "Pick a <b>difficulty</b> (= background + how many cards you get), draw a few <b>talent cards</b>, spend some <b>attribute points</b> — then give a <b>name</b> and start climbing from a young nobody in your hometown.",
     "ui.create.nameLabel": "Name (leave it blank and you are \"Tommy\")",
     "ui.create.namePlaceholder": "Blank = Tommy",
     "ui.create.startBtn": "Start game →",
@@ -21,30 +21,45 @@ POTUS.define("l10n", {
     "ui.create.entryInsider": "Straight in (start as a volunteer)",
     "ui.create.defaultName": "Tommy",
 
+    /* ---- 三步向导（stepBarHTML / navHTML / createNext） ---- */
+    "ui.create.step1": "Difficulty",
+    "ui.create.step2": "Cards",
+    "ui.create.step3": "Points",
+    "ui.create.prev": "← Back",
+    "ui.create.next": "Next →",
+    "ui.create.needCard": "Pick at least 1 talent card before moving on (this difficulty lets you pick {n}).",
+
     /* ---- 难度名 + 难度说明（DIFFS，取用点提取，key = ui.create.diff.<id>.label/note） ---- */
     "ui.create.diff.legendary.label": "Legendary",
-    "ui.create.diff.legendary.note": "A dynasty's own dynasty · Start with $3.0M · +15 reputation, +6 favors, +5 to every attribute — born on a silver spoon, the road paved all the way.",
+    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +7 reputation, +4 favors, +10 establishment, +5 to every attribute — the deepest pockets and the most cards to spend.",
     "ui.create.diff.easy.label": "Easy",
-    "ui.create.diff.easy.note": "Political family · Start with $1.2M · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
+    "ui.create.diff.easy.note": "Political family · pick 4 talent cards · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
     "ui.create.diff.normal.label": "Normal",
-    "ui.create.diff.normal.note": "Business / law school elite · Start with $400k · +15 Wit, but the grassroots don't trust you.",
+    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +15 Wit, but the grassroots don't trust you.",
     "ui.create.diff.hard.label": "Hard",
-    "ui.create.diff.hard.note": "Second-generation immigrant · Self-made (no starting cash) · +20 base but -20 establishment — climbing purely on grit.",
+    "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit.",
     "ui.create.diff.brutal.label": "Brutal",
-    "ui.create.diff.brutal.note": "Blue-collar worker · Not a penny to your name ($0) · Only the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
+    "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
 
-    /* ---- 定命一掷 / 自由点 / VIP 码（rollBlockHTML） ---- */
-    "ui.create.rollTitle": "Roll Your Fate",
-    "ui.create.rollAll": "Reroll All",
-    "ui.create.rollOnce": "Roll Dice",
-    "ui.create.rollHint": "No roll yet. Each of the four attributes lands between {lo} and {hi} — fate deals the cards, you play them.",
-    "ui.create.reroll": "Reroll",
+    /* ---- 开局抽卡卡墙（gachaHTML） ---- */
+    "ui.create.gachaHeading": "Talent Draw (difficulty = number of picks)",
+    "ui.create.gachaReroll": "Re-draw",
+    "ui.create.gachaCount": "Picked {n}/{need}",
+    "ui.create.gachaEmpty": "Hit “Re-draw” to pull your starting talent cards.",
+    "ui.create.gachaLocked": "🔒 Orange (destiny) cards only enter the pool once you've been president before — this run tops out at purple.",
+    "ui.create.rarity.1": "White",
+    "ui.create.rarity.2": "Blue",
+    "ui.create.rarity.3": "Purple",
+    "ui.create.rarity.4": "Orange",
+
+    /* ---- 自由点分配（allocHTML；定命一掷已删，三围/资金从 0 起） ---- */
+    "ui.create.allocTitle": "Spend Your Free Points",
+    "ui.create.loopTag": "Run no. {n}",
+    "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · max {cap} points per attribute",
+    "ui.create.allocMoney": "Cash",
+    "ui.create.capped": "max",
     "ui.create.freePoints": "Free points: <b>{left}</b> of {total} left",
-    "ui.create.vipExtra": " (incl. VIP +{n})",
-    "ui.create.capNote": " · max +{cap} per attribute",
-    "ui.create.vipPlaceholder": "Top-up code (VIP1/VIP5/VIP20/VIP50...)",
-    "ui.create.vipBtn": "Redeem",
-    "ui.create.vipUsed": "Activated: ",
+    "ui.create.poolMeta": " · first run {base} + run bonuses {bonus}",
 
     /* ---- 开局日志（confirmCreate） ---- */
     "ui.create.loanLog": "You start ${v}k deep in student loans — a slice of each month's surplus goes to the debt; the more you earn, the faster it clears.",

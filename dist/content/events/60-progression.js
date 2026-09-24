@@ -683,6 +683,7 @@ POTUS.define("event", [
               "tier": 1,
               "rep": 1.1,
               "fun": -2,
+              "count": { "wrath_money": 8 },
               "fac": { "base": 15, "establishment": -3 },
               "voters": { "diehard": 600, "warm": 300 }
             }
@@ -1302,6 +1303,7 @@ POTUS.define("event", [
             "effects": {
               "tier": 1,
               "rep": 2,
+              "count": { "wrath_money": 10, "wrath_press": 8 },
               "fac": {
                 "commercial": 20,
                 "establishment": 8

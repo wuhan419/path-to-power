@@ -56,22 +56,25 @@
    * 资金默认汇率**不是常数** —— 按 身位 × 事件钱量级 动态算，见下面的 stakeFunPer()。
    */
   /* ---------- 选项的"钱量级"（pot）：这个选项自己押着多少钱 ----------
-   * 取 max(|cost.fun|, 各档 |effects.fun|, |cost.fun × funMul|)：
+   * 取 max(|cost.fun|, |req.fun|, 各档 |effects.fun|, |本金 × funMul|)：
    *   · cost.fun   —— 明码标价的代价（"花 $400k 请律师团"）
+   *   · req.fun    —— 入场费门槛（"账上没 60 万吃不下这单"= 60 万压进这单）v0.12 计入
    *   · effects.fun —— 直接给/扣的钱（"这一笔赚 $150k"）
-   *   · funMul      —— 按本金的比例（"押多少赚 200%"），本金就是 cost.fun，故换算回美元
+   *   · funMul      —— 按本金的比例（"押多少赚 200%"），本金 = cost.fun + req.fun，故换算回美元
    * 一个钱都没写的选项返回 0 —— 那时汇率只用身位锚（见 stakeFunPer）。 */
   P.stakePot = function (choice) {
     if (!choice) return 0;
     const amts = [];
     const costFun = (choice.cost && choice.cost.fun) || 0;
+    const reqFun = (choice.req && choice.req.fun) || 0;
     if (costFun) amts.push(Math.abs(costFun));
+    if (reqFun) amts.push(Math.abs(reqFun));
     const oc = choice.outcomes || {};
     for (const k in oc) {
       const eff = oc[k] && oc[k].effects;
       if (!eff) continue;
       if (eff.fun) amts.push(Math.abs(eff.fun));
-      if (eff.funMul != null && costFun) amts.push(Math.abs(costFun * eff.funMul));
+      if (eff.funMul != null) { const pr = Math.abs(costFun) + Math.abs(reqFun); if (pr) amts.push(Math.abs(pr * eff.funMul)); }
     }
     return amts.length ? Math.max.apply(null, amts) : 0;
   };
@@ -97,21 +100,21 @@
     return (neg ? "-" : "") + s;
   };
 
-  /* ---------- 资金每档汇率（v0.7：不再是固定值） ----------
+  /* ---------- 资金每档汇率（v0.7 起动态；v0.12 加入钱包锚） ----------
    * 用户实测反馈：过去固定 $250k/档，① 小兵永远投不进第一档，② 价码与事情的钱量级脱钩
-   * （"收益只有 $50k 却让你花 $250k 搏"）。现在每档金额 = 两个锚的几何平均，并被事件锚夹住：
+   * （"收益只有 $50k 却让你花 $250k 搏"）。v0.7 用两锚解决；v0.12 用户再实测：
+   * "能投入的资金应和现在掌握的资金成正比，不然前期没资格、后期太鸡肋"——
+   * 事件锚 X 当硬顶时，富豪满档投入仍是零头。现在每档金额 = 三锚几何均 + 资金闸：
    *
    *   身位锚 A = 职位月薪(track,tier) × perSalaryMonths × gradeMul
    *              —— 你这个位子办一件事的常规手笔（月薪来自 P.officeSalary()，与平静月工资同源）
-   *   事件锚 X = 事件钱量级 × potShare
-   *              —— 这件事本身值多少钱；也是总投入的硬顶
-   *   per = min(√(A × X), X)
-   *     · A < X（身位小 / 事件大）→ 走 √ 那支：per 随身位抬升，小兵不能拿零头买下大事
-   *     · A > X（身位大 / 事件小）→ 被 X 夹住：价码跟着事情走，大佬也不为小事掏大钱
-   *   事件没写钱（pot = 0）→ per = A（只用身位锚）
+   *   事件锚 X = 事件钱量级 × potShare —— 这件事本身值多少钱（v0.12 起只是锚，不再当硬顶）
+   *   资金闸 G = 现有资金 × cashStakeShare × gradeMul
+   *              —— 灰色生意的入场费与手里筹码成正比：cash 小 → 档位便宜到够得着；
+   *                 cash 大 → 单档水涨船高，满档投入始终有肉。也是单档硬上限（风险有界）。
+   *   per = min(∛(A × X × G), G)（缺哪个锚就退化用剩下的：无钱事件 √(A×G)，无家底 √(A×X)）
    *
-   * 不变量：8 档总投入 = 8 × per ≤ 8 × X = 2 × 事件钱量级。
-   * 返回 {per, pot, anchor, source, raw}，per 已是最终价码（抹过零）。 */
+   * 返回 {per, pot, anchor, gate, ceiling, source, raw}，per 已是最终价码（抹过零）。 */
   P.stakeFunPer = function (choice, grade) {
     const d = (P.balance().stakeRates || {}).fun || {};
     const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
@@ -122,19 +125,22 @@
     const A = Math.max(1, (P.officeSalary ? P.officeSalary() : 0) * months * gmul);
     const share = d.potShare == null ? 0.25 : d.potShare;
     const X = pot > 0 ? pot * share : 0;
+    const cash = (P.G && P.G.fun) || 0;
+    const gate = cash > 0 ? Math.max(1, cash * (d.cashStakeShare == null ? 0.06 : d.cashStakeShare) * gmul) : Infinity;
     let raw, source;
-    if (X > 0) {
-      raw = Math.min(Math.sqrt(A * X), X);
+    if (X > 0 && isFinite(gate)) {
+      raw = Math.pow(A * X * gate, 1 / 3);            // 三锚几何均（身位 × 事件 × 钱包）
+      source = "office+pot+cash";
+    } else if (X > 0) {
+      raw = Math.sqrt(A * X);                          // 没家底：退回旧两锚（投注自然开不起几档）
       source = A <= X ? "office+pot" : "pot";
     } else {
-      raw = A;
-      source = "office";
+      raw = isFinite(gate) ? Math.sqrt(A * gate) : A;  // 事件没写钱：身位 × 钱包
+      source = isFinite(gate) ? "office+cash" : "office";
     }
     const lo = d.perMin == null ? 500 : d.perMin, hi = d.perMax == null ? 5000000 : d.perMax;
-    let per = niceUsd(P.clamp(raw, lo, hi));
-    /* 抹零后再确认一次：事件锚是硬顶（除非 X 本身连下限都不到——内容里不会出现） */
-    if (X >= lo && per > X) per = niceUsd(X);
-    return { per: per, pot: pot, anchor: A, ceiling: X, source: source, raw: raw };
+    let per = niceUsd(P.clamp(Math.min(raw, gate), lo, hi));
+    return { per: per, pot: pot, anchor: A, gate: isFinite(gate) ? Math.round(gate) : null, ceiling: X, source: source, raw: raw };
   };
 
   P.stakeSpec = function (choice, grade) {
@@ -228,6 +234,8 @@
     (choice.mods || []).forEach(apply);
     const tal = P.reg.talent[P.G.talent];
     if (tal && tal.mods) tal.mods.forEach(apply);
+    /* v0.12 #20：卡墙上的 mods 与旧单卡天赋同权叠加（多卡各自出一条 breakdown） */
+    if (P.cardMods) P.cardMods().forEach(apply);
     /* v0.6：晋升/连任类选项自动吃「选民底气」修正（±contestW）。
        这一条让"选民"真的影响晋升：票仓不稳的人在晋升判定上会吃亏，
        票仓扎实的人更容易抓住机会。中心点对齐自然均衡点，故不推翻既有平衡。
@@ -243,13 +251,14 @@
 
   P.TIER_RANK = { critfail: 0, fail: 1, meh: 2, ok: 3, crit: 4 };
 
-  /* 五档判定。天赋可声明 critMul / critfailBoost */
+  /* 五档判定。天赋/卡可声明 critMul / critfailBoost；#20 起 Luck 卡给全局 +百分点
+     （luckPct 在 p100 上加成，meh 上限与 critfail 下界都从 p100 派生，自动跟随） */
   P.rollTier = function (p) {
-    const p100 = Math.round(p * 100);
+    const p100 = Math.min(99, Math.round(p * 100) + (P.luckPct ? P.luckPct() : 0));
     const roll = P.rint(1, 100);
     const tal = P.reg.talent[P.G.talent] || {};
-    const critMul = tal.critMul || 1;
-    const cfMul = tal.critfailBoost || 1;
+    const critMul = Math.max(tal.critMul || 1, ...P.activeCards().map(c => c.critMul || 1));
+    const cfMul = Math.max(tal.critfailBoost || 1, ...P.activeCards().map(c => c.critfailBoost || 1));
     if (roll <= Math.round(p100 * 0.30 * critMul)) return { tier: "crit", roll: roll };
     if (roll <= p100) return { tier: "ok", roll: roll };
     const mehCap = Math.min(p100 + 25, 100 - 5 * cfMul - 1);

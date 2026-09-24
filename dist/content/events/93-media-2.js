@@ -326,7 +326,7 @@ POTUS.define("event", [
         cost: { ap: 2 },
         outcomes: {
           crit: m2("你三次提到那个弱点，第三次对手失态了。那个片段当晚被反复播放。一周后，民调里「强势」成了你的标签。",
-            { rep: 2.5, voters: { diehard: 350, warm: 150 }, fac: { base: 8, press: 8 } }),
+            { rep: 2.5, voters: { diehard: 350, warm: 150 }, fac: { base: 8, press: 8 }, count: { wrath_opposition: 10 } }),
           ok: m2("攻击命中了，没有击倒。观众看到了一把利刃，也看到你没敢连刺。",
             { rep: 1.5, voters: { diehard: 200 }, fac: { press: 5 } }),
           meh: m2("你打了几拳，对手全接住了。整晚五五开，第二天没人讨论辩论。",
@@ -480,7 +480,7 @@ POTUS.define("event", [
    * 5) 盯你的人 —— 一场长期舆论战的开端（本包核心）
    * ======================================================================== */
   {
-    id: "med2_press_enemy", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
+    id: "med2_press_enemy", era: MED2_ERAS, tierMin: 3, tierMax: 6, weight: 11,
     grade: "major", valence: "bane", dyn: true, category: "media", unique: true,
     any: [
       { flags: ["scandal_2"] }, { flags: ["scandal_3"] }, { flags: ["scandal_4"] },
@@ -590,7 +590,7 @@ POTUS.define("event", [
    * 5a) 盯你的人 · 余波 —— 两年之后，这场战争成了你的日常
    * ======================================================================== */
   {
-    id: "med2_press_enemy_after", era: MED2_ERAS, tierMin: 1, tierMax: 5, weight: 11,
+    id: "med2_press_enemy_after", era: MED2_ERAS, tierMin: 3, tierMax: 6, weight: 11,
     grade: "mid", valence: "bane", dyn: true, category: "media",
     after: { id: "med2_press_enemy", minMonthsAfter: 10, maxMonthsAfter: 30 },
     flags: ["med2_press_enemy"],

@@ -42,6 +42,15 @@ POTUS.define("l10n", {
       criminal: { name: "Underworld", desc: "Organized crime and the gray economy. Easy money, expensive favors." }
     },
 
+    /* ---------- 仇家（清算系统仇恨群体，key 被 when/effects 引用不动） ---------- */
+    wrath: {
+      press: { name: "The Press", desc: "Ambush pieces, gotcha interviews, digging up every word you ever said." },
+      establishment: { name: "Party Establishment", desc: "Primary challenges, blacklists, a seat saved for you at the hearing." },
+      money: { name: "Big Donors", desc: "Defund you, back your rival, and have the banks reprice every dollar you touch." },
+      opposition: { name: "Political Rivals", desc: "Set-ups, false accusations — and a man with a gun in the crowd." },
+      agency: { name: "Intelligence & Law Enforcement", desc: "Anonymous leaks, cold cases reopened, files that 'happen' to reach a reporter's desk." }
+    },
+
     /* ---------- 晋升轨道（key 是主属性引用，不动） ---------- */
     track: {
       electoral: { name: "Electoral Track", desc: "Run for office yourself; climb the party ladder." },
@@ -78,6 +87,7 @@ POTUS.define("l10n", {
         president_done: { name: "Ex-President", desc: "Your term has ended", effect: "Retirement ending graded by your presidency" },
         fallen: { name: "Fell Once", desc: "You were knocked off the stage", effect: "Climbing back to T3+ before retiring = the comeback ending; otherwise the rock-bottom one. The topbar spectrum keeps a 'fall' mark" },
         owns_media: { name: "Media Owner", desc: "A pen answers to you", effect: "Unlocks the 'Owner of the Fourth Estate' retirement ending" },
+        pslf_forgiven: { name: "Loan Forgiven", desc: "Ten years of public service, paid on time — the feds wiped the rest of your student debt", effect: "The career-settlement screen stamps the PSLF achievement line" },
         mentor: { name: "Has a Mentor", desc: "Someone guides you and speaks for you in the room", effect: "Unlocks mentor-only follow-up events (key party moments)" },
         shady_start: { name: "Dirty Start", desc: "Your first fortune wasn't clean", effect: "Unlocks the gray-trade chain — dirty money pulls you deeper" },
         union_backing: { name: "Union Backing", desc: "Organized labor stands behind you", effect: "Unlocks union-backing events; betray it and eat the backlash" },

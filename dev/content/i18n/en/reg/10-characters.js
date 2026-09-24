@@ -18,19 +18,19 @@ POTUS.define("l10n", {
     origin: {
       dynasty: {
         name: "Political Dynasty",
-        desc: "Connections +30 · Cash +$1.2M · Reputation +8 · Favors +2; the father's shadow - always asked if you ride the name"
+        desc: "Connections +30 · Reputation +8 · Favors +2; the father's shadow - always asked if you ride the name (starting cash now comes from the card pool)"
       },
       immigrant: {
         name: "Second-Gen Immigrant",
-        desc: "Grit: Grassroots +20 · Energy +10; starts from nothing (Cash 0), Establishment -20"
+        desc: "Grit: Grassroots +20 · Energy +10; self-made, Establishment -20"
       },
       labor: {
         name: "Blue-Collar",
-        desc: "Unions +40 · Grassroots +15 · Health +10 · Favors +1; not a spare dollar (Cash 0), Business -25"
+        desc: "Unions +40 · Grassroots +15 · Health +10 · Favors +1; not a spare dollar, Business -25"
       },
       elite: {
         name: "Ivy Elite",
-        desc: "Intellect +15 · Business +30 · Cash +$400k; Grassroots trust -15"
+        desc: "Intellect +15 · Business +30; Grassroots trust -15 (starting cash now comes from the card pool)"
       }
     },
     talent: {

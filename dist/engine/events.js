@@ -33,6 +33,20 @@
     if (ev.grades && ev.grades.indexOf(P.gradeOf(ev)) < 0) return false;
     if (P.isUnique(ev) && G.doneIds.indexOf(ev.id) >= 0) return false;   // 一局一次
     if (!ignoreRecent && P.recentIds.indexOf(ev.id) >= 0) return false;
+    /* 单卡硬冷却（v0.12 事件节奏）：演过一次的卡，N 个月内连 pass3（放开 recentIds 的最后兜底）
+       都不再入选 —— 和「本月已演」同级的硬闸。探针实测：只有权重衰减（idRepeatMul）时，
+       薄池组合会一路掉进 pass3 重抽同一张卡（dyn 卡单局被抽 147 次），刷屏照旧。
+       豁免：仅 prog_* 晋升卡 —— 失败后每年重试是设计。链幕不吃豁免：续幕「首演」时
+       自身 doneSeq 为空、冷却根本不拦它，而没写 unique 的续幕（如 med2_profile_after）
+       恰恰最需要这道闸（探针曾量到单局 81 次）。
+       debuff 续燃卡（rereq 满足）走更短的窗口而不是全豁免 —— 「麻烦的家人」可以回来，
+       但不能变成年报。 */
+    if (String(ev.id).indexOf("prog_") !== 0 && G.doneSeq && G.doneSeq[ev.id] != null) {
+      const bl = P.balance();
+      const armed = ev.rereq && P.when(ev.rereq, snap || P.snap());
+      const win = fnum(armed ? bl.idRepelRereqMonths : bl.idRepelMonths, armed ? 12 : 24);
+      if (win > 0 && P.monthSeq() - G.doneSeq[ev.id] < win) return false;
+    }
     /* 竞选幕事件锁定：属于某个竞选流程的事件（宣战/初选/辩论/投票日…），
        只有当它正是当前幕时才允许出现 —— 否则不能从普通卡池里被随机抽走。
        （当前幕由 campaign.js 经 planMonth 以 eventId 定点档期强制推出，不经这里。） */
@@ -122,6 +136,26 @@
     return Math.pow(per, (counts && counts[ev.category]) || 0);
   }
 
+  /* ---------- 单卡终身衰减（v0.12 · 用户「同一事件反复出现不现实」） ----------
+   * 一张卡这局只要演过一次（doneSeq 里有它的月份），再被抽到时整条权重乘 idRepeatMul
+   * （默认 0.15 = 砍掉 85%）。它和 repeatFactor 是两回事：
+   *   · repeatFactor = 按「类型」在近期窗口内拉平，防某一大类刷屏，可关；
+   *   · idRepeatFactor = 按「具体这张卡」终身降权，防同一张卡反复演 —— 正是玩家投诉的那个。
+   * 与 era/chain 同级：是全局平衡旋钮，**不吃 clampF**（否则 0.15 会被下限 0.4 夹掉，形同虚设）。
+   *
+   * 例外（重新解锁）：事件可声明 ev.rereq（统一 when 词汇，见 docs §4.16）。
+   *   当前状态命中 rereq → 这一张豁免衰减（返回 ev.rereqMul，默认 1）。
+   *   用于「麻烦的家人」这类 debuff 续燃：只要家属还在惹祸的 flag 在手，保释电话就还会来。
+   * unique 事件（一局一次）在 eligible 已被挡死，走不到这里；返回 0 只是防御性兜底。 */
+  function idRepeatFactor(ev, snap) {
+    const G = P.G;
+    if (!G || !G.doneSeq || G.doneSeq[ev.id] == null) return 1;      // 这局还没演过
+    if (P.isUnique(ev)) return 0;
+    if (ev.rereq && P.when(ev.rereq, snap || P.snap())) return fnum(ev.rereqMul, 1);
+    return fnum(P.balance().idRepeatMul, 0.15);
+  }
+  P.idRepeatFactor = idRepeatFactor;
+
   /* 快取：事件 id → 事件对象。drawEvent 与诊断都会反复按 id 找事件。 */
   let _evIdx = null, _evIdxN = -1;
   P.evById = function (id) {
@@ -170,13 +204,14 @@
       base: fnum(ev.weight, 10),
       era: periodScoped(ev, eraCount) ? fnum(b.eraWeightMul, 3) : 1,
       chain: ev.after ? fnum(b.chainWeightMul, 9) : 1,
+      idRepeat: idRepeatFactor(ev, snap),
       identity: clampF(P.biasMul(b.identityBias, ev, snap)),
       resource: clampF(P.biasMul(b.resourceBias, ev, snap)),
       arc: 1,   /* 主线 arc 已停用：诊断里保留键位但恒为 1 */
       repeat: clampF(repeatFactor(ev, o.counts))
     };
     d.tilt = clampTilt(d.identity * d.resource * d.arc * d.repeat);
-    d.total = d.base * d.era * d.chain * d.tilt;
+    d.total = d.base * d.era * d.chain * d.idRepeat * d.tilt;
     return d;
   };
 
@@ -188,6 +223,7 @@
     const eraCount = Object.keys(P.reg.era).length;
     if (periodScoped(e, eraCount)) w *= fnum(b.eraWeightMul, 3);
     if (e.after) w *= fnum(b.chainWeightMul, 9);
+    w *= idRepeatFactor(e, snap);          // 单卡终身衰减（全局旋钮，不吃 clamp）
     return w * tiltOf(e, snap, counts);
   }
 

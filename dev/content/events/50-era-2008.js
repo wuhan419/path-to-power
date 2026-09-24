@@ -1826,6 +1826,7 @@ POTUS.define("event", [
             "effects": {
               "rep": 1.75,
               "tier": 1,
+              "count": { "wrath_establishment": 14 },
               "fac": {
                 "base": 18,
                 "establishment": -15
@@ -1837,6 +1838,7 @@ POTUS.define("event", [
             "effects": {
               "rep": 0.9,
               "tier": 1,
+              "count": { "wrath_establishment": 10 },
               "fac": {
                 "base": 10,
                 "establishment": -8
@@ -1848,6 +1850,7 @@ POTUS.define("event", [
             "effects": {
               "rep": 0.6,
               "tier": 1,
+              "count": { "wrath_establishment": 12 },
               "fac": {
                 "establishment": -12
               },

@@ -204,8 +204,8 @@ POTUS.define("event", [
         base: 0.4,
         mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "fac", key: "press", w: 0.3 }, { src: "attr", key: "INTG", w: 0.2 }],
         outcomes: {
-          crit: { body: "你的团队找到了画图公司的邮件：有人白纸黑字写着「把他的三个县切开」。法院采纳，地图作废重画。你拿回了地盘，还多拿了一个全国性的名声。", effects: { rep: 1.5, fac: { press: 10, base: 8, establishment: -6 }, voters: { diehard: 2500, warm: 4000 }, flags: ["car2_map_foe"] } },
-          ok: { body: "判决下来：部分重画。两个县回来了，第三个永远留在了别的选区。够了——你的席位保住了。", effects: { rep: 0.9, fac: { press: 6, base: 4 }, voters: { diehard: 800, warm: 1500 } } },
+          crit: { body: "你的团队找到了画图公司的邮件：有人白纸黑字写着「把他的三个县切开」。法院采纳，地图作废重画。你拿回了地盘，还多拿了一个全国性的名声。", effects: { rep: 1.5, fac: { press: 10, base: 8, establishment: -6 }, voters: { diehard: 2500, warm: 4000 }, flags: ["car2_map_foe"], count: { wrath_establishment: 12, wrath_opposition: 8 } } },
+          ok: { body: "判决下来：部分重画。两个县回来了，第三个永远留在了别的选区。够了——你的席位保住了。", effects: { rep: 0.9, fac: { press: 6, base: 4 }, voters: { diehard: 800, warm: 1500 }, count: { wrath_establishment: 8 } } },
           meh: { body: "法院不受理，公投联署差了一截。但你把「被切的在任者」打成了悲情牌，一部分被切走的选民反而更死心塌地。", effects: { rep: 0.4, voters: { diehard: 600, warm: -800 } } },
           fail: { body: "诉讼拖过了登记截止日，公投钱烧完了。地图生效。你的选民在新地图里醒来，发现彼此不再是一家人。", effects: { rep: -0.7, fac: { base: -6 }, voters: { diehard: -1200, warm: -3000 }, flags: ["car2_map_foe"] } },
           critfail: { body: "你的申诉材料里混进了一份来源不干净的内部文件。案子没输在地图上，输在了你的程序上——地图生效，你还搭上了「不择手段」的名声。", effects: { rep: -1.25, fac: { press: -8, establishment: -8 }, voters: { diehard: -800, warm: -3500, oppose: 1500 }, flags: ["scandal_2"] } }

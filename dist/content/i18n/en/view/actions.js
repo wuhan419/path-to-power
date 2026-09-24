@@ -12,10 +12,10 @@ POTUS.define("l10n", {
     "ui.actions.tierBase": "Seat anchor {a} (salary {s} × {m} months{gm})",
     "ui.actions.gradeMul": " × event scale {g}",
     "ui.actions.matterBase": "Event worth {c} ({pct}% of its {p} money)",
+    "ui.actions.walletBase": "Pocket cap {w} ({p}% of your {c} on hand)",
     "ui.actions.rateNote": "{v} per notch: {t}, {m}{tail}",
-    "ui.actions.tailPot": " — the event is smaller than your reach, so the price caps at the event itself: even maxed out you spend less than twice what it is worth.",
-    "ui.actions.tailMid": " — somewhere in between: the higher the office, the dearer the notch, but never more than the event itself is worth.",
-    "ui.actions.rateNoteSeat": "{v} per notch: {t}. No money was written into this event, so it is priced by seat alone.",
+    "ui.actions.tailCash": " — a blend of the three, capped by your wallet: the deeper the pocket, the meatier each notch, yet maxing out never burns more than half your cash.",
+    "ui.actions.rateNoteSeat": "{v} per notch: {t}{w}. No money was written into this event, so it is priced by your seat and your wallet.",
 
     /* ---- 投注面板（renderStake） ---- */
     "ui.actions.stakeTitle": "Stake Resources, Boost Your Odds",

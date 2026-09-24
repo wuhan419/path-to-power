@@ -5,8 +5,44 @@
  * ==========================================================================*/
 POTUS.define("balance", {
   /* 建角初始值 */
-  startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
-  startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
+  startAge: 24, startFun: 0, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
+  /* 开局三围与资金全 0（硬核从零）：魅力/智力/手腕靠 20 自由点自己洒，钱靠分配点/钱卡挣。
+     判定中性点在 50（dice.js），所以没点到的维会吃负修正——这是自甘风险的偏科代价。
+     诚信 INTG 是幕后属性、不在建角分配位，固定 50 = 中性，不受玩家摆布。 */
+  startAttr: { CHA: 0, INT: 0, CUN: 0, INTG: 50 },
+  /* ---- 建角自由点（覆盖 engine/core.js BALANCE_DEFAULTS）----
+     v0.12 #20 定稿：定命一掷删除，属性直接吃 startAttr 打底，自由点分配到四个去处。
+     汇率（与天赋卡价值同一把尺）：1 点 = +10 魅力/智力/手腕 = +$25k 金钱。
+
+     ⚠ freePoints:20 是【一周目】的池子大小，不是常量 —— 这是个多周目成长游戏：
+       每局结算领「+2 自由点」就永久累计（core.js loopFreeBonus / readBonusFree），
+       实际额度 = freePoints + 累计周目奖励，池子随周目变大。
+     ⚠ 单维上限也必须跟着涨，否则池子变大多出来的点只能全灌进金钱档，属性这条腿成长不了。
+       所以下面是【软上限】：实际上限 = min(freeCapMax, freeCapPerAttr + floor(额外点/6))，
+       即每多 6 点额度、单维多开 1 点。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点），
+       freeCapMax 8 保证正常周目不会把三维全拉满（24 > 20 仍要取舍）。 */
+  freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
+
+  /* ---- 开局天赋卡墙（v0.12 #20 · engine/core.js POTUS.gachaCfg 消费，卡定义在 content/15-cards.js）----
+     难度 = 能选几张卡（不再 = 出身发多少钱）；各档开局资金全部搬进卡池（见 15-cards.js 的钱卡）。
+     四档稀有度 白1/蓝2/紫3/橙4，每个呈现卡位【独立】掷一次稀有度，再在该档内等概率抽一张。
+     概率随周目递增（loopRarity，第 N 周目覆盖第 N 档，未写的档自动兜底）：
+       一周目压蓝（93/6/0.9/0.1），二三周目逐步抬蓝紫，越玩越容易撞好东西。
+     橙卡受跨局 meta 门槛：只有当过总统（everPresident，localStorage 记录）后才进池，周目不提前放橙。 */
+  gacha: {
+    enabled: true,
+    offer: 12,                     // 开局呈现几张供挑选
+    loopRarity: {
+      1: { 1: 93, 2: 6, 3: 0.9, 4: 0.1 },      // 一周目：蓝卡明显收着
+      2: { 1: 88, 2: 10, 3: 1.7, 4: 0.25 },    // 二周目
+      3: { 1: 82, 2: 14, 3: 3.2, 4: 0.5 }      // 三周目及以后（再往后沿用这档）
+    },
+    orangeRarity: 4,               // 哪一档是"橙"（受总统门槛解锁的命卡档）
+    picks: { brutal: 1, hard: 2, normal: 3, easy: 4, legendary: 5 },  // 难度 → 可选几张卡
+    keepQuota: 1,                  // 二周目可跨局保留几张卡
+    spareRepPenalty: 15            // 免死卡挡下一次致命结局时扣的声望
+  },
+
   tierMin: 0, tierMax: 9,
   /* 生涯终点年：从开局（1980）一路打到 2025 再结算成就，做到总统不再即终局。
      挂点在 engine/view/stage.js 的 endYear / nextYear。死亡/入狱/被迫害等仍可提前结束。 */
@@ -31,9 +67,10 @@ POTUS.define("balance", {
    * 「时代压力」写在 content/20-eras.js 的 era.pressure；
    * 「活跃度」由引擎按 丑闻/调查中/选举年/层级≥T4 自动叠加（见 engine/time.js）。
    */
-  /* 密度校准（用户反馈「随机事件太多」）：把无压力月的基线从 0.12 压到 0.10，
-     让平静的月份真正静下来；时代压力/活跃度照常把有大事的月份抬回去，不受影响。 */
-  activeChance: 0.10, activePressureMul: 0.04, activeBonusMul: 0.04,
+  /* 密度校准（用户反馈「随机事件太多」，两轮）：无压力月基线 0.12→0.10→0.08，
+     让平静的月份真正静下来；时代压力/活跃度照常把有大事的月份抬回去，不受影响。
+     与 v0.12 单卡终身衰减（idRepeatMul）配合：既少撞人，也不重复撞同一件事。 */
+  activeChance: 0.08, activePressureMul: 0.04, activeBonusMul: 0.04,
   activeMin: 0.06, activeMax: 0.95,
   slotsBase: 1, slotsVariance: 1, slotsMax: 3,
   slotsPressureAt: 4, slotsBonusAt: 2,
@@ -130,6 +167,21 @@ POTUS.define("balance", {
    * 打开它会明显拉平类型分布（现在 media / shady / civil 三家偏重），
    * 但它同时改变了内容构成，会牵动死亡 / 晋升曲线 —— 开之前先重跑 300 局。 */
   repeatBias: 1,
+  /* 单卡终身衰减（v0.12 · 用户「同一事件反复出现不现实，一年或几年一次就够」）：
+   * 一张卡这局演过一次后，再进卡池时整条权重乘这个系数。0.15 = 之后基本撞不上了。
+   * 与 era/chain 同列全局旋钮、不吃 clamp。它只管「冷却到期回访后还稀不稀」，
+   * 「这几年内根本别再出现」由下面的 idRepelMonths 硬闸负责（探针实测：光有衰减时，
+   * 薄池组合一路掉进 pass3 兜底，同一张 dyn 卡单局被抽 147 次）。
+   * 事件可用 ev.rereq（when 词汇）声明"重新解锁"条件（如"家人还在惹祸"的 flag），
+   * 命中则豁免本衰减、并走更短的冷却 —— 见 engine/events.js。调 1 = 关闭衰减。 */
+  idRepeatMul: 0.15,
+  /* 单卡硬冷却（月）：演过一次后这么久以内，任何兜底档（含 pass3）都不再入选。
+   * 24 = 「同一件事最少两年一遇」。豁免：仅 prog_* 晋升卡（失败后每年重试是设计）。
+   * 调 0 = 关闭硬闸（回到纯权重衰减的老问题，别关）。 */
+  idRepelMonths: 24,
+  /* debuff 续燃卡（rereq 命中）的缩短冷却：「麻烦的家人」可以回来，但不能变成年报。
+     12 = 被诅咒后最快一年一遇（对照基准 24）；这是 dyn 卡，每次回来是不同变体。 */
+  idRepelRereqMonths: 12,
 
   /* 主线：同一时刻只有一条，但可以换线（见 engine/arc.js） */
   arc: { switchAfterMonths: 12, maxActive: 1 },
@@ -299,17 +351,33 @@ POTUS.define("balance", {
   /* 学生贷款（普通难度以下的开局背贷 · 见 engine/core.js 的 P.loanStep）
      设计意图：现实里奥巴马当总统还在还哈佛法学院的贷 —— 让金钱从开局就被一条
      固定现金流咬住，越穷的难度越疼，把「钱」变成真资源。
+     v0.12 改制：按月复利改「单利 + 年度资本化」—— 每月利息进 G.debtAccr 欠息桶、
+     不滚本金，每年 1 月（loanStep 内）才把桶并入本金。利息不再无声利滚利，
+     「缓交几个月」和「拖一整年」是两种量级的决定，玩家读得懂、也算得清。
      · startDebt：按难度给本金，未列出的难度（easy/legendary）= 0（世家替你交了）。
-     · interestAnnual：年利率，按月计息（还不清就一直滚，还原多年后仍在还）。
+     · interestAnnual：年利率，按单利月度计提（进欠息桶，年内不滚）。
      · payShare：月供目标 ≈ 职位月薪 × payShare —— 收入越高还得越快，联邦高层才还得清。
-     · minPayment：每月最低还款额（现金见底则本月不还本、只挂息，不逼死玩家）。 */
+     · minPayment：每月最低还款额（现金见底则本月少还、绝不扣成负）。
+     · forbear：缓交（Forbearance）—— 主动申请、冻结月供：
+         maxMonths 终身额度（月），perMonths 单次申请上限，repCost 恢复时扣声望
+         （征信留痕），且恢复当月桶内欠息资本化进本金。
+     · pslf：公职贷款豁免（Public Service Loan Forgiveness）——
+         months 个合格月（在任、未缓交、当月还款盖住利息）后，本金+欠息一笔清零，
+         并解锁成就；minTier 起才算合格（基层志愿不算数）。 */
   studentLoan: {
     enabled: true,
     startDebt: { normal: 65000, hard: 42000, brutal: 28000 },
     interestAnnual: 0.045, payShare: 0.25, minPayment: 120,
     /* lateMonths：连续逾期多少个月仍还不上，才引来「催收/征信」压力事件。
        长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
-    lateMonths: 12
+    lateMonths: 12,
+    /* lateLimit：连续断供多少个月 → 信用破产（hardEnd "bankrupt"，见 core.js loanStep）。
+       断供 = 当月连利息都没交上（欠息桶在增长），部分还款且盖住利息即重新计时。
+       按难度分档，未列出的难度（easy/legendary，开局无贷）= 不启用。
+       ⚠ 单利改制后断供分布会变，此组数值待 #19 用新物理重新校准（cap 99 测量）。 */
+    lateLimit: { normal: 6, hard: 4, brutal: 3 },
+    forbear: { maxMonths: 24, perMonths: 6, repCost: 3 },
+    pslf: { months: 120, minTier: 1 },
   },
 
   /* 负债设底（engine/core.js 的 POTUS.enforceDebtFloor）
@@ -397,17 +465,17 @@ POTUS.define("balance", {
    *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏对他形同虚设；
    *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码和事情本身的钱量级脱钩。
    *
-   * 现在每档金额由**两个锚**算出来（见 engine/dice.js 的 stakeFunPer）：
+   * 现在每档金额由**三个锚**算出来（见 engine/dice.js 的 stakeFunPer）：
    *   身位锚 A = 职位月薪(track,tier) × perSalaryMonths × gradeMul
    *              —— 你这个位子办一件事的常规手笔。月薪取自 reg.officeSalary，
    *                 与平静月工资**同一个来源**：身份决定钱，这个口径只能有一个。
    *   事件锚 X = 事件钱量级 × potShare
-   *              —— 这件事本身押着多少钱；同时它是**总投入的硬顶**。
-   * 合成：per = min(√(A × X), X)，再夹进 [perMin, perMax] 并抹成整数。
-   *   身位小 / 事件大 → 走 √ 那支，随身位抬升（小兵不能拿零头买下大事）
-   *   身位大 / 事件小 → 被 X 夹住，价码跟着事情走（大佬也不为小事掏大钱）
-   * 不变量：**8 档总投入永远 ≤ 2 × 事件钱量级**（8 × X = 8 × pot × 0.25 = 2 × pot），
-   * 所以不可能再出现"花 $250k 去搏 $50k"的账。
+   *              —— 这件事本身押着多少钱（v0.12 起只当锚，不再当硬顶）。
+   *   资金闸 G = 现有资金 × cashStakeShare × gradeMul
+   *              —— v0.12（用户实测"投入资金要和掌握的资金成正比，否则前期没资格后期太鸡肋"）：
+   *                 灰色生意的入场费与**手里筹码**成正比，也是单档硬上限（本金风险有界）。
+   * 合成：per = min(∛(A × X × G), G)（缺哪个锚退化用剩下的），再夹进 [perMin, perMax] 抹零。
+   *   家底薄 → 几何均把价码拉回小兵够得着的区间；家底厚 → 单档按资金的 6%/档水涨船高。
    * 内容写死 `per` 时以内容为准（绝对覆盖，不参与换算）。
    *
    * 调参前务必跑 node tools/validate.js，看 300 局的层级分布 / 结局分布有没有被推歪。 */
@@ -415,8 +483,9 @@ POTUS.define("balance", {
     fun: {
       w: 0.04, cap: 0.30,
       perSalaryMonths: 3,        /* 身位锚 = 职位月薪 × 3 个月 */
-      gradeMul: { minor: 0.6, mid: 1.0, major: 1.8 },   /* 事件没写钱时，按量级缩放身位锚 */
-      potShare: 0.25,            /* 事件锚 X = 事件钱量级 × 0.25（每档不超过事情的 25%，总投入 ≤ 2× 事情） */
+      gradeMul: { minor: 0.6, mid: 1.0, major: 1.8 },   /* 量级系数：缩放身位锚和资金闸（major 事件手笔更大） */
+      potShare: 0.25,            /* 事件锚 X = 事件钱量级 × 0.25 */
+      cashStakeShare: 0.06,      /* v0.12 资金闸 G = 现有资金 × 6%/档（满档 8 档 ≈ 四分之三家底可压上） */
       perMin: 500, perMax: 5000000
     },
     ap: { w: 0.03, cap: 0.09 },
@@ -442,6 +511,7 @@ POTUS.define("balance", {
     president_done: { name: "曾任总统", desc: "你的任期结束了", effect: "退休结局按总统评价" },
     fallen: { name: "下野过", desc: "你从台上摔下来过", effect: "爬回 T3+ 退休=「东山再起」结局；否则=「从谷底收场」；顶栏光谱挂「下野」印记" },
     owns_media: { name: "拥有媒体", desc: "一支笔在你手里", effect: "解锁「话语权的所有者」退休结局" },
+    pslf_forgiven: { name: "学贷已豁免", desc: "十年公职按时供款，剩余学贷被联邦一笔勾销", effect: "生涯结算屏挂 PSLF 成就印" },
     /* —— 事件链钥匙（有它才解锁后续专属事件） —— */
     mentor: { name: "导师", desc: "有人愿意指点你、在房间里替你说话", effect: "解锁导师后续专属事件（党内关键场合指路）" },
     shady_start: { name: "走过灰路", desc: "你的第一桶金不干净", effect: "解锁灰产后续专属事件链（脏钱越陷越深）" },
@@ -473,6 +543,18 @@ POTUS.define("faction", {
   foreign: { name: "外国势力" },
   tech: { name: "科技巨头" },
   criminal: { name: "地下势力" }
+});
+
+/* ---------- 仇家（清算系统的仇恨群体） ----------
+ * 仇恨值存在 G.counters["wrath_<组>"]：大收益选项攒恨，攒到门槛触发 140-reckoning 的清算事件。
+ * 门槛判定走现成的 when 词汇 countMin/countMax/countEq —— 这里只登记"谁会记恨、记恨的方式"。
+ * 键（press/establishment/…）被事件 when/effects 引用，只翻展示值 name/desc。 */
+POTUS.define("wrath", {
+  press: { name: "新闻界", desc: "围剿、构陷式报道、把你的旧话翻出来一条一条对质" },
+  establishment: { name: "党建制派", desc: "初动候选人、黑名单、听证会上给你留位置" },
+  money: { name: "金主", desc: "断供、转向扶持你的对手、让银行重新评估你的每一笔钱" },
+  opposition: { name: "政敌", desc: "政治陷害、诬告、往人群里派拿枪的人" },
+  agency: { name: "情报/执法系统", desc: "匿名泄密、翻旧账、让卷宗「恰好」出现在记者桌上" }
 });
 
 /* ---------- 晋升轨道（决定"怎么往上爬"） ---------- */

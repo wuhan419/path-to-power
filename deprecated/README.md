@@ -37,5 +37,7 @@
 1. 从 `events/` 取回对应时代文件放入 `dev/content/events/`，在 `dev/index.html` 内容清单里加回 `<script src>`。
 2. 从 `snapshots/20-eras.js` 恢复该时代的 era 定义块与其 blackswan 条目到 `dev/content/20-eras.js`。
 3. 需要填充包 / 世相随笔 / 浪潮事件时，从对应 `snapshots/` 文件把该时代的片段贴回活树。
-4. 若这些事件要进事件弧，参考 `snapshots/` 里旧 `arc` 节拍（或历史提交）补 `dev/content/11-arcs.js`。
+4. ~~若这些事件要进事件弧，参考 `snapshots/` 里旧 `arc` 节拍（或历史提交）补 `dev/content/11-arcs.js`。~~
+   （**注**：事件弧主线已于 v0.10+ 停用——`index.html` 里 `11-arcs.js` 已注释、多支路主线整体砍掉；
+   如未来重启事件弧玩法再另议，勿默认照此步操作。）
 5. 跑 `node dev/tools/validate.js --games=8` 与 `node dev/tools/choice-audit.js` 通过后，再正常改动 / 翻译。

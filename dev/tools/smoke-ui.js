@@ -55,8 +55,13 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   const diffs = w.document.querySelectorAll(".opt-diff");
   check(diffs.length >= 3, "难度选项被注册表自动生成（" + diffs.length + " 个）");
   P.CSEL.name = "测试者";                                       // 姓名直接写进 CSEL（不依赖输入框事件）
+  P.createStep(3);                                             // 三步向导：走到第 3 步（加点）才出「开始游戏」
+  /* 真实玩家会洒满 20 自由点；测试角色也得洒，否则三围全 0 → 判定概率贴地板，投注看不出动效。
+     这里按三维各 5 点（≈中性 50）+ 金钱 5 点，还原旧 startAttr 45 起步的手感。 */
+  P.CSEL.spent = { CHA: 5, INT: 5, CUN: 5, FUN: 5 };
+  P.renderCreate();
   const goBtn = btn("开始游戏");
-  check(!!goBtn, "建角屏有「开始游戏 →」按钮");
+  check(!!goBtn, "建角第 3 步有「开始游戏 →」按钮");
   goBtn.click();                                               // confirmCreate → 进入第一年
   check(!!P.G && P.G.name === "测试者", "开局成功，P.G 已建立");
   check(/era-/.test(w.document.body.className), "时代皮肤已应用到 body");
@@ -485,14 +490,23 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   dock.querySelector('button[data-lang="en"]').click();
   check(w.localStorage.getItem("potus_lang") === "en", "点击 EN 后 localStorage.potus_lang=en（随后整页重载生效）");
   w.localStorage.removeItem("potus_lang");   // jsdom 里 reload 不落地的，清掉再走后续断言
-  /* 引擎级的定命一掷 / 自由点 / VIP / 州联动函数仍在（旧完整建角保留可回退） */
-  P.rollAttrs();
-  check(!!P.CSEL.rolled && ["CHA", "INT", "CUN", "INTG"].every(k => typeof P.CSEL.rolled[k] === "number"),
-    "rollAttrs() 仍能掷出四属性（引擎保留）");
-  P.spendAttr("CHA", 1);
-  check((P.CSEL.spent.CHA || 0) === 1, "spendAttr() 仍能把自由点洒到属性上");
-  check(typeof P.vipActivate("NOPE_X") === "string", "无效 VIP 码被拒（vipActivate 返回错误原因）");
-  check(P.vipActivate("VIP5") === null, "合法 VIP5 码可激活（引擎保留）");
+  /* 三步向导：① 难度+姓名 ② 抽卡 ③ 加点。各步只渲染自己的正文块。 */
+  P.createStep(1);
+  check(text().indexOf("选择难度") >= 0, "第 1 步是难度（+姓名）");
+  check(text().indexOf("分配自由点") < 0, "第 1 步不该出现第 3 步的加点块");
+  P.createStep(2);
+  check(!!w.document.querySelector(".gwall"), "第 2 步是抽卡：卡墙渲染出来");
+  P.createStep(3);
+  check(text().indexOf("分配自由点") >= 0, "第 3 步是加点：出现「分配自由点」");
+  const rattrN = w.document.querySelectorAll(".rattr").length;
+  check(rattrN === 4, "第 3 步四个分配去处（魅力/智力/手腕/金钱），诚信不在其中：" + rattrN);
+  check(text().indexOf("诚信") < 0, "加点屏不出现「诚信」字样（已退为幕后属性）");
+  /* 定命一掷已删：不再有掷骰 / 重掷入口 */
+  check(typeof P.rollAttrs === "undefined" && !w.document.getElementById("cheatcode"),
+    "掷骰函数与作弊码输入框都已从界面/引擎撤下");
+  /* 自由点分配 API 仍在（新名 spendPoint，旧名 spendAttr 作别名） */
+  P.spendPoint("CHA", 1);
+  check((P.CSEL.spent.CHA || 0) === 1, "spendPoint() 能把自由点洒到属性上");
   check(typeof P.stateWindFor === "function" && typeof P.stateWindFor("OH", "D") === "number",
     "stateWindFor() 仍给出州对党派的顺逆风（数值）");
   /* 确认开局：走快速开局，出生州由系统自动填（铁锈带 OH），难度/出身写进存档 */
