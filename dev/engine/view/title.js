@@ -11,8 +11,10 @@
   /* 语言切换：切完写 localStorage 并重载（覆盖层是 boot 时一次性并入的） */
   function langBar() {
     const cur = P.locale.lang;
+    /* data-i18n-native：语言选项一律用各自的母语写（简体中文 / English），翻成别的就失去意义。
+       i18n-coverage.js 认识这个标记，量屏上残留中文时把它剔掉，免得语言开关自己变成假红。 */
     const btn = (code, label) =>
-      '<button class="btn" style="padding:2px 10px;font-size:.85em;margin-left:6px"' +
+      '<button class="btn" data-i18n-native="1" style="padding:2px 10px;font-size:.85em;margin-left:6px"' +
       (cur === code ? " disabled" : ' onclick="POTUS.i18n.setLang(\'' + code + '\')"') + ">" + label + "</button>";
     return '<div style="margin:14px 0 2px"><span class="muted">' +
       P.t("ui.title.langLabel", "语言：") + "</span>" +

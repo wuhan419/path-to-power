@@ -57,7 +57,12 @@ function describe(file) {
   return "";
 }
 
-const html = fs.readFileSync(HTML, "utf8");
+/* 本机 core.autocrlf=true：index.html 落盘是 CRLF，而本工具生成的托管区用 LF，
+   于是逐字节比较永远「脏」，--check 在干净 main 上都能假红。先把文本并成 LF 再判脏，
+   真要写盘时才换回文件原有的行尾——内容变了才算变，行尾不算。 */
+const raw = fs.readFileSync(HTML, "utf8");
+const FILE_EOL = (raw.match(/\r\n/g) || []).length * 2 >= (raw.match(/\n/g) || []).length ? "\r\n" : "\n";
+const html = raw.replace(/\r\n/g, "\n");
 
 function region(tag, body) {
   const begin = "<!-- BEGIN " + tag + " -->";
@@ -138,6 +143,6 @@ if (!dirty) {
   console.log("index.html 无需改动（content 自动区 " + merged.length + " 项，i18n " + i18nFiles.length + " 项）");
   process.exit(0);
 }
-fs.writeFileSync(HTML, next, "utf8");
+fs.writeFileSync(HTML, FILE_EOL === "\n" ? next : next.replace(/\n/g, FILE_EOL), "utf8");
 console.log("已重写 index.html 托管区：content " + merged.length + " 项（新增 " + toAdd.length +
   (dropped.length ? "，清理已删除 " + dropped.join(", ") : "") + "），i18n " + i18nFiles.length + " 项");

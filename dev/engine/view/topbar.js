@@ -348,7 +348,7 @@
     const cur = P.locale.lang;
     const esc = function (s) { return String(s).replace(/"/g, "&quot;"); };
     const b = function (code, label) {
-      return '<button type="button" class="btn tiny lang-sw" data-lang="' + code + '"' +
+      return '<button type="button" class="btn tiny lang-sw" data-lang="' + code + '" data-i18n-native="1"' +
         (cur === code ? " disabled" : ' onclick="POTUS.i18n.setLang(\'' + code + '\')"') + ">" + label + "</button>";
     };
     return '<span class="lang-sw" style="display:inline-flex;align-items:center;gap:4px"' +

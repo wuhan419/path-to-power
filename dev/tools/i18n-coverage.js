@@ -72,10 +72,14 @@ const code = srcs.map(s => fs.readFileSync(path.join(ROOT, s), "utf8")).join("\n
 const P = new Function(code + "\n;POTUS.boot();\n;return POTUS;")();
 
 /* ---------- 度量 ---------- */
+/* 语言开关的选项名（简体中文 / English）用各自的母语书写是刻意约定，不是漏翻：
+   带 data-i18n-native="1" 的按钮（title.js langBar / topbar.js langSwitchHTML）在量残留前剔掉，
+   否则光一个「中」字就能把整屏顶过 5% 阈值。 */
 function stripHtml(h) {
   return String(h || "")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<button[^>]*data-i18n-native[^>]*>[\s\S]*?<\/button>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z]+;|#([0-9a-f]{6}|[0-9a-f]{3})/gi, " ");
 }
