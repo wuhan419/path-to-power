@@ -15,6 +15,7 @@
  *   node tools/text-audit.js --titles        → 逐条打印「文件 | id | 标题 | 标题字数 | 正文字数」供肉眼审视标题
  *   node tools/text-audit.js --limit=160     → 自定义正文字数上限（默认 200）
  *   node tools/text-audit.js --file=80-shady → 只看某个源文件的事件
+ *   node tools/text-audit.js --lang=en       → 按英文覆盖层量篇幅（--file 此时匹配 i18n/en/ 分片）
  * ==========================================================================*/
 "use strict";
 const fs = require("fs");
@@ -42,24 +43,36 @@ global.URL = { createObjectURL: () => "", revokeObjectURL: () => { } };
 global.Blob = function () { }; global.FileReader = function () { };
 global.window = global;
 
-const ROOT = path.resolve(__dirname, "..");
-const srcs = [...fs.readFileSync(path.join(ROOT, "index.html"), "utf8").replace(/<!--[\s\S]*?-->/g, "")
-  .matchAll(/<script\s+src="([^"]+)"><\/script>/g)].map(m => m[1]);
-const code = srcs.map(s => fs.readFileSync(path.join(ROOT, s), "utf8")).join("\n;\n");
-const P = new Function(code + "\n;POTUS.boot();\n;return POTUS;")();
-
-/* ---------- 命令行参数 ---------- */
+/* ---------- 命令行参数（boot 之前解：--lang 决定用哪种语言量篇幅） ---------- */
 const argv = process.argv.slice(2);
 const arg = (name, def) => { const m = argv.find(a => a.startsWith("--" + name + "=")); return m ? m.split("=").slice(1).join("=") : def; };
 const has = (name) => argv.includes("--" + name);
 const LIMIT = parseInt(arg("limit", "200"), 10);
 const ONLY_FILE = arg("file", null);
+const LANG = (arg("lang", "zh") || "zh").trim().toLowerCase();
+
+const ROOT = path.resolve(__dirname, "..");
+if (LANG === "en") _store.potus_lang = "en";
+const srcs = [...fs.readFileSync(path.join(ROOT, "index.html"), "utf8").replace(/<!--[\s\S]*?-->/g, "")
+  .matchAll(/<script\s+src="([^"]+)"><\/script>/g)].map(m => m[1]);
+const code = srcs.map(s => fs.readFileSync(path.join(ROOT, s), "utf8")).join("\n;\n");
+const P = new Function(code + "\n;POTUS.boot();\n;return POTUS;")();
 
 /* ---------- 源文件 → 事件 id 归属映射（编辑时用来定位文件） ---------- */
 const EVENTS_DIR = path.join(ROOT, "content", "events");
+const EN_DIR = path.join(ROOT, "content", "i18n", "en");
 const fileOfId = {};
 (function buildFileMap() {
   const files = [];
+  /* --lang=en 时先扫英文覆盖层并让它赢：否则 `--file=121-line-1995-98` 这类分片段
+     永远匹配不到（英文串挂在中文源文件名下），worker 就没法自查英文篇幅。 */
+  if (LANG === "en" && fs.existsSync(EN_DIR)) (function walk(d) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (p.endsWith(".js")) files.push(p);
+    }
+  })(EN_DIR);
   if (fs.existsSync(EVENTS_DIR)) fs.readdirSync(EVENTS_DIR).filter(f => f.endsWith(".js")).forEach(f => files.push(path.join(EVENTS_DIR, f)));
   // 少数事件定义在 content 根（如 61-campaigns.js / 30-fillers.js）—— 一并扫
   fs.readdirSync(path.join(ROOT, "content")).filter(f => f.endsWith(".js")).forEach(f => files.push(path.join(ROOT, "content", f)));
@@ -68,7 +81,7 @@ const fileOfId = {};
     const rel = path.relative(ROOT, fp);
     for (const m of txt.matchAll(/["']?id["']?\s*:\s*["']([a-zA-Z0-9_]+)["']/g)) {
       const id = m[1];
-      if (!(id in fileOfId)) fileOfId[id] = rel;
+      if (!(id in fileOfId) || (LANG === "en" && fileOfId[id].indexOf(path.join("i18n", "en")) < 0)) fileOfId[id] = rel;
     }
   }
 })();
@@ -149,7 +162,7 @@ if (has("brief")) {
     if (unknown.length > 2) probs.push("unknown条数" + unknown.length + ">2");
     unknown.forEach((x, i) => { if (unit(x) > 20) probs.push("unknown#" + (i + 1) + "=" + unit(x) + ">20"); });
     if (terms.length > 2) probs.push("terms个" + terms.length + ">2");
-    terms.forEach((t, i) => { if (charCount(t && t.v) > 20) probs.push("terms#" + (i + 1) + "解释>20"); });
+    terms.forEach((t, i) => { if (unit(t && t.v) > 20) probs.push("terms#" + (i + 1) + "解释" + unit(t && t.v) + ">20"); });
     if (probs.length) findings.push({ file: fileOfId[ev.id] || "(未定位)", id: ev.id, grade: ev.grade || "-", totalWords, probs });
   }
   findings.sort((a, b) => b.totalWords - a.totalWords);
@@ -164,7 +177,7 @@ if (has("brief")) {
       arr(b.known).forEach((x, i) => console.log("       known#" + (i + 1) + " (" + charCount(x) + "): " + x));
       arr(b.rumor).forEach((x, i) => console.log("       rumor#" + (i + 1) + " (" + charCount(x) + "): " + x));
       arr(b.unknown).forEach((x, i) => console.log("       unknown#" + (i + 1) + " (" + charCount(x) + "): " + x));
-      arr(b.terms).forEach((t, i) => console.log("       terms#" + (i + 1) + " (" + charCount(t && t.v) + "): " + (t && t.k) + "=" + (t && t.v)));
+      arr(b.terms).forEach((t, i) => console.log("       terms#" + (i + 1) + " (" + unit(t && t.v) + "): " + (t && t.k) + "=" + (t && t.v)));
     }
   }
   const byFile = {}; findings.forEach(f => { byFile[f.file] = (byFile[f.file] || 0) + 1; });
@@ -183,7 +196,7 @@ if (has("brief")) {
   rows.slice().sort((a, b) => a.file.localeCompare(b.file) || a.id.localeCompare(b.id)).forEach(r =>
     console.log("  " + pad(r.file.replace(/^content\//, ""), 30) + "  " + pad("T" + r.titleLen, 4) + " B" + pad(r.bodyLen, 4) + "  " + r.title + "   ⟨" + r.id + "⟩"));
 } else {
-  console.log("== POTUS 事件文字审计（上限 " + LIMIT + " 字/正文）==");
+  console.log("== POTUS 事件文字审计（语言 " + (P.locale ? P.locale.lang : LANG) + "，上限 " + LIMIT + " 字/正文）==");
   console.log("  事件总数        : " + total);
   console.log("  body 超 " + LIMIT + " 字  : " + nLong + "  →  node tools/text-audit.js --long");
   console.log("  缺 body         : " + nNoBody);
