@@ -15,7 +15,8 @@
 #   3) 重跑 gen-manifest（index.html 托管区**一律以重生成为准**，不去手工和解）
 #   4) 批末统一跑门禁：validate --games=20 --lang=zh / --games=1 --lang=en /
 #      gen-manifest --check / choice-audit（flagged 数只准等于基线，不准变多）/
-#      i18n-events --only=event（事件卡缺译叶子只准持平或下降，新卡必须自带英文覆盖层）
+#      i18n-events --only=event（事件卡缺译叶子只准持平或下降，新卡必须自带英文覆盖层）/
+#      text-audit --lang=en --tcase（英文标题 sentence case 条数，只准降不准升）
 #   5) 门禁不过：不自动回滚（合并提交是有用信息），只打印 HEAD 与失败项，由人决定
 #
 # 安全边界：本脚本只在主库工作树里跑 git merge / node，绝不 push、绝不 reset --hard、
@@ -28,6 +29,7 @@ DEV="$MAIN_ROOT/dev"
 BASE_BRANCH="main"
 FLAGGED_BASELINE=3          # 基线：见 docs/PARALLEL-CONTENT-WORK.md §6.3
 I18N_MISS="${I18N_MISS:-0}"     # 事件卡缺译叶子基线：276 张卡已全部英文化，所以是硬零——新卡必须自带英文覆盖层（见 docs/I18N.md §8）
+TCASE="${TCASE:-157}"           # 英文标题写成 Title Case 的条数基线：规范是 sentence case，存量正在洗，只准降不准升
 GAMES_FULL=20
 
 DRY=0; GATE=1; LANG_ONLY=0; BRANCHES=()
@@ -141,6 +143,13 @@ im=$(node tools/i18n-events.js --only=event --json 2>/dev/null | node -e "let s=
 if [ "$im" = "-1" ]; then echo "  ✗ 无法解析 i18n-events 输出" >&2; fail=$((fail+1));
 elif [ "$im" -gt "$I18N_MISS" ]; then echo "  ✗ 缺译从 $I18N_MISS 涨到 $im —— 新卡没写英文覆盖层，退回 worker 补" >&2; fail=$((fail+1));
 else I18N_MISS=$im; echo "  ✓ 缺译 = $im（基线已降到 $im）"; fi
+
+echo "▶ 英文标题 Title Case 条数（基线 $TCASE，只准持平或下降；规范是 sentence case）"
+tc=$(node tools/text-audit.js --lang=en --tcase 2>/dev/null | head -1 | grep -oE '共 [0-9]+' | tr -dc '0-9')
+tc=${tc:-}
+if [ -z "$tc" ]; then echo "  ✗ 无法解析 text-audit --tcase 输出" >&2; fail=$((fail+1));
+elif [ "$tc" -gt "$TCASE" ]; then echo "  ✗ Title Case 标题从 $TCASE 涨到 $tc —— 新写的英文标题没按 sentence case，退回改" >&2; fail=$((fail+1));
+else TCASE=$tc; echo "  ✓ Title Case = $tc（基线已降到 $tc）"; fi
 
 echo
 if [ "$fail" = "0" ]; then
