@@ -348,11 +348,14 @@
     const cur = P.locale.lang;
     const esc = function (s) { return String(s).replace(/"/g, "&quot;"); };
     const b = function (code, label) {
-      return '<button type="button" class="btn tiny lang-sw" data-lang="' + code + '" data-i18n-native="1"' +
+      return '<button type="button" class="btn tiny lang-btn" data-lang="' + code + '" data-i18n-native="1"' +
         (cur === code ? " disabled" : ' onclick="POTUS.i18n.setLang(\'' + code + '\')"') + ">" + label + "</button>";
     };
-    return '<span class="lang-sw" style="display:inline-flex;align-items:center;gap:4px"' +
-      ' title="' + esc(P.t("ui.topbar.langTip", "切换界面语言（重载后生效）")) + '">' +
+    /* 「语言 / Language」标签 + 与操作按钮组之间的一道分隔线：
+       原来只有紧贴存档按钮的两枚「中/EN」小钮，没人看得出是切语言。标签走 P.t，
+       两枚自称按钮带 data-i18n-native（i18n-coverage 量残留时剔掉，不自证假红）。 */
+    return '<span class="lang-sw" role="group" title="' + esc(P.t("ui.topbar.langTip", "切换界面语言（重载后生效）")) + '">' +
+      '<span class="lang-label">' + P.t("ui.topbar.langLabel", "语言") + "</span>" +
       b("zh", P.t("ui.topbar.langZh", "中")) + b("en", P.t("ui.topbar.langEn", "EN")) + "</span>";
   };
   P.statusPanel = function () {

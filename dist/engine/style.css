@@ -617,6 +617,17 @@
   .kicker-band .kb-ops .btn:hover:not(:disabled){background:var(--ink);color:#f4efe3;border-color:var(--ink)}
   .kicker-band .kb-ops .btn:disabled{opacity:.4;cursor:not-allowed}
 
+  /* 语言切换组：与左侧操作按钮之间一道分隔线 + 「语言/Language」标签，一眼可辨。
+     当前语言的按钮处于 disabled 态，做成实心高亮（而非淡出），明示"你正在这个语言"。 */
+  .lang-sw{display:inline-flex;align-items:center;gap:5px}
+  .lang-sw .lang-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.5px;color:var(--muted)}
+  .kicker-band .kb-ops .lang-sw{margin-left:6px;padding-left:12px;border-left:1px solid var(--line)}
+  .lang-sw .lang-btn{background:transparent;color:var(--ink);border:1px solid var(--line);
+    padding:2px 8px;font-size:11.5px;line-height:1.55;letter-spacing:.5px;min-width:28px}
+  .lang-sw .lang-btn:hover:not(:disabled){background:var(--ink);color:#f4efe3;border-color:var(--ink)}
+  .lang-sw .lang-btn:disabled{opacity:1;cursor:default;background:var(--ink);color:#f4efe3;border-color:var(--ink);font-weight:700}
+  #langdock .lang-sw{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+
   /* 身份证式状态卡（v0.10 组件化流式布局）：
      .idc-flow = flex-wrap 容器，原子块按容器宽度自由组合、放不下自动换行：
        .idc-left  = 组件①人物卡（头像·姓名·年龄）+ 组件②（职位·等级·晋升条）竖排，固定 122px

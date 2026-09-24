@@ -361,7 +361,9 @@
       if (!c) return;
       for (const k in c) { if (!c[k] || k === "ap" || k === "hp") continue; G[k] = (G[k] || 0) - c[k]; paid[k] = (paid[k] || 0) + c[k]; }
     });
-    if (G.fun < 0) G.fun = G.fun;              // 允许负债（保留戏剧性）
+    /* 允许负债，但设有谷底：保险丝逼玩家"硬撑"付一笔付不起的开销时，钱可探到负；
+       一旦触底即由 enforceDebtFloor 托一把（有代价），不再是无声滑进无底洞。 */
+    if (P.enforceDebtFloor) P.enforceDebtFloor();
     G.fav = P.clamp(G.fav, 0, 20); G.ap = P.clamp(G.ap, 0, 99); G.hp = P.clamp(G.hp, 0, 100);
     G.lev = Math.max(0, G.lev || 0);           // 把柄是"份"，花掉就没了，不能欠
     return paid;
@@ -758,6 +760,8 @@
 
   P.afterEvent = function () {
     const b = P.balance(), G = P.G;
+    /* 事件效果可能把资金一次扣穿：过一遍负债设底，触底即被接济（有代价），再判生死去留。 */
+    if (P.enforceDebtFloor) P.enforceDebtFloor();
     if (G.hp <= 0) return P.ending("death_health");
     /* 硬 BE：事件效果键 hardEnd 已写入 pendingHardEnd（入狱/身败名裂）—— 政治生命就此终结 */
     if (G.pendingHardEnd) {
