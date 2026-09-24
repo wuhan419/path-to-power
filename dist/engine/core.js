@@ -134,6 +134,9 @@ const BALANCE_DEFAULTS = {
   startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0, startLev: 0,
   startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
   tierMin: 0, tierMax: 9,
+  /* v0.11 P1：生涯终点年 —— 游戏一路打到 2025 再结算成就，而非做到总统即终局。
+     endYear 是唯一权威（挂在 stage.js endYear/nextYear）；死亡/入狱等仍可提前结束。 */
+  endYear: 2025,
 
   /* ---- 建角掷骰：定命一掷 + 自由点 ----
    * rollAttrs   四属性各掷一次的范围（默认 35-55，d20+35 的味道）
@@ -753,6 +756,7 @@ POTUS.migrate = function (G) {
   if (G.debt == null) G.debt = 0;                         // 学生贷款余额（旧存档没有 = 0）
   if (G.loanLate == null) G.loanLate = 0;                 // 学贷连续逾期月数
   if (G.bailouts == null) G.bailouts = 0;                 // v0.11 负债设底：本局被接济次数
+  if (G.peakTier == null) G.peakTier = G.tier || 0;       // v0.11 P1：生涯峰值层级（成就结算用）
   if (G.contacts == null) G.contacts = {};                // 人脉好感表
   if (G.doneSeq == null) G.doneSeq = {};                  // 事件发生时的"月份序号"，事件链靠它算间隔
   if (G.tierSince == null) G.tierSince = POTUS.monthSeq() - (G.tier || 0) * 12;  // 在位时长

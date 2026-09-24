@@ -107,6 +107,18 @@
     const el = document.getElementById("tipbox");
     if (el && el.classList) el.classList.remove("on");
   }
+  /* 竖屏事件卡：点标题展开/收起正文（CSS 只在 portrait 下隐藏正文，桌面点击无害）。
+   * 事件卡每次 drawEvent 重绘，故用 body 级事件委托，不随重渲染丢绑定。 */
+  function bindEventExpand() {
+    if (!tipReady()) return;
+    document.addEventListener("click", function (e) {
+      if (!e.target || !e.target.closest) return;
+      const h = e.target.closest(".news.editorial h1.headline");
+      if (!h) return;
+      const card = h.closest(".news.editorial");
+      if (card) card.classList.toggle("expanded");
+    });
+  }
   function bindTooltip() {
     if (!tipReady()) return;   // 无 DOM 宿主（validate.js）：跳过绑定
     /* 事件委托：内容动态重渲染也不需要重新绑 */
@@ -161,6 +173,7 @@
     /* 语言覆盖层必须在任何渲染之前并入注册表（读 localStorage / ?lang=） */
     if (P.i18n) P.i18n.boot();
     bindTooltip();
+    bindEventExpand();
     mountLangDock();
     if (!Object.keys(P.reg.era).length) {
       P.app().innerHTML = '<div class="center" style="padding:40px"><h2>' + P.t("ui.shell.noContentTitle", "未加载任何内容包") + '</h2><p class="muted">' + P.t("ui.shell.noContentHint", "请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。") + '</p></div>';

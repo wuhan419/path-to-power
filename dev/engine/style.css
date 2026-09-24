@@ -704,6 +704,18 @@
     .vig-body{font-size:14px}
   }
 
+  /* ================= 选择后「什么变了」红绿高亮（全布局通用） =================
+   * .chg-up/.chg-down 打在带 data-diff 的读数上：底色闪一下（2.6s 淡出），
+   * .chg 角标显示 ±delta（升绿降红）。见 topbar.js 的 P.flashStatusDiffs。 */
+  #statusbox [data-diff].chg-up{animation:potusChgUp 2.6s ease-out}
+  #statusbox [data-diff].chg-down{animation:potusChgDown 2.6s ease-out}
+  @keyframes potusChgUp{0%,55%{background:rgba(74,160,60,.30)}100%{background:transparent}}
+  @keyframes potusChgDown{0%,55%{background:rgba(200,62,50,.30)}100%{background:transparent}}
+  #statusbox .chg{display:inline-block;margin-left:5px;padding:0 5px;border-radius:7px;
+    font-family:var(--mono);font-size:10px;font-weight:800;line-height:1.5;vertical-align:middle}
+  #statusbox .chg.u{color:#1e7d24;background:rgba(74,160,60,.16)}
+  #statusbox .chg.d{color:#b3261e;background:rgba(200,62,50,.16)}
+
   /* 事件卡 = 头版社论 */
   .news.editorial{border:1px solid var(--line);background:#fbf7ec;padding:16px 18px 18px;margin:10px 0;
     box-shadow:2px 2px 0 rgba(0,0,0,.08);position:relative}
@@ -714,13 +726,15 @@
     color:var(--accent);font-weight:700}
   .news.editorial .dmeta{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
   .news.editorial h1.headline{margin:0 0 10px;font-family:var(--serif);
-    font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.5px;color:var(--ink);
-    padding-right:120px}   /* 右上角的「档案」橡皮章压不到标题 */
-  /* 红色橡皮章：倾斜盖在最上方，纸质档案感（与参考稿同参：-11° / rgba(158,42,42)） */
-  .news.editorial .stamp{position:absolute;right:8px;top:36px;transform:rotate(-11deg);
+    font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.5px;color:var(--ink)}
+  /* 头条图定位容器：橡皮章改盖在图的右上角（原先钉在卡片右上角、标题给它让位） */
+  .news.editorial .art-slot{position:relative}
+  /* 红色橡皮章：从图右上沿斜压下来，纸质档案感（与参考稿同参：-11° / rgba(158,42,42)）。
+     z-index 5 压在「卷宗号」角标之上——章盖标签正是归档的手感。 */
+  .news.editorial .stamp{position:absolute;right:10px;top:-16px;transform:rotate(-11deg);
     border:2.5px solid rgba(158,42,42,.62);color:rgba(158,42,42,.66);border-radius:4px;
     padding:4px 10px;font-size:19px;font-weight:800;letter-spacing:4px;
-    font-family:var(--serif);opacity:.85;pointer-events:none;z-index:2;
+    font-family:var(--serif);opacity:.85;pointer-events:none;z-index:5;
     box-shadow:inset 0 0 0 1px rgba(158,42,42,.35)}
   .news.editorial .standfirst{margin:0 0 14px;font-size:15.5px;line-height:1.65;font-style:italic;
     color:#4b4134;max-width:62ch;padding-bottom:12px;border-bottom:3px double var(--rule)}
@@ -737,3 +751,87 @@
   .create .opt-body{flex:1 1 auto;min-width:0}
   .create .opt-body b{font-size:15px;letter-spacing:.5px}
   .create .opt-body small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
+
+  /* ================= 手机竖屏（portrait）：三区竖排 + 信息密度收窄 =================
+   * 目标（真机反馈版）：上=状态栏（两行内：头像·姓名｜资源，职位·等级另起一行）、
+   * 中=事件栏（默认只标题，点标题才展开 正文/本月结算/档案头）、下=选择栏（回报只给
+   * 模糊强度，见 stage.js 的紧凑预览）；顶部游戏级操作按钮必须常驻可见。
+   * ⚠ 本块必须留在文件最末：.news.editorial 等基础样式定义在文件后段，同特异度的
+   * 竖屏覆盖若写在它们前面会被级联吃掉（真机实测：标题不缩、橡皮章仍外露）。 */
+  @media(max-width:820px) and (orientation:portrait){
+    /* ---- 顶栏：操作条单行横向滚动，绝不换行吃掉竖向空间（硬性：按钮始终可达） ---- */
+    .kicker-band{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px}
+    .kicker-band .kb-l,.kicker-band .kb-r,.kicker-band .kb-ops{flex:0 0 auto;white-space:nowrap}
+    .kicker-band .kb-l{font-size:10px}
+    .kicker-band .kb-ops .btn{padding:5px 7px;font-size:11px}
+
+    /* ---- 三区竖排：display:contents 把 #statusbox / .actbar 提升进 .grid，order 排 状态→事件→选择 ---- */
+    body.game{overflow:hidden}
+    body.game #app{height:100vh;height:100dvh}
+    .grid{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0}
+    .col-right{display:contents}
+    #statusbox{order:1;flex:0 0 auto}
+    .col-event{order:2;flex:1 1 auto;min-height:0;overflow:auto;padding-right:2px}
+    .actbar{order:3;flex:0 0 auto;max-height:44vh;overflow:auto}
+
+    /* ---- 状态栏压成两行：
+       行1 = 小头像·姓名（左） + 四枚资源瓷贴（右，自适应 2×2/3+1）；
+       行2 = 职位 · 等级（从左边人物卡挪到右边资源区下面，整行居中一条细线）。 ---- */
+    .idc-date,.id-prog.idc-prog,.officecard,.idc-age{display:none}
+    /* 档案（能力/标签/派系/人脉）默认收起成「档案 ▸」；点按展开，
+       或由 P.flashStatusDiffs 在选择改到其中数值时自动弹开几秒。 */
+    .idc-chips .sbrow{display:none}
+    .idc-chips.open .sbrow{display:flex}
+    .idc-chip-toggle{display:inline-block}
+    .idc{padding:6px 8px}
+    .idc-flow{gap:4px 8px;align-items:center}
+    /* 左边整块解除占位：identity 与 officeprog 直接作为 .idc-flow 的 flex 项参与排布 */
+    .idc-left{display:contents}
+    .idc-ident{order:1;flex:0 0 auto;width:auto;flex-direction:row;align-items:center;gap:7px}
+    .idc-info{align-items:flex-start;text-align:left}
+    .idc-portrait{width:42px;height:48px;padding:2px}
+    .idc-name{font-size:13px;text-align:left}
+    .idc-facts{order:2;flex:1 1 150px;gap:4px}
+    .idc-facts .statgrid{grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:4px 6px}
+    .idc-facts .stat .sicon{display:none}
+    .idc-facts .stat .slab{font-size:9.5px}
+    .idc-facts .stat .sval{font-size:12px}
+    .idc-officeprog{order:3;flex:1 1 100%;width:auto;flex-direction:row;
+      justify-content:center;align-items:center;gap:7px;border-top:0;padding-top:1px}
+    .idc-office{width:auto;border-top:0;padding-top:0;font-size:11.5px;text-align:center}
+    .idc-tier{font-size:8.5px;padding:1px 6px;letter-spacing:1px}
+    .idc-chips{order:4;flex:1 1 100%}
+
+    /* ---- 事件卡：默认只标题，点标题展开；本月结算/承前链也折进展开态 ---- */
+    .news.editorial{padding:9px 11px;margin:0}
+    .news.editorial .stamp,.news.editorial .dossier-head{display:none}
+    .news.editorial .gainbox{display:none;font-size:11px;margin:8px 0 0}
+    .news.editorial.expanded .gainbox{display:block}
+    .news.editorial h1.headline{font-size:16px;margin:0;padding-right:0;line-height:1.35;
+      cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .news.editorial h1.headline::after{content:" ▾";font-family:inherit;font-weight:700;
+      font-size:13px;letter-spacing:0;color:var(--muted)}
+    .news.editorial .standfirst,.news.editorial .body,.news.editorial .chain{display:none}
+    .news.editorial.expanded .standfirst,.news.editorial.expanded .body,.news.editorial.expanded .chain{display:block}
+    .news.editorial.expanded h1.headline::after{content:" ▴"}
+    .news.editorial.expanded h1.headline{margin-bottom:8px}
+    .news.editorial .body{font-size:13.5px;line-height:1.8}
+    .news.editorial .standfirst{font-size:13px;margin-bottom:10px}
+    .art-press{margin:10px 0}
+    .art-press img{height:auto;max-height:24vh;object-fit:contain;width:100%}
+    .art-press.era-front img{height:auto;max-height:22vh}
+    .brief-slot{display:none}           /* 背景折叠：竖屏不进卡片流 */
+    .ledgerbox,.ledger{font-size:11px}
+
+    /* ---- 选择栏：压缩字号 + 模糊回报（stage.js 紧凑预览产出 +/++/+++ 强度） ---- */
+    .acthead{font-size:10.5px;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:3px}
+    .acthead .ah-hint{display:block;font-size:10px;font-weight:400;letter-spacing:.3px;
+      color:var(--muted);text-transform:none;margin-top:3px}
+    .choices{gap:7px}
+    .col-right .choice,.choices .choice{font-size:13px;padding:8px 10px}
+    .choices .choice .req,.choices .choice .costtag,
+    .choices .choice .odds,.choices .choice .rewline{font-size:10.5px}
+    .result{font-size:13px;margin:8px 0}
+    .result .rbody{font-size:13px;line-height:1.7}
+    .actbtn{padding:10px;margin-top:8px}
+  }

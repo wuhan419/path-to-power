@@ -154,6 +154,7 @@ POTUS.define("l10n", {
     "ui.stage.valLabel.risk": "Risk",
     "ui.stage.valLabel.bane": "Threat",
     "ui.stage.yourChoices": "Your choices",
+    "ui.stage.pickHint": "The bigger the upside, the harder the downside may bite.",
     "ui.stage.stakeHint": "Invest resources for better odds",
     "ui.stage.noteTag": "Note",
 
@@ -176,6 +177,7 @@ POTUS.define("l10n", {
       "political life holds, the steps are still there.",
 
     /* ---------------- 年终结算日志（endYear） ---------------- */
+    "ui.stage.settleCareer": "View career summary →",
     "ui.stage.levDecay": "Time passes: {n} blackmail files lost their edge — the principals left, or the story did.",
     "ui.stage.blackswan": "Black swan",
     "ui.stage.blackswanLog": "Black swan: {t}"

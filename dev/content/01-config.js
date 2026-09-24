@@ -8,6 +8,9 @@ POTUS.define("balance", {
   startAge: 24, startFun: 10000, startRep: 0, startHp: 100, startAp: 8, startFav: 0,
   startAttr: { CHA: 45, INT: 45, CUN: 45, INTG: 50 },
   tierMin: 0, tierMax: 9,
+  /* 生涯终点年：从开局（1980）一路打到 2025 再结算成就，做到总统不再即终局。
+     挂点在 engine/view/stage.js 的 endYear / nextYear。死亡/入狱/被迫害等仍可提前结束。 */
+  endYear: 2025,
   /* 晋升线共 10 级（引擎内部 tier 0..9，界面显示「等级 1..10」）。旧的 6 档内容门槛由
      engine/when.js 的 tierBand 单调抬进这 10 级空间；这里是铺档密度表（索引=旧档 0..5，
      值=新级）。想调疏密只改这一行。 */

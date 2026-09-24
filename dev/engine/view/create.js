@@ -265,6 +265,7 @@
       fun: b.startFun, rep: b.startRep, hp: b.startHp, ap: b.startAp, fav: b.startFav, lev: b.startLev || 0,
       debt: 0, loanLate: 0, bailouts: 0,
       tier: (P.reg.entry[C.entry] || {}).tier || 0,
+      peakTier: (P.reg.entry[C.entry] || {}).tier || 0,
       score: 0, flags: [], history: [], log: [],
       contacts: {},
       /* 时间模型：month(1-12) 是唯一权威。

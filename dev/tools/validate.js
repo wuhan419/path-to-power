@@ -1902,6 +1902,28 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   const comeback = P.evaluateEnding("retire");
   check(comeback.id === "retire_comeback", "下野后爬回 T3 的退休结局应是东山再起（实际 " + comeback.id + "）");
 
+  /* --- v0.11 P1：生涯结算（career_end）按终局档位/总统标记分流 ---
+   * 结算规则用 tierRaw:true，档位直接按新 10 级空间读，故这里 G.tier 写真实级（0..9）。
+   * 本块会覆盖 G.tier/flags/endingReason，测完还原，避免污染后续用例。 */
+  const _svTier = P.G.tier, _svFlags = P.G.flags, _svReason = P.G.endingReason;
+  const careerAt = function (tier, flags) {
+    P.G.tier = tier; P.G.flags = flags || []; return P.evaluateEnding("career_end").id;
+  };
+  check(["career_president_great","career_president","career_heavyweight","career_federal",
+         "career_state","career_local","career_quiet"].every(function (id) {
+    return P.reg.ending.some(function (r) { return r.id === id; });
+  }), "career_end 成就结局规则应全部注册（7 条）");
+  check(careerAt(9, ["president_done"]) === "career_president_great", "任满+清白 的 2025 结算应是载入史册的总统");
+  check(careerAt(9, ["president_done","scandal_4"]) === "career_president", "任满+丑闻 的结算应降为留下印记的总统");
+  check(careerAt(8, []) === "career_heavyweight", "终局 8 级（无总统）应结算为权倾一方");
+  check(careerAt(5, []) === "career_federal", "终局 5 级应结算为联邦层面的名字");
+  check(careerAt(3, []) === "career_state", "终局 3 级应结算为州政的常青树");
+  check(careerAt(1, []) === "career_local", "终局 1 级应结算为地方深耕者");
+  check(careerAt(0, []) === "career_quiet", "终局 0 级应结算为无声的四十一年");
+  /* 曾任总统且清白：2025 结算按总统身份收口（不看终局档位）；若带大丑闻则降为印记 */
+  check(careerAt(2, ["president_done"]) === "career_president_great", "曾任总统+清白，下野后 2025 仍以总统成就收口");
+  P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason;
+
   /* --- 效果键 setTrack / setStance --- */
   const track0 = P.G.track;
   P.applyEffects({ setTrack: "operative" });
