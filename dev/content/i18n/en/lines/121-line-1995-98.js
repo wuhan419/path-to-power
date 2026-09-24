@@ -510,6 +510,23 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线英文层：只覆盖 brief / outlets（pressure 是数值平衡，不碰）。
+       outlets 逐年回译成当年真实存在的美国媒体，条数与中文侧严格一致。 */
+    worldline: {
+      brief: {
+        "1995": "Prosperity is back; the innocence is not. The first homegrown truck bomb and a verdict the whole country watches being read leave it arguing, on camera, about which kind of America it is.",
+        "1996": "An Olympic year, an election year, a jetliner lost at sea and another bomb in a park, all inside one summer. The panic is loud and the times are good; the incumbent signs welfare reform almost in passing, and everyone assumes history is on their side.",
+        "1997": "Wall Street keeps printing records while Asian currencies fall night after night. For the first time people ask out loud whether a collapse an ocean away can swim down the wire into your pension account.",
+        "1998": "Smoke over two embassies in East Africa and a zipper in Washington fill the same year's screens. The world is hard and coming apart, and Capitol Hill is running constitutional procedure over the president's dinner guests."
+      },
+      outlets: {
+        "1995": ["The New York Times", "The Washington Post", "USA Today", "CNN", "Newsweek"],
+        "1996": ["The New York Times", "USA Today", "CNN", "Fox News", "Drudge Report"],
+        "1997": ["The Wall Street Journal", "USA Today", "CNN", "MSNBC", "Drudge Report"],
+        "1998": ["The New York Times", "The Wall Street Journal", "The Washington Post", "CNN", "MSNBC", "Drudge Report"]
+      }
+    }
   }
 });

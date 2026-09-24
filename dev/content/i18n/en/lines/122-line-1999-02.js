@@ -521,6 +521,23 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线英文层：只覆盖 brief / outlets（pressure 是数值平衡，不碰）。
+       outlets 逐年回译成当年真实存在的美国媒体，条数与中文侧严格一致。 */
+    worldline: {
+      brief: {
+        "1999": "The tail end of the \"best of times\": prosperity makes everyone loose, then gunfire in a cafeteria, bombs falling overseas and protesters in a rainy city take turns shaking them awake. Nobody believes the good years have an end.",
+        "2000": "A president decided by a few hundred votes on election night. The quiet distrust this country had been carrying about itself is finally laid on the table where everyone can see it.",
+        "2001": "September's smoke is barely cleared when a whole year's mood falls from comfortable fatigue into grief and anger. From here on, safety outweighs freedom as the everyday accent.",
+        "2002": "Fear becomes a way of life: people queue up to hand over rights to anyone who promises safety, and they grow suspicious of anyone unwilling to say that everything is fine."
+      },
+      outlets: {
+        "1999": ["The New York Times", "The Wall Street Journal", "USA Today", "CNN", "Drudge Report"],
+        "2000": ["The New York Times", "The Washington Post", "USA Today", "CNN", "Fox News"],
+        "2001": ["The New York Times", "The Wall Street Journal", "USA Today", "CNN", "NPR"],
+        "2002": ["The New York Times", "USA Today", "CNN", "Fox News", "Slate"]
+      }
+    }
   }
 });

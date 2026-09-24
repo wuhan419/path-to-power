@@ -572,6 +572,23 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线英文层：只覆盖 brief / outlets（pressure 是数值平衡，不碰）。
+       outlets 逐年回译成当年真实存在的美国媒体，条数与中文侧严格一致。 */
+    worldline: {
+      brief: {
+        "2003": "A fast victory and a long occupation share the same calendar. The country is about to start its celebration when it gets the faint feeling the party began a little early.",
+        "2004": "The country folds along a fault line: red and blue, church and bar, victory and the swamp underneath it. One television set, two realities.",
+        "2005": "The water came, the levees gave, the rescue was late. For the first time the country watches live as its government fails to knock on the doors of its own citizens.",
+        "2006": "The war's bill comes due, and voters finally find the checkout counter. Overnight, the word \"change\" becomes a valuable coin in both parties' mouths at once."
+      },
+      outlets: {
+        "2003": ["The New York Times", "The Washington Post", "USA Today", "CNN", "CBS", "NBC"],
+        "2004": ["The Wall Street Journal", "USA Today", "CNN", "ABC", "Newsweek"],
+        "2005": ["The New York Times", "USA Today", "CNN", "CBS", "The Huffington Post"],
+        "2006": ["The Wall Street Journal", "The Washington Post", "USA Today", "CNN", "ABC", "The Huffington Post"]
+      }
+    }
   }
 });
