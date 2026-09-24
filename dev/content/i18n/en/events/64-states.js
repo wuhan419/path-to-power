@@ -22,7 +22,7 @@ POTUS.define("l10n", {
       /* ---- 1) 深红州里的民主党人 ---- */
       {
         id: "state_red_minority",
-        title: "You Call a Meeting in a Deep-Red State. Seventeen Come.",
+        title: "You call a meeting in a deep-red state. Seventeen come.",
         body: "Yours is a deep-red state, and your party has been the permanent minority here for a generation. Seventeen people attend the back-room meeting, while the merchants' chamber across the street holds a list that grows longer every year. How does a minority fight?",
         brief: {
           lede: "In this state, your party pin is an open wound.",
@@ -86,7 +86,7 @@ POTUS.define("l10n", {
       /* ---- 2) 摇摆州：最后一周 ---- */
       {
         id: "state_swing_final",
-        title: "The Swing-State Race Enters Its Final Week",
+        title: "The swing-state race enters its final week",
         body: "All of America's money, planes, and cameras are pointed at your state. Polls inside the margin, a seven-day window, and ammunition for only two of the three wars. How many memoirs this week feeds will depend on how you fight it.",
         brief: {
           lede: "Seven days out, every plane in national politics lands in your state.",
@@ -163,7 +163,7 @@ POTUS.define("l10n", {
       /* ---- 3) 深蓝州的共和党人 ---- */
       {
         id: "state_blue_minority",
-        title: "You Campaign in a Deep-Blue State, Pin Hidden in the Inside Pocket",
+        title: "You campaign in a deep-blue state, pin hidden in the inside pocket",
         body: "The minority politics of a deep-blue state: on your own campaign mail, your party's name sits a third smaller than your opponent's. You have to decide what you are — the national version, or this state's exception.",
         brief: {
           lede: "In this state, your party pin gets pressed into the jacket lining.",

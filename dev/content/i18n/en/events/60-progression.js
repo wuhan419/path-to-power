@@ -74,7 +74,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_state",
-        title: "A Seat Opens in the State Legislature",
+        title: "A seat opens in the state legislature",
         body: "Some tell you to wait. An open seat waits for no one.",
         brief: {
           lede: "A chair in the statehouse is empty. Someone suggests you fill it.",
@@ -126,7 +126,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_federal",
-        title: "The Chance at Congress",
+        title: "The chance at Congress",
         body: "A seat in Washington is open. Every local pol in the state is watching it.",
         brief: {
           lede: "The door to the House stands open a crack. You intend to squeeze through.",
@@ -178,7 +178,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_senate",
-        title: "Senate or Governor: Pick One",
+        title: "Senate or governor: pick one",
         body: "Two roads, both to the center of national power, at different prices.",
         brief: {
           lede: "The Senate and the governorship both lie open in front of you.",
@@ -241,7 +241,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_president",
-        title: "The Presidential Race: You Decide to Run",
+        title: "The presidential race: you decide to run",
         body: "Very few in history get this far. You will need money from the whole country, votes from the whole country, and luck from the whole country.",
         brief: {
           lede: "Everyone is watching you now. The question is whether you say the sentence.",
@@ -293,7 +293,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_appoint",
-        title: "An Appointed Seat Is Being Offered to You",
+        title: "An appointed seat is being offered to you",
         body: "The president — or a governor — has a chair to fill: a judgeship, a regulatory board, a deputy secretary. They want someone reliable who will not create work.",
         brief: {
           lede: "A job with no election in it. It needs one person to nod.",
@@ -342,7 +342,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_kingmaker",
-        title: "You Do Not Run. You Decide Who Gets Nominated.",
+        title: "You do not run. You decide who gets nominated.",
         body: "You are not going to run. You are going to decide whether other people get to.",
         brief: {
           lede: "You have a man. He does not yet know he is a card.",
@@ -391,7 +391,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_magnate",
-        title: "The Super PAC Play",
+        title: "The super PAC play",
         body: "You do not need votes. You need a checkbook. Ten million dollars is enough to make any local race follow your script.",
         brief: {
           lede: "Someone arrives with a sheet of paper: here is how the money could be spent.",
@@ -454,7 +454,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_star",
-        title: "Your Name Is Bigger Than Your Office",
+        title: "Your name is bigger than your office",
         body: "Television appearances, a bestselling book, a speaking tour. You hold no real power yet, but you already have a crowd.",
         brief: {
           lede: "Your name now carries further than your title. That is an asset and a trouble at once.",
@@ -508,7 +508,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_city",
-        title: "A Seat on the City Council",
+        title: "A seat on the city council",
         body: "From party cadre to elected official. Until you cross this step, you are not really at the table.",
         brief: {
           lede: "However long you work for the party, your name stays on a party list. To get it onto a ballot you have to win a real seat.",
@@ -561,7 +561,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_upper",
-        title: "A State Senate Seat Opens in Your Region, If You Want It",
+        title: "A State Senate seat opens in your region, if you want it",
         body: "From one more assembly member to the senator for your district: a bigger map, and a bigger stake.",
         brief: {
           lede: "You have banked enough seniority in the assembly, and someone hints that a chair could be kept for you in the senate.",
@@ -665,7 +665,7 @@ POTUS.define("l10n", {
        * ========================================================== */
       {
         id: "prog_vp",
-        title: "Someone Calls About the Vice Presidency",
+        title: "Someone calls about the vice presidency",
         body: "A national slot is waving at you: join the ticket, or keep your independence and wait for the next round.",
         brief: {
           lede: "You are already standing at the center of the national stage. Now a bigger call is coming in.",
