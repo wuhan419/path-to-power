@@ -19,7 +19,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 示范 1：代价与投注全景 */
       {
         id: "demo_hearing",
-        title: "The Hearing: Do You Put Your Whole Estate on the Table?",
+        title: "The hearing: do you put your whole estate on the table?",
         body: "The subpoena has landed. The committee chair is a vindictive old man, and he means to nail you to his desk on camera.\n" +
           "Your staff laid out the routes — but each one asks you to hand something over first: money, energy, or favors.",
         brief: {
@@ -181,7 +181,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 示范 3：精力稀缺 + 人情重投 */
       {
         id: "demo_2am_call",
-        title: "Two in the Morning — a Call from Someone You Dare Not Hang Up On",
+        title: "Two in the morning — a call from someone you dare not hang up on",
         body: "The voice on the phone is someone you cannot cut off. It needs an answer before eight in the morning.\n" +
           "Energy is not infinite — a night holds only so many hours.",
         brief: {
