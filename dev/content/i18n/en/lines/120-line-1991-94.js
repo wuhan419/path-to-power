@@ -538,6 +538,23 @@ POTUS.define("l10n", {
           }
         ]
       }
-    ]
+    ],
+
+    /* 世界线英文层：只覆盖 brief / outlets（pressure 是数值平衡，不碰）。
+       outlets 逐年回译成当年真实存在的美国媒体，条数与中文侧严格一致。 */
+    worldline: {
+      brief: {
+        "1991": "A short, certain war and an enemy that vanishes overnight: victory fills every room, while the line at the gas station reminds everyone that prosperity has not settled its bill.",
+        "1992": "The flags go back in the drawer and the wallets come out. Streets are burning, the ballots are settling accounts, and a new face is standing inside every living-room television.",
+        "1993": "A new president moves in carrying answers and finds a bigger house than planned: a bomb in an office tower's garage, a fire at a religious compound, a helicopter shot down over a foreign street. Patience runs out before the deficit does.",
+        "1994": "The streets go quiet and the anger drains into the ballot box. An era is shifting under the floor, and one night of midterms shows exactly where it settled."
+      },
+      outlets: {
+        "1991": ["USA Today", "The New York Times", "The Wall Street Journal", "CNN", "CBS", "NBC"],
+        "1992": ["USA Today", "The Washington Post", "CNN", "ABC", "Time", "Newsweek"],
+        "1993": ["USA Today", "The New York Times", "CNN", "CBS", "The Wall Street Journal"],
+        "1994": ["USA Today", "Bloomberg TV", "CNN", "The Washington Post", "NBC", "Time"]
+      }
+    }
   }
 });
