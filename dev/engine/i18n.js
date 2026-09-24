@@ -155,7 +155,14 @@ var POTUS = window.POTUS = window.POTUS || {};
     setLang(lang) {
       if (!LANGS[lang] || lang === P.locale.lang) return;
       try { localStorage.setItem(LS_KEY, lang); } catch (e) { }
-      /* 覆盖层是 boot 时一次性并进去的，切语言只能重载 */
+      /* 覆盖层是 boot 时一次性并进去的，切语言只能重载。
+         但整游戏是单页 index.html：直接重载会退回标题页，局内切语言体验很割裂。
+         所以「正在游戏中」时留一个一次性标记，boot 检测到最后再从实时自动档原地续局。
+         用 sessionStorage：只活过一次重载，正常新开局/关标签都不受影响。 */
+      try {
+        if (typeof sessionStorage !== "undefined" && P.SCREEN === "game" && P.G)
+          sessionStorage.setItem("potus_resume_after_lang", "1");
+      } catch (e) { }
       if (typeof location !== "undefined") location.reload();
     },
     /* 临时用中文措辞跑一段代码，跑完还原。给测试工具用：

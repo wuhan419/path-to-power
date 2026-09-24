@@ -666,6 +666,32 @@ POTUS.loanStep = function () {
   return { interest: interest, pay: pay, principal: pay - interest, remaining: G.debt, cleared: cleared, late: G.loanLate };
 };
 
+/* ---------- 负债设底：触到谷底则由家人/金主托一把 ----------
+ * 见 content/01-config.js 的 balance.debtFloor。fun 见底到某深度即触发一次接济：
+ * 资金回正到 restore×(1+tier)、记 G.bailouts、扣一笔声望作代价。
+ * 幂等：只在已触底时动作，接济后 fun 高于谷底，同回合重复调用即空转。
+ * 返回接济信息（供记账/调试），未触底返回 null。 */
+POTUS.enforceDebtFloor = function () {
+  const G = POTUS.G; if (!G) return null;
+  const b = (POTUS.balance() || {}).debtFloor || {};
+  if (b.enabled === false) return null;
+  if (G.fun == null) G.fun = 0;
+  const tier = G.tier || 0;
+  const depth = Math.abs(b.depth == null ? 6000 : b.depth) * (1 + tier * (b.perTier == null ? 1.2 : b.perTier));
+  if (G.fun > -depth) return null;                       /* 还没到谷底 */
+  const restore = Math.round((b.restore == null ? 2500 : b.restore) * (1 + tier));
+  const repCost = b.repCost == null ? 4 : b.repCost;
+  G.fun = restore;
+  if (repCost > 0) G.rep = POTUS.clamp((G.rep || 0) - repCost, 0, 100);
+  G.bailouts = (G.bailouts || 0) + 1;
+  const low = tier <= 2;
+  POTUS.pushLog(POTUS.t(low ? "ui.core.bailoutLow" : "ui.core.bailoutHigh",
+    low ? "山穷水尽——家里人凑了一笔钱把你托住：资金回到 ${amt}k，但丢了面子（声望 -{rep}）。这是本局第 {n} 次被接济。"
+        : "现金见底——老同事和金主出手周转：资金回到 ${amt}k，难免落人话柄（声望 -{rep}）。这是本局第 {n} 次被接济。",
+    { amt: Math.round(restore / 1000), rep: repCost, n: G.bailouts }));
+  return { restore: restore, repCost: repCost, bailouts: G.bailouts };
+};
+
 /* ---------- 每月"上班"的账（时间轴上跑，有事/无事月都结算一次） ----------
  * v0.9：日常收入过去只在平静月结算，导致"越忙（等级/压力越高→事件月越多）反而越赚不到工资"的倒挂。
  * 现在把"工资 - 体面开销 + 学贷还款 + 选区选民自然增减"统一搬到每月经手一次，收益才真正跟着身位走。
@@ -680,14 +706,16 @@ POTUS.monthlyLedger = function (m) {
   if (G.ledger[m]) return G.ledger[m];
   const q = POTUS.balance().quietAccount || {};
   const salary = POTUS.officeSalary();
-  const living = Math.round(POTUS.rint(q.livingMin == null ? 800 : q.livingMin, q.livingMax == null ? 2200 : q.livingMax) * (1 + G.tier * 0.6));
+  const living = Math.round(POTUS.rint(q.livingMin == null ? 500 : q.livingMin, q.livingMax == null ? 1400 : q.livingMax) * (1 + G.tier * (q.livingTierCoef == null ? 0.6 : q.livingTierCoef)));
   const net = salary - living;
   G.fun += net;                                             /* 工资进、开销出 */
   const loan = POTUS.loanStep ? POTUS.loanStep() : null;    /* 学贷计息 + 还款（动用上面的现金） */
+  const bailout = POTUS.enforceDebtFloor ? POTUS.enforceDebtFloor() : null; /* 掉到谷底则被接济（有代价） */
   const voters = POTUS.voterDrift ? POTUS.voterDrift() : null; /* 选区选民自然增减 */
   const rec = {
     month: m, salary: salary, living: living, net: net,
     loanPay: (loan && loan.pay) || 0, loanInterest: (loan && loan.interest) || 0, loanCleared: !!(loan && loan.cleared),
+    bailout: !!bailout,
     voters: voters || null, debt: G.debt || 0, loanLate: G.loanLate || 0
   };
   G.ledger[m] = rec;
@@ -724,6 +752,7 @@ POTUS.migrate = function (G) {
   if (G.lev == null) G.lev = 0;                           // 把柄（旧存档没有 = 0 份）
   if (G.debt == null) G.debt = 0;                         // 学生贷款余额（旧存档没有 = 0）
   if (G.loanLate == null) G.loanLate = 0;                 // 学贷连续逾期月数
+  if (G.bailouts == null) G.bailouts = 0;                 // v0.11 负债设底：本局被接济次数
   if (G.contacts == null) G.contacts = {};                // 人脉好感表
   if (G.doneSeq == null) G.doneSeq = {};                  // 事件发生时的"月份序号"，事件链靠它算间隔
   if (G.tierSince == null) G.tierSince = POTUS.monthSeq() - (G.tier || 0) * 12;  // 在位时长
@@ -752,6 +781,16 @@ POTUS.migrate = function (G) {
 };
 
 POTUS.autosave = function () { try { localStorage.setItem(SAVE_KEY + "_auto", POTUS.serialize()); } catch (e) { } };
+
+/* 局内切语言重载后用：若存在实时自动档，直接载入并回到进行中的那一局（不退回标题页）。
+   成功返回 true；无 auto 档 / 载入失败返回 false，交回调用方走正常 boot。 */
+POTUS.resumeAutoSave = function () {
+  try {
+    if (!localStorage.getItem(SAVE_KEY + "_auto")) return false;
+    POTUS.doLoad("auto");
+    return POTUS.SCREEN === "game" && !!POTUS.G;
+  } catch (e) { return false; }
+};
 
 /* ---------- v0.6 存档系统：固定存档位 ----------
  * 用户反馈：无限时间戳档长期堆积、不便管理。改为固定 8 个手动存档位 + 1 个自动存档位。

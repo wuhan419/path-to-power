@@ -287,8 +287,11 @@ POTUS.define("balance", {
   ],
 
   /* 平静月的工资/开销（引擎 quietAccount 用）。salaryBase×(1+tier×salaryPerTier)，
-     开销是随机的 livingMin..livingMax ×(1+tier×0.6)（位置越高、体面越贵）。 */
-  quietAccount: { salaryBase: 2000, salaryPerTier: 2.2, livingMin: 800, livingMax: 2200 },
+     开销是随机的 livingMin..livingMax ×(1+tier×livingTierCoef)（位置越高、体面越贵）。
+     v0.11 曲线重配：旧 livingMin/Max(800..2200) 让基层 tier0-3「工资−开销」长期为负 →
+     钱无声滑向负且无后果。下调到 500..1400 后，t0 勉强糊口、t1 打平、t2 起转正、越走越宽，
+     「白手起家早期紧」的题材张力仍在，但不再是逼退玩家的持续掉血。系数从硬编码搬进配置，一处可调。 */
+  quietAccount: { salaryBase: 2000, salaryPerTier: 2.2, livingMin: 500, livingMax: 1400, livingTierCoef: 0.6 },
 
   /* 学生贷款（普通难度以下的开局背贷 · 见 engine/core.js 的 P.loanStep）
      设计意图：现实里奥巴马当总统还在还哈佛法学院的贷 —— 让金钱从开局就被一条
@@ -304,6 +307,19 @@ POTUS.define("balance", {
     /* lateMonths：连续逾期多少个月仍还不上，才引来「催收/征信」压力事件。
        长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
     lateMonths: 12
+  },
+
+  /* 负债设底（engine/core.js 的 POTUS.enforceDebtFloor）
+     设计意图：钱可以见底、可以难堪，但不许无声无息滑进无底洞（旧实现只在渲染处留了
+     一句空操作「允许负债」，既无后果也无出路 —— 前期掉血到负就是纯劝退）。
+     触到谷底 → 家人/老同事凑钱把你托一把（资金回正、记一次、声望受损），
+     把「静默死亡螺旋」变成有代价、能继续的戏剧点。私房钱与竞选金库本轮仍是同一池子，共用门槛。 */
+  debtFloor: {
+    enabled: true,
+    depth: 6000,       // 谷底：fun < -depth×(1+perTier×tier) 触发接济（位越高、背得起的窟窿越大）
+    perTier: 1.2,
+    restore: 2500,     // 接济后资金回到 restore×(1+tier)（一笔正现金流，重新办得成事）
+    repCost: 4         // 被托底的代价：失面子/落话柄，声望受损（夹在 [0,100]）
   },
 
   /* ---------- 选民池：选区规模按层级（注册选民数，近似值） ----------

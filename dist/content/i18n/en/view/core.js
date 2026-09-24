@@ -74,6 +74,10 @@ POTUS.define("l10n", {
     "ui.core.noLog": "Nothing logged yet.",
     "ui.core.loadedBadge": "Save loaded",
     "ui.core.resumeHead": "Continue your career",
-    "ui.core.resumeBtn": "Continue →"
+    "ui.core.resumeBtn": "Continue →",
+
+    /* 负债设底（enforceDebtFloor）：触到谷底时的接济旁白，低层靠家人、高层靠金主 */
+    "ui.core.bailoutLow": "Dead broke—family scraped together a loan to keep you afloat: funds back to ${amt}k, but you lost face (Rep -{rep}). Bailout #{n} this run.",
+    "ui.core.bailoutHigh": "Out of cash—old allies and a donor floated you: funds back to ${amt}k, but word gets around (Rep -{rep}). Bailout #{n} this run."
   }
 });
