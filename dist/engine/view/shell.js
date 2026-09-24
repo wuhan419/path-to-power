@@ -141,9 +141,9 @@
     if (!langDockHost()) return;   // 无真 DOM 宿主（门禁 stub）：不挂
     const dock = document.createElement("div");
     dock.id = "langdock";
-    dock.style.cssText = "position:fixed;top:8px;right:10px;z-index:15;display:none;align-items:center;gap:4px";
-    dock.innerHTML = '<span class="muted" style="font-size:11px">' + P.t("ui.shell.langDock", "语言：") + "</span>" +
-      (P.langSwitchHTML ? P.langSwitchHTML() : "");
+    dock.style.cssText = "position:fixed;top:8px;right:10px;z-index:15;display:none";
+    /* langSwitchHTML 自带「语言」标签，这里不再重复加前缀 */
+    dock.innerHTML = P.langSwitchHTML ? P.langSwitchHTML() : "";
     document.body.appendChild(dock);
     const sync = function () {
       const band = document.querySelector(".kicker-band");
@@ -166,6 +166,14 @@
       P.app().innerHTML = '<div class="center" style="padding:40px"><h2>' + P.t("ui.shell.noContentTitle", "未加载任何内容包") + '</h2><p class="muted">' + P.t("ui.shell.noContentHint", "请在 content/ 下至少提供一个时代（era）内容包，并在 index.html 的清单中引入。") + '</p></div>';
       return;
     }
+    /* 局内切语言重载：boot 默认回到标题页，但若留了续局标记（见 i18n.setLang）
+       且实时自动档可用，则直接回到进行中的那一局 —— 切语言不再打断当前局。 */
+    try {
+      if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("potus_resume_after_lang")) {
+        sessionStorage.removeItem("potus_resume_after_lang");
+        if (P.resumeAutoSave && P.resumeAutoSave()) return;
+      }
+    } catch (e) { }
     P.renderTitle();
   };
 })();
