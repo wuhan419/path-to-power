@@ -53,7 +53,6 @@ POTUS.define("event", [
         id: "open", text: "完全敞开：带他见真实的你，包括不体面的部分",
         note: "装腔是这种记者最恨的东西。敞开可能换来一篇活人特稿，也可能换来一篇解剖报告。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("见报那天你先不敢看。看完了你发现：他写出了连你自己都没说清楚的那个你。那篇东西后来被你的团队印在竞选手册的第一页。",
             { rep: 1.75, fac: { press: 10, base: 6 }, flags: ["med2_profile_run"] }),
@@ -71,7 +70,6 @@ POTUS.define("event", [
         id: "control", text: "全程把控：只给排练过的答案，日程精确到分钟",
         note: "公关稿式的采访不会翻车，也不会有活人。这种记者对「被喂」的耐受度很低。",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "attr", key: "CUN", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: m2("你的每句话都滴水不漏，而他却从中拼出了另一个故事：「一个连吃饭都在打稿的人」。这篇文章写的是你的纪律，读者买账。",
             { rep: 1.25, fac: { press: 5 }, flags: ["med2_profile_run"] }),
@@ -155,7 +153,6 @@ POTUS.define("event", [
         id: "counter", text: "接受「回应版」采访，把被断章的段落一次讲清",
         note: "主动走进下一家媒体，是主动把一件事变成两篇。赌的是你的口才和那家刊物的节操。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INT", w: 0.25 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("「回应版」最后写成了一篇更完整的你。两家刊物隔空打了一个月笔仗，你在中间捡到了一整轮免费曝光。",
             { rep: 3.5, fac: { press: 10, base: 4 } }),
@@ -256,7 +253,6 @@ POTUS.define("event", [
         id: "swap", text: "不谈对错：悄悄换一个新数字，接着讲",
         note: "不认错也不纠缠，让演讲继续。前提是你要真的找到那个更硬的新数字。",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "attr", key: "CUN", w: 0.25 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("你的团队找到了一个更新的、更硬的数字，来源无可挑剔。下一次演讲你换得毫无痕迹，还多赢了一轮掌声。",
             { rep: 2.5, fac: { press: 4 } }),
@@ -323,7 +319,6 @@ POTUS.define("event", [
         id: "attack", text: "排攻击线：把对手的弱点打成整晚的主旋律",
         note: "高风险高回报：观众爱看击倒，但打不中就是霸凌。媒体第二天只会记最狠的那一句。",
         base: 0.46, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: m2("你三次提到那个弱点，第三次对手失态了。那个片段当晚被反复播放。一周后，民调里「强势」成了你的标签。",
             { rep: 2.5, voters: { diehard: 350, warm: 150 }, fac: { base: 8, press: 8 }, count: { wrath_opposition: 10 } }),
@@ -341,7 +336,6 @@ POTUS.define("event", [
         id: "defend", text: "排防守线：每个答案都回到自己那一件事上",
         note: "站桩不会输掉辩论，也很难赢。它赌的是对手先犯错的概率。",
         base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "attr", key: "INTG", w: 0.2 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("对手忍不住了，主动攻击你，而你把每个问题都稳稳落回自己的主张。主持人事后写专栏说那晚「只有一个成年人在台上」。",
             { rep: 1.75, voters: { warm: 250 }, fac: { press: 8, base: 5 } }),
@@ -359,7 +353,6 @@ POTUS.define("event", [
         id: "story", text: "排故事线：把一个选区选民的名字写进讲稿",
         note: "故事最容易被记住，也最容易被查证。那个名字必须是真的，细节必须全对。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "attr", key: "INTG", w: 0.2 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("你讲了那位选民的故事，讲到一半全场安静了。对手的幻灯片在那一刻全部失效。那位选民后来出现在了你的竞选广告里 —— 是自愿的。",
             { rep: 2.5, voters: { warm: 300, diehard: 150 }, fac: { base: 10, press: 8 } }),
@@ -424,7 +417,7 @@ POTUS.define("event", [
         id: "trace", text: "花人手钱追源头：纸、账号、印厂，一路查上去",
         note: "查得到源头就握住了反击的枪。查不到，时间和钱都喂了水。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
-        cost: { fun: 4.5, ap: 1 },
+        cost: { fun: 4.5 },
         outcomes: {
           crit: m2("线索从一张纸的克重查到一家小印厂，再从印厂查到一笔付款。你没声张 —— 你只是让对手知道你手里有了那张收据。传单从此绝迹。",
             { rep: 2.5, lev: 1, fac: { press: 4, establishment: 4 } }),
@@ -517,7 +510,6 @@ POTUS.define("event", [
         id: "open_door", text: "给他常通的门：每季一次专访，材料走他的邮箱",
         note: "喂它它吃你 —— 但喂饱的看门狗不叫。你换来的是先手和缓冲，输掉的是清白感。",
         base: 0.58, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "CUN", w: 0.25 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: m2("他跟了你两年，写过你六篇稿子：三篇好，两篇中性，一篇狠的 —— 那篇他提前给你打了电话。圈内开始说你是「少数懂得跟媒体打交道的人」。",
             { rep: 1, fac: { press: 12, base: 4 }, contact: { columnist: 12 }, flags: ["med2_press_enemy"] }),
@@ -552,7 +544,7 @@ POTUS.define("event", [
         id: "dig_back", text: "他也别想干净：让朋友查查他自己的那些旧账",
         note: "舆论战打成对称战争的第一步。从此你们互相持有对方。谁也没赢，谁都收不了手。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
-        cost: { fun: 0.7, ap: 1 },
+        cost: { fun: 0.7 },
         outcomes: {
           crit: m2("他十年前一篇没核实的稿子被你的朋友翻了出来，两个知情人愿意作证。他编辑把他从你的线上撤了。赢了 —— 但整个媒体圈都在看是谁干的。",
             { rep: 0.7, lev: 1, attr: { CUN: 3 }, fac: { press: -10, establishment: 4 }, flags: ["med2_press_enemy", "compromised"] }),
@@ -620,7 +612,6 @@ POTUS.define("event", [
         id: "sit", text: "坐下来：接受最后一次采访，把你的版本一次说全",
         note: "历史会记住谁开了口。也会记住谁开了口之后被引用了哪半句。",
         base: 0.52, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: m2("书出版了。关于你的那一章有一个你想不到的标题：「他一直在听」。他在最后一段写：「我准备写一个对手，最后写成了一个证人。」那本书成了你传记的底稿。",
             { rep: 2.75, fac: { press: 12, base: 8 }, attr: { INTG: 1 }, flags: ["med2_press_book"] }),
@@ -655,7 +646,7 @@ POTUS.define("event", [
         id: "preempt", text: "抢在他前面：先出自传，把叙事权抓回来",
         note: "用自己的版本占领书架。贵，而且打的是持久战 —— 你的书和他的一直摆在一起。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "fac", key: "commercial", w: 0.25 }],
-        cost: { fun: 3.5, ap: 2 },
+        cost: { fun: 3.5 },
         outcomes: {
           crit: m2("你的书先出了三个月，写得诚恳，卖得出乎意料。他的书出来时，书评都在拿它和你的对照 —— 而对照的基准是你的版本。",
             { rep: 2.5, funMul: 0.35, voters: { warm: 400 }, fac: { press: 6, base: 8, commercial: 6 }, flags: ["med2_press_book"] }),

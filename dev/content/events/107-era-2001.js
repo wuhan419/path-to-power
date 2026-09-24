@@ -42,7 +42,7 @@ POTUS.define("event", [
         id: "rally", text: "全盘挺同：动武、扩权、一个都不落",
         note: "骑在最顶峰的民意上最风光，可你也就此和这场没尽头的战争绑在了一起。",
         base: 0.62, mods: [{ src: "fac", key: "military", w: 0.4 }, { src: "fac", key: "establishment", w: 0.35 }],
-        stake: { fun: true, ap: true },
+        stake: { fun: true },
         outcomes: {
           crit: { body: "你在悲愤的浪潮里冲在最前，动武、拨款、扩权一票不落。全国都记着这个「关键时刻站得最直」的人。",
             effects: { rep: 1.5, tier: 1, fac: { military: 12, establishment: 10, base: 6 } } },
@@ -76,7 +76,6 @@ POTUS.define("event", [
       {
         id: "home", text: "不谈海外，先顾本地：护住被盘问的族裔社区、安抚军属",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "当所有人盯着远方，你在本地替被无端盘问的邻居撑了腰、给军属办了实事。这份「身边人」的口碑比任何全国头条都持久。",
             effects: { rep: 0.9, voters: { warm: 500 }, fac: { base: 12, church: 6, military: 4 }, flags: ["home_front"] } },
@@ -152,7 +151,7 @@ POTUS.define("event", [
           ok: { body: "你按章办事，既拿了该拿的合作分，也没越自己的线。",
             effects: { rep: 0.6, fac: { base: 4, agency: 4 } } },
           meh: { body: "你走程序走得慢，联邦不耐烦，本地也没觉出你护了他们。",
-            effects: { rep: 0.2, hp: -0.5 } },
+            effects: { rep: 0.2 } },
           fail: { body: "你的「留档」被联邦当成「不信任」，合作的大门开始对你虚掩。",
             effects: { rep: -0.6, fac: { agency: -8, establishment: -4 } } },
           critfail: { body: "你留的档被人反用成「他自己也承认这套权力危险，却还配合到底」的证据。里外不是人。",
@@ -250,7 +249,7 @@ POTUS.define("event", [
         base: 0.62, mods: [{ src: "attr", key: "CUN", w: 0.4 }],
         outcomes: {
           crit: { body: "你恰好在这份表决前「因故缺席」。战争泥潭化时，你是少数既没背书也没反对的透明人——最难看的两头，都没沾上。",
-            effects: { rep: 0.6, hp: -0.5, fac: { establishment: -2 } } },
+            effects: { rep: 0.6, fac: { establishment: -2 } } },
           ok: { body: "你滑开了。上层记下了你「没出力」，历史却放过了你。",
             effects: { rep: 0.2, fac: { establishment: -3 } } },
           meh: { body: "你躲过了这一票，可谁都看得出来你没胆站任何一边。",

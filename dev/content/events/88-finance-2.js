@@ -57,16 +57,15 @@ POTUS.define("event", [
           meh: out("钱到得比说好的少了两成——「税费和杂费」。你没处问，也懒得问。",
             { fun: 2.5, flags: ["windfall_kept"] }),
           fail: out("交割拖了四个月，你的下半年是在催款电话里过的。钱最后还是来了，只是来晚了。",
-            { fun: 1.75, hp: -0.8, flags: ["windfall_kept"] }),
+            { fun: 1.75, flags: ["windfall_kept"] }),
           critfail: out("钱到账第三周，一家旧商行的清算人找上门：这笔遗产里有一笔「有待确认的债权」。你没发大财，倒是先请了律师。",
-            { fun: 0.6, rep: -0.8, hp: -1, fac: { commercial: -6 }, flags: ["windfall_kept", "investigation_open"] })
+            { fun: 0.6, rep: -0.8, fac: { commercial: -6 }, flags: ["windfall_kept", "investigation_open"] })
         }
       },
       {
-        id: "ask", text: "先花精力查清来路，再决定收不收",
+        id: "ask", text: "先查清来路，再决定收不收",
         note: "慢，但你以后每花这笔钱的时候都睡得着。查的过程本身也会教你怎么读账。",
         base: 0.58, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: out("你花了三周，把那笔资产三十年的履历拼了出来。它不算干净，但说得清——你只收下说得清的那一半，把剩下的捐给了姑婆生前常去的教学。报纸给了你一小段表扬。",
             { fun: 2.5, rep: 1.25, fac: { press: 8, base: 6, church: 4 } }),
@@ -75,7 +74,7 @@ POTUS.define("event", [
           meh: out("查了个半懂。你收下了钱，也在心里留了一个没关上的抽屉。",
             { fun: 2.75, flags: ["windfall_kept"] }),
           fail: out("越查越乱。执行人最后不耐烦了：「要么签字，要么放弃。」你在压力下签了。",
-            { fun: 2, hp: -0.5, flags: ["windfall_kept"] }),
+            { fun: 2, flags: ["windfall_kept"] }),
           critfail: out("你查到的那半截，恰好是别人不想让任何人碰的旧账。信封还没拆完，就有人托话来请你「适可而止」。",
             { fun: 0.8, rep: -0.6, fac: { criminal: -8 }, contact: { fixer: 6 }, flags: ["compromised"] })
         }
@@ -92,9 +91,9 @@ POTUS.define("event", [
           meh: out("放弃了。家族里有人说你傻，也有人说你「装」。两边的声音都不大。",
             { rep: 0.2, fac: { base: -2 } }),
           fail: out("你放弃之后才听说，那笔钱最后去了另一位亲戚手里——他拿它做了你不愿意想的事。",
-            { rep: -0.4, hp: -0.5 }),
+            { rep: -0.4 }),
           critfail: out("放弃的手续办了一半卡住了，钱在你名下悬了半年。既没得到钱，也没得到清白，还搭进去一堆解释。",
-            { rep: -0.8, hp: -0.8, fac: { base: -4 } })
+            { rep: -0.8, fac: { base: -4 } })
         }
       }
     ]
@@ -154,7 +153,6 @@ POTUS.define("event", [
         id: "go_public", text: "把这页纸交给委员会和记者",
         note: "自曝比被曝便宜。你会疼一阵子，但空出来的手比疼值钱。",
         base: 0.48, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "press", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: out("你先开了记者会，再把材料交上去。故事的主角从「收黑钱的政客」变成了「敲诈候选人的骗子」。那位管理人当月被带走协助调查。",
             { rep: 1, voters: { diehard: 600, warm: 1200 }, fac: { press: 14, base: 8, criminal: -12 }, notFlags: ["windfall_kept"], flags: ["whistleblower"] }),
@@ -178,7 +176,7 @@ POTUS.define("event", [
           ok: out("你拖住了。他等的成本比你要的高，半年后他自己消失了。",
             { rep: 0.2, notFlags: ["windfall_kept"] }),
           meh: out("僵持着。没有交易，也没有了结，这件事变成了你日程表上一个删不掉的备注。",
-            { hp: -0.4, flags: ["compromised"] }),
+            { flags: ["compromised"] }),
           fail: out("他把批注的复印件寄给了三家报社，附上你的名字。没有一家核实，但三家都「听说了」。",
             { rep: -0.7, fac: { press: -8 }, flags: ["scandal_2"] }),
           critfail: out("他掀了桌：交割文书、批注、还有你当年「没有提问」的签收记录，一次性全放了出来。",
@@ -222,16 +220,16 @@ POTUS.define("event", [
         id: "full_coop", text: "全面配合：补税、交材料、开发布会",
         note: "最疼也最干净。补的是钱，买回来的是「他至少没赖」这句话。",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "press", w: 0.25 }],
-        cost: { fun: 2, ap: 1 },
+        cost: { fun: 2 },
         outcomes: {
           crit: out("你补了税、付了罚金，然后把三年报表全文公开。发布会最后你说：「数字对不上的部分，责任在我。」那句话被引用了很多年。",
             { rep: 1, voters: { diehard: 500, warm: 1000 }, fac: { press: 12, base: 8 }, flags: ["audit_clean"] }),
           ok: out("补税、罚金、结案。没有发布会，也没有头条——对审计来说，这就是最好的结局。",
             { rep: 0.3, fac: { base: 4 }, flags: ["audit_clean"] }),
           meh: out("案子结了，但「某人被审计过」这件事进了档案。以后每次有类似的新闻，你的名字都会被提一次。",
-            { rep: -0.2, hp: -0.3 }),
+            { rep: -0.2 }),
           fail: out("你配合了，但流程走了一年。一整年里你的每个日程都被「他正在被查」这句话压着。",
-            { rep: -0.6, hp: -0.6, fac: { base: -6 } }),
+            { rep: -0.6, fac: { base: -6 } }),
           critfail: out("你交的材料里有一处日期对不上——你主动递上去的。调查升级，案卷转了部门。",
             { rep: -1, voters: { warm: -1200 }, fac: { press: -8, agency: -8 }, flags: ["scandal_3", "investigation_open"] })
         }
@@ -325,7 +323,7 @@ POTUS.define("event", [
         id: "big_buy", text: "重仓买入：把能动用的钱都压进去",
         note: "赢是翻倍，输是腰斩，曝光是三样一起来。投注加进去的钱同样吃倍数。",
         base: 0.48, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "commercial", w: 0.35 }],
-        req: { fun: 28 }, stake: { fun: true, ap: true },
+        req: { fun: 28 }, stake: { fun: true },
         outcomes: {
           crit: out("立项公告那天，你的地块估值为买入价的三倍半。你提前两个月就办好了脱手文书——赚完就走，一步没多留。",
             { funMul: 2.5, rep: 0.6, fac: { commercial: 12 }, flags: ["land_deal"] }),
@@ -411,7 +409,7 @@ POTUS.define("event", [
         id: "go_big", text: "大干一场：设常驻团队，把钱花成一场运动",
         note: "钱换影响力最快的一条路。盘子越大，盯着盘子的眼睛越多。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "commercial", w: 0.3 }],
-        cost: { fun: 6.5, ap: 2 }, stake: { fun: true, fav: true },
+        cost: { fun: 6.5 }, stake: { fun: true, fav: true },
         outcomes: {
           crit: out("六个月后，你的委员会成了本党最锋利的一把刀——它资助的七个候选人赢了五个。党内再也没人敢把你当配角。",
             { rep: 1.25, lev: 1, voters: { diehard: 1200, warm: 800 }, fac: { establishment: 14, commercial: 12, base: 8 }, contact: { lobbyist: 16 }, flags: ["pac_leader", "kingmaker"] }),
@@ -523,7 +521,7 @@ POTUS.define("event", [
           fail: out("实情第二天就上了网——走掉的那个人带走了故事。「某竞选团队发不出工资」比任何攻击广告都好用。",
             { rep: -0.8, voters: { warm: -1200 }, fac: { press: -8, base: -6 }, flags: ["scandal_2"] }),
           critfail: out("你召开了那次会，然后眼睁睁看着团队在四十八小时内散了一半，剩下的一半开始给自己找退路。你没有破产，你失去了让你有可能翻身的那群人。",
-            { rep: -1.25, hp: -0.9, fac: { base: -12, labor: -8 }, flags: ["fallen"] })
+            { rep: -1.25, fac: { base: -12, labor: -8 }, flags: ["fallen"] })
         }
       },
       {
@@ -546,9 +544,8 @@ POTUS.define("event", [
       },
       {
         id: "shrink", text: "壮士断腕：裁掉一半人，保住核心",
-        note: "花精力的外科手术。队伍小一半，但账立刻就能平。",
+        note: "不动钱的手术。队伍小一半，但账立刻就能平。",
         base: 0.68, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "CUN", w: 0.2 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: out("你亲自裁，一个一个谈，遣散费给足、推荐信写好。留下的十二个人反而空前地紧——后来的很多年里，他们管那两周叫「我们的冬天」。",
             { fun: 0.3, rep: 0.6, fac: { base: 6, labor: 4 }, flags: ["lean_team"] }),
@@ -566,7 +563,6 @@ POTUS.define("event", [
         id: "gamble_event", text: "孤注一掷：办一场免费入场的募款大会，赌它爆满",
         note: "保底选项，不花钱——花的全是你的嗓子。赌赢满血，赌输散场。",
         base: 0.42, mods: [{ src: "attr", key: "CHA", w: 0.55 }, { src: "attr", key: "INTG", w: 0.2 }],
-        stake: { ap: true },
         outcomes: {
           crit: out("你站在借来的场地里讲了四十分钟，讲钱、讲窘境、讲为什么还要做下去。散场时捐款桶装不下了——第二天本地报纸的标题是《他自己把话说破了》。",
             { fun: 2.5, rep: 1, voters: { diehard: 800, warm: 1000 }, fac: { base: 10, press: 8 } }),
@@ -577,7 +573,7 @@ POTUS.define("event", [
           fail: out("场子空了一半，对手的人还来拍了照。照片配的标题是《他的时代结束了》。",
             { rep: -0.7, voters: { warm: -800 }, fac: { press: -8, base: -5 }, flags: ["fallen"] }),
           critfail: out("你在台上讲到嗓子劈了，台下稀稀拉拉。第二天的报道只有一句：那位先生的募款会，到场的记者比支持者多。",
-            { rep: -1.25, hp: -0.7, voters: { warm: -1800, oppose: 600 }, fac: { press: -10, base: -10 }, flags: ["fallen"] })
+            { rep: -1.25, voters: { warm: -1800, oppose: 600 }, fac: { press: -10, base: -10 }, flags: ["fallen"] })
         }
       }
     ]
@@ -630,7 +626,7 @@ POTUS.define("event", [
           fail: out("你想讲个动人的故事，记者却只想要一个数字。你的「坦诚」被剪成了三分钟「他到底还不还得上」的专题。",
             { rep: -0.75, fac: { press: -8 } }),
           critfail: out("你越描越黑——每一句解释都被翻出新的破洞。到最后，这笔贷款成了所有场合都躲不开的那个问题。",
-            { rep: -1.25, hp: -0.7, fac: { press: -10, base: -6 } })
+            { rep: -1.25, fac: { press: -10, base: -6 } })
         }
       },
       {
@@ -648,7 +644,7 @@ POTUS.define("event", [
           fail: out("钱还上了，动作却太急，反倒像在掩盖什么。「他为什么突然能拿出这么大一笔？」——问题从贷款，转到了那笔钱的来路。",
             { debt: -999999, rep: -0.75, fac: { press: -8 } }),
           critfail: out("你借了笔新债去还旧债，被一眼看穿。贷款是清了，可「拆东墙补西墙」这顶帽子，从此戴在了你头上。",
-            { rep: -1.25, hp: -0.6, fac: { press: -10, establishment: -6 } })
+            { rep: -1.25, fac: { press: -10, establishment: -6 } })
         }
       },
       {
@@ -665,7 +661,7 @@ POTUS.define("event", [
           fail: out("你以为躲过去了，两周后第二期报道出来了，标题是《他选择不回应》。回避本身，成了新的故事。",
             { rep: -0.85, fac: { press: -8 } }),
           critfail: out("贷款被正式起诉，进了公共记录。「一位候选人被债主告上法庭」——你躲掉的每一件事，最后都加倍还了回来。",
-            { rep: -1.25, hp: -0.7, fac: { press: -10, base: -6 } })
+            { rep: -1.25, fac: { press: -10, base: -6 } })
         }
       }
     ]

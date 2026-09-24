@@ -61,7 +61,6 @@ POTUS.define("event", [
       {
         id: "scripted", text: "要求改录播，逐字念稿，一个错都不出",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.4 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: out("稿子滴水不漏，台里把它当范本留存。", { rep: 1.25, fac: { press: 6 } }),
           ok: out("四平八稳。没人夸你，也没人抓你把柄。", { rep: 0.6, fac: { press: 3 } }),
@@ -130,8 +129,8 @@ POTUS.define("event", [
           crit: out("你把免费通告排成了一条线——教堂、工会礼堂、县集市。别人买时段，你买人心，效果一样好。", { rep: 1, fac: { base: 7, press: 3 } }),
           ok: out("不花钱的曝光慢，但确实有人在报纸和地方台里记住了你的名字。", { rep: 0.6, fac: { base: 3 } }),
           meh: out("跑了大半年，效果有限。至少没有欠债，也没有欠人情。", { rep: 0.2 }),
-          fail: out("免费的通告都排在没人看的时段。你把自己跑瘦了，名气没涨。", { hp: -0.8, rep: -0.2 }),
-          critfail: out("一次地方台的直播里，你答错了当地人最在意的问题。那段被剪出来，笑了两个月。", { rep: -0.6, hp: -0.5, fac: { base: -6 } })
+          fail: out("免费的通告都排在没人看的时段。你把自己跑瘦了，名气没涨。", { rep: -0.2 }),
+          critfail: out("一次地方台的直播里，你答错了当地人最在意的问题。那段被剪出来，笑了两个月。", { rep: -0.6, fac: { base: -6 } })
         }
       }
     ]
@@ -232,7 +231,7 @@ POTUS.define("event", [
       {
         id: "find_leaker", text: "先查是谁把文件递出去的",
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
-        cost: { fun: 1, ap: 1 },
+        cost: { fun: 1 },
         outcomes: {
           crit: out("你顺着一处复印的反光锁定了拍文件的人。你没声张——但从此知道该防谁，手里也多了能反将一军的东西。", { rep: 0.7, fac: { agency: 10 }, attr: { CUN: 2 } }),
           ok: out("范围缩小到两三个人。你心里有了数，泄露的势头也停了。", { rep: 0.3, fac: { agency: 6 }, attr: { CUN: 1 } }),
@@ -285,7 +284,7 @@ POTUS.define("event", [
       {
         id: "lean_in", text: "立刻顺着这波热度，把自己交给这台机器",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.45 }, { src: "fac", key: "base", w: 0.2 }],
-        stake: { fun: true, ap: true },
+        stake: { fun: true },
         outcomes: {
           crit: out("你成了那个「蹲下来跟孩子说话的人」。这个标签跟了你很多年，而且一直好使。", { rep: 1.75, fac: { base: 16, press: 6 } }),
           ok: out("热度变成了真实的关注度。你的名字进了很多人的手机。", { rep: 1, fac: { base: 10 } }),
@@ -341,7 +340,7 @@ POTUS.define("event", [
       {
         id: "counter", text: "立刻拿出技术鉴定 + 完整时间线硬刚",
         base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.5 }, { src: "fac", key: "press", w: 0.2 }],
-        cost: { fun: 1.75, ap: 1 },
+        cost: { fun: 1.75 },
         outcomes: {
           crit: out("鉴定报告 + 原件逐帧比对一次性公开，主流媒体集体跟进辟谣，还顺藤摸到造谣账号背后的对手金主。", { rep: 1.75, fac: { press: 12, agency: 8 }, voters: { warm: 400 } }),
           ok: out("几家权威媒体确认了是伪造并点名谴责，谣言失去了主流放大器。", { rep: 1, fac: { press: 9, agency: 5 } }),

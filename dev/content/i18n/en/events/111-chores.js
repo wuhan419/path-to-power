@@ -181,7 +181,7 @@ POTUS.define("l10n", {
           lede: "It is open-office hour, and the room is full of people demanding answers.",
           known: [
             "Many are not looking for a fix, only for someone to hear them out.",
-            "Sitting with each case can close a few, at great cost in energy.",
+            "Sitting with each case can close a few, though it wears you out.",
             "Turning them into a how-to guide for staff saves time but cuts you off."
           ],
           unknown: ["Get caught brushing them off and even a good deed sours."]

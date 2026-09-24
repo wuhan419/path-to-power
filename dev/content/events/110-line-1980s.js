@@ -118,7 +118,6 @@ POTUS.define("event", [
         id: "rally", text: "站到失业队伍最前面，办救济、把火引向厂方与银行",
         note: "基层的怒火烧得最旺，你得当那根烟囱——但烧到谁、烧多大，不由你全控。",
         base: 0.52, mods: [{ src: "fac", key: "base", w: 0.45 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你带着人逼出了紧急救济，也成了本地「敢挡在别人前面」的名字。工会与街区记你这一份。", effects: { rep: 1.5, fac: { base: 14, labor: 10 }, contact: { union_boss: 8, jackson: 6 }, flags: ["labor_champion"] } },
           ok: { body: "你把事闹到了桌上，钱虽不多，人却领你的情。", effects: { rep: 0.8, fac: { base: 8, labor: 5 }, contact: { union_boss: 4 } } },
@@ -266,7 +265,6 @@ POTUS.define("event", [
       {
         id: "worker", text: "替被挤垮的小厂与进口竞争者争缓冲与转岗",
         base: 0.55, mods: [{ src: "fac", key: "labor", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你为两头受损的小厂争到一笔转岗金，工人和企业主都觉得你公道。", effects: { rep: 1.25, fac: { labor: 8, base: 8, establishment: 3 } } },
           ok: { body: "你替被冲击的一方说了话，钱不算多但意思到了。", effects: { rep: 0.6, fac: { labor: 5, base: 3 } } },
@@ -467,7 +465,6 @@ POTUS.define("event", [
         id: "stone", text: "一字不认：咬定毫不知情，把一切推给「他们没告诉我」",
         note: "赌没人能把你钉在链条上。赌对了全身而退，赌错了就是伪证。",
         base: 0.38, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "attr", key: "CHA", w: 0.2 }],
-        stake: { ap: true },
         outcomes: {
           crit: { body: "你在镜头前滴水不漏，全国观众里有不少人被你的镇定说动。档案里没留下你的硬伤。", effects: { rep: 1.5, fac: { establishment: 8, base: 4 } } },
           ok: { body: "你守住了口风，没被钉死，可疑点从此一直挂在你名下。", effects: { rep: 0.3, flags: ["iran_deny"] } },
@@ -1017,7 +1014,6 @@ POTUS.define("event", [
         id: "hawk", text: "借这股屈辱喊话：要更强硬，把军事选项摆上台面",
         note: "赌民意爱「硬气」；可一旦真升级出事，你推的每一把都在账上。",
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "fac", key: "base", w: 0.2 }],
-        stake: { ap: true },
         outcomes: {
           crit: { body: "你在本地电台一句「不能再这样被人骑在头上」被反复转发，鹰派把你当成敢讲的自己人。", effects: { rep: 1.1, fac: { base: 8, military: 5 }, voters: { warm: 300 } } },
           ok: { body: "你喊出了不少人的闷气，也被另一部分人记了脸。", effects: { rep: 0.4, fac: { base: 4 } } },

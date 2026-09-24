@@ -564,7 +564,7 @@ POTUS.define("event", [
           crit: { body: "你那句「别替它换名字」被三家全国台引用。两周后，军方改了口径。", effects: { rep: 1.5, fac: { base: 8, press: 6, military: -8 }, voters: { warm: 300 }, flags: ["naming_fight"] } },
           ok: { body: "你说了那句硬话。街上的人点头，基地的人不再跟你点头。", effects: { rep: 0.7, fac: { press: 4, military: -4 } } },
           meh: { body: "你的定性被更大的声浪盖过去了，第二天没人再提。", effects: { rep: -0.2, fac: { base: -2 } } },
-          fail: { body: "调查口径最终没改，军方把你那句写进了新闻回应的反驳段。你的病也一起拖长了。", effects: { rep: -1.2, hp: -0.3, fac: { military: -8, establishment: -5 } } },
+          fail: { body: "调查口径最终没改，军方把你那句写进了新闻回应的反驳段。你的病也一起拖长了。", effects: { rep: -1.2, fac: { military: -8, establishment: -5 } } },
           critfail: { body: "本地基地的征兵站被砸了玻璃。所有人回头找是谁先喊的那一句。", effects: { rep: -2, fac: { military: -10, establishment: -6, base: -4 }, flags: ["scandal_1"] } }
         }
       },

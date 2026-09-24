@@ -123,7 +123,7 @@ POTUS.define("event", [
       {
         id: "refuse_ceiling", text: "拒绝任何让步，把僵局讲成对浪费的审判",
         note: "赌民愤撑得住你。风险：真违约那天，你就是逼宫的人。",
-        base: 0.36, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "base", w: 0.35 }],
+        base: 0.36, cost: {}, mods: [{ src: "fac", key: "base", w: 0.35 }],
         outcomes: {
           crit: { body: "最后让步的是别人，你一句没软。街头把你的话印成了标语，捐款第一次从外面进来。", effects: { rep: 0.9, fac: { base: 14, establishment: -16, commercial: -10 }, voters: { warm: 500 } } },
           ok: { body: "你守住了阵地，基层爽了，党部的电话开始不接。", effects: { rep: 0.66, fac: { base: 10, establishment: -12 }, voters: { warm: 200 } } },
@@ -178,7 +178,7 @@ POTUS.define("event", [
       {
         id: "demand_probe", text: "立刻要求独立彻查，把九小时逐分钟摊开",
         note: "赌事实最终站在你这边。风险：查不动时，你是那个搅局的人。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "agency", w: 0.2 }],
+        base: 0.42, cost: {}, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "agency", w: 0.2 }],
         outcomes: {
           crit: { body: "几个月后听证记录公开，你当初那封质询信成了最早的一份。情报圈有人承认：至少有人在看。", effects: { rep: 1.5, fac: { agency: 12, press: 8, establishment: -6 }, flags: ["investigation_open"] } },
           ok: { body: "你把问题钉在议程上，党部不高兴，但报纸替你写了稿。", effects: { rep: 0.8, fac: { press: 6, establishment: -6, agency: 4 } } },
@@ -245,7 +245,7 @@ POTUS.define("event", [
       {
         id: "frontline", text: "冲在最前面：开办公室、调冰和油、上镜头",
         note: "赌苦劳被直接看成功劳。风险：做实事时说的错话会被一起播。",
-        base: 0.5, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
+        base: 0.5, cost: {}, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         stake: { fun: true },
         outcomes: {
           crit: { body: "你在发电机边上连轴转了四天，本地报纸的头版是你满鞋泥的照片。街区记你一辈子。", effects: { rep: 1.5, fac: { base: 16, church: 6, establishment: -4 }, voters: { warm: 600 } } },
@@ -459,7 +459,7 @@ POTUS.define("event", [
       {
         id: "surge", text: "把人力全压到排查与封控上，公开站在指挥席",
         note: "赌快与狠被当成可靠。风险：查错人或封控失序时你要署名。",
-        base: 0.44, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "agency", w: 0.35 }],
+        base: 0.44, cost: {}, mods: [{ src: "fac", key: "agency", w: 0.35 }],
         outcomes: {
           crit: { body: "封控与排查没有出乱子，你在指挥席上的那几天被本地写成「他在」。执法系统记住了你的名字。", effects: { rep: 1.4, fac: { agency: 14, establishment: 6, base: -4 } } },
           ok: { body: "你压上了全部人手，事稳住了，也有几户商铺被误查。", effects: { rep: 0.7, fac: { agency: 8, base: -4 } } },
@@ -526,7 +526,7 @@ POTUS.define("event", [
       {
         id: "oversee", text: "要求公开令状标准、给监控设审计与日落条款",
         note: "赌中产与技术圈的愤怒会持续。风险：执法系统从此把你当对面。",
-        base: 0.4, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "tech", w: 0.2 }],
+        base: 0.4, cost: {}, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "tech", w: 0.2 }],
         outcomes: {
           crit: { body: "你那份修正案在委员会过了，全国的科技版把你写成「少数会读文件的政客」。", effects: { rep: 1.6, fac: { tech: 14, press: 10, base: 6, agency: -12 } } },
           ok: { body: "你把议题钉进了议程，圈内人开始把你当成可谈的对象。", effects: { rep: 0.9, fac: { tech: 8, press: 6, agency: -8 } } },
@@ -593,7 +593,7 @@ POTUS.define("event", [
       {
         id: "pressure", text: "把停摆讲成对法律的拆解，要求先开票再谈条件",
         note: "赌中间选民讨厌僵局。风险：把基层的怒气全接在自己身上。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
+        base: 0.42, cost: {}, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
         outcomes: {
           crit: { body: "第十七天的联合决议按你的口径写，你的话在早间节目播了一整个秋天。", effects: { rep: 1.4, fac: { establishment: 12, base: -6, commercial: 6 } } },
           ok: { body: "你喊得响，党部不喜欢，但本地商会开始替你说话。", effects: { rep: 0.7, fac: { establishment: 4, commercial: 8, base: -6 } } },
@@ -660,7 +660,7 @@ POTUS.define("event", [
       {
         id: "march", text: "走上那条街，和游行者一起走完整段路",
         note: "赌街头的能量会成为你明年的票。风险：警员社区与商会从此不叫你。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
+        base: 0.42, cost: {}, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
         outcomes: {
           crit: { body: "你走在最前面那一段，被拍到扶起一个中暑的老人。全国版用了三秒，本地版用了一整版。", effects: { rep: 1.6, fac: { base: 20, church: 8, agency: -14 }, voters: { diehard: 260, warm: 500 } } },
           ok: { body: "你走完了全程，激进的人开始愿意跟你说话，警员协会发了措辞很冷的声明。", effects: { rep: 0.8, fac: { base: 12, agency: -10 }, voters: { warm: 250 } } },

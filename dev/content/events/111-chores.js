@@ -9,7 +9,7 @@
  * 设计：
  *   · tierRaw:true —— 门槛按真实 0..9 层级直写，跟晋升阶梯对齐，不受旧 tierBand 抬档影响。
  *   · 按层级分簇：基层 T0–2、市政 T2–4、州 T4–6、联邦 T6+，让不同位置的人撞上不同的琐事。
- *   · 主吃 voters（warm/diehard↑、oppose↓），辅以一点点 rep；偶有 ap/时间代价但都留保底。
+ *   · 主吃 voters（warm/diehard↑、oppose↓），辅以一点点 rep；偶有时间代价但都留保底。
  *   · valence 多为 boon：经营选民是"只赚不赔但赚得不多"的日常；引擎会抹平任何负值。
  *   · minYear:1980 —— 本轮随 1980—1990 时间轴一起铺；年代更晚自会把 maxYear 抬上去复用。
  *
@@ -158,7 +158,6 @@ POTUS.define("event", [
       {
         id: "case", text: "一个个坐下来办：打电话、追进度、把事真办成几件",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你硬是替几户人家讨回了补助，口碑一传十：「这个位子有人办事」。", effects: { rep: 0.4, fac: { base: 5 }, voters: { warm: 500, diehard: 100, oppose: -200 } } },
           ok: { body: "你办成了几件，办不成的也给了明白回话。", effects: { rep: 0.25, voters: { warm: 320 } } },
@@ -256,7 +255,6 @@ POTUS.define("event", [
       {
         id: "grin", text: "笑脸走完每一站，把话说到每个县的痛点上",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你一天三站滴水不漏，几个县的报纸头版都是你，党部把你当成能扛票的人。", effects: { rep: 0.4, fac: { establishment: 4, base: 3 }, voters: { warm: 520, diehard: 90 } } },
           ok: { body: "巡回顺利，几个县的基层都被你扫了一遍。", effects: { rep: 0.25, voters: { warm: 320 } } },
@@ -289,7 +287,6 @@ POTUS.define("event", [
       {
         id: "response", text: "第一时间赶赴现场，协调救援与联邦补助",
         base: 0.54, mods: [{ src: "attr", key: "INT", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你把救灾与补助跑得漂亮，灾民说「关键时候他真来了」，州里也记下你的执行力。", effects: { rep: 0.4, fac: { establishment: 4, base: 4 }, voters: { warm: 500, diehard: 80 } } },
           ok: { body: "你在现场协调有方，救灾没出乱子。", effects: { rep: 0.25, voters: { warm: 300 } } },
@@ -323,7 +320,6 @@ POTUS.define("event", [
       {
         id: "fix", text: "把最难的几封亲自盯下来，逼联邦部门给答复",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你打通几个死结，受助人专程道谢，本地报把你写成「替选区跟联邦掰腕子的人」。", effects: { rep: 0.4, fac: { base: 5 }, voters: { warm: 520, diehard: 110, oppose: -200 } } },
           ok: { body: "你办成了不少件，联邦那些机器多少领了你的情。", effects: { rep: 0.25, voters: { warm: 340 } } },
@@ -356,7 +352,6 @@ POTUS.define("event", [
       {
         id: "engage", text: "来者不拒，一个一个把话筒下的问题答完",
         base: 0.58, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你答得实在又镇得住场，散会时人们说「他还是本地人」。", effects: { rep: 0.4, fac: { base: 5 }, voters: { warm: 500, diehard: 100 } } },
           ok: { body: "你扛住了几轮追问，气氛有惊无险。", effects: { rep: 0.25, voters: { warm: 300 } } },

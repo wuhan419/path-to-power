@@ -127,7 +127,6 @@ POTUS.define("event", [
         id: "labor", text: "替被解雇的人说话：反对这种杀鸡儆猴",
         note: "和全国最风光的铁腕对着干。工会会记你一辈子，主流与上层会给你贴标签。",
         base: 0.48, mods: [{ src: "fac", key: "labor", w: 0.45 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你在一片「依法办事」的声浪里替丢掉饭碗的人说了话。劳工阵营把你当成罕见的敢言者，日后每逢选举都替你抬桥。",
             effects: { rep: 1.75, fac: { labor: 16, base: 8, establishment: -8 }, contact: { union_boss: 12 }, flags: ["labor_champion"] } },
@@ -161,7 +160,6 @@ POTUS.define("event", [
       {
         id: "bridge", text: "不谈对错，只替被裁的人争取再就业与补偿",
         base: 0.58, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你绕开了意识形态的战场，闷头给丢了饭碗的人对接再就业。两边都欠你情，工人尤其记这份实惠。",
             effects: { rep: 1.25, fav: 1, fac: { labor: 8, establishment: 4, base: 5 } } },

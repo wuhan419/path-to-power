@@ -230,7 +230,8 @@ POTUS.define("balance", {
      这正是「8 年 demo 里同一事件撞上两次」的根因；抬到 40 基本覆盖整个 demo 档期。 */
   blackswanChance: 0.18, recentCap: 40, retireAge: 74, aiCallCap: 80,
 
-  /* 精力池：每年恢复 = apBase + floor(健康 / apHealthDiv)，夹在 [apMin, apMax] */
+  /* 精力池（v0.9 已退役：G.ap 仍按此恢复但无人消耗，仅作兼容残留）：
+     每年恢复 = apBase + floor(健康 / apHealthDiv)，夹在 [apMin, apMax] */
   apBase: 6, apHealthDiv: 25, apMin: 1, apMax: 12,
 
   /* ---- 静好岁月：平静的月份里，主角照样过日子、按部就班地长 ----
@@ -459,7 +460,7 @@ POTUS.define("balance", {
   },
 
   /* ---------- 资源投注汇率（D&D 式加码的默认值；单个选项可覆盖） ----------
-   * 玩法：判定前可"投入资源加码"——资金/精力 抬判定目标值，人情 换一次重投取优。
+   * 玩法：判定前可"投入资源加码"——资金 抬判定目标值，人情 换一次重投取优。
    *
    * v0.7：资金那一档不再写死（用户实测反馈）。过去固定 `per: 250000`，两个后果：
    *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏对他形同虚设；

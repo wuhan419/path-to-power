@@ -3,7 +3,7 @@
  * 【资源机制示范】三张开局事件，用来说明两件事的写法：
  *   1) cost  —— 选项的“资源代价”，余额不足时选项直接变灰并提示缺什么
  *   2) stake  —— 判定前可“投入资源加码”，打开 D&D 式面板：
- *                资金/精力 加值提高目标值，人情 换一次重投取优（advantage）
+ *                资金 加值提高目标值，人情 换一次重投取优（advantage）
  *
  * 三张卡各自归入常规分类（丑闻 / 金钱 / 综合），weight 偏高，开局头几年多半会撞上，
  * 让玩家在真实剧情里自然学会 cost 与 stake。id 仍保留 demo_ 前缀，validate 与冒烟测试依赖它。
@@ -31,7 +31,7 @@ POTUS.define("event", [
       "known": [
         "传票是真的：主席盯上你，因你上月电视上得罪他。",
         "你的团队把能想到的路写在了一张纸上：硬扛、花钱、求人、装病。",
-        "你能动三样：资金、精力、人情。",
+        "你能动两样：资金、人情。",
         "硬扛省钱但胜算低；花钱买确定；有的门钱敲不开。"
       ],
       "rumor": [
@@ -44,8 +44,8 @@ POTUS.define("event", [
       ],
       "terms": [
         {
-          "k": "资金 / 精力 / 人情",
-          "v": "三种可支配资源：资金、精力、人情。"
+          "k": "资金 / 人情",
+          "v": "两种可支配资源：资金、人情。"
         },
         {
           "k": "投注",
@@ -55,14 +55,13 @@ POTUS.define("event", [
     },
     title: "听证会：要不要押上家底",
     body: "传票已经送到。委员会的主席是个记仇的老头，他想在镜头前把你钉死。\n" +
-      "你的团队给出几条路，但每一条都要你「掏东西」——钱、精力，或者人情。",
+      "你的团队给出几条路，但每一条都要你「掏东西」——钱，或者人情。",
     choices: [
       {
         id: "all_in",
         text: "亲自出庭，把能押的都押上",
         base: 0.42,
-        cost: { ap: 1 },
-        stake: { fun: true, ap: true, fav: true },
+        stake: { fun: true, fav: true },
         mods: [
           { src: "attr", key: "CHA", w: 0.5 },
           { src: "attr", key: "CUN", w: 0.3 }
@@ -180,7 +179,6 @@ POTUS.define("event", [
         id: "sick",
         text: "病假缺席，什么都不花",
         base: 0.45,
-        stake: { ap: true },
         outcomes: {
           crit: {
             body: "医生证明无懈可击。委员会白白摆了一天的椅子。",
@@ -310,9 +308,8 @@ POTUS.define("event", [
       },
       {
         id: "ideals",
-        text: "空手赴宴，只谈理想（投入精力换取说服力）",
+        text: "空手赴宴，只谈理想（用说服力换支持）",
         base: 0.4,
-        stake: { ap: true },
         mods: [{ src: "attr", key: "CHA", w: 0.55 }, { src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
           crit: {
@@ -339,9 +336,8 @@ POTUS.define("event", [
       },
       {
         id: "bring_press",
-        text: "带记者一起去（花 2 点精力，讨好媒体）",
+        text: "带记者一起去（讨好媒体）",
         base: 0.5,
-        cost: { ap: 2 },
         mods: [{ src: "fac", key: "press", w: 0.35 }],
         outcomes: {
           crit: {
@@ -369,164 +365,4 @@ POTUS.define("event", [
     ]
   },
 
-  /* ------------------------------------------------------------------
-   * 演示 3：精力是稀缺资源 —— 三个选项都在消耗它；人情换重投
-   * ------------------------------------------------------------------ */
-  {
-    id: "demo_2am_call",
-    grade: "minor", valence: "risk", dyn: true,
-    category: "general",
-    era: DEMO_ERAS,
-    tierMin: 0,
-    tierMax: 5,
-    weight: 4,
-    brief: {
-      "lede": "一天只有这么多小时。今晚你只能把它花在一个地方。",
-      "known": [
-        "电话那头的人不能等。明早八点之前必须有个结果。",
-        "你手上有精力（今晚还能撑多久）和人情（谁肯半夜接你电话）。",
-        "连夜飞过去最稳，但会吃掉三点精力，而精力上限取决于健康。",
-        "你也可以不接。不接也是一种选择，只是要承担它的后果。"
-      ],
-      "rumor": [
-        "有人说这事不用你出面，是有人故意把球踢给你。",
-        "有人说对方真正想谈的，并不是电话里说的那件事。"
-      ],
-      "unknown": [
-        "你今晚用掉的精力，明天还回不回来。",
-        "那通电话会不会定下你还不知道的任命。"
-      ],
-      "terms": [
-        {
-          "k": "精力",
-          "v": "按健康逐年恢复，上限 12。"
-        },
-        {
-          "k": "重投取优",
-          "v": "花 1 点人情，判定时掷两次取较好的结果。"
-        }
-      ]
-    },
-    title: "凌晨两点，一个你不敢挂断的人打来电话",
-    body: "电话那头是一个你不敢挂断的人。事情必须在明早八点之前有个结果。\n" +
-      "精力不是无限的——一天只有这么多小时。",
-    choices: [
-      {
-        id: "fly",
-        text: "连夜飞过去（花 3 点精力，可押人情换重投）",
-        base: 0.66,
-        cost: { ap: 3 },
-        stake: { fav: true },
-        mods: [{ src: "attr", key: "CUN", w: 0.45 }],
-        outcomes: {
-          crit: {
-            body: "你凌晨四点出现在他家门口。他愣住了，然后什么都答应了。",
-            effects: { rep: 4, fav: 2, fac: { establishment: 14 } }
-          },
-          ok: {
-            body: "事情谈成了，代价是你会连着一周靠咖啡活着。",
-            effects: { rep: 2, fav: 1, hp: -1.5, fac: { establishment: 7 } }
-          },
-          meh: {
-            body: "他见了你，但什么都没答应。你白飞了一趟。",
-            effects: { hp: -1 }
-          },
-          fail: {
-            body: "他让助理在楼下打发了你。",
-            effects: { rep: -1.25, hp: -1.5, fac: { establishment: -6 } }
-          },
-          critfail: {
-            body: "你半夜出现在他家门口这件事，被写成了一封恐吓信。",
-            effects: { rep: -3.5, hp: -2, fac: { establishment: -14, press: -10 }, flags: ["scandal_3"] }
-          }
-        }
-      },
-      {
-        id: "phone",
-        text: "就在电话里稳住他（花 1 点精力）",
-        base: 0.5,
-        cost: { ap: 1 },
-        stake: { fav: true },
-        mods: [{ src: "attr", key: "CUN", w: 0.6 }, { src: "attr", key: "INT", w: 0.3 }],
-        outcomes: {
-          crit: {
-            body: "四十分钟后他自己说服了自己。你甚至没下床。",
-            effects: { rep: 2.75, fav: 1, fac: { establishment: 10 } }
-          },
-          ok: {
-            body: "拖住了。明早再说。",
-            effects: { rep: 1.25, fac: { establishment: 4 } }
-          },
-          meh: {
-            body: "他挂电话前没说你做错了，但也没说对。",
-            effects: { hp: -0.5 }
-          },
-          fail: {
-            body: "你听上去像在敷衍。他把电话挂了。",
-            effects: { rep: -1.5, fac: { establishment: -8 } }
-          },
-          critfail: {
-            body: "你以为他挂了，其实没有。接下来的话他全听见了。",
-            effects: { rep: -4, fac: { establishment: -16 }, flags: ["tape_out", "scandal_3"] }
-          }
-        }
-      },
-      {
-        id: "assistant",
-        text: "花钱让助理连夜跑一趟（花 $60k）",
-        base: 0.46,
-        cost: { fun: 6.5 },
-        outcomes: {
-          crit: {
-            body: "助理办成了。你甚至不知道他怎么做到的——这让你有点不安。",
-            effects: { rep: 1.5, fac: { establishment: 6 } }
-          },
-          ok: {
-            body: "事情办妥了，助理第二天辞了职——但走前把整个流程写成了一页纸留给你。",
-            effects: { rep: 2, attr: { CUN: 1 } }
-          },
-          meh: {
-            body: "助理去了，对方没开门。",
-            effects: { fun: -2.25 }
-          },
-          fail: {
-            body: "助理在门口说错了话，把小事变成了大事。",
-            effects: { rep: -2, fac: { establishment: -9 } }
-          },
-          critfail: {
-            body: "助理被收买了，带去的东西落到了对方手里。",
-            effects: { rep: -3.5, fac: { establishment: -15 } }
-          }
-        }
-      },
-      {
-        id: "ignore",
-        text: "不接。明天再说（可投入精力硬扛）",
-        base: 0.34,
-        stake: { ap: true, fav: true },
-        outcomes: {
-          crit: {
-            body: "第二天早上一切风平浪静。你赌赢了。",
-            effects: { rep: 1.5, hp: 1.5 }
-          },
-          ok: {
-            body: "他找到了别人。事情绕开了你，也算解决。",
-            effects: {}
-          },
-          meh: {
-            body: "你在半梦半醒间想了这件事一整晚。",
-            effects: { hp: -1 }
-          },
-          fail: {
-            body: "他记住了你那个晚上没接电话。",
-            effects: { rep: -1.5, fac: { establishment: -9 } }
-          },
-          critfail: {
-            body: "那通电话决定了你的一个任命。你知道的时候，名单已经公布。",
-            effects: { rep: -4, fac: { establishment: -14, agency: -8 } }
-          }
-        }
-      }
-    ]
-  }
 ]);
