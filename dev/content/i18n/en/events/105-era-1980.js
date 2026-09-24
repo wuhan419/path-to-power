@@ -19,7 +19,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1980-11 保守回潮浪 */
       {
         id: "rg80_wave",
-        title: "Whole States Change Color in a Single Night",
+        title: "Whole states change color in a single night",
         body: "On television, the former actor sweeps the country in a landslide. Stagflation, the hostages, and one line —\n" +
           "government is not the solution — seat him in the White House and push a whole new vocabulary into the\n" +
           "mainstream. For the first time, a crack opens in your district. The old establishment is still chewing on\n" +
@@ -85,7 +85,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1981-08 管制员大解雇 */
       {
         id: "rg81_patco",
-        title: "A Million Booked Flights, Up in the Air by Morning",
+        title: "A million booked flights, up in the air by morning",
         body: "The air traffic controllers walk off the job. The White House mails every man one line: return by a set hour or\n" +
           "be fired, under the law that bars government employees from striking. Most do not return. Within weeks over\n" +
           "ten thousand are formally dismissed and their union fined into bankruptcy. For the first time the whole\n" +
@@ -151,7 +151,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1982 松监管快钱（储贷） */
       {
         id: "rg82_snl",
-        title: "A Thrift That Lends on Anything Comes Knocking",
+        title: "A thrift that lends on anything comes knocking",
         body: "After the rules loosen, a brood of fresh savings-and-loans starts flinging money everywhere: real estate, oil\n" +
           "fields, anything at all. What they want is a politically savvy name on the board. The offer is civil: put money\n" +
           "in, take the director's chair, collect dividends at year end — assuming the thing does not fold before the dividends do.",
@@ -216,7 +216,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1983 核冻结请愿 */
       {
         id: "rg83_freeze",
-        title: "The Campus Starts a Petition to Freeze the Arms Race",
+        title: "The campus starts a petition to freeze the arms race",
         body: "The arms race heats up; television loops simulations of how few minutes a missile needs. The university town\n" +
           "starts a petition: Washington and Moscow halt new nuclear weapons at the same moment. They gathered several\n" +
           "thousand signatures in your district — and want you on the record. For: naive. Against: warmonger.",
