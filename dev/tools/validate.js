@@ -1125,14 +1125,15 @@ console.log("    按时代：" + Object.keys(eraMix).map(function (k) {
 console.log("  同月重复卡回归检测: " + sim.monthRepeat + " 次（同一自然月内同卡重演，应为 0）");
 check(sim.monthRepeat === 0, "同一自然月内出现了重复卡 " + sim.monthRepeat + " 次——月内去重闸门失效");
 check(errs.length === 0, "模拟过程出现运行时错误");
-/* 三条统计性断言在小样本下必然假报警（1 局只会有 1 个结局）。
+/* 四条统计性断言在小样本下必然假报警（1 局只会有 1 个结局、1 条生涯的年均值噪声极大）。
    它们只在 GAMES >= STAT_MIN 时生效，好让 `--games=1` 成为并行 worker 的秒级结构快通道。 */
 const STAT_MIN = 8;
 const thinSample = GAMES < STAT_MIN;
-if (thinSample) console.log("  · 样本 " + GAMES + " 局 < " + STAT_MIN + "：跳过 " + 3 + " 项统计断言（提交前请用默认 20 局跑全）");
+if (thinSample) console.log("  · 样本 " + GAMES + " 局 < " + STAT_MIN + "：跳过 " + 4 + " 项统计断言（提交前请用默认 20 局跑全）");
 check(thinSample || stakeEvents > 0, GAMES + " 局里应当有人押过钱 —— 否则投注机制在模拟里从未被走到，平衡结论无效");
 check(thinSample || Object.keys(endings).length >= 2, "结局过于单一，只有：" + Object.keys(endings).join(","));
-check(avgSlots >= 2 && avgSlots <= 12, "每年档期数应落在 2-12 之间（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
+check(avgSlots >= 2, "每年档期数低于 2（当前 " + avgSlots.toFixed(1) + "）——月度节奏没跑起来，单局也判得出");
+check(thinSample || avgSlots <= 12, "每年档期数均值应 ≤12（当前 " + avgSlots.toFixed(1) + "）——超出说明月度节奏失调");
 check(draws / Math.max(1, games) >= 20, "每局平均事件数过少（" + (draws / Math.max(1, games)).toFixed(1) + "），月度节奏没生效");
 check(thinSample || gradeHit.major > 0, "模拟中从未出现大事件");
 check(fillers / Math.max(1, draws) < 0.3, "填充事件占比过高，说明事件池太薄：" + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%");
