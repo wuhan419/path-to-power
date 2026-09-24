@@ -19,7 +19,7 @@ POTUS.define("l10n", {
       /* ================= 1) fin2_windfall 意外之财 ================= */
       {
         id: "fin2_windfall",
-        title: "A Distant Great-Aunt Leaves You Money You Cannot Ask About",
+        title: "A distant great-aunt leaves you money you cannot ask about",
         body: "The law-firm envelope is thick. Inside, one page:\n" +
           "a distant great-aunt you barely remember has left you a sum — big enough to plug every hole you have, modest enough not to make the news.\n" +
           "The executor adds one line: \"The client wishes you not to inquire how this money is invested.\"",
@@ -85,7 +85,7 @@ POTUS.define("l10n", {
       /* ============ 1b) fin2_windfall_collect 意外之财的余波 ============ */
       {
         id: "fin2_windfall_collect",
-        title: "A Man Comes to Collect on the Inheritance from Two Years Ago",
+        title: "A man comes to collect on the inheritance from two years ago",
         body: "A man who calls himself an \"asset manager\" picks a quiet restaurant.\n" +
           "He slides a copy across the table — the last page of your estate closing, with one annotation you have never seen.\n" +
           "\"The client had a side arrangement back then,\" he says. \"It comes due now.\"",
@@ -151,7 +151,7 @@ POTUS.define("l10n", {
       /* ================= 2) fin2_taxreturn 税务审计 ================= */
       {
         id: "fin2_taxreturn",
-        title: "Tax Auditors Ask to See Your Filings for the Last Three Years",
+        title: "Tax auditors ask to see your filings for the last three years",
         body: "The notice is two paragraphs: the tax office, \"acting under law\", pulls your returns for three years.\n" +
           "In the reason box: \"Significant variance between lifestyle reported and income declared.\"\n" +
           "Your accountant is silent for a long time on the phone. Then: \"Sir, we need to talk about the expenses that never went on the books.\"",
@@ -229,7 +229,7 @@ POTUS.define("l10n", {
       /* ================= 3) fin2_realestate 地产投资 ================= */
       {
         id: "fin2_realestate",
-        title: "Insiders Want You to Buy the Far Bank Before the Bridge Is Announced",
+        title: "Insiders want you to buy the far bank before the bridge is announced",
         body: "The broker who introduced you is blunt: once the cross-river bridge clears approval, the warehouse district becomes the next downtown.\n" +
           "\"The announcement is closer than you think,\" he lowers his voice. \"Buy or pass — it must be settled this week.\"\n" +
           "You know the game: a politician flipping land earns on information gaps — and the gap is exactly where they watch you.",
@@ -295,7 +295,7 @@ POTUS.define("l10n", {
       /* ================= 4) fin2_pac_game 领导型 PAC ================= */
       {
         id: "fin2_pac_game",
-        title: "Lobbyists Pitch You Your Own Leadership PAC",
+        title: "Lobbyists pitch you your own leadership PAC",
         body: "Two lobbyists spread the plan across your desk: a Leadership PAC operating in your name.\n" +
           "\"Contribution limits cover money given to candidates,\" one of them smiles. \"Not money given to committees.\"\n" +
           "\"From today, you stop asking for money. You start deciding other people's races.\"",
@@ -373,7 +373,7 @@ POTUS.define("l10n", {
       /* ================= 5) fin2_bankruptcy 资金链断裂 ================= */
       {
         id: "fin2_bankruptcy",
-        title: "The Campaign Account Runs Dry and Payroll Is Next",
+        title: "The campaign account runs dry and payroll is next",
         body: "The finance director pushes over the last page of the report. One boxed number — two digits below what you thought you could stretch to.\n" +
           "\"Rent is due next week. The print shop wants cash on delivery. And two payrolls,\" she reads, line by line.\n" +
           "\"Sir, this is not bad management. We simply have no money. Those are two different things.\"",
@@ -448,7 +448,7 @@ POTUS.define("l10n", {
       /* ================= 6) fin2_loan_default 学贷长期违约 ================= */
       {
         id: "fin2_loan_default",
-        title: "A Student Loan You Never Paid Off Is Dug Back Up",
+        title: "A student loan you never paid off is dug back up",
         body: "A local outlet calls. Polite voice, impolite question: a candidate who \"speaks for ordinary people\" still carries a student loan years overdue, now in collections.\n" +
           "\"Did you forget it — or do you simply not care?\"\n" +
           "You stare at the number on the screen. The interest compounds harder than any speech you give.",
