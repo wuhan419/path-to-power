@@ -107,15 +107,15 @@
     const el = document.getElementById("tipbox");
     if (el && el.classList) el.classList.remove("on");
   }
-  /* 竖屏事件卡：点标题展开/收起正文（CSS 只在 portrait 下隐藏正文，桌面点击无害）。
-   * 事件卡每次 drawEvent 重绘，故用 body 级事件委托，不随重渲染丢绑定。 */
+  /* 竖屏事件卡/平静月卡：点标题展开/收起正文（CSS 只在 portrait 下隐藏正文，桌面点击无害）。
+   * 卡片每次重绘，故用 body 级事件委托，不随重渲染丢绑定。 */
   function bindEventExpand() {
     if (!tipReady()) return;
     document.addEventListener("click", function (e) {
       if (!e.target || !e.target.closest) return;
-      const h = e.target.closest(".news.editorial h1.headline");
+      const h = e.target.closest(".news.editorial h1.headline, .monthcard h2");
       if (!h) return;
-      const card = h.closest(".news.editorial");
+      const card = h.closest(".news");
       if (card) card.classList.toggle("expanded");
     });
   }
