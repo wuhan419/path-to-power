@@ -91,7 +91,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1982-11 失业潮 */
       {
         id: "rg82_unemp",
-        title: "The biggest plant in district slaps seals on its doors",
+        title: "The biggest plant in your district slaps seals on its doors",
         body: "Interest rates are pinned to the sky; orders evaporate at once. The oldest plant in the district closes. Hundreds\n" +
           "of people you shook hands with on election night stand in the unemployment line in the cold wind overnight.\n" +
           "National joblessness hits its postwar peak. The local paper wants someone to speak for them; City Hall wants\n" +
