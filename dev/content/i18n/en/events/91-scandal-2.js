@@ -22,7 +22,7 @@ POTUS.define("l10n", {
       /* ---- 1) 挖坟队盯上了你的大学时代 ---- */
       {
         id: "sca2_opposition_research",
-        title: "Someone Is Digging Through Your College Yearbook",
+        title: "Someone is digging through your college yearbook",
         body: "An intern on staff finds out someone pulled your file at the alumni office.\n" +
           "Not a reporter — reporters call first. A research firm.\n" +
           "And your college years have a few pages you would rather not reread.",
@@ -88,7 +88,7 @@ POTUS.define("l10n", {
       /* ---- 2) 私下场合的话被录了音 ---- */
       {
         id: "sca2_leak_pod",
-        title: "Someone Recorded What You Said in Private and Is Selling It Back",
+        title: "Someone recorded what you said in private and is selling it back",
         body: "It was a study in a friend's house. Everyone there you knew.\n" +
           "You said a thing — about voters, about money, about how you really saw it.\n" +
           "It felt good to say. Now someone has packed that feeling into an object and mailed it to you:\n" +
@@ -156,7 +156,7 @@ POTUS.define("l10n", {
       /* ---- 3) 家人惹祸 ---- */
       {
         id: "sca2_family_member",
-        title: "A Bail Bond Call at Two in the Morning",
+        title: "A bail bond call at two in the morning",
         body: "Your brother got pulled over out in the suburbs. Drunk driving, and a donor's son rode with him.\n" +
           "By the book he'll be out on bail before dawn. By the book this is in tomorrow's local paper too.\n" +
           "On the phone he said one line: 'Please don't tell Mom.'\n" +
@@ -224,7 +224,7 @@ POTUS.define("l10n", {
       /* ---- 4) 旧账清算日 ---- */
       {
         id: "sca2_old_receipt",
-        title: "Someone Is Blackmailing You Over Your Dirty Start-Up Money",
+        title: "Someone is blackmailing you over your dirty start-up money",
         body: "In the envelope a photocopy: a ten-year-old check stub, an account you had nearly forgotten,\n" +
           "and one number circled in red — the sum you took back then.\n" +
           "The sender is no reporter, no prosecutor. It's a name you only now remember is still alive.\n" +
@@ -305,7 +305,7 @@ POTUS.define("l10n", {
       /* ---- 5) 丑闻应对的十字路口 ---- */
       {
         id: "sca2_coverup_choice",
-        title: "The Story Won't Stay Down. Forty-Eight Hours to Pick a Line",
+        title: "The story won't stay down. Forty-eight hours to pick a line",
         body: "It won't stay buried. The editor has already set the page, your lawyer's phone buzzes on the desk,\n" +
           "your campaign manager stands at the window, back to you, and asks the question you must now answer:\n" +
           "'Which road do we actually take?'\n" +
@@ -374,7 +374,7 @@ POTUS.define("l10n", {
       /* ---- 5b) 十字路口的余波（req.flag 分支，只覆盖文案） ---- */
       {
         id: "sca2_coverup_after",
-        title: "The Road You Chose Has Mailed You the Bill",
+        title: "The road you chose has mailed you the bill",
         body: "The old thing got an ending — or rather a first draft of one.\n" +
           "You thought the account was settled. Today's mail is the interest.\n" +
           "The senders differ, but every bill is addressed to the same line:\n" +
