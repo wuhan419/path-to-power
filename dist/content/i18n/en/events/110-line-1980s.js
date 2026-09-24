@@ -27,7 +27,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1981-03 里根遇刺 */
       {
         id: "rg81_shooting",
-        title: "Gunshots on Live TV: President Reagan Goes Down",
+        title: "Gunshots on live TV: President Reagan goes down",
         body: "The motorcade has barely stopped when six shots crack out of the crowd. The signal cuts into regular\n" +
           "programming — the nation watches an assassination attempt live for the first time.\n" +
           "Hinckley is pinned under police. Reagan is hit and rushed to hospital. And your phone starts ringing:\n" +
@@ -91,7 +91,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1982-11 失业潮 */
       {
         id: "rg82_unemp",
-        title: "The Biggest Plant in District Slaps Seals on Its Doors",
+        title: "The biggest plant in your district slaps seals on its doors",
         body: "Interest rates are pinned to the sky; orders evaporate at once. The oldest plant in the district closes. Hundreds\n" +
           "of people you shook hands with on election night stand in the unemployment line in the cold wind overnight.\n" +
           "National joblessness hits its postwar peak. The local paper wants someone to speak for them; City Hall wants\n" +
@@ -155,7 +155,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1983-10 贝鲁特 */
       {
         id: "rg83_beirut",
-        title: "Before Dawn, a Truck Drives Into the Barracks",
+        title: "Before dawn, a truck drives into the barracks",
         body: "A truck stuffed with explosives caves in the multinational barracks in Beirut. Hundreds of young soldiers lie\n" +
           "under the rubble. Coffins come home one by one on television, crawling endlessly across the screen.\n" +
           "One name on the list is a child of this state. His mother speaks to reporters at the church door: what did he\n" +
@@ -219,7 +219,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1985-09 广场协议 */
       {
         id: "rg85_plaza",
-        title: "Five Finance Ministers Shut the Door and Push the Dollar Down",
+        title: "Five finance ministers shut the door and push the dollar down",
         body: "At the Plaza Hotel, the major industrial nations agree in secret to joint intervention: the dollar will fall hard\n" +
           "against the yen and the mark, to plug America's trade hole. The moment the news breaks, currency and export\n" +
           "boards flip upside down.\n" +
@@ -283,7 +283,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1986-01 挑战者号 */
       {
         id: "rg86_challenger",
-        title: "Every Schoolchild in America Watches It Lift Off",
+        title: "Every schoolchild in America watches it lift off",
         body: "Weather delayed the launch once; finally it climbs on a clear morning. Seventy-three seconds later the sky\n" +
           "splits into a streak of white smoke. Aboard is Christa McAuliffe, the schoolteacher — every child in America\n" +
           "was watching her give a live lesson from orbit.\n" +
@@ -348,7 +348,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------- 1986-11 伊朗门 · 前奏 */
       {
         id: "rg86_iran_open",
-        title: "A Channel That Should Not Exist Lands on Your Desk",
+        title: "A channel that should not exist lands on your desk",
         body: "Someone is selling weapons in secret to the enemy, to free hostages; the proceeds detour to fund a militia that\n" +
           "Congress never paid for. Every link in this chain is carefully trace-free.\n" +
           "An old colleague sounds you out: is there a route through your territory that does not have to go through the\n" +
@@ -412,7 +412,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------- 1987-07 伊朗门 · 爆发 */
       {
         id: "rg87_iran_hearings",
-        title: "On the Witness Panel, Live Nationwide: Your Turn to Explain",
+        title: "On the witness panel, live nationwide: your turn to explain",
         body: "The scandal bursts fully open: the secret arms sales, Congress bypassed, money flowing to a war no one\n" +
           "authorized — each link dragged into the sunlight. The hearings run live on television; the ratings beat football.\n" +
           "Wherever you stood on that chain, however marginal, lawyers and reporters now read it back word by word.\n" +
@@ -476,7 +476,7 @@ POTUS.define("l10n", {
       /* ---------------------------------------- 1988-89 伊朗门 · 余波 */
       {
         id: "rg89_iran_after",
-        title: "After the Storm, the Town Takes Stock of a Man Who Sat Before the Cameras",
+        title: "After the storm, the town takes stock of a man who sat before the cameras",
         body: "The hearings closed; convictions and pardons took turns; the scandal is folding into \"one episode of that\n" +
           "era.\" But the local reckoning with you is not over: the town must decide again whether to work with a man\n" +
           "\"who sat before the cameras.\"",
@@ -550,7 +550,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1987-10 黑色星期一 */
       {
         id: "rg87_monday",
-        title: "The Dow Loses a Fifth in a Day — and No One Picks Up the Phone",
+        title: "The Dow loses a fifth in a day — and no one picks up the phone",
         body: "The opening bell starts an avalanche. Trillions in global wealth vanish before lunch; on the floor men break\n" +
           "down outright. Panic crawls the telephone lines into every district's pension and mutual-fund account.\n" +
           "Your phone will not stop. Voters who have lost half a lifetime of savings ask: you are the one who \"handles\n" +
@@ -614,7 +614,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1989-11 柏林墙 */
       {
         id: "rg89_berlin",
-        title: "A Wall, Chipped Through by Ordinary People in a Single Night",
+        title: "A wall, chipped through by ordinary people in a single night",
         body: "One misannounced regulation packs the crossing with a human tide; the guards have no orders; in the\n" +
           "cheering the wall cracks open. A forty-year division starts to loosen in a single night. Live around the world:\n" +
           "champagne, hammers, strangers embracing.\n" +
@@ -677,7 +677,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1990-08 海湾危机 */
       {
         id: "rg90_gulf",
-        title: "Tanks Cross the Border; Oil Prices Jump Overnight",
+        title: "Tanks cross the border; oil prices jump overnight",
         body: "Iraq's war machine swallows Kuwait in a single night; Saddam now holds one of the world's biggest oil\n" +
           "reserves in his fist. Carriers steam into the Persian Gulf; gas-station boards get rewritten three times a day;\n" +
           "every channel runs tanks massing in the sand.\n" +
@@ -742,7 +742,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1984-11 月亮竞选 */
       {
         id: "rg84_landslide",
-        title: "The Coattail Election: Everyone Wants to Borrow the Moon's Light",
+        title: "The coattail election: everyone wants to borrow the moon's light",
         body: "The economy warmed, the hostages came home, the opponent keeps tripping over himself. Reagan is headed\n" +
           "for forty-something states, and Republicans are sweeping down-ballot seats behind him — the press calls it an\n" +
           "election that borrows all its light from the moon.\n" +
@@ -807,7 +807,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1988-11 大选交接 */
       {
         id: "rg88_election",
-        title: "Two Terms Run Out; the Succession Race Splits the Party in Half",
+        title: "Two terms run out; the succession race splits the party in half",
         body: "The president's time is up, and the race to succeed him tears the party in two: Vice President Bush carries\n" +
           "Reagan's banner and promises continuity, against a challenger promising renewal. On the other side,\n" +
           "Massachusetts governor Michael Dukakis speaks soft and steady.\n" +
@@ -871,7 +871,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1989-90 储贷余波 */
       {
         id: "rg90_snl_wreck",
-        title: "The Thrift That Lent on Anything Finally Collapsed",
+        title: "The thrift that lent on anything finally collapsed",
         body: "The deregulation party is over: thrift after thrift goes under; Washington wants the taxpayer to plug the\n" +
           "hole; prosecutors start asking, one by one, who paved the road for this thing back when.\n" +
           "The board seat you lent your name to, that \"professional opinion\" you signed — they sit now in a kraft-paper\n" +
@@ -935,7 +935,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1980-04 鹰爪行动 */
       {
         id: "rg80_eagleclaw",
-        title: "The Rescue Burns in the Desert; Eight Did Not Come Back",
+        title: "The rescue burns in the desert; eight did not come back",
         body: "Six months past the day Tehran started holding Americans. A helicopter and a transport collide and catch\n" +
           "fire at the night staging point in the desert; eight servicemen go into foreign sand — the mission dead before\n" +
           "it ever touched a hostage.\n" +
@@ -1000,7 +1000,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1980-11 里根当选 */
       {
         id: "rg80_election",
-        title: "\"Are You Better Off Than You Were Four Years Ago?\" — One Line Redraws the Map",
+        title: "\"Are you better off than you were four years ago?\" — one line redraws the map",
         body: "One plain question walks into living rooms across the country, sweeps forty-some states, hands the\n" +
           "Republicans their first Senate in decades — and \"the silent majority\" is named as a force for the first time.\n" +
           "On the night the tide turns, both camps at home wait on your word: one eager to speak with the new wave, one\n" +
@@ -1075,7 +1075,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1986-04 空袭的黎波里 */
       {
         id: "rg86_libya",
-        title: "Planes Cross the Atlantic; Bombs Land on Tripoli",
+        title: "Planes cross the Atlantic; bombs land on Tripoli",
         body: "A bombed Berlin disco, dead American soldiers — Washington points at Gaddafi, then strikes Tripoli and\n" +
           "Benghazi overnight. Gaddafi's adopted daughter dies in the blast. On live television, for the first time,\n" +
           "someone says the word retaliation without flinching.\n" +
@@ -1138,7 +1138,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1987-06 勃兰登堡门 */
       {
         id: "rg87_wall",
-        title: "Across a Wall, the President Dares Him: Tear It Down",
+        title: "Across a wall, the president dares him: tear it down",
         body: "At the Brandenburg Gate the American president names his counterpart on the far side and tells him to\n" +
           "tear down this wall. The world's cameras point at the Cold War's hardest scar; anti-nuclear chants at one\n" +
           "point drown the speech itself.\n" +

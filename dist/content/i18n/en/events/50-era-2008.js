@@ -22,7 +22,7 @@ POTUS.define("l10n", {
     event: [
       {
         id: "2008_crash_offer",
-        title: "The Treasury Wants You on TV to Defend the Bailout",
+        title: "The Treasury wants you on TV to defend the bailout",
         body: "A Treasury aide calls after midnight. The bailout needs voices from outside to vouch for it.\n" +
           "Sign, and you get airtime. But the fine print hides something your future opponents will find.",
         brief: {
@@ -82,7 +82,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_tea_party",
-        title: "Tea Party Taxpayers Pack the Hall and Demand an Answer on the Banks",
+        title: "Tea Party taxpayers pack the hall and demand an answer on the banks",
         body: "A crowd calling itself the tea party fills the hall to the walls. They want your answer:\n" +
           "should Washington print one more dollar?",
         brief: {
@@ -127,7 +127,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_short",
-        title: "A Fund Friend Slides You Data and a Way to Bet Against Housing",
+        title: "A fund friend slides you data and a way to bet against housing",
         body: "A hedge-fund friend hands over a spreadsheet: the prime mortgages are defaulting in silence.\n" +
           "Bet with him and you may get rich overnight. Or lose everything.",
         brief: {
@@ -172,7 +172,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_donor",
-        title: "A Dinner Given by an Oil Magnate",
+        title: "A dinner given by an oil magnate",
         body: "He wants someone who listens. One check would fund your entire campaign —\n" +
           "for the right vote on the Energy Committee.",
         brief: {
@@ -217,7 +217,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_affair",
-        title: "A Colleague's Aide Messages You at Midnight",
+        title: "A colleague's aide messages you at midnight",
         body: "An assistant to one of your colleagues sends a message late at night. You know what it means —\n" +
           "and you know a photograph would end everything. But you know one more thing:\n" +
           "every secret that man keeps passes across her pillow.",
@@ -272,7 +272,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_affair_collect",
-        title: "The Secret Your Lover Told You Can Now Swing a Vote",
+        title: "The secret your lover told you can now swing a vote",
         body: "Your colleague is about to move on a decisive vote. What he does not know is that his secrets\n" +
           "currently sleep on your side.\nHow will you use them?",
         brief: {
@@ -335,7 +335,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_affair_burn",
-        title: "Your Opponent Has the Photograph. Voting Is in Three Weeks",
+        title: "Your opponent has the photograph. Voting is in three weeks",
         body: "Your campaign manager pushes the photograph across the table: voting is in three weeks.\n" +
           "In your hand the picture weighs almost nothing. In voters' eyes it will weigh a great deal.",
         brief: {
@@ -398,7 +398,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_debate",
-        title: "The Trap in the Live Debate",
+        title: "The trap in the live debate",
         body: "Your opponent throws a question you never prepared for. The camera is on you. The room waits.",
         brief: {
           lede: "The cameras are already rolling. He has just asked his first personal question.",
@@ -445,7 +445,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_foundation",
-        title: "Found a Foundation in Your Own Name",
+        title: "Found a foundation in your own name",
         body: "Something carrying your name: it can launder a reputation, raise money, employ people.\n" +
           "It can also become tomorrow's evidence.",
         brief: {
@@ -493,7 +493,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_social",
-        title: "A Tweet Out of Control",
+        title: "A tweet out of control",
         body: "You posted one line on a whim. Half an hour later twenty thousand people have shared it.\n" +
           "Some are reading a different meaning into it.",
         brief: {
@@ -542,7 +542,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_lobby",
-        title: "A Lobbyist Calls on Behalf of a Trade Group",
+        title: "A lobbyist calls on behalf of a trade group",
         body: "We would like your future committee to understand our position. Translated: money, or a knife.",
         brief: {
           lede: "A call from K Street: help your committee understand their situation.",
@@ -589,7 +589,7 @@ POTUS.define("l10n", {
       },
       {
         id: "2008_primary",
-        title: "The Party Chose Someone Else. Do You Flip the Table?",
+        title: "The party chose someone else. Do you flip the table?",
         body: "The party establishment has thrown in with another candidate.\n" +
           "Concede without a fight — or overturn the table.",
         brief: {

@@ -18,7 +18,7 @@ POTUS.define("l10n", {
       /* 2019-12 · 弹劾前幕：众院通过两条条款 */
       {
         id: "ln19_impeach",
-        title: "The House Impeaches, and the Country Splits Along Party Lines",
+        title: "The House impeaches, and the country splits along party lines",
         body: "A phone call demanding Ukraine 'look into' the rival party's likely front-runner, plus a frozen military aid package: the House opened its inquiry in September. On December 18, two articles of impeachment passed straight down party lines — the third president in history impeached by the House.\n" +
           "The White House calls it a coup. The opposition calls it constitutional self-defense. The trial moves to the Senate. The local paper wants your position tonight; both party hotlines are ringing. You know this stop is not a legal question — it is the dress rehearsal for 2020.",
         brief: {
@@ -80,7 +80,7 @@ POTUS.define("l10n", {
       /* 2020-02 · 弹劾后幕：参院宣判无罪 */
       {
         id: "ln20_acquit",
-        title: "Acquitted: the Impeachment Page Turns, the Election Machine Starts",
+        title: "Acquitted: the impeachment page turns, the election machine starts",
         body: "The articles reached the Senate in December; on February 5 they bounce back unchanged — both short of two-thirds, no witness called. The White House throws a party; the House speaker says history will remember this cover-up.\n" +
           "The country did not turn the page; it slipped the page into the ballot box. The primaries are already in the ledger, and everyone is recalculating: what was your posture last winter worth this spring?",
         brief: {
@@ -140,7 +140,7 @@ POTUS.define("l10n", {
       /* 2019-08 · 埃尔帕索与代顿枪击 */
       {
         id: "ln19_shooting",
-        title: "Twenty-Four Hours, Two Cities: Blood at the Superstore and on the Bar Street",
+        title: "Twenty-four hours, two cities: blood at the superstore and on the bar street",
         body: "Saturday: 23 dead at a border-city Walmart, an online 'invader' manifesto left behind, the shooter driving hundreds of miles just to pick that store. Sunday: gunfire on a bar street in Dayton, Ohio — 10 dead, the killer down within 30 seconds.\n" +
           "The nation lights candles for the same thing a third time. The vigil wax is not cold before two camps in your district line up: one says words carry blood, one says guns keep you alive. Town hall is tomorrow and the agenda has blown up.",
         brief: {
@@ -202,7 +202,7 @@ POTUS.define("l10n", {
       /* 2020-03 · 新冠疫情美国应对 */
       {
         id: "ln20_covid",
-        title: "The Pandemic Lands on America, and Every Government Passes the Buck",
+        title: "The pandemic lands on America, and every government passes the buck",
         body: "March 11: the WHO declares a pandemic. The White House still says 'low risk' that night; two days later a federal emergency, and the index halts trading for the fourth time in two weeks. Tests are scarce, hospitals sew their own masks, and hardly any Easter parade has been called off.\n" +
           "Your district's hospital is counting ventilators one machine at a time. The state says 'every locality for itself'. You have a little over a week — before the wave reaches your door, decide who gets scared first: the economy or the living.",
         brief: {
@@ -279,7 +279,7 @@ POTUS.define("l10n", {
       /* 2020-05/06 · 弗洛伊德与那个夏天 */
       {
         id: "ln20_summer",
-        title: "A Knee, a Nation on Fire: the Whole Summer Stands on One Question",
+        title: "A knee, a nation on fire: the whole summer stands on one question",
         body: "Late May, Minneapolis: a Black man pinned under an officer's knee for nearly nine minutes and never up again. The tape reached the whole country in three days; all four officers fired that same day. Hundreds of cities took to the streets — most peaceful, a few blocks burning. The Guard rolls in; curfew after curfew.\n" +
           "Your own city's streets are just as taut: the young want you to kneel with them, shopkeepers want 'order by Friday'. Every choice this summer goes into next year's campaign file.",
         brief: {
@@ -353,7 +353,7 @@ POTUS.define("l10n", {
       /* 2020-11 · 大选与计票争议 */
       {
         id: "ln20_election",
-        title: "The Votes Are Still in the Box When Victory Is Claimed",
+        title: "The votes are still in the box when victory is claimed",
         body: "Turnout in a plague year hits its highest in more than a century, and tens of millions of mailed ballots will take days to count. Polls leaned almost one way, yet election-night 'leads' flip with each tranche opened; before most outlets call it, the incumbent declares himself the winner and cries fraud. Dozens of suits queue in the courts; election clerks get threats.\n" +
           "Both parties are ringing you at once. This year the question is no longer only who wins — it is whether the loser admits it.",
         brief: {
@@ -418,7 +418,7 @@ POTUS.define("l10n", {
       /* 2021-01 · 国会山冲击 */
       {
         id: "ln21_capitol",
-        title: "A Mob on the Capitol Steps; the Count Stops Mid-Sentence",
+        title: "A mob on the Capitol steps; the count stops mid-sentence",
         body: "January 6: both chambers assemble to count the electoral votes, the sitting vice president presiding. By afternoon the president's rally becomes a breach — fencing climbed, the Rotunda entered, the session cut off, both chambers evacuated. Four people die that day; an officer dies of wounds the next. Late that night both chambers reconvene and finish the count before dawn.\n" +
           "Live cameras thread the Capitol corridors and your living room at the same time. Your phone lines melt: half the callers say this is patriotism, half say insurrection — both demand one word from you.",
         brief: {
@@ -480,7 +480,7 @@ POTUS.define("l10n", {
       /* 2021-03 · 亚特兰大按摩店枪击 */
       {
         id: "ln21_atlanta",
-        title: "Three Spas, One Night: Eight Dead",
+        title: "Three spas, one night: eight dead",
         body: "Night of March 16, outside Atlanta: gunfire through three spas — 8 dead, 6 of them Asian women. The shooter was taken the next day, telling officers 'I have a sex addiction, I was eliminating temptation'. The local sheriff ruled it early: 'a mental-health issue, not a hate crime'. Federal investigators move in on the hate-crime track.\n" +
           "Asian shopkeepers, stigmatized for a full pandemic year, hand the petition to your desk directly. The same week, a donor's memo warns you: do not 'politicize' this.",
         brief: {
@@ -542,7 +542,7 @@ POTUS.define("l10n", {
       /* 2021-08 · 阿富汗撤军与喀布尔陷落 */
       {
         id: "ln21_afghan",
-        title: "Twenty Years of War End in a Day: Kabul Falls",
+        title: "Twenty years of war end in a day: Kabul falls",
         body: "The pullout deadline was nailed to August 31. The allied government collapsed inside ten days; the president fled with the money. On August 15 Kabul changed hands with almost no street fighting. Thousands chased the gate at the airport; on the 26th a suicide blast outside it killed 13 Americans and more than a hundred Afghans; on the 30th the last transport lifted.\n" +
           "In your state sit refugee families who translated for the U.S. military — their visas stuck on the far side of a checkpoint. The veterans split when they come to you: one camp wants you to get the people out; the other wants Washington made to answer for it.",
         brief: {
@@ -616,7 +616,7 @@ POTUS.define("l10n", {
       /* 2021-10 · 供应链与通胀 */
       {
         id: "ln21_inflation",
-        title: "The Shelves Thin Out; Prices Move Every Morning",
+        title: "The shelves thin out; prices move every morning",
         body: "Container ships anchor for two weeks offshore; Los Angeles and Long Beach run around the clock for the first time ever, and cargo still crawls. September CPI ran 5.4 percent on the year, the highest in thirteen; truckers and warehouse hands are the scarcest hires in town. Christmas toys, Thanksgiving birds — the news calls it 'supply chains'; the shop ledger calls it 'out of stock'.\n" +
           "District bosses press you for a line. The opposition has already honed one phrase: your people did this.",
         brief: {

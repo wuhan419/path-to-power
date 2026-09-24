@@ -20,7 +20,7 @@ POTUS.define("l10n", {
       /* ---- 1) The profile piece ---- */
       {
         id: "med2_profile",
-        title: "A National Magazine Wants an 8,000-Word Profile of You",
+        title: "A national magazine wants an 8,000-word profile of you",
         body: "A reporter from a national magazine has come to write the full-length profile.\n" +
           "He shadows you for three days: two events, one dinner, one car ride. Every question politely asked —\n" +
           "polite enough that you almost forget: not one of those eight thousand words will need your approval.",
@@ -87,7 +87,7 @@ POTUS.define("l10n", {
       /* ---- 1a) The profile, after print ---- */
       {
         id: "med2_profile_after",
-        title: "Opponents Keep Quoting Your Profile Out of Context",
+        title: "Opponents keep quoting your profile out of context",
         body: "The piece hit newsstands a while ago, and it has not gone quietly into the file.\n" +
           "Strangers introduce you with its sentences. Your opponents loop its paragraphs out of context.\n" +
           "And one complication: a rival magazine wants to run a response piece. It is asking your staff for access.",
@@ -150,7 +150,7 @@ POTUS.define("l10n", {
       /* ---- 2) Fact-check ---- */
       {
         id: "med2_fact_check",
-        title: "A Number You Have Used for Two Years Just Failed a Fact-Check",
+        title: "A number you have used for two years just failed a fact-check",
         body: "The number you lean on in every speech — the one that draws applause —\n" +
           "got checked by a fact-check desk. Their verdict is blunt: it traces to a three-year-old estimate,\n" +
           "and even the estimate's author says it was misused.\n" +
@@ -227,7 +227,7 @@ POTUS.define("l10n", {
       /* ---- 3) Debate camp ---- */
       {
         id: "med2_debate_prep",
-        title: "Three Weeks to the Debate. Your Team Needs Your Style",
+        title: "Three weeks to the debate. Your team needs your style",
         body: "Election year. The debate is three weeks out.\n" +
           "Opponent, moderator's habits, the rumored question range — your team has taped it all to the wall.\n" +
           "One thing is missing from the board: which version of you walks on stage. The rehearsal room is booked.",
@@ -303,7 +303,7 @@ POTUS.define("l10n", {
       /* ---- 4) Dark flyers ---- */
       {
         id: "med2_dark_poster",
-        title: "Anonymous Attack Flyers About You Go Up Overnight",
+        title: "Anonymous attack flyers about you go up overnight",
         body: "Someone papered the town between midnight and dawn. All about you: three half-true facts,\n" +
           "one number inflated four times, and a handwritten hint, cold as a draft under a door.\n" +
           "Your staff peeled one off a polling-place door, one off a grocery bulletin board, one from under a wiper blade.",
@@ -366,7 +366,7 @@ POTUS.define("l10n", {
       /* ---- 5) The reporter who tails you ---- */
       {
         id: "med2_press_enemy",
-        title: "A Reporter Gives You Notice: Two Years Following Your Every Move",
+        title: "A reporter gives you notice: two years following your every move",
         body: "The reporter asks you to a coffee shop and starts without preamble.\n" +
           "'I plan to follow your story for the next two years. Not on orders. On my own.'\n" +
           "He pushes his card across the table: 'I am telling you first because a man I warned\n" +
@@ -443,7 +443,7 @@ POTUS.define("l10n", {
       /* ---- 5a) The book ---- */
       {
         id: "med2_press_enemy_after",
-        title: "The Reporter Who Shadowed You for Two Years Is Writing a Book",
+        title: "The reporter who shadowed you for two years is writing a book",
         body: "Two years on, the reporter following you is part of your life.\n" +
           "Your staff reads his byline before anyone else's; your lawyer weighs every sentence you say;\n" +
           "last month he ran a timeline of everything you did in three years — every entry true.\n" +

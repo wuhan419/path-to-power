@@ -92,7 +92,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1992 经济与投机候选人 */
       {
         id: "gulf92_economy",
-        title: "The War Is Won. The Line at the Gas Station Is Not",
+        title: "The war is won. The line at the gas station is not",
         body: "The war ends and oil comes back down, but the economy at home goes limp: plants moving off, layoffs\n" +
           "climbing, and a no-new-taxes promise broken by the man who made it. A loud billionaire starts a real\n" +
           "third-party run and curses both fields at once. The polls say he can take a big chunk of the vote.\n" +
@@ -159,7 +159,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1991 和平红利去哪 */
       {
         id: "gulf91_peace",
-        title: "The Wall Came Down, the Budget Did Not",
+        title: "The wall came down, the budget did not",
         body: "The Soviet Union breaks up and the Cold War is over. People start saying peace dividend: take the military\n" +
           "money and rebuild the bridges, the schools, the national debt. Others warn against getting soft — a power\n" +
           "with no rival left needs its muscles more than ever. A cut-or-keep vote is sitting on your desk, stuck.",
@@ -224,7 +224,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1993 谈话电台的深夜来电 */
       {
         id: "gulf93_talkradio",
-        title: "A Combative Talk-Radio Host Wants You On Air",
+        title: "A combative talk-radio host wants you on air",
         body: "A host who built his ratings on rage calls you out for a showdown. His show does not trade in arguments, only\n" +
           "in feeling, and he hunts the soft spot under every politician's collar. Picking up the line is fun — but on\n" +
           "the other end of it, the editing scissors have been sharpened for a while.",

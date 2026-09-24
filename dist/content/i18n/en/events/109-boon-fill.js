@@ -21,7 +21,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1980 新兴草根组织 */
       {
         id: "boon1980_grassroots",
-        title: "A Rising Grassroots Group Wants You to Lead the {CITY} Movement",
+        title: "A rising grassroots group wants you to lead the {CITY} movement",
         body: "The organizer pushes a stack of blank signup forms across the table: \"We want one of our own. Want in — let's turn {CITY} upside down together?\"",
         brief: {
           lede: "A new wind is blowing across the country. {CITY} is scrambling for a young face to stand for it — and they found you.",
@@ -73,7 +73,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 1990 凯旋欢迎仪式 */
       {
         id: "boon1990_homecoming",
-        title: "The Veterans' Association Asks You to Host a Homecoming Ceremony",
+        title: "The veterans' association asks you to host a homecoming ceremony",
         body: "An association veteran claps your shoulder at {PLACE}: \"We don't want a politician. We want someone who still believes in all this. You'll do.\"",
         brief: {
           lede: "The whole country is lighting candles for the kids in the desert. The local veterans' association wants a welcome-home ceremony — it needs someone to lead it.",
@@ -113,7 +113,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 2001 社区应急牵头 */
       {
         id: "boon2001_firstresponder",
-        title: "In the Crisis Days, the Community Pushes You to Lead Relief",
+        title: "In the crisis days, the community pushes you to lead relief",
         body: "The firehouse union, the churches and the school principals sit down together: \"We don't know the big shots. We know you get things done. Start this one for us.\"",
         brief: {
           lede: "In the days the sky came down, everyone asked \"what can I do.\" Someone answered: \"Go find him — he's already organizing.\"",
@@ -153,7 +153,7 @@ POTUS.define("l10n", {
       /* -------------------------------------------------- 2016 短视频走红 */
       {
         id: "boon2016_goviral",
-        title: "Your Unscripted Clip Explodes Overnight",
+        title: "Your unscripted clip explodes overnight",
         body: "The phone does not stop all day. Strangers pour into the messages: \"Finally, someone not reading from the teleprompter.\" The cynics chime in: \"Just wait for the fall.\"",
         brief: {
           lede: "You looked into a camera and said plain things; you woke to it shared hundreds of thousands of times. The algorithm likes you today.",

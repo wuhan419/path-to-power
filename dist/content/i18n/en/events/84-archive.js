@@ -21,7 +21,7 @@ POTUS.define("l10n", {
       /* ---------- 第一幕 · 拿到 ---------- */
       {
         id: "archive_get",
-        title: "You Find an Unnumbered File in the Archives Basement",
+        title: "You find an unnumbered file in the archives basement",
         body: "You think you are chasing a small thing: a land deal misfiled ten years ago.\n" +
           "The records clerk is at lunch; a spare key hangs on the wall. Far down the third aisle sits a box marked Miscellaneous. Inside: one file, no number. " +
           "Someone pulled it out of the official series.\n" +
@@ -87,7 +87,7 @@ POTUS.define("l10n", {
       /* ---------- 第二幕 · 被反噬 ---------- */
       {
         id: "archive_bite",
-        title: "Someone Is Asking Where You Went Last Month",
+        title: "Someone is asking where you went last month",
         body: "It starts with a wrong-number call. In week two, a car parks across from your space and someone sits in it for forty minutes.\n" +
           "In week three, a woman running an \"industry survey\" asks you over coffee. Seven questions — six about the city's transit plans. The seventh:\n" +
           "\"What is your view on how records should be kept?\"\n" +
@@ -164,7 +164,7 @@ POTUS.define("l10n", {
       /* ---------- 第三幕 · 摊牌 ---------- */
       {
         id: "archive_showdown",
-        title: "The Old Man on the File Summons You to His Office to Show Your Cards",
+        title: "The old man on the file summons you to his office to show your cards",
         body: "He asks you to come on a Sunday afternoon, when the building is empty.\n" +
           "He pours two glasses of water himself, then says: \"What you want — I won't ask where you got it.\n" +
           "I ask only one thing: what do you want?\"\n" +
@@ -242,7 +242,7 @@ POTUS.define("l10n", {
       /* ---------- 第四幕 · 了结 ---------- */
       {
         id: "archive_settle",
-        title: "The Archive Affair Comes Back for Its Verdict",
+        title: "The archive affair comes back for its verdict",
         body: "What you thought was closed returns with a receipt.\n" +
           "It asks nothing about regret. It only sets the bill on the table:\n" +
           "one man rose, one retired, one moved away, one still sits in the same chair — and remembers your name.\n" +

@@ -22,7 +22,7 @@ POTUS.define("l10n", {
       /* ---------------- 2011-05 · bin Laden killed ---------------- */
       {
         id: "ln11_binladen",
-        title: "Late at night, the President announces: bin Laden is dead",
+        title: "Late at night, the President announces: Bin Laden is dead",
         body: "At 10:34 p.m. the President walks into the Oval Office and says one sentence that closes a decade. Two thousand, nine hundred and seventy-seven deaths,\n" +
           "trillions of dollars, and it all lands in an eleven-minute taped statement. Your town honks through the night.\n" +
           "By morning the questions are local: the troops are still overseas, the VA caseload is still on your desk, and a cable producer wants two sentences from you.",

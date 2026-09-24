@@ -21,7 +21,7 @@ POTUS.define("l10n", {
       /* ---- 1) 讲台上的十分钟 ---- */
       {
         id: "enc_preacher",
-        title: "The Pastor Offers You Ten Minutes at the Pulpit",
+        title: "The pastor offers you ten minutes at the pulpit",
         body: "Four hundred people fill the South Side Baptist church every Sunday morning. The pastor owns their Sundays — and the week of talk that follows about whoever he mentions. He gives you ten minutes, said very politely: a few words after the hymn. What he does not say: how many eyes are in the room during those ten minutes, and which word the community will use for you when others speak in your place.",
         brief: {
           lede: "In a country that is not yours, the week's most valuable ten minutes are not in a council chamber. They are on a church pulpit.",
@@ -84,7 +84,7 @@ POTUS.define("l10n", {
       /* ---- 2) 商户公所的长老们 ---- */
       {
         id: "enc_elders",
-        title: "The Guild's Seven Elders Invite You to Tea",
+        title: "The guild's seven elders invite you to tea",
         body: "The merchants' guild on the old-town street has seven elders. They do not care about your election. They care about who may open a shop on their street, whose rent can still be negotiated, whose child gets a seat at the weekend school. They invite you to tea — old leaves, glass cups worn smooth by other families' hands. Seven men sit across from you. Nobody speaks first. Their rule: the guest talks first.",
         brief: {
           lede: "Eight hundred people live on this street, two hundred of them voters — but what they care about is whether you can get one thing done.",
@@ -147,7 +147,7 @@ POTUS.define("l10n", {
       /* ---- 3) 双语选票 ---- */
       {
         id: "enc_ballot",
-        title: "The Elections Office Is Dropping Bilingual Ballots at Three Polling Places",
+        title: "The elections office is dropping bilingual ballots at three polling places",
         body: "This year the elections office will withdraw bilingual ballots from three polling places. The stated reason: low utilization. The counting rule: only voters who asked for the bilingual form at the counter count as users. In those three precincts live seventeen hundred registered voters who never speak English. They do not lack the need. They were never asked to ask.",
         brief: {
           lede: "Seventeen hundred votes do not vanish on their own. They only become people who never learned what happened.",
@@ -221,7 +221,7 @@ POTUS.define("l10n", {
       /* ---- 4) 街上的规矩 ---- */
       {
         id: "enc_street",
-        title: "The Shopkeepers Want to Run Their Own Night Watch",
+        title: "The shopkeepers want to run their own night watch",
         body: "Four robberies on this street in three months — all after ten at night, all within eight blocks of a patrol car that never comes. The wait for a response has gone from nine minutes to thirty-seven. The owners of twenty-three shops hold a meeting, and someone proposes a watch of their own. Two men in uniform are sitting in the room. They plainly dislike the idea.",
         brief: {
           lede: "There is no right answer here. Whichever side you choose, you lose the other half's trust. The only difference is how much.",
@@ -295,7 +295,7 @@ POTUS.define("l10n", {
       /* ---- 5) 你是我们的人（总账，一局一次）---- */
       {
         id: "enc_first",
-        title: "The Community Meets to Send One of Its Own Up a Tier",
+        title: "The community meets to send one of its own up a tier",
         body: "Three dozen people, that night, in a borrowed basement. The pastor speaks first, then three elders, then the names start. At the fourth name, somebody says yours — and the room goes quiet for two or three seconds. Those seconds are the whole decision. They need one person to run for the next seat up. They do not lack people. They lack someone who can be accepted outside.",
         brief: {
           lede: "The community is meeting to field one of its own for the next seat up. They have chosen you.",

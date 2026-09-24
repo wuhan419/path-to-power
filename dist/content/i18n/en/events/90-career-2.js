@@ -20,7 +20,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_mentor_offer",
-        title: "The Boss Wants to Take You On",
+        title: "The boss wants to take you on",
         body: "He says he is old now and needs a young man who still remembers why he entered politics. Translated: he needs new legs. You need an umbrella that has survived thirty years of rain.",
         brief: {
           lede: "A man who has run this state's conversations for thirty years buys you the most important coffee of your life.",
@@ -87,7 +87,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_committee_seat",
-        title: "The Committee List Goes Final Next Week, and Your Name Is Still in Pencil",
+        title: "The committee list goes final next week, and your name is still in pencil",
         body: "First lesson of a governing chamber: your name is worth whatever someone else is willing to erase. Assignment season has begun.",
         brief: {
           lede: "The committee list goes final next week. Your name is still written in pencil.",
@@ -150,7 +150,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_redistrict",
-        title: "They Redrew Your District Out of Existence",
+        title: "They redrew your district out of existence",
         body: "The new map is public now. The ten-year voting base you wove together is cut down the middle by one curved line. The voter pool will be recalculated on its own — until then, you have a window. Use it.",
         brief: {
           lede: "The moment the new map goes up, one third of your ten-year territory is cut away by a single curve.",
@@ -214,7 +214,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_succession",
-        title: "The Boss Is Retiring, and You Are One of the Two Heirs",
+        title: "The boss is retiring, and you are one of the two heirs",
         body: "He is stepping down, and you are one of his two answers. How you carry yourself this week decides whether you inherit the machine, run underneath the machine, or watch it dismantle the ladder you stand on.",
         brief: {
           lede: "The Boss is retiring, and you are one of the two heirs. He called you in to watch how you behave.",
@@ -281,7 +281,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_cabinet_call",
-        title: "They Are Shopping for a Department Head, and Your Phone Rang",
+        title: "They are shopping for a department head, and your phone rang",
         body: "The incoming administration's transition team is screening names. Two departments are on the table: one burns in the hand, one gathers dust. The highlight of the appointment track — or the moment you get politely placed in a display case.",
         brief: {
           lede: "A call from the transition team: the president-elect wants to talk to you about a department.",
@@ -348,7 +348,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_cabinet_after",
-        title: "Six Months In, the Appointment Comes Up for Reckoning",
+        title: "Six months in, the appointment comes up for reckoning",
         body: "That phone call half a year ago put you here. Now the accounts settle: is this job better than you thought, or colder?",
         brief: {
           lede: "The honeymoon of an appointment lasts six months. Today is the first day of month seven.",
@@ -399,7 +399,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car2_burnout",
-        title: "You Sat in the Parking Lot Forty Minutes, Unable to Make Yourself Get Out",
+        title: "You sat in the parking lot forty minutes, unable to make yourself get out",
         body: "Your body has filed a motion ahead of your calendar. Push through, step back for half a pace, or hand it to one person you trust. You have to pick one.",
         brief: {
           lede: "Today you sat in the parking lot for forty minutes because you could not remember why to get out of the car.",
@@ -463,7 +463,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car3_first_hearing",
-        title: "You Preside Over Your First Real Hearing",
+        title: "You preside over your first real hearing",
         body: "The party hands you the chair for a small hearing: whether the local plant keeps its license. {PUB} sends one reporter. The room is not full, and every person in it is carrying a livelihood or a wallet.",
         brief: {
           lede: "Your first time in the chair teaches you how hard it is to get a room to shut up and listen.",
@@ -526,7 +526,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car3_party_errand",
-        title: "The Machine Hands You an Errand That Leaves No Name",
+        title: "The machine hands you an errand that leaves no name",
         body: "A party elder ({ORG}) asks you to say the word — or kill one bill — in a room the establishment cannot be seen in. Land it and your coordinates inside the machine move one notch. Botch it and your hands take the dirt while the credit goes elsewhere.",
         brief: {
           lede: "The way machines hand out candy is often to hand you an errand first — awkward to do, awkward to refuse.",
@@ -589,7 +589,7 @@ POTUS.define("l10n", {
        * ================================================================== */
       {
         id: "car3_profile",
-        title: "The Local Paper Runs a Rising-Star Profile of You",
+        title: "The local paper runs a rising-star profile of you",
         body: "A reporter from {PUB} rides with you all day — from a {MEET} to cold coffee at a diner in the evening — to write one story: a new local face. Half of how it reads is in his pen. The other half was your day.",
         brief: {
           lede: "For the first time someone seriously wants to write you up as a character. A step up — and a target painted.",
