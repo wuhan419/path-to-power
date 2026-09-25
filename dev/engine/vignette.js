@@ -101,7 +101,7 @@
     const G = P.G, b = P.balance();
     const v = b.vignette || {};
     const n = months || 0;
-    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0, voters: {} };
+    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, ap: 0, fav: 0, voters: {} };
     if (v.enabled === false || n <= 0 || !G) return { notes: [], n: n, tally: tally };
 
     const startAge = b.startAge == null ? 24 : b.startAge;
@@ -162,9 +162,8 @@
         const g = v.repGain == null ? 1 : v.repGain;
         G.rep = P.clamp(G.rep + g, 0, 100); tally.rep += g;
       }
-      /* 资金：安静的年月里，钱也在慢慢生钱（默认 0，生息统一放在年终结算） */
-      const funRate = (v.funRate || 0) + (tb.fun || 0);
-      if (funRate && G.fun > 0) G.fun += Math.round(G.fun * funRate);
+      /* 资金：#37③ 起平静月不再产生钱 —— 见 content/01-config.js vignette 注释。
+         生息只在年终结算（stage.js 的 interestRate），月度进出只在 P.monthlyLedger。 */
       /* 人脉：关系是要维护的。平静的月份里你去吃了几顿饭、打了几通电话。 */
       let pCt = v.contactChance || 0;
       if (tb.contact) pCt *= tb.contact;
@@ -178,17 +177,6 @@
             tally.contact += g;
           }
         }
-      }
-      /* v0.5.2 用户要求：平静的日子也不是完全静止的——
-         资金有小额的进出（工资/开销/顺手的生意），人情偶尔攒一点。
-         全部小量级 + 双向（资金可正可负），大事仍然只属于事件。
-         v0.9：精力(ap) 已退役，平静月不再回精力。 */
-      if (v.funChance && P.chance(v.funChance)) {
-        const scale = 500 + G.tier * 1500;              /* T0 是几百块的月光，T3 是几千块的周转 */
-        const gain = P.chance(v.funGoodChance == null ? 0.55 : v.funGoodChance);
-        const amt = P.rint(1, 4) * scale * (gain ? 1 : -1);
-        G.fun += amt;
-        tally.fun = (tally.fun || 0) + amt;
       }
       if (v.favChance && P.chance(v.favChance)) {
         G.fav = P.clamp(G.fav + 1, 0, 20);
@@ -207,10 +195,6 @@
     for (const k in tally.attr) notes.push(P.t("ui.vignette.note.attr", "{NAME} +{N}", { NAME: (ATTR_CN[k] || k), N: tally.attr[k] }));
     if (tally.rep) notes.push(P.t("ui.vignette.note.rep", "声望 +{N}", { N: tally.rep }));
     if (tally.contact) notes.push(P.t("ui.vignette.note.contactFav", "人脉好感 +{N}", { N: tally.contact }));
-    if (tally.fun) {
-      const k = Math.round(tally.fun / 1000);
-      if (k !== 0) notes.push(P.t("ui.vignette.note.money", "资金 {V}k", { V: (k > 0 ? "+$" : "-$") + Math.abs(k) }));
-    }
     if (tally.fav) notes.push(P.t("ui.vignette.note.fav", "人情 +{N}", { N: tally.fav }));
     /* 选民（v0.6）：有变化才写进月卡 —— 让玩家看见"我什么都没干，但选民在动" */
     if (tally.voters) {
@@ -276,12 +260,12 @@
     const leftover = entries.length - shown.length;
 
     /* 把这一批的成长合并成一行（按类别求和，而不是罗列每个月） */
-    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, fun: 0, ap: 0, fav: 0, voters: {} };
+    const tally = { attr: {}, hp: 0, rep: 0, contact: 0, ap: 0, fav: 0, voters: {} };
     entries.forEach(function (e) {
       const g = e.gain || {};
       for (const k in (g.attr || {})) tally.attr[k] = (tally.attr[k] || 0) + g.attr[k];
       tally.hp += g.hp || 0; tally.rep += g.rep || 0; tally.contact += g.contact || 0;
-      tally.fun += g.fun || 0; tally.ap += g.ap || 0; tally.fav += g.fav || 0;
+      tally.ap += g.ap || 0; tally.fav += g.fav || 0;
       for (const vk in (g.voters || {})) tally.voters[vk] = (tally.voters[vk] || 0) + g.voters[vk];
     });
     const ATTR_CN2 = {
@@ -292,10 +276,6 @@
     for (const k in tally.attr) notes.push(P.t("ui.vignette.note.attr", "{NAME} +{N}", { NAME: (ATTR_CN2[k] || k), N: tally.attr[k] }));
     if (tally.rep) notes.push(P.t("ui.vignette.note.rep", "声望 +{N}", { N: tally.rep }));
     if (tally.contact) notes.push(P.t("ui.vignette.note.contactFav", "人脉好感 +{N}", { N: tally.contact }));
-    if (tally.fun) {
-      const kf = Math.round(tally.fun / 1000);
-      if (kf !== 0) notes.push(P.t("ui.vignette.note.money", "资金 {V}k", { V: (kf > 0 ? "+$" : "-$") + Math.abs(kf) }));
-    }
     if (tally.fav) notes.push(P.t("ui.vignette.note.fav", "人情 +{N}", { N: tally.fav }));
     /* 选民（v0.6）：把这几个月的选民净变化也报出来 */
     const _VCN2 = {

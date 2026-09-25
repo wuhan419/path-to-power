@@ -126,7 +126,7 @@ POTUS.define("event", [
         id: "engage", text: "亲自应战：辩论、扫街、把他当真对手打",
         note: "尊重选民的智商，也尊重对手——用力过猛会显得欺负人。",
         base: 0.45, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { ap: 2, fun: 0.8 },
+        cost: { fun: 0.8 },
         outcomes: {
           crit: { body: "你在他的学区和他同台三次，赢了每一次——但真正赢的是那些看见你「认真对待每一票」的选民。初选夜大胜。", effects: { rep: 0.9, voters: { diehard: 400, warm: 600 }, fac: { base: 8 } } },
           ok: { body: "你全力应战，赢得扎实。党内通讯把你的「危机处理」列为正面教材。", effects: { rep: 0.6, voters: { diehard: 250 }, fac: { establishment: 4 } } },
@@ -193,11 +193,10 @@ POTUS.define("event", [
         id: "war", text: "开战：绕开党机器，直接找选民",
         note: "切尼路线的反面教材与正面教材是同一个人。赌你的选民认你不认党。",
         base: 0.35, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你把党部的九点会谈变成了直播：走出大门时对镜头说了三句话。48 小时内小额捐款破了你的纪录——党可以不给钱，但给不了也拿不走民意。", effects: { rep: 1.25, attr: { INTG: 3 }, voters: { diehard: 800, warm: 900 }, fac: { establishment: -18, base: 12 }, fun: 2 } },
           ok: { body: "你另起炉灶：自己的筹款名单、自己的志愿者。慢，但每一票都姓你的名。", effects: { rep: 0.8, voters: { diehard: 500 }, fac: { establishment: -12 } } },
-          meh: { body: "战争打响了，战线却比想象的漫长。你的日程表上从此只有两件事：本职和生存。", effects: { rep: 0.3, hp: -0.6, fac: { establishment: -8 } } },
+          meh: { body: "战争打响了，战线却比想象的漫长。你的日程表上从此只有两件事：本职和生存。", effects: { rep: 0.3, fac: { establishment: -8 } } },
           fail: { body: "没有党的机器，雨天的初选投票率打了七折——那正是你的死穴。你输给了党推的年轻人。", effects: { rep: -0.6, voters: { warm: -900 }, fac: { establishment: -10 }, fall: 1 } },
           critfail: { body: "你成了全国新闻里「毁掉本党选情的那个人」。党开除你的手续办得又快又体面，而你的选民到最后也没弄懂你在坚持什么。", effects: { rep: -1.25, fac: { establishment: -20, base: -8 }, fall: 2, flags: ["party_traitor"] } }
         }
@@ -209,7 +208,7 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "六个月里你把选区服务做到了极致：四百件个案、两条落地的地方拨款。党部的二次提名名单上，你的名字又回到了第一位——他们需要能赢的人。", effects: { rep: 0.8, voters: { diehard: 350, warm: 600 }, fac: { establishment: 6, base: 4 } } },
           ok: { body: "你用勤勉把风波熬成了旧闻。提名保住了一半——排位第二，但还在名单上。", effects: { rep: 0.4, fac: { establishment: 3 } } },
-          meh: { body: "事情还在做，位子还在悬。悬而未决本身就在消耗你。", effects: { rep: 0.1, hp: -0.3 } },
+          meh: { body: "事情还在做，位子还在悬。悬而未决本身就在消耗你。", effects: { rep: 0.1 } },
           fail: { body: "你埋头的六个月，党内换了三个人来说服你「换个选区试试」。你没有选区了。", effects: { rep: -0.4, fac: { establishment: -8 }, fall: 1 } },
           critfail: { body: "记录没能说话——因为党控制着让谁听到记录的渠道。你的沉默被解读为默认有罪。", effects: { rep: -0.9, fac: { establishment: -12, press: -5 }, fall: 1 } }
         }
@@ -286,11 +285,11 @@ POTUS.define("event", [
         note: "保底选项。不管外面怎么写，家里那顿饭才是真正躲不掉的场合。",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "那顿饭吃了三个小时。第二天你面对记者时的平静不是演的——因为最难的一场已经过去了。这种平静骗不了人，也装不出来。", effects: { attr: { INTG: 3 }, rep: 0.6, hp: -0.5, notFlags: ["divorce_pending"] } },
-          ok: { body: "家人知道了，也留下了。外面的风暴忽然显得没那么大。", effects: { attr: { INTG: 1 }, hp: -0.5 } },
-          meh: { body: "话说了，饭桌安静得像听证会。有些账以后慢慢算。", effects: { hp: -0.8 } },
-          fail: { body: "那顿饭比发布会更难。你妻子只问了一句「还有什么是我在报纸上会看到的」。", effects: { hp: -1.25, flags: ["divorce_pending"] } },
-          critfail: { body: "坦白没换来理解，换来了一扇关上的门和一位已经约好律师的伴侣。你的私事成了公事。", effects: { rep: -1, hp: -2, flags: ["divorce_pending", "scandal_1"] } }
+          crit: { body: "那顿饭吃了三个小时。第二天你面对记者时的平静不是演的——因为最难的一场已经过去了。这种平静骗不了人，也装不出来。", effects: { attr: { INTG: 3 }, rep: 0.6, notFlags: ["divorce_pending"] } },
+          ok: { body: "家人知道了，也留下了。外面的风暴忽然显得没那么大。", effects: { attr: { INTG: 1 } } },
+          meh: { body: "话说了，饭桌安静得像听证会。有些账以后慢慢算。", effects: {} },
+          fail: { body: "那顿饭比发布会更难。你妻子只问了一句「还有什么是我在报纸上会看到的」。", effects: { flags: ["divorce_pending"] } },
+          critfail: { body: "坦白没换来理解，换来了一扇关上的门和一位已经约好律师的伴侣。你的私事成了公事。", effects: { rep: -1, flags: ["divorce_pending", "scandal_1"] } }
         }
       }
     ]
@@ -329,11 +328,11 @@ POTUS.define("event", [
         note: "身体是本钱的本钱。代价是曝光和存在感的半年空窗。",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
-          crit: { body: "你交出去了三件不痛的、保住了两件要命的。半年后复诊，那个箭头回来了正常值。位子还在——因为交办的人办得没那么好，显得你更重要了。", effects: { hp: 4.5, rep: 0.4, attr: { INT: 1 } } },
-          ok: { body: "你砍了日程，睡足了觉。半年的报纸上少了很多你的名字，你的身体对你心存感激。", effects: { hp: 3.5 } },
-          meh: { body: "休息是休息了，但手机没停过。半休息半办公，箭头降了一半。", effects: { hp: 2 } },
-          fail: { body: "你退居二线的半年，对手把你的选区啃掉了一层。回来时，欢迎你的不再是镁光灯。", effects: { hp: 2.5, rep: -1, voters: { warm: -300 } } },
-          critfail: { body: "「他身体不行了」的说法在圈子里跑得比康复快。党内物色替代者的会议，开得比你的复诊还早。", effects: { hp: 2, rep: -1.5, fac: { establishment: -10 }, fall: 1 } }
+          crit: { body: "你交出去了三件不痛的、保住了两件要命的。半年后复诊，那个箭头回来了正常值。位子还在——因为交办的人办得没那么好，显得你更重要了。", effects: { rep: 0.4, attr: { INT: 1 } } },
+          ok: { body: "你砍了日程，睡足了觉。半年的报纸上少了很多你的名字，你的身体对你心存感激。", effects: {} },
+          meh: { body: "休息是休息了，但手机没停过。半休息半办公，箭头降了一半。", effects: {} },
+          fail: { body: "你退居二线的半年，对手把你的选区啃掉了一层。回来时，欢迎你的不再是镁光灯。", effects: { rep: -1, voters: { warm: -300 } } },
+          critfail: { body: "「他身体不行了」的说法在圈子里跑得比康复快。党内物色替代者的会议，开得比你的复诊还早。", effects: { rep: -1.5, fac: { establishment: -10 }, fall: 1 } }
         }
       },
       {
@@ -341,11 +340,11 @@ POTUS.define("event", [
         note: "威尔逊路线。短期的政治安全，用身体的长期账户支付。",
         base: 0.7,
         outcomes: {
-          crit: { body: "你挺过了这半年，中期检查的数字勉强及格。没人发现什么。你在车里又吃了 174 顿饭。", effects: { hp: -1.5, rep: 0.6 } },
-          ok: { body: "照旧。身体在抗议，你在加班。至少表面上一切如常。", effects: { hp: -2.5 } },
-          meh: { body: "你在一次活动后台眼前发黑，坐了两分钟才站起来。助手看见了，什么也没说。", effects: { hp: -3.5, flags: ["burn_seen"] } },
-          fail: { body: "你在公开场合失态了一次——站着睡着了两秒。流言比诊断书先一步到了党内。", effects: { hp: -4, rep: -1, flags: ["burn_seen", "scandal_1"] } },
-          critfail: { body: "身体替你做了决定：你在去活动的车上倒下了，消息占据了整个下午的新闻周期。你的健康从秘密变成了公共议题。", effects: { hp: -6.5, rep: -1.25, flags: ["burn_seen", "scandal_2"] } }
+          crit: { body: "你挺过了这半年，中期检查的数字勉强及格。没人发现什么。你在车里又吃了 174 顿饭。", effects: { rep: 0.6 } },
+          ok: { body: "照旧。身体在抗议，你在加班。至少表面上一切如常。", effects: {} },
+          meh: { body: "你在一次活动后台眼前发黑，坐了两分钟才站起来。助手看见了，什么也没说。", effects: { flags: ["burn_seen"] } },
+          fail: { body: "你在公开场合失态了一次——站着睡着了两秒。流言比诊断书先一步到了党内。", effects: { rep: -1, flags: ["burn_seen", "scandal_1"] } },
+          critfail: { body: "身体替你做了决定：你在去活动的车上倒下了，消息占据了整个下午的新闻周期。你的健康从秘密变成了公共议题。", effects: { rep: -1.25, flags: ["burn_seen", "scandal_2"] } }
         }
       },
       {
@@ -353,11 +352,11 @@ POTUS.define("event", [
         note: "主动权换同情心。赌选民把你当人，而不是当工具。",
         base: 0.4, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
-          crit: { body: "你发了声明、开了发布会，顺手把「从政者的健康透明」提成了一个小小的公共议题。选区回信塞满了信箱。健康问题反而成了你的加分项。", effects: { hp: 2.5, rep: 1.75, attr: { INTG: 2 }, voters: { diehard: 300, warm: 500 } } },
-          ok: { body: "公开了。大部分人体面地表示理解，党内松了口气——至少不用他们猜了。", effects: { hp: 2, rep: 0.8 } },
-          meh: { body: "声明发了，波澜不惊。健康透明没成为议题，只是成为了档案。", effects: { hp: 1.5, rep: 0.2 } },
-          fail: { body: "「他能撑完这届吗」成了金主饭桌上的标准问题。你失去的不是职位，是「未来」这个词。", effects: { hp: 1.5, rep: -0.8, fun: -2.75 } },
-          critfail: { body: "公开的时机撞上了一场危机——你的「病」被做成了对手攻击政府应对不力的注脚。你成了别人故事里的形容词。", effects: { hp: 1.25, rep: -1.5, fall: 1 } }
+          crit: { body: "你发了声明、开了发布会，顺手把「从政者的健康透明」提成了一个小小的公共议题。选区回信塞满了信箱。健康问题反而成了你的加分项。", effects: { rep: 1.75, attr: { INTG: 2 }, voters: { diehard: 300, warm: 500 } } },
+          ok: { body: "公开了。大部分人体面地表示理解，党内松了口气——至少不用他们猜了。", effects: { rep: 0.8 } },
+          meh: { body: "声明发了，波澜不惊。健康透明没成为议题，只是成为了档案。", effects: { rep: 0.2 } },
+          fail: { body: "「他能撑完这届吗」成了金主饭桌上的标准问题。你失去的不是职位，是「未来」这个词。", effects: { rep: -0.8, fun: -2.75 } },
+          critfail: { body: "公开的时机撞上了一场危机——你的「病」被做成了对手攻击政府应对不力的注脚。你成了别人故事里的形容词。", effects: { rep: -1.5, fall: 1 } }
         }
       }
     ]
@@ -395,13 +394,12 @@ POTUS.define("event", [
         id: "family", text: "推掉活动，回家",
         note: "缺一场活动的代价是具体的（某个县记仇）；缺一次比赛的代价是说不清的。",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
-          crit: { body: "你在看台上喊哑了嗓子。孩子进球后朝看台指了一下——那个手指的方向，比任何当选夜的手势都值。下周的补场活动你讲得格外有底气。", effects: { hp: 1.5, attr: { INTG: 2 }, rep: 0.2, notFlags: ["divorce_pending"], contact: { brother: 6 } } },
-          ok: { body: "你回去了。比赛输了，但你在了。晚饭时没人在手机上工作。", effects: { hp: 1, notFlags: ["divorce_pending"] } },
-          meh: { body: "你人到了，电话没停。孩子管你叫「接电话的那位」。", effects: { hp: 0.5 } },
+          crit: { body: "你在看台上喊哑了嗓子。孩子进球后朝看台指了一下——那个手指的方向，比任何当选夜的手势都值。下周的补场活动你讲得格外有底气。", effects: { attr: { INTG: 2 }, rep: 0.2, notFlags: ["divorce_pending"], contact: { brother: 6 } } },
+          ok: { body: "你回去了。比赛输了，但你在了。晚饭时没人在手机上工作。", effects: { notFlags: ["divorce_pending"] } },
+          meh: { body: "你人到了，电话没停。孩子管你叫「接电话的那位」。", effects: {} },
           fail: { body: "你缺席的那个县办了一场没到齐人的活动，照片传到了党内。你的「家庭优先」成了别人汇报里的减分项。", effects: { rep: -0.6, fac: { establishment: -4 } } },
-          critfail: { body: "你回去晚了——高速封路，比赛散场。你看台上那个空位被本地记者拍进了背景。家庭和形象，两头的亏都没吃出价值。", effects: { rep: -0.8, hp: -0.8, fac: { press: -3 } } }
+          critfail: { body: "你回去晚了——高速封路，比赛散场。你看台上那个空位被本地记者拍进了背景。家庭和形象，两头的亏都没吃出价值。", effects: { rep: -0.8, fac: { press: -3 } } }
         }
       },
       {
@@ -409,10 +407,10 @@ POTUS.define("event", [
         note: "敬业是敬业。家里那本账，往后翻了一页又一页。",
         base: 0.7,
         outcomes: {
-          crit: { body: "三个县都宾主尽欢，地区的党报给了你半个版面。回家时孩子睡了，你在门口站了一会儿。", effects: { rep: 0.8, fac: { base: 4 }, hp: -0.5 } },
-          ok: { body: "活动办完了，效率很高。家里的灯在你到家前就关了。", effects: { rep: 0.4, hp: -0.5 } },
-          meh: { body: "日程走完了。伴侣没问你去哪了——不问，比问严重。", effects: { hp: -0.8, flags: ["divorce_pending"] } },
-          fail: { body: "第三个县的活动临时取消了——白跑。你错过比赛换来的是一段空等。双输。", effects: { rep: -0.4, hp: -1, flags: ["divorce_pending"] } },
+          crit: { body: "三个县都宾主尽欢，地区的党报给了你半个版面。回家时孩子睡了，你在门口站了一会儿。", effects: { rep: 0.8, fac: { base: 4 } } },
+          ok: { body: "活动办完了，效率很高。家里的灯在你到家前就关了。", effects: { rep: 0.4 } },
+          meh: { body: "日程走完了。伴侣没问你去哪了——不问，比问严重。", effects: { flags: ["divorce_pending"] } },
+          fail: { body: "第三个县的活动临时取消了——白跑。你错过比赛换来的是一段空等。双输。", effects: { rep: -0.4, flags: ["divorce_pending"] } },
           critfail: { body: "你缺席比赛的照片被对手做成了一版负面广告：「他连自己孩子的比赛都不去」。家庭事务成了选战弹药——这是双重的背叛感。", effects: { rep: -1.5, fac: { base: -6, press: -4 }, voters: { warm: -400 }, flags: ["divorce_pending", "scandal_1"] } }
         }
       },
@@ -421,8 +419,8 @@ POTUS.define("event", [
         note: "保底选项。把两个世界拼在一起——拼得拢是全家福，拼不拢两边都尴尬。",
         base: 0.45, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
         outcomes: {
-          crit: { body: "你的孩子在台上抢了话筒说「我爸妈老是加班」。全场大笑，报纸的标题温暖了整个周末——比任何通稿都好使。", effects: { rep: 1.5, voters: { warm: 500, diehard: 200 }, hp: 1, notFlags: ["divorce_pending"] } },
-          ok: { body: "全家同台，笑得体面。选民喜欢这种画面，你也确实松了口气。", effects: { rep: 0.8, voters: { warm: 250 }, hp: 0.5 } },
+          crit: { body: "你的孩子在台上抢了话筒说「我爸妈老是加班」。全场大笑，报纸的标题温暖了整个周末——比任何通稿都好使。", effects: { rep: 1.5, voters: { warm: 500, diehard: 200 }, notFlags: ["divorce_pending"] } },
+          ok: { body: "全家同台，笑得体面。选民喜欢这种画面，你也确实松了口气。", effects: { rep: 0.8, voters: { warm: 250 } } },
           meh: { body: "同台是同台了，回家的车上没人说话。画面是真的，气氛也是真的。", effects: { rep: 0.4 } },
           fail: { body: "伴侣在台上的微笑只维持了拍照的时长。回去的路上你们吵了从政以来最凶的一次。", effects: { rep: 0.2, flags: ["divorce_pending"] } },
           critfail: { body: "活动被对手的人拍到孩子无聊到睡着的照片，配文是「又一个被政治牺牲的家庭」。你把家人带进了战场——这是你后悔得最久的一个决定。", effects: { rep: -1.25, fac: { press: -4 }, flags: ["divorce_pending", "scandal_1"] } }

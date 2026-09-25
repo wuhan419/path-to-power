@@ -31,22 +31,26 @@ POTUS.define("l10n", {
 
     /* ---- 难度名 + 难度说明（DIFFS，取用点提取，key = ui.create.diff.<id>.label/note） ---- */
     "ui.create.diff.legendary.label": "Legendary",
-    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +7 reputation, +4 favors, +10 establishment, +5 to every attribute — the deepest pockets and the most cards to spend.",
+    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +12 reputation, +4 favors, +20 establishment, +10 business — the deepest pockets and the most cards to spend.",
     "ui.create.diff.easy.label": "Easy",
     "ui.create.diff.easy.note": "Political family · pick 4 talent cards · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
     "ui.create.diff.normal.label": "Normal",
-    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +15 Wit, but the grassroots don't trust you.",
+    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +40 business, +2 favors, but the grassroots don't trust you.",
     "ui.create.diff.hard.label": "Hard",
     "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit.",
     "ui.create.diff.brutal.label": "Brutal",
     "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
 
-    /* ---- 开局抽卡卡墙（gachaHTML） ---- */
+    /* ---- 开局抽卡卡墙（gachaHTML · #31 周目门槛 + 一次刷新 + 作弊码入口） ---- */
     "ui.create.gachaHeading": "Talent Draw (difficulty = number of picks)",
     "ui.create.gachaReroll": "Re-draw",
     "ui.create.gachaCount": "Picked {n}/{need}",
+    "ui.create.gachaRerollsLeft": "{n} refresh left",
+    "ui.create.gachaNoReroll": "No refreshes left ({n} per run) — make do with this batch.",
     "ui.create.gachaEmpty": "Hit “Re-draw” to pull your starting talent cards.",
-    "ui.create.gachaLocked": "🔒 Orange (destiny) cards only enter the pool once you've been president before — this run tops out at purple.",
+    "ui.create.gachaLoop": "Run no. {loop} · Orange (destiny) cards {state}",
+    "ui.create.orangeInPool": "are in the pool",
+    "ui.create.orangeLocked": "unlock at run no. {n}",
     "ui.create.rarity.1": "White",
     "ui.create.rarity.2": "Blue",
     "ui.create.rarity.3": "Purple",
@@ -55,11 +59,18 @@ POTUS.define("l10n", {
     /* ---- 自由点分配（allocHTML；定命一掷已删，三围/资金从 0 起） ---- */
     "ui.create.allocTitle": "Spend Your Free Points",
     "ui.create.loopTag": "Run no. {n}",
-    "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · max {cap} points per attribute",
+    "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · any single attribute can be pushed to 100",
     "ui.create.allocMoney": "Cash",
+    "ui.create.allocCardTag": "card",
+    "ui.create.allocFromCards": "Your {n} talent card(s) add: {LIST} (already folded into the rows above; Integrity is a hidden attribute and only shows up here)",
     "ui.create.capped": "max",
     "ui.create.freePoints": "Free points: <b>{left}</b> of {total} left",
-    "ui.create.poolMeta": " · first run {base} + run bonuses {bonus}",
+    "ui.create.poolMeta": " · {base} on run 1 + {bonus} from run {loop}",
+    /* 作弊码输入框（#31：搬到第 2 步天赋页，兑的是周目而不是点） */
+    "ui.create.cheatPlaceholder": "Cheat code: woshishabi10 = start as run no. 11",
+    "ui.create.cheatBtn": "Redeem",
+    "ui.create.cheatOk": "+{n} runs injected → you're on run no. {loop}: {pool} free points, high-rarity odds rise too (hit Re-draw to reroll the wall).",
+    "ui.create.cheatBad": "That code doesn't work — try woshishabi10.",
 
     /* ---- 开局日志（confirmCreate） ---- */
     "ui.create.loanLog": "You start ${v}k deep in student loans — a slice of each month's surplus goes to the debt; the more you earn, the faster it clears.",

@@ -157,7 +157,7 @@ POTUS.define("event", [
           crit: { body: "你收了两百份问卷和一百多个联系方式。半年后，无论哪边参选的人，都来问你要过名单。", effects: { rep: 1.25, fac: { base: 6, commercial: 4, press: 4 }, contact: { fixer: 8 }, flags: ["wave_tea"] } },
           ok: { body: "名单攒起来了。做记录的人不会被骂，也很少被记得——暂时。", effects: { rep: 0.6, fac: { base: 3, press: 3 } } },
           meh: { body: "两百份问卷，一半是愤怒的涂抹。你学到的是：愤怒有语法。", effects: { attr: { INT: 2 }, rep: 0.4 } },
-          fail: { body: "举着写字板的人在人群里格外显眼。有人抢过你的板子摔了。", effects: { fac: { base: -4 }, hp: -0.5 } },
+          fail: { body: "举着写字板的人在人群里格外显眼。有人抢过你的板子摔了。", effects: { fac: { base: -4 } } },
           critfail: { body: "你的名单被怀疑是「给谁做的」。无论你怎么解释，板子上那两百个名字看起来都像情报。", effects: { rep: -0.8, fac: { base: -6, agency: -4 }, flags: ["scandal_1"] } }
         }
       }

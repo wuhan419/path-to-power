@@ -8,6 +8,19 @@
 (function () {
   const P = window.POTUS;
 
+  /* #28②：投资 / 投机结算的智力系数。
+   *   k = 1 + (INT-50)/100 × balance.funMulIntLev（默认 0.4 → INT100 得 1.20，INT0 得 0.80）
+   * 盈利一侧乘 k、亏损一侧除 k：同一笔生意，聪明人赚得多、翻车时亏得少，
+   * 两条曲线关于 INT=50 对称——不会出现"越精明亏得越多"的反例。
+   * 只改钱的数量：成败判定仍走既有的 outcome roll，这里不另开一颗骰子。 */
+  function funMulIntMul(G) {
+    const lev = Number((P.balance() || {}).funMulIntLev);
+    if (!lev) return 1;
+    const intel = (G && G.attr && G.attr.INT != null) ? G.attr.INT : 50;
+    return 1 + (intel - 50) / 100 * lev;
+  }
+  P.funMulIntMul = funMulIntMul;      /* 界面解释与门禁断言共用同一口径 */
+
   P.effectHandlers = {
     attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = P.clamp(G.attr[k] + v[k], 0, 100); },
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
@@ -38,11 +51,13 @@
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
        本金 = 选项 cost.fun（或入场费 req.fun）+ 投注的 stake 资金 —— 结算前由 stage.js
        resolveChoice 写进 G.__stakeBase。v0.12 收紧旧兜底：没有本金声明时【不再】
-       按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。 */
+       按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。
+       #28②：倍率吃 INT —— 同一条生意，聪明人赚得多、翻车时亏得少（见 funMulIntMul）。 */
     funMul: function (v, G) {
       const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : 0;
       if (!base) { console.warn("[POTUS] funMul 没有本金声明（cost.fun / req.fun / 投注都为空），本笔收益空转"); return; }
-      G.fun += Math.round(base * v);
+      const k = funMulIntMul(G);
+      G.fun += Math.round(base * (v >= 0 ? v * k : v / k));
     },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
     /* v0.9 退役：健康/精力不再是玩家可感资源。事件里残留的 hp/ap 增减一律**空操**（保留 handler 入口
@@ -167,6 +182,28 @@
 
   /* 内容注册自定义效果键 */
   P.effect = function (key, fn) { P.effectHandlers[key] = fn; };
+  /* #37②：同一张卡的**属性**只在首次结算时生效。
+   * 可重复卡（dyn / 公务 / 灰产）重演还发属性 = 刷点机 —— 实测 `shady_doctor`
+   * 一局最多重演 25 次、每次 CUN+2，一辈子就靠一张卡涨了 50 点手腕。
+   * 钱/声望/派系/人情照旧每次给：重复做的是那件事，重复拿的也该是那笔钱。
+   * 账本 G.attrGiven 随存档走（键 = 来源 id + 属性键）。
+   * 放在结算**之前**过滤、而不是在 handler 里静默丢弃：账面（收益结算框）必须
+   * 和实际扣的一致，否则玩家会看到一张写着「手腕 +2」却没涨的卡。 */
+  P.filterOnceAttr = function (eff, id) {
+    const G = P.G;
+    if (!eff || !eff.attr || !G || !id) return eff;
+    if (!G.attrGiven) G.attrGiven = {};
+    const left = {};
+    for (const k in eff.attr) {
+      if (G.attrGiven[id + ":" + k]) continue;
+      left[k] = eff.attr[k];
+      G.attrGiven[id + ":" + k] = 1;
+    }
+    const copy = Object.assign({}, eff);
+    if (Object.keys(left).length) copy.attr = left;
+    else delete copy.attr;
+    return copy;
+  };
   /* 若内容在 effects.js 之前就声明了效果键，这里补登记 */
   if (P._pendingEffects) { for (const k in P._pendingEffects) P.effectHandlers[k] = P._pendingEffects[k]; }
 

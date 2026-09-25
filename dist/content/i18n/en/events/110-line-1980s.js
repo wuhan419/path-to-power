@@ -1196,6 +1196,204 @@ POTUS.define("l10n", {
             }
           }
         ]
+      },
+
+      /* 1984-08 · 中西部农场拍卖潮（#32⑤ 分层示范卡：底 0—3 / 中 4—6 / 高 7—9） */
+      {
+        id: "rg84_farm",
+        title: "An auction notice goes up at the county bank: three generations of land, sold by the acre",
+        body: "Grain collapsed, land went with it, and the interest rate is still sitting on your chest. In August another auction notice appears in the county: three generations of ground, worth less than what the family owes the bank and the federal farm lender.\n" +
+          "A few Midwest states just won a foreclosure moratorium, while the federal lender preaches forbearance and takes the land in the same week. In the crowd at the block somebody is crying, somebody is cursing, somebody holds a card reading 'the bankers are the real losers'. Everyone beside you is watching where you stand, and what you do while standing there.",
+        brief: {
+          lede: "One auction sheet tears a hole in the national story of farm recovery — and the hole is on your street.",
+          known: [
+            "Land and grain fell together; the debt is owed twice, to the local bank and to federal farm credit.",
+            "Some states have granted a foreclosure moratorium — a moratorium is not forgiveness, only late.",
+            "The federal farm secretary just announced a one-year grace; nobody says whether it reaches this county."
+          ],
+          rumor: [
+            "Some say the bank took this land cheap into its own book long ago and the auction is only paperwork.",
+            "Some say the state will send men to 'keep order', and the picketers will be treated as the troublemakers."
+          ],
+          unknown: [
+            "The real reckoning for this crisis waits for the farm-bank bad loans to surface years later.",
+            "Which sentence you say today gets printed on your opponent's next leaflet."
+          ],
+          terms: [
+            { k: "Mortgage moratorium", v: "State law letting a farmer push a due farm loan back, so the land is not taken yet." },
+            { k: "Farm programme", v: "Federal supply control bought with fallowing and price support; the money follows acres, not heads." }
+          ]
+        },
+        choices: [
+          {
+            id: "help_neighbor",
+            text: "Go to that farm's granary first: sort the livestock, the machinery and the children's school fees one item at a time",
+            outcomes: {
+              crit: { body: "You save one family's face: machinery moved to neighbours overnight, the children never transferred. Townspeople do not say you are important — they say you were there that day." },
+              ok: { body: "You ran two nights and helped all that could be helped. Nothing changed, but this family remembers you." },
+              meh: { body: "You went, lent a hand for a while, said 'come find me if you need anything'. Nobody believed it." },
+              fail: { body: "Not one thing you promised came off, and when asked you can only say 'county business is out of my hands'." },
+              critfail: { body: "You were there on auction day — and then got in your car and left. By the next week the town is saying you feared being photographed with the protesters." }
+            }
+          },
+          {
+            id: "stand_with",
+            text: "Walk up in front of the auction block: no shouting, just let everyone see that you are here too",
+            note: "A bet that daring to stand is worth more than being able to speak. Wrong, and you become the hardest name on the county bank's list.",
+            outcomes: {
+              crit: { body: "The photograph runs in the state paper next day: a local man standing in front of the crowd with the signs. The farm counties start counting you as one of theirs." },
+              ok: { body: "You stood your ground, said nothing, did not leave. Word of mouth in the county: 'he did not hide'." },
+              meh: { body: "Too many people; nobody notices you. You start to feel this was a performance for yourself." },
+              fail: { body: "The auction goes through and banker friends warn you not to bury yourself in it." },
+              critfail: { body: "Somebody breaks a window at the site and your face is in the frame beside it. 'Inciting a mob' arrives together with 'he dares not admit it'." }
+            }
+          },
+          {
+            id: "state_probe",
+            text: "Go back to the state and open hearings: call in the farm credit bureau's local office and read the accounts out county by county",
+            outcomes: {
+              crit: { body: "The hearing table holds thirty-seven families refused forbearance by one and the same internal instruction. The state is forced into a verbal order: sales stayed, cases reviewed one by one." },
+              ok: { body: "The office sent people who read rules for two hours. Nothing changed, but the ledger was on the table for the first time." },
+              meh: { body: "The hearing becomes one more record that 'procedure was followed'. Money spent, one line in the paper." },
+              fail: { body: "The summoned agency brings lawyers, and they start asking whose donations you have taken." },
+              critfail: { body: "On the day the hearing adjourns, the relief you fought for in your own district turns out to have run through an acquaintance's books. Using public office for private ends leads the state paper." }
+            }
+          },
+          {
+            id: "keep_credit",
+            text: "Protect the local credit: keep the banks standing, or there will be no money to lend next year's farmers either",
+            note: "Farmers hate to hear it; bankers love it. Risk: you are filed under 'speaking for the foreclosers'.",
+            outcomes: {
+              crit: { body: "You make the point cleanly: if bad debt flattens the two local banks, nobody borrows seed money next spring. Commerce and the farm bureau each give ground an inch." },
+              ok: { body: "Your steady tone lets the banks exhale. Farmers curse you; the projects still move." },
+              meh: { body: "Neither end remembers your words, only that you 'helped nobody'." },
+              fail: { body: "That bank fails in the autumn anyway, and your 'save the banks' becomes a ready charge against you." },
+              critfail: { body: "One month before the collapse, a family account of yours moved money into that bank. You will be answering that question for ten years." }
+            }
+          },
+          {
+            id: "farm_bill",
+            text: "Vote on the farm bill: write debt restructuring, the moratorium and the foreclosure notice period into federal statute",
+            outcomes: {
+              crit: { body: "The line you fought for becomes the trade that carries the whole bill: federal farm lenders must grant forbearance, and land must be posted before it is taken. Farm counties across the country learn this state's name." },
+              ok: { body: "The text passes, halved. The forbearance is real; the money is not enough. Farmers thank you and curse you." },
+              meh: { body: "Your name sits forty-seventh in the sponsors, and the bill grinds into something else in the Senate." },
+              fail: { body: "The bill dies. The credit you spent will not buy back one acre, and your opponent is already rehearsing 'he only reads scripts'." },
+              critfail: { body: "To buy votes you loosened on price support, and both camps issue statements the same day: 'he betrayed the farmers'. Your name becomes the cautionary example." }
+            }
+          },
+          {
+            id: "national_line",
+            text: "Take the national line: go on programme and defend this administration's farm policy, say the crisis will pass",
+            note: "National airtime is worth a lot and burns hot. Risk: if grain collapses again next year, that sentence comes back for you.",
+            outcomes: {
+              crit: { body: "You sound far more sincere than the men in Washington; the phone at the state committee rings off the hook after the broadcast, and upstairs they file you as the one who can explain policy." },
+              ok: { body: "You caught the line and held it. The party is satisfied, farmers are not, and your name goes on the national short list." },
+              meh: { body: "You spoke three minutes on camera and nobody recalls a word." },
+              fail: { body: "The host presses you with a local auction sheet and you cannot name the county. 'He has never seen that paper' loops as a clip." },
+              critfail: { body: "A week after you said the crisis would pass, another family in this state takes its own life on the auction block. That recording follows you from then on." }
+            }
+          }
+        ]
+      },
+
+      /* 1985-11 · 日内瓦峰会（#32⑤ 分层示范卡：头版图 era-1985.jpg 归这张） */
+      {
+        id: "rg85_geneva",
+        title: "Geneva: no agreement, but the two men say they will meet again",
+        body: "A summit frozen for ten years suddenly happened. The two leaders shut the door in Geneva and talked five and a half hours, from nuclear weapons to 'star wars', and signed nothing — yet agreed to meet again.\n" +
+          "Television looped the two of them walking side by side all day. Back home some people exhaled; some called it another trade of hot air for time. The people around you have started asking which side you are on.",
+        brief: {
+          lede: "A summit with no outcome is a big event because it turned 'never fightable' into something you may now negotiate.",
+          known: [
+            "The talks stuck on strategic defence: one side must keep it, the other would cut it.",
+            "No treaty was signed; both sides only said the next round should be faster and firmer.",
+            "Two nerves are pulled at once in this town's ordnance plant and university: one fears disarmament will take the jobs, one fears nuclear war takes everything."
+          ],
+          rumor: [
+            "Some inside the White House treat the trip as a campaign asset — get the 'atmosphere' first, the rest later.",
+            "Some say what Moscow really wants is to stall its own defence budget, not to concede."
+          ],
+          unknown: [
+            "At Reykjavik the next time they very nearly agree, and then it collapses in public.",
+            "Whatever you vouch for today, you will be explaining in four years."
+          ],
+          terms: [
+            { k: "Strategic defence programme", v: "A space-based interception shield against nuclear attack — the knot the talks caught on." },
+            { k: "Summit diplomacy", v: "The meeting itself counted as the result: build the relationship first, argue numbers later." }
+          ]
+        },
+        choices: [
+          {
+            id: "watch_local",
+            text: "Watch the local nerve: write to the ordnance plant and the base and say 'nothing has changed, don't panic'",
+            outcomes: {
+              crit: { body: "A short letter holds down a national panic: the base works as usual, no order is pulled. Both the plant and the town file you as somebody with a sense of proportion." },
+              ok: { body: "You steadied the words, and nobody any more passes around 'disarmament will take our jobs'." },
+              meh: { body: "Letters sent, no replies. Everyone is busy with their own guessing." },
+              fail: { body: "Two weeks later a conversion study surfaces in the local paper, and your 'nothing has changed' looks like you never did the homework." },
+              critfail: { body: "The plant does close, and you spoke too early. The laid-off march to the party door carrying your own sentence in their hands." }
+            }
+          },
+          {
+            id: "freeze_local",
+            text: "Ride the mood and host a local nuclear-freeze rally: make 'peace' something you can run",
+            note: "Street energy is real — and both parties keep a real ledger of it.",
+            outcomes: {
+              crit: { body: "The churches and the school give you their halls and the town house is packed. For the first time this town feels it has a word in 'diplomacy'." },
+              ok: { body: "The rally stays orderly and your photograph gets a column in the paper." },
+              meh: { body: "Half the expected crowd comes. You begin to suspect this meeting was mostly for you." },
+              fail: { body: "Someone rebaptises your rally as 'cheering for the other side', and your name appears on a conservative list for the first time." },
+              critfail: { body: "A man burns his draft card at the podium, and every camera finds your face as the police take him out. One night like that is enough to end a career." }
+            }
+          },
+          {
+            id: "back_summit",
+            text: "Endorse the summit in public: make 'willing to sit and talk' the way this party ought to look",
+            outcomes: {
+              crit: { body: "Your line gets quoted once nationally; both parties need somebody who will say 'talking is not surrender', and your name goes on that short list." },
+              ok: { body: "You turned an event with no result yet into a direction. Moderates pleased, hawks note the debt." },
+              meh: { body: "The statement goes out and drowns in summit footnotes." },
+              fail: { body: "The summit has no follow-up, your 'direction' reads as hot air, and the opposition cuts it into a spot." },
+              critfail: { body: "The next round collapses, and your own 'it was almost there' is played back at you on camera, word for word." }
+            }
+          },
+          {
+            id: "press_spend",
+            text: "Turn the question around: however pretty the summit, first open the local base's shelters and budget to daylight",
+            note: "Pulling a national issue back onto the local ledger is a local official's steadiest move — and the easiest to mock as 'no grand view'.",
+            outcomes: {
+              crit: { body: "You make 'fix the shelters before the handshake' the town's own consensus, and the military and the residents both cash your cheque." },
+              ok: { body: "You win a site inspection, and the paper calls you a practical man." },
+              meh: { body: "Your question gets filed under 'local grumbling'. No one picks it up." },
+              fail: { body: "The sentence 'he threw cold water on a summit' comes down from Washington, and the party starts labelling you." },
+              critfail: { body: "The protection checklist you insisted on publishing is ruled classified, and a formal warning lands in your mailbox." }
+            }
+          },
+          {
+            id: "arms_framework",
+            text: "Work at the level above: push a whole apparatus of verification and notification, make 'not meeting again' impossible",
+            outcomes: {
+              crit: { body: "The cross-party framework you built becomes the working draft for the next round of talks. When the history reaches this page, your name is in the footnote." },
+              ok: { body: "Half the mechanism passes, but the line 'two men talking still needs an institution under them' holds." },
+              meh: { body: "Your proposal lies in committee for half a year and is finally folded into someone else's text." },
+              fail: { body: "Both parties find you meddlesome: the White House wants discretion, the opposition wants instant disarmament. You land nowhere." },
+              critfail: { body: "You spoke up for an arms clause traded privately for favours, and it landed right after Reykjavik collapsed. You become the specimen of 'trading national security'." }
+            }
+          },
+          {
+            id: "red_phone",
+            text: "Just hold the risk down: argue for a direct link and incident notification first, disarmament later",
+            note: "The least glamorous result is also the hardest to make look foolish.",
+            outcomes: {
+              crit: { body: "After one misread rocket warning, your 'let us get a phone working first' is the only thing anyone can do immediately. Both parties vote it through." },
+              ok: { body: "You built the unsexy thing: one hotline, one incident list." },
+              meh: { body: "The hotline's ancient machinery gets repaired and nobody celebrates." },
+              fail: { body: "Someone sneers that 'all he does is fix telephones'. Your caution reads as no imagination." },
+              critfail: { body: "The hotline does fail once, and you had guaranteed it never would. The hearing lasts the whole day." }
+            }
+          }
+        ]
       }
 
     ]

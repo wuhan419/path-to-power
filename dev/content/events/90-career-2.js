@@ -441,11 +441,11 @@ POTUS.define("event", [
         base: 0.55,
         mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "fac", key: "establishment", w: 0.2 }],
         outcomes: {
-          crit: { body: "你用一个谁都没在意的试点项目做出了全州瞩目的结果。冷板凳定律再次生效：没人盯的地方，做成事全是你的。", effects: { rep: 5, fac: { establishment: 8, press: 6 }, hp: -2 } },
-          ok: { body: "你把部门理顺了，上面记下了你的名字——不是聚光灯式的记，是「可靠」的记。", effects: { rep: 2.5, fac: { establishment: 6 }, hp: -1.5 } },
-          meh: { body: "又一年平稳。平稳在部长任期里算优点，在野心词典里算病。", effects: { rep: 0.8, hp: -1 } },
-          fail: { body: "你推的方案被预算办公室砍了一半。你的部还在，你的方案没了。", effects: { rep: -1.5, fac: { establishment: -3 }, hp: -1.5 } },
-          critfail: { body: "第七个月的听证会成了你的滑铁卢：你没答上来的三个数字，第二天上了三个版面。", effects: { rep: -4, fac: { press: -8, establishment: -6 }, hp: -2.5, flags: ["scandal_2"] } }
+          crit: { body: "你用一个谁都没在意的试点项目做出了全州瞩目的结果。冷板凳定律再次生效：没人盯的地方，做成事全是你的。", effects: { rep: 5, fac: { establishment: 8, press: 6 } } },
+          ok: { body: "你把部门理顺了，上面记下了你的名字——不是聚光灯式的记，是「可靠」的记。", effects: { rep: 2.5, fac: { establishment: 6 } } },
+          meh: { body: "又一年平稳。平稳在部长任期里算优点，在野心词典里算病。", effects: { rep: 0.8 } },
+          fail: { body: "你推的方案被预算办公室砍了一半。你的部还在，你的方案没了。", effects: { rep: -1.5, fac: { establishment: -3 } } },
+          critfail: { body: "第七个月的听证会成了你的滑铁卢：你没答上来的三个数字，第二天上了三个版面。", effects: { rep: -4, fac: { press: -8, establishment: -6 }, flags: ["scandal_2"] } }
         }
       },
       {
@@ -455,11 +455,11 @@ POTUS.define("event", [
         base: 0.7,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
-          crit: { body: "你把回家的航班排成了惯例。部里笑你「通勤部长」，直到选举年大家才发现：唯一在选区还活着的名字是你。", effects: { rep: 2.5, fac: { base: 8 }, voters: { diehard: 500, warm: 1200 }, hp: -1 } },
+          crit: { body: "你把回家的航班排成了惯例。部里笑你「通勤部长」，直到选举年大家才发现：唯一在选区还活着的名字是你。", effects: { rep: 2.5, fac: { base: 8 }, voters: { diehard: 500, warm: 1200 } } },
           ok: { body: "选区的桩脚重新热络起来。你两边跑，两边都还在。", effects: { rep: 1.25, fac: { base: 5 }, voters: { warm: 600 } } },
-          meh: { body: "回家的频率维持住了，仅此而已。选区的人客气，客气得让人心慌。", effects: { fac: { base: 2 }, hp: -1 } },
-          fail: { body: "部里的会议不放你走，选区的酒会等不到你来。两头都开始有人摇头。", effects: { rep: -1.5, fac: { base: -5, establishment: -3 }, hp: -2 } },
-          critfail: { body: "你「人在心不在」的实况被僚属捅给了记者：《部长先生的下一份工作》。当选人看完只问了一句：他想走？", effects: { rep: -3, fac: { establishment: -8, press: -4 }, hp: -2 } }
+          meh: { body: "回家的频率维持住了，仅此而已。选区的人客气，客气得让人心慌。", effects: { fac: { base: 2 } } },
+          fail: { body: "部里的会议不放你走，选区的酒会等不到你来。两头都开始有人摇头。", effects: { rep: -1.5, fac: { base: -5, establishment: -3 } } },
+          critfail: { body: "你「人在心不在」的实况被僚属捅给了记者：《部长先生的下一份工作》。当选人看完只问了一句：他想走？", effects: { rep: -3, fac: { establishment: -8, press: -4 } } }
         }
       }
     ]
@@ -504,11 +504,11 @@ POTUS.define("event", [
         base: 0.5,
         mods: [{ src: "attr", key: "CUN", w: 0.3 }],
         outcomes: {
-          crit: { body: "你撑住了。某个疲惫到极点的深夜，你居然思路空前地清晰，谈成了一件搁置半年的事。政治机器里真的有人是铁打的。", effects: { rep: 1.25, fac: { establishment: 5 }, hp: -1.5 } },
-          ok: { body: "你撑过去了这一季。代价是体检报告上多了两个向上的箭头。", effects: { rep: 0.4, hp: -1.25 } },
-          meh: { body: "撑着，仅仅撑着。所有事都在做，没有一件事做得像样。", effects: { rep: -0.2, hp: -1 } },
-          fail: { body: "你在一次直播连线里有一秒钟完全空白。一秒钟够剪辑，不够上新闻——但你的团队都看见了。", effects: { rep: -0.8, fac: { press: -3 }, hp: -1.5 } },
-          critfail: { body: "你在全体会议上当众晕倒。醒来时病房里有两束花、一份声明草稿，和一个已经在代理你职务的人。", effects: { rep: -2, fac: { establishment: -6, press: -4 }, hp: -2 } }
+          crit: { body: "你撑住了。某个疲惫到极点的深夜，你居然思路空前地清晰，谈成了一件搁置半年的事。政治机器里真的有人是铁打的。", effects: { rep: 1.25, fac: { establishment: 5 } } },
+          ok: { body: "你撑过去了这一季。代价是体检报告上多了两个向上的箭头。", effects: { rep: 0.4 } },
+          meh: { body: "撑着，仅仅撑着。所有事都在做，没有一件事做得像样。", effects: { rep: -0.2 } },
+          fail: { body: "你在一次直播连线里有一秒钟完全空白。一秒钟够剪辑，不够上新闻——但你的团队都看见了。", effects: { rep: -0.8, fac: { press: -3 } } },
+          critfail: { body: "你在全体会议上当众晕倒。醒来时病房里有两束花、一份声明草稿，和一个已经在代理你职务的人。", effects: { rep: -2, fac: { establishment: -6, press: -4 } } }
         }
       },
       {
@@ -518,11 +518,11 @@ POTUS.define("event", [
         base: 0.7,
         mods: [{ src: "attr", key: "INT", w: 0.2 }],
         outcomes: {
-          crit: { body: "半年后你回来了。睡了整觉的人看事情的清晰度，是熬夜的人假装有的那种清晰度的三倍。有人开始说：他好像换了一个人——好的那种。", effects: { hp: 5, rep: 0.4, fac: { base: 4 }, attr: { INT: 1 }, flags: ["car2_step_back"] } },
-          ok: { body: "你休息了，喘匀了。位置还在，虽然边上多了两张新面孔。", effects: { hp: 3.5, rep: -0.2, flags: ["car2_step_back"] } },
-          meh: { body: "这半年安静得可怕。没有坏消息，也没有消息。", effects: { hp: 2.5, fac: { base: -3 }, flags: ["car2_step_back"] } },
-          fail: { body: "你让出来的摊子被分得干干净净。回来那天，你的办公室搬到了小的一间。", effects: { hp: 2, rep: -1, fac: { establishment: -6, base: -4 } } },
-          critfail: { body: "「家庭原因」的半年里，你的选区被对手跑了一遍，你的捐款人被同行拜访了一遍。你回来了，回的是一个空座位。", effects: { hp: 1.5, rep: -1.5, fac: { base: -8, establishment: -6 }, voters: { warm: -1200 }, flags: ["car2_step_back"] } }
+          crit: { body: "半年后你回来了。睡了整觉的人看事情的清晰度，是熬夜的人假装有的那种清晰度的三倍。有人开始说：他好像换了一个人——好的那种。", effects: { rep: 0.4, fac: { base: 4 }, attr: { INT: 1 }, flags: ["car2_step_back"] } },
+          ok: { body: "你休息了，喘匀了。位置还在，虽然边上多了两张新面孔。", effects: { rep: -0.2, flags: ["car2_step_back"] } },
+          meh: { body: "这半年安静得可怕。没有坏消息，也没有消息。", effects: { fac: { base: -3 }, flags: ["car2_step_back"] } },
+          fail: { body: "你让出来的摊子被分得干干净净。回来那天，你的办公室搬到了小的一间。", effects: { rep: -1, fac: { establishment: -6, base: -4 } } },
+          critfail: { body: "「家庭原因」的半年里，你的选区被对手跑了一遍，你的捐款人被同行拜访了一遍。你回来了，回的是一个空座位。", effects: { rep: -1.5, fac: { base: -8, establishment: -6 }, voters: { warm: -1200 }, flags: ["car2_step_back"] } }
         }
       },
       {
@@ -532,11 +532,11 @@ POTUS.define("event", [
         base: 0.6,
         mods: [{ src: "attr", key: "CHA", w: 0.2 }],
         outcomes: {
-          crit: { body: "那个晚上你把所有事都说了。对方没给建议——只是听完了，然后把你的部分日程悄悄接了过去。你睡了七个月来第一个整觉。", effects: { hp: 4, rep: 0.2, fac: { base: 3 }, contact: { brother: 6 } } },
-          ok: { body: "说出来了。事情没有变，但扛事情的姿势对了。", effects: { hp: 2.5 } },
-          meh: { body: "对方很同情，也很为难——他自己也是自身难保的那种忙。", effects: { hp: 1.25 } },
-          fail: { body: "你的坦白被当成了脆弱的信号。一周之内，两个盟友的态度微妙地变了。", effects: { hp: 0.8, rep: -0.6, fac: { establishment: -4 } } },
-          critfail: { body: "你说的话变成了别处的谈资。走廊里的笑声在你走近时停住——那是你从政以来最冷的一天。", effects: { hp: -1, rep: -1.25, fac: { press: -4, establishment: -5 } } }
+          crit: { body: "那个晚上你把所有事都说了。对方没给建议——只是听完了，然后把你的部分日程悄悄接了过去。你睡了七个月来第一个整觉。", effects: { rep: 0.2, fac: { base: 3 }, contact: { brother: 6 } } },
+          ok: { body: "说出来了。事情没有变，但扛事情的姿势对了。", effects: {} },
+          meh: { body: "对方很同情，也很为难——他自己也是自身难保的那种忙。", effects: {} },
+          fail: { body: "你的坦白被当成了脆弱的信号。一周之内，两个盟友的态度微妙地变了。", effects: { rep: -0.6, fac: { establishment: -4 } } },
+          critfail: { body: "你说的话变成了别处的谈资。走廊里的笑声在你走近时停住——那是你从政以来最冷的一天。", effects: { rep: -1.25, fac: { press: -4, establishment: -5 } } }
         }
       }
     ]

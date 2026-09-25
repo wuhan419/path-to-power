@@ -24,7 +24,14 @@ POTUS.define("l10n", {
     "ui.progression.exportSave": "Export this run",
     "ui.progression.engineNote": "Engine v{v}. Content packs keep growing; the engine needs no changes.",
     "ui.progression.endLog": "Ending: {title} ({grade})",
-    "ui.progression.keepPrompt": "★ Take one talent card into your next run (it will appear on next run's starting card wall):",
-    "ui.progression.keepDone": "✓ Kept “{card}” — it's guaranteed to show up on your card wall next run."
+    "ui.progression.keepPrompt": "★ Want to keep one? Pick a talent card to carry into your next run (it shows up on next run's card wall) — or leave it all behind:",
+    "ui.progression.keepDone": "✓ Kept “{card}” — it's guaranteed to show up on your card wall next run.",
+    "ui.progression.loopLine": "Run {this} ends → next up is run {next}: {pool} free points at character creation{orange}",
+    "ui.progression.orangeIn": " · legend (orange) cards are now in the pool",
+    "ui.progression.orangeOut": " · legend (orange) cards only enter the pool from run {n}",
+
+    /* #21 M1：结算屏上的白宫记账行 */
+    "ui.progression.presidencyLine": "The White House books: left office at {a}% approval | {m} months in office | term {t}<br>",
   }
+
 });

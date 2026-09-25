@@ -16,7 +16,7 @@ POTUS.define("event", [
    * 2011-05 · 本·拉丹被击毙 —— 十年战争的句号落在一个深夜
    * ==================================================================== */
   {
-    id: "ln11_binladen", grade: "mid", category: "foreign",
+    id: "ln11_binladen", photo: "era-2011.jpg", grade: "mid", category: "foreign",
     valence: "boon", dyn: true,
     minYear: 2011, maxYear: 2011, scoped: true, tierRaw: true, tierMin: 0, tierMax: 3, weight: 14, unique: true,
     medium: ["tv", "cable", "internet", "social"], month: 5,
@@ -123,7 +123,7 @@ POTUS.define("event", [
       {
         id: "refuse_ceiling", text: "拒绝任何让步，把僵局讲成对浪费的审判",
         note: "赌民愤撑得住你。风险：真违约那天，你就是逼宫的人。",
-        base: 0.36, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "base", w: 0.35 }],
+        base: 0.36, cost: {}, mods: [{ src: "fac", key: "base", w: 0.35 }],
         outcomes: {
           crit: { body: "最后让步的是别人，你一句没软。街头把你的话印成了标语，捐款第一次从外面进来。", effects: { rep: 0.9, fac: { base: 14, establishment: -16, commercial: -10 }, voters: { warm: 500 } } },
           ok: { body: "你守住了阵地，基层爽了，党部的电话开始不接。", effects: { rep: 0.66, fac: { base: 10, establishment: -12 }, voters: { warm: 200 } } },
@@ -147,12 +147,13 @@ POTUS.define("event", [
   },
 
   /* ======================================================================
-   * 2012-09 · 班加西领事馆遇袭 —— 九小时的求援电话
+   * 2012-09 · 班加西领事馆遇袭 —— 九小时的求援电话（分层卡）
+   *   底（0-3）旁观自救 · 中（4-6）表态执行 · 高（7-9）决策担当
    * ==================================================================== */
   {
     id: "ln12_benghazi", grade: "mid", category: "foreign",
     valence: "bane", dyn: true,
-    minYear: 2012, maxYear: 2012, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 14, unique: true,
+    minYear: 2012, maxYear: 2012, scoped: true, tierRaw: true, tierMin: 0, weight: 14, unique: true,
     medium: ["cable", "tv", "internet", "social"], month: 9,
     title: "驻班加西领事馆遭袭，四名美国人死亡",
     body: "夜里十点半，火箭弹落进沙漠边上的旧办公楼，之后是九小时的枪声与打不通的求援电话。大使死了。\n" +
@@ -176,20 +177,34 @@ POTUS.define("event", [
     },
     choices: [
       {
-        id: "demand_probe", text: "立刻要求独立彻查，把九小时逐分钟摊开",
-        note: "赌事实最终站在你这边。风险：查不动时，你是那个搅局的人。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "agency", w: 0.2 }],
+        id: "say_very_little", text: "只发一句哀悼声明，「定性」两个字绝不出口",
+        note: "赌这件事轮不到你说话。风险：沉默也是表态，只是没人替你做记录。",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.72, mods: [{ src: "attr", key: "CHA", w: 0.25 }],
         outcomes: {
-          crit: { body: "几个月后听证记录公开，你当初那封质询信成了最早的一份。情报圈有人承认：至少有人在看。", effects: { rep: 1.5, fac: { agency: 12, press: 8, establishment: -6 }, flags: ["investigation_open"] } },
-          ok: { body: "你把问题钉在议程上，党部不高兴，但报纸替你写了稿。", effects: { rep: 0.8, fac: { press: 6, establishment: -6, agency: 4 } } },
-          meh: { body: "你的声明被礼貌地归档，两周后没人再问。", effects: { rep: 0.2, fac: { establishment: -2 } } },
-          fail: { body: "调查最终不了了之，你被写成「拿死者做文章的人」。", effects: { rep: -1, fac: { establishment: -8, press: -4 } } },
-          critfail: { body: "你要求公开的那批邮件被断章剪成广告，在你选区循环播放。死者家属也被请去当了背景。", effects: { rep: -1.8, fac: { establishment: -12, press: -8 }, flags: ["scandal_1"] } }
+          crit: { body: "声明措辞稳妥，家属的秘书回了一封谢函。本地报纸把你的名字放在第四段。", effects: { rep: 0.4, fac: { establishment: 3, base: 2 } } },
+          ok: { body: "声明发出去，当天就被更大的标题盖住了。没人来找你补话。", effects: { rep: 0.2, fac: { establishment: 2 } } },
+          meh: { body: "你的话没被引用，也没被反问。这个月就这么过去了。", effects: {} },
+          fail: { body: "记者在你办公室门口等到收工，把「拒绝回应」四个字写进了稿子。", effects: { rep: -0.4, fac: { press: -3, base: -2 } } },
+          critfail: { body: "那九小时的通话清单被公开，其中一个号码你当年存过。你一个字的解释都没给。", effects: { rep: -0.6, fac: { press: -5, base: -4 } } }
+        }
+      },
+      {
+        id: "family_first", text: "不谈定性，只替家属办葬礼与手续",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.66, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你替一个家属跑通了跨国运灵的手续。他后来在本地报纸上只提了你的名字。", effects: { rep: 0.2, fac: { base: 4, church: 3 } } },
+          ok: { body: "你把该办的小事办了，没参与任何一句大话。", effects: { rep: 0.2, fac: { base: 3 } } },
+          meh: { body: "你去了葬礼，站在后排，谁也没特别注意。", effects: {} },
+          fail: { body: "有人问：为什么只看见你出席，看不见你说话。", effects: { rep: -0.2, fac: { base: -3 } } },
+          critfail: { body: "一张你在葬礼后用餐桌自拍的照片被发到网上，配了一行字。", effects: { rep: -0.2, fac: { press: -4 } } }
         }
       },
       {
         id: "steady", text: "先要事实、不先要人头，公开说「别在抢救时定责」",
         note: "赌公众最终欣赏稳。风险：稳话听起来像替人挡枪。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         base: 0.55, cost: { fav: 0.5 }, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
         outcomes: {
           crit: { body: "事后回头看，你是少数没在情绪里喊话的人。建制的门给你开了一年。", effects: { rep: 0.7, fac: { establishment: 12, agency: 6, base: -4 } } },
@@ -200,14 +215,42 @@ POTUS.define("event", [
         }
       },
       {
-        id: "family_first", text: "不谈定性，只替家属办葬礼与手续",
-        base: 0.66, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        id: "hold_session", text: "在本地开一场公开听证，把安保审批链一份份念出来",
+        note: "赌程序本身能替你说话。风险：念到谁的名字，谁就记住你。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "agency", w: 0.15 }],
         outcomes: {
-          crit: { body: "你替一个家属跑通了跨国运灵的手续。他后来在本地报纸上只提了你的名字。", effects: { rep: 0.2, fac: { base: 4, church: 3 } } },
-          ok: { body: "你把该办的小事办了，没参与任何一句大话。", effects: { rep: 0.2, fac: { base: 3 } } },
-          meh: { body: "你去了葬礼，站在后排，谁也没特别注意。", effects: {} },
-          fail: { body: "有人问：为什么只看见你出席，看不见你说话。", effects: { rep: -0.2, fac: { base: -3 } } },
-          critfail: { body: "一张你在葬礼后用餐桌自拍的照片被发到网上，配了一行字。", effects: { rep: -0.2, fac: { press: -4 } } }
+          crit: { body: "记录当天上网。你念到第七份被驳回的申请时，电视台终于有了能放画面的东西。", effects: { rep: 1.4, fac: { press: 8, agency: 9, base: 5, establishment: -6 } } },
+          ok: { body: "程序走完了，材料归档了。党部抱怨你抢跑，报馆夸你较真。", effects: { rep: 0.8, fac: { press: 5, agency: 4, establishment: -4 } } },
+          meh: { body: "会场来了十一个人。第二天的头版给了球赛。", effects: { rep: 0.2 } },
+          fail: { body: "证人当场翻了供，你的会被人写成「拿别人的死办自己的秀」。", effects: { rep: -1.2, fac: { establishment: -8, press: -6 } } },
+          critfail: { body: "你请来的证人被查出与承包商报团有关，整场会成了对方的筹款广告。", effects: { rep: -2.1, fac: { establishment: -10, press: -8, base: -5 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "demand_probe", text: "立刻要求独立彻查，把九小时逐分钟摊开",
+        note: "赌事实最终站在你这边。风险：查不动时，你是那个搅局的人。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.42, cost: {}, mods: [{ src: "attr", key: "INTG", w: 0.4 }, { src: "fac", key: "agency", w: 0.2 }],
+        outcomes: {
+          crit: { body: "几个月后听证记录公开，你当初那封质询信成了最早的一份。情报圈有人承认：至少有人在看。", effects: { rep: 1.5, fac: { agency: 12, press: 8, establishment: -6 }, flags: ["investigation_open"] } },
+          ok: { body: "你把问题钉在议程上，党部不高兴，但报纸替你写了稿。", effects: { rep: 0.8, fac: { press: 6, establishment: -6, agency: 4 } } },
+          meh: { body: "你的声明被礼貌地归档，两周后没人再问。", effects: { rep: 0.2, fac: { establishment: -2 } } },
+          fail: { body: "调查最终不了了之，你被写成「拿死者做文章的人」。", effects: { rep: -1, fac: { establishment: -8, press: -4 } } },
+          critfail: { body: "你要求公开的那批邮件被断章剪成广告，在你选区循环播放。死者家属也被请去当了背景。", effects: { rep: -1.8, fac: { establishment: -12, press: -8 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "sign_subpoena", text: "签发传票：那九小时的分钟级记录限期交出",
+        note: "赌你手里那点程序权真撬得开行政楼的门。风险：撬不开，就是你的越权。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.44, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "agency", w: 0.2 }],
+        outcomes: {
+          crit: { body: "传票送达，两周后清单真的送到了。你在全国镜头前念出那九小时的第一个分钟。", effects: { rep: 2.2, attr: { INT: 2 }, voters: { warm: 400 }, fac: { press: 12, agency: 10, base: 8, establishment: -14 }, flags: ["investigation_open"] } },
+          ok: { body: "交出来一部分，够写三篇稿。你成了「问责」两个字的固定发言人。", effects: { rep: 1.3, fac: { press: 8, agency: 6, base: 5, establishment: -8 } } },
+          meh: { body: "传票被拖成拉锯，法庭把排期排在选举之后。", effects: { rep: 0.3, fac: { establishment: -3 } } },
+          fail: { body: "法院以管辖存疑撤了传票。对手把那份裁定书印成了一万份传单。", effects: { rep: -1.6, fun: -0.6, fac: { establishment: -12, press: -8 } } },
+          critfail: { body: "传票被认定用于党派目的，你的委员会资格先被停掉，调查掉头查进你自己的办公室。", effects: { rep: -3, fun: -1, fac: { establishment: -16, agency: -8, press: -12 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -245,7 +288,7 @@ POTUS.define("event", [
       {
         id: "frontline", text: "冲在最前面：开办公室、调冰和油、上镜头",
         note: "赌苦劳被直接看成功劳。风险：做实事时说的错话会被一起播。",
-        base: 0.5, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
+        base: 0.5, cost: {}, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         stake: { fun: true },
         outcomes: {
           crit: { body: "你在发电机边上连轴转了四天，本地报纸的头版是你满鞋泥的照片。街区记你一辈子。", effects: { rep: 1.5, fac: { base: 16, church: 6, establishment: -4 }, voters: { warm: 600 } } },
@@ -285,7 +328,9 @@ POTUS.define("event", [
    * 2012-11 · 大选之夜 —— 连任尘埃落定后的第二天早上
    * ==================================================================== */
   {
-    id: "ln12_election", grade: "major", category: "political",
+    /* era-2012.jpg 是那张振臂高呼的奥巴马图：按 #34 裁定不挂任何卡（真人胜选照
+       不该压给一张玩家可能站到对立面的事件卡），本年回退通用头版 era.jpg。 */
+    id: "ln12_election", photo: "era.jpg", grade: "major", category: "political",
     valence: "risk", dyn: true,
     minYear: 2012, maxYear: 2012, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 16, unique: true,
     medium: ["tv", "cable", "internet", "social"], month: 11,
@@ -459,7 +504,7 @@ POTUS.define("event", [
       {
         id: "surge", text: "把人力全压到排查与封控上，公开站在指挥席",
         note: "赌快与狠被当成可靠。风险：查错人或封控失序时你要署名。",
-        base: 0.44, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "agency", w: 0.35 }],
+        base: 0.44, cost: {}, mods: [{ src: "fac", key: "agency", w: 0.35 }],
         outcomes: {
           crit: { body: "封控与排查没有出乱子，你在指挥席上的那几天被本地写成「他在」。执法系统记住了你的名字。", effects: { rep: 1.4, fac: { agency: 14, establishment: 6, base: -4 } } },
           ok: { body: "你压上了全部人手，事稳住了，也有几户商铺被误查。", effects: { rep: 0.7, fac: { agency: 8, base: -4 } } },
@@ -495,12 +540,13 @@ POTUS.define("event", [
   },
 
   /* ======================================================================
-   * 2013-06 · 斯诺登与大规模监控 —— 报纸开始算哪一行该印
+   * 2013-06 · 斯诺登与大规模监控 —— 报纸开始算哪一行该印（分层卡）
+   *   底（0-3）旁观自救 · 中（4-6）表态执行 · 高（7-9）决策担当
    * ==================================================================== */
   {
     id: "ln13_snowden", grade: "major", category: "media",
     valence: "risk", dyn: true,
-    minYear: 2013, maxYear: 2013, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 16, unique: true,
+    minYear: 2013, maxYear: 2013, scoped: true, tierRaw: true, tierMin: 0, weight: 16, unique: true,
     medium: ["internet", "print", "cable", "social"], month: 6,
     title: "前承包商用文件揭开大规模电话与网络监控",
     body: "六月开头，两份报纸先后登出程序性文件：电话记录与网络数据的批量调取。一周之内，「我们打了多少通电话」成了全国的口头禅。\n" +
@@ -524,9 +570,35 @@ POTUS.define("event", [
     },
     choices: [
       {
+        id: "own_wires", text: "不表态，先把办公室自己的电话与云服务换成不认路的",
+        note: "赌这件事最后只是麻烦，不是丑闻。风险：省事不等于安全。",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.7, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
+        outcomes: {
+          crit: { body: "换完两周后本地一次批量调取真找上门，你的线一条没接到。办公室的人开始把「他会留档」当成一句好话。", effects: { rep: 0.4, fac: { establishment: 3, tech: 3 } } },
+          ok: { body: "合同换了，账多了一点，事情没落到你头上。", effects: { rep: 0.2, fac: { tech: 2 } } },
+          meh: { body: "你折腾了一个月，没人知道你折腾过。", effects: {} },
+          fail: { body: "换供应商的账单被本地报翻出来，标题是「他怕什么」。", effects: { rep: -0.4, fac: { press: -3, establishment: -2 } } },
+          critfail: { body: "新供应商自己在同一周被点名。你从「躲事的人」被写成「有鬼的人」。", effects: { rep: -0.6, fac: { press: -4, agency: -3 } } }
+        }
+      },
+      {
+        id: "local_rights", text: "不谈全国，只把本地档案与监听合规查一遍",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
+        outcomes: {
+          crit: { body: "你查出了本地警局两台没有令状的设备，处理干净且没上全国新闻。律师协会给你写了封信。", effects: { rep: 0.11, fac: { base: 6, agency: -2 } } },
+          ok: { body: "你把本地的程序理了一遍，没人注意到，也没人受损。", effects: { rep: 0.11, fac: { base: 5 } } },
+          meh: { body: "你读了几百页本地合同，什么也没发现。", effects: {} },
+          fail: { body: "你查了别人，也顺便让人查到了你自己的旧授权。", effects: { rep: -0.22, fac: { press: -3 } } },
+          critfail: { body: "「他自己也签过」被写进了一篇报道的最后一句。", effects: { rep: -0.22, fac: { agency: -3, base: -2 } } }
+        }
+      },
+      {
         id: "oversee", text: "要求公开令状标准、给监控设审计与日落条款",
         note: "赌中产与技术圈的愤怒会持续。风险：执法系统从此把你当对面。",
-        base: 0.4, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "tech", w: 0.2 }],
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.4, cost: {}, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "tech", w: 0.2 }],
         outcomes: {
           crit: { body: "你那份修正案在委员会过了，全国的科技版把你写成「少数会读文件的政客」。", effects: { rep: 1.6, fac: { tech: 14, press: 10, base: 6, agency: -12 } } },
           ok: { body: "你把议题钉进了议程，圈内人开始把你当成可谈的对象。", effects: { rep: 0.9, fac: { tech: 8, press: 6, agency: -8 } } },
@@ -536,8 +608,22 @@ POTUS.define("event", [
         }
       },
       {
+        id: "write_position", text: "把立场写成一份公开备忘录：哪些令该公示、哪条法该改",
+        note: "赌白纸黑字比口号耐用。风险：写清楚的人最先被逐句追问。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "press", w: 0.2 }],
+        outcomes: {
+          crit: { body: "两家全国报转了你的六页备忘录，科技圈把它印成手册。从此谈这事要引用你的分类法。", effects: { rep: 1.4, fac: { press: 9, tech: 8, base: 4, agency: -7 } } },
+          ok: { body: "备忘录被认真读了两天。你上了「会做事」那份名单。", effects: { rep: 0.8, fac: { press: 5, tech: 5, agency: -4 } } },
+          meh: { body: "文件挂在网站上，下载数是个位。", effects: { rep: 0.2 } },
+          fail: { body: "安全版记者挑出你两处外行话，稿风从「专业」变成「越级」。", effects: { rep: -1.1, fac: { agency: -8, press: -5 } } },
+          critfail: { body: "你写「这些程序不触及国内号码」，第二天就有新文件证明触及了。这句话此后跟着你。", effects: { rep: -2.2, fac: { press: -10, agency: -10, base: -5 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
         id: "back_agency", text: "公开站在情报系统一边：合法、有效、别自己拆台",
         note: "赌恐惧比愤怒更长。风险：舆论转向时你站在昨天的位置上。",
+        when: { tierRaw: true, tierMin: 7 },
         base: 0.5, cost: { fav: 0.5 }, mods: [{ src: "fac", key: "agency", w: 0.4 }],
         outcomes: {
           crit: { body: "国家安全委员会的简报第一次给了你一个席位，情报与执法的社区从此把你算作自己人。", effects: { rep: 0.8, fac: { agency: 18, establishment: 10, press: -8, base: -6 }, tier: 1 } },
@@ -548,14 +634,16 @@ POTUS.define("event", [
         }
       },
       {
-        id: "local_rights", text: "不谈全国，只把本地档案与监听合规查一遍",
-        base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
+        id: "vote_sunsets", text: "把自己那份授权直接摆上表：条款到期就停，续期要公开投票",
+        note: "赌你愿意用自己的程序位置换一次全国级的选择。风险：票没过去，你就是那个放走监控的人。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.44, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "tech", w: 0.2 }],
         outcomes: {
-          crit: { body: "你查出了本地警局两台没有令状的设备，处理干净且没上全国新闻。律师协会给你写了封信。", effects: { rep: 0.11, fac: { base: 6, agency: -2 } } },
-          ok: { body: "你把本地的程序理了一遍，没人注意到，也没人受损。", effects: { rep: 0.11, fac: { base: 5 } } },
-          meh: { body: "你读了几百页本地合同，什么也没发现。", effects: {} },
-          fail: { body: "你查了别人，也顺便让人查到了你自己的旧授权。", effects: { rep: -0.22, fac: { press: -3 } } },
-          critfail: { body: "「他自己也签过」被写进了一篇报道的最后一句。", effects: { rep: -0.22, fac: { agency: -3, base: -2 } } }
+          crit: { body: "条款被限期重审。你在全国电视台讲了三分钟「为什么政府要申请许可才能看你的记录」，那三分钟被反复引用了很多年。", effects: { rep: 2.3, attr: { INT: 2 }, voters: { warm: 450 }, fac: { tech: 14, press: 12, base: 8, agency: -16, establishment: -10 } } },
+          ok: { body: "续期被附加了公开报告义务。不多，但从此有据可查。", effects: { rep: 1.3, fac: { tech: 8, press: 7, base: 4, agency: -8 } } },
+          meh: { body: "你的修正案在程序里被搁住，只剩一个编号。", effects: { rep: 0.3, fac: { tech: 3, agency: -3 } } },
+          fail: { body: "当晚一次未遂爆炸案把辩论整个掐断。你的票被写成「在这时候拆台」。", effects: { rep: -1.8, fun: -0.8, fac: { agency: -14, establishment: -10, press: -6 } } },
+          critfail: { body: "重审失败，且爆出你在关键一票前收过科技承包商的捐款。两边同时把你当叛徒。", effects: { rep: -3, fun: -1.2, fac: { agency: -18, tech: -12, establishment: -10, base: -8 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -565,7 +653,7 @@ POTUS.define("event", [
    * 2013-10 · 联邦政府停摆 —— 十七天没有工资的那批人
    * ==================================================================== */
   {
-    id: "ln13_shutdown", grade: "mid", category: "political",
+    id: "ln13_shutdown", photo: "era-2013.jpg", grade: "mid", category: "political",
     valence: "risk", dyn: true,
     minYear: 2013, maxYear: 2013, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 14, unique: true,
     medium: ["tv", "cable", "print", "social"], month: 10,
@@ -593,7 +681,7 @@ POTUS.define("event", [
       {
         id: "pressure", text: "把停摆讲成对法律的拆解，要求先开票再谈条件",
         note: "赌中间选民讨厌僵局。风险：把基层的怒气全接在自己身上。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
+        base: 0.42, cost: {}, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
         outcomes: {
           crit: { body: "第十七天的联合决议按你的口径写，你的话在早间节目播了一整个秋天。", effects: { rep: 1.4, fac: { establishment: 12, base: -6, commercial: 6 } } },
           ok: { body: "你喊得响，党部不喜欢，但本地商会开始替你说话。", effects: { rep: 0.7, fac: { establishment: 4, commercial: 8, base: -6 } } },
@@ -660,7 +748,7 @@ POTUS.define("event", [
       {
         id: "march", text: "走上那条街，和游行者一起走完整段路",
         note: "赌街头的能量会成为你明年的票。风险：警员社区与商会从此不叫你。",
-        base: 0.42, cost: { ap: 0.5 }, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
+        base: 0.42, cost: {}, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
         outcomes: {
           crit: { body: "你走在最前面那一段，被拍到扶起一个中暑的老人。全国版用了三秒，本地版用了一整版。", effects: { rep: 1.6, fac: { base: 20, church: 8, agency: -14 }, voters: { diehard: 260, warm: 500 } } },
           ok: { body: "你走完了全程，激进的人开始愿意跟你说话，警员协会发了措辞很冷的声明。", effects: { rep: 0.8, fac: { base: 12, agency: -10 }, voters: { warm: 250 } } },

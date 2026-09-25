@@ -116,11 +116,38 @@
     return out;
   }
 
+  /* ---------- #35② 非 dyn 卡的最小展开：只换"砸钱"那一档的价码 ----------
+   * dyn 卡整张按标尺折算；竞选幕事件只想给大钱选项换个汇率，不想让 rep/选情跟着缩放
+   * （它们本来就是绝对量）。所以另开这条最小通道：内容写 `cost: { funLevel: N }`
+   * （N 档级别价，且**不写** cost.fun），这里换成绝对美元，下游照旧只看 cost.fun。
+   * 于是"幕间固定几万"的裸数从内容里消失：同一件事在 T2 与 T8 值多少钱，由薪资表说话。 */
+  function levelCosts(ev) {
+    const chs = ev.choices || [];
+    let n = null;
+    for (let i = 0; i < chs.length; i++) {
+      const c = chs[i] && chs[i].cost;
+      if (c && c.funLevel != null) n = c.funLevel;
+    }
+    if (n == null) return ev;                       // 没有级别价代价：原样返回，热路径零开销
+    const grade = P.gradeOf(ev);
+    const out = Object.assign({}, ev, { __realized: true, __raw: ev });
+    out.choices = chs.map(function (ch) {
+      if (!ch || !ch.cost || ch.cost.funLevel == null) return ch;
+      const cost = Object.assign({}, ch.cost);
+      const steps = cost.funLevel; delete cost.funLevel;
+      cost.fun = P.levelPrice(steps, grade);
+      return Object.assign({}, ch, { cost: cost });
+    });
+    return out;
+  }
+
   /* ---------- 事件的运行时展开（抽中后调用） ----------
    * dyn 事件深拷贝 cost / outcomes.effects 为绝对数值；其余字段共享引用。
    * 下游引擎（stake/effects/render）不需要知道 dyn 的存在。 */
   P.realize = function (ev) {
-    if (!ev || !ev.dyn || (ev.__realized && ev.__raw)) return ev;   // 已是展开副本，直接给
+    if (!ev) return ev;
+    if (ev.__realized && ev.__raw) return ev;                 // 已是展开副本，直接给
+    if (!ev.dyn) return levelCosts(ev);
     const r = P.ruler(P.gradeOf(ev), ev);
     const out = Object.assign({}, ev);
     out.__realized = true;                       // 只标在副本上 —— 原卡永远保持系数态，

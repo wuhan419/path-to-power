@@ -56,8 +56,9 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(diffs.length >= 3, "难度选项被注册表自动生成（" + diffs.length + " 个）");
   P.CSEL.name = "测试者";                                       // 姓名直接写进 CSEL（不依赖输入框事件）
   P.createStep(3);                                             // 三步向导：走到第 3 步（加点）才出「开始游戏」
-  /* 真实玩家会洒满 20 自由点；测试角色也得洒，否则三围全 0 → 判定概率贴地板，投注看不出动效。
-     这里按三维各 5 点（≈中性 50）+ 金钱 5 点，还原旧 startAttr 45 起步的手感。 */
+  /* 真实玩家会洒满自由点（一周目 12 点，周目/作弊码会更多）；测试角色也得洒，否则三围全 0 →
+     判定概率贴地板，投注看不出动效。这里按三围各 5 点（≈中性 50）+ 金钱 5 点，
+     还原旧 startAttr 45 起步的手感（合计 20 点 ≈ 用过作弊码或二周目）。 */
   P.CSEL.spent = { CHA: 5, INT: 5, CUN: 5, FUN: 5 };
   P.renderCreate();
   const goBtn = btn("开始游戏");
@@ -67,18 +68,15 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(/era-/.test(w.document.body.className), "时代皮肤已应用到 body");
   check(Array.isArray(P.G.monthPlan) && Array.isArray(P.G.doneIds), "存档结构已切到月回合（monthPlan / doneIds）");
 
-  /* ---------- 年卡 → （有事直接事件 / 平静合并卡） → 档期 ---------- */
-  console.log("\n== 年卡 → 事件/平静 → 档期 ==");
-  check(text().indexOf("时代简报") >= 0, "开局显示时代简报");
-  check(/时代压力/.test(text()), "年卡上标出时代压力");
-  check(/此刻存在的媒介/.test(text()), "年卡上列出本年存在的媒介");
-  const yBtn = btn("进入 1 月");
-  check(!!yBtn, "年卡上有「进入 1 月 →」按钮");
-  yBtn.click();
+  /* ---------- #34：开局不再有时代简报屏 —— 建角完成直接落进本年第一个页面 ---------- */
+  console.log("\n== 开局直进（事件 / 平静卡） ==");
+  const bodyTxt = w.document.body.textContent || "";
+  check(bodyTxt.indexOf("时代简报") < 0, "开局不再出现「时代简报」屏");
+  check(!btn("进入 1 月"), "「进入 1 月 →」中间按钮已随简报屏下线");
   /* v0.9 需求①：有事的月份不再有月历中间页——直接进事件；平静的月份合并成一张卡 */
   const janEvent = w.document.querySelectorAll(".choice").length > 0 || !!w.document.querySelector(".editorial");
   const janQuiet = !!w.document.querySelector(".quietcard");
-  check(janEvent || janQuiet, "点击后进入 1 月：有事→直接事件卡，或平静→平静月卡");
+  check(janEvent || janQuiet, "开局即进 1 月：有事→直接事件卡，或平静→平静月卡");
   check(P.G.month >= 1 && P.G.month <= 12, "月份落在 1-12：" + P.G.month);
   /* v0.5.6：原右上角 .masthead .meta 已合并进顶部状态条（去重），报头只留时代名 */
   check(!w.document.querySelector(".masthead .meta"), "右上角信息已合并进顶部状态条（报头不再有 .meta）");
@@ -273,18 +271,27 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(w.document.getElementById("stFunPlus").disabled, "资金到顶后 ＋ 同样置灰");
   check(P.stakeInfo(allIn, { fun: 40 }).bonus <= 0.3000001, "资金加成不超过上限 +30%");
 
-  /* ---------- v0.7 动态汇率：同样的选项，身位不同价码不同，且面板交代得清 ---------- */
-  console.log("\n== 动态投注汇率（身位 × 事件钱量级）==");
+  /* ---------- #28① 级别价：身位不同价码不同，且与余额彻底脱钩 ---------- */
+  console.log("\n== 投注级别价（单价随身位·不随钱包）==");
   const noteOn = () => (w.document.getElementById("stake").querySelector(".stake-rate") || {}).textContent || "";
   const perAt = (track, tier) => { P.G.track = track; P.G.tier = tier; return perFun(); };
   const p0 = perAt("electoral", 0), p5 = perAt("electoral", 5);
   check(p5 > p0, "同一选项：T5 的每档价码高于 T0（" + P.fmtUsd(p0) + " → " + P.fmtUsd(p5) + "）");
   const pWealth = perAt("wealth", 5);
   check(pWealth >= p5, "同层级下财富轨道（月薪更高）不便宜于选举轨道（" + P.fmtUsd(p5) + " vs " + P.fmtUsd(pWealth) + "）");
+  /* #28① 的正身断言：同一档位，余额翻一千倍，单价一分不动 */
+  P.G.track = "electoral"; P.G.tier = 5;
+  const perPoor = (P.G.fun = 50000, perFun());
+  const perRich = (P.G.fun = 50000000, perFun());
+  check(perPoor === perRich, "单价不随余额浮动（" + P.fmtUsd(perPoor) + " vs " + P.fmtUsd(perRich) + "）");
+  const notchPoor = (P.G.fun = 50000, P.stakeMax("fun", allIn));
+  const notchRich = (P.G.fun = 50000000, P.stakeMax("fun", allIn));
+  check(notchRich > notchPoor, "余额只体现为档数（" + notchPoor + " 档 → " + notchRich + " 档）");
   P.G.track = "electoral"; P.G.tier = 1; P.G.fun = 3000000;
   w.document.getElementById("stBack").click();
   openStake();
-  check(noteOn().indexOf("月薪") >= 0 && noteOn().indexOf("身位基准") >= 0, "面板给出汇率依据：" + noteOn());
+  check(noteOn().indexOf("月薪") >= 0 && noteOn().indexOf("按身位定价") >= 0, "面板给出汇率依据：" + noteOn());
+  check(noteOn().indexOf("家底") >= 0, "面板讲明余额只决定押得起几档：" + noteOn());
   check(!!w.document.querySelector("#stake .stake-rate"), "面板渲染出 .stake-rate 说明条");
 
   /* 用户报的核心 bug 已修：小兵（家底 $10k）至少投得起一档 */
@@ -496,14 +503,35 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(text().indexOf("分配自由点") < 0, "第 1 步不该出现第 3 步的加点块");
   P.createStep(2);
   check(!!w.document.querySelector(".gwall"), "第 2 步是抽卡：卡墙渲染出来");
+  /* #31：作弊码兑的是【周目】，输入框也跟着搬到第 2 步天赋页 */
+  check(!!w.document.getElementById("cheatcode"), "作弊码输入框住在第 2 步天赋页");
+  {
+    const cheatIn0 = w.document.getElementById("cheatcode");
+    if (cheatIn0) {
+      cheatIn0.value = "woshishabi4";
+      check(P.submitCheat() === 4, "输入 woshishabi4 点「兑换」→ +4 周目");
+      check((P.CSEL.cheatLoops || 0) === 4, "作弊周目计入本局建角额度：" + P.CSEL.cheatLoops);
+      check(P.currentLoop() >= 5 && P.freePool() >= 16, "作弊周目同时抬高自由点池：" + P.freePool());
+      check(/4/.test(P.CSEL.cheatMsg || ""), "兑换后在界面给出反馈（不再静默）：" + P.CSEL.cheatMsg);
+      const cheatIn1 = w.document.getElementById("cheatcode");   // 重绘后是新节点
+      if (cheatIn1) cheatIn1.value = "badcode";
+      check(P.submitCheat() === 0 && (P.CSEL.cheatLoops || 0) === 4, "错码不加周目，并给出提示");
+    }
+    /* 整面卡墙每局只许刷 gacha.rerolls 次（默认 1） */
+    const left0 = P.gachaCfg().rerolls;
+    for (let i = 0; i <= left0 + 1; i++) P.rollOffer();
+    check((P.CSEL.rerollsUsed || 0) === left0, "「换一批」配额封顶在 " + left0 + " 次：" + P.CSEL.rerollsUsed);
+    check(/刷新次数用完/.test(P.CSEL.stepMsg || "") ||
+      /用完了|used up|no reroll/i.test(P.CSEL.stepMsg || ""), "配额用尽后给出提示：" + P.CSEL.stepMsg);
+  }
   P.createStep(3);
   check(text().indexOf("分配自由点") >= 0, "第 3 步是加点：出现「分配自由点」");
   const rattrN = w.document.querySelectorAll(".rattr").length;
   check(rattrN === 4, "第 3 步四个分配去处（魅力/智力/手腕/金钱），诚信不在其中：" + rattrN);
   check(text().indexOf("诚信") < 0, "加点屏不出现「诚信」字样（已退为幕后属性）");
-  /* 定命一掷已删：不再有掷骰 / 重掷入口 */
-  check(typeof P.rollAttrs === "undefined" && !w.document.getElementById("cheatcode"),
-    "掷骰函数与作弊码输入框都已从界面/引擎撤下");
+  /* 定命一掷已删：不再有掷骰 / 重掷入口。 */
+  check(typeof P.rollAttrs === "undefined", "定命一掷的掷骰函数已撤下");
+  check(!w.document.getElementById("cheatcode"), "第 3 步不再重复摆作弊码输入框");
   /* 自由点分配 API 仍在（新名 spendPoint，旧名 spendAttr 作别名） */
   P.spendPoint("CHA", 1);
   check((P.CSEL.spent.CHA || 0) === 1, "spendPoint() 能把自由点洒到属性上");
@@ -582,22 +610,33 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(P.SCREEN === "ending", "hardEnd 直接收口进终局");
   check(text().indexOf("身败名裂") >= 0 || text().indexOf("史学家评语") >= 0, "终局页渲染（disgrace 规则）");
 
-  /* 回到游戏，继续年终部分：重建年卡界面（ending 页把 #main 换掉了） */
+  /* 回到游戏，继续跨年部分：#34 之后年终结算屏与年初简报屏都下线了，
+     endYear 只结后台账，结完直接翻年并把玩家放进下一年的第一个页面。 */
   P.SCREEN = "game";
   P.G.endingReason = null; P.G.flags = [];
   P.startYear(true);
 
   /* 年终结算会顺带处理把柄贬值与人脉统计 */
-  console.log("\n== 年终结算 ==");
+  console.log("\n== 跨年直进（年度结算屏 / 年初简报屏已下线） ==");
+  const y0 = P.G.year;
   P.G.month = 12; P.G.yearHeads = ["【测试报】一条头条"];
   P.G.vigMonth = 0; P.G.quietMonths = [10, 11];
   P.G.quietLog = [10, 11].map(function (m) { return { year: P.G.year, month: m, text: m + " 月，岁末的日子。", gain: { attr: { INT: 1 }, hp: 0, rep: 0, contact: 0 } }; });
   P.endYear();
-  check(!!w.document.querySelector(".yearcard"), "月历走完一年后渲染出年终结算卡");
-  check(/年度结算/.test(text()), "年终结算卡标出「年度结算」");
-  check(/平静的月份/.test(text()), "年终结算卡统计了平静的月份数");
-  check(text().indexOf("平静的月份") >= 0, "年终卡统计了平静的月份数（文字已逐月出过，不再重复）");
-  check(!!btn("进入"), "年终结算卡上有进入下一年的按钮");
+  check(P.G.year === y0 + 1, "endYear 结完账直接翻年：" + y0 + " → " + P.G.year);
+  check(!w.document.querySelector(".yearcard"), "年终结算卡不再上屏");
+  check((w.document.body.textContent || "").indexOf("时代简报") < 0, "年初时代简报屏不再上屏");
+  check(!!P.G.yearStartSnap, "新年初快照仍会重建（年终叙事的差值来源）");
+  check(!!w.document.getElementById("main") && !!w.document.getElementById("statusbox") &&
+    !!w.document.getElementById("actbody"), "跨年后的三个持久容器齐备（#main / #statusbox / #actbody）");
+  check(!!w.document.querySelector("#main .news"), "玩家直接落在下一年的第一个页面上");
+
+  /* 终点年：撞 2025 墙由 endYear 程序直调生涯结算，不再等按钮 */
+  P.G.year = P.balance().endYear; P.G.month = 12; P.SCREEN = "game";
+  P.endYear();
+  check(P.SCREEN === "ending", "走到终点年后 endYear 直调生涯结算：" + P.G.endingReason);
+  /* 终局页把 #main 换成了结算页，后面的布局断言要游戏壳，重铺一层 */
+  P.SCREEN = "game"; P.G.endingReason = null; P.renderShell();
 
   /* ---------- 两栏布局（v0.8+）：左=事件 #main，右=.col-right（上状态卡 + 下操作栏） ----------
      回归事故记忆（v0.5.5）：模板多写一个 </div> 会把 .grid 提前闭合、右栏掉到 #app 下。
@@ -625,6 +664,42 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     "职位卡含选民三档（死忠/有好感/反对）");
   check(!!sbBox && !!sbBox.querySelector(".idc-chips .sbrow"), "状态卡含 chips 行（标签/派系/人脉）");
   check(!!sbBox && !!sbBox.querySelector(".idc-chip-toggle"), "窄屏折叠开关 .idc-chip-toggle 存在（桌面端由 CSS 隐藏）");
+
+  /* ---------- #29 派系四栏面板：DOM 里四格齐、正负条分侧、分档上色 ---------- */
+  const facBak = Object.assign({}, P.G.faction);
+  P.G.faction = { establishment: 62, commercial: -47, military: 20, church: 5, foreign: -12 };
+  P.refreshPanel();
+  const fcells = w.document.querySelectorAll(".statusbox .faccell");
+  check(fcells.length === 4, "派系四栏面板渲染出 4 格（实际 " + fcells.length + "）");
+  const fc = i => fcells[i];
+  check(!!fc(0) && /\+62/.test((fc(0).querySelector(".fac-val") || {}).textContent || ""), "格内大号读数带符号（+62）");
+  const barStyle = (cell, sel) => { const el = cell && cell.querySelector(sel); return el ? (el.getAttribute("style") || "") : ""; };
+  const barText = (cell, sel) => { const el = cell && cell.querySelector(sel); return el ? (el.textContent || "") : ""; };
+  check(!!fc(0) && /width:62%/.test(barStyle(fc(0), ".fac-love b")), "正值格：右半「友好」条长到 62%");
+  check(!!fc(0) && /width:0%/.test(barStyle(fc(0), ".fac-hate b")), "正值格：左半「仇恨」条为空");
+  check(!!fc(1) && /width:47%/.test(barStyle(fc(1), ".fac-hate b")), "负值格：左半「仇恨」条长到 47%");
+  check(!!fc(1) && /t3n/.test(fc(1).className), "负值大档整格上淡红底（t3n）");
+  check(!!fc(1) && /敌视|戒备/.test(barText(fc(1), ".fac-word")), "格内有分档形容词：" + barText(fc(1), ".fac-word"));
+  const otherChips = w.document.querySelector(".statusbox .sb-facs .qchips");
+  check(!!otherChips && /外国势力/.test(otherChips.textContent), "四栏之外的派系仍在同一行里出 chip");
+  P.G.faction = facBak; P.refreshPanel();
+
+  /* ---------- #23 竞选面板的「投放把柄」：置灰 ↔ 可点 ↔ 扣料 ---------- */
+  const camBak = P.G.campaign, levBak = P.G.lev, tierBak = P.G.tier, trackBak = P.G.track;
+  P.G.tier = 2; P.G.track = "electoral";
+  P.G.campaign = {
+    id: "camp_state", stageIdx: 1, since: P.monthSeq(), since0: P.monthSeq(),
+    played: 1, status: "active", meters: { momentum: 30 }
+  };
+  P.G.lev = 0; P.refreshPanel();
+  check(!!w.document.querySelector(".campbar .cmp-drop.off"), "没把柄 → 竞选面板上的「投放把柄」置灰");
+  P.G.lev = 2; P.refreshPanel();
+  const dropBtn = w.document.querySelector(".campbar .cmp-drop");
+  check(!!dropBtn && !dropBtn.classList.contains("off"), "有把柄 → 按钮可点");
+  P.levDropClick();
+  check(P.G.lev === 1, "点一次恰好扣 1 把柄（2 → " + P.G.lev + "）");
+  check(P.G.campaign.meters.momentum !== 30, "投放之后选情表动了（→ " + P.G.campaign.meters.momentum + "）");
+  P.G.campaign = camBak; P.G.lev = levBak; P.G.tier = tierBak; P.G.track = trackBak; P.refreshPanel();
   const kickerEl = w.document.querySelector(".kicker-band");
   check(!!kickerEl && /第 \d+ 个年头/.test(kickerEl.textContent), "顶栏含「第 N 个年头」");
   check(!!kickerEl && !/[（(]\d{4}[）)]/.test(kickerEl.textContent), "时代名不再带年份后缀 (YYYY)");

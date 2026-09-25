@@ -22,7 +22,7 @@ POTUS.define("balance", {
  * 参考真实数字换算成月（服务游戏平衡）：
  *   联邦众议员/参议员年薪 $174k ≈ $14.5k/月；州长 $12-20k/月；总统 $400k/年 ≈ $33k/月；
  *   州议员 $3-10k/月；市议员多为兼职津贴；幕僚/委任按对应级别打折（是他们雇的人）。
- * 名人/财富线的"工资"是版税与分红，波动大（另走 funChance）。T0 志愿者 $1k——靠信念活着。
+ * 名人/财富线的"工资"是版税与分红，波动大（另走事件卡的投资与分红）。T0 志愿者 $1k——靠信念活着。
  * 每轨道严格单调不降（engine 投注汇率按身位单调校验，见 validate.js）。 */
 POTUS.define("officeSalary", {
   /* 选举轨道 */
@@ -37,7 +37,7 @@ POTUS.define("officeSalary", {
   /* 操盘轨道：别人赢了你才有肉吃 */
   operative_0: 1200, operative_1: 2000, operative_2: 3500, operative_3: 6000, operative_4: 9000,
   operative_5: 13000, operative_6: 18000, operative_7: 24000, operative_8: 30000, operative_9: 40000,
-  /* 财富轨道：月薪是零花钱，真正的钱在生意里（funChance/利息） */
+  /* 财富轨道：月薪是零花钱，真正的钱在生意里（事件卡的投资与分红 + 年终结算利息） */
   wealth_0: 1500, wealth_1: 3000, wealth_2: 6000, wealth_3: 12000, wealth_4: 20000,
   wealth_5: 35000, wealth_6: 55000, wealth_7: 80000, wealth_8: 120000, wealth_9: 200000,
   /* 通配（miss 时） */

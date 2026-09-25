@@ -33,7 +33,7 @@
      年份后缀是遗留物 —— 展示层统一剥掉（内容文件不动，标题里年份由 kb-r 单独报）。 */
   P.eraName = function () {
     const G = P.G;
-    const raw = G ? (((P.reg.era || {})[G.era] || {}).name || G.era || "") : "";
+    const raw = G ? (((P.reg.era || {})[P.eraAt(G.year)] || {}).name || P.eraAt(G.year) || "") : "";
     return String(raw).replace(/\s*[（(]\d{4}[）)]\s*$/, "");
   };
 

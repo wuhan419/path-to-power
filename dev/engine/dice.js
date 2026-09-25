@@ -34,6 +34,15 @@
       /* 「选民底气 X%」：validate.js 的相关断言已包进 ZH(() => …)，可放心提取 */
       return { v: e * w, label: P.t("ui.dice.modVoters", "选民底气 {pct}%", { pct: P.electionStrength().pct }) };
     }
+    /* #21 M1：总统支持率。与 voters 同一套"零点对齐"思路 —— 50% 处修正为 0，
+       所以写这个 mods 的卡在平稳水位（baseline 45）附近不偏不倚，高支持率才买到优势。
+       不在任（没有 G.pres）时 v=0：内容不该指望它。 */
+    if (m.src === "approval") {
+      const ap = P.approvalPanel ? P.approvalPanel() : null;
+      if (!ap) return { v: 0, label: null };
+      const w = m.w == null ? 0.25 : m.w;
+      return { v: (ap.value - 50) / 100 * w, label: P.t("ui.dice.modApproval", "支持率 {n}%", { n: ap.value }) };
+    }
     return { v: 0, label: null };
   }
 
@@ -52,35 +61,12 @@
   /* ---------- 资源投注（D&D 式"加码"） ----------
    * 选项里声明 stake 即开启投注面板：
    *   stake: { fun: true, ap: true, fav: true }              // 用平衡表里的默认汇率
-   *   stake: { fun: { per:500000, w:0.06, cap:0.3 } }        // 单项自定义（per 写死 = 关闭动态换算）
-   * 资金默认汇率**不是常数** —— 按 身位 × 事件钱量级 动态算，见下面的 stakeFunPer()。
+   *   stake: { fun: { per:500000, w:0.06, cap:0.3 } }        // 单项自定义（per 写死 = 关闭级别价换算）
+   * 资金的默认汇率不是全游戏常数，但**只跟身位有关**：一档 ≈ 你这个位子一个月的月薪，
+   * 见下面的 stakeFunPer()。
    */
-  /* ---------- 选项的"钱量级"（pot）：这个选项自己押着多少钱 ----------
-   * 取 max(|cost.fun|, |req.fun|, 各档 |effects.fun|, |本金 × funMul|)：
-   *   · cost.fun   —— 明码标价的代价（"花 $400k 请律师团"）
-   *   · req.fun    —— 入场费门槛（"账上没 60 万吃不下这单"= 60 万压进这单）v0.12 计入
-   *   · effects.fun —— 直接给/扣的钱（"这一笔赚 $150k"）
-   *   · funMul      —— 按本金的比例（"押多少赚 200%"），本金 = cost.fun + req.fun，故换算回美元
-   * 一个钱都没写的选项返回 0 —— 那时汇率只用身位锚（见 stakeFunPer）。 */
-  P.stakePot = function (choice) {
-    if (!choice) return 0;
-    const amts = [];
-    const costFun = (choice.cost && choice.cost.fun) || 0;
-    const reqFun = (choice.req && choice.req.fun) || 0;
-    if (costFun) amts.push(Math.abs(costFun));
-    if (reqFun) amts.push(Math.abs(reqFun));
-    const oc = choice.outcomes || {};
-    for (const k in oc) {
-      const eff = oc[k] && oc[k].effects;
-      if (!eff) continue;
-      if (eff.fun) amts.push(Math.abs(eff.fun));
-      if (eff.funMul != null) { const pr = Math.abs(costFun) + Math.abs(reqFun); if (pr) amts.push(Math.abs(pr * eff.funMul)); }
-    }
-    return amts.length ? Math.max.apply(null, amts) : 0;
-  };
-
   /* 把美元数抹成整数档（面板要写"每 $6k → +4%"，$6,124 太难读）。
-     一律向下取整：宁可少收，绝不因为抹零把价码抬到事件锚之上。 */
+     一律向下取整：宁可少收。 */
   function niceUsd(n) {
     const step = n < 10000 ? 500 : n < 100000 ? 1000 : n < 1000000 ? 5000 : 50000;
     return Math.max(step, Math.floor(n / step) * step);
@@ -100,47 +86,41 @@
     return (neg ? "-" : "") + s;
   };
 
-  /* ---------- 资金每档汇率（v0.7 起动态；v0.12 加入钱包锚） ----------
-   * 用户实测反馈：过去固定 $250k/档，① 小兵永远投不进第一档，② 价码与事情的钱量级脱钩
-   * （"收益只有 $50k 却让你花 $250k 搏"）。v0.7 用两锚解决；v0.12 用户再实测：
-   * "能投入的资金应和现在掌握的资金成正比，不然前期没资格、后期太鸡肋"——
-   * 事件锚 X 当硬顶时，富豪满档投入仍是零头。现在每档金额 = 三锚几何均 + 资金闸：
+  /* ---------- 资金每档汇率（#28① 定稿：纯级别价） ----------
+   * 演进三步：
+   *   v0.6 之前：全游戏一个常数 $250k —— 小兵投不进第一档，"收益 $50k 的事让你压 $250k"。
+   *   v0.7：加入事件钱量级锚（这件事值多少钱）。
+   *   v0.12：再加"钱袋闸"（单档 ≤ 现金×6%）—— 于是价码又随余额浮动，
+   *            玩家反映"同样的事，穷时便宜富时贵"，价码成了第二次随机。
+   *   #28①：删掉钱袋闸与事件钱量级锚，**只留身位锚**。
    *
-   *   身位锚 A = 职位月薪(track,tier) × perSalaryMonths × gradeMul
-   *              —— 你这个位子办一件事的常规手笔（月薪来自 P.officeSalary()，与平静月工资同源）
-   *   事件锚 X = 事件钱量级 × potShare —— 这件事本身值多少钱（v0.12 起只是锚，不再当硬顶）
-   *   资金闸 G = 现有资金 × cashStakeShare × gradeMul
-   *              —— 灰色生意的入场费与手里筹码成正比：cash 小 → 档位便宜到够得着；
-   *                 cash 大 → 单档水涨船高，满档投入始终有肉。也是单档硬上限（风险有界）。
-   *   per = min(∛(A × X × G), G)（缺哪个锚就退化用剩下的：无钱事件 √(A×G)，无家底 √(A×X)）
+   *   per = 职位月薪(track,tier) × perSalaryMonths × gradeMul，夹进 [perMin, perMax] 抹零
+   *         —— 月薪取自 P.officeSalary()，与平静月工资同源：身份决定钱，这个口径只有一个。
    *
-   * 返回 {per, pot, anchor, gate, ceiling, source, raw}，per 已是最终价码（抹过零）。 */
-  P.stakeFunPer = function (choice, grade) {
+   * 关键手感：**每档价码恒定，不随你手里有多少钱而变化**。余额只决定你押得起几档
+   * （见 P.stakeMax 的 floor(fun/per)）——投得起几档是家底的事，一档多少钱是位子的事。
+   * 内容写死 `per` 时以内容为准（绝对覆盖，见 P.stakeSpec）。
+   *
+   * 返回 {per, anchor, source, raw}。 */
+  P.stakeFunPer = function (grade) {
     const d = (P.balance().stakeRates || {}).fun || {};
-    const months = d.perSalaryMonths == null ? 3 : d.perSalaryMonths;
+    const months = d.perSalaryMonths == null ? 1 : d.perSalaryMonths;
     const g = grade || (P.G && P.G.__curGrade) || "mid";
     const gm = (d.gradeMul || {})[g];
     const gmul = gm == null ? 1 : gm;
-    const pot = P.stakePot(choice);
     const A = Math.max(1, (P.officeSalary ? P.officeSalary() : 0) * months * gmul);
-    const share = d.potShare == null ? 0.25 : d.potShare;
-    const X = pot > 0 ? pot * share : 0;
-    const cash = (P.G && P.G.fun) || 0;
-    const gate = cash > 0 ? Math.max(1, cash * (d.cashStakeShare == null ? 0.06 : d.cashStakeShare) * gmul) : Infinity;
-    let raw, source;
-    if (X > 0 && isFinite(gate)) {
-      raw = Math.pow(A * X * gate, 1 / 3);            // 三锚几何均（身位 × 事件 × 钱包）
-      source = "office+pot+cash";
-    } else if (X > 0) {
-      raw = Math.sqrt(A * X);                          // 没家底：退回旧两锚（投注自然开不起几档）
-      source = A <= X ? "office+pot" : "pot";
-    } else {
-      raw = isFinite(gate) ? Math.sqrt(A * gate) : A;  // 事件没写钱：身位 × 钱包
-      source = isFinite(gate) ? "office+cash" : "office";
-    }
     const lo = d.perMin == null ? 500 : d.perMin, hi = d.perMax == null ? 5000000 : d.perMax;
-    let per = niceUsd(P.clamp(Math.min(raw, gate), lo, hi));
-    return { per: per, pot: pot, anchor: A, gate: isFinite(gate) ? Math.round(gate) : null, ceiling: X, source: source, raw: raw };
+    const per = niceUsd(P.clamp(A, lo, hi));
+    return { per: per, anchor: A, source: "office", raw: A };
+  };
+
+  /* ---------- #35② 大钱手段的价码：按级别价推导，不写裸数 ----------
+   * 幕事件里"砸钱买曝光"这类选项，旧口径在内容里写死 $8000/$20000/$60000 ——
+   * 同一个动作在不同身位值多少钱，本该由 #28 的唯一价码来源（月薪）说了算。
+   * 内容写 `cost: { funLevel: 3 }`（3 档级别价，不写 cost.fun），
+   * 由 scale.js 的 realize 在展开时换成绝对美元，下游照旧只看 cost.fun。 */
+  P.levelPrice = function (steps, grade) {
+    return niceUsd(P.stakeFunPer(grade).per * Math.max(1, Number(steps) || 1));
   };
 
   P.stakeSpec = function (choice, grade) {
@@ -153,15 +133,15 @@
       spec[k] = (raw === true) ? Object.assign({}, def[k] || {}) : Object.assign({}, def[k] || {}, raw);
     });
     if (!Object.keys(spec).length) return null;
-    /* 资金汇率：内容写死了 per 就以内容为准（绝对覆盖）；否则按 身位 × 事件钱量级 动态算。
-       动态结果写回 spec.fun.per，下游（stakeMax / stakeInfo / 面板）无需知道它是算出来的。 */
+    /* 资金汇率：内容写死了 per 就以内容为准（绝对覆盖）；否则按身位算级别价。
+       级别价写回 spec.fun.per，下游（stakeMax / stakeInfo / 面板）无需知道它是算出来的。 */
     if (spec.fun) {
       const kf = choice.stake.fun;
       const written = (kf !== true && kf && kf.per != null) ? Number(kf.per) : null;
       if (written != null && written > 0) {
-        spec.fun.__rate = { per: written, pot: P.stakePot(choice), anchor: null, ceiling: null, source: "content", raw: written };
+        spec.fun.__rate = { per: written, anchor: null, source: "content", raw: written };
       } else {
-        const r = P.stakeFunPer(choice, grade);
+        const r = P.stakeFunPer(grade);
         spec.fun.per = r.per;
         spec.fun.__rate = r;
       }
@@ -170,12 +150,11 @@
   };
 
   /* ---------- 投注档位上限 ----------
-   * 一个资源最多能投几档。必须同时被三件事夹住：
-   *   ① 汇率：每档花多少（资金 = stakeFunPer() 算出来的动态价码；精力 1 点/档）
-   *   ② 加成上限：cap ÷ w —— 超过这个档数，加成不再增长，资源纯属白花
-   *   ③ 你手上还剩多少
+   * 一个资源最多能投几档。必须同时被两件事夹住：
+   *   ① 加成上限：cap ÷ w —— 超过这个档数，加成不再增长，资源纯属白花
+   *   ② 你手上还剩多少：floor(现金 ÷ 级别价)
    * 「到达上限需要几档」用 ceil：最后一档即使只吃到部分上限，也仍然 >0 收益，
-   * 绝不会出现"花一整档的钱买 0 收益"。例如 ap：每点 +3%、上限 +9% → 正好 3 档。
+   * 绝不会出现"花一整档的钱买 0 收益"。
    */
   function capSteps(w, cap) { return Math.max(1, Math.ceil(cap / w - 1e-9)); }
 
@@ -223,10 +202,13 @@
     return out;
   };
 
-  /* 选项的胜算：base + 选项修饰符 + 天赋全局修饰符 + 投注，限制在 [0.05, 0.95] */
+  /* 选项的胜算：base + 选项修饰符 + 天赋全局修饰符 + 投注，限制在 [0.05, 0.95]
+   * base 有两种来源：普通选项读内容写死的数；标了 `ballot: true` 的投票日选项按
+   * 当前竞选的选情现推（见 campaign.js 的 P.ballotBase）—— 赢不赢选举看选情，不看赌骰。 */
   P.computeP = function (choice, stake) {
-    let p = choice.base;
-    const bd = [{ label: P.t("ui.dice.baseOdds", "基础"), pct: choice.base * 100 }];
+    const b0 = (choice.ballot && P.ballotBase) ? P.ballotBase(choice.base) : choice.base;
+    let p = b0;
+    const bd = [{ label: b0 === choice.base ? P.t("ui.dice.baseOdds", "基础") : P.t("ui.dice.ballotOdds", "选情"), pct: b0 * 100 }];
     const apply = function (m) {
       const r = evalMod(m);
       if (r.v) { p += r.v; bd.push({ label: r.label, pct: r.v * 100 }); }

@@ -129,7 +129,9 @@ const SCREENS = [
   { name: "status 状态面板", fn: () => P.statusPanel() },
   { name: "identity 身份条", fn: () => P.identityHTML() },
   { name: "brief 时代简报", fn: () => P.briefHTML(P.realize ? P.realize(P.events[0]) : P.events[0]) },
-  { name: "ledger 年终结算", fn: () => P.endYear && P.endYear() }
+  /* #34：年终结算屏下线后，年末剩下的界面是「平静月合并卡」（时代压力条住在它上面） */
+  { name: "quiet 平静月合并屏", fn: () => P.renderQuietRun && P.renderQuietRun([11, 12], "POTUS.endYear()",
+    P.t("ui.stage.toNextYear", "进入下一年 →")) }
 ];
 
 const rows = [];

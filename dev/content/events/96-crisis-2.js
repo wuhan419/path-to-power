@@ -43,7 +43,6 @@ POTUS.define("event", [
         id: "wade_in", text: "天亮前到场：先下水，再谈别的",
         note: "裤腿卷起来比任何声明有用。牧师和教堂的人会把这一天讲十年——前提是你真的帮上忙，而不是帮倒忙。",
         base: 0.62, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你在齐膝的水里背出了第七个人的时候，县电视台的镜头刚好开机。画面没拍到你的正脸——拍到的是那家的老太太抓着你的胳膊。三个街区的人都认得这件湿透的外套。", effects: { rep: 2, fac: { base: 14, church: 6, press: 4 }, voters: { diehard: 500, warm: 1200 }, flags: ["flood_responder"] } },
           ok: { body: "你在收容点守了一整天：登记名字、分毛毯、给县里打电话抢抽水泵。没有人拍你，但被你登记过名字的人都记住了你的脸。", effects: { rep: 1.25, fac: { base: 10, church: 4 }, voters: { diehard: 300, warm: 800 }, flags: ["flood_responder"] } },
@@ -56,7 +55,6 @@ POTUS.define("event", [
         id: "resources", text: "坐在办公室里抢资源：电话打到水泵进选区为止",
         note: "不见英雄，见抽水泵。这是不爱拍照的人的路——做成了，牧师会替你到场；做不成，你只是电话里一个推诿的声音。",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.25 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "中午之前，四台抽水泵、两卡车沙袋和一队国民警卫队按你抄送的清单开进了选区。牧师在晚间祈祷里点了你的名字——不当你面点的，那种才作数。", effects: { rep: 1.5, fac: { base: 10, establishment: 8, military: 4 }, voters: { diehard: 400, warm: 1000 }, flags: ["flood_responder"] } },
           ok: { body: "资源要到了一半：水泵到了，沙袋没到。选区的低洼处第二天排干了——中不溜的地方还在滴水。", effects: { rep: 1, fac: { base: 7, establishment: 5 }, voters: { warm: 600 }, flags: ["flood_responder"] } },
@@ -95,7 +93,7 @@ POTUS.define("event", [
         id: "donate", text: "捐一周的日程和一个月的薪水给收容点",
         note: "不抢镜头也不抢资源，出钱出力。数目不会上头条，但教堂的账本上会有一行。",
         base: 0.7, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
-        cost: { fun: 0.2, ap: 1 },
+        cost: { fun: 0.2 },
         outcomes: {
           crit: { body: "收容点的热食线多开了一周的班。牧师在月度的聚餐上把你介绍给了整个教区委员会——那是这一带最管用的一张人脉网。", effects: { rep: 1.5, fac: { base: 8, church: 8 }, voters: { warm: 700, diehard: 200 }, contact: { preacher: 8 }, flags: ["flood_responder"] } },
           ok: { body: "钱捐了，班也排了。没人张扬，但收容点的志愿者名单上，你的名字排在第一页。", effects: { rep: 0.8, fac: { base: 5, church: 5 }, voters: { warm: 400 } } },
@@ -138,7 +136,7 @@ POTUS.define("event", [
         id: "save", text: "牵头救厂：把减税、贷款、承诺全押上桌",
         note: "成了你是救星，败了你是那个许了愿的人——两边的队伍都很长。救厂的钱是纳税人的，账也在纳税人手里。",
         base: 0.42, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "labor", w: 0.3 }],
-        cost: { ap: 3, fav: 1 },
+        cost: { fav: 1 },
         outcomes: {
           crit: { body: "你凑出来的方案让总部把关停推迟了四年，附加了保留一千二百个岗位的书面条款。签字那天你站在厂门口，身后的横幅是工会自己做的。", effects: { rep: 1.5, fac: { labor: 18, base: 12, commercial: 6, establishment: 6 }, voters: { diehard: 900, warm: 1500 }, flags: ["plant_defender"], count: { wrath_money: 12 } } },
           ok: { body: "厂没救成全部，但保住了仓储和物流那一块——四百个岗位。工会头目对你的评价是：「他真的去谈了。」这句话在那个圈子里值一个初选。", effects: { rep: 0.9, fac: { labor: 12, base: 7 }, voters: { diehard: 500, warm: 900 }, flags: ["plant_defender"], count: { wrath_money: 8 } } },
@@ -151,7 +149,6 @@ POTUS.define("event", [
         id: "retrain", text: "认下关厂，把力气全押在转岗和拉新雇主上",
         note: "不救旧厂，救下一个人。这条路没有欢送会，只有一年后的就业率——它是慢药，但可能是唯一真有用的药。",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.2 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你把培训中心和社区学院缝在了一起，又亲自带队去了三场招商会。一年后新雇主的仓库动工——规模只有旧厂的四成，但那是这片街区十年来第一根往上起的钢筋。", effects: { rep: 1, fac: { base: 8, establishment: 10, labor: 6, commercial: 6 }, voters: { diehard: 400, warm: 1100 }, flags: ["plant_defender"] } },
           ok: { body: "培训中心开了起来，六百人报了名。有没有用要一年后才知道——但报名的人现在都认得你。", effects: { rep: 0.7, fac: { base: 6, establishment: 6, labor: 4 }, voters: { warm: 700 } } },
@@ -228,7 +225,6 @@ POTUS.define("event", [
         id: "quiet", text: "少说话，多跑腿：把每一天排进救济署和招聘会",
         note: "不上头版，上等待名单。一个个家庭的忙帮下去——慢，但每一份都记在人的身上而不是纸上。",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "attr", key: "INTG", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "四个月，你跑了三十一场招聘会，帮两百多人对上了岗位——不是全部，但每一个都是具体的名字。到初选那天，这些名字出现在了投票站。", effects: { rep: 1, fac: { base: 12, labor: 10 }, voters: { diehard: 900, warm: 700 } } },
           ok: { body: "你成了救济署和招聘会之间的常客。帮上忙的和不帮上的都在传：「他至少一直在」。", effects: { rep: 0.6, fac: { base: 8, labor: 6 }, voters: { diehard: 400, warm: 500 } } },
@@ -270,7 +266,6 @@ POTUS.define("event", [
         id: "front", text: "站到最前面：每天开发布会，把知道和不知道都说出来",
         note: "恐慌最怕真空。你顶上去——赌的是诚实能换信任；赌输的话，你说错的那一句会跟着你一辈子。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你的每日简报成了全县的定盘星：数字、措施、和一句固定的「我们不知道的还有这些」。疫情结束后，医生在纪念活动的讲台上说：「那几周，他替我们挡住了恐慌。」", effects: { rep: 1.5, fac: { base: 12, press: 8, church: 4 }, contact: { doctor: 12 }, voters: { diehard: 600, warm: 1000 } } },
           ok: { body: "简报开了六周，说的是实话。人们习惯了下午四点在收音机里听你的声音——习惯，是信任的另一个名字。", effects: { rep: 0.9, fac: { base: 9, press: 5 }, contact: { doctor: 6 }, voters: { diehard: 300, warm: 700 } } },
@@ -283,11 +278,10 @@ POTUS.define("event", [
         id: "logistics", text: "扎进物资链：药房、教会、货运，一条一条打通",
         note: "不上台，上台下的活：限购的规则、教会的配送网、药房的补给线。这些事没人鼓掌——直到缺的那盒药出现在该出现的人家里。",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.4 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你把三家教会的配送网、县药房协会和一家货运公司缝成了一张网：独居的老人第二天就在门口收到了药和汤。这张网在疫情结束后还在运转——教区的人管它叫你的名字。", effects: { rep: 1.25, fac: { base: 10, church: 10, commercial: 4 }, contact: { preacher: 10, doctor: 6 }, voters: { diehard: 500, warm: 900 } } },
           ok: { body: "配送网搭起来了，覆盖了三个街区里的两个。收到药的家庭不知道那是谁协调的——教会的志愿者知道，他们也会说。", effects: { rep: 0.7, fac: { base: 7, church: 7 }, contact: { preacher: 6 }, voters: { warm: 600 } } },
-          meh: { body: "网搭了，物资不够：排队名单比药多。你做了最难做的事——决定谁先谁后，然后签下自己的名字。", effects: { rep: 0.3, fac: { base: 4, church: 4 }, hp: -0.4, voters: { warm: 300 } } },
+          meh: { body: "网搭了，物资不够：排队名单比药多。你做了最难做的事——决定谁先谁后，然后签下自己的名字。", effects: { rep: 0.3, fac: { base: 4, church: 4 }, voters: { warm: 300 } } },
           fail: { body: "补给线被州里的统一调配打乱了——你搭的网被迫并入官方渠道，功劳归了文件，混乱归了你。", effects: { rep: -0.3, fac: { base: -4, church: -3, establishment: -4 }, voters: { oppose: 300 } } },
           critfail: { body: "你协调的一批药被查出流向了出价高的私人诊所——经手的人贪的，名单上的协调人是你。你对天发誓不知情，可「不知情」在疫情里不算辩护词。", effects: { rep: -1.25, fac: { base: -10, church: -8, press: -8 }, voters: { oppose: 1200 }, flags: ["scandal_2", "investigation_open"] } }
         }
@@ -350,7 +344,7 @@ POTUS.define("event", [
         id: "fast", text: "五天太久：签紧急条款，四十八小时必须通",
         note: "先亮灯，再算账。城市会谢你——审计席六个月后见，加价合同一张都赖不掉。",
         base: 0.65, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "fac", key: "base", w: 0.2 }],
-        cost: { fun: 5.5, ap: 2, fav: 1 },
+        cost: { fun: 5.5, fav: 1 },
         outcomes: {
           crit: { body: "四十小时后全城复电，比承诺提前了八个小时。你站在亮起来的市政厅台阶上讲话，没人提钱的事——暂时没人提。", effects: { rep: 2.5, fac: { base: 12, establishment: 6 }, voters: { diehard: 500, warm: 1100 }, flags: ["grid_fast"] } },
           ok: { body: "第五十六小时复电。你承诺的「四十八」差了八个小时，没人计较——黑暗里的人对时间的误差很宽容。", effects: { rep: 1.5, fac: { base: 8 }, voters: { warm: 700 }, flags: ["grid_fast"] } },
@@ -387,7 +381,6 @@ POTUS.define("event", [
         id: "streets", text: "先上街：挨个街区安排水站、充电点和巡逻",
         note: "修电是工程师的事，等电的人是你的事。黑暗里的五个晚上怎么过——这是市政能直接给的答案。",
         base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.25 }, { src: "attr", key: "INT", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "四十八小时里，二十七个应急水站和充电点在全城亮起来——用的是学校的发电机和教会的厨房。停电的夜里唯一亮着的名单，是市政厅出的。选民记住了那种亮。", effects: { rep: 2, fac: { base: 12, church: 6, labor: 4 }, voters: { diehard: 600, warm: 900 } } },
           ok: { body: "水站和充电点覆盖了主要的社区，独居老人的排查名单也过了一遍。灯没修好之前，人没有被忘记。", effects: { rep: 1.25, fac: { base: 8, church: 4 }, voters: { warm: 600 } } },
@@ -432,7 +425,7 @@ POTUS.define("event", [
         id: "public_deposit", text: "站到柜台前，当众存一笔钱进去",
         note: "行动比声明响：把「我相信」变成一笔有日期、有回单的交易。你的钱和大家的钱从此同舟共济——这既是说服力，也是真的风险。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { fun: 0.8, ap: 1 },
+        cost: { fun: 0.8 },
         outcomes: {
           crit: { body: "你在大厅里把十万块的存款回单举给记者看，然后坐下来和排队的老人一个一个聊。中午前队伍散了一半。经济史的书页里，止住挤兑的从来是这种画面。", effects: { rep: 1.75, fac: { base: 14, commercial: 10, press: 8 }, voters: { diehard: 800, warm: 1200 }, flags: ["bank_calmer"] } },
           ok: { body: "你存了钱，也在门口讲了十分钟。队伍慢了下来——没有散，但不再长了。周一发薪日，这家银行还开着门。", effects: { rep: 1, fac: { base: 10, commercial: 8 }, voters: { diehard: 400, warm: 800 }, flags: ["bank_calmer"] } },
@@ -445,7 +438,6 @@ POTUS.define("event", [
         id: "organize", text: "组织排队的人：登记、解释保险、分批疏导",
         note: "不做英雄做管家：把恐慌的队伍变成有秩序的队伍。枯燥、琐碎——以及所有危机政治里最被低估的一招。",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "attr", key: "CHA", w: 0.2 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你带着志愿者把队伍分成了「急用现金」和「只是害怕」两队，后者被一杯咖啡和一张存款保险的说明留在了大厅里。柜台的现金撑到了收市——周一，监管的批文到了。两个词开始跟着你：「那个人懂秩序」。", effects: { rep: 1.25, fac: { base: 12, commercial: 8, establishment: 6 }, voters: { diehard: 700, warm: 1000 }, flags: ["bank_calmer"] } },
           ok: { body: "疏导起了作用：取钱的秩序保住了，银行撑过了周五。没人在第一周的报纸上写你——写你的版面在两年后。", effects: { rep: 0.8, fac: { base: 8, commercial: 6 }, voters: { warm: 700 }, flags: ["bank_calmer"] } },

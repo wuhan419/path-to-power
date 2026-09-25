@@ -312,9 +312,9 @@ POTUS.define("l10n", {
         brief: {
           lede: "The last sprint before the election. Fight for every ounce of attention.",
           known: [
-            "Ads burn money for exposure; canvassing burns energy for hearts.",
+            "Ads burn money for exposure; canvassing burns shoe leather for hearts.",
             "The war chest is finite. Dividing it is a math problem of its own.",
-            "Moderate energy neither overdraws the account nor breaks through."
+            "A measured push neither overdraws the account nor breaks through."
           ],
           unknown: [
             "Overspend or pinch too hard, and momentum leaks out of the race."

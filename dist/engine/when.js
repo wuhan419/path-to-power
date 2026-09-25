@@ -55,6 +55,18 @@
     return n;                       // 已在(或超出)新空间：原样透传
   };
 
+  /* ---------- #33：era 按日历解 ----------
+   * G.era 自时代选择器下线后恒为 1980_REAGAN，不能再当条件闸用——
+   * 「这条事件属于哪个时代」一律由年份落在哪个 era 区间决定。 */
+  P.eraAt = function (year) {
+    let best = null, bs = -1e9;
+    for (const id in P.reg.era) {
+      const sy = P.reg.era[id].startYear;
+      if (sy != null && sy <= year && sy > bs) { bs = sy; best = id; }
+    }
+    return best || "1980_REAGAN";
+  };
+
   /* ---------- 玩家此刻的样子（条件的求值对象） ----------
    * 只在需要时构造。事件抽取会在一次抽取里构造一次、往下传（见 events.js 的 drawEvent），
    * 所以 300 局模拟里这张快照只被造十几万次，而不是几千万次。 */
@@ -65,7 +77,7 @@
     let n = 0;
     for (const k in contacts) n++;
     return {
-      era: G.era, year: G.year, month: G.month, age: G.age,
+      era: P.eraAt(G.year), year: G.year, month: G.month, age: G.age,
       track: G.track, party: G.party, stance: G.stance,
       origin: G.origin, entry: G.entry, talent: G.talent,
       state: G.state || "",
@@ -73,6 +85,7 @@
       rep: G.rep, hp: G.hp, fun: G.fun, fav: G.fav, lev: G.lev || 0,
       contactN: n, knownIds: contacts,
       scandal: P.scandalLevel ? P.scandalLevel() : 0,
+      baseShare: P.baseShare ? P.baseShare() : 0,
       tenure: P.monthsAtTier ? P.monthsAtTier() : 0,
       flags: G.flags || [],
       counters: G.counters || {},
@@ -87,13 +100,16 @@
     ["tierMin", "minTier", "tier"], ["minYear", null, "year"],
     ["minAge", "ageMin", "age"], ["minRep", "repMin", "rep"], ["minHp", null, "hp"],
     ["minFun", "funMin", "fun"], ["minFav", null, "fav"], ["minLev", null, "lev"],
-    ["minContacts", null, "contactN"], ["minTenure", null, "tenure"], ["scandalMin", null, "scandal"]
+    ["minContacts", null, "contactN"], ["minTenure", null, "tenure"], ["scandalMin", null, "scandal"],
+    /* #35：基本盘占比（0..1 的小数，不是百分数） */
+    ["minShare", "shareMin", "baseShare"]
   ];
   const HIGH = [
     ["tierMax", "maxTier", "tier"], ["maxYear", null, "year"],
     ["maxAge", "ageMax", "age"], ["maxRep", null, "rep"], ["maxHp", null, "hp"],
     ["maxFun", null, "fun"], ["maxFav", null, "fav"], ["maxLev", null, "lev"],
-    ["maxContacts", null, "contactN"], ["maxTenure", null, "tenure"], ["scandalMax", null, "scandal"]
+    ["maxContacts", null, "contactN"], ["maxTenure", null, "tenure"], ["scandalMax", null, "scandal"],
+    ["maxShare", "shareMax", "baseShare"]
   ];
 
   /* 条件里所有会被识别的字段名（给文档、校验器、UI 的"为什么找上你"用） */
@@ -113,7 +129,8 @@
     "minYear", "maxYear", "minAge", "ageMin", "maxAge", "ageMax",
     "minRep", "repMin", "maxRep", "minHp", "maxHp", "minFun", "funMin", "maxFun",
     "minFav", "maxFav", "minLev", "maxLev", "minContacts", "maxContacts",
-    "minTenure", "maxTenure", "scandalMin", "scandalMax"];
+    "minTenure", "maxTenure", "scandalMin", "scandalMax",
+    "minShare", "maxShare", "shareMin", "shareMax"];
 
   /* ---------- 主入口 ----------
    * cond = 声明式条件对象（可缺省 = 恒成立）

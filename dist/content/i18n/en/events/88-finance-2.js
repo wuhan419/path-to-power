@@ -421,7 +421,7 @@ POTUS.define("l10n", {
           {
             id: "shrink",
             text: "Cut deep: lay off half the staff, save the core",
-            note: "Surgery paid in energy, not cash. The team halves, but the books balance the same week.",
+            note: "Surgery paid in staff, not cash. The team halves, but the books balance the same week.",
             outcomes: {
               crit: { body: "You do the firing yourself, one by one. Severance is generous; every reference letter is written. The twelve who stay are closer than ever. Years later they still call those two weeks \"our winter\"." },
               ok: { body: "Half the staff leaves. The books balance. The campaign slows down, but it does not die." },

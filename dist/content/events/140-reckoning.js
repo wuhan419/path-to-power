@@ -136,7 +136,6 @@
           id: "fight", text: "应战：逐篇反驳，把他们每一张牌都打掉",
           note: "赌局。赢 = 打退围剿、声望暴涨；roll 输 = 社死退场，无保底。",
           base: 0.42, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "attr", key: "CHA", w: 0.3 }],
-          cost: { ap: 2 },
           outcomes: {
             crit: out("你逐条拆了四周，拆到第三周他们开始自己查自己。系列稿烂尾，两家报社的编委引咎改组——你成了媒体圈公开的行业笑话，政治圈公开的英雄。", { rep: 2, attr: { INT: 3 }, voters: { diehard: 600, warm: 800 }, fac: { press: -10, base: 10 }, count: { wrath_press: -30 } }),
             ok: out("你的反驳稿篇篇扎实。系列稿失去了节奏， editors 自己先泄了气。围剿不了了之——在新闻界，不了了之就是胜利。", { rep: 0.9, voters: { diehard: 250 }, count: { wrath_press: -22 } }),
@@ -273,7 +272,6 @@
           id: "break", text: "硬顶：把这清洗当成初选预告，直接找选民",
           note: "生死赌局。你的底盘够不够硬，今天见分晓；不够，就永远见不到明天的分晓。",
           base: 0.42, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-          cost: { ap: 2 },
           outcomes: {
             crit: out("你把党的名单捅到了阳光下，开着一辆大巴绕遍全境。基层小额捐款把机器掐灭的每个火苗都重新点燃。第二年选举夜，被你「预定要让位」的那个年轻人输得很难看。", { rep: 2, attr: { CUN: 2 }, voters: { diehard: 900, warm: 1200 }, fac: { establishment: -20, base: 15 }, fun: 3, count: { wrath_establishment: -30 } }),
             ok: out("清洗撞上了你的支持度：两个被安排来顶你的「人选」自己退出了。党第一次发现，名单上那个名字比名单难办。", { rep: 1, voters: { diehard: 500 }, fac: { establishment: -10 }, count: { wrath_establishment: -20 } }),
@@ -410,7 +408,6 @@
           id: "counter", text: "对垒：拉出草根与旧盟友，跟钱正面打一场",
           note: "生死赌局。历史上赢过钱的都是疯子或天才——两种人都得先活过选举夜。",
           base: 0.4, mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-          cost: { ap: 2 },
           outcomes: {
             crit: out("选举夜，你的「买不起广告牌」的对手在你的城镇里一票未得——他们算错了一件事：有些钱在选举夜之前就该付，而有些选民早就把票付给了你。你赢了这一局，整个金主圈半夜开会复盘。", { rep: 2, fun: 2, voters: { diehard: 900, warm: 1000 }, fac: { base: 15, commercial: -12 }, count: { wrath_money: -30 } }),
             ok: out("你的对手拿着三倍的钱，输在半倍 turnout。金主们第一次怀疑「钱不是万能的」——这个怀疑值钱，因为它让他们以后不敢再用钱吓你。", { rep: 1, voters: { diehard: 400 }, count: { wrath_money: -20 } }),

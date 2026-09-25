@@ -6,7 +6,7 @@
  *   · 原中文文件一个字不动；本文件只放要覆盖的字段，结构键由引擎保护、不写。
  *   · 事件/选项按 id 定位；known / rumor / unknown 是纯字符串数组，整体替换、
  *     整条给全（三张卡均为 known×4 / rumor×2 / unknown×2 / terms×2，与原文一一对应）。
- *   · 术语与引擎 UI 英文对齐：fun = Funds、fav = Favors、ap = Energy、rep = Reputation
+ *   · 术语与引擎 UI 英文对齐：fun = Funds、fav = Favors、rep = Reputation
  *     （见 content/i18n/en/view/ 各片）。三张示范卡不限时代，措辞保持时代中性。
  *   · 长度按 §11.7 同尺复核（拉丁词 ×0.5）：全部字段在预算内。
  * ==========================================================================*/
@@ -21,13 +21,13 @@ POTUS.define("l10n", {
         id: "demo_hearing",
         title: "The hearing: do you put your whole estate on the table?",
         body: "The subpoena has landed. The committee chair is a vindictive old man, and he means to nail you to his desk on camera.\n" +
-          "Your staff laid out the routes — but each one asks you to hand something over first: money, energy, or favors.",
+          "Your staff laid out the routes — but each one asks you to hand something over first: money, or favors.",
         brief: {
           lede: "One hearing, several roads — and every one of them charges toll before it opens.",
           known: [
             "The subpoena is real: the chair marked you after you embarrassed him on television last month.",
             "The team wrote every route on one sheet: tough it out, pay up, pull strings, play sick.",
-            "Three things you can spend: funds, energy, favors.",
+            "Two things you can spend: funds and favors.",
             "Toughing it out is cheap but long odds; money buys certainty; some doors money cannot knock."
           ],
           rumor: [
@@ -39,7 +39,7 @@ POTUS.define("l10n", {
             "Whether what you spend tonight is what you will need most later."
           ],
           terms: [
-            { k: "Funds / Energy / Favors", v: "The three spendable resources: funds, energy, favors." },
+            { k: "Funds / Favors", v: "The two spendable resources: funds and favors." },
             { k: "Stakes", v: "Marked options: you set the wager; it is charged only at judgment." }
           ]
         },
@@ -155,7 +155,7 @@ POTUS.define("l10n", {
           },
           {
             id: "ideals",
-            text: "Go empty-handed and sell only the ideal (stake energy for force of argument)",
+            text: "Go empty-handed and sell only the ideal (trade persuasion for support)",
             outcomes: {
               crit: { body: "You speak for twenty minutes. The oldest man at the table says: \"Nobody has talked like that at me in thirty years.\"" },
               ok: { body: "Someone was moved — wallets stayed shut, but they were moved." },
@@ -166,7 +166,7 @@ POTUS.define("l10n", {
           },
           {
             id: "bring_press",
-            text: "Bring a reporter along (2 energy; courts the press)",
+            text: "Bring a reporter along (courts the press)",
             outcomes: {
               crit: { body: "The story writes itself: he will come for the donors. You spent nothing; your standing doubled." },
               ok: { body: "The press got its story; the donors decided you are dangerous." },
@@ -178,80 +178,6 @@ POTUS.define("l10n", {
         ]
       },
 
-      /* -------------------------------------------------- 示范 3：精力稀缺 + 人情重投 */
-      {
-        id: "demo_2am_call",
-        title: "Two in the morning — a call from someone you dare not hang up on",
-        body: "The voice on the phone is someone you cannot cut off. It needs an answer before eight in the morning.\n" +
-          "Energy is not infinite — a night holds only so many hours.",
-        brief: {
-          lede: "A day holds only so many hours. Tonight you can spend them in exactly one place.",
-          known: [
-            "The man on the line cannot wait. Some outcome is needed before eight in the morning.",
-            "On hand: energy (how much of tonight is left) and favors (who answers the phone at this hour).",
-            "Flying out is the surest route — it burns three energy, and your cap tracks your health.",
-            "You can also not answer. Silence is a choice too; it bills separately."
-          ],
-          rumor: [
-            "Some say this is not your call to make — the ball was kicked to you on purpose.",
-            "Some say what he truly wants to discuss is not what he said it is."
-          ],
-          unknown: [
-            "Whether tonight's spent energy comes back tomorrow.",
-            "That call may settle a posting you do not know about yet."
-          ],
-          terms: [
-            { k: "Energy", v: "Recovers each year with your health; capped at 12." },
-            { k: "Reroll, Keep Best", v: "Spend 1 favor: roll twice at judgment, take the better." }
-          ]
-        },
-        choices: [
-          {
-            id: "fly",
-            text: "Fly out through the night (3 energy; favors can buy a reroll)",
-            outcomes: {
-              crit: { body: "You appear at his door at four in the morning. He blanks — then agrees to everything." },
-              ok: { body: "It closed. The price: another week alive on coffee." },
-              meh: { body: "He saw you. He promised nothing. The flight bought a handshake." },
-              fail: { body: "An assistant handled you downstairs." },
-              critfail: { body: "Your midnight doorstep visit gets read as intimidation — and written up exactly that way." }
-            }
-          },
-          {
-            id: "phone",
-            text: "Hold him steady on the telephone (1 energy)",
-            outcomes: {
-              crit: { body: "Forty minutes later he has argued himself over. You never left the bed." },
-              ok: { body: "Bought time. It continues in the morning." },
-              meh: { body: "Before hanging up he did not say you were wrong. He did not say you were right, either." },
-              fail: { body: "You sounded like you were brushing him off. He hung up." },
-              critfail: { body: "You thought the line was dead. It was not. He heard everything you said next." }
-            }
-          },
-          {
-            id: "assistant",
-            text: "Pay an assistant to run the errand tonight ($60k)",
-            outcomes: {
-              crit: { body: "The assistant pulled it off. You never learned how — and the not-knowing sits uneasy." },
-              ok: { body: "It got done. The assistant quit the next day — leaving you one page on exactly how." },
-              meh: { body: "The assistant went. The door stayed shut." },
-              fail: { body: "Wrong words at the wrong doorstep — a small matter grew teeth." },
-              critfail: { body: "The assistant had been bought on the way. Whatever you sent changed sides." }
-            }
-          },
-          {
-            id: "ignore",
-            text: "Do not answer; deal with it tomorrow (may stake energy to ride it out)",
-            outcomes: {
-              crit: { body: "By morning, everything is calm. You bet right." },
-              ok: { body: "He found someone else. It got handled around you — and got handled." },
-              meh: { body: "You lay half-asleep chewing on it until dawn." },
-              fail: { body: "He remembers whose phone rang unanswered that night." },
-              critfail: { body: "That call settled one of your postings. By the time you knew, the slate was public." }
-            }
-          }
-        ]
-      }
 
     ]
   }

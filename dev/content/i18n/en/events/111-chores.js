@@ -96,7 +96,7 @@ POTUS.define("l10n", {
 
       {
         id: "chore_beat",
-        title: "Riding one block with the night patrol",
+        title: "Riding the night shift with a patrol officer",
         body: "The police union in {CITY} invites elected officials, as it does every year, to ride a night shift. The stated reason is to see the front line. The real reason: the union hands out awards to those who work it.",
         brief: {
           lede: "The police union invites you to try a night on patrol.",
@@ -181,7 +181,7 @@ POTUS.define("l10n", {
           lede: "It is open-office hour, and the room is full of people demanding answers.",
           known: [
             "Many are not looking for a fix, only for someone to hear them out.",
-            "Sitting with each case can close a few, at great cost in energy.",
+            "Sitting with each case can close a few, though it wears you out.",
             "Turning them into a how-to guide for staff saves time but cuts you off."
           ],
           unknown: ["Get caught brushing them off and even a good deed sours."]
@@ -482,6 +482,281 @@ POTUS.define("l10n", {
               meh: { body: "You read a solemn passage and leave. Nothing wrong." },
               fail: { body: "Someone says you came and went and left nothing behind." },
               critfail: { body: "You overdo the tribute; against the real suffering in the ward the photo caption stings." }
+            }
+          }
+        ]
+      },
+
+      /* ================= 年代补位 · 2000s / 2010s / 2020s ================= */
+      {
+        id: "chore_patrol",
+        title: "Walking the block with a neighborhood night watch",
+        body: "In {PLACE} the neighbors started their own night watch, pairing off to walk the streets on weekends. The captain asks you, the public servant, to come along for one night. Not for the title - so people can see someone standing with them.",
+        brief: {
+          lede: "Neighbors run a community night watch and ask you to walk one shift with them.",
+          known: [
+            "The watch is volunteer neighbors, not police - just people watching out for each other.",
+            "Walk the round and you hear complaints no one voices in daylight.",
+            "A quick appearance is easy, but the block can tell whether you really walked it."
+          ],
+          unknown: ["Whether you steady the neighborhood or only pass through shows itself by the end of the night."]
+        },
+        choices: [
+          {
+            id: "walk",
+            text: "Put on flat shoes and walk the whole block with the crew",
+            outcomes: {
+              crit: { body: "You walk and take notes on dark streetlights and empty storefronts, then get them fixed one by one. The block calls you the one who really put in the miles." },
+              ok: { body: "You finish the round, shake hands, and chat the whole way; your name runs in the community paper." },
+              meh: { body: "You walk part of it. Nothing goes wrong, and nothing sticks." },
+              fail: { body: "Neighbors see you get into your car after a few steps. The watch cools toward you." },
+              critfail: { body: "Someone says it flat out: he cannot walk one alley and still wants to talk about our safety." }
+            }
+          },
+          {
+            id: "cheer",
+            text: "Stop at the rally point, say a few encouraging words, skip the walk",
+            outcomes: {
+              crit: { body: "Your few words land just right. The captain writes to thank you for not acting above it." },
+              ok: { body: "You say a few words; the mood warms for a moment." },
+              meh: { body: "You appear and speak. No one dwells on it." },
+              fail: { body: "Someone notes you came, said two sentences, and would not even walk along." },
+              critfail: { body: "You cheer them on and turn straight to your car; 'hang in there' rings hollow." }
+            }
+          }
+        ]
+      },
+
+      {
+        id: "chore_schbudget",
+        title: "The district will cut after-school programs; you host a budget meeting",
+        body: "The {CITY} school district is short again and is eyeing a cut to after-school care and the music program. Parents are alarmed, and the board asks you, the one who holds the purse, to lay the numbers out in front of everyone.",
+        brief: {
+          lede: "The school district wants to cut after-school programs; parents want you to explain the money face to face.",
+          known: [
+            "The shortfall is real; whatever you cut and whatever you keep offends someone.",
+            "Spreading the numbers out and taking questions lands better than reading a script.",
+            "Letting the principal take the fire keeps you clean, but parents remember that you hid."
+          ],
+          unknown: ["One meeting can aim the anger at the ledger, or at you."]
+        },
+        choices: [
+          {
+            id: "open",
+            text: "Put the ledger on the table and answer the parents' questions one by one",
+            outcomes: {
+              crit: { body: "You show exactly where the money goes. Parents hate the cut but say he did not treat us like outsiders he could fool." },
+              ok: { body: "You answer well, and some of the heat goes out of the room." },
+              meh: { body: "You read the books for half an hour; nobody is convinced and nobody is angered." },
+              fail: { body: "You stall on one number; parents ask on the spot whether you even read the budget." },
+              critfail: { body: "You dump the whole shortfall on your predecessor; parents call it buck-passing and file a joint protest." }
+            }
+          },
+          {
+            id: "defer",
+            text: "Let the principal face the parents alone; you offer one line at the door",
+            outcomes: {
+              crit: { body: "You neither absorb nor dodge it. The principal owes you one; parents find you level." },
+              ok: { body: "You close it out politely; no one holds it against you much." },
+              meh: { body: "You slip past the night and leave no impression." },
+              fail: { body: "Parents crowd the door asking if the money is cut after all; you cannot get under it." },
+              critfail: { body: "'He just walked right out' runs in the local paper the next day." }
+            }
+          }
+        ]
+      },
+
+      {
+        id: "chore_portvisit",
+        title: "The harbor is banked with containers, and local goods are stuck",
+        body: "In {CITY} the port stacks containers mountain-high, and goods waiting to clear sit for weeks. Local businesses press you and gripe at once; the city asks you to walk the terminals and, when you are back, say a word for this street.",
+        brief: {
+          lede: "The harbor is jammed; local merchants wait for you to see the docks and speak up.",
+          known: [
+            "What sits in the harbor is not only boxes but shops and plants that need to eat.",
+            "A walk on the ground finds the choke point no federal form shows.",
+            "A press release is easy, but merchants want you to say out loud that this is a local problem."
+          ],
+          unknown: ["Whichever line you speak at the dock, the chamber of commerce and the port authority will quote it tomorrow."]
+        },
+        choices: [
+          {
+            id: "visit",
+            text: "Go to the terminals yourself and see the truck lanes and the stacks",
+            outcomes: {
+              crit: { body: "You find which link is jammed and come back with a push letter that has teeth; merchants say you asked the right question." },
+              ok: { body: "You walk it and catch a few links worth pushing on." },
+              meh: { body: "You view the flow as scheduled and learn nothing new." },
+              fail: { body: "Port officials brush you off with boilerplate; merchants feel you wasted the trip." },
+              critfail: { body: "You say something amateurish at the dock; a local paper cites it as proof he does not know the local economy." }
+            }
+          },
+          {
+            id: "statement",
+            text: "Issue a statement from the office, pressing the feds for the local merchants",
+            outcomes: {
+              crit: { body: "Your statement hits the sore spot; Washington actually moves a little, and merchants note the favor." },
+              ok: { body: "The statement goes out; some noise, but the cargo still sits." },
+              meh: { body: "No one dwells on the statement; the boxes stay stacked." },
+              fail: { body: "Merchants say you only push paper and will not show your face on site." },
+              critfail: { body: "Port officials knock your statement flat in one line; it becomes the town joke." }
+            }
+          }
+        ]
+      },
+
+      {
+        id: "chore_harbor",
+        title: "After the hurricane, you visit the coastal shelters",
+        body: "A hurricane tore through, cutting power and pushing water into the towns along {CITY}'s coast. People are sheltering in gymnasiums. The state sends you to walk the shelters and see what is missing; the state cameras are already behind you.",
+        brief: {
+          lede: "After a hurricane, the state sends you to check what the coastal shelters lack.",
+          known: [
+            "Getting people into a shelter is only the first step; the days after rest on it.",
+            "Walk it yourself and you can call in the missing power and medicine on the spot.",
+            "Holding the rear and phoning is easier, but victims never see your face."
+          ],
+          unknown: ["To victims you are a steady hand and to the camera a candidate; one slip becomes tomorrow's headline."]
+        },
+        choices: [
+          {
+            id: "inspect",
+            text: "Work the shelters overnight and bring in the missing generators and cots",
+            outcomes: {
+              crit: { body: "You run several shelters in one night and the supplies arrive before dawn. Victims say that with him here they feel easy." },
+              ok: { body: "You coordinate well on the ground; no shelter falls into chaos." },
+              meh: { body: "You walk a round; you help little, but you are there." },
+              fail: { body: "One shelter lacks medicine; your dispatch is half a step slow and victims count it to your face." },
+              critfail: { body: "On camera you boss the shelter around and fix nothing; next day's caption is ugly." }
+            }
+          },
+          {
+            id: "rear",
+            text: "Hold the rear and call in relief supplies and federal aid one after another",
+            outcomes: {
+              crit: { body: "You bring the supplies in line by line. The money and cargo beat you there, and the towns note you came through." },
+              ok: { body: "The calls clear; goods trickle in, but they never see your face." },
+              meh: { body: "You get it done from the rear, where you feel smaller." },
+              fail: { body: "Some victim feels he never came once in such a storm; the goods arrived, the human touch did not." },
+              critfail: { body: "One shelter sits without power and no one tends it; your rear-desk running becomes the other side's ammo." }
+            }
+          }
+        ]
+      },
+
+      {
+        id: "chore_dataleak",
+        title: "A big company leaks data, and people in your district are in it",
+        body: "A company everyone uses is exposed for leaking a flood of personal records, and voters in {CITY} are on the list. Complaint calls and waiting reporters fill your office overnight: does the government do anything about this?",
+        brief: {
+          lede: "A big company leaked your constituents' personal data; the angry crowd wants you to speak.",
+          known: [
+            "Most cannot say exactly what they lost; they only want someone to own it.",
+            "Calling in the company and the regulator to answer in public puts the focus on you.",
+            "Waiting to verify before you speak is safe, but the crowd wants a voice right now."
+          ],
+          unknown: ["Whether you run this as accountability or as theater, the internet decides by tomorrow."]
+        },
+        choices: [
+          {
+            id: "confront",
+            text: "Summon the company and the regulators and question them line by line in front of victims",
+            outcomes: {
+              crit: { body: "You force the company to promise fixes and restitution on the spot. Victims say on television that this one really asked for us." },
+              ok: { body: "You get a few hard lines out; the company gives ground." },
+              meh: { body: "You question for an hour; the company stonewalls; you neither land it nor lose it." },
+              fail: { body: "You get stuck on the technical detail; the hearing turns into the company's PR show." },
+              critfail: { body: "Someone digs up your old donations from the firm; the one asking questions becomes the one asked." }
+            }
+          },
+          {
+            id: "investigate",
+            text: "Hold your fire, trace the leak first, then give the public a firm answer",
+            outcomes: {
+              crit: { body: "You deliver a hard investigative finding that nails whoever is responsible; even the press calls you steady." },
+              ok: { body: "You are not the fastest, but your words hold up." },
+              meh: { body: "You are still investigating while the next story buries this one." },
+              fail: { body: "The crowd cannot wait; they say you are buying the company time." },
+              critfail: { body: "The findings never land, and your 'wait a bit' gets looped as a meme across the network." }
+            }
+          }
+        ]
+      },
+
+      {
+        id: "chore_tour2",
+        title: "The national tour after the State of the Union, cameras from dawn to dark",
+        body: "Your speech has to land nationwide: several cities a day, live TV hits, local roundtables, and a short-video clip to record after midnight. {PUB} wants a headline, the party wants bodies, and you only hope the camera does not catch how tired you look.",
+        brief: {
+          lede: "A grind of a national tour after the State of the Union, serving both the old networks and the new platforms.",
+          known: [
+            "Cable, the news sites, and social feeds each want a different line from you.",
+            "Keeping every stop bright tests your stamina and your delivery most.",
+            "Cutting stops to dig into one yields substance but drops the exposure you were owed."
+          ],
+          unknown: ["A fifteen-second clip of you collapsing on the plane may travel farther than any speech."]
+        },
+        choices: [
+          {
+            id: "grin",
+            text: "Grin through every stop, TV and livestream, missing none",
+            outcomes: {
+              crit: { body: "You nail several stops in a day without a crack; every platform relays your floor; the party counts you as one who carries votes." },
+              ok: { body: "The tour runs smooth; you sweep the grassroots circuit." },
+              meh: { body: "You grin through the stops, too tired for any of it to stick." },
+              fail: { body: "At one stop you plainly flag and throw out a lazy line; someone records it." },
+              critfail: { body: "You yawn, spent, on camera; that fifteen seconds loops for a whole week." }
+            }
+          },
+          {
+            id: "deep",
+            text: "Cut several stops and sink into one place for a real morning",
+            outcomes: {
+              crit: { body: "You dig up a real problem at one stop and carry a weighty bill back to Congress; that ground is yours now." },
+              ok: { body: "You work one place thoroughly, at the cost of two stops of exposure." },
+              meh: { body: "You talk a whole morning; no one nationwide notices the missing cities." },
+              fail: { body: "Party chairs from the cut stops call to ask why you skipped them." },
+              critfail: { body: "Your playing favorites reads as a signal; the snubbed regions file complaints together." }
+            }
+          }
+        ]
+      },
+
+      /* ================= 基层池加深 · county fair ================= */
+      {
+        id: "chore_fair",
+        title: "The county fair opens, and the main stage needs a local official",
+        body: "The {CITY} county fair runs once a year: fried cider, pottery stalls, kids leading livestock around. The committee asks you, the local public servant, to cut a ribbon and say a word - really they want to see whether you still know these old stands.",
+        brief: {
+          lede: "The county fair opens; the main stage is just short one local official to appear.",
+          known: [
+            "Every family wandering the midway votes here.",
+            "Walking the stands and trading a line with vendors is the most down-to-earth thing you can do.",
+            "Reading an opening speech on stage is safe, but no one cares for official tone."
+          ],
+          unknown: ["One thing you say at the fair travels faster than any TV ad."]
+        },
+        choices: [
+          {
+            id: "stroll",
+            text: "Skip the stage, walk the stands one by one, trade a line with vendors and parents",
+            outcomes: {
+              crit: { body: "You stop at the jam stand and talk with the owner for ten minutes. Your photo runs in the fair bulletin; neighbors say he still remembers this place." },
+              ok: { body: "You walk the round, shake a lot of hands, kids crowd in to photograph you." },
+              meh: { body: "You drift half a circuit with the crowd and neither say nor do anything wrong." },
+              fail: { body: "You find it loud and breeze through; vendors feel you look down on the fair." },
+              critfail: { body: "You only work the photogenic stands, and an old vendor asks to your face why you never stopped by his." }
+            }
+          },
+          {
+            id: "speech",
+            text: "Get on stage, read the opening remarks, close it out with dignity",
+            outcomes: {
+              crit: { body: "Your remarks are short and warm; the crowd actually applauds when you finish." },
+              ok: { body: "You read the script and the ceremony runs clean." },
+              meh: { body: "You read in official tone; half the crowd is gnawing corn." },
+              fail: { body: "Your speech runs long, kids cry, parents leave; the mood scatters." },
+              critfail: { body: "You misread a fair figure and someone corrects you from the crowd; you become the one who cannot even get local facts straight." }
             }
           }
         ]

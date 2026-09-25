@@ -93,6 +93,37 @@
   .campbar .cmp-meter em{font-style:normal;font-family:"SF Mono",Menlo,Consolas,monospace;
     font-weight:700;color:var(--ink);min-width:18px}
   .campbar .cmp-meter.low em{color:var(--bad)}
+  /* #23 投放把柄：竞选面板底部那一行黑料行动 */
+  .campbar .cmp-drop-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;
+    padding-top:7px;border-top:1px dashed var(--line)}
+  .campbar .cmp-drop{font-size:11.5px;padding:3px 9px;border:1px solid var(--bad);
+    background:transparent;color:var(--bad);letter-spacing:.5px;cursor:pointer}
+  .campbar .cmp-drop b{margin-left:4px;font-family:"SF Mono",Menlo,Consolas,monospace}
+  .campbar .cmp-drop.off,.campbar .cmp-drop:disabled{border-color:var(--line);color:var(--muted);cursor:not-allowed}
+  .campbar .cmp-drop:not(.off):hover{background:var(--bad);color:#fff}
+  .campbar .cmp-drop-p{font-size:11px;color:var(--muted)}
+  .campbar .cmp-drop-p.why{font-style:italic;opacity:.75}
+  /* ---- #21 M1 白宫 HUD：复用 .campbar 的皮，只换左轨颜色 + 四档 band 状态色 ----
+     band 颜色同时供支持率瓷贴（.topstat .s-appr）与横幅（.presbar）使用，一处定义。 */
+  .campbar.presbar{border-left-color:var(--good)}
+  .campbar.presbar .cmp-tag{background:var(--good)}
+  .campbar .pres-band{margin-left:auto;font-size:11px;letter-spacing:1.2px;color:var(--muted)}
+  .campbar .pres-meter{display:inline-flex;align-items:center;gap:7px;margin-top:7px;
+    font-size:11.5px;color:var(--muted)}
+  .campbar .pres-meter i{font-style:normal}
+  .campbar .pres-meter .cmp-track{width:132px}
+  .campbar .pres-meter em{font-style:normal;font-family:var(--mono);font-weight:700;color:var(--ink)}
+  .campbar .pres-trend{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .campbar .pres-trend.up{color:var(--good)}
+  .campbar .pres-trend.down{color:var(--bad)}
+  .presbar.band-strong,.presbar.band-strong .pres-band{border-left-color:var(--good);color:var(--good)}
+  .presbar.band-steady,.presbar.band-steady .pres-band{border-left-color:var(--era1);color:var(--era1)}
+  .presbar.band-soft,.presbar.band-soft .pres-band{border-left-color:var(--warm);color:var(--warm)}
+  .presbar.band-danger,.presbar.band-danger .pres-band{border-left-color:var(--bad);color:var(--bad)}
+  .topstat .stat.s-appr{--sc:var(--era1)}
+  .topstat .stat.s-appr.band-strong{--sc:var(--good)}
+  .topstat .stat.s-appr.band-soft{--sc:var(--warm)}
+  .topstat .stat.s-appr.band-danger{--sc:var(--bad)}
   /* era skin（1960_CAMELOT / 1974_WATERGATE 已随 pre-1980 死内容清理；其余时代走默认变量） */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   /* newspaper card */
@@ -182,6 +213,32 @@
   .qchip.tint-n1{background:#fbf1ef}
   .qchip.tint-n2{background:#f8e3de;border-color:#e6bfb5}
   .qchip.tint-n3{background:#f4d3ca;border-color:#dda192}
+  /* ---- #29 派系四栏面板：2×2 宫格 + 每格一条镜像双轴（左半仇恨 / 右半友好）---- */
+  .sb-facs{align-items:stretch}
+  .fac-body{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-width:0}
+  .facgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0}
+  .faccell{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name val" "word val" "bars bars";
+    align-items:center;column-gap:5px;padding:3px 6px 4px;border:1px solid var(--line);border-radius:3px;
+    background:#fff;min-width:0}
+  .faccell .fac-name{grid-area:name;font-size:10.5px;color:var(--muted);letter-spacing:.3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .faccell .fac-word{grid-area:word;font-style:normal;font-size:10px;color:var(--muted);line-height:1.2}
+  .faccell .fac-val{grid-area:val;align-self:center;font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:15px;font-weight:700;color:var(--muted)}
+  .faccell .fac-bars{grid-area:bars;display:flex;margin-top:2px}
+  .faccell .fac-hate,.faccell .fac-love{flex:1 1 50%;height:5px;background:#efe9db;overflow:hidden;display:flex}
+  .faccell .fac-hate{justify-content:flex-end;border-radius:2px 0 0 2px}
+  .faccell .fac-love{border-radius:0 2px 2px 0}
+  .faccell .fac-hate b,.faccell .fac-love b{display:block;height:100%}
+  .faccell .fac-hate b{background:var(--bad)}
+  .faccell .fac-love b{background:var(--good)}
+  /* 分档：与 chip 同一套三档口径（|v|≥40 / ≥15 / >0），正值淡绿、负值淡红 */
+  .faccell.t1p{background:#f0f5e7}   .faccell.t2p{background:#e3efcf;border-color:#c4dba0}
+  .faccell.t3p{background:#d4e8b4;border-color:#a9cc7d}
+  .faccell.t1n{background:#fbf1ef}   .faccell.t2n{background:#f8e3de;border-color:#e6bfb5}
+  .faccell.t3n{background:#f4d3ca;border-color:#dda192}
+  .faccell.t1p .fac-val,.faccell.t2p .fac-val,.faccell.t3p .fac-val{color:var(--good)}
+  .faccell.t1n .fac-val,.faccell.t2n .fac-val,.faccell.t3n .fac-val{color:var(--bad)}
   .log-sm{font-size:11px;line-height:1.45;color:var(--muted);margin-top:5px;
     border-top:1px dotted var(--line);padding-top:4px;max-height:none;overflow:visible}
   .sb-detail .log{max-height:none;overflow:visible}
@@ -309,10 +366,6 @@
   .art-press-broken img{display:none}
   .art-press-broken::after,.art-press-broken::before{display:none}
   .art-press-broken .art-back{display:block}
-  /* 时代简报头版：比事件配图略矮的横幅，作为简报的「报头大图」 */
-  .art-press.era-front{margin:10px 0 6px}
-  .art-press.era-front img{height:174px}
-  .art-press.era-front .art-ptag{font-size:11px;letter-spacing:1.5px}
   a.link{color:var(--accent)}
   /* ending */
   .ending{border:3px double var(--line);padding:18px;background:#fbf7ec}
@@ -552,11 +605,6 @@
     font-size:12.5px;color:var(--muted)}
   .yearbar div{margin:1px 0}
   .yearbar b{color:var(--ink)}
-  .sechead{font-size:14px;margin:12px 0 2px}
-  .heads{margin:0;padding-left:18px}
-  .heads li{font-size:12.5px;color:#4a4437;margin:2px 0}
-  .bs{border:1px solid #9c2b2b;background:#fbf1f0;padding:8px 10px;margin:10px 0}
-  .bs h2{margin:2px 0 4px;font-size:17px}
   /* 月历条：把"平静过去的月份"和"这个月"排成一条时间线 */
   .mstrip{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .mlabel{display:flex;align-items:center;gap:6px;border:1px solid var(--line);
@@ -601,11 +649,19 @@
     color:var(--accent);min-width:40px;text-align:center}
   .rspent{font-style:normal;font-size:12px;color:#7a5a00;background:#f3e6c4;border:1px solid #d8c48a;
     padding:1px 6px;border-radius:9px}
+  /* #37②：卡池那份加成单独一枚角标（与"自由点 +"并列，读得出这格由几块拼成） */
+  .rscard{font-style:normal;font-size:12px;color:#2c5a7a;background:#e2eef6;border:1px solid #b6d2e4;
+    padding:1px 6px;border-radius:9px}
+  .alloc-cardsum{font-size:12px;margin:2px 0 4px}
   .rctrl{display:inline-flex;gap:4px;margin-left:auto}
   .rleft{font-size:13px;color:var(--muted);margin:2px 0 6px}
   .rleft.done{color:var(--good);font-weight:700}
   .viprow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
   .viprow input[type=text]{width:220px}
+  /* v0.12 #20 收尾：作弊码输入框常驻（不再隐藏），与自由点分配块同一屏 */
+  .cheatbox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 2px}
+  .cheatbox input[type=text]{width:260px;max-width:100%}
+  .cheatmsg{font-size:12px;color:var(--muted);margin:2px 0 6px}
   /* v0.12 #20 开局天赋卡墙：抽出来的卡一张一格，按稀有度描边，选中高亮、名额满时压暗 */
   .gwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
   .gcard{position:relative;border:2px solid var(--line);background:#fbf7ec;border-radius:6px;
@@ -634,11 +690,6 @@
   .loanline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:3px 0 2px}
   .loanline .gchip2.muted{color:var(--muted);font-weight:600;background:#f2efe6}
   .loanline .forbear-btn{font-size:11.5px;padding:1px 9px;border-radius:9px}
-  /* 年终随笔：三段人话，衬线、首行缩进、上边一道双线 */
-  .ytales{border-top:1px double var(--line);border-bottom:1px double var(--line);
-    margin:10px 0;padding:10px 2px;background:transparent}
-  .ytale-p{margin:0 0 10px;text-indent:2em;line-height:2;color:#2a251c}
-  .ytale-p:last-child{margin-bottom:0}
   /* 选项说明：按钮内嵌的折叠块（点说明不触发选择） */
   .choice .chnote{margin-top:6px;border-top:1px dotted #cfc6ad;padding-top:4px}
   .choice .chnote summary{font-size:11.5px;color:var(--muted);cursor:pointer;user-select:none;
@@ -796,6 +847,20 @@
   /* 导语为空时不要让双层下边框悬空 */
   .news.editorial .standfirst:empty{display:none}
 
+  /* #21 M4：椭圆办公室皮肤。白宫月（ev.wh）的卡片换一张皮 —— 判据只有 .oval 一个类，
+     平民月份那条字符串根本不生成，所以抽卡热路径与既有版面零影响。
+     徽章底纹不引外部图：一枚淡金圆形水印压在右上角，靠 radial-gradient 画。 */
+  .news.editorial.oval{border-left:5px solid #1d2f52;background:
+      radial-gradient(150px 150px at calc(100% - 44px) 30px,
+        rgba(154,124,58,.17), rgba(154,124,58,.05) 55%, rgba(154,124,58,0) 70%) #f8f5ec}
+  .news.editorial.oval h1.headline{color:#16233d}
+  .news.editorial.oval .dnum{color:#8a6d2f}
+  .news.editorial.oval .standfirst{color:#3b4560;border-bottom-color:#1d2f52}
+  .news.editorial.oval .body{color:#242a36}
+  /* 选项瓷贴从报纸灰换成总统藏青 */
+  .news.editorial.oval .cchip{color:#ece5d2;border-color:#2c4470;background:#22345a}
+  .news.editorial.oval .cchip.medium{color:#ece5d2;border-color:#16233d;background:#2f4779}
+
   /* 建角：难度卡带 25 岁头像 */
   .create .opt-diff{display:flex;align-items:center;gap:12px}
   .create .opt-port{flex:0 0 auto;width:54px;height:58px;object-fit:cover;padding:2px;
@@ -895,7 +960,6 @@
     .news.editorial .standfirst{font-size:13px;margin-bottom:10px}
     .art-press{margin:10px 0}
     .art-press img{height:auto;max-height:24vh;object-fit:contain;width:100%}
-    .art-press.era-front img{height:auto;max-height:22vh}
     .brief-slot{display:none}           /* 背景折叠：竖屏不进卡片流 */
     .ledgerbox,.ledger{font-size:11px}
 

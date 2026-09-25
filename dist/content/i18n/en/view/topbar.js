@@ -104,6 +104,17 @@ POTUS.define("l10n", {
     "ui.topbar.langTip": "Switch UI language (takes effect after the page reloads)",
     "ui.topbar.langLabel": "Language",
     "ui.topbar.langZh": "中",
-    "ui.topbar.langEn": "EN"
+    "ui.topbar.langEn": "EN",
+
+    /* #23 竞选面板上的「投放把柄」按钮 */
+    "ui.topbar.dropBtn": "Leak the dirt",
+
+    /* #21 M1 白宫 HUD：支持率瓷贴 + 在任横幅 */
+    "ui.topbar.resAppr": "Approval",
+    "ui.topbar.tipAppr": "The national polls. Every White House decision leans on it, and a roll bonus takes 50% as its zero point; each month it drifts back toward its natural level and leaks slowly. Drop into the danger band and your own party starts knocking.",
+    "ui.topbar.presTag": "Incumbent",
+    "ui.topbar.presOffice": "President",
+    "ui.topbar.presTerm": "Term {t} · {m} months in office",
+    "ui.topbar.presApproval": "Approval"
   }
 });

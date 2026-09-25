@@ -20,6 +20,111 @@ POTUS.define("l10n", {
     event: [
 
       /* ============================================================
+       * 2015-01 · Paris newsroom attack and the march
+       * ========================================================== */
+      {
+        id: "ln15_charlie",
+        title: "A satirical newsroom in Paris is stormed; four days later the city marches",
+        body: "One midday in January, two armed men walk into the offices of a satirical weekly in Paris. Twelve people are killed, among them several cartoonists, a columnist and two police officers. The reason is a strip of drawings published years ago.\n" +
+          "Four days later the city fills up: a column of people over a kilometre long, heads of state walking in the front rank. The same afternoon, newsrooms here close their doors to argue one question — do we reprint those drawings. Your phone starts ringing then.",
+        brief: {
+          lede: "The attack happened in another country. The exam is set on your side: reprint it, march in it, put your name on it.",
+          known: [
+            "The weekly had been sued over those drawings, and its office had asked for protection.",
+            "The march is set for four days out; several governments confirm their principals will walk front.",
+            "Half a dozen papers here are meeting behind closed doors about reprinting.",
+            "Your district has halal grocers, and a returned foreign-correspondent you once drank with."
+          ],
+          rumor: [
+            "Some say an earlier security memo never reached the newsroom.",
+            "Some say the march is a stage being set for next week's bill."
+          ],
+          unknown: [
+            "Whether the line around speech gets redrawn from this week on.",
+            "What your wording this January gets used for, five years from now."
+          ],
+          terms: [
+            { k: "Satirical weekly", v: "A paper whose standing content is political cartoon and mockery." },
+            { k: "Reprinting", v: "A foreign paper republishing the drawings that brought the attack — itself a position." }
+          ]
+        },
+        choices: [
+          {
+            id: "window_sign",
+            text: "Hang one sheet on your office door and say nothing else",
+            note: "Betting this is not your fight. Risk: a piece of paper on a door gets read as a position anyway.",
+            outcomes: {
+              crit: { body: "The wording is exactly right: mourning, no commentary. The weekly city paper photographs it for an inside-page corner, and nobody finds a fault in it." },
+              ok: { body: "You put the sheet up, answer two visitors with the same sentence, and go back inside to work." },
+              meh: { body: "The sheet hangs there a week. Nobody stops to read it." },
+              fail: { body: "Someone photographs it and asks why you did not write more. You do not answer." },
+              critfail: { body: "Somebody changes one word on that sheet, and the altered version circulates your district for a week." }
+            }
+          },
+          {
+            id: "small_vigil",
+            text: "Hold a twenty-person vigil on the library steps and invite nobody to speak",
+            note: "Small, steady, off the national feed. Risk: what nobody remembers is also what nobody defends.",
+            outcomes: {
+              crit: { body: "Twenty people come, one of them the owner of the halal grocer. Later he tells people that they were asked, that night." },
+              ok: { body: "The candles burn an hour and the crowd disperses quietly. Everyone who needed to see, saw." },
+              meh: { body: "Eight people come, half of them returning library books." },
+              fail: { body: "A counter-poster goes up the next day saying this vigil lights candles for one side only. You never wrote a line." },
+              critfail: { body: "The local paper gives it six words: 'no speeches given, ended.' You managed to hold an event that did not happen." }
+            }
+          },
+          {
+            id: "republish",
+            text: "Have the local chain reprint those drawings, with one editorial attached",
+            note: "Betting that respect outlives fear. Risk: the till on your street closes over it today.",
+            outcomes: {
+              crit: { body: "The drawings run on the front page and the editorial takes one column. Three campus papers ask to license your layout, and the press association puts your name in the first paragraph of its annual statement." },
+              ok: { body: "The page goes out; abuse and thanks come in equal halves. At least you have one sentence you can be quoted for." },
+              meh: { body: "You paid for the space and the drawings ran on page eleven. Nobody turned that far." },
+              fail: { body: "Two advertisers pull on the second day, under a headline about making locals pay for somebody else's cartoons." },
+              critfail: { body: "One local congregation reads the reprinted panel as something else entirely, and your party cuts you loose the same day. Somebody starts asking, line by line, what the page cost and who paid." }
+            }
+          },
+          {
+            id: "letters_back",
+            text: "Write two open letters — to the embassy and to the national press association — and put your position into clauses",
+            note: "A statement only pays if it becomes a clause. Risk: clauses get interrogated word by word.",
+            outcomes: {
+              crit: { body: "The association adopts all three of your clauses and the embassy pins your letter in its hall. Somebody in national print writes 'a local representative of the people notes' before your sentence." },
+              ok: { body: "Your letters get a serious reply, and one sentence of yours survives into it. That is enough." },
+              meh: { body: "Both letters go out; both come back as templates." },
+              fail: { body: "A reporter finds a hole in your second clause, and the association publicly distances itself from your wording." },
+              critfail: { body: "Your letter is translated back to you with a copy of this country's own press code attached, marked in pencil: the author of this letter plainly never read it." }
+            }
+          },
+          {
+            id: "march_front",
+            text: "Fly to Paris, walk in the front rank, and file the bill the day you get home",
+            note: "The front rank is a national camera. Risk: afterward you have to answer for that photograph all the way down.",
+            outcomes: {
+              crit: { body: "The photograph of the shoulder-to-shoulder walk leads every national paper. The bill you file the morning after landing clears its first committee inside two weeks." },
+              ok: { body: "You stood where you should stand and said what needed saying. Your party is pleased; a slice of your voters think you went too far." },
+              meh: { body: "You are in the thirteenth row and no camera finds you. Somebody asks once about the airfare." },
+              fail: { body: "The country's attention moves on the next day and the bill you carried home does not move one word. People start calling the trip a subsidised sightseeing tour." },
+              critfail: { body: "The photograph does get used — in your opponent's fundraising appeal, with the itemised cost of your delegation read out underneath." }
+            }
+          },
+          {
+            id: "floor_vote",
+            text: "Put the vote itself on the table: an open motion, a recorded roll call, nobody allowed to be vague",
+            note: "Betting you will turn your own ballot into a public record. Risk: if the direction is wrong, that name follows you ten years.",
+            outcomes: {
+              crit: { body: "A newsroom later frames that roll-call sheet. You spend three minutes on national television drawing one line about what speech costs a democracy, and people quote those three minutes for years." },
+              ok: { body: "Your motion enters the record. It may not pass, but from today anyone taking a position has to cite your clause first." },
+              meh: { body: "The motion is scheduled for next session, which is to say into the drawer." },
+              fail: { body: "The vote fails, and you are written up as using other people's blood to push your own bill. Your party asks you to slow down." },
+              critfail: { body: "Under your name on that roll-call sheet sits a second, harsher provision your own office quietly withdrew the same week. 'One rule for the camera' gets made into a chart." }
+            }
+          }
+        ]
+      },
+
+      /* ============================================================
        * 2015-06 · nationwide marriage ruling
        * ========================================================== */
       {

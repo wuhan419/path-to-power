@@ -83,7 +83,7 @@
     const dTier = G.tier - snap0.tier;
     const kFun = Math.round(dFun / 1000);
     const ctx = {
-      era: G.era, year: G.year, month: 12, age: G.age, track: G.track, party: G.party, stance: G.stance,
+      era: P.eraAt(G.year), year: G.year, month: 12, age: G.age, track: G.track, party: G.party, stance: G.stance,
       origin: G.origin, entry: G.entry, talent: G.talent, state: G.state, tier: G.tier,
       rep: G.rep, hp: G.hp, fun: G.fun, fav: G.fav, lev: G.lev || 0,
       contactN: P.myContacts().length, knownIds: G.contacts || {},
@@ -111,62 +111,33 @@
     return segs.join("\n\n");
   };
 
-  /* 时代简报头版照：第一步全年份共用 era.jpg；第二步若有 era-<year>.jpg 则优先用之年专属头版。
-     onerror 回退保证「丢了某年图」也不会破版。 */
-  P.eraFrontPhoto = function (year) {
-    const dir = "assets/events/";
-    const specific = "era-" + year + ".jpg";
-    const generic = "era.jpg";
-    const alt = P.t("ui.stage.eraFrontAlt", "{year} 年 · 时代简报头版", { year: year });
-    return '<figure class="art art-press era-front">' +
-      '<img src="' + dir + specific + '" alt="' + alt + '"' +
-      ' onerror="this.onerror=null;this.src=\'' + dir + generic + '\'">' +
-      '<span class="art-ptag">' + P.t("ui.stage.eraFrontTag", "时代头版") + '</span>' +
-      '<span class="art-pnum">' + P.t("ui.stage.eraFrontNum", "卷宗 {year}", { year: year }) + "</span>" +
-      "</figure>";
-  };
-
+  /* #34：年初「时代简报」屏下线 —— 跨年之后直接落进本年第一个有事的月份。
+     startYear 只留两件事：开年后台（水位归零 + 年初快照，年终叙事的差值从这里来）
+     与游戏壳（#main / #statusbox / #actbody 三个持久容器）。 */
   P.startYear = function (resume) {
     P.SCREEN = "game";
-    const G = P.G, w = P.reg.worldline || {}, era = P.reg.era[G.era] || { name: G.era, brief: {} };
-    /* 年初播报：优先全局时间轴的按年条目，其次 era.brief（按年或通配），
-       再退回时间轴通配 —— 未迁移年代照旧走 era，可回退。 */
-    const brief = (w.brief && w.brief[G.year])
-      || (era.brief && (era.brief[G.year] || era.brief["*"]))
-      || (w.brief && w.brief["*"])
-      || P.t("ui.stage.yearBrief", "{year}年，风暴仍在继续。", { year: G.year });
+    const G = P.G;
     if (!resume) G.month = 0;                 // 0 → advanceMonth 会从 1 月开始
     G.monthPlan = []; G.slotIndex = 0; G.slotCount = 0;
     G.quietMonths = []; G.yearHeads = [];
     G.vigMonth = 0; G.quietLog = [];           // 新的一年：静好岁月的结算水位与随笔记录归零
-    /* 年初快照：年终叙事要对比"这一年你得到/失去了什么"，差值从这里来 */
     G.yearStartSnap = { rep: G.rep, fun: G.fun, hp: G.hp, lev: G.lev || 0, tier: G.tier };
-    const pl = P.pressureLabel();
-    const media = P.mediaNow().map(function (m) { return m.name; }).join(" · ");
+    P.renderShell();
+    document.body.className = "game era-" + P.eraAt(G.year);
+    P.tickDate();
+    if (resume) P.resumeMonth(); else P.nextMonth();
+  };
+
+  /* 游戏壳：跨年/续局时中栏先留空，等第一个页面（事件卡、平静月合并卡）写进 #main */
+  P.renderShell = function () {
     P.app().innerHTML =
       P.topbarHTML() +
       '<div class="grid">' +
-      '<div id="main" class="col-event"><div class="news fade"><div class="dateline">' + (w.name || P.eraName() || era.name) +
-      " · " + P.t("ui.stage.yearWorld", "{year} 年的世界", { year: G.year }) + '</div><h2>' +
-      P.t("ui.stage.yearBriefHead", "{year}：时代简报", { year: G.year }) + "</h2>" +
-      (typeof P.eraFrontPhoto === "function" ? P.eraFrontPhoto(G.year) : "") +
-      '<div class="body">' + brief + "</div>" +
-      '<div class="yearbar">' +
-      "<div>" + P.t("ui.stage.pressureLabel", "时代压力：") + "<b class=\"" + pl.cls + '">' + pl.text + "</b>" +
-      P.t("ui.stage.pressureNote", "（{v}／6）　·　压力越高，风波越多、越大。", { v: P.pressure().toFixed(1) }) + "</div>" +
-      (media ? "<div>" + P.t("ui.stage.mediaNow", "此刻存在的媒介：") + media + "</div>" : "") +
-      "</div>" +
-      '</div></div>' +
+      '<div id="main" class="col-event"></div>' +
       '<aside class="col-right">' +
       /* 右栏 = 上状态栏 + 下操作栏（#statusbox 必须在 .col-right 内，别放回顶部全宽） */
       '<div id="statusbox" class="statusbox">' + P.statusPanel() + '</div>' +
       '<div class="actbar"><div id="actbody"></div></div></aside></div>';
-    document.body.className = "game era-" + G.era;
-    // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
-    actAppend('<div class="acthead">' + P.t("ui.stage.newYearHead", "进入新的一年") + '</div><button class="btn primary actbtn" onclick="POTUS.' +
-      (resume ? "resumeMonth" : "nextMonth") + '()">' +
-      (resume ? P.t("ui.stage.backToMonth", "回到 {m} 月 →", { m: (G.month || 1) }) : P.t("ui.stage.enterJan", "进入 1 月 →")) + "</button>");
-    P.tickDate();
   };
 
   /* 从存档恢复：重建"当月"档期，不重头演这一年。有事月直接进事件，不再过月历页。 */
@@ -212,7 +183,8 @@
     }
     if (run.length) {
       const nextCall = ok ? "POTUS.nextSlot()" : "POTUS.endYear()";
-      const label = ok ? P.t("ui.stage.continue", "继续 →") : P.t("ui.stage.toYearEnd", "进入年度结算 →");
+      /* #34：年终结算屏下线后，年末按钮直接写「进入下一年」—— endYear 结完账自己翻年 */
+      const label = ok ? P.t("ui.stage.continue", "继续 →") : P.t("ui.stage.toNextYear", "进入下一年 →");
       P.renderQuietRun(run, nextCall, label);  // 连续的平静月 → 合并成一个页面
       return;
     }
@@ -340,6 +312,9 @@
     if (r.fun != null && G.fun < r.fun) return P.t("ui.stage.reqFun", "需要资金 ≥ ${v}", { v: r.fun.toLocaleString() });
     if (r.lev != null && (G.lev || 0) < r.lev) return P.t("ui.stage.reqLev", "需要把柄 ≥ {v}", { v: r.lev });
     if (r.rep != null && G.rep < r.rep) return P.t("ui.stage.reqRep", "需要声望 ≥ {v}", { v: r.rep });
+    /* #35④：投票日的门槛只看人头，不看钱包 —— 基本盘（好感+死忠）占注册选民的比例 */
+    if (r.voterShare != null && (P.baseShare ? P.baseShare() : 0) < r.voterShare)
+      return P.t("ui.stage.reqShare", "需要基本盘 ≥ {v}% 的注册选民", { v: Math.round(r.voterShare * 100) });
     if (r.tier != null && G.tier < r.tier) return P.t("ui.stage.reqTier", "需要身居 {t} 或以上", { t: P.tierName(r.tier) });
     if (r.track && G.track !== r.track) return P.t("ui.stage.reqNamed", "需要「{name}」", { name: ((P.reg.track[r.track] || {}).name || r.track) });
     if (r.party && G.party !== r.party) return P.t("ui.stage.reqNamed", "需要「{name}」", { name: ((P.reg.party[r.party] || {}).name || r.party) });
@@ -692,6 +667,10 @@
       "</span>";
   }
 
+  /* #21 M4：白宫月的卡片换一张椭圆办公室的皮。判据只有 ev.wh 一个字段，
+     所以平民月份连字符串都不变——抽卡热路径不额外开销。 */
+  P.ovalCls = function (ev) { return ev && ev.wh ? " oval" : ""; };
+
   /* 头版导语（standfirst）：有 ev.standfirst 直接用；否则从正文第一句提炼一句斜体引文。
      不写回事件文件——只做界面层的呈现提炼。 */
   function standfirstOf(ev) {
@@ -760,7 +739,7 @@
       settleHTML = P.ledgerBoxHTML([P.G.ledger[P.G.month]], P.t("ui.stage.monthSettle", "本月 · 身位结算"));
     }
     box.innerHTML =
-      '<article class="news editorial fade">' +
+      '<article class="news editorial fade' + P.ovalCls(ev) + '">' +
       '<div class="dossier-head">' +
         '<span class="dnum">DOSSIER // EVENT NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
         '<span class="dmeta">' + vchip +
@@ -795,7 +774,8 @@
       cbox.appendChild(choicesHost);
     }
     const cTarget = choicesHost || P.$("#choices");
-    const chs = ev.choices || [];
+    /* #32⑤：选项级分层 —— 写了 ch.when 的选择支只在对的身份档位上出现 */
+    const chs = P.visibleChoices ? P.visibleChoices(ev) : (ev.choices || []);
     /* 保底机制：如果所有选项都被堵死（没钱 / 没声望 / 没层级），放行一个，
        免得玩家卡在一个点不动的事件上。正常情况下不该触发（校验器强制每个事件
        都有保底选项），这里只是兜底。 */
@@ -887,7 +867,9 @@
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、
        不列目标值与加值明细。玩家看到的只有：结果档位（大成功/成功/勉强/失败/大失败）
        ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
-    P.applyEffects(effFinal);
+    /* #37②：可重复卡的属性只发第一次（账面与实际同步，故在显示与结算之前过滤） */
+    const effApply = P.filterOnceAttr(effFinal, ev.id);
+    P.applyEffects(effApply);
     P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
     /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
     const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
@@ -897,7 +879,7 @@
        再读"发生了什么"，不再是一个 18px 粗体压着一段正文。 */
     div.innerHTML = '<span class="rtag">' + label + '</span><div class="rbody">' + (out.body || "") + "</div>";
     mainInsert(div);
-    const gainHTML = gainBoxHTML(effFinal);
+    const gainHTML = gainBoxHTML(effApply);
     if (gainHTML) {
       const gb = document.createElement("div");
       gb.className = "fade";
@@ -969,7 +951,8 @@
     P.nextSlot();
   };
 
-  /* 年终结算：把这一年发生过的事收成一页，再进下一年 */
+  /* 年度推进的后台结算：老化 / hp 衰减 / 利息 / 精力复位 / 丑闻消退 / 把柄过期 / 黑天鹅 / autosave。
+   * #34：这些照旧跑，但「年终结算屏」已下线 —— 结完直接进下一年（或撞 2025 墙收生涯结算）。 */
   P.endYear = function () {
     const b = P.balance(), G = P.G;
     G.age++;
@@ -996,75 +979,29 @@
     if (levGone) P.pushLog(P.t("ui.stage.levDecay", "时效：有 {n} 份把柄失去了价值（当事人下台或事情过去了）。", { n: levGone }));
     P.pushLog(P.t("ui.stage.yearSettleLog", "年度结算：{age}岁，声望{rep}，资金${fun}k。", { age: G.age, rep: G.rep, fun: (G.fun / 1000).toFixed(0) }));
 
-    let bsHTML = "";
     if (P.chance(b.blackswanChance)) {
       const wl = P.reg.worldline || {};
-      const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[G.era] || [];
+      const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[P.eraAt(G.year)] || [];
       if (list.length) {
         const bs = P.pick(list);
-        P.addFlag("bs_" + (bs.id || bs.title));
-        P.applyEffects(bs.effects);
-        bsHTML = '<div class="bs"><div class="dateline" style="color:#9c2b2b">' + P.t("ui.stage.blackswan", "黑天鹅") + "</div>" +
-          "<h2>" + bs.title + '</h2><div class="body">' + bs.body + "</div></div>";
-        P.pushLog(P.t("ui.stage.blackswanLog", "黑天鹅：{t}", { t: bs.title }));
+        const bsId = "bs_" + (bs.id || bs.title);
+        P.addFlag(bsId);
+        P.applyEffects(P.filterOnceAttr(bs.effects, bsId));
+        /* 结算屏下线后，日志是黑天鹅唯一的落点 —— 正文一并记进去，别把写好的字丢了 */
+        P.pushLog(P.t("ui.stage.blackswanLog", "黑天鹅：{t}　{body}", { t: bs.title, body: bs.body }));
       }
     }
     P.autosave();
 
-    const main = P.$("#main");
-    if (!main) return;
-    const sc = P.scandalLevel();
-    const heads = (G.yearHeads || []).slice(-5).map(function (h) { return "<li>" + h + "</li>"; }).join("");
-    const quiet = (G.quietMonths || []).length;
-    /* v0.5.2：平静月已逐月出卡，年终不再重复整段文字（tailVig 保留给旧存档渲染） */
-    const tailVig = { html: "" };
-    /* 年终随笔：三段人话（做了什么/得失/处境）放在数字条上方 —— 文学为主，数字为辅 */
-    const taleText = P.yearNarrative();
-    const tales = taleText
-      ? '<div class="ytales">' + taleText.split(/\n\n+/).map(function (p) {
-        return '<p class="ytale-p">' + p + "</p>";
-      }).join("") + "</div>"
-      : "";
-    main.innerHTML = '<div class="news fade yearcard">' +
-      '<div class="dateline"><span class="dt">' + P.t("ui.stage.yearN", "{y} 年", { y: G.year }) + "</span>" +
-      P.t("ui.stage.yearEndTag", " · 年度结算") + "</div>" +
-      "<h2>" + P.t("ui.stage.yearDone", "{y} 年走完了", { y: G.year }) + "</h2>" +
-      tales +
-      '<div class="yearbar">' +
-      "<div>" + P.t("ui.stage.sumAge", "{n} 岁", { n: G.age }) + P.t("ui.stage.wideSep", "　·　") + P.officeName() +
-      P.t("ui.stage.sumOffice", "（在位 {n} 个月）", { n: P.monthsAtTier() }) + P.t("ui.stage.wideSep", "　·　") +
-      (sc ? P.t("ui.stage.sumScandal", "丑闻 Lv") + sc : P.t("ui.stage.noScandal", "无丑闻")) +
-      P.t("ui.stage.wideSep", "　·　") + P.t("ui.stage.sumQuiet", "平静的月份 {n} 个", { n: quiet }) + "</div>" +
-      "<div>" + P.t("ui.stage.sumRep", "声望 {v}", { v: G.rep }) + P.t("ui.stage.wideSep", "　·　") +
-      P.t("ui.stage.sumCash", "资金 ${v}k", { v: (G.fun / 1000).toFixed(0) }) + P.t("ui.stage.wideSep", "　·　") +
-      P.t("ui.stage.sumLev", "把柄 {n} 份", { n: (G.lev || 0) }) + "</div>" +
-      "<div>" + P.t("ui.stage.sumContacts", "人脉 {n} 人", { n: P.myContacts().length }) +
-      (G.state ? P.t("ui.stage.wideSep", "　·　") + P.stateName(G.state) : "") +
-      (levGone ? P.t("ui.stage.wideSep", "　·　") + P.t("ui.stage.sumLevLost", "{n} 份把柄在本年失效", { n: levGone }) : "") + "</div>" +
-      "</div>" +
-      (tailVig.html || "") +
-      (heads ? '<h3 class="sechead">' + P.t("ui.stage.yearHeads", "这一年的头条") + '</h3><ul class="heads">' + heads + "</ul>" : "") +
-      bsHTML +
-      '</div>';
-    // v0.5.4：年终「进入 N 年 →」继续按钮进右栏 #actbar（清理上一事件残留结算，操作不滚动中栏）
-    actClear();
+    /* #34：结算屏下线 —— 年终不再占一屏，账结完直接翻到下一年的第一个月。
+       黑天鹅/把柄失效等仍进 pushLog（史料与状态面板可见），只是不再单独排版；
+       yearNarrative 与 G.yearHeads 继续产出（生涯史料、validate 三例都吃它们）。 */
     const endY = b.endYear == null ? 2025 : b.endYear;
-    if (G.year >= endY) {
-      /* v0.11 P1：打到终点年（2025）——不再进入下一年，改为弹出生涯成就结算。 */
-      actAppend('<button class="btn primary actbtn" onclick="POTUS.careerEnd()">' + P.t("ui.stage.settleCareer", "查看生涯结算 →") + "</button>");
-    } else {
-      actAppend('<button class="btn primary actbtn" onclick="POTUS.nextYear()">' + P.t("ui.stage.enterYear", "进入 {y} 年 →", { y: (G.year + 1) }) + "</button>");
-    }
-    P.tickDate();
-    P.refreshPanel();
+    if (G.year >= endY) { P.careerEnd(); return; }
+    G.year++;
+    P.startYear();
   };
 
-  /* 生涯结算入口：走到 2025 终点年后由年终结算屏的按钮触发（见 endYear）。 */
+  /* 生涯结算入口：走到 2025 终点年后由 endYear 的年度收尾直调。 */
   P.careerEnd = function () { P.ending("career_end"); };
-
-  P.nextYear = function () {
-    const b = P.balance(), endY = b.endYear == null ? 2025 : b.endYear;
-    if (P.G.year >= endY) return P.careerEnd();     // 保险：越不过终点年
-    P.G.year++; P.startYear();
-  };
 })();

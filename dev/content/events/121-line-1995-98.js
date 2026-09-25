@@ -365,7 +365,7 @@ POTUS.define("event", [
    * 1996-11 · 大选年 —— 连任之夜，顺风怎么乘
    * ==================================================================== */
   {
-    id: "ln96_election", grade: "major", category: "political",
+    id: "ln96_election", photo: "era-1996.jpg", grade: "major", category: "political",
     valence: "boon", dyn: true,
     minYear: 1996, maxYear: 1996, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "cable", "internet", "print"], month: 11,
@@ -623,7 +623,7 @@ POTUS.define("event", [
    * 1998-12 · 弹劾 —— 众议院把总统私德送上审判席
    * ==================================================================== */
   {
-    id: "ln98_impeach", grade: "major", category: "scandal",
+    id: "ln98_impeach", photo: "era-1998.jpg", grade: "major", category: "scandal",
     valence: "risk", dyn: true,
     minYear: 1998, maxYear: 1998, scoped: true, tierRaw: true, tierMin: 1, tierMax: 7, weight: 13, unique: true,
     medium: ["tv", "cable", "internet", "print"], month: 12,

@@ -54,7 +54,7 @@ POTUS.define("event", [
       {
         id: "push", text: "赶在别人之前把这一票做满（压上全部本金）",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { fun: 0.8 }, stake: { fun: true, ap: true },
+        cost: { fun: 0.8 }, stake: { fun: true },
         outcomes: {
           /* 回报按比例（funMul）——押多少赚多少百分比，投注加码进来的钱同样吃倍数 */
           crit: out("一个下午，本金翻了三倍。走之前你还顺手把那张写满学生名字的收据揣进了口袋——不是为了用，是为了万一。",
@@ -66,13 +66,13 @@ POTUS.define("event", [
           fail: out("有个家伙拿了货不给钱，还带走了你的名字。本金进了水。",
             { funMul: -0.6, rep: -0.6, fac: { base: -5 }, flags: ["shady_start"] }),
           critfail: out("学校保安记下了车牌。你没被起诉，但那辆车的登记人是你哥。货和本钱一起没了。",
-            { funMul: -1.0, rep: -1.25, hp: -0.8, fac: { base: -8, press: -5 }, flags: ["scandal_1", "sold_brother"] })
+            { funMul: -1.0, rep: -1.25, fac: { base: -8, press: -5 }, flags: ["scandal_1", "sold_brother"] })
         }
       },
       {
         id: "small", text: "只做小份，慢慢试水温",
         base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { fun: 0.2 }, stake: { ap: true },
+        cost: { fun: 0.2 }, stake: {},
         outcomes: {
           crit: out("量小，但每一单都干净。你没有变成「那个人」，只是变成了一个「有点门路的人」。",
             { funMul: 1.5, lev: 1, fac: { base: 4 }, flags: ["shady_start"] }),
@@ -97,9 +97,9 @@ POTUS.define("event", [
           meh: out("工头拖了两周工钱。你学到了第一课：老实人也会被欠钱。",
             { fun: 0.1, fac: { labor: -3 } }),
           fail: out("干了一个月，身体累坏了，钱没剩几个。",
-            { fun: 0.1, hp: -1.25 }),
+            { fun: 0.1 }),
           critfail: out("你在流水线上伤了手，医药费自己付，工头说这是你自己不小心。",
-            { fun: -0.1, hp: -2, fac: { labor: -6 } })
+            { fun: -0.1, fac: { labor: -6 } })
         }
       }
     ]
@@ -139,7 +139,7 @@ POTUS.define("event", [
       {
         id: "borrow_big", text: "借一笔大的，够撑一整年",
         base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        req: { rep: 2 }, stake: { fun: true, ap: true, fav: true },
+        req: { rep: 2 }, stake: { fun: true, fav: true },
         outcomes: {
           crit: out("他把钱推过来，还多加了两成：「你这个人我看了很久，值得多押一点。」你第一次意识到，被信任是有价格的。",
             { fun: 29, contact: { shark: 16 }, fac: { commercial: 6 } }),
@@ -156,14 +156,13 @@ POTUS.define("event", [
       {
         id: "borrow_small", text: "只借周转的零头，当天还清",
         base: 0.72, mods: [{ src: "attr", key: "INT", w: 0.4 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: out("当天还清，还多给了一点。他点点头说：「规矩人。」在这个社区里，这三个字能当钱用。",
             { fun: 2.75, contact: { shark: 12 }, rep: 0.4 }),
           ok: out("借了，还了，谁也没多说话。你在他那里有了第一条记录。",
             { fun: 1.25, contact: { shark: 6 } }),
           meh: out("凑钱的那两天你几乎没睡。钱还上了，人也垮了。",
-            { fun: 0.7, hp: -2, contact: { shark: 4 } }),
+            { fun: 0.7, contact: { shark: 4 } }),
           fail: out("你迟到了一天。他没说什么，只是把利息改了。",
             { fun: -0.4, contact: { shark: -3 } }),
           critfail: out("你没能按时凑齐，去求他宽限。他答应了，但这件事在社区里传开了。",
@@ -183,7 +182,7 @@ POTUS.define("event", [
           fail: out("你因为缺钱办砸了一件小事，被人当面说了一句「穷」。",
             { rep: -0.8, fac: { commercial: -3 } }),
           critfail: out("缺钱让你错过了一次本该抓住的机会。你坐在空公寓里，第一次认真想过去借那笔钱。",
-            { rep: -1.25, hp: -1.5 })
+            { rep: -1.25 })
         }
       }
     ]
@@ -230,9 +229,9 @@ POTUS.define("event", [
           ok: out("收起来了。你偶尔会想起它，但你没有打开第二次。",
             { lev: 1 }),
           meh: out("你把它收起来，然后忘了放在哪一格。三个月后你才重新找到它。",
-            { lev: 1, hp: -0.5 }),
+            { lev: 1 }),
           fail: out("你收起来了，但房东翻过一次你的房间。她没拿走什么，但你从此不放心。",
-            { lev: 1, hp: -1, fac: { base: -3 } }),
+            { lev: 1, fac: { base: -3 } }),
           critfail: out("你收起来了，但那个牛皮纸袋上留着你的指纹，而它第二天出现在了别人的桌上。",
             { lev: 1, rep: -0.8, flags: ["scandal_2"] })
         }
@@ -240,7 +239,7 @@ POTUS.define("event", [
       {
         id: "use", text: "现在就把它用掉——敲那扇门",
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.55 }],
-        stake: { fun: true, ap: true, fav: true },
+        stake: { fun: true, fav: true },
         outcomes: {
           crit: out("你只说了三句话，其中一句是那个编号。他请你坐下，给你倒了水，然后答应了你要的那件事——还多答应了一件。",
             { tier: 1, rep: 1.5, lev: 1, fac: { establishment: 12, press: -6 }, flags: ["compromised"] }),
@@ -251,7 +250,7 @@ POTUS.define("event", [
           fail: out("他听完之后笑了，说他三年前就为这件事道过歉、付过代价。你的纸在他眼里已经过期了。",
             { lev: 1, rep: -1, fac: { establishment: -12, press: -8 }, flags: ["scandal_2"] }),
           critfail: out("他没等你说完就按了铃。保安进来的时候他把纸袋推到你面前，说：「这是你的东西，先生。」全程没有一句威胁，但所有人都懂了。",
-            { lev: 1, rep: -1.75, hp: -1, fac: { establishment: -18 }, flags: ["scandal_3", "investigation_open"] })
+            { lev: 1, rep: -1.75, fac: { establishment: -18 }, flags: ["scandal_3", "investigation_open"] })
         }
       },
       {
@@ -263,7 +262,7 @@ POTUS.define("event", [
           ok: out("烧了。你什么都没得到，但也什么都没欠。",
             { rep: 0.2, fac: { base: 3 } }),
           meh: out("烧了。可你记住了上面的编号，这件事后来在你脑子里待了很多年。",
-            { hp: -0.5 }),
+            {}),
           fail: out("你烧了，但送纸袋的人知道了。他从那以后没再找过你。",
             { fac: { base: 2 }, contact: { fixer: -10 } }),
           critfail: out("你正在烧的时候，邻居在阳台上看了一会儿。后来有人开始打听「那个在院子里烧东西的年轻人」。",
@@ -307,7 +306,7 @@ POTUS.define("event", [
       {
         id: "press", text: "直接施压：把话说到他不敢拒绝",
         base: 0.66, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "attr", key: "INTG", w: -0.25 }],
-        stake: { ap: true, fav: true },
+        stake: { fav: true },
         outcomes: {
           crit: out("他没敢多问，而且为了保险，还多给了你一份完全不同的记录。你走的时候他手在抖——你知道自己以后还能来。",
             { lev: 1, rep: 0.4, attr: { CUN: 2 }, fac: { base: -2, press: 3 }, contact: { doctor: 6 } }),
@@ -343,13 +342,13 @@ POTUS.define("event", [
         base: 0.8, mods: [{ src: "attr", key: "INTG", w: 0.45 }],
         outcomes: {
           crit: out("你去见了该见的人，把情况原原本本说了。对方沉默了一会儿，然后说：「你至少没骗我。」这件事后来意外地帮了你。",
-            { rep: 1.5, hp: -1.5, fac: { base: 6 }, contact: { doctor: 6 } }),
+            { rep: 1.5, fac: { base: 6 }, contact: { doctor: 6 } }),
           ok: out("你自己扛了过去。累，但没欠谁。",
-            { rep: 0.4, hp: -1.5 }),
+            { rep: 0.4 }),
           meh: out("你硬扛，结果两头都没落好。",
-            { rep: -0.4, hp: -2.5 }),
+            { rep: -0.4 }),
           fail: out("你没去签字，也没去处理，事情就这样坏掉了。",
-            { rep: -1.25, hp: -2, fac: { base: -3 } }),
+            { rep: -1.25, fac: { base: -3 } }),
           critfail: out("你硬扛的办法是骗人。被人当场拆穿之后，你连医务中心都回不去了。",
             { rep: -2.5, fac: { base: -6, press: -8 }, flags: ["scandal_1"] })
         }
@@ -408,14 +407,13 @@ POTUS.define("event", [
       {
         id: "listen", text: "先不谈条件，坐下来听他们讲两小时",
         base: 0.68, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: out("两小时后你记住了十七个名字，还有三个他们真正在意的问题。他最后说：「你是第一个问我们车间温度的人。」",
-            { rep: 1.25, hp: -0.8, fac: { labor: 16, base: 8 }, contact: { union_boss: 16 } }),
+            { rep: 1.25, fac: { labor: 16, base: 8 }, contact: { union_boss: 16 } }),
           ok: out("你听完了。没拿到背书，但拿到了一个电话号码，以及他私人的一句忠告。",
             { rep: 0.6, fac: { labor: 8 }, contact: { union_boss: 9 } }),
           meh: out("你听了两小时，净听到抱怨。有一半是真的，另一半是习惯。",
-            { hp: -0.5, fac: { labor: 3 }, contact: { union_boss: 3 } }),
+            { fac: { labor: 3 }, contact: { union_boss: 3 } }),
           fail: out("你在第二十分钟就看了表。他看见了。",
             { rep: -0.4, fac: { labor: -8 }, contact: { union_boss: -8 } }),
           critfail: out("你中间接了一个电话。他等你挂掉，说：「看来有人比我更重要。」会议就这样结束了。",
@@ -489,7 +487,6 @@ POTUS.define("event", [
         id: "renegotiate", text: "两边都不得罪：换一个「不裁员的书面保证」",
         note: "不直接投反对，逼厂方签保证书。办成了是艺术，办不成两头空。",
         base: 0.45, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "attr", key: "INT", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: out("你拿着工会的票和商业的钱当筹码，逼出了一个「三年不裁」的书面修正案。两边的头条都在夸你。", { rep: 1.5, fac: { labor: 12, commercial: 8, establishment: 8 }, contact: { union_boss: 12 } }),
           ok: out("保证书签了，虽然细则含糊。他收下了：「比你前任强。」", { rep: 0.8, fac: { labor: 8, commercial: 4 }, contact: { union_boss: 7 } }),
@@ -547,7 +544,7 @@ POTUS.define("event", [
       {
         id: "wash", text: "收下。让会计把它拆成一千笔小额捐款",
         base: 0.52, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "commercial", w: 0.3 }],
-        stake: { fun: true, ap: true, fav: true },
+        stake: { fun: true, fav: true },
         outcomes: {
           crit: out("一千笔小额捐款，每一笔都经得起查。竞选小组第一次不用算着钱花。你在夜里醒来过一次，然后又睡着了。",
             { fun: 11.5, rep: 0.9, lev: 1, fac: { commercial: 18, base: 6 }, flags: ["black_money", "launder"] }),
@@ -572,7 +569,7 @@ POTUS.define("event", [
           meh: out("你披露了，但那笔钱的主人不喜欢被写在纸上。他把支票收了回去，还告诉别人你「不懂事」。",
             { fun: 0.5, rep: 0.3, fac: { commercial: -10, press: 6 } }),
           fail: out("你以为披露就没事了，结果监管机构顺着披露又查了三个月。查完没事，但你这三个月什么也没干成。",
-            { rep: -0.3, hp: -0.7, fac: { commercial: -8, press: 4 } }),
+            { rep: -0.3, fac: { commercial: -8, press: 4 } }),
           critfail: out("披露的内容里有一笔你说不清去处的旧账。你本意是澄清，结果打开了一个更旧的口子。",
             { rep: -0.9, fac: { press: -10, base: -6 }, flags: ["scandal_3", "investigation_open"] })
         }

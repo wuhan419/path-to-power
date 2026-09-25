@@ -79,7 +79,6 @@ POTUS.define("event", [
         id: "wait", text: "不站队：先守本地，等看清风向再定调",
         note: "最不性感也最保命的一手。赌的是别在任何一边留下把柄。",
         base: 0.68, mods: [{ src: "attr", key: "INT", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你谁也没帮、谁也没得罪，安静地把本地该办的事办了。风向明朗后，赢的那边居然还来找你「谈谈合作」。",
             effects: { rep: 0.4, fac: { base: 5, establishment: 3 } } },
@@ -131,7 +130,7 @@ POTUS.define("event", [
         id: "fight", text: "硬核辟谣：开記者會、发时间线、要求平台标注",
         note: "把每一句假话都追到出处怼回去。占理，但你在跟一台不讲理的机器比谁更较真。",
         base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 1, fun: 0.6 },
+        cost: { fun: 0.6 },
         outcomes: {
           crit: { body: "你一条条摆证据、把造谣链条公开钉死，反倒显出「被黑成这样还站得直」。这波澄清给你赢回了比掉下去更多的信任。",
             effects: { rep: 1.5, fac: { press: 8, base: 6 }, flags: ["fact_defender"] } },
@@ -305,7 +304,6 @@ POTUS.define("event", [
         id: "explain", text: "反复讲程序：透明直播拆箱，把「慢」解释给每个人听",
         note: "在没人想听道理的夜里讲道理。守住程序，但很可能没人领情。",
         base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你顶着压力把拆箱全程直播、把规则一遍遍讲透。选情翻没翻你都被认作「守住了这场计票的人」。",
             effects: { rep: 2, fac: { establishment: 6, base: 4 }, flags: ["election_steward"] } },

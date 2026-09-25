@@ -170,11 +170,19 @@ for (const ev of P.events) {
       if (r.party) check(P.reg.party[r.party], "req.party 不存在：" + ev.id + "/" + ch.id);
       if (r.fac) check(P.reg.faction[r.fac], "req.fac 不存在：" + ev.id + "/" + ch.id);
     }
-    /* 资源代价 cost：键必须在 RES_KEYS 内，数值必须 > 0 */
+    /* 资源代价 cost：键必须在 RES_KEYS 内，数值必须 > 0。
+       #35② 另有一种"级别价代价"写法 cost:{funLevel:N}：不写绝对美元，
+       由 scale.realize 按 #28 的月薪锚换成 N 档 —— 它必须独占，且只能给资金。 */
     if (ch.cost) {
       check(typeof ch.cost === "object", "cost 必须是对象：" + ev.id + "/" + ch.id);
+      const lv = ch.cost.funLevel;
+      if (lv != null) {
+        check(Object.keys(ch.cost).length === 1, "cost.funLevel 必须独占（不能再并列写 fun）：" + ev.id + "/" + ch.id);
+        check(typeof lv === "number" && lv >= 1 && lv === Math.round(lv), "cost.funLevel 应为正整数档数：" + ev.id + "/" + ch.id);
+      }
       for (const k in ch.cost) {
-        check(RES_KEYS.indexOf(k) >= 0, "cost 未知资源键 " + k + "：" + ev.id + "/" + ch.id);
+        check(k === "funLevel" || RES_KEYS.indexOf(k) >= 0, "cost 未知资源键 " + k + "：" + ev.id + "/" + ch.id);
+        if (k === "funLevel") continue;
         check(typeof ch.cost[k] === "number" && ch.cost[k] > 0, "cost 数值必须 >0：" + ev.id + "/" + ch.id + "/" + k);
       }
     }
@@ -433,6 +441,98 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   const G = P.G;
   G.flags = []; G.tier = 0;
 
+  /* --- #33：era 按日历解 + 钉卡全层通行（在 __T 测试时代注册前校验真实时代表） ---
+     G.era 自时代选择器下线后恒为 1980_REAGAN；「这条事件属于哪个时代」一律由
+     P.eraAt(year) 落在哪个 era 区间决定，且凡 fixed/scheduled 钉卡 tierMax 抬到 9。 */
+  check(P.eraAt(1985) === "1980_REAGAN" && P.eraAt(1995) !== "1980_REAGAN" &&
+    P.eraAt(2009) === "2008_CRASH" && P.eraAt(2020) === P.eraAt(2016), "eraAt：年份应落进正确的时代区间");
+  G.year = 2008;
+  check(P.snap().era === "2008_CRASH", "snap().era 应按日历解，不再读 G.era");
+  G.year = 1985;
+  P.G.doneIds = []; P.recentIds = []; G.month = 0;
+  P.planMonth(9);                                   // 触发一次钉卡规范化（normalizePins）
+  P.G.doneIds = []; P.recentIds = [];
+  const pinIds2008 = [];
+  (P.reg.era["2008_CRASH"].scheduled || []).forEach(s => { if (s.event) pinIds2008.push(s.event); });
+  (P.reg.fixed || []).forEach(s => { if (s.event && s.year === 2008) pinIds2008.push(s.event); });
+  check(pinIds2008.length > 0, "2008 年应有钉卡（scheduled/fixed 任一源）");
+  check(pinIds2008.every(id => { const e = P.evById(id); return e && (e.tierMax == null || e.tierMax >= 9); }),
+    "钉卡规范化后 tierMax 应全层通行（#33 触发荒主闸）");
+
+  /* --- #33 触发荒回归守卫：钉卡必须真发得出去 ---
+     两个历史主闸（钉卡 tierMax 天花板 / G.era 写死的时代白名单）已分别由
+     normalizePins 与 P.eraAt 拆掉；这里取时代表第二档的首个钉卡年，按 planSlots 天花板
+     连跑 12 个月 × 200 次，统计因 eligible 失败被静默丢弃的钉卡比例（time.js 的 G.pinMiss）。
+     身份白名单（tracks/parties/…）按通配身份测 —— 那是设计而非荒，逐条核查交给 trigger-scan。 */
+  {
+    const eraIds = KEYS(P.reg.era);
+    const era2 = P.reg.era[eraIds[1]] || P.reg.era[eraIds[0]];
+    const pinY = (era2.scheduled || []).map(s => s.year).sort(function (a, b) { return a - b; })[0] || 1991;
+    const b33 = P.balance();
+    let slots33 = 0, drop33 = 0;
+    G.year = pinY; G.tier = 4; G.month = 0;
+    G.track = "*"; G.party = "*"; G.stance = "*"; G.origin = "*"; G.entry = "*"; G.talent = "*"; G.state = "*";
+    G.rep = 50; G.fav = 10; G.lev = 0; G.hp = 70; G.fun = 500; G.flags = [];
+    for (let run33 = 0; run33 < 200; run33++) {
+      P._pinsNormalized = false;                 // 每轮重跑一遍 normalizePins，模拟新开局
+      for (let m = 1; m <= 12; m++) {
+        G.month = m; G.pinMiss = [];
+        P.planMonth(b33.slotsMax);
+        slots33 += b33.slotsMax;
+        drop33 += (G.pinMiss || []).length;
+        G.doneIds = []; P.recentIds = [];        // 排除单局冷却，只看结构性可发
+      }
+    }
+    const ratio33 = slots33 ? drop33 / slots33 : 0;
+    console.log("  " + pinY + " 钉卡可发率 " + ((1 - ratio33) * 100).toFixed(1) +
+      "%（档期 " + slots33 + " 个 · eligible 丢弃钉卡 " + drop33 + " 张）");
+    check(ratio33 < 0.5, "钉卡丢弃率应 < 50%（#33 触发荒回归守卫，实际 " + (ratio33 * 100).toFixed(1) + "%）");
+    if (ratio33 >= 0.25) {                       // 只在可疑时甩原因分布，省得定位要改代码
+      const why33 = {};
+      (G.pinMiss || []).forEach(x => { why33[x.why] = (why33[x.why] || 0) + 1; });
+      console.log("  ⚠ 丢弃原因分布（顶格 500 条样本）：" +
+        Object.keys(why33).map(k => k + "×" + why33[k]).join(" ｜ "));
+    }
+    G.year = 1985;
+  }
+
+  /* --- #33 触发荒回归守卫（真实时代表口径）---
+     1991 年（时代表第二档）按 balance.planSlots 的天花板跑 12 个月 × 200 次：
+     钉卡因 eligible 失败被静默丢弃的比例 must < 50%。
+     两个历史主闸都已由 eraAt / normalizePins 拆掉 —— 身份白名单（tracks/parties/…）
+     是设计而非荒，这里按 pick 人群口径（track="*"）测。 */
+  {
+    const era2 = KEYS(P.reg.era)[1] || KEYS(P.reg.era)[0];
+    const pinY = (P.reg.era[era2].scheduled || []).map(s => s.year).sort()[0] || 1991;
+    const b33 = P.balance();
+    let slots33 = 0, drop33 = 0;
+    G.year = pinY; G.tier = 4; G.track = "*"; G.party = "*"; G.stance = "*";
+    G.origin = o0; G.entry = n0; G.talent = t0; G.state = "";
+    G.rep = 50; G.fav = 10; G.lev = 0; G.hp = 70; G.fun = 500; G.flags = [];
+    for (let run = 0; run < 200; run++) {
+      P._pinsNormalized = false;                 // 每次重跑一遍 normalizePins，模拟新开局
+      P.G.doneIds = []; P.recentIds = []; G.pinMiss = [];
+      for (let m = 1; m <= 12; m++) {
+        G.month = m - 1;
+        const plan = P.planMonth(b33.slotsMax);
+        slots33 += b33.slotsMax;
+        drop33 += (G.pinMiss || []).length;
+        P.G.doneIds = []; P.recentIds = [];      // 排除单局冷却，只看结构性可发
+      }
+    }
+    const ratio33 = slots33 ? drop33 / slots33 : 0;
+    console.log("  " + pinY + " 钉卡可发率 " + ((1 - ratio33) * 100).toFixed(1) +
+      "%（档期 " + slots33 + " 个 · eligible 丢弃钉卡 " + drop33 + " 张）");
+    check(ratio33 < 0.5, "钉卡丢弃率应 < 50%（#33 触发荒回归守卫，实际 " + (ratio33 * 100).toFixed(1) + "%）");
+    if (ratio33 >= 0.25) {                       // 只在可疑时甩原因分布，省得定位要改代码
+      const why = {};
+      (G.pinMiss || []).forEach(x => { why[x.why] = (why[x.why] || 0) + 1; });
+      console.log("  ⚠ 丢弃原因分布（顶格 500 条样本）：" +
+        Object.keys(why).map(k => k + "×" + why[k]).join(" ｜ "));
+    }
+    G.year = 1985; G.track = (P.reg.track[n0] || {}).track_suggest || e0;
+  }
+
   /* 时代压力：危机年 > 常态年；丑闻再把活跃度顶上去 */
   G.year = 2008; const pCrisis = P.pressure();
   G.year = 2025; const pCalm = P.pressure();
@@ -581,7 +681,7 @@ console.log("\n== 资源经济 / 投注 ==");
   };
   P.G.fun = 2000000; P.G.fav = 2;
   const noStake = P.computeP(tChoice).P;
-  const tPer = P.stakeSpec(tChoice).fun.per;      /* v0.7：每档金额是动态的，从引擎取 */
+  const tPer = P.stakeSpec(tChoice).fun.per;      /* 级别价由引擎算，探针不写死金额 */
   const st = P.stakeInfo(tChoice, { fun: 2, fav: 1 });
   const withStake = P.computeP(tChoice, st);
   check(withStake.P > noStake, "投注资金/人情后胜算应提高（" + noStake + " → " + withStake.P + "）");
@@ -595,7 +695,7 @@ console.log("\n== 资源经济 / 投注 ==");
   const capSt = P.stakeInfo(tChoice, { fun: 999999, fav: 1 });
   check(P.computeP(tChoice, capSt).P <= 0.95, "投注后胜算不应超过 0.95");
 
-  /* 余额不足 → 投注被夹到可用余额 */
+  /* 余额不足 → 投注被夹到可用余额（单价恒定，档数看家底） */
   P.G.fun = 100000; P.G.fav = 0;
   const poor = P.stakeInfo(tChoice, { fun: 5, fav: 1 });
   check(poor.cost.fun <= 100000 && poor.cost.fav === 0,
@@ -629,7 +729,7 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
 
   /* 资金：每档 +4%、上限 +30% → 吃满上限需要 8 档（档数由 cap÷w 决定，与每档金额无关） */
   const funCh = { id: "__fun", text: "t", base: 0.4, stake: { fun: true }, outcomes: {} };
-  const per = P.stakeSpec(funCh).fun.per;         /* v0.7：每档金额按 身位 × 事件钱量级 动态算 */
+  const per = P.stakeSpec(funCh).fun.per;         /* 级别价：一档 ≈ 该职级月薪 */
   console.log("  资金：每档 " + P.fmtUsd(per) + " → +4%、上限 +30%");
   P.G.fun = 999999999;
   const funMaxRich = P.stakeMax("fun", funCh);
@@ -637,18 +737,18 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(Math.abs(funMaxRich * 0.04 - 0.30) < 0.05, "资金满档应能吃到接近 +30% 的上限，实际 +" + (funMaxRich * 0.04 * 100).toFixed(0) + "%");
   check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= P.G.fun, "资金扣款不得超过现有资金");
 
-  /* v0.12 资金闸：单档 ≤ 资金×6%×量级系数 → 满档 8 档最多吃掉四成多资产；
-     余额夹档仍在（stakeMax 用 floor(fun/per)），只是闸由钱包决定、价码自己随行就市 */
+  /* #28① 之后余额只夹档数：家底只够 5 档，单价一分不改 */
   P.G.fun = per * 5;
   {
-    const p2 = P.stakeSpec(funCh).fun.per;         // 价码跟着新家底重算
+    const p2 = P.stakeSpec(funCh).fun.per;         // 级别价与余额无关
     const max2 = P.stakeMax("fun", funCh);
+    check(p2 === per, "余额变少不许改动单价（" + P.fmtUsd(per) + " → " + P.fmtUsd(p2) + "）");
     check(max2 * p2 <= P.G.fun, "钱只够几档就该被夹在几档内（" + max2 + " 档 × " + P.fmtUsd(p2) + " > " + P.fmtUsd(P.G.fun) + "）");
     check(P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun === max2 * p2, "扣款应等于档数×汇率，实际 " + P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun);
   }
 
   /* 一档都投不起 → 上限必须是 0（界面据此把 ＋ 置灰并说明原因，而不是"点了没反应"） */
-  P.G.fun = 300; P.G.fav = 0;                     // 低于 perMin：几何均也被抹到 $500 下限
+  P.G.fun = 300; P.G.fav = 0;                     // 低于 perMin：单价夹在地板之上
   const favCh = { id: "__fav", text: "t", base: 0.4, stake: { fav: true }, outcomes: {} };
   check(P.stakeMax("fun", funCh) === 0, "钱不够一档时资金上限应为 0（正是『资金＋点了没用』的成因）");
   check(P.stakeMax("fav", favCh) === 0, "没人情时人情上限应为 0");
@@ -665,96 +765,112 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(P.stakeMax("fav", favCh) === 1 || P.G.fav === 0, "有人情时人情应可投 1 点");
 }
 
-/* ---------- 动态投注汇率（v0.7 两锚；v0.12 加资金闸） ----------
- * 用户实测反馈的 bug：过去每档固定 $250k，于是
- *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏形同虚设；
- *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码与事情的钱量级脱钩。
- * v0.12 再修：③ 投入金额和掌握的资金成正比（否则前期没资格、后期太鸡肋）。
- * 现在 per = min(∛(身位锚 × 事件锚 × 资金闸), 资金闸)，资金闸 = 现有资金 × 6% × gradeMul。 */
-console.log("\n== 动态投注汇率（身位 × 事件金额）==");
+/* ---------- 投注级别价（#28①：单价只看身位，不看钱包） ----------
+ * 演进：v0.6 全游戏写死 $250k（T0 永远投不进第一档）→ v0.7 补"事件钱量级"锚 →
+ * v0.12 再补"钱袋闸"（单价随余额涨 —— 玩家投诉"同一件事，穷时便宜富时贵"）→
+ * #28① 三条锚删到只剩身位锚：per = officeSalary(track,tier) × perSalaryMonths × gradeMul，
+ * 夹进 [perMin, perMax] 后抹零。**余额唯一的作用是决定你押得起几档**（见 stakeMax）。 */
+console.log("\n== 投注级别价（单价随身位·不随钱包）==");
 {
   P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "汇率测试" };
   P.confirmCreate();
-  /* v0.12 #20：出身不再发开局资金（钱全搬进天赋卡池），刚 confirmCreate 出来的角色可能很穷，
-     于是资金闸 fun×6% 会把每档价码夹到地板、抹平身位/事件两轴。本测试探针是**公式形状**（单调、随量级递增），
-     需要一个"办得起事"的资金前提 —— 显式设一笔代表性现钱，而不是依赖出身。 */
-  P.G.fun = 3000000;
+  /* 本块的断言都拿 mid 量级当尺子，先把"当前量级"定死：
+     前面某块（三值性/节奏探针）present 过 minor 卡的话，G.__curGrade 会残留成 minor，
+     级别价就按 0.6× 算，下面的 档数 × 单价 全部对不上。 */
+  P.G.__curGrade = "mid";
   const CL = (cost, oc) => ({ id: "__r", text: "t", base: 0.4, cost: cost, stake: { fun: true }, outcomes: oc || {} });
-  const smallCh = CL({ fun: 400000 });                       // 有钱量级
-  const nomoneyCh = CL({ rep: 1 });                           // 没有钱量级
-  const tinyCh = CL({ rep: 1 }, { ok: { effects: { fun: 50000 } } });
+  const bigCh = CL({ fun: 400000 });                          // 事件里写着大钱
+  const noMoneyCh = CL({ rep: 1 });                           // 事件里一分钱没写
 
-  /* ① 身位轴：同一个选项，职位越高每档越贵 */
+  /* ① 身位轴：同一个选项，职位越高每档越贵 —— 价码全部由薪资表推导 */
   const byTier = [];
   for (let t = 0; t <= P.balance().tierMax; t++) {
     P.G.tier = t; P.G.track = "electoral";
-    byTier.push(P.stakeFunPer(smallCh).per);
+    byTier.push(P.stakeFunPer().per);
   }
-  console.log("  同一个选项各身位每档价码：" + byTier.map((v, i) => "T" + i + " " + P.fmtUsd(v)).join(" / "));
+  console.log("  同一选项各身位一档价码：" + byTier.map((v, i) => "T" + i + " " + P.fmtUsd(v)).join(" / "));
   check(byTier.every((v, i) => i === 0 || v >= byTier[i - 1]), "每档金额必须随身位单调不降");
   check(byTier[byTier.length - 1] > byTier[0], "最高身位的价码必须显著高于最低身位（" + P.fmtUsd(byTier[0]) + " → " + P.fmtUsd(byTier[byTier.length - 1]) + "）");
-  check(P.stakeSpec(smallCh).fun.per === byTier[P.G.tier], "stakeSpec 必须把动态价码写进 spec.fun.per");
+  check(P.stakeSpec(bigCh).fun.per === byTier[P.G.tier], "stakeSpec 必须把级别价写进 spec.fun.per");
 
-  /* ② 事件轴：事件的钱量级越大，每档越贵 */
+  /* ② #36 标尺：一档 ≈ 该职级 perSalaryMonths 个月的月薪（默认 1 个月） */
   P.G.tier = 3; P.G.track = "electoral";
-  const perOf = (c) => P.stakeFunPer(c).per;
-  check(perOf(tinyCh) < perOf(smallCh), "事件钱量级越大，每档应越贵（" + P.fmtUsd(perOf(tinyCh)) + " < " + P.fmtUsd(perOf(smallCh)) + "）");
-  check(perOf(nomoneyCh) > 0, "没写钱的选项也必须给出价码（退回身位锚）");
-  check(P.stakePot(nomoneyCh) === 0 && P.stakePot(smallCh) === 400000, "stakePot 应认出选项的钱量级");
-  check(P.stakePot(CL({ fun: 30000 }, { ok: { effects: { funMul: 2 } } })) === 60000, "funMul 应折算回美元（$30k × 2.0 = $60k）");
+  const months = P.balance().stakeRates.fun.perSalaryMonths;
+  check(months === 1, "perSalaryMonths 应为 1（一档 = 一个月月薪），实际 " + months);
+  check(P.stakeFunPer("mid").per === P.niceUsd(P.officeSalary()), "mid 量级的一档应正好是月薪抹零，实际 " + P.fmtUsd(P.stakeFunPer("mid").per) + " vs " + P.fmtUsd(P.officeSalary()));
 
-  /* ③ v0.12 资金闸：单档 ≤ 资金×6%×量级系数（满档 8 档 ≤ 近半家底）；
-        旧"8 档 ≤ 2× 事件钱量级"随事件锚硬顶一起退役——富豪为大生意出大钱是设计目标 */
-  let worstPer = 0, worstHalf = 0;
-  for (const c of [tinyCh, smallCh, CL({ fun: 2000000 })]) {
-    for (const t of [0, 3, P.balance().tierMax]) {
-      for (const cash of [20000, 200000, 5000000]) {
-        P.G.tier = t; P.G.track = "wealth"; P.G.fun = cash;
-        const sp = P.stakeFunPer(c);
-        const gmul = (P.balance().stakeRates.fun.gradeMul || {})[P.G.__curGrade || "mid"];
-        worstPer = Math.max(worstPer, sp.per / (cash * 0.06 * (gmul == null ? 1 : gmul)));
-        worstHalf = Math.max(worstHalf, sp.per * 8 / cash);
-      }
-    }
+  /* ③ #28① 核心断言：单价与余额、与事件钱量级**彻底脱钩** */
+  const unit = P.stakeFunPer("mid").per;
+  for (const cash of [3000, 20000, 200000, 5000000, 50000000]) {
+    P.G.fun = cash;
+    check(P.stakeFunPer("mid").per === unit, "余额 " + P.fmtUsd(cash) + " 不该改动单价（级别价锚已退役钱袋闸）");
   }
-  console.log("  单档 ÷ 资金闸 的最坏比值：" + worstPer.toFixed(2) + "× ｜ 8 档总投入 ÷ 家底 最坏 " + (worstHalf * 100).toFixed(0) + "%");
-  check(worstPer <= 1.1, "单档不得超过资金闸（6%×量级系数），实际 " + worstPer.toFixed(2) + "×");
-  check(worstHalf <= 0.6, "满档总投入不得超过六成家底，实际 " + (worstHalf * 100).toFixed(0) + "%");
+  P.G.fun = 20000;
+  check(P.stakeFunPer("mid").per === unit, "事件写没写钱都不改单价（钱量级锚已退役）：无钱选项 " + P.fmtUsd(P.stakeFunPer("mid").per) + " vs 有钱选项");
+  check(P.stakeSpec(noMoneyCh).fun.per === P.stakeSpec(bigCh).fun.per, "同一身位下，两种钱量级的选项应报同一个单价");
+  check(P.stakeFunPer("major").per > P.stakeFunPer("minor").per, "量级系数仍生效：major 一档应比 minor 贵（" + P.fmtUsd(P.stakeFunPer("minor").per) + " → " + P.fmtUsd(P.stakeFunPer("major").per) + "）");
 
-  /* ③b 钱包成正比（用户报的核心诉求）：同一事件，富人单档必须比穷人贵 */
-  P.G.tier = 3; P.G.track = "wealth";
-  P.G.fun = 20000; const poorPer = P.stakeFunPer(smallCh).per;
-  P.G.fun = 2000000; const richPer = P.stakeFunPer(smallCh).per;
-  check(richPer > poorPer * 3, "同一事件：大款单档价码应显著高于小兵（投入与掌握的资金成正比），" + P.fmtUsd(poorPer) + " → " + P.fmtUsd(richPer));
+  /* ④ 余额只决定"押得起几档"：大款押得更多，但每档同价 */
+  P.G.fun = 20000; const poorNotches = P.stakeMax("fun", bigCh);
+  P.G.fun = 2000000; const richNotches = P.stakeMax("fun", bigCh);
+  console.log("  同一身位（T3）余额 2 万 → " + poorNotches + " 档，200 万 → " + richNotches + " 档（单价恒为 " + P.fmtUsd(unit) + "）");
+  check(richNotches > poorNotches, "钱多只能体现为档数更多（" + poorNotches + " → " + richNotches + "）");
+  check(P.stakeMax("fun", bigCh) === Math.min(8, Math.floor(P.G.fun / unit)), "档数上限应 = min(cap÷w 档, floor(余额÷单价))");
+  check(P.stakeInfo(bigCh, { fun: 999 }).cost.fun === richNotches * unit, "扣款应等于档数×单价，实际 " + P.stakeInfo(bigCh, { fun: 999 }).cost.fun);
 
-  /* ④ 用户报的核心 bug 已修：小兵也投得起第一档 */
-  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;    // 开局家底
-  check(P.stakeMax("fun", nomoneyCh) >= 1, "T0 家底 $10k 至少要投得起 1 档（旧版恒为 0）");
+  /* ⑤ 手感基准：T0 志愿者（月薪 $1k）投得起第一档，但押不满 */
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
+  check(P.stakeMax("fun", bigCh) >= 1, "T0 家底 $10k 至少要投得起 1 档（旧版写死 $250k 时恒为 0）");
   P.G.fun = 3000;
-  check(P.stakeMax("fun", CL({ fun: 14000 })) >= 0, "极小钱量级的事件不该报错");
+  check(P.stakeMax("fun", bigCh) >= 0, "极小家底不该报错");
 
-  /* ⑤ 内容写死 per 时以内容为准（不参与动态换算） */
+  /* ⑥ 内容写死 per 时以内容为准（不参与级别价换算） */
   const fixedCh = { id: "__f", text: "t", base: 0.4, cost: { fun: 400000 }, stake: { fun: { per: 777000, w: 0.05, cap: 0.25 } }, outcomes: {} };
   const fixedSpec = P.stakeSpec(fixedCh);
   check(fixedSpec.fun.per === 777000, "写死的 per 必须原样保留，实际 " + fixedSpec.fun.per);
   check(fixedSpec.fun.__rate.source === "content", "写死 per 的汇率来源应标为 content");
 
-  /* ⑥ 抹零与边界：每档金额是好读的整数，且仍落在事件锚之下 */
+  /* ⑦ 抹零与边界：每档金额是好读的整数，且落在护栏内 */
   P.G.tier = 2;
-  const rp = P.stakeFunPer(smallCh);
+  const rp = P.stakeFunPer();
   check(rp.per % 500 === 0, "每档金额应是 500 的整数倍（" + rp.per + "）");
-  check(rp.per >= (P.balance().stakeRates.fun.perMin) && rp.per <= P.balance().stakeRates.fun.perMax, "每档金额应落在 [perMin, perMax] 内");
-  check(rp.per <= rp.ceiling + 1e-9, "抹零不得把价码抬到事件锚之上");
+  check(rp.per >= P.balance().stakeRates.fun.perMin && rp.per <= P.balance().stakeRates.fun.perMax, "每档金额应落在 [perMin, perMax] 内");
 
-  /* ⑦ 界面文案必须说得清价码来源（动态汇率不能是新的黑箱） */
-  const note = ZH(() => P.stakeRateNote(smallCh, "mid"));
-  check(note.indexOf("月薪") >= 0 && note.indexOf("钱量级") >= 0, "汇率说明应同时交代身位与事件金额：" + note);
-  check(ZH(() => P.stakeRateNote(nomoneyCh, "mid")).indexOf("没写钱") >= 0, "没写钱的事件应说明『只按身位算』");
+  /* ⑧ 界面文案必须说得清价码来源（级别价不能是新的黑箱） */
+  const note = ZH(() => P.stakeRateNote(bigCh, "mid"));
+  check(note.indexOf("月薪") >= 0 && note.indexOf("身位") >= 0, "汇率说明应交代『按身位定价 + 月薪推导』：" + note);
+  check(note.indexOf("家底") >= 0 && note.indexOf("单价") >= 0, "汇率说明应讲明余额只决定押得起几档：" + note);
   check(ZH(() => P.stakeRateNote(fixedCh, "mid")).indexOf("剧情写定") >= 0, "写死 per 的事件应说明『价码由剧情写定』");
   check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
     "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
 
-  /* ⑧ 工资与投注同源：officeSalary 是唯一口径 */
+  /* ⑨ #28② 投机收益吃 INT：同一条生意，聪明人赚得多、翻车亏得少 */
+  {
+    const lev = P.balance().funMulIntLev;
+    check(lev > 0, "funMulIntLev 应默认开启（#28②），实际 " + lev);
+    P.G.__stakeBase = 100000;
+    const gain = function (int) {
+      P.G.fun = 0; P.G.attr.INT = int;
+      P.applyEffects({ funMul: 2 });
+      return P.G.fun;
+    };
+    const dumb = gain(30), mid = gain(50), smart = gain(80);
+    check(dumb < mid && mid < smart, "同一笔本金，收益应随 INT 递增（" + dumb + " / " + mid + " / " + smart + "）");
+    check(mid === 200000, "INT=50 时倍率不缩放，$100k × 2.0 = $200k，实际 " + mid);
+    check(smart === Math.round(100000 * 2 * (1 + 0.3 * lev)), "INT=80 的收益应正好按公式放大，实际 " + smart);
+    const loss = function (int) {
+      P.G.fun = 1000000; P.G.attr.INT = int;
+      P.applyEffects({ funMul: -1 });
+      return 1000000 - P.G.fun;
+    };
+    check(loss(80) < loss(30), "翻车时高 INT 亏得更少（" + loss(30) + " vs " + loss(80) + "）");
+    P.G.attr.INT = 50;
+    P.G.fun = 0; P.G.__stakeBase = 0;
+    P.applyEffects({ funMul: 2 });
+    check(P.G.fun === 0, "没有本金声明时 funMul 不许凭空生钱");
+  }
+
+  /* ⑩ 工资与投注同源：officeSalary 是唯一口径 */
   P.G.tier = 3; P.G.track = "electoral";
   check(P.officeSalary() === P.reg.officeSalary["electoral_3"], "officeSalary 应取 reg.officeSalary 的表值");
   P.G.track = "__none__";
@@ -929,6 +1045,727 @@ console.log("\n== 动态投注汇率（身位 × 事件金额）==");
   }
 }
 
+/* ---------- 竞选：选情主导、钱退门票（#35）----------
+ * 旧病灶三条：
+ *   ① momentum 一律写死 45 —— 刚替人跑腿的志愿者第一场就"选情过半"；
+ *   ② 投票日是一枚写死的骰子（base 0.4）外加一道钱包门槛（总统卡 dyn 系数 25 ≈ 千万级现金），
+ *      等于"不交一大笔钱就不能当选"；
+ *   ③ 金库跌破 abortBelow 当场判负 —— 没钱=输，钱换了个身份还是门票。
+ * #35 的三条替换：momentum 由人物状态播种（12—35）、投票日 P = f(momentum)、判负只看 momentum。
+ * 下面逐条钉住，防止回退。 */
+console.log("\n== 竞选：选情主导、钱退门票（#35）==");
+{
+  const G = P.G;
+  const bak = { tier: G.tier, rep: G.rep, fun: G.fun, track: G.track, faction: G.faction, voters: G.voters, campaign: G.campaign };
+  const seed = P.balance().campaign && P.balance().campaign.seed;   // 未声明则走引擎默认（12—35）
+  const FLOOR = (seed && seed.floor) || 12, CEIL = (seed && seed.ceil) || 35;
+
+  /* ① 播种：处境越好起手越高，但永远够不到"直接过半" */
+  G.faction = { establishment: 0, commercial: 0, base: 0, press: 0, military: 0, church: 0, agency: 0 };
+  G.voters = { warm: 0, diehard: 0, oppose: 0 };
+  G.tier = 0; G.rep = 5; G.track = "electoral";
+  const lowSeed = P.seedMomentum();
+  G.tier = 8; G.rep = 90; G.voters = { warm: 3000000, diehard: 1500000, oppose: 0 };
+  G.faction = { establishment: 60, commercial: 40, base: 50, press: 30, military: 20, church: 10, agency: 10 };
+  const highSeed = P.seedMomentum();
+  console.log("  选情播种：新人 " + lowSeed + " → 重量级 " + highSeed + "（夹在 [" + FLOOR + "," + CEIL + "]，旧口径写死 45）");
+  check(highSeed > lowSeed, "选情播种必须随处境上升（" + lowSeed + " → " + highSeed + "）");
+  check(lowSeed <= CEIL && highSeed <= CEIL, "播种值不得越过天花板（" + lowSeed + "/" + highSeed + " > " + CEIL + "）");
+  check(highSeed < 45, "任何人开局都不该白手拿过半选情（播种 " + highSeed + " ≥ 旧写死值 45）");
+
+  /* ② 基本盘占比：只数攥在手里的人头，且夹在 0..1 */
+  G.tier = 8;   // electoral_8 选区 2000 万人
+  const sh = P.baseShare();
+  check(Math.abs(sh - (3000000 + 1500000) / P.electorateSize()) < 1e-9, "baseShare 应 = (好感+死忠)÷注册选民，实际 " + sh);
+  check(P.when({ minShare: 0.12 }, P.snap()) === (sh >= 0.12), "when 的 minShare 判据应与 baseShare 同调");
+  G.voters = { warm: 0, diehard: 0, oppose: 0 };
+  check(P.baseShare() === 0 && P.when({ minShare: 0.12 }, P.snap()) === false, "零基本盘应被 minShare 挡下");
+
+  /* ③ 投票日 = f(选情)：标了 ballot 的选项不再吃写死的 base */
+  G.campaign = { id: "camp_council", stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0, status: "active", meters: { momentum: 50 } };
+  const bb = m => { G.campaign.meters.momentum = m; return P.ballotBase(0.4); };
+  console.log("  投票日胜率：选情 0→" + bb(0).toFixed(2) + " / 20→" + bb(20).toFixed(2) + " / 50→" + bb(50).toFixed(2) + " / 80→" + bb(80).toFixed(2) + " / 200→" + bb(200).toFixed(2));
+  check(Math.abs(bb(50) - 0.50) < 1e-9, "选情 50 应给五五开，实际 " + bb(50));
+  check(bb(20) < bb(50) && bb(50) < bb(80), "胜率必须随选情单调上升");
+  check(bb(0) === 0.10 && bb(200) === 0.85, "投票日胜率应夹在 [0.10, 0.85]");
+  G.campaign = null;
+  check(P.ballotBase(0.4) === 0.4, "没有活跃竞选时应回落到内容写的 base（校验/诊断口径）");
+
+  /* ④ 钱彻底退出门票：候选选项不设 req.fun，没钱也照样能当选 */
+  const ELECT = ["prog_council", "prog_city", "prog_state", "prog_upper", "prog_stwide", "prog_federal", "prog_senate", "prog_vp", "prog_president"];
+  const moneyGate = [], noBallot = [];
+  for (const id of ELECT) {
+    const ev = P.evById(id);
+    if (!ev) { moneyGate.push(id + "（缺卡）"); continue; }
+    let hasBallot = false;
+    for (const ch of ev.choices || []) {
+      const grants = Object.keys(ch.outcomes || {}).some(t => { const e = ch.outcomes[t].effects; return e && e.tier > 0; });
+      if (ch.ballot) hasBallot = true;
+      if (grants && ch.req && ch.req.fun != null) moneyGate.push(id + "/" + ch.id);
+      if (grants && !ch.ballot) noBallot.push(id + "/" + ch.id);
+    }
+    if (!hasBallot) noBallot.push(id + "（整卡无 ballot 选项）");
+  }
+  check(!moneyGate.length, "投票日选项不得再写 req.fun（钱=门票）：" + moneyGate.join(", "));
+  check(!noBallot.length, "每条民选链的末幕都要有按选情开价的选项：" + noBallot.join(", "));
+  {
+    const run = (P.evById("prog_president").choices || []).filter(c => c.id === "run")[0];
+    G.tier = 8; G.track = "electoral"; G.fun = 0; G.rep = 10;
+    G.campaign = { id: "camp_pres", stageIdx: 5, since: P.monthSeq(), since0: P.monthSeq(), played: 5, status: "active", meters: { momentum: 50 } };
+    G.voters = { warm: 2000000, diehard: 600000, oppose: 0 };   // 基本盘 1.3% < 12% → 只挡资格，不挡概率
+    const p0 = P.computeP(run).P;
+    const rich = JSON.parse(JSON.stringify(run)); rich.req = null; G.fun = 50000000;
+    const p1 = P.computeP(rich).P;
+    console.log("  总统：$0 现款按选情 50 的胜率 " + (p0 * 100).toFixed(0) + "% ／ $50M 且去掉基本盘门槛 " + (p1 * 100).toFixed(0) + "%（差额只可能是加成，不是门票）");
+    check(p0 > 0.05, "身无分文也必须能参选（P=" + p0 + "）");
+    check(Math.abs(p0 - 0.5) < 0.2, "选情 50 的总统胜率应在五五开附近，实际 " + p0);
+    check(run.req && run.req.voterShare != null, "总统资格改由基本盘把关（req.voterShare），实际 " + JSON.stringify(run.req));
+    check(run.mods && run.mods.some(m => m.src === "res" && m.key === "fun"), "原来的钱门槛应转成成功加成 mod");
+    G.campaign = null;
+  }
+
+  /* ⑤ 判负只看选情：任何竞选链都不许再拿金库当死刑 */
+  const chestGate = [];
+  for (const cid in P.reg.campaign) {
+    const def = P.reg.campaign[cid];
+    const gates = [].concat(def.abortBelow || [], (def.stages || []).map(s => s.abortBelow).filter(Boolean));
+    for (const g of gates) for (const k in g) if (k !== "momentum") chestGate.push(cid + ":" + k);
+    const mtr = (def.meters || {}).momentum;
+    if (mtr != null && mtr < CEIL) chestGate.push(cid + " 起步天花板 " + mtr + " 低于播种上限");
+  }
+  check(!chestGate.length, "abortBelow 只允许 momentum 一种表（#35⑤：钱见底=买不动广告，不判负）：" + chestGate.join(", "));
+
+  /* ⑥ 大钱手段的价码由级别价推导（cost.funLevel），不再是幕间裸数 */
+  {
+    const rally = P.evById("camp_state_rally");
+    const ch = (rally.choices || []).filter(c => c.cost && c.cost.funLevel != null)[0];
+    check(!!ch, "camp_state_rally 的买广告选项应改写成 cost.funLevel（#35②）");
+    if (ch) {
+      G.tier = 2; G.track = "electoral";
+      const priced = P.realize(rally).choices.filter(c => c.id === ch.id)[0];
+      check(priced.cost.funLevel == null, "funLevel 必须在展开时消解掉，只剩 cost.fun");
+      check(priced.cost.fun === P.levelPrice(ch.cost.funLevel, P.gradeOf(rally)),
+        "展开后的价码应 = N 档级别价，实际 " + priced.cost.fun + " vs " + P.levelPrice(ch.cost.funLevel, P.gradeOf(rally)));
+      const poor = P.levelPrice(ch.cost.funLevel, "mid");
+      G.tier = 8;
+      const higher = P.levelPrice(ch.cost.funLevel, "mid");
+      check(higher > poor, "同一件事在 T8 应比 T2 贵（" + P.fmtUsd(poor) + " → " + P.fmtUsd(higher) + "）");
+      G.tier = 2;
+      check(P.realize(P.evById("camp_council_announce")) === P.evById("camp_council_announce"),
+        "没有级别价代价的非 dyn 卡必须原样返回（热路径零开销）");
+    }
+    /* 竞选幕事件里不得再出现绝对美元代价：要么走 funLevel，要么本卡就是 dyn */
+    const bare = [];
+    for (const ev of P.events) {
+      if (P.eventKind && P.eventKind(ev) !== "campaign") continue;
+      for (const c of ev.choices || []) if (c.cost && c.cost.fun != null && !ev.dyn) bare.push(ev.id + "/" + c.id + " $" + c.cost.fun);
+    }
+    check(!bare.length, "竞选幕事件的资金代价应写 cost.funLevel（或由 dyn 卡按标尺展开）：" + bare.join(", "));
+  }
+
+  /* —— 还原现场 —— */
+  G.tier = bak.tier; G.rep = bak.rep; G.fun = bak.fun; G.track = bak.track;
+  G.faction = bak.faction; G.voters = bak.voters; G.campaign = bak.campaign;
+}
+
+/* ---------- 把柄 × 竞选：投放把柄（#23）----------
+ * 把柄（lev）过去只有一条被动去路（被反噬、过期）。#23 给它一条主动去路：
+ * 竞选进行中把手里的料喂出去，换这一幕的选情。两条钉子：
+ *   ① 内容侧：每一幕的 drop 只能是 primary / general（宣布幕与投票日不许放靶子），
+ *      州级以上的链必须两种靶都在（否则这个行动只剩一半意义）；
+ *   ② 结算侧：一次 1 点把柄、每幕一次；初选靶掷"对手退赛"，大选靶吃 INTG 反噬检定，
+ *      反噬要真的写进 scandal 账本（dirty_trick 旗 + wrath_opposition 计数，喂 140 清算池）。 */
+console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
+{
+  const G = P.G;
+  const bak = { campaign: G.campaign, lev: G.lev, rep: G.rep, attr: G.attr, counters: G.counters, flags: G.flags, log: G.log };
+
+  /* ① 内容契约 */
+  const badDrop = [], miss = [];
+  let droppable = 0;
+  for (const cid in P.reg.campaign) {
+    const def = P.reg.campaign[cid], st = def.stages || [];
+    let pri = 0, gen = 0;
+    st.forEach(function (s, i) {
+      if (s.drop == null) return;
+      if (s.drop !== "primary" && s.drop !== "general") badDrop.push(cid + "#" + i + "=" + s.drop);
+      if (i === 0 || s.final) badDrop.push(cid + "#" + i + "（宣布幕/投票日不该有靶子）");
+      droppable++;
+      if (s.drop === "primary") pri++; else gen++;
+    });
+    if (st.length >= 4 && (!pri || !gen)) miss.push(cid + (pri ? " 缺大选靶" : " 缺初选靶"));
+  }
+  check(!badDrop.length, "campaign stage.drop 只能写 primary / general，且不落在宣布幕或投票日：" + badDrop.join(", "));
+  check(!miss.length, "四幕以上的竞选链应两种靶齐备：" + miss.join(", "));
+  check(droppable >= 15, "可投放的幕太少（" + droppable + "）——这个行动在多数竞选里没有落点");
+  console.log("  内容：四幕以上的竞选链各有初选靶与大选靶，可投放的幕共 " + droppable + " 幕");
+
+  /* ② 闸门：没竞选 / 没靶 / 没料 / 这一幕放过一次 —— 四种情况都得置灰 */
+  const mk = function (id, stageIdx, momentum) {
+    G.campaign = {
+      id: id, stageIdx: stageIdx, since: P.monthSeq(), since0: P.monthSeq(),
+      played: stageIdx, status: "active", meters: { momentum: momentum == null ? 30 : momentum }
+    };
+  };
+  G.attr = Object.assign({}, G.attr, { INTG: 50, CUN: 50 });
+  G.log = G.log || [];
+  G.campaign = null;
+  check(P.levDropInfo().can === false, "没有进行中的竞选时不该能投放");
+  mk("camp_state", 0);   // 宣布幕
+  check(P.levDropInfo().can === false, "宣布幕没有靶子，按钮应置灰");
+  mk("camp_state", 1);   // 党内初选（primary 靶）
+  G.lev = 0;
+  let info = P.levDropInfo();
+  check(info.can === false, "手上没把柄时按钮应置灰（lev=0）");
+  G.lev = 3;
+  info = P.levDropInfo();
+  check(info.can === true && info.kind === "primary", "有把柄 + 初选幕 → 应可投放，实际 " + JSON.stringify(info.can + "/" + info.kind));
+  check(info.cost === 1, "一次投放应恰好花 1 点把柄，实际 " + info.cost);
+  console.log("  闸门：无竞选 / 无靶 / 无把柄 / 每幕一次 四种情形都判不可用；有把柄的初选幕 → 可投放（成本 " + info.cost + "）");
+
+  /* ③ 初选靶：花 1 点把柄 → 掷对手退赛 → 选情结算，且这一幕不能再投 */
+  {
+    const rint = P.rint;
+    P.rint = function () { return 1; };   // 强制命中（把随机从断言里摘出去）
+    const before = P.G.campaign.meters.momentum;
+    const r = P.levDrop();
+    P.rint = rint;
+    check(!!r && r.hit === true, "强制命中时初选投放应判对手退赛");
+    check(G.lev === 2, "投放后把柄应 -1（3 → " + G.lev + "）");
+    const lv = P.balance().campaign.levDrop || {};
+    check(P.G.campaign.meters.momentum === before + (lv.primaryWin || 15),
+      "对手退赛应把初选靶的选情一次给足（+" + (lv.primaryWin || 15) + "）");
+    check(G.campaign.dropN === 1, "累计投放次数应 +1");
+    check(P.levDropInfo().can === false, "同一幕投放第二次必须被拒");
+    mk("camp_state", 2);   // 造势幕（general 靶）
+    check(P.levDropInfo().can === true, "换一幕就该重新能投（每幕一次，不是每场一次）");
+  }
+
+  /* ④ 大选靶：吃到反噬时必须留下 scandal 账本 */
+  {
+    const rint = P.rint, rep0 = G.rep;
+    G.flags = []; G.counters = Object.assign({}, G.counters);
+    const w = G.counters.wrath_opposition || 0;
+    const m0 = G.campaign.meters.momentum;
+    P.rint = function () { return 1; };   // 强制"被翻出来"
+    const r = P.levDrop();
+    P.rint = rint;
+    const lv = P.balance().campaign.levDrop || {};
+    check(!!r && r.back === true, "强制反噬时大选投放应判暴露");
+    check(G.campaign.meters.momentum === m0 + (lv.generalBack || 3), "暴露只给保底的选情增益（+" + (lv.generalBack || 3) + "）");
+    check(G.rep < rep0, "暴露必须掉声望（" + rep0 + " → " + G.rep + "）");
+    check(G.flags.indexOf("dirty_trick") >= 0, "暴露要插 dirty_trick 旗（喂 scandal / 清算管线）");
+    check((G.counters.wrath_opposition || 0) >= w + (lv.wrathBack || 12),
+      "暴露要往 wrath_opposition 攒恨（#140 清算池的入口），实际 " + w + " → " + G.counters.wrath_opposition);
+    console.log("  结算：初选靶 +" + (lv.primaryWin || 15) + " 选情／退赛；大选靶暴露 → 声望 " + rep0 + "→" + G.rep +
+      "、dirty_trick、wrath_opposition +" + (lv.wrathBack || 12));
+  }
+
+  /* ⑤ 界面：按钮的置灰态与可用态都从同一个口径出（不另判一次） */
+  if (P.campaignHTML) {
+    G.tier = 2; G.track = "electoral"; mk("camp_state", 1);
+    G.lev = 0;
+    const off = P.campaignHTML();
+    G.lev = 2;
+    const on = P.campaignHTML();
+    check(off.indexOf("cmp-drop") >= 0 && on.indexOf("cmp-drop") >= 0, "竞选面板必须有「投放把柄」这一行");
+    check(off.indexOf("cmp-drop off") >= 0 && /disabled/.test(off), "没把柄时按钮应渲染成置灰 + disabled");
+    check(on.indexOf("cmp-drop off") < 0 && on.indexOf('onclick="POTUS.levDropClick()"') >= 0 && on.indexOf("<b>−1</b>") >= 0,
+      "有把柄时按钮应可点，并把价码（−1 把柄）标出来");
+    console.log("  界面：lev=0 → 置灰；lev=2 → 可点并标注 −1 把柄");
+  }
+
+  /* —— 还原现场 —— */
+  G.campaign = bak.campaign; G.lev = bak.lev; G.rep = bak.rep; G.attr = bak.attr;
+  G.counters = bak.counters; G.flags = bak.flags; G.log = bak.log;
+}
+
+/* ---------- 派系四栏面板（#29）----------
+ * 四条轴（党建制派 / 商业·华尔街 / 军工复合体 / 宗教·道德团体）从 chip 流升级成 2×2 宫格：
+ * 每格一条镜像双轴（左半仇恨、右半友好）+ 大号读数 + 分档形容词。
+ * 纯展示层——所以断言也只钉展示：四格齐、正负分侧、三档 tint 与 chip 同一口径、
+ * 面板吃掉的键不再重复出 chip、其余派系照旧。 */
+console.log("\n== 派系四栏面板（#29）==");
+{
+  const G = P.G;
+  const bak = { faction: G.faction, tier: G.tier };
+  const want = ["establishment", "commercial", "military", "church"];
+  check(JSON.stringify(P.FAC_PANELS) === JSON.stringify(want), "四栏应取 " + want.join("/") + "，实际 " + (P.FAC_PANELS || []).join("/"));
+  const hidden = (P.UI_HIDE || {}).fac || {};
+  const clash = want.filter(k => hidden[k] || !P.reg.faction[k]);
+  check(!clash.length, "四栏成员必须都在派系注册表里、且不再被 UI_HIDE 藏掉：" + clash.join(", "));
+  {
+    G.tier = 2;
+    G.faction = { establishment: 62, commercial: -47, military: 20, church: 5, base: 30, foreign: -12 };
+    const html = P.factionPanelHTML();
+    const cells = html.split('class="faccell').slice(1);
+    check(cells.length === 4, "面板应恰好四格，实际 " + cells.length);
+    const seg = k => { const hit = cells.filter(c => c.indexOf('data-diff="fac_' + k) >= 0)[0]; return hit || ""; };
+    check(/fac-love"><b style="width:62%/.test(seg("establishment")) && /fac-hate"><b style="width:0%/.test(seg("establishment")),
+      "正值只该长右半（友好条），左半归零");
+    check(/fac-hate"><b style="width:47%/.test(seg("commercial")) && /fac-love"><b style="width:0%/.test(seg("commercial")),
+      "负值只该长左半（仇恨条），右半归零");
+    check(seg("establishment").indexOf("t3p") >= 0 && seg("commercial").indexOf("t3n") >= 0 &&
+      seg("military").indexOf("t2p") >= 0 && seg("church").indexOf("t1p") >= 0,
+      "分档应与 chip 同口径：|v|≥40→3、≥15→2、>0→1");
+    check(P.factionName("military") && seg("military").indexOf(P.factionName("military")) >= 0, "每格该写派系名");
+    const rows = P.statusRows();
+    check(rows.factions.indexOf('data-diff="fac_foreign"') >= 0, "四栏之外的派系仍应在档案里出 chip");
+    check(rows.factions.indexOf("facgrid") >= 0, "四宫格应在 factions 那一行里");
+    check((rows.factions.match(/data-diff="fac_military"/g) || []).length === 1,
+      "进了四栏的派系不该再重复出一份 chip");
+    check(rows.factions.indexOf('data-diff="fac_press"') < 0, "UI_HIDE 里的派系不该出现在任何一侧");
+    G.faction = { establishment: 0 };
+    const zero = P.factionPanelHTML();
+    /* 注意别写成 indexOf("t1")：派系有 desc 时格子上挂着 hastip + data-tip，
+       而 0 值本来就不该有 tint，判据只能是「faccell 后面紧跟 tint 类名」。 */
+    check(!/faccell t[123][pn]/.test(zero) && zero.split('class="faccell').length - 1 === 4,
+      "0 值不该上底色（四格齐、但一格 tint 类名都不该有）");
+    check(P.factionWord(0) && P.factionWord(-80) && P.factionWord(80), "三档形容词两侧都得有词");
+    console.log("  四格：建制派 +62 → 右条 62%·t3p ｜ 华尔街 −47 → 左条 47%·t3n ｜ 军工 +20 → t2p ｜ 宗教 +5 → t1p");
+  }
+  G.faction = bak.faction; G.tier = bak.tier;
+}
+
+/* ---------- #21 M1 总统任期：白宫月决策槽 + 支持率 ----------
+ * M1 只立核心循环，所以这一段也只钉循环的骨架，不碰 M2—M4 的结局线：
+ *   ① 非总统时整条通道静默（决策槽 null、任期条空串、appr 效果键空操不报错）；
+ *   ② 入主那月播种落进 [25,72]（刻意低于中线 50 —— 支持率要一事一事挣）；
+ *   ③ 节奏硬断言：总统在位月**每月恰 1 条** wh 档期（走真实 planMonth 通道数），
+ *      且四族轮转不许同族连刷三个月；
+ *   ④ 池子容量公式：每族张数 × 4 ≥ repeatMonths（否则第三条硬断言必然饿死）；
+ *   ⑤ 支持率会掉但钉不住：24 月向自然水位收敛，全程不出现 0/100 死值；
+ *   ⑥ 通道纪律：白宫卡不进随机卡池（与 chore 同一条闸），
+ *      balance.presidency.enabled=false 能一键把整条通道下线。
+ * 造状态的手法照「把柄 × 竞选」一段的先例：备份 → 摆到 tier 9 → 断言 → 原样还原。 */
+console.log("\n== 总统任期：白宫月决策槽（#21 M1）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, rep: G.rep,
+    flags: G.flags, counters: G.counters, doneSeq: G.doneSeq, doneIds: G.doneIds,
+    log: G.log, campaign: G.campaign
+  };
+  const c = P.presCfg();
+  const byId = {};
+  P.events.forEach(function (e) { byId[e.id] = e; });
+  const whCards = P.events.filter(function (e) { return !!e.wh; });
+
+  /* —— ⑥ 内容侧：白宫池的形状 —— */
+  check(whCards.length >= 8, "白宫池只有 " + whCards.length + " 张卡，M1 下限 8（四族各 2）");
+  {
+    const fams = c.families;
+    fams.forEach(function (f) {
+      const n = whCards.filter(function (e) { return e.whFamily === f; }).length;
+      check(n > 0, "族 " + f + " 一张卡都没有，轮转游标会跳过它（那个族就永远不出）");
+      check(n * 4 >= c.repeatMonths,
+        "族 " + f + " 只有 " + n + " 张卡 × 每 4 月轮到一次 < repeatMonths " + c.repeatMonths + " → 会饿死断流");
+    });
+    check(whCards.every(function (e) { return fams.indexOf(e.whFamily) >= 0; }),
+      "有卡的 whFamily 不在 balance.presidency.families 里（永远不会被轮到）");
+    const bad = whCards.filter(function (e) {
+      return !(e.tierMin === P.balance().tierMax && e.tierMax === P.balance().tierMax) ||
+        !e.dyn || !Array.isArray(e.choices) || e.choices.length < 2;
+    }).map(function (e) { return e.id; });
+    check(!bad.length, "白宫卡必须 tierMin/tierMax 都钉在总统级 + dyn:true + 选项≥2：" + bad.join(", "));
+    const noAppr = whCards.filter(function (e) {
+      return !(e.choices || []).some(function (ch) {
+        return (ch.mods || []).some(function (m) { return m && m.src === "approval"; });
+      });
+    }).map(function (e) { return e.id; });
+    check(!noAppr.length, "这些卡没有一个选项吃支持率，等于支持率是装饰：" + noAppr.join(", "));
+    const uniq = whCards.filter(function (e) { return P.isUnique(e); }).map(function (e) { return e.id; });
+    check(!uniq.length, "任期 8 年 = 96 月，一次性卡撑不起逐月节奏：" + uniq.join(", "));
+  }
+
+  /* —— ① 非总统：整条通道必须完全静默 —— */
+  G.tier = 0; G.pres = null;
+  check(P.isPresident() === false, "tier 0 不该算总统");
+  check(P.whiteHouseSlot(1) === null, "非总统不该供给白宫档期");
+  check(P.presidencyHTML() === "", "非总统的任期条必须渲染成空串");
+  check(P.resourcesHTML().indexOf("s-appr") < 0, "非总统不该出支持率瓷贴");
+  check(P.approvalPanel() === null, "非总统 approvalPanel() 应返回 null");
+  { const before = JSON.stringify(G.pres); P.applyEffects({ appr: 5 }); check(G.pres === null || JSON.stringify(G.pres) === before, "appr 效果键在非总统手上不该凭空造出 G.pres"); }
+
+  /* —— ②③⑤ 入主白宫，连推 24 月 —— */
+  G.tier = P.balance().tierMax; G.pres = null;
+  G.flags = []; G.counters = {};            // 剥掉丑闻/调查压力，让水位收敛可解释
+  G.doneSeq = {}; G.doneIds = []; G.log = [];
+  G.year = 2000; G.month = 1; G.rep = 70; G.campaign = null;
+  check(P.isPresident() === true, "tier " + G.tier + " 应是总统（tierMax）");
+  const seeded = P.presidencyTick(1);
+  check(!!seeded && seeded.months === 0, "就职月只播种、不结算");
+  check(seeded.appr >= c.seed.floor && seeded.appr <= c.seed.ceil,
+    "播种支持率 " + seeded.appr + " 应落在 [" + c.seed.floor + "," + c.seed.ceil + "]（起手不许满格）");
+  /* 起手可以高于中线 —— 执政资本（声望）买的就是一个高起点，但封顶在 ceil 之下，
+     且水位（baseline + drift/revert ≈ 42）必然在下方等着：高起点仍要一事一事守。 */
+  G.rep = 0;
+  const bareSeed = P.seedApproval();
+  G.rep = 70;
+  check(bareSeed < 50 && seeded.appr < c.seed.ceil && seeded.appr > bareSeed,
+    "播种该随声望抬升、无名者低于中线（rep 0 → " + bareSeed + "% ｜ rep 70 → " + seeded.appr +
+    "% ｜ 封顶 " + c.seed.ceil + "%）");
+  const seed0 = seeded.appr;
+
+  const fams = c.families;
+  const monthsWithWh = [];
+  const famRun = [];
+  const hitCount = {};
+  const apprTrail = [];
+  for (let i = 0; i < 24; i++) {
+    G.month++; if (G.month > 12) { G.month = 1; G.year++; }
+    const p = P.presidencyTick(G.month);
+    apprTrail.push(p.appr);
+    const plan = P.planMonth(G.month);
+    const whs = plan.filter(function (s) { return s && s.wh; });
+    monthsWithWh.push(whs.length);
+    if (whs.length) {
+      const fam = byId[whs[0].eventId] ? byId[whs[0].eventId].whFamily : "?";
+      famRun.push(fam);
+      hitCount[whs[0].eventId] = (hitCount[whs[0].eventId] || 0) + 1;
+      P.stamp(whs[0].eventId);              // 演过就要记账，否则冷却无从生效
+    }
+  }
+  const short = monthsWithWh.filter(function (n) { return n !== 1; });
+  check(!short.length, "总统在位月必须**每月恰 1 条**白宫档期，" + short.length +
+    "/24 个月对不上（实测计数 " + JSON.stringify(monthsWithWh.slice(0, 8)) + " …）");
+  let maxRun = 0;
+  for (let i = 0; i < famRun.length; i++) {
+    let k = i, r = 0;
+    while (k < famRun.length && famRun[k] === famRun[i]) { r++; k++; }
+    if (r > maxRun) maxRun = r;
+  }
+  check(maxRun < 3, "同族连刷了 " + maxRun + " 个月（轮转游标失效？）：" + famRun.slice(0, 12).join(">"));
+  check(fams.every(function (f) { return famRun.indexOf(f) >= 0; }), "四族轮转有族整个 24 月都没出现");
+  check(Object.keys(hitCount).length >= 8, "24 个月只命中了 " + Object.keys(hitCount).length + " 张白宫卡（池子在自我饿死）");
+  console.log("  轮转：24 月命中 " + Object.keys(hitCount).length + " 张卡 ｜ 同族最长连刷 " + maxRun + " 月 ｜ 游标 " + famRun.slice(0, 8).join(">"));
+
+  /* ④ 收敛：向 baseline + drift/revert 的自然水位靠，全程不许钉在 0/100 */
+  const eqm = c.baseline + c.drift / c.revert;
+  const last = apprTrail[apprTrail.length - 1];
+  check(apprTrail.every(function (v) { return v > 0 && v < 100; }), "支持率被钉死在 0/100：" + JSON.stringify(apprTrail));
+  check(Math.abs(last - eqm) < Math.abs(seed0 - eqm),
+    "24 月没有向水位 " + eqm.toFixed(1) + " 收敛（" + seed0 + " → " + last + "）");
+  check(last < seed0, "在位越久越难：支持率应一路往下掉，" + seed0 + " → " + last);
+  console.log("  水位：播种 " + seed0 + "% → 24 月后 " + last + "%（自然水位 " + eqm.toFixed(1) + "%）");
+
+  /* ⑤ 通道纪律：白宫卡绝不从随机池被抽走 */
+  check(whCards.every(function (e) { return P.eligible(e, true) === false; }),
+    "有白宫卡通过了 P.eligible —— 它会在地方官员的月份里被随机抽到");
+  check(whCards.every(function (e) { return P.eventKind(e) === "whitehouse"; }),
+    "白宫卡的 eventKind 应是 whitehouse（第 5 类，不占四大类额度）");
+
+  /* ⑥ 展示投影与读数一致 */
+  const html = P.presidencyHTML();
+  check(/class="campbar presbar/.test(html) && html.indexOf("%") >= 0, "任期条应复用 .campbar 的皮并带百分比读数");
+  check(/cmp-track"><b style="width:\d+%/.test(html), "任期条该有那根进度条");
+  {
+    const ap = P.approvalPanel();
+    check(ap && ap.value === Math.round(G.pres.appr), "approvalPanel 与 G.pres.appr 对不上");
+    check(ap && Number.isInteger(ap.delta) && fams.indexOf(ap.band.key) < 0 && !!ap.band.text, "band 必须出词、delta 必须是整数");
+    check(P.resourcesHTML().indexOf('data-diff="appr"') >= 0, "支持率瓷贴要带 data-diff，结算红绿才吃得到它");
+    check(P.statusVals().appr === ap.value, "statusVals 里的 appr 应与面板一致（结算对照用同一口径）");
+  }
+  /* ⑦ 骰子：支持率真的进判定，且以 50% 为零点对称 */
+  {
+    const choice = { base: 0.5, mods: [{ src: "approval", w: 0.3 }] };
+    const at = function (v) { G.pres.appr = v; return P.computeP(choice); };
+    const hi = at(70), mid = at(50), lo = at(30);
+    const rowOf = function (r) { return r.breakdown.filter(function (x) { return /支持率|Approval/i.test(String(x.label)); }); };
+    check(rowOf(hi).length === 1 && Math.abs(rowOf(hi)[0].pct - 6) < 1e-6,
+      "支持率 70% 该在判定明细里出 +6 的一条，实际 " + JSON.stringify(rowOf(hi)));
+    check(rowOf(mid).length === 0, "50% 是零点：中线水位上不该出现支持率这一行（免得玩家以为它一直在推骰子）");
+    check(Math.abs(hi.P - (mid.P + 0.06)) < 1e-9 && Math.abs(lo.P - (mid.P - 0.06)) < 1e-9,
+      "支持率加成应对称：70% → " + hi.P.toFixed(3) + " ｜ 50% → " + mid.P.toFixed(3) + " ｜ 30% → " + lo.P.toFixed(3));
+    G.pres.appr = last;
+    console.log("  骰子：支持率 70/50/30% → 胜算 " + (hi.P * 100).toFixed(0) + "/" + (mid.P * 100).toFixed(0) + "/" + (lo.P * 100).toFixed(0) + "%");
+  }
+  /* ⑧ 一键下线 */
+  {
+    const had = P.reg.balance && P.reg.balance.presidency;
+    P.reg.balance = P.reg.balance || {};
+    P.reg.balance.presidency = { enabled: false };
+    check(P.presCfg().enabled === false && P.whiteHouseSlot(G.month) === null,
+      "balance.presidency.enabled=false 没能下线决策槽");
+    G.pres.appr = 40;
+    check(P.approvalPanel() === null && P.presidencyHTML() === "",
+      "下线后支持率读数件也应一并消失（否则 HUD 还在报一个不会变的数）");
+    if (had) P.reg.balance.presidency = had; else delete P.reg.balance.presidency;
+    check(P.presCfg().enabled !== false, "下线开关没能还原");
+  }
+
+  /* —— 还原现场 —— */
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M2：池容量与次任专属 ----------
+ * M1 只钉住「池子别饿死」。M2 扩到 24 张以后必须换一把更严的尺：
+ *   ① 容量按**首任真抽得到**的张数算 —— 次任专属卡（事件级 flags:["pres_two_terms"]）
+ *      与弹劾卡在第一个任期一张都不会出现，把它们算进分母就是假绿灯；
+ *   ② 每族至少留一张次任卡，否则第二届的桌上全是回头客；
+ *   ③ 次任卡那扇门要真的开关：没旗开不了，插旗才开。 */
+console.log("\n== 白宫池容量与次任专属（#21 M2）==");
+{
+  const G = P.G;
+  const c = P.presCfg();
+  const fams = c.families;
+  const wh = P.events.filter(function (e) { return !!e.wh; });
+  const isSecond = function (e) { return (e.flags || []).indexOf("pres_two_terms") >= 0; };
+  check(wh.length >= 24, "白宫池只有 " + wh.length + " 张（M2 定稿 24 张轮转 + 1 张弹劾）");
+  fams.forEach(function (f) {
+    const all = wh.filter(function (e) { return e.whFamily === f; });
+    const first = all.filter(function (e) { return !isSecond(e) && e.id !== c.impeach.card; });
+    check(first.length * 4 >= c.repeatMonths,
+      "族 " + f + " 首任可用只有 " + first.length + " 张 × 每 4 月轮到一次 < repeatMonths " + c.repeatMonths +
+      "（次任卡与弹劾卡不计入分母，M1 那把旧尺会把这一条掩盖掉）");
+    check(all.filter(isSecond).length >= 1, "族 " + f + " 没有次任专属卡：第二届只会重复首任的桌面");
+  });
+  check(wh.filter(isSecond).length >= fams.length,
+    "次任专属卡共 " + wh.filter(isSecond).length + " 张 < 族数 " + fams.length);
+  {
+    const bak = { tier: G.tier, pres: G.pres, flags: G.flags, year: G.year, month: G.month };
+    G.tier = P.balance().tierMax; G.pres = { appr: 50, months: 1, term: 1, famIdx: 0 };
+    G.year = 2000; G.month = 6;
+    const secs = wh.filter(isSecond);
+    G.flags = [];
+    check(secs.every(function (e) { return P.when(e, P.snap()) === false; }),
+      "没插 pres_two_terms 时次任卡漏进了首任池（那首任的实际容量比断言算的还小）");
+    G.flags = ["pres_two_terms"];
+    check(secs.every(function (e) { return P.when(e, P.snap()) === true; }),
+      "插了 pres_two_terms 次任卡仍打不开 —— 它一年也演不到，等于白写");
+    Object.assign(G, bak);
+  }
+}
+
+/* ---------- #21 M2：连任与中期链可开 ----------
+ * 两条在任链是 M2 的风险集中点：既可能被 campaignCandidates 的「target === tier+1」
+ * 硬闸挡死（永远开不出来），也可能被 campaignTick 的「G.tier >= def.tier → DROPPED」
+ * 当场误杀（一进场就死）。两头都要钉，外加内容侧的死引用检查：
+ * 幕卡 event id 必须真存在，winFlag 必须真有人盖（否则 winKind:"retain" 恒判负）。 */
+console.log("\n== 连任与中期链可开（#21 M2）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, flags: G.flags,
+    counters: G.counters, campaign: G.campaign, campaignLog: G.campaignLog,
+    campaignCool: G.campaignCool, doneIds: G.doneIds, log: G.log
+  };
+  const tierMax = P.balance().tierMax;
+  const stageOf = { camp_reelect: "reelect", camp_midterm: "midterm" };
+  ["camp_reelect", "camp_midterm"].forEach(function (id) {
+    const def = P.campaignDef(id);
+    check(!!def, "缺少在任竞选定义：" + id);
+    if (!def) return;
+    check(def.incumbent === true, id + " 必须 incumbent:true（否则 target=tier+1 那道硬闸把它永久挡死）");
+    check(def.winKind === "retain" && !!def.winFlag,
+      id + " 该用 winKind:retain + winFlag 定胜负 —— 人已经在 tierMax，看 tier 必判负");
+    check(def.tier === tierMax, id + " 的 def.tier 应是总统级 " + tierMax);
+    (def.stages || []).forEach(function (st) {
+      const ev = P.evById(st.event);
+      check(!!ev, id + " 的某一幕指向不存在的事件：" + st.event);
+      if (!ev) return;
+      check(Array.isArray(ev.choices) && ev.choices.length >= 2, "幕卡 " + st.event + " 选项不足 2 个");
+      check(P.eligible(ev, true) === false,
+        "幕卡 " + st.event + " 能通过随机卡池闸 —— 它会被没在竞选的月份抽走");
+    });
+    const fin = (def.stages || [])[def.stages.length - 1];
+    const fev = P.evById(fin && fin.event);
+    const stamped = ((fev && fev.choices) || []).some(function (ch) {
+      const os = ch.outcomes || {};
+      return ["crit", "ok", "meh", "fail", "critfail"].some(function (k) {
+        return (((os[k] || {}).effects) || {}).flags && ((os[k].effects.flags) || []).indexOf(def.winFlag) >= 0;
+      });
+    });
+    check(stamped, id + " 的末幕没有任何 outcome 盖 " + def.winFlag + " —— retain 判胜是死路");
+    /* 开闸 → 进候选；不置闸 → 绝不进候选 */
+    G.tier = tierMax; G.campaign = null; G.campaignLog = []; G.doneIds = []; G.log = [];
+    G.flags = ["president_done"]; G.counters = {}; G.campaignCool = 0;
+    G.year = 2000; G.month = 6;
+    G.pres = { appr: 55, months: 36, term: 1, famIdx: 0, termStart: 0, raceDue: null, midDone: 0, lowStreak: 0 };
+    const closed = P.campaignCandidates(P.snap()).map(function (x) { return x.id; });
+    check(closed.indexOf(id) < 0, id + " 在 raceDue=null 时就进了候选表（引擎那道日历闸形同虚设）");
+    G.pres.raceDue = stageOf[id];
+    G.month++;                                  // campaignCandidates 按 monthSeq 缓存，换个月份再问
+    const open = P.campaignCandidates(P.snap()).map(function (x) { return x.id; });
+    check(open.indexOf(id) >= 0, id + " 明明 raceDue 却进不了候选表（incumbent 豁免没生效）");
+    /* 进场不被误杀 */
+    G.campaign = {
+      id: id, stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0,
+      meters: { momentum: 40, warchest: 40 }, status: P.CAMPAIGN_STATUS.ACTIVE
+    };
+    G.month++;
+    P.campaignTick(G.month);
+    const lastLog = (G.campaignLog || [])[G.campaignLog.length - 1];
+    check(!(lastLog && lastLog.status === P.CAMPAIGN_STATUS.DROPPED),
+      id + " 一进场就被 campaignTick 判 DROPPED（在任链的 tier 豁免漏了）");
+    check(G.campaign && G.campaign.id === id, id + " 跑了一个月就不在打了");
+  });
+  /* 反向对照：豁免只该给 incumbent，普通链在 tierMax 仍须收掉 */
+  G.tier = tierMax; G.campaignLog = []; G.month++;
+  G.campaign = {
+    id: "camp_senate", stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0,
+    meters: { momentum: 40, warchest: 40 }, status: P.CAMPAIGN_STATUS.ACTIVE
+  };
+  G.month++;
+  P.campaignTick(G.month);
+  check(!G.campaign || G.campaign.id !== "camp_senate",
+    "camp_senate 在 tierMax 还在跑 —— DROPPED 硬闸被整条放开了，不只是豁免了在任链");
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M3：legacy 三档 ----------
+ * 逐月化之后「当过总统」不是一个布尔，而是一份账：term / months / appr + 两面羞辱旗。
+ * 结局屏要把这份账换成 S/A/B 三档，并且必须在旧的 career_president 兜底之前命中。 */
+console.log("\n== 总统 legacy 三档（#21 M3）==");
+{
+  const G = P.G;
+  const bak = { tier: G.tier, pres: G.pres, flags: G.flags, counters: G.counters, endingReason: G.endingReason };
+  ["career_president_great", "career_president_adequate", "career_president_flawed"].forEach(function (id) {
+    const r = (P.reg.ending || []).filter(function (x) { return x.id === id; })[0];
+    check(!!r, "缺少 legacy 结局规则：" + id);
+    if (!r) return;
+    check("SAB".indexOf(String(r.grade)) >= 0, id + " 的 grade 应是 S/A/B 之一，实际 " + r.grade);
+    check((r.when || {}).reason === "career_end",
+      id + " 只该挂在 career_end 上（否则入狱/身败名裂等中途结局会被它顶掉）");
+  });
+  const gr = function (id) { return (P.reg.ending.filter(function (x) { return x.id === id; })[0] || {}).priority; };
+  check(gr("career_president_great") > gr("career_president_adequate") &&
+    gr("career_president_adequate") > gr("career_president_flawed") &&
+    gr("career_president_flawed") > gr("career_president"),
+    "四档总统结局的优先级序必须是 好 > 守 > 糊 > 旧兜底");
+  const pick = function (pres, extraFlags) {
+    G.tier = 8; G.pres = pres; G.counters = {};
+    G.flags = ["president_done"].concat(extraFlags || []);
+    const r = P.evaluateEnding("career_end");
+    return r && r.id;
+  };
+  check(pick({ term: 2, appr: 55, months: 80 }) === "career_president_great", "两届 + 收在 55% 该是 S 档");
+  check(pick({ term: 2, appr: 55, months: 80 }, ["impeached"]) !== "career_president_great",
+    "被弹劾过的人不该拿 S 档（无论支持率收在多高）");
+  check(pick({ term: 2, appr: 55, months: 80 }, ["scandal_4"]) !== "career_president_great",
+    "四级丑闻在场时 S 档必须让位");
+  check(pick({ term: 2, appr: 45, months: 80 }) === "career_president_adequate",
+    "两届但收在 45%（过了四年线却不到中线）→ A 档：S 档要的是体面地走");
+  check(pick({ term: 1, appr: 48, months: 48 }) === "career_president_adequate", "干满一届、离任 48% → A 档");
+  check(pick({ term: 1, appr: 30, months: 10 }) === "career_president_flawed", "提前下野 → B 档");
+  check(pick(null) === "career_president",
+    "没有白宫账本（逐月化之前的旧档）应落到 career_president 兜底，而不是混进三档");
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M3：卸任清算喂料 + 弹劾开门 ----------
+ * 140-reckoning 池只认 G.counters["wrath_<组>"]（25 前哨 / 55 清算）。
+ * 在任时得罪人的账从前没人结，卸任就永远演不出清算 —— presExitSettle 就是那条管线。
+ * 全部走既有键（count/flags），所以断言钉的是「账有没有记上、有没有记重」。 */
+console.log("\n== 卸任清算喂料与弹劾开门（#21 M3）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, flags: G.flags,
+    counters: G.counters, doneIds: G.doneIds, log: G.log
+  };
+  const c = P.presCfg();
+  const gone = function (pres, flags, counters) {
+    G.tier = P.balance().tierMax - 1;        // 人已经走出白宫：tick 的离场分支负责结账
+    G.pres = pres; G.flags = flags || []; G.counters = counters || {};
+    G.year = 2000; G.month = 6;
+    return P.presidencyTick(G.month);
+  };
+  gone({ appr: 22, months: 48, term: 1, lowStreak: c.pressureMonths }, [], {});
+  check(P.hasFlag("president_left"), "离任没插 president_left 旗（连任闸与 140 池都认它）");
+  check((G.counters.wrath_establishment || 0) >= c.exitWrath.establishment,
+    "低支持率 + 长期危险线以下离任，却没往 wrath_establishment 记恨 → 党内的账永远演不出来");
+  gone({ appr: 60, months: 48, term: 1, lowStreak: 0 }, ["scandal_3", "investigation_open"], {});
+  check((G.counters.wrath_press || 0) >= c.exitWrath.press, "带着丑闻离任没喂给新闻界那条清算线");
+  check((G.counters.wrath_agency || 0) >= c.exitWrath.agency, "调查未结就离任，没喂给联邦机器那条线");
+  gone({ appr: 58, months: 80, term: 2, lowStreak: 0 }, ["pres_re_elected"], {});
+  check(!G.counters.wrath_establishment && !G.counters.wrath_press && !G.counters.wrath_agency,
+    "高支持率、无丑闻、无调查的体面收杆也记恨 → 清算成了必演剧情，140 池就失去含义了");
+  check(P.hasFlag("president_left"), "体面离任同样要插旗（它不只惩罚失败者，它还是届数闸）");
+  {   /* 幂等：同一场离任只结一次账 */
+    const p = { appr: 30, months: 48, term: 1, lowStreak: 0 };
+    gone(p, [], {});
+    const once = JSON.stringify(G.counters);
+    P.presidencyTick(7); P.presidencyTick(8);
+    check(JSON.stringify(G.counters) === once, "离任结算被重复记账（每月 tick 一次，恨值会涨到天上）");
+  }
+  {   /* 弹劾：引擎只判「这个月该不该演」，输赢交给卡自己的骰子 */
+    const ic = P.evById(c.impeach.card);
+    check(!!ic && ic.wh === true && ic.unique === false,
+      "弹劾卡必须存在、走白宫通道且不是一次性（任期八年，一锤子买卖撑不起）");
+    G.tier = P.balance().tierMax; G.doneIds = []; G.log = [];
+    G.year = 2000; G.month = 6;
+    G.flags = ["investigation_open", "scandal_2"];
+    G.pres = { appr: 20, months: 30, term: 1, famIdx: 0, lowStreak: c.pressureMonths };
+    check(P.impeachmentDue() === true, "支持率连压 + 调查未结 → 弹劾闸该开");
+    const slot = P.whiteHouseSlot(G.month);
+    check(slot && slot.eventId === c.impeach.card, "闸开着，白宫这个月的档期却没给弹劾卡");
+    check(P.impeachmentDue() === false, "刚演过一次，同月又敲一次门（impeachAt 闩失效 = 一个月两出新）");
+    G.pres.impeachAt = null;
+    G.flags = ["scandal_1"];
+    check(P.impeachmentDue() === false, "丑闻不足 " + c.impeach.scandalMin + " 级、调查也没开 → 不该弹劾");
+    G.pres.lowStreak = 0;
+    G.flags = ["investigation_open"];
+    check(P.impeachmentDue() === false, "支持率没连压在危险线以下 → 党内还不敢动手，不该弹劾");
+    G.pres.lowStreak = c.pressureMonths; G.flags = ["investigation_open"];
+    check(P.when(ic, P.snap()) === true, "弹劾卡自带的 cond 与引擎的闸对不上");
+    G.flags = [];
+    check(P.when(ic, P.snap()) === false, "闸关掉之后弹劾卡还开着（它会被普通白宫月份抽走）");
+  }
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M4：椭圆办公室皮 + 总统视角历史锚点 ----------
+ * 两件事都不许越界：oval 只在 ev.wh 时多一个类名；五张 1xx 线卡的总统档
+ * 在 tier 9 必须露、在地方档位必须藏，而且藏掉它之后低层玩家仍要有按钮可点。 */
+console.log("\n== Oval Office 皮与总统视角选项（#21 M4）==");
+{
+  const G = P.G;
+  check(P.ovalCls({ wh: true }) === " oval", "白宫月的卡片没挂上 oval 类");
+  check(P.ovalCls({}) === "" && P.ovalCls(null) === "",
+    "非白宫卡也带 oval —— 平民月份的卡片字符串都不该多一个字符");
+  const css = fs.readFileSync(path.join(ROOT, "engine", "style.css"), "utf8");
+  check(/\.news\.editorial\.oval\s*\{/.test(css), "style.css 里没有 .news.editorial.oval 规则（类名挂上了却没皮）");
+  check(/\.oval\s+h1\.headline/.test(css) && /\.oval\s+\.cchip/.test(css),
+    "oval 皮只改了容器：标题与选项筹码没跟着换色");
+  const five = [
+    ["ln01_anthrax", "situation_room"], ["ln03_war", "carry_deck"], ["ln08_auto", "controlled_bust"],
+    ["ln20_covid", "war_powers"], ["ln21_capitol", "command_in_chief"]
+  ];
+  const bak = { tier: G.tier, pres: G.pres, flags: G.flags, counters: G.counters };
+  G.pres = { appr: 55, months: 40, term: 1 }; G.flags = []; G.counters = {};
+  five.forEach(function (pair) {
+    const ev = P.evById(pair[0]);
+    check(!!ev, "缺少挂了总统档的 1xx 线卡：" + pair[0]);
+    if (!ev) return;
+    const ch = (ev.choices || []).filter(function (x) { return x.id === pair[1]; })[0];
+    check(!!ch, pair[0] + " 没有总统视角选项 " + pair[1]);
+    if (!ch) return;
+    check(ch.when && ch.when.tierRaw === true && ch.when.tierMin === P.balance().tierMax,
+      pair[0] + "/" + pair[1] + " 的门禁应是 tierRaw + tierMin:" + P.balance().tierMax +
+      "（少了 tierRaw 会被 tierBand 重映射，档位就不是总统那一级）");
+    G.tier = P.balance().tierMax;
+    const hiOK = P.when(ch.when, P.snap()) === true;
+    const visHi = P.visibleChoices(ev).map(function (x) { return x.id; });
+    G.tier = 4;
+    const loOK = P.when(ch.when, P.snap()) === false;
+    const visLo = P.visibleChoices(ev).map(function (x) { return x.id; });
+    check(hiOK && visHi.indexOf(pair[1]) >= 0,
+      pair[0] + "：总统在位时这一档打不开或渲染器把它藏了（#32⑤ 的分层白写）");
+    check(loOK && visLo.indexOf(pair[1]) < 0,
+      pair[0] + "：地方官员（tier 4）看得见/点得到总统的桌子");
+    check(visLo.length >= 1, pair[0] + "：分层之后低档位一个选项都不剩（玩家会面对没有按钮的卡）");
+    const os = ch.outcomes || {};
+    check(["crit", "ok", "meh", "fail", "critfail"].every(function (k) { return !!os[k]; }),
+      pair[0] + "/" + pair[1] + " 五档 outcome 不齐");
+    check(Object.keys(os).some(function (k) { return (((os[k] || {}).effects) || {}).appr != null; }),
+      pair[0] + "/" + pair[1] + " 没有一个档位吃支持率 —— 总统档必须动总统自己的读数");
+    check((ch.mods || []).some(function (m) { return m && m.src === "approval"; }),
+      pair[0] + "/" + pair[1] + " 的胜算没吃支持率（决策档应与民心挂钩）");
+  });
+  Object.assign(G, bak);
+}
+
 /* ---------- 死局保护 ---------- */
 console.log("\n== 死局保护 ==");
 {
@@ -980,6 +1817,7 @@ const SEED = Math.round(_argN("seed", 20260921));
 /* --diff=normal|hard|brutal|... 锁定难度跑生涯模拟（学贷断供校准用）；缺省 normal */
 const SIM_DIFF = (process.argv.find(a => a.indexOf("--diff=") === 0) || "").split("=")[1] || "normal";
 const K = (o) => Object.keys(o);
+const DIMS4 = ["CHA", "INT", "CUN", "INTG"];   /* #37④ 成长预算探针的四个维度（含隐藏诚信） */
 const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
   entries = K(P.reg.entry), parties = K(P.reg.party), stances = K(P.reg.stance);
 
@@ -994,6 +1832,10 @@ let draws = 0, games_ = 0, fillers = 0, gradeHit = { major: 0, mid: 0, minor: 0 
    否则分布一变就分不清是机制变了还是投注策略变了。 */
 let stakeEvents = 0, stakeFunSpent = 0, stakeFunTiers = 0;
 let slotsPerYear = [], monthHist = {}, catHit = {}, medHit = { none: 0, gated: 0 }, dateDrift = 0;
+/* #32 四大类实际出场账：验收要看两件事 ——
+   ① 随机类年均 ≤ pace.yearRandomMax（超发就是刷属性/刷钱）；
+   ② 倒挂转正：固定历史 ≥ 职业 ≥ 随机（玩家最看重的是"史实到点必演"，不是巧合）。 */
+let kindHit = { fixed: 0, campaign: 0, career: 0, random: 0, shady: 0 }, simYears = 0;
 let eraSpecific = 0, eraGeneric = 0;
 /* 静好岁月：平静月一共结算了多少段随笔、其中有多少段抽不出文字（说明素材有洞） */
 let quietTotal = 0, vigCount = 0, vigEmpty = 0;
@@ -1016,6 +1858,15 @@ let monthRepeat = 0;                              // 同一自然月内同卡重
 let repGaps = [], repWorst = { id: null, n: 0 };
 /* 学贷断供面板（--diff 校准用）：每局最长连续逾期、破产局数/次数 */
 let loanLateAll = [], loanBankruptGames = 0, loanBankruptEvents = 0;
+/* #37④ 开局节奏探针：earlyCalm 只覆盖开局 24 个月，所以逐年单列（不是全生涯均值）。
+   campMax = 单月排进几张竞选卡 —— 竞选是一幕一幕演的，同月两幕就是节奏回归。 */
+let y1Slots = [], y2Slots = [], campMax = 0;
+/* #38：逐年「非固定四桶」计数（全生涯 + 开局两年各一份） */
+let nfYears = [], nfEarly = [], dYears = [], dEarly = [];
+/* #37④ 成长预算探针：开局 8 年四维各涨了多少（用户口径「一辈子能涨 35 点智力都很难」，
+   所以 8 年这个窗口必须量得到。注意模拟走 applyEffects、不经 stage 的同卡去重，
+   量出来是【上界】——真实游戏只会更低。 */
+let attrGain8 = [];
 for (let r = 0; r < games; r++) {
   let runCur = 0, runWorst = 0, demoTier = null, hardEnded = false;
   const idSeq = {};                                // 本局每张真实卡被抽中的 monthSeq 序列
@@ -1025,12 +1876,19 @@ for (let r = 0; r < games; r++) {
     P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r, difficulty: SIM_DIFF };
     P.confirmCreate();
     const G = P.G, b = P.balance();
+    const attr0 = Object.assign({}, G.attr);       // #37④ 成长预算的基线（建角那一瞬间）
     let done = false;
     for (let y = 0; y < 55 && !done; y++) {
+      simYears++;
       // 每年恢复精力（与 endYear 同口径），保证 ap 类代价有东西可付
       G.ap = P.clamp((b.apBase == null ? 6 : b.apBase) + Math.floor(G.hp / (b.apHealthDiv || 25)), b.apMin || 1, b.apMax || 12);
       G.month = 0; G.quietMonths = []; G.monthPlan = []; G.slotIndex = 0; G.slotCount = 0;
       let yearSlots = 0, months = 0, guard = 0;
+      /* #38：本年度「非固定四桶」出了几件事（公务/随机/灰产/竞选幕，固定史实与白宫月决策不计） */
+      let yearNonFixed = 0;
+      /* #38：其中**可被额度拦**的三桶（公务/随机/灰产）。竞选链只吃"每月一幕"、从不吃额度，
+         所以"开局两年该更薄"这条只能对这三桶说，否则选举年的一串幕会把结论翻转。 */
+      let yearDisc = 0;
       /* 用 time.js 的真实推进：跳过平静的月份，停在有事发生的月份 */
       let yearMonths = 0;
       while (!done && ++guard < 60 && yearMonths < 12) {
@@ -1048,6 +1906,7 @@ for (let r = 0; r < games; r++) {
         if (r !== "event") continue;          /* 平静月：成长已在 settleQuietMonth 结掉 */
         months++;
         const _mset = new Set();                 // 本月已出现的真实卡 id —— 侦测「同月重复」回归
+        let campIn = 0;                          // 本月排进的竞选幕数（#37④ 应 ≤1）
         for (let i = 0; i < G.monthPlan.length && !done; i++) {
           const slot = G.monthPlan[i];
           const ev = P.drawEvent(slot);
@@ -1063,6 +1922,15 @@ for (let r = 0; r < games; r++) {
           gradeHit[P.gradeOf(ev)] = (gradeHit[P.gradeOf(ev)] || 0) + 1;
           if (ev.filler) fillers++;
           catHit[ev.category || "—"] = (catHit[ev.category || "—"] || 0) + 1;
+          /* #32：真实出场过的四大类（灰产单列，它走独立额度） */
+          if (!ev.filler) {
+            const bk = (P.eventKind(ev) === "random" && ev.category === "shady") ? "shady" : P.eventKind(ev);
+            kindHit[bk] = (kindHit[bk] || 0) + 1;
+            if (bk === "campaign") campIn++;
+            /* #38：非固定四桶按年计数（固定史实与 whitehouse 不计入 2—6 的口径） */
+            if (bk === "career" || bk === "random" || bk === "shady" || bk === "campaign") yearNonFixed++;
+            if (bk === "career" || bk === "random" || bk === "shady") yearDisc++;
+          }
           {
             const isSp = ev.era && ev.era.length < eras.length;
             if (isSp) eraSpecific++; else eraGeneric++;
@@ -1129,9 +1997,16 @@ for (let r = 0; r < games; r++) {
           }
           if (G.hp <= 0) done = true;
         }
+        if (campIn > campMax) campMax = campIn;
       }
       monthHist[months] = (monthHist[months] || 0) + 1;
       slotsPerYear.push(yearSlots);
+      nfYears.push(yearNonFixed);                    /* #38：非固定四桶按年 */
+      dYears.push(yearDisc);                         /* #38：其中吃额度的三桶 */
+      if (y < 2) { nfEarly.push(yearNonFixed); dEarly.push(yearDisc); }  /* 开局两年（earlyCalm 窗口）另计 */
+      if (y === 0) y1Slots.push(yearSlots);
+      if (y === 1) y2Slots.push(yearSlots);
+      if (y === 7) attrGain8.push(DIMS4.map(function (k) { return (G.attr[k] || 0) - (attr0[k] || 0); }));
       if (y < 8) demo.slotStats.push(yearSlots);
       /* 静好岁月：这一年的平静月应该都被结算成"一段日子"（走的是 advanceMonth 的真实路径） */
       quietTotal += (G.quietMonths || []).length;
@@ -1168,6 +2043,7 @@ return {
   tiers: tiers, demoTiers: demoTiers, endings: endings, errs: errs, draws: draws, games: games_, fillers: fillers, gradeHit: gradeHit,
   stakeEvents: stakeEvents, stakeFunSpent: stakeFunSpent, stakeFunTiers: stakeFunTiers,
   monthHist: monthHist, catHit: catHit, medHit: medHit, dateDrift: dateDrift,
+  kindHit: kindHit, simYears: simYears,
   eraSpecific: eraSpecific, eraGeneric: eraGeneric, eraMix: eraMix,
   quietTotal: quietTotal, vigCount: vigCount, vigEmpty: vigEmpty, avgSlots: avgSlots,
   valHit: valHit,
@@ -1180,6 +2056,8 @@ return {
   monthRepeat: monthRepeat,
   repGaps: repGaps, repWorst: repWorst,
   loanLateAll: loanLateAll, loanBankruptGames: loanBankruptGames, loanBankruptEvents: loanBankruptEvents,
+  y1Slots: y1Slots, y2Slots: y2Slots, campMax: campMax, attrGain8: attrGain8,
+  nfYears: nfYears, nfEarly: nfEarly, dYears: dYears, dEarly: dEarly,
   demo: demo
 };
 }
@@ -1279,6 +2157,14 @@ console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + 
     " ｜ <12 个月 " + (g.length ? (lt12 / g.length * 100).toFixed(1) : "0") + "% ｜ 单局同卡最多 " + sim.repWorst.n + " 次（" + sim.repWorst.id + "）");
 }
 console.log("  类型分布: " + JSON.stringify(catHit));
+{   /* #32 四大类实际节奏：随机类年均 ≤ 额度，且倒挂转正（固定历史 ≥ 职业 ≥ 随机）。 */
+  const k = sim.kindHit || {}, Y = Math.max(1, sim.simYears || 1);
+  const per = (n) => ((n || 0) / Y).toFixed(2);
+  const rand = (k.random || 0) + (k.shady || 0);
+  console.log("  四大类【年均/局】: 固定 " + per(k.fixed) + " ｜ 职业 " + per(k.career) +
+    " ｜ 随机 " + per(rand) + "（含灰产 " + per(k.shady) + "） ｜ 竞选 " + per(k.campaign) +
+    " ｜ 白宫 " + per(k.whitehouse) + " ｜ 额度 " + JSON.stringify(P.balance().pace) + " ｜ 样本 " + Y + " 年");
+}
 console.log("  投注观测：押过钱的判定 " + (stakeEvents / Math.max(1, draws) * 100).toFixed(1) + "% 次" +
   "（平均 " + (stakeFunTiers / Math.max(1, stakeEvents)).toFixed(2) + " 档）" +
   " ｜ 每局押掉 $" + Math.round(stakeFunSpent / Math.max(1, games) / 1000) + "k");
@@ -1339,10 +2225,134 @@ check(thinSample || gradeHit.major > 0, "模拟中从未出现大事件");
 check(fillers / Math.max(1, draws) < 0.3, "填充事件占比过高，说明事件池太薄：" + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%");
 check(medHit.gated === 0, "模拟中出现了媒介门控失效的事件：" + medHit.gated);
 check(Object.keys(catHit).length >= 5, "事件类型过于单一，只有 " + Object.keys(catHit).length + " 种");
-check(eraSpecific / Math.max(1, draws) >= 0.15,
+/* 时代专属占比：#37 之后实测带是 14—15%（1980 时代最低 11.6%，它专属卡最少）。
+   门槛从 0.15 下调到 0.12 —— 原来的 0.15 正压在样本噪声上，同一份代码两跑一红一绿；
+   这条断言要抓的是"时代内容被淹没"（跌到个位数百分比），不是 1 个百分点的抖动。 */
+check(eraSpecific / Math.max(1, draws) >= 0.12,
   "时代专属事件占比过低（" + (eraSpecific / Math.max(1, draws) * 100).toFixed(1) + "%）——通用事件淹没了时代内容，考虑调高 eraWeightMul 或给该时代加内容");
 check(vigCount > 0, "模拟里一段「静好岁月」都没结算——平静月的成长/叙事路径没被走到");
 check(vigEmpty === 0, "有 " + vigEmpty + " 段随笔抽不出文字（素材库在某种状态下缺槽位）");
+{   /* ---- #32 事件四大类节奏验收 ----
+     年均额度是引擎硬闸，与样本量无关（--games=1 的 worker 也该抓得住回归）；
+     「倒挂转正」是分布结论，留给统计样本。 */
+  const kk = sim.kindHit || {}, Y = Math.max(1, sim.simYears || 1), pc = P.paceCfg();
+  const rate = { fixed: (kk.fixed || 0) / Y, career: (kk.career || 0) / Y, random: (kk.random || 0) / Y, shady: (kk.shady || 0) / Y };
+  check(rate.random <= pc.yearRandomMax + 0.05, "随机类年均 " + rate.random.toFixed(2) + " 件，超出 pace.yearRandomMax=" + pc.yearRandomMax + " —— 属性与钱会刷太快");
+  check(rate.shady <= pc.grayMax + 0.05, "灰产投机年均 " + rate.shady.toFixed(2) + " 件，超出 pace.grayMax=" + pc.grayMax);
+  check(rate.career <= pc.careerMax + 0.05, "日常公务年均 " + rate.career.toFixed(2) + " 件，超出 pace.careerMax=" + pc.careerMax + "（#38 给它立的年额度失效）");
+  check(rate.fixed > 0, "四大类里固定历史事件一件没出（kindHit.fixed=0）——钉卡通道断了");
+  check(thinSample || rate.fixed >= rate.career, "四大类倒挂未转正：固定历史 " + rate.fixed.toFixed(2) + "/年 < 职业 " + rate.career.toFixed(2) + "/年");
+  check(thinSample || rate.career >= rate.random, "四大类倒挂未转正：职业 " + rate.career.toFixed(2) + "/年 < 随机 " + rate.random.toFixed(2) + "/年");
+}
+{   /* ---- #38 非固定通道年总闸验收（用户口径：「不只是前两年，整体都要降到一年 2—6 件」）----
+     * 口径：只有**非固定四桶**（公务＋随机＋灰产＋竞选幕）算进 2—6；真实历史钉卡与
+     * 总统在位期的白宫月决策是"到点必演"通道，另计 —— 否则 1989/2008 会被削成空白年。
+     * 年均是产品承诺；p90 允许比 eventMax 多 1：竞选链只被"每月一幕"约束、从不被额度拦
+     * （拦在半路会留下演不完的「承前」），选举年因此可以比平静年多一桩。 */
+  const pc38 = P.paceCfg();
+  const nf = sim.nfYears || [], nfe = sim.nfEarly || [];
+  const ds = sim.dYears || [], dse = sim.dEarly || [];
+  const avg = function (a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; };
+  const sorted = nf.slice().sort(function (a, b) { return a - b; });
+  const q = function (p) { return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : null; };
+  console.log("  #38 非固定四桶【年均】" + (avg(nf) == null ? "—" : avg(nf).toFixed(2)) + " 件/年" +
+    "（目标带 2—6）｜ p50 " + (q(0.5) == null ? "—" : q(0.5)) + " ｜ p90 " + (q(0.9) == null ? "—" : q(0.9)) +
+    " ｜ 峰值 " + (sorted.length ? sorted[sorted.length - 1] : "—") +
+    " ｜ 开局两年 " + (avg(nfe) == null ? "—" : avg(nfe).toFixed(2)) +
+    "（其中吃额度的三桶 " + (avg(dse) == null ? "—" : avg(dse).toFixed(2)) + " vs 全局 " + (avg(ds) == null ? "—" : avg(ds).toFixed(2)) + "）" +
+    " ｜ 额度 " + JSON.stringify({ careerMax: pc38.careerMax, eventMax: pc38.eventMax }));
+  if (avg(nf) != null) {
+    check(avg(nf) >= 2, "非固定通道年均 " + avg(nf).toFixed(2) + " 件/年，低于 2 —— 日历太空，玩家整年在等史实钉卡");
+    check(avg(nf) <= 6, "非固定通道年均 " + avg(nf).toFixed(2) + " 件/年，超出 6 —— 用户口径「一年 2—6 件」没守住");
+  }
+  if (q(0.9) != null) check(q(0.9) <= pc38.eventMax + 1,
+    "非固定四桶 p90 = " + q(0.9) + " 件，超出 eventMax=" + pc38.eventMax + " +1（竞选链宽限）——总闸漏了");
+  /* 冷静期方向只对**吃额度的三桶**说话：竞选链按设计从不被额度拦（链要演完），
+     开局那两年若正赶上一场地方选举，四五幕就能把四桶总数顶到全局之上——那是竞选，不是冷静期失效。 */
+  if (avg(dse) != null && avg(ds) != null) check(avg(dse) <= avg(ds),
+    "开局两年可限流三桶 " + avg(dse).toFixed(2) + " 件/年 反而比全局 " + avg(ds).toFixed(2) + " 稠 —— earlyCalm 方向反了");
+}
+{   /* ---- #37 开局节奏与成长预算验收（实测驱动：改前 1980 年 12 个月里塞了 14 件事）----
+     * earlyCalm 只管开局 24 个月，所以这里的闸是【第 1、2 年】而不是全生涯均值 ——
+     * 第 3 年起密度自然回升（实测 10—13 件/年），那是玩家已经上了梯子的另一段节奏。
+     * 种子固定（SEED），[5,8] 这类窄带是确定性的，不会今天过明天红。 */
+  const mean = function (a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; };
+  const mx = function (a) { return a.length ? Math.max.apply(null, a) : null; };
+  const y1 = mean(sim.y1Slots), y2 = mean(sim.y2Slots);
+  const g8 = sim.attrGain8 || [];
+  const gainAvg = DIMS4.map(function (k, i) {
+    return g8.length ? g8.reduce(function (a, r) { return a + r[i]; }, 0) / g8.length : null;
+  });
+  const gainWorst = DIMS4.map(function (k, i) {
+    return g8.length ? Math.max.apply(null, g8.map(function (r) { return r[i]; })) : null;
+  });
+  console.log("  #37 开局密度：第 1 年 " + (y1 == null ? "—" : y1.toFixed(1)) + " 件（目标 5—8，实测中位 " +
+    (sim.y1Slots.length ? sim.y1Slots.slice().sort((a, b) => a - b)[Math.floor(sim.y1Slots.length / 2)] : "—") +
+    "）｜ 第 2 年 " + (y2 == null ? "—" : y2.toFixed(1)) + " ｜ 全生涯 " + avgSlots.toFixed(1));
+  console.log("  #37 开局四维涨幅（8 年·模拟上界）：" + DIMS4.map(function (k, i) {
+    return k + " " + (gainAvg[i] == null ? "—" : (gainAvg[i] >= 0 ? "+" : "") + gainAvg[i].toFixed(1) + "（峰值 " + (gainWorst[i] >= 0 ? "+" : "") + gainWorst[i] + "）");
+  }).join(" ｜ "));
+  console.log("  #37 竞选幕节奏：单月最多 " + sim.campMax + " 幕（应 ≤1）");
+  if (y1 != null) check(y1 >= 5 && y1 <= 8, "开局第 1 年事件数应落在 5—8 件（当前 " + y1.toFixed(1) + "）——earlyCalm 失效或又被谁调稠了");
+  if (y2 != null) check(y2 >= 4 && y2 <= 9, "开局第 2 年事件数应落在 4—9 件（当前 " + y2.toFixed(1) + "）");
+  check(sim.campMax <= 1, "有某个月排进了 " + sim.campMax + " 幕竞选 —— 竞选必须一幕一幕演");
+  /* 8 年四维成长预算：三围均值 ≤15、诚信漂移 ≤10，任一维峰值 ≤40。
+     这条是用户那句「4 年智力 40→75」的硬闸，超出即说明成长通道又漏水了。 */
+  if (g8.length) {
+    check(gainAvg[0] <= 15 && gainAvg[1] <= 15 && gainAvg[2] <= 15, "开局 8 年三围平均涨幅超了 15（" +
+      DIMS4.slice(0, 3).map(function (k, i) { return k + " " + gainAvg[i].toFixed(1); }).join("、") + "）——属性成长速度失控");
+    check(Math.abs(gainAvg[3]) <= 10, "开局 8 年隐藏诚信平均漂移超 10（" + gainAvg[3].toFixed(1) + "）");
+    check(Math.max.apply(null, gainWorst) <= 40, "开局 8 年有某一维单局峰值涨幅超 40（" + Math.max.apply(null, gainWorst) + "）——一辈子能涨 35 点智力已经是极限");
+  }
+}
+{   /* ---- #37③/#37④ 同卡属性只首次生效 + earlyCalm 的开关边界 ----
+     * 一张卡第二次再演，钱/声望/派系照给，属性不再给（G.attrGiven 记账）——
+     * 否则「重演同一张好卡」就是刷属性的传送带。 */
+  P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "去重测试" };
+  P.confirmCreate();
+  const G = P.G;
+  G.attrGiven = {};
+  const int0 = G.attr.INT || 0, rep0 = G.rep;
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 5 }, rep: 3 }, "once_a"));
+  const int1 = G.attr.INT;
+  check(int1 === int0 + 5, "首演应正常给属性：" + int0 + "→" + int1);
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 5 }, rep: 3 }, "once_a"));
+  check(G.attr.INT === int1, "同卡重演不该再给属性（" + int1 + "→" + G.attr.INT + "）");
+  check(G.rep === rep0 + 6, "去重只针对属性：声望这类一次性收益重演仍应给（" + rep0 + "→" + G.rep + "）");
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 4 }, rep: 1 }, "once_b"));
+  check(G.attr.INT === int1 + 4, "另一张卡该给还得给：" + G.attr.INT);
+  check(G.attrGiven["once_a:INT"] && G.attrGiven["once_b:INT"], "attrGiven 账本应按 id:维度 记账");
+  /* earlyCalm：窗口内四倍率齐全，窗口外必须完全中性（否则"冷静期"变成了永久减速） */
+  const ec = P.balance().earlyCalm || {};
+  check(ec.enabled !== false && ec.months >= 6 && ec.months <= 36, "earlyCalm 窗口应在 6—36 个月（当前 " + ec.months + "）");
+  check(ec.activeMul > 0 && ec.activeMul <= 1 && ec.choreMul >= 0 && ec.choreMul <= 1 &&
+    ec.quotaMul > 0 && ec.quotaMul <= 1 && ec.slotsCap >= 1, "earlyCalm 四个倍率都得是合法的减益：activeMul " + ec.activeMul + " choreMul " + ec.choreMul + " quotaMul " + ec.quotaMul + " slotsCap " + ec.slotsCap);
+  G.age = P.balance().startAge; G.month = 1;
+  check(P.monthsInRun() === 0 && P.earlyCalm().slotsCap === ec.slotsCap, "开局第一个月应在冷静期内");
+  /* 额度乘子必须**真的咬到**那两道有降空间的闸（#38：它一开始挂在只有 1 件名额的随机桶上，
+     floor(1×0.5)=0 把桶封死却毫不减总量，实测开局反而比全局稠）。零账本直接量。 */
+  {
+    const pc = P.paceCfg();
+    P.G.yearKindsYear = (P.G.year || 0) - 1;   /* 强制翻篇，拿到全零的年度账本 */
+    check(P.nonFixedRoom() === Math.floor(pc.eventMax * ec.quotaMul) && P.nonFixedRoom() < pc.eventMax,
+      "开局期内总闸应为 floor(eventMax × quotaMul)=" + Math.floor(pc.eventMax * ec.quotaMul) + "（当前 " + P.nonFixedRoom() + "）");
+    check(P.careerRoom() === Math.floor(pc.careerMax * ec.quotaMul),
+      "开局期内公务额度应为 floor(careerMax × quotaMul)=" + Math.floor(pc.careerMax * ec.quotaMul) + "（当前 " + P.careerRoom() + "）");
+    G.age = P.balance().startAge + Math.ceil(ec.months / 12) + 1;
+    P.G.yearKindsYear = (P.G.year || 0) - 1;
+    check(P.nonFixedRoom() === pc.eventMax && P.careerRoom() === pc.careerMax,
+      "出窗之后额度闸必须回到配置本值：" + P.nonFixedRoom() + "/" + P.careerRoom());
+    G.age = P.balance().startAge; G.month = 1;
+    P.G.yearKindsYear = (P.G.year || 0) - 1;
+  }
+  G.age = P.balance().startAge + Math.floor(ec.months / 12) + 1; G.month = 1;
+  const off = P.earlyCalm();
+  check(off.activeMul === 1 && off.choreMul === 1 && off.quotaMul === 1 && off.slotsCap === Infinity,
+    "出窗之后 earlyCalm 必须完全中性：" + JSON.stringify(off));
+  /* 冷静期是"少排"，不是"多排"：任何倍率 >1 都是把方向做反了 */
+  check(ec.activeMul <= 1 && ec.choreMul <= 1 && ec.quotaMul <= 1 && ec.slotsCap <= (P.balance().slotsMax || 3),
+    "earlyCalm 的 slotsCap 不该高于常规 slotsMax");
+}
 
 /* ---------- 渲染冒烟（无头 DOM） ---------- */
 console.log("\n== 渲染冒烟 ==");
@@ -1495,9 +2505,8 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     check(P.prevEventOf(head) === null, "没有前情的事件不该返回上一幕");
     /* 链上的每一幕都声明了 era: 全部时代，所以这里要先把当前局面挪回一个真实时代，
        否则「不可触发」会因为时代不符而成立 —— 那是假阳性。 */
-    P.G.era = "2008_CRASH";
     P.G.tier = 3; P.G.lev = 0; P.G.doneIds = []; P.recentIds = []; P.G.flags = []; P.G.contacts = { columnist: 10 };
-    P.G.year = 2010; P.G.month = 6; P.G.doneSeq = {};
+    P.G.year = 2010; P.G.month = 6; P.G.doneSeq = {};  // #33：时代按日历解，2010 落在 2008_CRASH
     check(!P.eligible(act2), "前情没演过时，续集不该可触发");
     P.stamp("archive_get");
     P.G.month = 7;                                   // 间隔 1 个月，还没到 minMonthsAfter = 3
@@ -1512,14 +2521,13 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     check(!P.eligible(act2), "超过 maxMonthsAfter 之后续集不该再出现（窗口过期）");
     check(P.monthsSince("archive_get") === 63, "monthsSince 应算出 63 个月，实际 " + P.monthsSince("archive_get"));
     check(P.monthsSince("不存在的事件") === null, "没演过的事件 monthsSince 应返回 null");
-    P.G.era = "__T";                                 // 还原，后面的合成事件都挂在 __T 下
   }
 
   /* --- 续集加权：已解锁的续集必须明显更容易被抽到 ---
    * 这是"一条故事线能不能被玩家看见"的关键。做法是拿两个权重相同的
    * 合成事件对抽 2000 次，看续集的胜率是否接近 chainWeightMul/(chainWeightMul+1)。 */
   const mkEv = function (id, after) {
-    const e = { id: id, era: ["__T"], tierMin: 0, tierMax: 5, weight: 1, grade: "mid", category: "general", title: id, body: id };
+    const e = { id: id, tierMin: 0, tierMax: 5, weight: 1, grade: "mid", category: "general", title: id, body: id };
     if (after) e.after = after;
     return e;
   };
@@ -1536,6 +2544,8 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
          两候选同等抹除，比值口径不变。 */
       P._monthSeen = []; P._monthKey = null;
       delete P.G.doneSeq.__chain_plain; delete P.G.doneSeq.__chain_next;
+      /* 每年随机额度（#32②）同理会把合成卡饿死 —— 这里测的是权重比，逐次抹平额度。 */
+      P.G.yearKinds = null;
       const picked = P.drawEvent({ grade: "mid" });
       if (picked.id === "__chain_next") next++; else if (picked.id === "__chain_plain") plain++;
     }
@@ -1565,7 +2575,6 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     /* debuff 续燃示范：sca2_family_member 靠 rereq 豁免衰减 */
     const rrEv = P.events.find(function (e) { return e.id === "sca2_family_member"; });
     check(!!rrEv && !!rrEv.rereq, "sca2_family_member 应声明 rereq（麻烦的家人：捞过一次人就会被再次捞）");
-    P.G.era = "__T";
     P.stamp("sca2_family_member");
     check(Math.abs(P.idRepeatFactor(rrEv) - b.idRepeatMul) < 1e-9, "rereq 未满足时，该卡照样吃衰减");
     P.addFlag("sca2_family_hidden");
@@ -1591,25 +2600,53 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
    *   2) 日常公务走 time.js 的 choreEligible 独立通道 —— 不经过这里的冷却闸；
    *   3) prog_* 晋升卡在 eligible 里显式豁免 —— 失败后每年重试是设计。 */
   {
-    P.G.era = "__T"; P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
+    P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
     P.G.tierSince = P.monthSeq();                   // prog_repel 挂了 minTenure:0，把在位计时摆正
     P.define("event", [
-      { id: "__repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "general", title: "t", body: "t" },
-      { id: "prog_repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "career", minTenure: 0, title: "t", body: "t" }
+      { id: "__repel", tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "general", title: "t", body: "t" },
+      { id: "prog_repel", tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "career", minTenure: 0, title: "t", body: "t" }
     ]);
     const rc = P.evById("__repel"), pc = P.evById("prog_repel");
     const _ym = P.G.year * 12 + P.G.month;               // monthSeq 快照，测完好戻
+    /* 这里测的是硬冷却的作用域，不是每年随机额度（#32②）：每次断言前抹平额度，
+       否则前面探针抽过的卡会把本行余额吃掉，eligible 假阴性。 */
+    const noPace = function () { P.G.yearKinds = null; };
+    noPace();
     check(P.eligible(rc, true), "没演过的卡当然可抽");
     P.stamp("__repel"); P.stamp("prog_repel");
+    noPace();
     check(!P.eligible(rc, true), "普通单发卡演过后，硬冷却窗口内连 pass3（ignoreRecent）都不该放行");
     check(P.eligible(pc, true), "prog_* 晋升卡演过就该立刻可重试 —— 冷却闸不许碰晋升脊柱");
     const forced = P.drawEvent({ eventId: "__repel", grade: "minor" });
     check(forced && forced.id === "__repel", "定点档期（竞选幕/时代脚本/公务）冷却中照样必出 —— 它不经 eligible");
     P.G.month += 24;                                     // 熬过 24 个月窗口
+    noPace();
     check(P.eligible(rc, true), "冷却到期后该卡应重回卡池");
     P.G.year = Math.floor(_ym / 12); P.G.month = _ym % 12;  // 还原月份（后面的测试也算 monthSeq）
     /* 公务通道自查：chore 卡演过后 choreEligible 不该拦（冷却闸不许注入通道误伤） */
     P.G.doneSeq = {};
+  }
+
+  /* --- #28② 投机/灰产豁免通道：可反复赌，但只免"同卡重复"，不免年度额度 ---
+   * 三道闸逐个钉死：衰减豁免、硬冷却豁免、grayMax 仍然拦人。
+   * 外加内容纪律：pace:"exempt" 必须显式 unique:false（major 卡默认一局一次，忘了写就永远等不到第二回）。 */
+  {
+    P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
+    P.define("event", [
+      { id: "__flip", tierMin: 0, tierMax: 5, weight: 5, grade: "mid", category: "shady", unique: false, pace: "exempt", title: "t", body: "t" },
+      { id: "__once", tierMin: 0, tierMax: 5, weight: 5, grade: "mid", category: "shady", title: "t", body: "t" }
+    ]);
+    const fl = P.evById("__flip"), on = P.evById("__once");
+    check(P.paceExempt(fl) && !P.paceExempt(on), "P.paceExempt 应只认 pace:\"exempt\"");
+    P.stamp("__flip");
+    check(P.idRepeatFactor(fl) === 1, "exempt 卡演过一次后权重不该衰减（同一笔庄家生意可以再做一次）");
+    check(P.eligible(fl, true), "exempt 卡不该吃 24 个月硬冷却");
+    const badPace = P.events.filter(function (e) { return P.paceExempt(e) && e.unique; });
+    check(!badPace.length, "pace:\"exempt\" 的卡必须显式 unique:false，否则第一次就绝版：" + badPace.map(function (e) { return e.id; }).join("、"));
+    /* 年度灰产额度仍然拦人 */
+    P.G.yearKinds = { fixed: 0, campaign: 0, career: 0, random: 0, shady: P.paceCfg().grayMax };
+    check(!P.eligible(fl, true), "灰产年度额度（grayMax）满了，exempt 卡也该被挡下 —— 豁免的是重复，不是无限量");
+    P.G.yearKinds = null; P.G.doneSeq = {};
   }
 
   /* --- 在位时长（minTenure）：晋升要熬够月份 --- */
@@ -1618,12 +2655,14 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   const progGate = P.events.filter(function (e) { return e.id.indexOf("prog_") === 0; });
   check(progGate.length && progGate.every(function (e) { return e.minTenure != null; }),
     "所有晋升事件（prog_*）都应声明 minTenure —— 否则十年就能爬到顶，一局太短");
-  P.define("event", [{ id: "__tenure", era: ["__T"], tierMin: 0, tierMax: 5, weight: 1, grade: "minor", minTenure: 12, title: "t", body: "t" }]);
+  P.define("event", [{ id: "__tenure", tierMin: 0, tierMax: 5, weight: 1, grade: "minor", minTenure: 12, title: "t", body: "t" }]);
   const tv = P.events.find(function (e) { return e.id === "__tenure"; });
   P.G.tierSince = P.monthSeq();
+  P.G.yearKinds = null;                                  // 同上：只看年限闸，不看随机额度
   check(P.monthsAtTier() === 0 && !P.eligible(tv), "刚晋级时，要求在位 12 个月的事件不该可触发");
   P.G.tierSince = P.monthSeq() - 12;
   check(P.monthsAtTier() === 12, "monthsAtTier 应为 12，实际 " + P.monthsAtTier());
+  P.G.yearKinds = null;
   check(P.eligible(tv), "熬够 12 个月后，该事件应可触发");
   /* 晋级会重置在位计时（effects.js 的 tier 处理器） */
   P.G.tierSince = P.monthSeq() - 120;          /* v0.5.4 年限闸：先熬够 10 年 */
@@ -1761,6 +2800,18 @@ console.log("\n== 静好岁月 ==");
   for (let i = 0; i < 500; i++) P.vignetteGrowth(1);
   check(GV.attr.CHA <= capAttr && GV.attr.INT <= capAttr && GV.attr.CUN <= capAttr && GV.attr.INTG <= capAttr,
     "属性成长不应突破 attrCap（" + capAttr + "），实际 " + JSON.stringify(GV.attr));
+  /* --- #37③ 静好岁月的成长预算 ---
+   * ① 抽中属性的概率压到 0.08（原 0.20）；
+   * ② attrCap 必须低于自由点硬顶 100 —— 平静月永远不该把点推到「玩家自己分配不满」的高度，
+   *    撞在上限上的结果就是 G.attr[k] < attrCap 这条判断直接不再成长（不会倒扣）；
+   * ③ 资金暗账整条删除：钱只有【月账】+【事件卡】两条门，随笔侧不许再写 G.fun。 */
+  check(bv.attrChance <= 0.10, "#37③ 静好抽属性概率应 ≤0.10（当前 " + bv.attrChance + "）——岁月长本事，但不是传送带");
+  check(capAttr < 100, "静好 attrCap（" + capAttr + "）应低于自由点硬顶 100");
+  check((bv.attrKeys || []).indexOf("INTG") < 0, "诚信只能由选择塑造，不该进自然成长池");
+  check(bv.funChance == null && bv.funRate == null, "#37③ 静好岁月的资金通道应已删除，实际 " +
+    JSON.stringify({ funChance: bv.funChance, funRate: bv.funRate }));
+  check(!Object.keys(bv.trackBonus || {}).some(function (k) { return (bv.trackBonus[k] || {}).fun != null; }),
+    "轨道加成不该再给资金（那是刚删掉的暗账的马甲）");
   check(GV.rep <= 100, "声望成长不应突破 100，实际 " + GV.rep);
   check(GV.contacts.fixer <= 100, "人脉好感应夹在 -100~100，实际 " + GV.contacts.fixer);
   const growthOf = function (age, months) {
@@ -2044,6 +3095,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   P.G.state = stEv.states[0];
   /* tierBand：事件里的旧档门槛会被 when.js 单调抬进 10 级空间，测试要站在抬升后的真实档位上 */
   P.G.tier = Math.min(P.balance().tierMax, P.tierBand(stEv.tierMin || 0) + 1); P.G.year = stEv.fromYear || P.G.year; P.G.doneIds = []; P.recentIds = [];
+  /* #32 的年度额度账本也要清：州联动卡走随机桶，若上一次建角把今年那 1—2 次随机额度用光，
+     `paceBlocked` 会把"今年没预算"误报成"这条卡不可触发"（20 局样本里 2/6 次假红）。 */
+  P.G.yearKindsYear = 0;
   check(P.eligible(stEv), "州联动事件 " + stEv.id + " 在对应州应可触发");
   const otherState = states.find(function (x) { return stEv.states.indexOf(x) < 0; });
   if (otherState) {
@@ -2062,15 +3116,22 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.stateName(states[0]) && P.stateName(states[0]) !== states[0], "州应有人名（name）");
 
   /* --- 初始资源平衡（v0.5.1）：基础盘是穷小子，出身只往上加，任何组合不得开局负债/负声望 --- */
+  /* #34：confirmCreate → startYear 现在会把玩家直接放进本年第一个月，而月循环会动钱/属性。
+     下面这些断言要的是【建角那一瞬间】的初始盘，所以临时掐掉跨年后的推进。 */
+  function createOnly(fn) {
+    const nm = P.nextMonth, rm = P.resumeMonth;
+    P.nextMonth = function () { }; P.resumeMonth = function () { };
+    try { return fn(); } finally { P.nextMonth = nm; P.resumeMonth = rm; }
+  }
   {
     const bStart = P.balance();
     check(bStart.startFun <= 20000, "基础盘资金应压在 $20k 以内（刚毕业的穷小子），当前 $" + bStart.startFun);
     check(bStart.startRep === 0, "基础盘声望应为 0（声望由出身/起点加出来），当前 " + bStart.startRep);
     const combos = [];
     for (const o in P.reg.origin) for (const e in P.reg.entry) {
-      P.CSEL = { era: K(P.reg.era)[0], origin: o, talent: K(P.reg.talent)[0], entry: e, party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "平衡测试", rolled: { CHA: 45, INT: 45, CUN: 45, INTG: 45 }, spent: {}, rerolled: {}, freeExtra: 0 };
-      P.confirmCreate();
-      combos.push({ o: o, e: e, fun: P.G.fun, rep: P.G.rep, fav: P.G.fav });
+      P.CSEL = { era: K(P.reg.era)[0], origin: o, talent: K(P.reg.talent)[0], entry: e, party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "平衡测试", spent: {} };
+      createOnly(P.confirmCreate);
+      combos.push({ o: o, e: e, fun: P.G.fun, rep: P.G.rep, fav: P.G.fav, attr: Object.assign({}, P.G.attr) });
     }
     const inDebt = combos.filter(c => c.fun < 0);
     check(!inDebt.length, "任何 出身×起点 组合都不应开局负债：" + inDebt.map(c => c.o + "/" + c.e + "=$" + (c.fun / 1000) + "k").join("、"));
@@ -2080,60 +3141,180 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     console.log("  初始资金区间 $" + Math.min.apply(null, funs) / 1000 + "k ~ $" + Math.max.apply(null, funs) / 1000 +
       "k ｜ 初始声望区间 " + Math.min.apply(null, reps) + " ~ " + Math.max.apply(null, reps) +
       " ｜ 人情 0~" + Math.max.apply(null, combos.map(c => c.fav)));
-    /* 差距要拉开（出身的意义），但下限是 0：穷出身 = 白手起家，不是生下来就欠债 */
-    check(Math.max.apply(null, funs) >= 1000000, "最富组合应到 $1M+（出身的资金差距要拉开）");
+    /* 下限是 0：穷出身 = 白手起家，不是生下来就欠债。
+       「差距要拉开到 $1M+」是 v0.5 遗物（那时商人起点直接写死 150 万），#36 重标尺 + #37②
+       「钱只有月账与事件卡两条门」之后，建角只剩一次性本金顶格 = 4 个自由点（商界起手 $8k）。 */
+    const funCeil = 4 * (bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint);
+    check(Math.max.apply(null, funs) <= funCeil, "建角一次性资金应顶格 $" + funCeil / 1000 + "k（4 个自由点）· 实际 $" + Math.max.apply(null, funs) / 1000 + "k，越界说明出身/起点又偷偷发了大钱");
     check(Math.min.apply(null, funs) >= 0, "最穷组合下限是 $0（白手起家），不是负数");
+
+    /* --- #37② 属性来源收口 ---
+     * 零分配 + 零卡时，开局四维必须【逐维等于 startAttr】。从前出身/起点/州/难度各自偷偷发属性
+     * （传奇全属性 +5、精英 INT +15、麻州 entryEffects INT +3…），第 3 步预览看不见这块地，
+     * 玩家记成「刚过 4 年智力 40→75」的一半源头就在这里。
+     * 定稿口径：属性只有两条门 —— 自由点分配 + 天赋卡池；后天涨跌只剩事件卡与静好岁月（都带衰减）。 */
+    const sa = bStart.startAttr || {};
+    const drift = [];
+    let intgFloor = 0;
+    combos.forEach(function (c) {
+      ["CHA", "INT", "CUN"].forEach(function (k) {
+        if ((c.attr[k] || 0) !== (sa[k] || 0)) drift.push(c.o + "/" + c.e + " " + k + " " + (sa[k] || 0) + "→" + (c.attr[k] || 0));
+      });
+      /* 唯一的例外：起点的【隐藏诚信负数】（名人 −15 / 商人 −10）——那是"出身代价"，只减不增 */
+      if ((c.attr.INTG || 0) > (sa.INTG || 0)) drift.push(c.o + "/" + c.e + " INTG " + (sa.INTG || 0) + "→" + c.attr.INTG + "（诚信只能由选择涨，建角不许白送）");
+      intgFloor = Math.min(intgFloor, (c.attr.INTG || 0) - (sa.INTG || 0));
+      Object.keys(c.attr).forEach(function (k) {
+        if (DIMS4.indexOf(k) < 0 && c.attr[k]) drift.push(c.o + "/" + c.e + " 多出维度 " + k + "=" + c.attr[k]);
+      });
+    });
+    check(!drift.length, "出身×起点 零分配时不得给属性（三围应逐维 = startAttr " + JSON.stringify(sa) + "，诚信只减不增）：" + drift.slice(0, 8).join("、"));
+    check(combos.every(c => DIMS4.reduce((a, k) => a + (c.attr[k] || 0), 0) <= 70),
+      "零分配 + 零卡时任何组合的开局四维合计都应 ≤70（当前最高 " + Math.max.apply(null, combos.map(c => DIMS4.reduce((a, k) => a + (c.attr[k] || 0), 0))) + "）——超出的部分只可能来自隐藏堆叠");
+    /* 难度：bonus 走 applyEffects，所以既查静态（不许写 attr/fun），也查运行时（五档开局四维仍 = startAttr） */
+    const dDrift = [];
+    Object.keys(P.DIFFS).forEach(function (d) {
+      const bn = P.DIFFS[d].bonus || {};
+      if (bn.attr) dDrift.push(d + " 的 bonus 还写着 attr");
+      if (bn.fun) dDrift.push(d + " 的 bonus 还写着 fun（开局资金归卡池，#20 起已废）");
+      P.CSEL = { era: K(P.reg.era)[0], difficulty: d, talent: K(P.reg.talent)[0], party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "难度测试", spent: {} };
+      createOnly(P.confirmCreate);
+      ["CHA", "INT", "CUN"].forEach(function (k) {
+        if ((P.G.attr[k] || 0) !== (sa[k] || 0)) dDrift.push(d + " " + k + " " + (sa[k] || 0) + "→" + (P.G.attr[k] || 0));
+      });
+      if ((P.G.attr.INTG || 0) > (sa.INTG || 0)) dDrift.push(d + " INTG 白送 +" + (P.G.attr.INTG - (sa.INTG || 0)));
+    });
+    check(!dDrift.length, "难度不得给属性或开局资金（#37②）：" + dDrift.join("、"));
+    console.log("  #37② 建角三围 = startAttr（" + DIMS4.map(k => k + ":" + (sa[k] || 0)).join(" ") + "）· 出身×起点×难度 全组合无白送" +
+      (intgFloor < 0 ? "（诚信下限 " + intgFloor + "，名人/商人的出身代价）" : ""));
+
+    /* 州：entryEffects 走同一纪律（麻州以前白送 INT +3，现改成声望）。
+       唯一的属性例外是【隐藏诚信】的负数（名人 −15 / 商人 −10）：只减不增，
+       因为它是「不信任」这种出身代价，而不是白送的能力。 */
+    const attrSin = [];
+    const scanAttr = function (src, label, allowNegIntg) {
+      const a = ((src || {}).effects || {}).attr;
+      const b = ((src || {}).entryEffects || {}).attr;
+      [a, b].forEach(function (x) {
+        Object.keys(x || {}).forEach(function (k) {
+          const v = x[k];
+          if (v > 0) attrSin.push(label + " +" + v + " " + k);
+          else if (v < 0 && !(allowNegIntg && k === "INTG")) attrSin.push(label + " " + v + " " + k);
+        });
+      });
+    };
+    Object.keys(P.reg.origin).forEach(function (id) { scanAttr(P.reg.origin[id], "origin." + id); });
+    Object.keys(P.reg.entry).forEach(function (id) { scanAttr(P.reg.entry[id], "entry." + id, true); });
+    Object.keys(P.reg.state).forEach(function (id) { scanAttr(P.reg.state[id], "state." + id); });
+    check(!attrSin.length, "#37② 属性纪律：出身/州不得给属性、起点只许给负诚信 —— 越界：" + attrSin.join("、"));
+
+    /* 建角一次性资金也上这把尺：出身/起点/州的 `fun` 是**绝对额**，折成自由点单位
+       不得超过 4 点（= $8k · 一张橙卡的钱）。v0.5.2 遗留在商人起点的 $1.5M（=750 点）
+       能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。 */
+    const funUnit = bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint;
+    const funSin = [];
+    const scanFun = function (src, label) {
+      [src && src.effects, src && src.entryEffects].forEach(function (x) {
+        const v = (x || {}).fun;
+        if (typeof v === "number" && Math.abs(v) > 4 * funUnit) funSin.push(label + " fun:" + v);
+      });
+    };
+    Object.keys(P.reg.origin).forEach(function (id) { scanFun(P.reg.origin[id], "origin." + id); });
+    Object.keys(P.reg.entry).forEach(function (id) { scanFun(P.reg.entry[id], "entry." + id); });
+    Object.keys(P.reg.state).forEach(function (id) { scanFun(P.reg.state[id], "state." + id); });
+    check(!funSin.length, "建角一次性资金不得超过 4 个自由点（4×" + funUnit + "=$" + (4 * funUnit / 1000) + "k）——越界：" + funSin.join("、"));
   }
 
   /* --- v0.12 #20 建角自由点模型（定命一掷已删）+ 周目元进度 + 作弊码 --- */
   const b5 = P.balance();
-  check(b5.freePoints >= 1 && b5.freePoints <= 60, "freePoints 基础值合理（20）：" + b5.freePoints);
+  check(b5.freePoints >= 1 && b5.freePoints <= 60, "freePoints 基础值合理（一周目 12）：" + b5.freePoints);
   check(b5.freeCapPerAttr >= 1 && (b5.freeCapMax == null || b5.freeCapMax >= b5.freeCapPerAttr), "单维软上限：基础 ≤ 封顶");
   check(b5.freeAttrPerPoint === 10, "汇率：1 点 = +10 属性");
-  check(b5.freeFunPerPoint === 25000, "汇率：1 点 = +$25k 金钱");
+  check(b5.freeFunPerPoint === 2000, "汇率：1 点 = +$2k 金钱");
   check(!b5.rollAttrs, "定命一掷已删：balance 不应再有 rollAttrs");
+  /* #20 收尾定稿：一周目 12 点；单维上限 = 属性 100 所需的点数（100 / 每点 10 = 10 点） */
+  check(b5.freePoints === 12, "一周目池子 = 12 点：" + b5.freePoints);
+  check(b5.freeCapPerAttr === Math.floor(100 / b5.freeAttrPerPoint),
+    "单维上限 = 点到属性 100 所需点数（" + b5.freeCapPerAttr + " 点）");
 
-  /* 周目 meta：无记录 = 一周目，额度 = 基础值，单维上限 = 基础软上限 */
-  const _loopRaw = [P.metaLoopKey, P.metaFreeKey].map(k => { try { return localStorage.getItem(k); } catch (e) { return null; } });
-  try { localStorage.removeItem(P.metaLoopKey); localStorage.removeItem(P.metaFreeKey); } catch (e) { }
-  check(P.currentLoop() === 1, "无 meta 时应是一周目：" + P.currentLoop());
-  check(P.readBonusFree() === 0, "一周目无累计自由点：" + P.readBonusFree());
-  check(P.freePool() === b5.freePoints, "一周目额度 = 基础值：" + P.freePool());
-  check(P.freeCap() === b5.freeCapPerAttr, "一周目单维上限 = 基础：" + P.freeCap());
+  /* 卡池标尺（#20 收尾 · #36 重标）：1 单位 = +10 属性 = $2k，钱卡 = 稀有度 × $2k；
+     白/蓝的属性增益严格 = 稀有度 × 10（紫/橙只要求不超过档位，多维合计另算）。
+     被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
+  const CARDS = P.reg.card || {};
+  Object.keys(CARDS).forEach(function (id) {
+    const c = CARDS[id], r = c.rarity || 1, fx = c.effects || {};
+    if (typeof fx.fun === "number" && fx.fun > 0) {
+      check(fx.fun === r * 2000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $2k：" + fx.fun);
+    }
+    const av = fx.attr || {};
+    const pos = Object.keys(av).map(function (k) { return av[k]; }).filter(function (v) { return v > 0; });
+    if (!pos.length) return;
+    const mx = Math.max.apply(null, pos);
+    check(mx <= r * 10, "卡 " + id + "（" + r + " 档）单维属性增益 ≤ 稀有度 × 10：" + mx);
+    if (r <= 2) check(mx === r * 10, "白/蓝卡属性增益严格对齐标尺（" + r + " 档 = +" + (r * 10) + "）：" + id);
+  });
 
-  /* 分配夹取（spendPoint）：属性吃满前 ① 单维软上限 ② 属性 1-99 硬顶；金钱档不受 cap、
+  /* 周目 meta（#31：周目数是唯一的成长账本 —— 自由点 = 基础 12 + 已完成周目 × 1） */
+  const _loopRaw = (function () { try { const v = localStorage.getItem(P.metaLoopKey); localStorage.removeItem(P.metaLoopKey); return v; } catch (e) { return null; } })();
+  const _cselBak = P.CSEL; P.CSEL = null;         // 作弊周目读自 CSEL，测前先把它摘掉
+  check(P.completedLoops() === 0 && P.currentLoop() === 1, "无 meta 时应是第 1 周目：" + P.currentLoop());
+  check(P.readBonusFree() === 0, "第 1 周目没有周目奖励：" + P.readBonusFree());
+  check(P.freePool() === b5.freePoints, "第 1 周目额度 = 基础值：" + P.freePool());
+  check(P.freeCap() === b5.freeCapPerAttr, "第 1 周目单维上限 = 基础：" + P.freeCap());
+  check(b5.loopFreeBonus === 1, "每完成一个周目送 1 点（口径：基础 12 ＋ 周目数 × 1）：" + b5.loopFreeBonus);
+  check(P.freePoolFor(6) === b5.freePoints + 5 * b5.loopFreeBonus, "freePoolFor(6) = 12 + 5：" + P.freePoolFor(6));
+  check(P.loopFreeBonus() === b5.loopFreeBonus, "loopFreeBonus 读数口一致");
+
+  /* 分配夹取（spendPoint）：属性吃满前 ① 单维软上限 ② 属性 100 硬顶；金钱档不受 cap、
      吸收剩余额度；总额恒 ≤ 额度；减点不为负。 */
   P.startCreate();
   const ATTR3 = ["CHA", "INT", "CUN"], POOL0 = P.freePool(), CAP0 = P.freeCap();
   for (let i = 0; i < 200; i++) P.spendPoint("CHA", 1);
   check(P.CSEL.spent.CHA <= CAP0, "CHA 分配不超单维软上限 " + CAP0 + "：" + P.CSEL.spent.CHA);
-  check((b5.startAttr.CHA + P.CSEL.spent.CHA * b5.freeAttrPerPoint) <= 99, "属性分配不越过 1-99 硬顶");
+  check((b5.startAttr.CHA + P.CSEL.spent.CHA * b5.freeAttrPerPoint) <= 100, "属性分配不越过 100 硬顶");
   ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
   const usedSum = ATTR3.concat(["FUN"]).reduce(function (a, k) { return a + (P.CSEL.spent[k] || 0); }, 0);
   check(usedSum === POOL0, "四格灌满后总分配 = freePool（" + usedSum + "／" + POOL0 + "）");
-  check(P.CSEL.spent.FUN > 0, "属性到顶后多出来的点自动落进金钱档（不受 cap）：" + P.CSEL.spent.FUN);
+  /* 单维可一路点到属性 100（=10 点，旧的 6 点封顶已废）：第 1 周目 12 点不够三围全满，
+     所以先用作弊码兑一笔周目把额度抬起来，再看多出来的点是否落进不受 cap 的金钱档。 */
+  P.CSEL.cheatLoops = 30;
+  check(P.currentLoop() === 31 && P.freePool() === POOL0 + 30, "作弊周目直接抬额度：" + P.freePool());
+  ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
+  check(ATTR3.every(function (k) { return (P.CSEL.spent[k] || 0) === 10; }),
+    "三围各可点到 10 点 = 属性 100（单维不再 6 点封顶）：" + ATTR3.map(k => k + ":" + P.CSEL.spent[k]).join(" "));
+  check(P.CSEL.spent.FUN > 0, "三围全满后多出来的点自动落进金钱档（不受 cap）：" + P.CSEL.spent.FUN);
+  P.CSEL.cheatLoops = 0;
   for (let i = 0; i < 300; i++) P.spendPoint("FUN", -1);
   check(P.CSEL.spent.FUN >= 0, "减点不应为负：" + P.CSEL.spent.FUN);
 
-  /* 周目奖励（结算领「+2 点」那一支）确实把额度与单维上限一起抬起来 */
-  P.addBonusFree(12);
-  check(P.readBonusFree() === 12, "addBonusFree 累加到 12：" + P.readBonusFree());
-  check(P.freePool() === POOL0 + 12, "累计奖励后额度 +12：" + P.freePool());
-  check(P.freeCap() === Math.min(b5.freeCapMax, b5.freeCapPerAttr + Math.floor(12 / b5.freeCapGrow)),
+  /* 真实周目（结算记的那笔 +1）同样把额度与单维上限一起抬起来 */
+  P.bumpLoop(); P.bumpLoop();
+  check(P.currentLoop() === 3, "完成两局后进入第 3 周目：" + P.currentLoop());
+  check(P.readBonusFree() === 2 * b5.loopFreeBonus, "两个周目送 " + (2 * b5.loopFreeBonus) + " 点：" + P.readBonusFree());
+  check(P.freePool() === b5.freePoints + 2 * b5.loopFreeBonus, "周目奖励后额度：" + P.freePool());
+  check(P.freeCap() === Math.min(b5.freeCapMax, b5.freeCapPerAttr + Math.floor(P.readBonusFree() / b5.freeCapGrow)),
     "单维软上限随额度抬升（每 " + b5.freeCapGrow + " 点开 1 点，封顶 " + b5.freeCapMax + "）：" + P.freeCap());
-  P.bumpLoop();
-  check(P.currentLoop() === 2, "结算后进入二周目：" + P.currentLoop());
-  try { _loopRaw.forEach(function (v, i) { const k = [P.metaLoopKey, P.metaFreeKey][i]; if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); }); } catch (e) { }
+  try { if (_loopRaw == null) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, _loopRaw); } catch (e) { }
+  P.CSEL = _cselBak;
 
-  /* 隐藏作弊码 woshishabiN：注 1~10 自由点、>10 夹到 10、静默（无 err 概念，未命中返回 0） */
-  check(P.cheatParse("woshishabi1") === 1, "woshishabi1 → +1 点");
-  check(P.cheatParse("woshishabi5") === 5, "woshishabi5 → +5 点");
-  check(P.cheatParse("woshishabi10") === 10, "woshishabi10 → +10 点");
+  /* 作弊码 woshishabiN（#31 起兑的是周目）：1~10、>10 夹到 10、未命中返回 0 */
+  check(P.cheatParse("woshishabi1") === 1, "woshishabi1 → +1 周目");
+  check(P.cheatParse("woshishabi5") === 5, "woshishabi5 → +5 周目");
+  check(P.cheatParse("woshishabi10") === 10, "woshishabi10 → +10 周目");
   check(P.cheatParse("woshishabi11") === 10, "超过 10 一律夹到 10（woshishabi11 → 10）");
   check(P.cheatParse("woshishabi99") === 10, "woshishabi99 → 夹到 10");
-  check(P.cheatParse("woshishabi0") === 0, "woshishabi0（不加点）视为未命中");
+  check(P.cheatParse("woshishabi0") === 0, "woshishabi0（不加周目）视为未命中");
   check(P.cheatParse("wjk100") === 0, "旧码形 wjk100 已作废，未命中返回 0");
   check(P.cheatParse("") === 0 && P.cheatParse("hello") === 0, "空 / 乱码静默返回 0，不给提示");
+  /* 界面入口 submitCheat()（#31：输入框住在第 2 步天赋页）：
+     直接传码 → 累加本局作弊周目 → 周目口径抬高 → 并且给得出中文反馈。 */
+  P.startCreate();
+  const POOL1 = P.freePool();
+  check(P.submitCheat("woshishabi3") === 3, "submitCheat('woshishabi3') → +3 周目");
+  check(P.CSEL.cheatLoops === 3, "作弊周目累加进本局建角：" + P.CSEL.cheatLoops);
+  check(P.freePool() === POOL1 + 3 * b5.loopFreeBonus, "额度随作弊周目变大：" + P.freePool());
+  check(/3/.test(P.CSEL.cheatMsg || ""), "兑换给得出反馈（不再静默）：" + P.CSEL.cheatMsg);
+  check(P.submitCheat("nope") === 0 && /不对/.test(P.CSEL.cheatMsg || ""), "错码给出提示且不加分：" + P.CSEL.cheatMsg);
+  check(P.CSEL.cheatLoops === 3, "错码不动计数器：" + P.CSEL.cheatLoops);
   /* 连打：woshishabi10 不能被读成 woshishabi1 + 残 0——数字攒着，settle 一次才结算 */
   P.cheatReset();
   "woshishabi1".split("").forEach(function (c) { P.cheatFeed(c); });
@@ -2146,14 +3327,14 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   const mkCsel = function (spent) {
     return { era: K(P.reg.era)[0], origin: K(P.reg.origin)[0], talent: K(P.reg.talent)[0],
       entry: K(P.reg.entry)[0], party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0],
-      difficulty: "normal", name: "分配测试", spent: spent, cheatPts: 0, offer: [], picks: [] };
+      difficulty: "normal", name: "分配测试", spent: spent, cheatLoops: 0, offer: [], picks: [] };
   };
-  P.CSEL = mkCsel({ CHA: 0, INT: 0, CUN: 0, FUN: 0 }); P.confirmCreate();
+  P.CSEL = mkCsel({ CHA: 0, INT: 0, CUN: 0, FUN: 0 }); createOnly(P.confirmCreate);
   const baseAttr = Object.assign({}, P.G.attr), baseFun = P.G.fun;
-  P.CSEL = mkCsel({ CHA: 2, INT: 0, CUN: 0, FUN: 3 }); P.confirmCreate();
+  P.CSEL = mkCsel({ CHA: 2, INT: 0, CUN: 0, FUN: 3 }); createOnly(P.confirmCreate);
   check(P.G.attr.CHA === baseAttr.CHA + 20, "CHA 分配 2 点 = +20 属性（" + baseAttr.CHA + "→" + P.G.attr.CHA + "）");
   check(P.G.attr.INTG === baseAttr.INTG, "诚信不参与建角分配，固定打底：" + P.G.attr.INTG);
-  check(P.G.fun === baseFun + 3 * 25000, "金钱档 3 点 = +$75k 开局资金（" + baseFun + "→" + P.G.fun + "）");
+  check(P.G.fun === baseFun + 3 * 2000, "金钱档 3 点 = +$6k 开局资金（" + baseFun + "→" + P.G.fun + "）");
   check(P.G.state === states[0], "confirmCreate 应记住出生州");
   const wind = P.stateWindFor(states[0], K(P.reg.party)[0]);
   if (wind > 0) check(P.G.faction.establishment > 0, "顺风州开局应给建制派加成");
@@ -2258,18 +3439,63 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(P.cardPickCount("brutal") === (pk.brutal == null ? 1 : pk.brutal) &&
       P.cardPickCount("legendary") === (pk.legendary == null ? 5 : pk.legendary), "cardPickCount 应按难度取 picks（炼狱最少 / 传奇最多）");
     check(P.cardPickCount("nope") >= 1, "未知难度应给 1 张保底");
-    /* 掷牌不变量：长度=offer、无重复；未解锁总统时绝不给橙卡 */
+    /* 掷牌不变量：长度=offer、无重复；橙卡受【周目】门槛（#31：第 2 周目起进池） */
     const g = P.gachaCfg();
-    const everBak = P.everPresident; P.everPresident = function () { return false; };
+    const _lkBak = (function () { try { return localStorage.getItem(P.metaLoopKey); } catch (e) { return null; } })();
+    const _lCsel = P.CSEL; P.CSEL = null;
+    const setLoop = function (n) { try { if (n <= 0) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, String(n)); } catch (e) { } };
+    setLoop(0);
+    check(P.currentLoop() === 1 && !P.orangeUnlocked(), "第 1 周目橙卡不该进池");
     const off = P.rollCardOffer();
     check(off.length === g.offer, "一次掷牌应给 offer 张（期望 " + g.offer + "，实际 " + off.length + "）");
     check(new Set(off).size === off.length, "掷牌不得有重复卡");
-    check(off.every(id => (cards[id].rarity || 1) !== g.orangeRarity), "当过总统前不得掷出橙卡（受 everPresident 门槛）");
-    /* 解锁总统后：橙档进池（多掷几次，理论上应能撞到稀有橙；至少不报错且长度守恒） */
-    P.everPresident = function () { return true; };
+    check(off.every(id => (cards[id].rarity || 1) !== g.orangeRarity), "第 1 周目不得掷出橙卡（周目门槛）");
+    setLoop(g.orangeLoop - 1);
+    check(P.currentLoop() === g.orangeLoop && P.orangeUnlocked(), "第 " + g.orangeLoop + " 周目橙卡应进池：" + P.currentLoop());
     const off2 = P.rollCardOffer();
     check(off2.length === g.offer && new Set(off2).size === off2.length, "解锁后掷牌仍要长度守恒且无重复");
-    P.everPresident = everBak;
+    /* 高周目真掷得出橙卡（权重低，猛掷多次必须至少撞见一次 —— 否则门槛只是纸面的） */
+    setLoop(5);
+    let sawOrange = false;
+    for (let i = 0; i < 400 && !sawOrange; i++) sawOrange = P.rollCardOffer().some(id => (cards[id].rarity || 1) === g.orangeRarity);
+    check(sawOrange, "第 6 周目应能掷出橙卡（400 次内至少撞见一次）");
+    /* 稀有度权重随周目单调不降（loopRarity 表）：橙档从 0 起抬 */
+    check((P.rarityWForLoop(1, (P.balance().gacha || {}))[4] || 0) === 0 &&
+      (P.rarityWForLoop(3, (P.balance().gacha || {}))[4] || 0) > 0,
+      "loopRarity：一周目橙权重 0、三周目 >0");
+    check(P.gachaCfg().rerolls === (((P.balance().gacha || {}).rerolls) == null ? 1 : (P.balance().gacha || {}).rerolls),
+      "刷新配额读自 config（每局可刷 " + P.gachaCfg().rerolls + " 次）");
+    /* #31 卡墙刷新配额：每局 rerolls 次；用完一次都不动牌面 */
+    setLoop(0);
+    P.startCreate();
+    const quota = P.gachaCfg().rerolls;
+    const snap0 = P.CSEL.offer.slice().sort().join(",");
+    P.rollOffer();
+    check(P.CSEL.rerollsUsed === 1, "换一批应记掉一次配额：" + P.CSEL.rerollsUsed);
+    for (let i = 0; i < 5; i++) P.rollOffer();
+    check(P.CSEL.rerollsUsed === quota, "配额用尽后不得再记次（" + quota + " 次上限，实际 " + P.CSEL.rerollsUsed + "）");
+    check(!!P.CSEL.stepMsg, "配额用尽要给得出提示");
+    P.CSEL.rerollsUsed = 0; P.rollOffer();
+    check(P.CSEL.offer.length === snap0.split(",").length, "重掷仍给满 offer 张");
+    /* #31 结算无条件 +1 周目（与保卡不再二选一），且同一局重复结算不双记 */
+    const _loopBak2 = (function () { try { return localStorage.getItem(P.metaLoopKey); } catch (e) { return null; } })();
+    setLoop(0);
+    const savedG2 = P.G;
+    P.G = {
+      version: P.VERSION, year: 1996, month: 12, age: 40, tier: 2, peakTier: 2, track: K(P.reg.track)[0],
+      party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], origin: K(P.reg.origin)[0], talent: K(P.reg.talent)[0],
+      state: K(P.reg.state)[0], fun: 5000, rep: 30, hp: 60, fav: 0, lev: 0, attr: { CHA: 20, INT: 20, CUN: 20, INTG: 50 },
+      faction: {}, flags: [], cards: [], spentCards: [], history: [], log: [], contacts: {}, counters: {},
+      doneIds: [], debt: 0, debtAccr: 0, loanLate: 0, loanCaps: 0, loopCounted: 0, endingReason: null
+    };
+    P.ending("retire");
+    check(P.completedLoops() === 1 && P.G.loopCounted === 1, "结算应无条件把周目 +1（现在 " + P.completedLoops() + "）");
+    P.ending("retire");
+    check(P.completedLoops() === 1, "同一局重复结算不得双记周目：" + P.completedLoops());
+    P.G = savedG2;
+    try { if (_loopBak2 == null) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, _loopBak2); } catch (e) { }
+    P.CSEL = _lCsel;
+    setLoop(_lkBak == null ? 0 : Number(_lkBak) || 0);
     /* 入选结算：钱卡加钱、进卡墙；聚合被动可从 activeCards 读出 */
     const saved = P.G;
     const moneyId = ids.filter(id => cards[id].effects && cards[id].effects.fun > 0)[0];
@@ -2302,24 +3528,40 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   /* --- v0.11 P1：生涯结算（career_end）按终局档位/总统标记分流 ---
    * 结算规则用 tierRaw:true，档位直接按新 10 级空间读，故这里 G.tier 写真实级（0..9）。
    * 本块会覆盖 G.tier/flags/endingReason，测完还原，避免污染后续用例。 */
-  const _svTier = P.G.tier, _svFlags = P.G.flags, _svReason = P.G.endingReason;
-  const careerAt = function (tier, flags) {
-    P.G.tier = tier; P.G.flags = flags || []; return P.evaluateEnding("career_end").id;
+  const _svTier = P.G.tier, _svFlags = P.G.flags, _svReason = P.G.endingReason, _svPres = P.G.pres;
+  const careerAt = function (tier, flags, pres) {
+    P.G.tier = tier; P.G.flags = flags || [];
+    P.G.pres = pres === undefined ? null : pres;          // 三档 legacy 全读这本账，不清就会串上一用例
+    return P.evaluateEnding("career_end").id;
   };
   check(["career_president_great","career_president","career_heavyweight","career_federal",
          "career_state","career_local","career_quiet"].every(function (id) {
     return P.reg.ending.some(function (r) { return r.id === id; });
   }), "career_end 成就结局规则应全部注册（7 条）");
-  check(careerAt(9, ["president_done"]) === "career_president_great", "任满+清白 的 2025 结算应是载入史册的总统");
-  check(careerAt(9, ["president_done","scandal_4"]) === "career_president", "任满+丑闻 的结算应降为留下印记的总统");
+  /* #21 M3：逐月化之后「任满」不再是 flags 里的一面旗，而是一份可核对的账
+     （term / months / appr）。所以这一组用例必须把账本摆进去，判据才与内容同源。 */
+  const twoTerms = { term: 2, appr: 55, months: 80 };
+  check(careerAt(9, ["president_done"], twoTerms) === "career_president_great",
+    "干满两届、离任 55% 且清白 → S 档（载入史册的总统）");
+  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 80, lowStreak: 0 }) === "career_president_great",
+    "S 档只看账本三件事，别让 lowStreak 之类的野字段悄悄改判");
+  /* 带大丑闻时不再直接掉回通用兜底：M3 给了它一档专属的 B（S/A 两档都不收 scandal_4），
+     career_president 从此只兜「逐月化之前、没有白宫账本」的旧档。 */
+  check(careerAt(9, ["president_done", "scandal_4"], twoTerms) === "career_president_flawed",
+    "任满+四级丑闻 → B 档（档案比讲话更厚的总统）");
+  check(careerAt(9, ["president_done", "impeached"], twoTerms) !== "career_president_great",
+    "被弹劾过的人不该拿 S 档");
+  check(careerAt(9, ["president_done"]) === "career_president",
+    "没有白宫账本（旧档）才走通用兜底：三档都要求 G.pres 在场");
   check(careerAt(8, []) === "career_heavyweight", "终局 8 级（无总统）应结算为权倾一方");
   check(careerAt(5, []) === "career_federal", "终局 5 级应结算为联邦层面的名字");
   check(careerAt(3, []) === "career_state", "终局 3 级应结算为州政的常青树");
   check(careerAt(1, []) === "career_local", "终局 1 级应结算为地方深耕者");
   check(careerAt(0, []) === "career_quiet", "终局 0 级应结算为无声的四十一年");
-  /* 曾任总统且清白：2025 结算按总统身份收口（不看终局档位）；若带大丑闻则降为印记 */
-  check(careerAt(2, ["president_done"]) === "career_president_great", "曾任总统+清白，下野后 2025 仍以总统成就收口");
-  P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason;
+  /* 曾任总统且清白：2025 结算按总统账本收口（不看终局档位）—— 下野后重爬到 2 级也一样 */
+  check(careerAt(2, ["president_done"], { term: 1, appr: 48, months: 48 }) === "career_president_adequate",
+    "曾任总统+清白，哪怕下野后只剩 2 级，2025 仍以总统账本收口（A 档）");
+  P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason; P.G.pres = _svPres;
 
   /* --- 效果键 setTrack / setStance --- */
   const track0 = P.G.track;

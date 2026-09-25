@@ -69,12 +69,56 @@
     if (id) id.innerHTML = P.identityHTML();
   };
 
+  /* ---------------- #29 派系四栏面板（2×2 宫格）----------------
+     四条「谁在背后撑着（或拽着）你」的轴：党建制派 / 商业·华尔街 / 军工复合体 / 宗教·道德团体。
+     一条派系值域 -100..100，正=友好、负=仇恨，所以一格画两条镜像条：
+     右半长出来是好感，左半长出来是敌意 —— 一眼看得出手里是朋友还是敌人，以及有多硬。
+     纯展示层：数值仍由 effects.js 的 fac 键结算，判定一字不动。其余派系留在下面的 chip 流。 */
+  P.FAC_PANELS = ["establishment", "commercial", "military", "church"];
+  /* 分档形容词：沿用 chip 的三档 tint 口径（|v|≥40 / ≥15 / >0），只是给它一个可读的名字 */
+  P.factionWord = function (v) {
+    if (v <= -40) return P.t("ui.leftbar.facW3n", "敌视");
+    if (v <= -15) return P.t("ui.leftbar.facW2n", "戒备");
+    if (v < 0) return P.t("ui.leftbar.facW1n", "冷淡");
+    if (v === 0) return P.t("ui.leftbar.facW0", "中立");
+    if (v < 15) return P.t("ui.leftbar.facW1p", "友善");
+    if (v < 40) return P.t("ui.leftbar.facW2p", "支持");
+    return P.t("ui.leftbar.facW3p", "坚定盟友");
+  };
+  P.factionPanelHTML = function () {
+    const G = P.G;
+    if (!G) return "";
+    const esc = function (s) { return String(s == null ? "" : s).replace(/"/g, "&quot;"); };
+    const tint = function (v) {
+      if (!v) return "";
+      const a = Math.abs(v);
+      return " t" + (a >= 40 ? 3 : a >= 15 ? 2 : 1) + (v > 0 ? "p" : "n");
+    };
+    return '<span class="facgrid">' + P.FAC_PANELS.map(function (k) {
+      const f = P.reg.faction[k] || {};
+      const v = Math.round((G.faction && G.faction[k]) || 0);
+      const love = v > 0 ? v : 0, hate = v < 0 ? -v : 0;
+      const tip = esc(f.desc || "");
+      return '<span class="faccell' + tint(v) + (tip ? ' hastip' : '') + '"' +
+        (tip ? ' data-tip="' + tip + '"' : "") +
+        ' data-diff="fac_' + k + '" data-val="' + v + '">' +
+        '<i class="fac-name">' + esc(P.factionName(k)) + '</i>' +
+        '<b class="fac-val">' + (v > 0 ? "+" : "") + v + '</b>' +
+        '<em class="fac-word">' + esc(P.factionWord(v)) + '</em>' +
+        '<span class="fac-bars">' +
+        '<span class="fac-hate"><b style="width:' + hate + '%"></b></span>' +
+        '<span class="fac-love"><b style="width:' + love + '%"></b></span>' +
+        '</span></span>';
+    }).join("") + '</span>';
+  };
+
   /* ---------------- 状态详情（能力 / 标签 / 派系 / 人脉 / 日志）—— v0.10 行级组件化 ----------------
      每一行是一个独立组件（sbrow：左侧固定标签列 + 右侧 chip 流），由 P.statusRows()
      按行返回，供 topbar.js 的 STATUS_LAYOUT 任意组合挪放。两条原则不变：
        ① 一行一个太占高度 → 属性/派系/人脉改成内联 chip 流式换行；日志只留最近 3 条。
-       ② 已决定不再展示的项（智力/诚信/健康/精力/把柄 + 媒体·工会·宗教·情报派系）
-          仅在视图层隐藏（引擎数值与判定不动），隐藏清单见 topbar.js 的 P.UI_HIDE。 */
+       ② 已决定不再展示的项（智力/诚信/健康/精力/把柄 + 媒体·工会·情报派系）
+          仅在视图层隐藏（引擎数值与判定不动），隐藏清单见 topbar.js 的 P.UI_HIDE。
+          派系里另有四条走 #29 的 2×2 面板（P.FAC_PANELS），不再重复出 chip。 */
   P.statusRows = function () {
     const G = P.G, a = G.attr;
     const hide = (P.UI_HIDE || {});
@@ -98,10 +142,11 @@
       .map(function (k) {
         return '<span class="qchip" data-diff="attr_' + k + '" data-val="' + a[k] + '"><b>' + ATTR_CN[k] + '</b><span class="qval">' + a[k] + "</span></span>";
       }).join("");
-    /* 派系：仅可见且非 0 的，内联 */
+    /* 派系：四栏面板（establishment/commercial/military/church，见 P.factionPanelHTML）
+       之外的派系仍走内联 chip —— 仅可见且非 0 的 */
     let facChips = "";
     for (const k in P.reg.faction) {
-      if (hideFac[k]) continue;
+      if (hideFac[k] || P.FAC_PANELS.indexOf(k) >= 0) continue;
       const v = G.faction[k] || 0;
       if (v === 0) continue;
       facChips += '<span class="qchip' + tint(v) + '" data-diff="fac_' + k + '" data-val="' + v + '"><b>' + P.factionName(k) + '</b><span class="' + (v > 0 ? "pos" : "neg") + '">' + sgn(v) + "</span></span>";
@@ -155,7 +200,9 @@
       cards: cardChips ? row(P.t("ui.leftbar.row.cards", "天赋"), cardChips) : "",
       tags: statusChips ? row(P.t("ui.leftbar.row.tags", "标签"), statusChips) : "",
       wrath: wrathChips ? row(P.t("ui.leftbar.row.wrath", "仇家"), wrathChips) : "",
-      factions: row(P.t("ui.leftbar.row.factions", "派系"), facChips || '<span class="muted">—</span>'),
+      factions: '<div class="sbrow sb-facs"><span class="sblab">' + P.t("ui.leftbar.row.factions", "派系") + '</span>' +
+        '<span class="fac-body">' + P.factionPanelHTML() +
+        (facChips ? '<span class="qchips">' + facChips + '</span>' : "") + '</span></div>',
       contacts: row(P.t("ui.leftbar.row.contacts", "人脉"), ctChips || '<span class="muted">—</span>')
     };
   };

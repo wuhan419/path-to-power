@@ -65,33 +65,32 @@ POTUS.define("event", [
       {
         id: "copy", text: "整份复印，装进西装内袋带走",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "attr", key: "INT", w: 0.25 }],
-        cost: { fun: 0.1, ap: 1 }, stake: { ap: true },
+        cost: { fun: 0.1 }, stake: {},
         outcomes: {
           crit: aOut("你在复印机上过了两遍，第二遍是为了对准页码。走的时候你还把原件按原来的折痕放了回去。你出门的时间是两点二十七。",
             { lev: 1, attr: { CUN: 2 }, fac: { agency: 4 }, flags: ["archive_taken"] }),
           ok: aOut("复印机响了很久。你把它夹进一份普通的预算报告里，从正门走出去。",
             { lev: 1, attr: { CUN: 1 }, flags: ["archive_taken"] }),
           meh: aOut("复印到一半机器卡纸。你抽出来的那页缺了右下角，正好是日期。",
-            { lev: 1, hp: -0.8, flags: ["archive_taken"] }),
+            { lev: 1, flags: ["archive_taken"] }),
           fail: aOut("你只来得及复印前半份。后半份里有什么，你以后会一直想知道。",
-            { lev: 1, hp: -1, flags: ["archive_taken"] }),
+            { lev: 1, flags: ["archive_taken"] }),
           critfail: aOut("归档员提前回来了。你说你在找洗手间，他信了。但复印机的计数器上多了一个数字。",
-            { lev: 1, hp: -1.25, fac: { agency: -6 }, flags: ["archive_taken", "archive_seen"] })
+            { lev: 1, fac: { agency: -6 }, flags: ["archive_taken", "archive_seen"] })
         }
       },
       {
         id: "memo", text: "只抄下编号、日期和那三个签名",
         base: 0.72, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "CUN", w: 0.2 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: aOut("你用铅笔在车票背面抄完全部信息，然后把车票折好放进口袋。你什么都没带走，但从这一刻起你知道该去找谁。",
             { lev: 1, contact: { fixer: 10 }, flags: ["archive_taken"] }),
           ok: aOut("抄完了。你没有纸质的把柄，但你有三个名字、两个日期和一个卷宗号。",
             { lev: 1, flags: ["archive_taken"] }),
           meh: aOut("你抄漏了一个签名。三个月后你花了两周去补那一个名字。",
-            { lev: 1, hp: -0.5, flags: ["archive_taken"] }),
+            { lev: 1, flags: ["archive_taken"] }),
           fail: aOut("你抄到一半有人进来找东西。你合上本子，陪他聊了四分钟，然后忘了两个日期。",
-            { lev: 1, hp: -1, flags: ["archive_taken"] }),
+            { lev: 1, flags: ["archive_taken"] }),
           critfail: aOut("你在本子上写了太多。归档员第二天在桌上捡到一张写着三个名字的便条，他不认识那些名字，但他记住了你的字。",
             { lev: 1, rep: -0.6, fac: { agency: -8 }, flags: ["archive_taken", "archive_seen"] })
         }
@@ -105,7 +104,7 @@ POTUS.define("event", [
           ok: aOut("你合上了它。走出地下室的时候楼梯间的灯一盏一盏在你身后亮起来。",
             { rep: 0.4, fac: { base: 3 } }),
           meh: aOut("你合上了它，但那三个名字你已经看见了。它们会在你脑子里待很多年。",
-            { rep: 0.2, hp: -0.5 }),
+            { rep: 0.2 }),
           fail: aOut("你放回去了，但你把顺序弄乱了。归档员后来花了三天重排那一箱东西。",
             { rep: -0.2, fac: { agency: -3 } }),
           critfail: aOut("你在里面站得太久。有人报告说地下室的灯亮过整个午休时段。这件小事以后会在某个不合适的时候被想起来。",
@@ -154,24 +153,24 @@ POTUS.define("event", [
       {
         id: "counter", text: "反过来查她：她上周三在哪辆车上",
         base: 0.55, mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "agency", w: 0.3 }],
-        cost: { fun: 1, ap: 2 }, stake: { fun: true, ap: true },
+        cost: { fun: 1 }, stake: { fun: true },
         outcomes: {
           crit: aOut("三天后你手里有了一份车牌、一个办公地址和一个不该出现的人名。你把这三样东西装进信封，寄到了她的办公地址。她没有再出现。",
             { lev: 1, rep: 0.6, attr: { CUN: 2 }, contact: { fed: 8 }, fac: { agency: 8 }, flags: ["archive_hunter"] }),
           ok: aOut("你弄清楚了她是替谁办事的，也让她知道你弄清楚了。咖啡没有第二杯。",
             { attr: { CUN: 1 }, contact: { fed: 4 }, fac: { agency: 5 }, flags: ["archive_hunter"] }),
           meh: aOut("你花了四千块和一个星期，只查到她在一家没有门牌的事务所上班。",
-            { hp: -1, fac: { agency: 2 } }),
+            { fac: { agency: 2 } }),
           fail: aOut("你派去的人被她认出来了。她从那天起换了车，也换了一个更有耐心的做法。",
-            { rep: -0.6, hp: -1, fac: { agency: -8 }, flags: ["archive_seen"] }),
+            { rep: -0.6, fac: { agency: -8 }, flags: ["archive_seen"] }),
           critfail: aOut("你查她的动作，比你翻档案的动作更清楚地说明了一件事：那份东西是真的，而且你很在乎。",
-            { rep: -1, hp: -1.25, fac: { agency: -12 }, flags: ["archive_seen", "investigation_open"] })
+            { rep: -1, fac: { agency: -12 }, flags: ["archive_seen", "investigation_open"] })
         }
       },
       {
         id: "leak", text: "先下手：把材料交给一个你信得过的写字的人",
         base: 0.58, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.35 }],
-        cost: { ap: 1 }, req: { contact: "columnist" },
+        cost: {}, req: { contact: "columnist" },
         outcomes: {
           crit: aOut("他没有立刻写。他把复印件的每一页都做了编号，然后当着你的面锁进了保险箱。「等他们先动，」他说。这个人比你想的老练得多。",
             { rep: 0.8, contact: { columnist: 14 }, fac: { press: 12 }, flags: ["archive_leak", "archive_hunter"] }),
@@ -191,15 +190,15 @@ POTUS.define("event", [
         cost: { fun: 0.1 },
         outcomes: {
           crit: aOut("你把复印件存进银行，然后把这件事从日程上彻底划掉。四个月后，那位女士去约谈了别人 —— 她从来不缺目标，只缺目标里面的耐心。",
-            { rep: 0.6, hp: -0.5, fac: { agency: 6 } }),
+            { rep: 0.6, fac: { agency: 6 } }),
           ok: aOut("你停手了。那通电话、那个车位，都在一个月后消失了。",
-            { hp: -0.8, fac: { agency: 3 } }),
+            { fac: { agency: 3 } }),
           meh: aOut("你停手了，但你有半年时间一上车就先看后视镜。这半年你什么正事都没做成。",
-            { hp: -1.5, rep: -0.2 }),
+            { rep: -0.2 }),
           fail: aOut("你停手了，可是你弟弟知道你去了档案室。他喝多了的时候跟人提过一次。",
-            { hp: -1, rep: -0.4, flags: ["archive_seen"] }),
+            { rep: -0.4, flags: ["archive_seen"] }),
           critfail: aOut("你停手的动作太大了 —— 忽然取消三场行程、换掉电话号码。这个动作本身说明了很多。",
-            { hp: -1.25, rep: -0.6, fac: { agency: -8 }, flags: ["archive_seen"] })
+            { rep: -0.6, fac: { agency: -8 }, flags: ["archive_seen"] })
         }
       },
       {
@@ -211,11 +210,11 @@ POTUS.define("event", [
           ok: aOut("你什么都没做。她约了第二次，你去了，还是那七个问题。第三次就没再联系。",
             { rep: 0.2, fac: { base: 2 } }),
           meh: aOut("你什么都没做，也没有人来第二次。你至今不确定她是放弃了，还是在等你先动。",
-            { hp: -0.8 }),
+            {}),
           fail: aOut("你什么都没做，而你的合伙人在这个月里替你做了点什么。你不知道他做了什么。",
             { rep: -0.6, fac: { base: -4 } }),
           critfail: aOut("你什么都没做，但这件事在你心里发酵了七个月。你在一次无关的场合说了不该说的一句半。",
-            { rep: -0.8, hp: -1, flags: ["archive_seen"] })
+            { rep: -0.8, flags: ["archive_seen"] })
         }
       }
     ]
@@ -276,7 +275,7 @@ POTUS.define("event", [
       {
         id: "expose", text: "公开：让它离开我的抽屉，变成所有人的事",
         base: 0.48, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "press", w: 0.3 }],
-        cost: { ap: 2, rep: 0.4 },
+        cost: { rep: 0.4 },
         outcomes: {
           crit: aOut("你把全套材料交给了三家不同的机构，同一天。三个月后有一个委员会成立，一年后有一份报告。你的名字在报告的第一段，作为「材料来源」。你失去了很多朋友，得到了一个不会过期的东西。",
             { rep: 1.75, fac: { press: 20, base: 10, agency: -12, establishment: -14 }, flags: ["archive_expose", "whistleblower"] }),
@@ -379,11 +378,11 @@ POTUS.define("event", [
           ok: aOut("你出庭了，说得比材料本身少。这样也好 —— 少的那部分，别人会替你说。",
             { rep: 1.5, fac: { press: 10, base: 5, establishment: -10 } }),
           meh: aOut("你出庭了，然后那件事被并进了另一桩更大的案子。你的部分只占了两页。",
-            { rep: 0.6, fac: { press: 5, establishment: -6 }, hp: -1 }),
+            { rep: 0.6, fac: { press: 5, establishment: -6 } }),
           fail: aOut("有人在你之前出庭，讲了一个和你完全不同的版本。你成了那个「说法比较多」的证人。",
             { rep: -0.8, fac: { press: -8, base: -6 } }),
           critfail: aOut("交叉询问的时候，对方只用了二十分钟，就把你的动机拆成了「没拿到那个位置的人」。这句话后来跟着你很久。",
-            { rep: -1.75, hp: -1.5, fac: { press: -12, base: -10, establishment: -10 }, flags: ["scandal_3"] })
+            { rep: -1.75, fac: { press: -12, base: -10, establishment: -10 }, flags: ["scandal_3"] })
         }
       },
       {
@@ -395,7 +394,7 @@ POTUS.define("event", [
           ok: aOut("你没再用它。它慢慢变成了一份没有价值的旧纸 —— 而这正是你保住它的方式。",
             { rep: 0.6, lev: -1, fac: { establishment: 4 }, flags: ["archive_owned"] }),
           meh: aOut("你继续扣着它。你得开始算一件事：这份东西每多存在一年，你的风险就多一分。",
-            { rep: 0.2, hp: -0.8 }),
+            { rep: 0.2 }),
           fail: aOut("有人知道你手上有东西。他没有来要，他只是在你每一次需要支持的时候迟疑一下。",
             { rep: -0.6, fac: { establishment: -8 } }),
           critfail: aOut("你扣着的东西被人拿走了 —— 不是偷，是他知道放在哪，而且他认为自己比你更有资格用它。",
@@ -411,11 +410,11 @@ POTUS.define("event", [
           ok: aOut("没有人再提过那件事。你偶尔会想，如果当年留下了会怎么样，然后就不想了。",
             { rep: 0.8, fac: { establishment: 5 }, flags: ["archive_owned"] }),
           meh: aOut("你想起了那份原件还在档案馆里 —— 也就是说这件事的开关现在在别人手上。你什么都做不了。",
-            { rep: 0.2, hp: -0.5 }),
+            { rep: 0.2 }),
           fail: aOut("有人拿着一份复印件去找了你当年的对手。他没用，但他把这件事记在了一个你永远看不到的地方。",
             { rep: -0.6, fac: { establishment: -6 } }),
           critfail: aOut("你烧掉的只是自己那份。剩下的那一份在三年后的某一天出现在一份传票的附件里，而上面有你的签字。",
-            { rep: -1.5, hp: -1, fac: { establishment: -10, press: -8 }, flags: ["scandal_3", "investigation_open"] })
+            { rep: -1.5, fac: { establishment: -10, press: -8 }, flags: ["scandal_3", "investigation_open"] })
         }
       },
       {
@@ -427,11 +426,11 @@ POTUS.define("event", [
           ok: aOut("你不再提它。它以一个不重要的小道消息的形式活了下去，最后谁都不记得细节。",
             { rep: 0.4, fac: { base: 3 } }),
           meh: aOut("你不再提它，但你自己每年会想起那么两次。这两次都不在你最忙的时候。",
-            { hp: -0.8 }),
+            {}),
           fail: aOut("你不再提它，但你开始回避某些场合、某些人、某几条街。你的日程表慢慢变得比你想的小。",
-            { rep: -0.4, hp: -0.8, fac: { base: -3 } }),
+            { rep: -0.4, fac: { base: -3 } }),
           critfail: aOut("你以为它老了，但一直有人在替它续命 —— 每隔几年就有人把那份材料复印一遍。它不会老，它只是在等。",
-            { rep: -1, hp: -1, fac: { agency: -6 }, flags: ["scandal_2"] })
+            { rep: -1, fac: { agency: -6 }, flags: ["scandal_2"] })
         }
       }
     ]

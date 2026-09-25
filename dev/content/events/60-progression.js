@@ -38,6 +38,7 @@ POTUS.define("event", [
       {
         "id": "doorknock",
         "text": "逐门逐户敲门，靠双腿跑票",
+        "ballot": true,
         "base": 0.45,
         "mods": [
           {
@@ -107,9 +108,7 @@ POTUS.define("event", [
       {
         "id": "ads",
         "text": "砸钱投广告，快速买曝光",
-        "req": {
-          "fun": 5.5
-        },
+        "ballot": true,
         "base": 0.48,
         "mods": [
           {
@@ -121,7 +120,8 @@ POTUS.define("event", [
             "src": "fac",
             "key": "commercial",
             "w": 0.3
-          }
+          },
+          { "src": "res", "key": "fun", "min": 5.5, "w": 0.05 }
         ],
         "outcomes": {
           "crit": {
@@ -214,6 +214,7 @@ POTUS.define("event", [
         "req": {
           "rep": 6
         },
+        "ballot": true,
         "base": 0.5,
         "mods": [
           {
@@ -374,10 +375,8 @@ POTUS.define("event", [
       {
         "id": "run",
         "text": "冲进全国舞台",
-        "req": {
-          "rep": 5,
-          "fun": 5.5
-        },
+        "req": { "rep": 5 },
+        "ballot": true,
         "base": 0.45,
         "mods": [
           {
@@ -389,7 +388,8 @@ POTUS.define("event", [
             "src": "fac",
             "key": "base",
             "w": 0.3
-          }
+          },
+          { "src": "res", "key": "fun", "min": 5.5, "w": 0.05 }
         ],
         "outcomes": {
           "crit": {
@@ -532,10 +532,8 @@ POTUS.define("event", [
       {
         "id": "senate",
         "text": "竞选联邦参议员（全国舞台）",
-        "req": {
-          "rep": 4.5,
-          "fun": 6.5
-        },
+        "req": { "rep": 4.5 },
+        "ballot": true,
         "base": 0.45,
         "mods": [
           {
@@ -547,7 +545,8 @@ POTUS.define("event", [
             "src": "fac",
             "key": "press",
             "w": 0.3
-          }
+          },
+          { "src": "res", "key": "fun", "min": 6.5, "w": 0.05 }
         ],
         "outcomes": {
           "crit": {
@@ -601,10 +600,8 @@ POTUS.define("event", [
       {
         "id": "governor",
         "text": "竞选州长（地方实权）",
-        "req": {
-          "rep": 4,
-          "fun": 5
-        },
+        "req": { "rep": 4 },
+        "ballot": true,
         "base": 0.5,
         "mods": [
           {
@@ -616,7 +613,8 @@ POTUS.define("event", [
             "src": "fac",
             "key": "establishment",
             "w": 0.3
-          }
+          },
+          { "src": "res", "key": "fun", "min": 5, "w": 0.05 }
         ],
         "outcomes": {
           "crit": {
@@ -671,6 +669,7 @@ POTUS.define("event", [
       {
         "id": "shoestring",
         "text": "不等本钱，靠义工和教堂硬打一场",
+        "ballot": true,
         "base": 0.32,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
@@ -768,10 +767,8 @@ POTUS.define("event", [
       {
         "id": "run",
         "text": "全力冲刺白宫",
-        "req": {
-          "rep": 6,
-          "fun": 25
-        },
+        "req": { "voterShare": 0.12 },
+        "ballot": true,
         "base": 0.4,
         "mods": [
           {
@@ -783,7 +780,8 @@ POTUS.define("event", [
             "src": "fac",
             "key": "base",
             "w": 0.3
-          }
+          },
+          { "src": "res", "key": "fun", "min": 25, "w": 0.05 }
         ],
         "outcomes": {
           "crit": {
@@ -1723,6 +1721,7 @@ POTUS.define("event", [
       {
         "id": "run",
         "text": "争取党内提名，参选市议员",
+        "ballot": true,
         "base": 0.5,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
@@ -1740,6 +1739,7 @@ POTUS.define("event", [
       {
         "id": "selfrun",
         "text": "不靠党机器，自己拉一支志愿者队伍选",
+        "ballot": true,
         "base": 0.42,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
@@ -1792,6 +1792,7 @@ POTUS.define("event", [
         "id": "run",
         "text": "争取提名，竞选州参议员",
         "req": { "rep": 5 },
+        "ballot": true,
         "base": 0.48,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
@@ -1856,11 +1857,13 @@ POTUS.define("event", [
       {
         "id": "run",
         "text": "竞选全州公职",
-        "req": { "rep": 5, "fun": 6 },
+        "req": { "rep": 5 },
+        "ballot": true,
         "base": 0.46,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
-          { "src": "fac", "key": "press", "w": 0.3 }
+          { "src": "fac", "key": "press", "w": 0.3 },
+          { "src": "res", "key": "fun", "min": 6, "w": 0.05 }
         ],
         "outcomes": {
           "crit": { "body": "你的名字上了全州的选票，也赢了整个州。", "effects": { "tier": 1, "rep": 3, "fac": { "press": 10, "base": 6 } } },
@@ -1921,11 +1924,13 @@ POTUS.define("event", [
       {
         "id": "accept",
         "text": "接受征召，成为总统候选人／副手",
-        "req": { "rep": 6, "fun": 8 },
+        "req": { "rep": 6 },
+        "ballot": true,
         "base": 0.5,
         "mods": [
           { "src": "attr", "key": "CHA", "w": 0.4 },
-          { "src": "fac", "key": "establishment", "w": 0.3 }
+          { "src": "fac", "key": "establishment", "w": 0.3 },
+          { "src": "res", "key": "fun", "min": 8, "w": 0.05 }
         ],
         "outcomes": {
           "crit": { "body": "你被正式提名，名字与总统之位并列，全国瞩目。", "effects": { "tier": 1, "rep": 3, "fac": { "establishment": 12, "press": 8 } } },

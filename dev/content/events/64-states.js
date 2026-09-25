@@ -70,7 +70,7 @@ POTUS.define("event", [
           crit: { body: "一年跑了六十个县的筹款晚宴（平均每场十九人）。第二年，后厅换了正式的办公室。", effects: { rep: 1.25, fac: { base: 8, establishment: 4 }, attr: { INT: 1 } } },
           ok: { body: "组织在长。慢得像看草长——但草确实在长。", effects: { rep: 0.6, fac: { base: 5, establishment: 2 } } },
           meh: { body: "熬着。你开始理解「在场」本身就是少数派最大的资产。", effects: { rep: 0.4, fac: { base: 3 } } },
-          fail: { body: "第六十一个县你没去成——预算和热情同时见了底。", effects: { rep: 0.2, fac: { base: 2 }, hp: -0.8 } } ,
+          fail: { body: "第六十一个县你没去成——预算和热情同时见了底。", effects: { rep: 0.2, fac: { base: 2 } } } ,
           critfail: { body: "你熬了三年，全国风向一变，本党在这个州的登记数又掉了一截。你熬了个寂寞，但你的名字成了「坚持」的同义词——值不了钱，值一点尊敬。", effects: { rep: -0.4, fac: { base: 4, establishment: -4 }, attr: { INTG: 2 } } }
         }
       }

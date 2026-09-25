@@ -77,6 +77,41 @@ POTUS.define("l10n", {
               fail: { body: "The chain breaks before it holds. Now they think you made it up." },
               critfail: { body: "You leak the wrong version and become the leak scandal's main character. An inquiry opens." }
             }
+          },
+          {
+            id: "shop_floor",
+            text: "Ignore the cameras: bring the foreclosed families into your office and log their cases one by one",
+            outcomes: {
+              crit: { body: "One evening, thirty-odd households on your list. When you carry it to the town office, the clerk stands for the paper before the man." },
+              ok: { body: "You filled out every form you could for them. Nobody thanks you publicly; next year a few more familiar faces shake your hand." },
+              meh: { body: "Most who came only wanted someone to explain what the television meant. You couldn't, so you sat with them instead." },
+              fail: { body: "Someone recognizes you from the signed list and asks not about the bailout, but which bank keeps your own money." },
+              critfail: { body: "Your intake list gets copied and carried off, printed under the header: He was keeping score of these losses too. Your kindness becomes the evidence." }
+            }
+          },
+          {
+            id: "amend_terms",
+            text: "Take the TV slot, but endorse only the version with homeowner relief written in",
+            note: "Take the microphone, name your price. The Treasury may bend to it — or simply find another mouth.",
+            outcomes: {
+              crit: { body: "Your thirty seconds runs on the evening news; 'save the banks, save the house first' becomes the quoted line. The committee folds it into the amendment." },
+              ok: { body: "You went on air and set terms. Only a few lines survived; they use your phrasing." },
+              meh: { body: "Your endorsement played as static. Not one amendment passed." },
+              fail: { body: "The Treasury hands your 'but' straight back: the clauses stand unchanged, and your signature was filed anyway." },
+              critfail: { body: "The foreclosure figure you quoted is disproven on air. Overnight you go from 'the man with terms' to 'the man who can't count.'" }
+            }
+          },
+          {
+            id: "floor_vote",
+            text: "Trade the endorsement for your vote: read your conditions aloud, yes or no riding on the tally",
+            note: "The whole country is watching this one vote of yours. You set the price, or you eat the loss.",
+            outcomes: {
+              crit: { body: "Line by line, the changes you read make it into the re-voted text; the whole bill rearranges around your price. By nightfall both parties are calling you." },
+              ok: { body: "You traded in one condition; the rest got cut. Your name goes on the page marked 'knows how to negotiate.'" },
+              meh: { body: "Your conditions were absorbed into the floor debate record. Nobody recalls who read them." },
+              fail: { body: "Through the twenty-four hours the first vote lay defeated, the country's cameras found the haggling class. You were frame one." },
+              critfail: { body: "The exception you won turns out to have been rewritten for one patron bank. The subpoena and your primary arrive in the same week." }
+            }
           }
         ]
       },

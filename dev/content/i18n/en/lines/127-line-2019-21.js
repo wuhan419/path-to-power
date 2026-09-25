@@ -272,6 +272,55 @@ POTUS.define("l10n", {
               fail: { body: "The masks expired in the crate and the beds never got sequenced. 'He was busy — busy at the wrong thing' drifts through the hospital." },
               critfail: { body: "An unvalidated shipment of test supplies dies on your hands. Somebody says it, half laughing: he made an inventory business of the plague." }
             }
+          },
+          {
+            id: "shop_notice",
+            text: "Watch your own block: post notices in shop windows, carry groceries for the old, take no national position",
+            note: "Betting you can hold one street. Risk: the virus reads no boundaries, yours or anybody's.",
+            outcomes: {
+              crit: { body: "You post the notices yourself and buy two weeks of groceries for three old households. Later, this street remembers only that you did this." },
+              ok: { body: "The notices go up and seven names join the volunteer list. Small things, every one of them doable." },
+              meh: { body: "You run around for two days. Most people were already managing on their own." },
+              fail: { body: "Someone photographs you posting notices, captioned: the government is absent, and so is he, only with paper." },
+              critfail: { body: "The block you told to stay home has its own cluster two weeks later. People ask whether you knew something when you put the paper up." }
+            }
+          },
+          {
+            id: "push_state",
+            text: "Force the state to answer in public: one testing standard, one bed-allocation desk",
+            note: "Betting an open letter outweighs a private request. Risk: once the state refuses, you become the one who would not cooperate.",
+            outcomes: {
+              crit: { body: "Under pressure the governor carves your county out for separate allocation, on camera. The local paper prints your letter in full." },
+              ok: { body: "The state answers in bureaucratic prose, but the standard holds for two weeks. Enough for a hospital to schedule against." },
+              meh: { body: "The letter goes out and nothing comes back. You mail the same letter again." },
+              fail: { body: "The state publishes your county's compliance figures instead. The headline becomes 'start with yourself'." },
+              critfail: { body: "The beds you demanded be reallocated turn out not to exist. You spoke for a phantom number, in front of every nurse in the state." }
+            }
+          },
+          {
+            id: "fed_power",
+            text: "Use the authority you actually hold: requisition local output, reroute freight, apply for federal money in one go",
+            note: "Betting procedure beats the market to the goods. Risk: the step over the line is one you explain alone, later.",
+            outcomes: {
+              crit: { body: "Two lines convert inside ten days and the ventilators land in your state first. The hospital association thanks the allocation publicly and says your name while doing it." },
+              ok: { body: "You get the goods and lose the price argument. Two manufacturers resent you; a ward of beds came back." },
+              meh: { body: "Your authorization is signed, then queued behind somebody else's freight." },
+              fail: { body: "The requisition is enjoined, and the three weeks of pause happen to be the three weeks you needed." },
+              critfail: { body: "The plant you seized had a higher bid from another state. You are written up as trading emergency powers for local favors, and the hearing turns around to examine you." }
+            }
+          },
+          {
+            /* #21 M4：总统视角支（war_powers） */
+            id: "war_powers",
+            text: "Treat it as your own war: declare a national emergency, invoke the production act, and appear on television yourself every night",
+            note: "Betting that one face, shown repeatedly, buys compliance. Risk: every hospital bed in the country is now your number alone.",
+            outcomes: {
+              crit: { body: "The emergency declaration and the production act are signed the same day; two weeks later the first ventilators land where your allocation table says they should. You turn the daily briefing into the country's clock. The opposition calls it theatre; the governors concede that the goods arrived." },
+              ok: { body: "For the first time the federal machinery moves by the week rather than by the quarter. The numbers stay grim, but nobody can say no one is in charge." },
+              meh: { body: "You become the face on every channel, and testing, beds and the governors' quarrels get no smaller. People begin to discuss the way you glance at your notes." },
+              fail: { body: "The live broadcast promising it would improve in a couple of weeks is cut into the counterfootage, replayed beneath every obituary that follows. The production act is signed; the factories never convert." },
+              critfail: { body: "The emergency procurement list becomes public: several contracts went to people who had been at your dinners, and the money moved the same day you declared the emergency. An independent counsel's office starts making calls." }
+            }
           }
         ]
       },
@@ -472,6 +521,19 @@ POTUS.define("l10n", {
               meh: { body: "Your statement joins the night's hundreds; you cannot be bothered to mention it again either." },
               fail: { body: "'Only procedure' reads as 'afraid to speak plain', and both camps' disappointment arrives the same day." },
               critfail: { body: "A week later your silence is refiled as consent, shouted at from across your own doorway." }
+            }
+          },
+          {
+            /* #21 M4：总统视角支（command_in_chief） */
+            id: "command_in_chief",
+            text: "Handle it as commander in chief: call the guard in by phone, then read a statement to the country yourself",
+            note: "Betting that one person can stop the bleeding by procedure. Risk: the responsibility for putting down this riot lands on that same person.",
+            outcomes: {
+              crit: { body: "The order connects at 2:17 in the afternoon: eleven hundred guardsmen are on the terrace before dawn, and by the time both chambers reconvene late that night the votes have been counted. Your statement runs three minutes and eleven seconds and gives the people who broke in no reason at all." },
+              ok: { body: "The building is cleared and the count is not interrupted. Both parties thank you the next morning, and each keeps one sentence back for later: he should have done it sooner." },
+              meh: { body: "It takes an hour and a half to reach someone who can answer. The building holds in the end, and the world watched it being searched for two hours." },
+              fail: { body: "Your statement goes out at nine at night, and the draft never names who walked through the door. From the next day the question is what you yourself did." },
+              critfail: { body: "The call log becomes public: in the forty minutes after the crowd entered you neither gave an order nor made a call - the first call you did make was advice to someone else. The first article of impeachment copies out that log." }
             }
           }
         ]
