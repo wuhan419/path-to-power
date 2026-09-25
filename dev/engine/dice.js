@@ -34,6 +34,15 @@
       /* 「选民底气 X%」：validate.js 的相关断言已包进 ZH(() => …)，可放心提取 */
       return { v: e * w, label: P.t("ui.dice.modVoters", "选民底气 {pct}%", { pct: P.electionStrength().pct }) };
     }
+    /* #21 M1：总统支持率。与 voters 同一套"零点对齐"思路 —— 50% 处修正为 0，
+       所以写这个 mods 的卡在平稳水位（baseline 45）附近不偏不倚，高支持率才买到优势。
+       不在任（没有 G.pres）时 v=0：内容不该指望它。 */
+    if (m.src === "approval") {
+      const ap = P.approvalPanel ? P.approvalPanel() : null;
+      if (!ap) return { v: 0, label: null };
+      const w = m.w == null ? 0.25 : m.w;
+      return { v: (ap.value - 50) / 100 * w, label: P.t("ui.dice.modApproval", "支持率 {n}%", { n: ap.value }) };
+    }
     return { v: 0, label: null };
   }
 

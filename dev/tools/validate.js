@@ -1327,6 +1327,177 @@ console.log("\n== 派系四栏面板（#29）==");
   G.faction = bak.faction; G.tier = bak.tier;
 }
 
+/* ---------- #21 M1 总统任期：白宫月决策槽 + 支持率 ----------
+ * M1 只立核心循环，所以这一段也只钉循环的骨架，不碰 M2—M4 的结局线：
+ *   ① 非总统时整条通道静默（决策槽 null、任期条空串、appr 效果键空操不报错）；
+ *   ② 入主那月播种落进 [25,72]（刻意低于中线 50 —— 支持率要一事一事挣）；
+ *   ③ 节奏硬断言：总统在位月**每月恰 1 条** wh 档期（走真实 planMonth 通道数），
+ *      且四族轮转不许同族连刷三个月；
+ *   ④ 池子容量公式：每族张数 × 4 ≥ repeatMonths（否则第三条硬断言必然饿死）；
+ *   ⑤ 支持率会掉但钉不住：24 月向自然水位收敛，全程不出现 0/100 死值；
+ *   ⑥ 通道纪律：白宫卡不进随机卡池（与 chore 同一条闸），
+ *      balance.presidency.enabled=false 能一键把整条通道下线。
+ * 造状态的手法照「把柄 × 竞选」一段的先例：备份 → 摆到 tier 9 → 断言 → 原样还原。 */
+console.log("\n== 总统任期：白宫月决策槽（#21 M1）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, rep: G.rep,
+    flags: G.flags, counters: G.counters, doneSeq: G.doneSeq, doneIds: G.doneIds,
+    log: G.log, campaign: G.campaign
+  };
+  const c = P.presCfg();
+  const byId = {};
+  P.events.forEach(function (e) { byId[e.id] = e; });
+  const whCards = P.events.filter(function (e) { return !!e.wh; });
+
+  /* —— ⑥ 内容侧：白宫池的形状 —— */
+  check(whCards.length >= 8, "白宫池只有 " + whCards.length + " 张卡，M1 下限 8（四族各 2）");
+  {
+    const fams = c.families;
+    fams.forEach(function (f) {
+      const n = whCards.filter(function (e) { return e.whFamily === f; }).length;
+      check(n > 0, "族 " + f + " 一张卡都没有，轮转游标会跳过它（那个族就永远不出）");
+      check(n * 4 >= c.repeatMonths,
+        "族 " + f + " 只有 " + n + " 张卡 × 每 4 月轮到一次 < repeatMonths " + c.repeatMonths + " → 会饿死断流");
+    });
+    check(whCards.every(function (e) { return fams.indexOf(e.whFamily) >= 0; }),
+      "有卡的 whFamily 不在 balance.presidency.families 里（永远不会被轮到）");
+    const bad = whCards.filter(function (e) {
+      return !(e.tierMin === P.balance().tierMax && e.tierMax === P.balance().tierMax) ||
+        !e.dyn || !Array.isArray(e.choices) || e.choices.length < 2;
+    }).map(function (e) { return e.id; });
+    check(!bad.length, "白宫卡必须 tierMin/tierMax 都钉在总统级 + dyn:true + 选项≥2：" + bad.join(", "));
+    const noAppr = whCards.filter(function (e) {
+      return !(e.choices || []).some(function (ch) {
+        return (ch.mods || []).some(function (m) { return m && m.src === "approval"; });
+      });
+    }).map(function (e) { return e.id; });
+    check(!noAppr.length, "这些卡没有一个选项吃支持率，等于支持率是装饰：" + noAppr.join(", "));
+    const uniq = whCards.filter(function (e) { return P.isUnique(e); }).map(function (e) { return e.id; });
+    check(!uniq.length, "任期 8 年 = 96 月，一次性卡撑不起逐月节奏：" + uniq.join(", "));
+  }
+
+  /* —— ① 非总统：整条通道必须完全静默 —— */
+  G.tier = 0; G.pres = null;
+  check(P.isPresident() === false, "tier 0 不该算总统");
+  check(P.whiteHouseSlot(1) === null, "非总统不该供给白宫档期");
+  check(P.presidencyHTML() === "", "非总统的任期条必须渲染成空串");
+  check(P.resourcesHTML().indexOf("s-appr") < 0, "非总统不该出支持率瓷贴");
+  check(P.approvalPanel() === null, "非总统 approvalPanel() 应返回 null");
+  { const before = JSON.stringify(G.pres); P.applyEffects({ appr: 5 }); check(G.pres === null || JSON.stringify(G.pres) === before, "appr 效果键在非总统手上不该凭空造出 G.pres"); }
+
+  /* —— ②③⑤ 入主白宫，连推 24 月 —— */
+  G.tier = P.balance().tierMax; G.pres = null;
+  G.flags = []; G.counters = {};            // 剥掉丑闻/调查压力，让水位收敛可解释
+  G.doneSeq = {}; G.doneIds = []; G.log = [];
+  G.year = 2000; G.month = 1; G.rep = 70; G.campaign = null;
+  check(P.isPresident() === true, "tier " + G.tier + " 应是总统（tierMax）");
+  const seeded = P.presidencyTick(1);
+  check(!!seeded && seeded.months === 0, "就职月只播种、不结算");
+  check(seeded.appr >= c.seed.floor && seeded.appr <= c.seed.ceil,
+    "播种支持率 " + seeded.appr + " 应落在 [" + c.seed.floor + "," + c.seed.ceil + "]（起手不许满格）");
+  /* 起手可以高于中线 —— 执政资本（声望）买的就是一个高起点，但封顶在 ceil 之下，
+     且水位（baseline + drift/revert ≈ 42）必然在下方等着：高起点仍要一事一事守。 */
+  G.rep = 0;
+  const bareSeed = P.seedApproval();
+  G.rep = 70;
+  check(bareSeed < 50 && seeded.appr < c.seed.ceil && seeded.appr > bareSeed,
+    "播种该随声望抬升、无名者低于中线（rep 0 → " + bareSeed + "% ｜ rep 70 → " + seeded.appr +
+    "% ｜ 封顶 " + c.seed.ceil + "%）");
+  const seed0 = seeded.appr;
+
+  const fams = c.families;
+  const monthsWithWh = [];
+  const famRun = [];
+  const hitCount = {};
+  const apprTrail = [];
+  for (let i = 0; i < 24; i++) {
+    G.month++; if (G.month > 12) { G.month = 1; G.year++; }
+    const p = P.presidencyTick(G.month);
+    apprTrail.push(p.appr);
+    const plan = P.planMonth(G.month);
+    const whs = plan.filter(function (s) { return s && s.wh; });
+    monthsWithWh.push(whs.length);
+    if (whs.length) {
+      const fam = byId[whs[0].eventId] ? byId[whs[0].eventId].whFamily : "?";
+      famRun.push(fam);
+      hitCount[whs[0].eventId] = (hitCount[whs[0].eventId] || 0) + 1;
+      P.stamp(whs[0].eventId);              // 演过就要记账，否则冷却无从生效
+    }
+  }
+  const short = monthsWithWh.filter(function (n) { return n !== 1; });
+  check(!short.length, "总统在位月必须**每月恰 1 条**白宫档期，" + short.length +
+    "/24 个月对不上（实测计数 " + JSON.stringify(monthsWithWh.slice(0, 8)) + " …）");
+  let maxRun = 0;
+  for (let i = 0; i < famRun.length; i++) {
+    let k = i, r = 0;
+    while (k < famRun.length && famRun[k] === famRun[i]) { r++; k++; }
+    if (r > maxRun) maxRun = r;
+  }
+  check(maxRun < 3, "同族连刷了 " + maxRun + " 个月（轮转游标失效？）：" + famRun.slice(0, 12).join(">"));
+  check(fams.every(function (f) { return famRun.indexOf(f) >= 0; }), "四族轮转有族整个 24 月都没出现");
+  check(Object.keys(hitCount).length >= 8, "24 个月只命中了 " + Object.keys(hitCount).length + " 张白宫卡（池子在自我饿死）");
+  console.log("  轮转：24 月命中 " + Object.keys(hitCount).length + " 张卡 ｜ 同族最长连刷 " + maxRun + " 月 ｜ 游标 " + famRun.slice(0, 8).join(">"));
+
+  /* ④ 收敛：向 baseline + drift/revert 的自然水位靠，全程不许钉在 0/100 */
+  const eqm = c.baseline + c.drift / c.revert;
+  const last = apprTrail[apprTrail.length - 1];
+  check(apprTrail.every(function (v) { return v > 0 && v < 100; }), "支持率被钉死在 0/100：" + JSON.stringify(apprTrail));
+  check(Math.abs(last - eqm) < Math.abs(seed0 - eqm),
+    "24 月没有向水位 " + eqm.toFixed(1) + " 收敛（" + seed0 + " → " + last + "）");
+  check(last < seed0, "在位越久越难：支持率应一路往下掉，" + seed0 + " → " + last);
+  console.log("  水位：播种 " + seed0 + "% → 24 月后 " + last + "%（自然水位 " + eqm.toFixed(1) + "%）");
+
+  /* ⑤ 通道纪律：白宫卡绝不从随机池被抽走 */
+  check(whCards.every(function (e) { return P.eligible(e, true) === false; }),
+    "有白宫卡通过了 P.eligible —— 它会在地方官员的月份里被随机抽到");
+  check(whCards.every(function (e) { return P.eventKind(e) === "whitehouse"; }),
+    "白宫卡的 eventKind 应是 whitehouse（第 5 类，不占四大类额度）");
+
+  /* ⑥ 展示投影与读数一致 */
+  const html = P.presidencyHTML();
+  check(/class="campbar presbar/.test(html) && html.indexOf("%") >= 0, "任期条应复用 .campbar 的皮并带百分比读数");
+  check(/cmp-track"><b style="width:\d+%/.test(html), "任期条该有那根进度条");
+  {
+    const ap = P.approvalPanel();
+    check(ap && ap.value === Math.round(G.pres.appr), "approvalPanel 与 G.pres.appr 对不上");
+    check(ap && Number.isInteger(ap.delta) && fams.indexOf(ap.band.key) < 0 && !!ap.band.text, "band 必须出词、delta 必须是整数");
+    check(P.resourcesHTML().indexOf('data-diff="appr"') >= 0, "支持率瓷贴要带 data-diff，结算红绿才吃得到它");
+    check(P.statusVals().appr === ap.value, "statusVals 里的 appr 应与面板一致（结算对照用同一口径）");
+  }
+  /* ⑦ 骰子：支持率真的进判定，且以 50% 为零点对称 */
+  {
+    const choice = { base: 0.5, mods: [{ src: "approval", w: 0.3 }] };
+    const at = function (v) { G.pres.appr = v; return P.computeP(choice); };
+    const hi = at(70), mid = at(50), lo = at(30);
+    const rowOf = function (r) { return r.breakdown.filter(function (x) { return /支持率|Approval/i.test(String(x.label)); }); };
+    check(rowOf(hi).length === 1 && Math.abs(rowOf(hi)[0].pct - 6) < 1e-6,
+      "支持率 70% 该在判定明细里出 +6 的一条，实际 " + JSON.stringify(rowOf(hi)));
+    check(rowOf(mid).length === 0, "50% 是零点：中线水位上不该出现支持率这一行（免得玩家以为它一直在推骰子）");
+    check(Math.abs(hi.P - (mid.P + 0.06)) < 1e-9 && Math.abs(lo.P - (mid.P - 0.06)) < 1e-9,
+      "支持率加成应对称：70% → " + hi.P.toFixed(3) + " ｜ 50% → " + mid.P.toFixed(3) + " ｜ 30% → " + lo.P.toFixed(3));
+    G.pres.appr = last;
+    console.log("  骰子：支持率 70/50/30% → 胜算 " + (hi.P * 100).toFixed(0) + "/" + (mid.P * 100).toFixed(0) + "/" + (lo.P * 100).toFixed(0) + "%");
+  }
+  /* ⑧ 一键下线 */
+  {
+    const had = P.reg.balance && P.reg.balance.presidency;
+    P.reg.balance = P.reg.balance || {};
+    P.reg.balance.presidency = { enabled: false };
+    check(P.presCfg().enabled === false && P.whiteHouseSlot(G.month) === null,
+      "balance.presidency.enabled=false 没能下线决策槽");
+    G.pres.appr = 40;
+    check(P.approvalPanel() === null && P.presidencyHTML() === "",
+      "下线后支持率读数件也应一并消失（否则 HUD 还在报一个不会变的数）");
+    if (had) P.reg.balance.presidency = had; else delete P.reg.balance.presidency;
+    check(P.presCfg().enabled !== false, "下线开关没能还原");
+  }
+
+  /* —— 还原现场 —— */
+  Object.assign(G, bak);
+}
+
 /* ---------- 死局保护 ---------- */
 console.log("\n== 死局保护 ==");
 {
@@ -1690,11 +1861,11 @@ console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + 
 console.log("  类型分布: " + JSON.stringify(catHit));
 {   /* #32 四大类实际节奏：随机类年均 ≤ 额度，且倒挂转正（固定历史 ≥ 职业 ≥ 随机）。 */
   const k = sim.kindHit || {}, Y = Math.max(1, sim.simYears || 1);
-  const per = (n) => (n / Y).toFixed(2);
+  const per = (n) => ((n || 0) / Y).toFixed(2);
   const rand = (k.random || 0) + (k.shady || 0);
   console.log("  四大类【年均/局】: 固定 " + per(k.fixed) + " ｜ 职业 " + per(k.career) +
     " ｜ 随机 " + per(rand) + "（含灰产 " + per(k.shady) + "） ｜ 竞选 " + per(k.campaign) +
-    " ｜ 额度 " + JSON.stringify(P.balance().pace) + " ｜ 样本 " + Y + " 年");
+    " ｜ 白宫 " + per(k.whitehouse) + " ｜ 额度 " + JSON.stringify(P.balance().pace) + " ｜ 样本 " + Y + " 年");
 }
 console.log("  投注观测：押过钱的判定 " + (stakeEvents / Math.max(1, draws) * 100).toFixed(1) + "% 次" +
   "（平均 " + (stakeFunTiers / Math.max(1, stakeEvents)).toFixed(2) + " 档）" +

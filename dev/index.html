@@ -31,6 +31,8 @@
 <script src="engine/arc.js"></script>
 <!-- 竞选：每一次民选晋升的一连串事件（单场制，一幕幕强制推进到投票日）——见 content/61-campaigns.js -->
 <script src="engine/campaign.js"></script>
+<!-- #21 总统任期：白宫月决策槽 + 支持率（appr）——见 content/events/147-whitehouse.js -->
+<script src="engine/presidency.js"></script>
 <!-- 静好岁月：没有事件的月份，主角的日子与"按部就班"的成长 -->
 <script src="engine/vignette.js"></script>
 <script src="engine/progression.js"></script>
@@ -164,6 +166,7 @@
 <script src="content/events/137-chain-credit.js"></script><!-- auto: 次贷后话链 —— 从空头的电话，到 2010 的替罪羊听证与新监管。 -->
 <script src="content/events/138-speculation.js"></script><!-- auto: 【投机包 · 庄家生意】#28②③：六个历史级的钱窗口，你以「有钱人」的身份路过。 -->
 <script src="content/events/140-reckoning.js"></script><!-- auto: 【清算包 · 树敌与报复】roguelike 政治生存的核心张力： -->
+<script src="content/events/147-whitehouse.js"></script><!-- auto: 白宫事务池（#21 M1）——入主白宫之后，一个月一决策的那八件事。 -->
 <!-- END content-auto-manifest -->
 
 <!-- BEGIN i18n-manifest -->
@@ -185,6 +188,8 @@
 <script src="content/i18n/en/events/137-chain-credit.js"></script>
 <script src="content/i18n/en/events/138-speculation.js"></script>
 <script src="content/i18n/en/events/140-reckoning.js"></script>
+<script src="content/i18n/en/events/147-whitehouse-part1.js"></script>
+<script src="content/i18n/en/events/147-whitehouse-part2.js"></script>
 <script src="content/i18n/en/events/50-era-2008.js"></script>
 <script src="content/i18n/en/events/54-era-waves.js"></script>
 <script src="content/i18n/en/events/55-media-timeline.js"></script>
@@ -242,6 +247,7 @@
 <script src="content/i18n/en/view/effects.js"></script>
 <script src="content/i18n/en/view/events.js"></script>
 <script src="content/i18n/en/view/flavor.js"></script>
+<script src="content/i18n/en/view/presidency.js"></script>
 <script src="content/i18n/en/view/progression.js"></script>
 <script src="content/i18n/en/view/scale.js"></script>
 <script src="content/i18n/en/view/shell.js"></script>

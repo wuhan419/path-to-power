@@ -205,6 +205,35 @@ const BALANCE_DEFAULTS = {
                         共窗口等于抽完一张就饿两年多，节奏线补不上。*/
   choreDynamic: { enabled: true, chance: 0.10, emptyFillChance: 0.40, repeatMonths: 18 },
 
+  /* ---- #21 M1 总统任期：白宫月决策槽 + 支持率（见 engine/presidency.js）----
+     入主白宫前，"一个月一回合"这套月引擎管的是一个人怎么往上爬；爬到顶之后它管不动了：
+     总统一月不出一个决策，玩家手里就只剩工资条。所以这里开**第三条强制档期通道**
+     （前两条：竞选幕 campaignForceSlot、日常公务 choresSlot），总统在位时每月必排一条白宫事务。
+     · enabled=false  → 整条通道下线，回到"当总统 = 拿高薪的普通上班年"；
+     · termMonths     → 一届多少个月（48 = 四年）。M1 只记账，连任判定在 M2 接选举链；
+     · seed           → 就职月支持率播种（与 P.seedMomentum 同纪律：起手不到中线，
+                        46 + 声望偏移 + 选民底气偏移，夹进 [floor, ceil]）；
+     · baseline/revert/drift → 支持率的自然水位、向水位回归的速率、每月净流失。
+                        默认值定出 ~42 的均衡点（45 的水位减 0.15 的月流失）：
+                        一事一事挣来的涨幅会自己往下掉，"在位越久越难"是刻意的；
+     · pressure       → 丑闻/调查每月额外压掉的支持率（负数）；
+     · pressureBelow/pressureMonths → 连续 N 月低于水位线只在日志里出"党内压力"一句，
+                        **M1 不判负**（弹劾与逼宫是 M3 的活，骨架阶段不留半成品死局）；
+     · repeatMonths   → 同一张白宫卡的重演间隔（照 choresSlot 的教训：不与随机卡的
+                        recentIds 共窗口，8 张池共 20 抽窗口会直接饿死）。
+                        它受**池子容量公式**约束：四族轮转 = 每 4 月轮到一族，
+                        所以「每族张数 × 4 ≥ repeatMonths」，否则那条硬断言
+                        （总统月每月必出 1 条）会在月中饿断 —— validate.js 把这条
+                        公式钉成了断言。M1 每族 2 张 → 周期上限 8；M2 扩到每族 ≥5 张
+                        （全池 ≥20）时把它抬回 18，与公务卡同频。 */
+  presidency: {
+    enabled: true, termMonths: 48, repeatMonths: 8,
+    seed: { base: 46, perRep: 0.3, perEdge: 8, floor: 25, ceil: 72 },
+    baseline: 45, revert: 0.05, drift: -0.15,
+    pressure: { scandal: -0.5, investigation: -0.4 },
+    pressureBelow: 28, pressureMonths: 4
+  },
+
   /* ---- 事件四大类的年度节奏（#32）----
      四大类（随机 / 职业 / 固定历史 / 竞选）由 engine/events.js 的 P.eventKind 从已有声明派生。
      这里只管随机类的手闸：氛围性巧合一年 1—2 件就够，超发会让属性与钱白手起家、
@@ -1141,12 +1170,13 @@ POTUS.stamp = function (eventId) {
 
 /* ---------- 存档 ---------- */
 const SAVE_KEY = "potus_save_v1";
-/* v0.12 存档格式门禁：saveVer 记录存档的内容格式号（结构演进时 +1 —— 本次 12：
-   学贷改单利制，旧档的 debt 里混着历史复利，语义已不可信）。
+/* v0.12 存档格式门禁：saveVer 记录存档的内容格式号（结构演进时 +1 —— 12：学贷改单利制，
+   旧档的 debt 里混着历史复利，语义已不可信；13：#21 M1 总统任期，G.pres 支持率是新的
+   月度结算状态，旧档里没有"在任月序"可对，硬接会让 appr 从错误的起点漂）。
    低于 SAVE_FORMAT_MIN 的旧档一律硬拒：不迁移、不向下兼容 —— 载入/导入只给
    「删档 / 开新局」两条路（黑色幽默弹窗），读取列表里的旧档只留删除钮。 */
-POTUS.SAVE_FORMAT = 12;
-const SAVE_FORMAT_MIN = 12;
+POTUS.SAVE_FORMAT = 13;
+const SAVE_FORMAT_MIN = 13;
 POTUS.saveIsStale = function (G) { return !!G && ((G.saveVer || 0) < SAVE_FORMAT_MIN); };
 POTUS.serialize = function () { const G = POTUS.G; if (G) G.saveVer = POTUS.SAVE_FORMAT; return JSON.stringify(G); };
 
@@ -1207,6 +1237,9 @@ POTUS.migrate = function (G) {
   if (G.campaign == null) G.campaign = null;
   if (G.campaignLog == null) G.campaignLog = [];
   if (G.campaignCool == null) G.campaignCool = 0;
+  /* v0.12 #21 M1 总统任期：白宫状态（支持率 / 在任月数 / 届数 / 四族轮转游标）。
+     真正赋值在 presidency.js 的 P.presidencyTick 首次入主时（那要算播种），这里只保证字段存在。 */
+  if (G.pres == null) G.pres = null;
   /* v0.5 主线之后的机制：出生州 / 下野 / 年初快照（年终叙事要对比"今年与去年"） */
   if (G.voters == null) G.voters = { warm: 0, diehard: 0, oppose: 0 };   /* v0.5.2 选民池 */
   if (G.state == null) G.state = "";

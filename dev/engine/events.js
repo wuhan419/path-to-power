@@ -17,7 +17,10 @@
    *   fixed    固定历史 —— 钉在 reg.fixed / era.scheduled 上，或年月窗口收成一天
    *   career   职业事件 —— chore:true（日常公务），或 category∈{career 仕途, govt 政务}
    *   random   随机事件 —— 其余氛围卡（含 civil 民权运动；shady 灰产走独立额度）
-   * 判定顺序即优先级：一张竞选幕卡也可能同时写了 chore，历史锚点也可能落在 career 类。 */
+   * 判定顺序即优先级：一张竞选幕卡也可能同时写了 chore，历史锚点也可能落在 career 类。
+   * #21 M1 加了**第五类** whitehouse：白宫事务既不占随机额度，也绝不该被算进
+   * "职业事件"那一格去参与「固定 ≥ 职业 ≥ 随机」的年均比较 —— 它是当选后才开启的
+   * 一条独立通道，混进四大类会让那个耦合指标在总统局里失真（kindHit 里单列）。 */
   let _pinSet = null, _pinKey = "";
   P.pinIds = function () {
     const key = (P.reg.fixed || []).length + ":" + Object.keys(P.reg.era || {}).length;
@@ -33,10 +36,10 @@
     if (!ev) return "random";
     if (ev.category === "campaign" || (P.isCampaignActEvent && P.isCampaignActEvent(ev.id))) return "campaign";
     if (P.pinIds()[ev.id] || (ev.minYear != null && ev.minYear === ev.maxYear)) return "fixed";
+    if (ev.wh) return "whitehouse";
     if (ev.chore || ev.category === "career" || ev.category === "govt") return "career";
     return "random";
   };
-
   /* ---------- #32 随机类年度限流 ----------
    * 设计目标：氛围性随机事件 1—2 件/年。刷太快会让属性和钱白手起家、后期十拿九稳。
    * 固定历史、职业、竞选三类不吃这个额度 —— 它们是"到点必演"和"该干的活"。
@@ -121,6 +124,9 @@
     const G = P.G;
     /* 日常公务事件（chore）不进随机卡池，只经 time.js 的 choresSlot 注入通道出现 */
     if (ev.chore) return false;
+    /* #21 M1：白宫事务（wh）同上，只经 whiteHouseSlot 强制档期出现 ——
+       它们不该在地方官员的月份里被随机抽到（tierMin 9 也挡着，但通道纪律要写死）。 */
+    if (ev.wh) return false;
     if (!P.when(ev, snap)) return false;
     /* 时代适配：年份窗口 + 媒介（这条事件要靠的"说话方式"此刻存不存在） */
     if (!P.yearOK(ev)) return false;

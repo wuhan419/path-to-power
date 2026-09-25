@@ -1032,6 +1032,8 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 | `career` 职业/公务 | `chore:true`，或 `category:"career"` / `"govt"` | `time.js` 的 `choresSlot` 注入（§4.17），**不吃额度** |
 | `random` 随机 | 其余全部（含 `shady` 灰产、`civil` 民权、`media`、`scandal`…） | **吃年度额度**，见下 |
 
+> #21 M1 起还有第 5 类：`whitehouse`（`ev.wh`，派生顺序在 `fixed` 之后、`career` 之前）。它和公务同性质——到点必演、不吃额度，但只在总统在位时由 `presidency.js` 的 `whiteHouseSlot` 每月排一条，详见 §4.22。
+
 > 口径备案：WORKPLAN 原写的是 `category ∈ {govt, civic}`，登记表里没有 `civic` 这一类（有 `civil` = 民权社会运动）。民权运动是"时代氛围里撞上的事"而不是"你职务上的活"，故留在 `random`；`career` 仕途类补进职业通道。
 
 #### 年度额度（`balance.pace`）
@@ -1085,6 +1087,24 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 
 ---
 
+### 4.22 wh（白宫事务池 · 总统月决策槽 · #21 M1）
+
+爬到 `tierMax`（总统）之后，"一年抽象一次"的引擎就管不动了：总统一月不出一个决策，玩家手里只剩工资条。所以开了**第三条强制档期通道**（前两条：竞选幕 `campaignForceSlot`、日常公务 `choresSlot`），语义同一条：**到点必演，不看运气**。引擎在 `engine/presidency.js`，卡池在 `content/events/147-whitehouse.js`。
+
+- **入口**：事件写 `wh: true` + `whFamily:` 四族之一（`crisis` 危机 / `legislation` 立法 / `foreign` 外交 / `personnel` 人事）。`eligible` 顶部 `if (ev.wh) return false` —— 白宫卡**永不进随机池**，只经 `P.whiteHouseSlot(month)` 注入。
+- **谁能撞上**：`P.isPresident()` = `G.tier >= balance.tierMax`；卡上仍写 `tierRaw:true, tierMin:9, tierMax:9` 把身份闸显式留在内容里。
+- **节奏**：四族轮转，游标 `G.pres.famIdx` 逐月往后走一格，本族饿着就顺延下一族 → 总统在位**每月恰 1 条**白宫档期（validate 有硬断言），同族绝不连刷三个月。四族都饿着时这个月就静着，不硬塞刚演过的卡。
+- **⚠ 池子容量公式**：`每族张数 × 4 ≥ repeatMonths`。轮转周期是 4 个月，所以一族只有 2 张卡时 `repeatMonths` 上限就是 8，抬到 18 会在月中断流（实测：60 月里有 30 月零档期）。M1 = 每族 2 张 / `repeatMonths:8`；**M2 扩池到 ≥24 张时把周期抬回 18**，与公务卡同频。这条公式 validate 逐族钉着。
+- **⚠ 必须显式写 `unique:false`**：`grade:"major"` 的卡默认一局一次（§4.20 同一条坑），而任期 96 个月靠的就是同一批卡轮演——漏写就是一次性卡，第二轮起整族饿死。
+- **支持率（`G.pres.appr`，0—100）不是展示件**：卡上每卡至少一个选项挂 `mods:[{src:"approval"}]`（§5），效果键写 `effects:{ appr: ±n }`。`appr` **不进 `SCALE_KEYS`**（`dyn:true` 卡的钱/声望系数会折算它，但支持率是刻度不是体量，`engine/scale.js` 里没有这个键，所以 `+4` 就是 +4 个百分点）。
+- **水位**：每月 `appr += (baseline-appr)·revert + drift`，默认定出 ~42 的均衡点 —— 一事一事挣来的涨幅会自己往下掉，"在位越久越难"是刻意的；丑闻/调查另按 `pressure` 逐月加压。低于 `pressureBelow` 连续 `pressureMonths` 月只出"党内压力"一句日志，**M1 不判负**（弹劾/逼宫是 M3）。
+- **开关**：`balance.presidency.enabled:false` 一键下线整条通道 —— 决策槽、任期条、支持率瓷贴同时消失，回到"当总统 = 拿高薪的普通上班年"。
+- **探针**：`node dev/tools/out/presprobe.js`（headless 把人摆到 tier 9 跑 60 月，打印支持率轨迹 + 单卡命中次数 + 断流月）。
+
+> 读数件复用竞选条那套皮（`.campbar` 的兄弟 `.presbar`），支持率另挂在资源栏第五枚瓷贴上（`data-diff="appr"`，白卡结算的红绿高亮自动吃到）。
+
+---
+
 ## 5. mods（胜算修饰符）
 每个修饰符是一条 `{ src, key, w, ... }`。命中则把 `w` 折算进胜算。
 
@@ -1100,6 +1120,7 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 | `"tier"` | 层级 | `w`(每层加值) | `层级 × w` |
 | `"res"` | 资源 | `key:"fun"`, `min`, `w` | 资金 ≥ min 时 `+w` |
 | `"voters"` | 选民底气 | `w`(默认 0.06) | `voterEdge()`(∈[-1,1]，均衡点为 0)`× w`（`dice.js`）。晋升/连任类选项（`isContestChoice`）由 `computeP` **自动附加**（`balance.voterDynamic.contestW`，默认 0.08），政策推进类才需显式声明 |
+| `"approval"` | 总统支持率 | `w`(默认 0.25) | `(支持率-50)/100 × w`（`dice.js`，#21 M1）。**50% 是零点**：平稳水位（baseline 45）附近不偏不倚，高支持率才买到优势。不在任（没有 `G.pres`）时 `v=0` 且明细里不出这一行 —— 所以只有白宫卡（`wh:true`）该写它 |
 
 最终：`P = clamp(base + Σmods + 天赋全局mods, 0.05, 0.95)`
 玩家只会看到**模糊档位**（渺茫/不利/五五开/有利/稳操胜券/几乎必胜），不显示精确概率。
@@ -1125,6 +1146,7 @@ effects: { attr:{CHA:5}, fac:{base:10,press:-8}, fun:400000, rep:6, fav:-1, lev:
 | `funMul` | **按本金算的投资回报**（1.0 = 翻倍赚，-1.0 = 全亏）。本金 = 选项 `cost.fun` / 入场费 `req.fun` / 投注资金（`stage.js` 结算前写进 `G.__stakeBase`）。**没有本金声明则空转并告警**（v0.12 起不再按总余额乘——那是"点一下家底翻 2.2 倍"的漏洞）。**#28②：倍率吃智力** —— `effects.js` 的 `funMulIntMul` 给倍率再乘 `1 + (INT-50)/100 × balance.funMulIntLev`（默认 0.4 → INT100 得 1.20、INT0 得 0.80）：**盈利一侧乘 k、亏损一侧除 k**，同一笔生意聪明人赚得多、翻车时亏得少，两条曲线关于 INT=50 对称。成败判定仍走既有的 outcome roll，这里只改落袋的钱；`funMulIntLev: 0` 即关闭 | 倍数校验区间 `[-1, +3]` |
 | `debt` | **学生贷款本金增减**（绝对额，不受 dyn 标尺缩放）。还/减（负值）视为按时：连续逾期计数 `loanLate` 归零；余额与当年欠息桶锁死不为负。见 §15 | — |
 | `rep` | 声望增减 | 0-100 |
+| `appr` | **总统支持率增减**（#21 M1）：`G.pres.appr` 夹取累加。**非总统在位时空操**（与 `camp` 键同纪律：内容写错不该打扰玩家）。只写绝对百分点（`+4` 就是 +4%），**不进 `SCALE_KEYS`**、不随 `dyn` 标尺膨胀。只该出现在白宫卡（`wh:true`）上 | 0-100 |
 | `hp` | **已退役（v0.9）**：handler 保留但空操，防"未知键"告警刷屏。健康是后台静态量：`endYear` 年度老化直接结算（驱动生病/死亡结局），事件不再碰它 | — |
 | `ap` | **已退役（v0.9）**：精力彻底退出玩法，事件写了也无效。老卡残留的 `cost:{ap:2}` 等同样不扣（休眠） | — |
 | `fav` | 人情点增减 | 0-20 |
@@ -1307,7 +1329,7 @@ POTUS.define("blackswan", {
 
 > 本节是**事件写作规范的唯一出处**（早先拆单的《事件包写作规范》已并入这里）。可直接复制的最小交付骨架见 §13，六条铁律的完整论述见 §11.6。写新事件前，先照抄一个范例定风格：`content/events/80-shady.js` 的 `shady_union` / `shady_union_collect`（前因后果 + `after` 余波链 + 保底选项 + 经济诚实），以及 `content/events/62-crossroads.js`（`note` 字段范例）。
 >
-> **可用效果键速查**：`attr:{CHA,INT,CUN,INTG}` `fac:{base,establishment,commercial,labor,press,military,church,agency,foreign,tech,criminal}` `fun` `rep` `fav` `lev` `tier(±1)` `debt:-N`（还学贷） `funMul`（按本金算回报，须有 cost.fun/req.fun/投注；倍率再吃 INT 修正，见 §6） `voters:{warm,diehard,oppose}` `count:{wrath_press:8, ...}`（隐藏计数器，清算用，见 §4.18） `camp:{momentum,warchest}`（仅竞选各幕，见 §14） `score` `flags:[...]` `notFlags:[...]` `contact:{人id}` `forget:[人id]` `fall:1|2`（下野） `hardEnd:"prison"|"disgrace"|"ruined"|"purged"|"framed"|"assassinated"|"bankrupt"`（硬结局，慎用，见 §12.5） `setTrack` `setStance`。**`hp`/`ap` 已退役为空操**（v0.9，见 §6），别再写。
+> **可用效果键速查**：`attr:{CHA,INT,CUN,INTG}` `fac:{base,establishment,commercial,labor,press,military,church,agency,foreign,tech,criminal}` `fun` `rep` `fav` `lev` `tier(±1)` `debt:-N`（还学贷） `funMul`（按本金算回报，须有 cost.fun/req.fun/投注；倍率再吃 INT 修正，见 §6） `voters:{warm,diehard,oppose}` `count:{wrath_press:8, ...}`（隐藏计数器，清算用，见 §4.18） `camp:{momentum,warchest}`（仅竞选各幕，见 §14） `appr:±n`（总统支持率，仅白宫卡，见 §4.22） `score` `flags:[...]` `notFlags:[...]` `contact:{人id}` `forget:[人id]` `fall:1|2`（下野） `hardEnd:"prison"|"disgrace"|"ruined"|"purged"|"framed"|"assassinated"|"bankrupt"`（硬结局，慎用，见 §12.5） `setTrack` `setStance`。**`hp`/`ap` 已退役为空操**（v0.9，见 §6），别再写。
 >
 > **已登记人脉 id**：`brother`(家里人) `fixer`(掮客) `shark`(放贷人) `doctor`(诊所医生) `union_boss`(工会头目) `pastor`(牧师) `columnist`(专栏作家) `producer`(电视制作人) `lobbyist`(游说客) `agent`(联邦探员)。
 >

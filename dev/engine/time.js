@@ -9,6 +9,8 @@
  *   4. 时代压力（era.pressure）+ 玩家活跃度（丑闻/调查/选举年/层级）决定：
  *        这个月有没有档期 → 有几个 → 量级偏高还是偏低。
  *   5. 时代可以写"定点事件"（era.scheduled）：到了某年某月必定发生。
+ *   6. #21 M1 的例外：入主白宫之后每个月必有一条白宫决策档期（engine/presidency.js 的
+ *      whiteHouseSlot）—— 总统的月份不该"什么也没发生"。
  *
  * 纯机制，不含任何剧情数值。
  * ==========================================================================*/
@@ -206,6 +208,13 @@
       if (cs) out.unshift(cs);
     }
 
+    /* #21 M1 总统任期：入主白宫后每月必排一条白宫决策（危机/立法/外交/人事四族轮转）。
+       同一条「到点必演」通道 —— 总统月不该有"这个月什么也没发生"。 */
+    if (P.whiteHouseSlot) {
+      const whs = P.whiteHouseSlot(month);
+      if (whs) out.unshift(whs);
+    }
+
     /* 日常公务注入：本月已有 fixed/竞选档期时按小概率追加一条（默认 0），
        空转月按 emptyFillChance 兜底一条。balance.choreDynamic.enabled=false 即完全关闭。 */
     if (P.choresSlot) {
@@ -259,6 +268,8 @@
       G.month = m;
       /* 竞选链：每月推一次（推幕 / 选情流失 / 崩盘判定）。主线 arc 已停用，这里只推竞选。 */
       if (P.campaignTick) P.campaignTick(m);
+      /* #21 M1：总统任期每月推一次（就职播种 / 支持率漂移 / 届数记账）。非总统时几乎零成本。 */
+      if (P.presidencyTick) P.presidencyTick(m);
       /* v0.9：每月经手结一次"上班的账"（工资-开销 / 学贷 / 选民增减），有事无事都算，
          这样收益才跟着身位走 —— 幂等记入 G.ledger，界面只读不再重复扣钱。 */
       if (P.monthlyLedger) P.monthlyLedger(m);
