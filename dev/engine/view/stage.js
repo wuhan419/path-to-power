@@ -863,7 +863,9 @@
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、
        不列目标值与加值明细。玩家看到的只有：结果档位（大成功/成功/勉强/失败/大失败）
        ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
-    P.applyEffects(effFinal);
+    /* #37②：可重复卡的属性只发第一次（账面与实际同步，故在显示与结算之前过滤） */
+    const effApply = P.filterOnceAttr(effFinal, ev.id);
+    P.applyEffects(effApply);
     P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
     /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
     const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
@@ -873,7 +875,7 @@
        再读"发生了什么"，不再是一个 18px 粗体压着一段正文。 */
     div.innerHTML = '<span class="rtag">' + label + '</span><div class="rbody">' + (out.body || "") + "</div>";
     mainInsert(div);
-    const gainHTML = gainBoxHTML(effFinal);
+    const gainHTML = gainBoxHTML(effApply);
     if (gainHTML) {
       const gb = document.createElement("div");
       gb.className = "fade";
@@ -978,8 +980,9 @@
       const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[P.eraAt(G.year)] || [];
       if (list.length) {
         const bs = P.pick(list);
-        P.addFlag("bs_" + (bs.id || bs.title));
-        P.applyEffects(bs.effects);
+        const bsId = "bs_" + (bs.id || bs.title);
+        P.addFlag(bsId);
+        P.applyEffects(P.filterOnceAttr(bs.effects, bsId));
         /* 结算屏下线后，日志是黑天鹅唯一的落点 —— 正文一并记进去，别把写好的字丢了 */
         P.pushLog(P.t("ui.stage.blackswanLog", "黑天鹅：{t}　{body}", { t: bs.title, body: bs.body }));
       }

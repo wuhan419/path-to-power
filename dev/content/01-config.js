@@ -72,12 +72,25 @@ POTUS.define("balance", {
    * 「时代压力」写在 content/20-eras.js 的 era.pressure；
    * 「活跃度」由引擎按 丑闻/调查中/选举年/层级≥T4 自动叠加（见 engine/time.js）。
    */
-  /* 密度校准（用户反馈「随机事件太多」，两轮）：无压力月基线 0.12→0.10→0.08，
-     让平静的月份真正静下来；时代压力/活跃度照常把有大事的月份抬回去，不受影响。
-     与 v0.12 单卡终身衰减（idRepeatMul）配合：既少撞人，也不重复撞同一件事。 */
-  activeChance: 0.08, activePressureMul: 0.04, activeBonusMul: 0.04,
-  activeMin: 0.06, activeMax: 0.95,
-  slotsBase: 1, slotsVariance: 1, slotsMax: 3,
+  /* 密度校准（用户反馈「随机事件太多」，三轮）：无压力月基线 0.12→0.10→0.08→0.05。
+     第三轮是 1980 全年实测（12 个月里只有 1 个平静月）逼出来的：单降 activeChance 不动
+     activeMin 等于没降 —— pActive 被夹在 [activeMin, activeMax] 里，0.06 的下限比新基线还高。
+     时代压力/活跃度照常把有大事的月份抬回去；开局头两年另有 balance.earlyCalm 一道闸
+     （engine/core.js），因为「刚入职就天天有大事」是最劝退的第一印象。
+     第四轮（#38）的结论是**别再动这里**：事件总量由 `pace` 的年度额度决定（engine/core.js），
+     用户口径「一年 2—6 件」是额度闸守出来的，不是概率闸 —— 概率只管"哪个月有空档期"。 */
+  activeChance: 0.05, activePressureMul: 0.04, activeBonusMul: 0.04,
+  activeMin: 0.04, activeMax: 0.95,
+  /* 一个月最多两个档期（原 3）：一次撞三件事是"接二连三"体感的直接来源。 */
+  slotsBase: 1, slotsVariance: 1, slotsMax: 2,
+  /* ---- #37① 开局冷静期（乘子见 engine/core.js 的注释：为什么动额度而不是只动概率）----
+   * #38 之后全局已经收进「非固定 2—6 件/年」（pace.eventMax），这里退成**轻闸**：
+   * 前 24 个月有事概率 ×0.8、日常公务 ×0.6、年度额度总闸 ×0.5（eventMax 6→3、careerMax 2→1）、
+   * 一个月只排一条。
+   * 实测教训：这道额度折扣**不能**落在随机/灰产的桶额度上——那两个桶各只有 1 件名额，
+   * floor(1×0.5)=0 把桶整个封死而公务没闸，开局两年反而比全局还稠（4.17 vs 3.10）。
+   * 「刚入职的社区志愿者」那两年本该大部分月份静着 —— 这是第一印象，不是数值平衡。 */
+  earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul: 0.5, slotsCap: 1 },
   slotsPressureAt: 4, slotsBonusAt: 2,
   /* 「活跃度」各项权重：丑闻 / 被调查 / 选举年 / 层级达 threshold / 手上把柄够多
    * 把柄这一条的含义是：手里的秘密超过 leverageAt 份，你自己就成了别人的目标，
@@ -256,7 +269,8 @@ POTUS.define("balance", {
   vignette: {
     enabled: true,
     maxShown: 4,
-    attrChance: 0.14, attrGain: 1, attrCap: 88,
+    /* #37③：0.20→0.14→0.08。岁月仍然长本事，但一辈子靠平静月堆不满一个维度。 */
+    attrChance: 0.08, attrGain: 1, attrCap: 88,
     /* v0.5.2：INTG（诚信）不进自然成长池——诚信是选择塑造的，不是岁月。
        事件 outcomes 里的 attr.INTG 照常生效（那是"你做了什么"的结果）。 */
     attrKeys: ["CHA", "INT", "CUN"],
@@ -264,22 +278,22 @@ POTUS.define("balance", {
     hpChance: 0, hpGain: 1,
     repChance: 0.06, repGain: 1,
     contactChance: 0.20, contactGain: 1,
-    funRate: 0,
     /* 按轨道分化：无事发生的岁月里，你做的那件事决定什么在自然生长。
      * 选举的人天天见人（声望）、管钱的钱在生钱、幕僚在攒关系、
      * 委任的在啃专业、名人不做事也有人谈论。
      * 只加正向乘子 —— 别在这里写惩罚，改了要重跑 300 局看结局分布。 */
     trackBonus: {
       electoral: { rep: 1.6 },
-      wealth: { fun: 0.002 },
       operative: { contact: 1.5 },
       appointment: { attr: 1.3 },
       celebrity: { rep: 1.3 }
     },
-    /* v0.5.2 平静月的随机变动：工资/开销/喘口气/攒人情。
-     * 量级刻意小（scale = 500 + tier×1500，再乘 1-4），大事仍然只属于事件。
+    /* v0.5.2 平静月的随机变动：喘口气/攒人情。
+     * v0.12 #37③：**平静月不再产生资金**（原 funChance 0.30 的 ±$0.5k—$8k 暗账整条删除）。
+     * 用户投诉「这个月的账明明赤字，下面却写『按部就班 资金 +$6k』」——根因是这条随笔侧账
+     * 绕开了 P.monthlyLedger 这单一流水，玩家看不到它的来源。钱从此只有两条门：
+     * 【月账（工资-开销-学贷-利息）】+【事件卡】。生息仍然只在年终结算（interestRate）。
      * 调大之前先跑 300 局看资金曲线有没有被推歪。 */
-    funChance: 0.30, funGoodChance: 0.55,
     apChance: 0.25,
     favChance: 0.08,
     /* 年龄曲线：65 岁起 CHA/INT 每月 6% 概率掉 1 点（下限 30），CUN 不衰（经验），

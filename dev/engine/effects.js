@@ -182,6 +182,28 @@
 
   /* 内容注册自定义效果键 */
   P.effect = function (key, fn) { P.effectHandlers[key] = fn; };
+  /* #37②：同一张卡的**属性**只在首次结算时生效。
+   * 可重复卡（dyn / 公务 / 灰产）重演还发属性 = 刷点机 —— 实测 `shady_doctor`
+   * 一局最多重演 25 次、每次 CUN+2，一辈子就靠一张卡涨了 50 点手腕。
+   * 钱/声望/派系/人情照旧每次给：重复做的是那件事，重复拿的也该是那笔钱。
+   * 账本 G.attrGiven 随存档走（键 = 来源 id + 属性键）。
+   * 放在结算**之前**过滤、而不是在 handler 里静默丢弃：账面（收益结算框）必须
+   * 和实际扣的一致，否则玩家会看到一张写着「手腕 +2」却没涨的卡。 */
+  P.filterOnceAttr = function (eff, id) {
+    const G = P.G;
+    if (!eff || !eff.attr || !G || !id) return eff;
+    if (!G.attrGiven) G.attrGiven = {};
+    const left = {};
+    for (const k in eff.attr) {
+      if (G.attrGiven[id + ":" + k]) continue;
+      left[k] = eff.attr[k];
+      G.attrGiven[id + ":" + k] = 1;
+    }
+    const copy = Object.assign({}, eff);
+    if (Object.keys(left).length) copy.attr = left;
+    else delete copy.attr;
+    return copy;
+  };
   /* 若内容在 effects.js 之前就声明了效果键，这里补登记 */
   if (P._pendingEffects) { for (const k in P._pendingEffects) P.effectHandlers[k] = P._pendingEffects[k]; }
 

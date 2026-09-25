@@ -30,7 +30,7 @@ POTUS.define("l10n", {
       },
       elite: {
         name: "Ivy Elite",
-        desc: "Intellect +15 · Business +30; Grassroots trust -15 (starting cash now comes from the card pool)"
+        desc: "Business +40 · Favors +2; Grassroots trust -15 (#37: the old \"Intellect +15\" became factions and favors - attributes come only from free points and cards)"
       }
     },
     talent: {
@@ -48,7 +48,7 @@ POTUS.define("l10n", {
       },
       pro: {
         name: "The Professional",
-        desc: "Lawyer / professor / retired officer / doctor - can drop into statewide races, but no party base"
+        desc: "Lawyer / professor / retired officer / doctor - can drop into statewide races, but no party base; Reputation +8, Favors +1"
       },
       celebrity: {
         name: "Celebrity",
@@ -60,11 +60,11 @@ POTUS.define("l10n", {
       },
       business: {
         name: "Businessman",
-        desc: "Founder / finance / real estate: cash explodes; integrity and grassroots trust take the hit"
+        desc: "Founder / finance / real estate: you start with a stake; integrity and grassroots trust take the hit"
       },
       operative: {
         name: "Operative",
-        desc: "Campaign manager / lobbyist / party staffer - you never run; you run the one who does"
+        desc: "Campaign manager / lobbyist / party staffer - you never run; you run the one who does. Favors +3, Grassroots +10"
       }
     }
   }

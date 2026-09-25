@@ -22,20 +22,26 @@
   /* 五档难度：出身（吃 10-characters.js 的派系/声望梯度）+ bonus（少量非资金增量）。
    * v0.12 #20 起，难度不再发开局资金——钱全搬进天赋卡池（见 15-cards.js），
    *   难度的真正区别是【能选几张卡】（cardPickCount：炼狱1 / 困难2 / 普通3 / 简单4 / 传奇5）。
-   * bonus 走 applyEffects，支持的键与事件效果一致：rep / fav / fac / attr（fun 已退出难度加成）。
+   * bonus 走 applyEffects，支持的键与事件效果一致：rep / fav / fac
+   *   —— #37② 起 attr 与 fun 都退出了难度加成：属性只能由【自由点 + 天赋卡】决定，
+   *      否则"开局四维"里混着一块玩家看不见也点不到的地（传奇那 4×+5 就是这块）。
    *   —— 精力(ap)、健康(hp) 已在 v0.9 退役，这里不再出现。
    * 由易到难：传奇 → 简单 → 普通 → 困难 → 炼狱。
    * 注意：label/note 是加载期立即求值的中文原文（此时 boot 还没套用英文覆盖层），
    * 所以取用点一律走 diffLabel()/diffNote() 现取现翻，key = ui.create.diff.<id>.label/note。 */
   const DIFFS = {
-    legendary: { label: "传奇", origin: "dynasty", note: "政治世家 · 可选 5 张天赋卡 · 声望 +7、人情 +4、建制 +10、全属性 +5 —— 底子最厚，还能挑最多牌",
-      bonus: { rep: 7, fav: 4, fac: { establishment: 10 }, attr: { CHA: 5, INT: 5, CUN: 5, INTG: 5 } } },
+    legendary: { label: "传奇", origin: "dynasty", note: "政治世家 · 可选 5 张天赋卡 · 声望 +12、人情 +4、建制 +20、商业 +10 —— 底子最厚，还能挑最多牌",
+      /* #37②：原本这里挂着一份「全属性 +5」——四项合计 +20，等于白送两个自由点，
+         却不在向导第 3 步的预览里（用户把它记成了"四年涨了 35 智力"）。属性一律收回，
+         难度的补偿改走非属性门（声望/人情/派系）。 */
+      bonus: { rep: 12, fav: 4, fac: { establishment: 20, commercial: 10 } } },
     easy:   { label: "简单", origin: "dynasty", note: "政治世家 · 可选 4 张天赋卡 · 建制人脉 +30、声望 +8 —— 有人替你开好路" },
-    normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 可选 3 张天赋卡 · 智力 +15，但基层不信任你" },
+    normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 可选 3 张天赋卡 · 商业 +40、人情 +2，但基层不信任你" },
     hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 可选 2 张天赋卡 · 基层 +20 但建制 -20，全凭一股韧劲往上爬" },
     brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 只能选 1 张天赋卡 · 只有工会与基层，起步声望更低、建制更冷 —— 真正的从零开始",
       bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
   };
+  P.DIFFS = DIFFS;      /* #37②：validate 要逐档扫 bonus 里有没有偷偷发属性 */
   function diffLabel(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".label", d.label) : "—"; }
   function diffNote(id) { const d = DIFFS[id]; return d ? P.t("ui.create.diff." + id + ".note", d.note) : ""; }
   function randKey(map) { const ks = Object.keys(map); return ks[Math.floor(Math.random() * ks.length)]; }
@@ -216,6 +222,19 @@
     const used = usedPoints(C);
     const loop = P.currentLoop();
     const sp = C.spent || {};
+    /* #37②：第 3 步要把**所有**剩余来源摊开 —— 玩家在游戏里第一眼看到的数字，
+       必须就是他在向导里能算出来的数字（startAttr 打底 + 自由点 + 已选卡）。
+       出身/起点/难度那份 attr 已经从内容里删除，这里不再需要"偷偷加一块"。 */
+    const cardAttr = {};
+    let cardFun = 0, cardN = 0;
+    (C.picks || []).forEach(function (id) {
+      const cd = (P.reg.card || {})[id];
+      const eff = cd && cd.effects;
+      if (!eff) return;
+      cardN++;
+      if (eff.fun) cardFun += eff.fun;
+      for (const k in (eff.attr || {})) cardAttr[k] = (cardAttr[k] || 0) + eff.attr[k];
+    });
     const ATTR_NAME = {
       CHA: P.t("ui.attr.CHA", "魅力"), INT: P.t("ui.attr.INT", "智力"),
       CUN: P.t("ui.attr.CUN", "手腕"), INTG: P.t("ui.attr.INTG", "诚信")
@@ -235,8 +254,14 @@
       const canUp = left > 0 && !atCap;
       const canDown = put > 0;
       const name = isFun ? P.t("ui.create.allocMoney", "金钱") : ATTR_NAME[k];
-      const val = isFun ? "+$" + ((put * funPer) / 1000).toFixed(0) + "k" : (base + put * per);
-      const tail = isFun ? "" : (put ? '<i class="rspent">+' + (put * per) + "</i>" : "");
+      const card = isFun ? cardFun : (cardAttr[k] || 0);
+      const val = isFun ? (put * funPer + card) : (base + put * per + card);
+      const valTxt = isFun ? "+$" + (val / 1000).toFixed(0) + "k" : val;
+      /* 尾巴逐项拆开来写：自由点给多少、卡给多少 —— 合起来就是上面那个大数 */
+      let tail = "";
+      if (put && !isFun) tail += '<i class="rspent">+' + (put * per) + "</i>";
+      if (card) tail += '<i class="rscard">' + P.t("ui.create.allocCardTag", "卡") +
+        (card > 0 ? "+" : "") + (isFun ? "$" + (card / 1000).toFixed(0) + "k" : card) + "</i>";
       h += '<div class="rattr"><b>' + name + "</b>" +
         '<span class="rval">' + val + "</span>" + tail +
         (atCap ? '<i class="rcapped">' + P.t("ui.create.capped", "顶") + "</i>" : "") +
@@ -248,6 +273,19 @@
         "</div>";
     });
     h += "</div>";
+    /* 来路核对：把卡池那份加成单独列一句，免得玩家以为大数只来自自由点。
+       诚信 INTG 不在上表里（隐藏属性，面板不展示），所以只能在这句话里见到它。 */
+    if (cardN) {
+      const bits = [];
+      ["CHA", "INT", "CUN", "INTG"].forEach(function (k) {
+        const v = cardAttr[k];
+        if (v) bits.push(ATTR_NAME[k] + " " + (v > 0 ? "+" : "") + v);
+      });
+      if (cardFun) bits.push(P.t("ui.create.allocMoney", "金钱") + " +$" + (cardFun / 1000).toFixed(0) + "k");
+      h += '<div class="muted alloc-cardsum">' + P.t("ui.create.allocFromCards",
+        "已选 {n} 张天赋卡带来：{LIST}（已并进上表；诚信是隐藏属性，只在这句里出现）",
+        { n: cardN, LIST: bits.join(" · ") || "—" }) + "</div>";
+    }
     h += '<div class="rleft' + (used >= total ? " done" : "") + '">' +
       P.t("ui.create.freePoints", "自由点：还剩 <b>{left}</b>／{total}", { left: total - used, total: total }) +
       (P.readBonusFree() > 0 ? P.t("ui.create.poolMeta",
@@ -475,8 +513,9 @@
       peakTier: (P.reg.entry[C.entry] || {}).tier || 0,
       score: 0, flags: [], history: [], log: [],
       contacts: {},
-      /* v0.12 #20 天赋卡墙：cards = 本局持有卡 id，spentCards = 已烧掉的免死卡（留痕用） */
-      cards: [], spentCards: [],
+      /* v0.12 #20 天赋卡墙：cards = 本局持有卡 id，spentCards = 已烧掉的免死卡（留痕用）。
+         #37②：attrGiven = 「这张卡的属性已经发过了」的账本（可重复卡不再重复发属性） */
+      cards: [], spentCards: [], attrGiven: {},
       /* #31：本局是否已在结算屏给周目账本记过 +1（防重复结算刷歪） */
       loopCounted: 0,
       /* 时间模型：month(1-12) 是唯一权威。

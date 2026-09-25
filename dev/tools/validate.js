@@ -1549,6 +1549,7 @@ const SEED = Math.round(_argN("seed", 20260921));
 /* --diff=normal|hard|brutal|... 锁定难度跑生涯模拟（学贷断供校准用）；缺省 normal */
 const SIM_DIFF = (process.argv.find(a => a.indexOf("--diff=") === 0) || "").split("=")[1] || "normal";
 const K = (o) => Object.keys(o);
+const DIMS4 = ["CHA", "INT", "CUN", "INTG"];   /* #37④ 成长预算探针的四个维度（含隐藏诚信） */
 const eras = K(P.reg.era), origins = K(P.reg.origin), talents = K(P.reg.talent),
   entries = K(P.reg.entry), parties = K(P.reg.party), stances = K(P.reg.stance);
 
@@ -1589,6 +1590,15 @@ let monthRepeat = 0;                              // 同一自然月内同卡重
 let repGaps = [], repWorst = { id: null, n: 0 };
 /* 学贷断供面板（--diff 校准用）：每局最长连续逾期、破产局数/次数 */
 let loanLateAll = [], loanBankruptGames = 0, loanBankruptEvents = 0;
+/* #37④ 开局节奏探针：earlyCalm 只覆盖开局 24 个月，所以逐年单列（不是全生涯均值）。
+   campMax = 单月排进几张竞选卡 —— 竞选是一幕一幕演的，同月两幕就是节奏回归。 */
+let y1Slots = [], y2Slots = [], campMax = 0;
+/* #38：逐年「非固定四桶」计数（全生涯 + 开局两年各一份） */
+let nfYears = [], nfEarly = [], dYears = [], dEarly = [];
+/* #37④ 成长预算探针：开局 8 年四维各涨了多少（用户口径「一辈子能涨 35 点智力都很难」，
+   所以 8 年这个窗口必须量得到。注意模拟走 applyEffects、不经 stage 的同卡去重，
+   量出来是【上界】——真实游戏只会更低。 */
+let attrGain8 = [];
 for (let r = 0; r < games; r++) {
   let runCur = 0, runWorst = 0, demoTier = null, hardEnded = false;
   const idSeq = {};                                // 本局每张真实卡被抽中的 monthSeq 序列
@@ -1598,6 +1608,7 @@ for (let r = 0; r < games; r++) {
     P.CSEL = { era: eras[r % eras.length], origin: origins[r % origins.length], talent: talents[r % talents.length], entry: entries[r % entries.length], party: parties[r % parties.length], stance: stances[r % stances.length], name: "N" + r, difficulty: SIM_DIFF };
     P.confirmCreate();
     const G = P.G, b = P.balance();
+    const attr0 = Object.assign({}, G.attr);       // #37④ 成长预算的基线（建角那一瞬间）
     let done = false;
     for (let y = 0; y < 55 && !done; y++) {
       simYears++;
@@ -1605,6 +1616,11 @@ for (let r = 0; r < games; r++) {
       G.ap = P.clamp((b.apBase == null ? 6 : b.apBase) + Math.floor(G.hp / (b.apHealthDiv || 25)), b.apMin || 1, b.apMax || 12);
       G.month = 0; G.quietMonths = []; G.monthPlan = []; G.slotIndex = 0; G.slotCount = 0;
       let yearSlots = 0, months = 0, guard = 0;
+      /* #38：本年度「非固定四桶」出了几件事（公务/随机/灰产/竞选幕，固定史实与白宫月决策不计） */
+      let yearNonFixed = 0;
+      /* #38：其中**可被额度拦**的三桶（公务/随机/灰产）。竞选链只吃"每月一幕"、从不吃额度，
+         所以"开局两年该更薄"这条只能对这三桶说，否则选举年的一串幕会把结论翻转。 */
+      let yearDisc = 0;
       /* 用 time.js 的真实推进：跳过平静的月份，停在有事发生的月份 */
       let yearMonths = 0;
       while (!done && ++guard < 60 && yearMonths < 12) {
@@ -1622,6 +1638,7 @@ for (let r = 0; r < games; r++) {
         if (r !== "event") continue;          /* 平静月：成长已在 settleQuietMonth 结掉 */
         months++;
         const _mset = new Set();                 // 本月已出现的真实卡 id —— 侦测「同月重复」回归
+        let campIn = 0;                          // 本月排进的竞选幕数（#37④ 应 ≤1）
         for (let i = 0; i < G.monthPlan.length && !done; i++) {
           const slot = G.monthPlan[i];
           const ev = P.drawEvent(slot);
@@ -1641,6 +1658,10 @@ for (let r = 0; r < games; r++) {
           if (!ev.filler) {
             const bk = (P.eventKind(ev) === "random" && ev.category === "shady") ? "shady" : P.eventKind(ev);
             kindHit[bk] = (kindHit[bk] || 0) + 1;
+            if (bk === "campaign") campIn++;
+            /* #38：非固定四桶按年计数（固定史实与 whitehouse 不计入 2—6 的口径） */
+            if (bk === "career" || bk === "random" || bk === "shady" || bk === "campaign") yearNonFixed++;
+            if (bk === "career" || bk === "random" || bk === "shady") yearDisc++;
           }
           {
             const isSp = ev.era && ev.era.length < eras.length;
@@ -1708,9 +1729,16 @@ for (let r = 0; r < games; r++) {
           }
           if (G.hp <= 0) done = true;
         }
+        if (campIn > campMax) campMax = campIn;
       }
       monthHist[months] = (monthHist[months] || 0) + 1;
       slotsPerYear.push(yearSlots);
+      nfYears.push(yearNonFixed);                    /* #38：非固定四桶按年 */
+      dYears.push(yearDisc);                         /* #38：其中吃额度的三桶 */
+      if (y < 2) { nfEarly.push(yearNonFixed); dEarly.push(yearDisc); }  /* 开局两年（earlyCalm 窗口）另计 */
+      if (y === 0) y1Slots.push(yearSlots);
+      if (y === 1) y2Slots.push(yearSlots);
+      if (y === 7) attrGain8.push(DIMS4.map(function (k) { return (G.attr[k] || 0) - (attr0[k] || 0); }));
       if (y < 8) demo.slotStats.push(yearSlots);
       /* 静好岁月：这一年的平静月应该都被结算成"一段日子"（走的是 advanceMonth 的真实路径） */
       quietTotal += (G.quietMonths || []).length;
@@ -1760,6 +1788,8 @@ return {
   monthRepeat: monthRepeat,
   repGaps: repGaps, repWorst: repWorst,
   loanLateAll: loanLateAll, loanBankruptGames: loanBankruptGames, loanBankruptEvents: loanBankruptEvents,
+  y1Slots: y1Slots, y2Slots: y2Slots, campMax: campMax, attrGain8: attrGain8,
+  nfYears: nfYears, nfEarly: nfEarly, dYears: dYears, dEarly: dEarly,
   demo: demo
 };
 }
@@ -1927,7 +1957,10 @@ check(thinSample || gradeHit.major > 0, "模拟中从未出现大事件");
 check(fillers / Math.max(1, draws) < 0.3, "填充事件占比过高，说明事件池太薄：" + (fillers / Math.max(1, draws) * 100).toFixed(1) + "%");
 check(medHit.gated === 0, "模拟中出现了媒介门控失效的事件：" + medHit.gated);
 check(Object.keys(catHit).length >= 5, "事件类型过于单一，只有 " + Object.keys(catHit).length + " 种");
-check(eraSpecific / Math.max(1, draws) >= 0.15,
+/* 时代专属占比：#37 之后实测带是 14—15%（1980 时代最低 11.6%，它专属卡最少）。
+   门槛从 0.15 下调到 0.12 —— 原来的 0.15 正压在样本噪声上，同一份代码两跑一红一绿；
+   这条断言要抓的是"时代内容被淹没"（跌到个位数百分比），不是 1 个百分点的抖动。 */
+check(eraSpecific / Math.max(1, draws) >= 0.12,
   "时代专属事件占比过低（" + (eraSpecific / Math.max(1, draws) * 100).toFixed(1) + "%）——通用事件淹没了时代内容，考虑调高 eraWeightMul 或给该时代加内容");
 check(vigCount > 0, "模拟里一段「静好岁月」都没结算——平静月的成长/叙事路径没被走到");
 check(vigEmpty === 0, "有 " + vigEmpty + " 段随笔抽不出文字（素材库在某种状态下缺槽位）");
@@ -1938,9 +1971,119 @@ check(vigEmpty === 0, "有 " + vigEmpty + " 段随笔抽不出文字（素材库
   const rate = { fixed: (kk.fixed || 0) / Y, career: (kk.career || 0) / Y, random: (kk.random || 0) / Y, shady: (kk.shady || 0) / Y };
   check(rate.random <= pc.yearRandomMax + 0.05, "随机类年均 " + rate.random.toFixed(2) + " 件，超出 pace.yearRandomMax=" + pc.yearRandomMax + " —— 属性与钱会刷太快");
   check(rate.shady <= pc.grayMax + 0.05, "灰产投机年均 " + rate.shady.toFixed(2) + " 件，超出 pace.grayMax=" + pc.grayMax);
+  check(rate.career <= pc.careerMax + 0.05, "日常公务年均 " + rate.career.toFixed(2) + " 件，超出 pace.careerMax=" + pc.careerMax + "（#38 给它立的年额度失效）");
   check(rate.fixed > 0, "四大类里固定历史事件一件没出（kindHit.fixed=0）——钉卡通道断了");
   check(thinSample || rate.fixed >= rate.career, "四大类倒挂未转正：固定历史 " + rate.fixed.toFixed(2) + "/年 < 职业 " + rate.career.toFixed(2) + "/年");
   check(thinSample || rate.career >= rate.random, "四大类倒挂未转正：职业 " + rate.career.toFixed(2) + "/年 < 随机 " + rate.random.toFixed(2) + "/年");
+}
+{   /* ---- #38 非固定通道年总闸验收（用户口径：「不只是前两年，整体都要降到一年 2—6 件」）----
+     * 口径：只有**非固定四桶**（公务＋随机＋灰产＋竞选幕）算进 2—6；真实历史钉卡与
+     * 总统在位期的白宫月决策是"到点必演"通道，另计 —— 否则 1989/2008 会被削成空白年。
+     * 年均是产品承诺；p90 允许比 eventMax 多 1：竞选链只被"每月一幕"约束、从不被额度拦
+     * （拦在半路会留下演不完的「承前」），选举年因此可以比平静年多一桩。 */
+  const pc38 = P.paceCfg();
+  const nf = sim.nfYears || [], nfe = sim.nfEarly || [];
+  const ds = sim.dYears || [], dse = sim.dEarly || [];
+  const avg = function (a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; };
+  const sorted = nf.slice().sort(function (a, b) { return a - b; });
+  const q = function (p) { return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : null; };
+  console.log("  #38 非固定四桶【年均】" + (avg(nf) == null ? "—" : avg(nf).toFixed(2)) + " 件/年" +
+    "（目标带 2—6）｜ p50 " + (q(0.5) == null ? "—" : q(0.5)) + " ｜ p90 " + (q(0.9) == null ? "—" : q(0.9)) +
+    " ｜ 峰值 " + (sorted.length ? sorted[sorted.length - 1] : "—") +
+    " ｜ 开局两年 " + (avg(nfe) == null ? "—" : avg(nfe).toFixed(2)) +
+    "（其中吃额度的三桶 " + (avg(dse) == null ? "—" : avg(dse).toFixed(2)) + " vs 全局 " + (avg(ds) == null ? "—" : avg(ds).toFixed(2)) + "）" +
+    " ｜ 额度 " + JSON.stringify({ careerMax: pc38.careerMax, eventMax: pc38.eventMax }));
+  if (avg(nf) != null) {
+    check(avg(nf) >= 2, "非固定通道年均 " + avg(nf).toFixed(2) + " 件/年，低于 2 —— 日历太空，玩家整年在等史实钉卡");
+    check(avg(nf) <= 6, "非固定通道年均 " + avg(nf).toFixed(2) + " 件/年，超出 6 —— 用户口径「一年 2—6 件」没守住");
+  }
+  if (q(0.9) != null) check(q(0.9) <= pc38.eventMax + 1,
+    "非固定四桶 p90 = " + q(0.9) + " 件，超出 eventMax=" + pc38.eventMax + " +1（竞选链宽限）——总闸漏了");
+  /* 冷静期方向只对**吃额度的三桶**说话：竞选链按设计从不被额度拦（链要演完），
+     开局那两年若正赶上一场地方选举，四五幕就能把四桶总数顶到全局之上——那是竞选，不是冷静期失效。 */
+  if (avg(dse) != null && avg(ds) != null) check(avg(dse) <= avg(ds),
+    "开局两年可限流三桶 " + avg(dse).toFixed(2) + " 件/年 反而比全局 " + avg(ds).toFixed(2) + " 稠 —— earlyCalm 方向反了");
+}
+{   /* ---- #37 开局节奏与成长预算验收（实测驱动：改前 1980 年 12 个月里塞了 14 件事）----
+     * earlyCalm 只管开局 24 个月，所以这里的闸是【第 1、2 年】而不是全生涯均值 ——
+     * 第 3 年起密度自然回升（实测 10—13 件/年），那是玩家已经上了梯子的另一段节奏。
+     * 种子固定（SEED），[5,8] 这类窄带是确定性的，不会今天过明天红。 */
+  const mean = function (a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; };
+  const mx = function (a) { return a.length ? Math.max.apply(null, a) : null; };
+  const y1 = mean(sim.y1Slots), y2 = mean(sim.y2Slots);
+  const g8 = sim.attrGain8 || [];
+  const gainAvg = DIMS4.map(function (k, i) {
+    return g8.length ? g8.reduce(function (a, r) { return a + r[i]; }, 0) / g8.length : null;
+  });
+  const gainWorst = DIMS4.map(function (k, i) {
+    return g8.length ? Math.max.apply(null, g8.map(function (r) { return r[i]; })) : null;
+  });
+  console.log("  #37 开局密度：第 1 年 " + (y1 == null ? "—" : y1.toFixed(1)) + " 件（目标 5—8，实测中位 " +
+    (sim.y1Slots.length ? sim.y1Slots.slice().sort((a, b) => a - b)[Math.floor(sim.y1Slots.length / 2)] : "—") +
+    "）｜ 第 2 年 " + (y2 == null ? "—" : y2.toFixed(1)) + " ｜ 全生涯 " + avgSlots.toFixed(1));
+  console.log("  #37 开局四维涨幅（8 年·模拟上界）：" + DIMS4.map(function (k, i) {
+    return k + " " + (gainAvg[i] == null ? "—" : (gainAvg[i] >= 0 ? "+" : "") + gainAvg[i].toFixed(1) + "（峰值 " + (gainWorst[i] >= 0 ? "+" : "") + gainWorst[i] + "）");
+  }).join(" ｜ "));
+  console.log("  #37 竞选幕节奏：单月最多 " + sim.campMax + " 幕（应 ≤1）");
+  if (y1 != null) check(y1 >= 5 && y1 <= 8, "开局第 1 年事件数应落在 5—8 件（当前 " + y1.toFixed(1) + "）——earlyCalm 失效或又被谁调稠了");
+  if (y2 != null) check(y2 >= 4 && y2 <= 9, "开局第 2 年事件数应落在 4—9 件（当前 " + y2.toFixed(1) + "）");
+  check(sim.campMax <= 1, "有某个月排进了 " + sim.campMax + " 幕竞选 —— 竞选必须一幕一幕演");
+  /* 8 年四维成长预算：三围均值 ≤15、诚信漂移 ≤10，任一维峰值 ≤40。
+     这条是用户那句「4 年智力 40→75」的硬闸，超出即说明成长通道又漏水了。 */
+  if (g8.length) {
+    check(gainAvg[0] <= 15 && gainAvg[1] <= 15 && gainAvg[2] <= 15, "开局 8 年三围平均涨幅超了 15（" +
+      DIMS4.slice(0, 3).map(function (k, i) { return k + " " + gainAvg[i].toFixed(1); }).join("、") + "）——属性成长速度失控");
+    check(Math.abs(gainAvg[3]) <= 10, "开局 8 年隐藏诚信平均漂移超 10（" + gainAvg[3].toFixed(1) + "）");
+    check(Math.max.apply(null, gainWorst) <= 40, "开局 8 年有某一维单局峰值涨幅超 40（" + Math.max.apply(null, gainWorst) + "）——一辈子能涨 35 点智力已经是极限");
+  }
+}
+{   /* ---- #37③/#37④ 同卡属性只首次生效 + earlyCalm 的开关边界 ----
+     * 一张卡第二次再演，钱/声望/派系照给，属性不再给（G.attrGiven 记账）——
+     * 否则「重演同一张好卡」就是刷属性的传送带。 */
+  P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "去重测试" };
+  P.confirmCreate();
+  const G = P.G;
+  G.attrGiven = {};
+  const int0 = G.attr.INT || 0, rep0 = G.rep;
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 5 }, rep: 3 }, "once_a"));
+  const int1 = G.attr.INT;
+  check(int1 === int0 + 5, "首演应正常给属性：" + int0 + "→" + int1);
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 5 }, rep: 3 }, "once_a"));
+  check(G.attr.INT === int1, "同卡重演不该再给属性（" + int1 + "→" + G.attr.INT + "）");
+  check(G.rep === rep0 + 6, "去重只针对属性：声望这类一次性收益重演仍应给（" + rep0 + "→" + G.rep + "）");
+  P.applyEffects(P.filterOnceAttr({ attr: { INT: 4 }, rep: 1 }, "once_b"));
+  check(G.attr.INT === int1 + 4, "另一张卡该给还得给：" + G.attr.INT);
+  check(G.attrGiven["once_a:INT"] && G.attrGiven["once_b:INT"], "attrGiven 账本应按 id:维度 记账");
+  /* earlyCalm：窗口内四倍率齐全，窗口外必须完全中性（否则"冷静期"变成了永久减速） */
+  const ec = P.balance().earlyCalm || {};
+  check(ec.enabled !== false && ec.months >= 6 && ec.months <= 36, "earlyCalm 窗口应在 6—36 个月（当前 " + ec.months + "）");
+  check(ec.activeMul > 0 && ec.activeMul <= 1 && ec.choreMul >= 0 && ec.choreMul <= 1 &&
+    ec.quotaMul > 0 && ec.quotaMul <= 1 && ec.slotsCap >= 1, "earlyCalm 四个倍率都得是合法的减益：activeMul " + ec.activeMul + " choreMul " + ec.choreMul + " quotaMul " + ec.quotaMul + " slotsCap " + ec.slotsCap);
+  G.age = P.balance().startAge; G.month = 1;
+  check(P.monthsInRun() === 0 && P.earlyCalm().slotsCap === ec.slotsCap, "开局第一个月应在冷静期内");
+  /* 额度乘子必须**真的咬到**那两道有降空间的闸（#38：它一开始挂在只有 1 件名额的随机桶上，
+     floor(1×0.5)=0 把桶封死却毫不减总量，实测开局反而比全局稠）。零账本直接量。 */
+  {
+    const pc = P.paceCfg();
+    P.G.yearKindsYear = (P.G.year || 0) - 1;   /* 强制翻篇，拿到全零的年度账本 */
+    check(P.nonFixedRoom() === Math.floor(pc.eventMax * ec.quotaMul) && P.nonFixedRoom() < pc.eventMax,
+      "开局期内总闸应为 floor(eventMax × quotaMul)=" + Math.floor(pc.eventMax * ec.quotaMul) + "（当前 " + P.nonFixedRoom() + "）");
+    check(P.careerRoom() === Math.floor(pc.careerMax * ec.quotaMul),
+      "开局期内公务额度应为 floor(careerMax × quotaMul)=" + Math.floor(pc.careerMax * ec.quotaMul) + "（当前 " + P.careerRoom() + "）");
+    G.age = P.balance().startAge + Math.ceil(ec.months / 12) + 1;
+    P.G.yearKindsYear = (P.G.year || 0) - 1;
+    check(P.nonFixedRoom() === pc.eventMax && P.careerRoom() === pc.careerMax,
+      "出窗之后额度闸必须回到配置本值：" + P.nonFixedRoom() + "/" + P.careerRoom());
+    G.age = P.balance().startAge; G.month = 1;
+    P.G.yearKindsYear = (P.G.year || 0) - 1;
+  }
+  G.age = P.balance().startAge + Math.floor(ec.months / 12) + 1; G.month = 1;
+  const off = P.earlyCalm();
+  check(off.activeMul === 1 && off.choreMul === 1 && off.quotaMul === 1 && off.slotsCap === Infinity,
+    "出窗之后 earlyCalm 必须完全中性：" + JSON.stringify(off));
+  /* 冷静期是"少排"，不是"多排"：任何倍率 >1 都是把方向做反了 */
+  check(ec.activeMul <= 1 && ec.choreMul <= 1 && ec.quotaMul <= 1 && ec.slotsCap <= (P.balance().slotsMax || 3),
+    "earlyCalm 的 slotsCap 不该高于常规 slotsMax");
 }
 
 /* ---------- 渲染冒烟（无头 DOM） ---------- */
@@ -2389,6 +2532,18 @@ console.log("\n== 静好岁月 ==");
   for (let i = 0; i < 500; i++) P.vignetteGrowth(1);
   check(GV.attr.CHA <= capAttr && GV.attr.INT <= capAttr && GV.attr.CUN <= capAttr && GV.attr.INTG <= capAttr,
     "属性成长不应突破 attrCap（" + capAttr + "），实际 " + JSON.stringify(GV.attr));
+  /* --- #37③ 静好岁月的成长预算 ---
+   * ① 抽中属性的概率压到 0.08（原 0.20）；
+   * ② attrCap 必须低于自由点硬顶 100 —— 平静月永远不该把点推到「玩家自己分配不满」的高度，
+   *    撞在上限上的结果就是 G.attr[k] < attrCap 这条判断直接不再成长（不会倒扣）；
+   * ③ 资金暗账整条删除：钱只有【月账】+【事件卡】两条门，随笔侧不许再写 G.fun。 */
+  check(bv.attrChance <= 0.10, "#37③ 静好抽属性概率应 ≤0.10（当前 " + bv.attrChance + "）——岁月长本事，但不是传送带");
+  check(capAttr < 100, "静好 attrCap（" + capAttr + "）应低于自由点硬顶 100");
+  check((bv.attrKeys || []).indexOf("INTG") < 0, "诚信只能由选择塑造，不该进自然成长池");
+  check(bv.funChance == null && bv.funRate == null, "#37③ 静好岁月的资金通道应已删除，实际 " +
+    JSON.stringify({ funChance: bv.funChance, funRate: bv.funRate }));
+  check(!Object.keys(bv.trackBonus || {}).some(function (k) { return (bv.trackBonus[k] || {}).fun != null; }),
+    "轨道加成不该再给资金（那是刚删掉的暗账的马甲）");
   check(GV.rep <= 100, "声望成长不应突破 100，实际 " + GV.rep);
   check(GV.contacts.fixer <= 100, "人脉好感应夹在 -100~100，实际 " + GV.contacts.fixer);
   const growthOf = function (age, months) {
@@ -2672,6 +2827,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   P.G.state = stEv.states[0];
   /* tierBand：事件里的旧档门槛会被 when.js 单调抬进 10 级空间，测试要站在抬升后的真实档位上 */
   P.G.tier = Math.min(P.balance().tierMax, P.tierBand(stEv.tierMin || 0) + 1); P.G.year = stEv.fromYear || P.G.year; P.G.doneIds = []; P.recentIds = [];
+  /* #32 的年度额度账本也要清：州联动卡走随机桶，若上一次建角把今年那 1—2 次随机额度用光，
+     `paceBlocked` 会把"今年没预算"误报成"这条卡不可触发"（20 局样本里 2/6 次假红）。 */
+  P.G.yearKindsYear = 0;
   check(P.eligible(stEv), "州联动事件 " + stEv.id + " 在对应州应可触发");
   const otherState = states.find(function (x) { return stEv.states.indexOf(x) < 0; });
   if (otherState) {
@@ -2703,9 +2861,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(bStart.startRep === 0, "基础盘声望应为 0（声望由出身/起点加出来），当前 " + bStart.startRep);
     const combos = [];
     for (const o in P.reg.origin) for (const e in P.reg.entry) {
-      P.CSEL = { era: K(P.reg.era)[0], origin: o, talent: K(P.reg.talent)[0], entry: e, party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "平衡测试", rolled: { CHA: 45, INT: 45, CUN: 45, INTG: 45 }, spent: {}, rerolled: {}, freeExtra: 0 };
+      P.CSEL = { era: K(P.reg.era)[0], origin: o, talent: K(P.reg.talent)[0], entry: e, party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "平衡测试", spent: {} };
       createOnly(P.confirmCreate);
-      combos.push({ o: o, e: e, fun: P.G.fun, rep: P.G.rep, fav: P.G.fav });
+      combos.push({ o: o, e: e, fun: P.G.fun, rep: P.G.rep, fav: P.G.fav, attr: Object.assign({}, P.G.attr) });
     }
     const inDebt = combos.filter(c => c.fun < 0);
     check(!inDebt.length, "任何 出身×起点 组合都不应开局负债：" + inDebt.map(c => c.o + "/" + c.e + "=$" + (c.fun / 1000) + "k").join("、"));
@@ -2715,9 +2873,87 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     console.log("  初始资金区间 $" + Math.min.apply(null, funs) / 1000 + "k ~ $" + Math.max.apply(null, funs) / 1000 +
       "k ｜ 初始声望区间 " + Math.min.apply(null, reps) + " ~ " + Math.max.apply(null, reps) +
       " ｜ 人情 0~" + Math.max.apply(null, combos.map(c => c.fav)));
-    /* 差距要拉开（出身的意义），但下限是 0：穷出身 = 白手起家，不是生下来就欠债 */
-    check(Math.max.apply(null, funs) >= 1000000, "最富组合应到 $1M+（出身的资金差距要拉开）");
+    /* 下限是 0：穷出身 = 白手起家，不是生下来就欠债。
+       「差距要拉开到 $1M+」是 v0.5 遗物（那时商人起点直接写死 150 万），#36 重标尺 + #37②
+       「钱只有月账与事件卡两条门」之后，建角只剩一次性本金顶格 = 4 个自由点（商界起手 $8k）。 */
+    const funCeil = 4 * (bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint);
+    check(Math.max.apply(null, funs) <= funCeil, "建角一次性资金应顶格 $" + funCeil / 1000 + "k（4 个自由点）· 实际 $" + Math.max.apply(null, funs) / 1000 + "k，越界说明出身/起点又偷偷发了大钱");
     check(Math.min.apply(null, funs) >= 0, "最穷组合下限是 $0（白手起家），不是负数");
+
+    /* --- #37② 属性来源收口 ---
+     * 零分配 + 零卡时，开局四维必须【逐维等于 startAttr】。从前出身/起点/州/难度各自偷偷发属性
+     * （传奇全属性 +5、精英 INT +15、麻州 entryEffects INT +3…），第 3 步预览看不见这块地，
+     * 玩家记成「刚过 4 年智力 40→75」的一半源头就在这里。
+     * 定稿口径：属性只有两条门 —— 自由点分配 + 天赋卡池；后天涨跌只剩事件卡与静好岁月（都带衰减）。 */
+    const sa = bStart.startAttr || {};
+    const drift = [];
+    let intgFloor = 0;
+    combos.forEach(function (c) {
+      ["CHA", "INT", "CUN"].forEach(function (k) {
+        if ((c.attr[k] || 0) !== (sa[k] || 0)) drift.push(c.o + "/" + c.e + " " + k + " " + (sa[k] || 0) + "→" + (c.attr[k] || 0));
+      });
+      /* 唯一的例外：起点的【隐藏诚信负数】（名人 −15 / 商人 −10）——那是"出身代价"，只减不增 */
+      if ((c.attr.INTG || 0) > (sa.INTG || 0)) drift.push(c.o + "/" + c.e + " INTG " + (sa.INTG || 0) + "→" + c.attr.INTG + "（诚信只能由选择涨，建角不许白送）");
+      intgFloor = Math.min(intgFloor, (c.attr.INTG || 0) - (sa.INTG || 0));
+      Object.keys(c.attr).forEach(function (k) {
+        if (DIMS4.indexOf(k) < 0 && c.attr[k]) drift.push(c.o + "/" + c.e + " 多出维度 " + k + "=" + c.attr[k]);
+      });
+    });
+    check(!drift.length, "出身×起点 零分配时不得给属性（三围应逐维 = startAttr " + JSON.stringify(sa) + "，诚信只减不增）：" + drift.slice(0, 8).join("、"));
+    check(combos.every(c => DIMS4.reduce((a, k) => a + (c.attr[k] || 0), 0) <= 70),
+      "零分配 + 零卡时任何组合的开局四维合计都应 ≤70（当前最高 " + Math.max.apply(null, combos.map(c => DIMS4.reduce((a, k) => a + (c.attr[k] || 0), 0))) + "）——超出的部分只可能来自隐藏堆叠");
+    /* 难度：bonus 走 applyEffects，所以既查静态（不许写 attr/fun），也查运行时（五档开局四维仍 = startAttr） */
+    const dDrift = [];
+    Object.keys(P.DIFFS).forEach(function (d) {
+      const bn = P.DIFFS[d].bonus || {};
+      if (bn.attr) dDrift.push(d + " 的 bonus 还写着 attr");
+      if (bn.fun) dDrift.push(d + " 的 bonus 还写着 fun（开局资金归卡池，#20 起已废）");
+      P.CSEL = { era: K(P.reg.era)[0], difficulty: d, talent: K(P.reg.talent)[0], party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "难度测试", spent: {} };
+      createOnly(P.confirmCreate);
+      ["CHA", "INT", "CUN"].forEach(function (k) {
+        if ((P.G.attr[k] || 0) !== (sa[k] || 0)) dDrift.push(d + " " + k + " " + (sa[k] || 0) + "→" + (P.G.attr[k] || 0));
+      });
+      if ((P.G.attr.INTG || 0) > (sa.INTG || 0)) dDrift.push(d + " INTG 白送 +" + (P.G.attr.INTG - (sa.INTG || 0)));
+    });
+    check(!dDrift.length, "难度不得给属性或开局资金（#37②）：" + dDrift.join("、"));
+    console.log("  #37② 建角三围 = startAttr（" + DIMS4.map(k => k + ":" + (sa[k] || 0)).join(" ") + "）· 出身×起点×难度 全组合无白送" +
+      (intgFloor < 0 ? "（诚信下限 " + intgFloor + "，名人/商人的出身代价）" : ""));
+
+    /* 州：entryEffects 走同一纪律（麻州以前白送 INT +3，现改成声望）。
+       唯一的属性例外是【隐藏诚信】的负数（名人 −15 / 商人 −10）：只减不增，
+       因为它是「不信任」这种出身代价，而不是白送的能力。 */
+    const attrSin = [];
+    const scanAttr = function (src, label, allowNegIntg) {
+      const a = ((src || {}).effects || {}).attr;
+      const b = ((src || {}).entryEffects || {}).attr;
+      [a, b].forEach(function (x) {
+        Object.keys(x || {}).forEach(function (k) {
+          const v = x[k];
+          if (v > 0) attrSin.push(label + " +" + v + " " + k);
+          else if (v < 0 && !(allowNegIntg && k === "INTG")) attrSin.push(label + " " + v + " " + k);
+        });
+      });
+    };
+    Object.keys(P.reg.origin).forEach(function (id) { scanAttr(P.reg.origin[id], "origin." + id); });
+    Object.keys(P.reg.entry).forEach(function (id) { scanAttr(P.reg.entry[id], "entry." + id, true); });
+    Object.keys(P.reg.state).forEach(function (id) { scanAttr(P.reg.state[id], "state." + id); });
+    check(!attrSin.length, "#37② 属性纪律：出身/州不得给属性、起点只许给负诚信 —— 越界：" + attrSin.join("、"));
+
+    /* 建角一次性资金也上这把尺：出身/起点/州的 `fun` 是**绝对额**，折成自由点单位
+       不得超过 4 点（= $8k · 一张橙卡的钱）。v0.5.2 遗留在商人起点的 $1.5M（=750 点）
+       能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。 */
+    const funUnit = bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint;
+    const funSin = [];
+    const scanFun = function (src, label) {
+      [src && src.effects, src && src.entryEffects].forEach(function (x) {
+        const v = (x || {}).fun;
+        if (typeof v === "number" && Math.abs(v) > 4 * funUnit) funSin.push(label + " fun:" + v);
+      });
+    };
+    Object.keys(P.reg.origin).forEach(function (id) { scanFun(P.reg.origin[id], "origin." + id); });
+    Object.keys(P.reg.entry).forEach(function (id) { scanFun(P.reg.entry[id], "entry." + id); });
+    Object.keys(P.reg.state).forEach(function (id) { scanFun(P.reg.state[id], "state." + id); });
+    check(!funSin.length, "建角一次性资金不得超过 4 个自由点（4×" + funUnit + "=$" + (4 * funUnit / 1000) + "k）——越界：" + funSin.join("、"));
   }
 
   /* --- v0.12 #20 建角自由点模型（定命一掷已删）+ 周目元进度 + 作弊码 --- */

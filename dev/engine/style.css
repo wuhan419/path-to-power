@@ -649,6 +649,10 @@
     color:var(--accent);min-width:40px;text-align:center}
   .rspent{font-style:normal;font-size:12px;color:#7a5a00;background:#f3e6c4;border:1px solid #d8c48a;
     padding:1px 6px;border-radius:9px}
+  /* #37②：卡池那份加成单独一枚角标（与"自由点 +"并列，读得出这格由几块拼成） */
+  .rscard{font-style:normal;font-size:12px;color:#2c5a7a;background:#e2eef6;border:1px solid #b6d2e4;
+    padding:1px 6px;border-radius:9px}
+  .alloc-cardsum{font-size:12px;margin:2px 0 4px}
   .rctrl{display:inline-flex;gap:4px;margin-left:auto}
   .rleft{font-size:13px;color:var(--muted);margin:2px 0 6px}
   .rleft.done{color:var(--good);font-weight:700}

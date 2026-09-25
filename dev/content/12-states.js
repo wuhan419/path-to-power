@@ -67,7 +67,7 @@ POTUS.define("state", {
     name: "马萨诸塞", lean: "D", strength: 3,
     city: "波士顿", district: "萨福克县城区选区",
     desc: "宪法之前就有的政治传统；学院、律师与改良主义者的大本营",
-    entryEffects: { attr: { INT: 3 }, fac: { establishment: 5 } }
+    entryEffects: { rep: 3, fac: { establishment: 5 } }
   },
   CA: {
     name: "加利福尼亚", lean: "D", strength: 2,

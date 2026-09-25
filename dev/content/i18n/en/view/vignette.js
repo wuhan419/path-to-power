@@ -40,7 +40,6 @@ POTUS.define("l10n", {
     "ui.vignette.note.rep": "Rep +{N}",
     "ui.vignette.note.contactFav": "Contacts +{N}",
     "ui.vignette.note.fav": "Favors +{N}",
-    "ui.vignette.note.money": "Cash {V}k",
     "ui.vignette.note.voters": "{NAME} {D}",
     "ui.vignette.voter.warm": "Supporters",
     "ui.vignette.voter.diehard": "Diehards",

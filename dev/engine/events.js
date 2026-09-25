@@ -40,9 +40,11 @@
     if (ev.chore || ev.category === "career" || ev.category === "govt") return "career";
     return "random";
   };
-  /* ---------- #32 随机类年度限流 ----------
-   * 设计目标：氛围性随机事件 1—2 件/年。刷太快会让属性和钱白手起家、后期十拿九稳。
-   * 固定历史、职业、竞选三类不吃这个额度 —— 它们是"到点必演"和"该干的活"。
+  /* ---------- #32 随机类年度限流 / #38 非固定通道年总闸 ----------
+   * 设计目标（#38 定稿口径）：玩家一年看到的**非固定**事件（公务＋随机＋灰产＋竞选幕）
+   * 落在 2—6 件。真实历史钉卡（fixed）与总统在位期的白宫月决策（whitehouse）是
+   * 「到点必演」通道，另计、不吃这个额度 —— 否则 1989/2008 这些年会被削成空白年。
+   * 固定、职业、竞选三类不互相挤占名额；随机与灰产各自有独立额度。
    * 灰产投机（category:"shady"）算随机类，但走**独立**额度（#28 的豁免通道：
    * 留给反复赌的人），所以它既不挤占正常随机事件的名额，也不会被正常额度误杀。
    * 计数按自然年自动翻页（yearKindsYear 与 G.year 对不上就清零），
@@ -51,8 +53,10 @@
     const p = P.balance().pace || {};
     return {
       enabled: p.enabled !== false,
-      yearRandomMax: fnum(p.yearRandomMax, 2),
-      grayMax: fnum(p.grayMax, 4)
+      yearRandomMax: fnum(p.yearRandomMax, 1),
+      grayMax: fnum(p.grayMax, 1),
+      careerMax: fnum(p.careerMax, 2),
+      eventMax: fnum(p.eventMax, 6)
     };
   };
   P.yearKinds = function () {
@@ -76,14 +80,56 @@
     const k = P.eventKind(ev);
     return (k === "random" && (ev.category === "shady" || P.paceExempt(ev))) ? "shady" : k;
   }
+  /* 这个桶走哪一道年度额度：灰产/豁免吃 grayMax，其余随机吃 yearRandomMax。
+     #38 实测教训：冷静期的额度折扣**不能**乘在这里。年额度已经薄到 1 件，
+     `floor(1 × 0.5) = 0` 等于把随机与灰产两桶整个封死，而公务/竞选幕不受影响——
+     实测开局两年反而比全局更稠（4.17 vs 3.10；新档期一开就填到额度顶，
+     前期池子新、冷却空，年年填满）。所以折扣搬到 `calmQuota()` 的总闸上。 */
+  function paceQuota(p, bucket) {
+    return bucket === "shady" ? p.grayMax : p.yearRandomMax;
+  }
+  /* #38：非固定四桶（公务/随机/灰产/竞选幕）——固定史实与白宫月决策不在里面。
+     竞选幕计账但**不被拦**：链必须一幕幕推得下去，拦在半路会留下演不完的「承前」。 */
+  const NONFIXED = ["career", "random", "shady", "campaign"];
+  /* 开局冷静期（#37①）的额度折扣只落在**有降空间**的两道闸上：`eventMax`（6→3）
+     与 `careerMax`（2→1）。随机/灰产各只有 1 件名额，再乘就归零，那不是"轻闸"是"关桶"。
+     仍然不改 `paceCfg()` 本值：门禁断言「随机 ≤ pace.yearRandomMax」要永远对着配置说话。 */
+  function calmQuota(n) {
+    const m = P.earlyCalm().quotaMul;
+    return Math.max(0, Math.floor(n * m));
+  }
+  P.nonFixedUsed = function () {
+    const k = P.yearKinds();
+    if (!k) return 0;
+    let n = 0;
+    NONFIXED.forEach(function (b) { n += k[b] || 0; });
+    return n;
+  };
+  /* 本年还能排几条非固定事件（planMonth 的总闸；无预算的月份就该静下来） */
+  P.nonFixedRoom = function () {
+    const p = P.paceCfg();
+    if (!p.enabled) return Infinity;
+    return Math.max(0, calmQuota(p.eventMax) - P.nonFixedUsed());
+  };
+  /* 公务通道第一次有年额度（#38）：从前它只吃触发概率，实测 1.9 件/年且方差极大 */
+  P.careerRoom = function () {
+    const p = P.paceCfg();
+    if (!p.enabled) return Infinity;
+    const k = P.yearKinds();
+    if (!k) return Infinity;
+    return Math.max(0, calmQuota(p.careerMax) - (k.career || 0));
+  };
   P.paceBlocked = function (ev) {
     const p = P.paceCfg();
     if (!p.enabled || !ev) return false;
-    if (P.eventKind(ev) !== "random") return false;
+    const kind = P.eventKind(ev);
+    if (kind !== "random" && kind !== "career") return false;
+    if (P.nonFixedRoom() <= 0) return true;
+    if (kind === "career") return P.careerRoom() <= 0;
     const k = P.yearKinds();
     if (!k) return false;
     const bucket = paceBucket(ev);
-    return (k[bucket] || 0) >= (bucket === "shady" ? p.grayMax : p.yearRandomMax);
+    return (k[bucket] || 0) >= paceQuota(p, bucket);
   };
   /* 灰产额度里「此刻真有货」的部分：全库灰产卡只有个位数，各自还吃着 unique 与
      24 个月硬冷却，额度用不满是常态。把空额度也排成档期，抽卡时池子是空的，
@@ -93,7 +139,7 @@
     if (!p.enabled) return Infinity;
     const k = P.yearKinds();
     if (!k) return Infinity;
-    const left = Math.max(0, p.grayMax - (k.shady || 0));
+    const left = Math.max(0, paceQuota(p, "shady") - (k.shady || 0));
     if (left <= 0) return 0;
     const s = snap || P.snap();
     const hasStock = (P.events || []).some(function (e) {
@@ -107,7 +153,10 @@
     if (!p.enabled) return Infinity;
     const k = P.yearKinds();
     if (!k) return Infinity;
-    return Math.max(0, p.yearRandomMax - (k.random || 0)) + P.grayRoom();
+    const bucket = Math.max(0, paceQuota(p, "random") - (k.random || 0)) + P.grayRoom();
+    /* #38：随机档期还要吃非固定总闸 —— 公务与竞选幕已经把这个名额用掉时，
+       本月就只剩"该干的活"，不再叠随机。 */
+    return Math.min(bucket, P.nonFixedRoom());
   };
 
 

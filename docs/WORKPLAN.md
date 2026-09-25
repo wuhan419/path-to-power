@@ -21,7 +21,7 @@
 |---|------|----|------|
 | 19 | 学贷：连续断供 N 月 game over + 100 局校准 | 存量 | ✅ `ddf04ef`（断供闸重校为三档同宽 20/20/20） |
 | 20 | 开局抽卡 + 建角三步向导 | 存量 | ✅ 代码 `aef8aed` + 文档 `ddf04ef` |
-| 21 | P2：逐月化总统年 | 存量 | 🟨 **M1 已交付**（白宫月决策槽 + 支持率 + 8 张卡 + 门禁/探针，见 §1 #21「M1 落地结果」）；M2 扩池/连任选举链、M3 结局线、M4 打磨待下轮 |
+| 21 | P2：逐月化总统年 | 存量 | 🟨 **M1 已交付 `27d32bf`**（白宫月决策槽 + 支持率 + 8 张卡 + 门禁/探针，见 §1 #21「M1 落地结果」）；M2 扩池/连任选举链、M3 结局线、M4 打磨待下轮 |
 | 23 | 把柄×竞选：「投放把柄」行动 | 存量 | ✅ `ddf04ef` |
 | 28 | 钱系统重构（stake 纯级别价 + 灰产免冷却） | 存量 | ✅ 代码落地，docs 已同步 |
 | 29 | 派系声望四栏面板 | 存量 | ✅ `ddf04ef` |
@@ -31,7 +31,8 @@
 | 34 | 砍年度结算/年初简报，头条图挂进时代事件 | 新增 | ✅ `4b31303` |
 | 35 | 竞选机制改造（选情值主导，钱退出门票） | 新增 | ✅ `ddf04ef` |
 | 36 | 钱标尺重定：1 自由点 = $2k | 新增 | ✅ `60cb7f9` |
-| 37 | 事件密度与属性成长重标（用户实测反馈） | 新增 | 🟨 方案已定稿（§2 #37），待 #21 M1 收尾后开工 |
+| 37 | 事件密度与属性成长重标（用户实测反馈） | 新增 | ✅ **已交付**（四问四答 + 二轮补充口径 ⑤⑥⑦ 全落地：开局第 1 年 7.0 件／建角零白送／同卡属性只首次生效／静好资金暗账整条删除；六道门禁全绿，见 §2 #37 与 §4 完成记录） |
+| 38 | 非固定通道全局降密（一年 2—6 件·用户三次反馈） | 新增 | ✅ **已交付**（`pace` 四键总闸 + `earlyCalm` 轻闸 `quotaMul`；`--games=60` 实测非固定年均 3.16 件·p90 6，见 §2 #38 与 §4 完成记录） |
 
 建议开工顺序：**32 → 28（合并验收 36）→ 35 → 23 → 29 → 19 → 21 → 20 收尾**（36/33/31/34 已落地）。
 理由：36 是一把标尺，先定下来 28 的级别价、35 的筹款数值才有依据；33/34 是玩家体感最大的
@@ -442,7 +443,7 @@ legacy 结局分级、卸任清算池对接（M2—M4）。
 7. `campaign.js` 头注释「设计决定 2) 3)」与 CONTENT-SCHEMA campaign 节同步改写；
    smoke-ui/validate 竞选断言跟改（新增「momentum=50 时 prog 胜率≈0.5」「0 钱可当选」）。
 
-### #37 事件密度与属性成长重标（用户实测反馈）🟨
+### #37 事件密度与属性成长重标（用户实测反馈）✅
 **用户实测**（dev/index.html，多周目）：「随机事件还是太多，尤其是刚开局前几个月接二连三发生」／
 「刚过去 4 年，智力就从 40 涨到 75，增长速度过于夸张，按理说一辈子能不能涨 35 智力都很难」／
 「需要控制事件成长收益和触发概率，感觉比我预想要高 10 倍」。
@@ -462,6 +463,17 @@ legacy 结局分级、卸任清算池对接（M2—M4）。
 **定稿口径（2026-09-25 四问四答）**：① 密度降到 **~6 件/年**；② 属性只来自【自由点 + 卡池】——
 **出身/起点/难度不再给 attr**，并把向导预览补全；③ 静好 `attrChance 0.14→0.08` **＋ 同卡 attr 只首次生效**；
 ④ 顺序：先收尾 #21 M1 并提交，再做本条。
+
+**定稿口径·补（2026-09-25 二轮实测：1980 全年 12 个月里只有 1 个平静月）**：
+⑤ **砍掉静好月的资金暗账** —— `vignette.funChance 0.30 → 0`。用户投诉「这个月的账是赤字，
+   下面却写『按部就班 资金 +$6k』」，根因不是残留计算，而是平静月随笔侧账（`vignette.js` 的
+   `funChance` 分支：`scale = 500 + tier×1500`、`rint(1,4)` 掷正负）**绕开 `P.monthlyLedger` 单一流水**
+   直接改 `G.fun`，玩家在月账上看不到它的来源。钱从此只有【月账 + 事件卡】两条门，与 ② 的"属性只有两条门"对称。
+⑥ `activeChance 0.08→0.05` 必须**同时**下调 `activeMin 0.06→0.04`（`pActive` 被夹在 `[activeMin, activeMax]`，
+   只改基线不改下限等于没改）。
+⑦ WORKPLAN **本轮不删**：做完 #21 M2—M4 且全部门禁通过后再删，届时把已完成内容固化进 README/设计文档。
+   本轮只把 #37 的机制口径写进文档。README 只写**现状**（当前版本口径 + 设计不变量清单），
+   机制细节一律落 `DESIGN.md` / `CONTENT-SCHEMA.md` / `DEVELOPMENT-GUIDE.md`。
 
 **细化方案（执行口径）**：
 1. **密度（`content/01-config.js` + `engine/time.js` + `engine/campaign.js`）**
@@ -485,12 +497,84 @@ legacy 结局分级、卸任清算池对接（M2—M4）。
      重演时该项归零（钱/声望照常给），封掉 `shady_doctor` 这类刷点通道。
 3. **成长曲线（`content/01-config.js` `vignette`）**
    - `attrChance 0.14 → 0.08`（`attrGain/attrCap/ageFade` 暂不动），使 8 年自然成长 4.5 → ≈2.5。
+   - `funChance 0.30 → 0`（口径 ⑤）：平静月不再产生资金，`vignette.js` 的 money 分支随之退役
+     （键仍可读，只是常数为 0 → 内容侧可按时代重新启用），月账成为唯一的钱的月流入口。
    - 复核 `attrCap 88` 与"一生预算"：目标 45 年自然+事件成长合计单维 ≤ +20，
      让"高属性"重新成为建角时的选择，而不是玩着玩着就满。
 4. **门禁与验收**
    - 新增探针断言：第 1 年事件数 ∈ [5,8]；开局四维合计均值 ≤ 70；同卡重演不再产生 attr。
    - 六闸全跑（validate/i18n-events/i18n-coverage/density-scan/trigger-scan/smoke-ui）。
    - 用户口径写进 `docs/CONTENT-SCHEMA.md`（属性效果书写纪律：可重复卡不写 attr）。
+
+### #38 非固定通道全局降密（一年 2—6 件）🟨（开工）
+
+**用户口径（2026-09-25 三次反馈）**：「随机事件出现概率降低不只是前两年哦，整体都要降低到一年 2 到 6 件的频次」。
+三问三答定稿：① **2—6 件只算非固定通道**（随机＋灰产＋日常公务＋竞选幕），真实历史钉卡另计（保住「1980→2025 到点必发」的世界线）；
+② `earlyCalm` **保留、改成轻微加闸**（前两年比全局再静一档）；③ 旋钮走**年度额度当总闸**
+——沿用 #37 的反直觉结论：档期一开就会排到额度上限，只压「有事月」概率对总数几乎无效。
+
+**现状读数**（`validate37c/d`，`--games=20`）：全生涯年均 7.6—7.9 件 ＝ 固定 2.2 ＋ 职业公务 1.9 ＋ 随机 1.75 ＋ 灰产 1.1 ＋ 竞选 0.5。
+非固定合计 ≈5.25 已经压在带上沿，但**逐流不受控**：公务与灰产两条通道今日**没有年额度**（只吃概率），
+"每年有事月"实测最多能占满 12 个月，所以体感仍是"接二连三"。这一轮要收的是**上限与均值**，不是再降概率。
+
+**方案**
+1. `engine/events.js` `paceCfg()` 新增两键：
+   - `careerMax = 2`：日常公务（chore 注入通道）第一次有年额度；
+   - `eventMax = 6`：**非固定四桶**（career/random/shady/campaign）年总闸。
+   同时 `yearRandomMax 2→1`、`grayMax 2→1`（总闸之外各自再收薄，把年均拉到 3—4 件）。
+2. 计数口径：`paceBucket` 已把 `whitehouse` 单列 → **总统在位期的白宫月决策不计入 2—6**，
+   与固定史实同为「到点必演」通道（注释与文档都要写明这条豁免）。
+   新增 `P.careerRoom()` / `P.nonFixedRoom()`，`P.paceBlocked()` 扩到 career 桶 + 总闸。
+3. `engine/time.js`：`choresSlot()` 开头查 `careerRoom()/nonFixedRoom()`，满额即不注入；
+   `planMonth()` 的随机档期数再夹一次 `nonFixedRoom() − 本月已排的竞选幕/公务`（必演的那几条先扣账，不重复计费）。
+4. `content/01-config.js`：`pace { yearRandomMax:1, grayMax:1, careerMax:2, eventMax:6 }`；
+   `earlyCalm → { months:24, activeMul:0.8, choreMul:0.6, randomMul:1, slotsCap:1 }`
+   （年额度已薄到 1，`randomMul` 在默认值下是空挡，留作将来把 `yearRandomMax` 调回 3+ 时的旋钮，注释写明）。
+5. 门禁（`tools/validate.js`）：把 #37 的「第 1 年 5—8 件」面板改造成 **#38 三行** ——
+   非固定年均 ∈ [2,6]／逐局逐年 非固定 ≤ `eventMax`（硬闸回归）／开局两年非固定 ≤ 3；
+   四大类不倒挂继续对着**配置本值**说话（不因冷静期而改变）。
+6. 文档随迁：README 设计不变量清单（「非固定通道 2—6 件/年」取代「开局两年 5—8 件」的表述）、
+   DESIGN 核心系统九的旋钮表与实测、CONTENT-SCHEMA §4.21/§10 键表、GUIDE §7.4 与 §9.1。
+7. 验收：`--games=60` 复核 —— 非固定年均 3—4 件·p95 ≤6；含钉卡总屏显 ≈5—6 件/年；平静月 ≥8 个月/年。
+   六闸全绿后 `package.sh` 重打 dist。
+
+### #21 M2—M4 逐月化总统年收尾（本轮开工依据 · 用户 2026-09-25 决策「M2+M3+M4 全做」）
+
+**用户口径**：「最终进行完毕是 workplan 的所有内容都已经完成，文档写入 design 文档和 readme，workplan 删除，游戏打包并提交 github」。
+→ 本轮做完 #21 剩余三期后，把结论固化进 `README.md` / `docs/DESIGN.md`，删除本文件，重打 dist，在 `dev/reckoning-be` 上提交并 push。
+
+**M1 已交付的现成接口**（不重做）：`engine/presidency.js`（`presCfg/isPresident/seedApproval/presidencyTick/whiteHouseSlot/approvalBand/approvalPanel` + `effect("appr")`）、
+`dice.js` 的 `src:"approval"`、`events.js` 的第 5 类 `whitehouse`（`eligible` 挡 `ev.wh`）、`time.js` 的第三条强制档期、
+`content/events/147-whitehouse.js` 8 张（四族各 2）、支持率瓷贴 + `.presbar`、`SAVE_FORMAT 13`。
+
+**M2 素材与连任链**
+1. **白宫池 8 → 24 张**（四族各 6）：`147-whitehouse.js` 按既有契约扩 16 张（`wh:true`+`whFamily`+`dyn`+`unique:false`+`tierRaw/tierMin:9/tierMax:9`+`minYear:1981/maxYear:2025`+3 选项+每卡 ≥1 个 `mods:{src:"approval"}`+五档 outcomes 带 `appr`）。
+   其中**次任专属**每族 1 张（`when:{tierRaw:true,tierMin:9}` + `flags`/`count` 区分首/次任，靠 `G.pres.term>=2` 的 `cond` 判据）。扩池后 `repeatMonths 8→18`（validate 的池子容量公式 `每族张数×4 ≥ repeatMonths` 逐族钉着）。
+2. **连任/中期不新造第十级**（`campaignCandidates` 的 `def.tier === tier+1` 硬闸，campaign.js:192-193）：
+   新增 `def.incumbent:true` 豁免 —— 总统（tier 9）的两条链（`camp_midterm` 党主席守中期、`camp_reelect` 自己的连任战）声明 `tier:9` + `incumbent:true`，
+   `campaignCandidates` 见 `incumbent` 即跳过 `:193`，`campaignTick` 见 `incumbent` 跳过 `:237` 的 `tier>=def.tier → DROPPED`，
+   `:253` 的胜负判定由「`G.tier >= def.tier`」改成「`def.winKind:"retain"` 时以末幕 `final` 选项的 outcome 为准」——赢 → `G.pres.term++`/`termDone` 记账、连任战开局把 `G.pres.appr` 喂进 `ballot` 胜率；输 → 只打一次 `end(LOST)` + `fall:1`（复用既有下野，不判死）。
+   中期链不动总统本人的位，只按选情结算**党内声望/派系**与 `count.wrath_*`，赢了给立法窗口、丢了在野。
+3. 开局时机：`presidencyTick` 在 `months % 48 === 36`（选前 12 月）与中期年（`P.electionYear(year) && (year-1) % 4 !== 0`）置 `G.pres.raceDue`，`campaignTick` 见 `raceDue` + `incumbent` 链开跑；`campaignCool` 对 `incumbent` 链清零（任期节奏是日历定的，不该被冷却拖走）。
+
+**M3 结局与清算对接**
+4. **legacy 分级进 `40-endings.js`**：在 priority 95—94 之间插 3 条 `career_president_great/adequate/flawed`，
+   `when` 用既有 `cond` 函数逃生口读 `G.pres`（`appr`/`months`/`term`）+ `P.scandalLevel()`，S/A/B 三档；`president_done` 之外新增 `president_two_term`（连任成功）flag。
+5. **卸任清算对接 `140-reckoning.js`**：`presidencyTick` 的离场分支（`presidency.js:75-83`，今天只写日志）按在任账本补记：
+   `appr<35` 或 `lowStreak>=pressureMonths` → `count:{wrath_establishment:+12}`；丑闻/调查在任 → `wrath_press`/`wrath_legal`；`flags:["president_left"]`。
+   这些正是 140 池 `countMin:{wrath_*:25/55}` 的入口，从而**卸任后真的会演清算**，不需要新数值系统。
+6. **弹劾/逼宫**（M1 明确留白的那条）：只做**有代价的判定**，不做新结局——
+   `appr < pressureBelow` 连续 `pressureMonths` 月 + （`investigation_open` 或 `scandal>=3`）→ 演一张 `wh_impeachment`（crisis 族·major·`unique:false`·三条出路： acquit 掉 `appr`/`fall:1` 下野/`flags` 留 `impeached`），
+    Senate 判定复用 `dice.js` 的 `src:"approval"` + `fac.establishment` mods。`hardEnd` 不用（不判死，与「竞选不再掷赌骰」同一纪律）。
+
+**M4 观感与历史锚点**
+7. **Oval Office 皮肤**：`stage.js:738` 的 `<article class="news editorial">` 在 `ev.wh` 时加 ` oval`（`style.css` 一块：深藏青左边框 + 徽章底纹 + `.cchip` 换色），非总统零影响。
+8. **总统视角历史锚点**：给 5 张高热度 1xx 线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（911 `ln01`／小布什反恐 `ln03`／次贷 `ln08`／新冠 `ln20`／国会山 `ln21`），照 #32⑤ 的选项级分层写，不动既有选项 id；validate 的 `_rmin/_rmax` 分带序仍然守住。
+
+**验收**：`--games=20` 节奏指标不因新增长通道扰动（白宫通道不吃 `pace` 额度，但模拟器无局到 tier 9，改由专用断言把关）；
+validate 新增「M2 池容量/次任」「M2 连任与中期链可开」「M3 legacy 三档」「M3 清算计数」「M4 oval/总统视角选项」五节断言；
+`presprobe.js` 扩到 96 月：每族命中 ≥12、同族最长连刷 ≤3 月、连任链必演一次、卸任后 140 池有卡出场；
+六闸全绿（含 i18n 两片新覆盖层 + `gen-manifest`）→ `package.sh --fast` → 文档固化 → 删本文件 → 提交并 push。
 
 ## 3. 工程与文档随迁
 - **文档同步（#20 遗留）**：✅ 已随本轮落地（见完成记录「#20 文档收尾」行）。
@@ -530,4 +614,6 @@ legacy 结局分级、卸任清算池对接（M2—M4）。
 | 2026-09-25 | #19 学贷断供重校 | ✅ 提交 `ddf04ef`：`balance.studentLoan.lateLimit` 由 **6/4/3 改为三档同宽 20/20/20**。测法与结果：先用 `--late-cap=99` 把断供 BE 摘掉，只测**每局最长连续断供**分布（普通档 100 局：中位 10／p90 35／峰值 64），同一面板打印**阈值换算表**——3→100%、4→95%、5→85%、6→80%、8→70%、10→70%、12→65%、16→60%、20→50% 破产率，即旧口径 6 会让八成局在 1980s 被银行判死；定 20 后 `--games=100` 定稿复测 **信用破产 41/100 局**、断供中位 14／p90 20（撞闸即停）。两条设计判断写进配置注释：①难度只该决定**欠多少**（startDebt 65k/42k/28k 已经承担这件事），不该再叠一层"银行给几天脸"，旧口径越穷宽限期越短是反的；②`lateMonths: 12` 的催收/征信压力事件在先、20 个月判死在后——放任必死但不是一脚踩死。利率与资本化口径按现实现复核后**未动**（单利月息进欠息桶、每年 1 月资本化），`forbear`/`pslf` 两扇正当门不变。文档随迁：`CONTENT-SCHEMA.md` §15（换算表、测法、定稿理由）与 `DEVELOPMENT-GUIDE.md` §10.5/§11/FAQ 四处旧 6/4/3 表述。**方案偏离**：①本条原文的「放宽为 5/5/5」没有照做——那是把普通档从 6 再收紧到 5（换算表 85% 破产），与"存活率"目标相反，故按数据取 20/20/20；②原目标「毕业档 game over 率 10–25%」与本条内联的用户口径「前期约一半局数不该因学贷出局」冲突，按用户口径取（实测 41% 破产 = 59% 存活，且 41% 是**上界**：模拟器不会主动用缓交泄压，真人会）。 |
 | 2026-09-25 | #20 文档收尾 + 本轮门禁 | ✅ 提交 `ddf04ef`：建角/抽卡的文档欠账全部改现口径——`DEVELOPMENT-GUIDE.md` §3.1 重写为**三步向导**（①难度+姓名 ②天赋抽卡：四稀有度、周目递增、橙卡第 2 周目起、每局可刷新一次、作弊码 `woshishabiN` 兑周目 N+1 ③自由点 12+(周目−1)×1、1 点=+10 属性=+$2k、单维 ≤10 点、0—100 硬顶）＋§10.5 表行（快速开局／建角三步向导／定命一掷**整条删除**／周目成长）；`CONTENT-SCHEMA.md` 补 `freePoints/freeCapPerAttr/freeCapMax/freeCapGrow/loopFreeBonus/freeAttrPerPoint/freeFunPerPoint/cheat*/gacha` 键行与 `### balance 新键` 代码块，并显式标注 `rollAttrs`/`vipCodes`/`vipInfinite` **已随定命一掷删除**（validate 现有反向断言：这三个键再出现即红）；§16 建角节改为分配制口径。全文 grep `定命一掷|freePoints: ?8|未实装|rollAttrs|vipCodes` 已无残留（仅"已删除"表述）。本轮六道门禁全绿（`--games=20` **全部通过**／i18n-events 0% 缺译／i18n-coverage `--lang=en` 最高屏 0% 汉字／density-scan 1980—2025 每年 ≥2 钉卡 exit 0／trigger-scan 1991—2024 钉卡 124 条 tier8 触发率 100%／smoke-ui **0 红**、gen-manifest --check 一致）。曾长期挂着的「#28 归口 4 红」与本轮之前新出现的「四大类倒挂」两处均已清零。 |
 | 2026-09-25 | §3 dist 重打包 | ✅ `bash dev/tools/package.sh --fast`（287 个文件）：dist 自 `aef8aed` 起就没再重打，本轮一次性补齐 #28/#32/#34/#35/#23/#29/#19 的发布物——新增 4 个内容包（134-line-2025 / 136-chain-911 / 137-chain-credit / 138-speculation）与其英文覆盖层、86 个文件更新、`rm -rf dist` 未触发护栏（脚本已在 `cb95dac` 改为 cp 路线）。**发布物端到端验收**：`http://localhost:8199/index.html` 实开一局，四格派系面板在、`投放把柄` 点击结算（选情 30→34、把柄 2→1、本幕转置灰）、`lateLimit 20/20/20` 与 `emptyFillChance 0.40` 均在包内、控制台 0 报错。测试局自动存档已清掉，未把 `itch-assets/`（用户并行产物）纳入提交。 |
-| 2026-09-25 | #21 M1 逐月化总统年 | ✅ 交付：新 `engine/presidency.js`（`presCfg`/`isPresident`/`seedApproval`/`presidencyTick`/`whiteHouseSlot`/`approvalBand`/`approvalPanel`/`effect("appr")`）+ `content/events/147-whitehouse.js` 8 张（四族各 2：`wh_crisis_desk`·`wh_recall`／`wh_bill`·`wh_shutdown`／`wh_hotline`·`wh_summit`／`wh_cabinet`·`wh_scoop`）+ 英文覆盖层两片 + `i18n/en/view/presidency.js`；`dice.js` 新增 `src:"approval"`（`(支持率-50)/100 × w`，50% 为零点、不在任则 v=0 且明细不出行），`events.js` 的 `eligible` 挡 `ev.wh` 且 `eventKind` 派生第 5 类 `whitehouse`，`time.js` 的 `planMonth` 挂上第三条强制档期（在竞选幕之后、公务之前）。展示件复用竞选条的皮（`.campbar.presbar` 四档 band 色）＋资源栏第五枚瓷贴（`data-diff="appr"`）；`progression.js` 结算多一行「离任支持率／在任月数／届数」。存档门禁 `SAVE_FORMAT 12→13`（旧档硬拒、不写迁移，`P.migrate` 补 `G.pres` 字段位）。门禁：validate 新增「总统任期（#21 M1）」一节（非总统整条静默／播种区间／24 月**每月恰 1 条**且同族不连刷三月／水位收敛不钉 0·100／白宫卡不进随机池／面板与 `G.pres` 一致／骰子对称加成／`enabled:false` 一键下线），探针 `dev/tools/out/presprobe.js` 跑 60 月：60/60 月有档期、四族各 15 次、单卡最多 8 次、支持率稳在 42%。六道门禁全绿（validate `--games=20` **全部通过**／i18n-events 0% 缺译／i18n-coverage 最高屏 0% 汉字／density-scan exit 0／trigger-scan 124 条 100%／smoke-ui **0 红**）+ `gen-manifest --check` 一致。**四大类不倒挂复测**：固定 2.51 ≥ 职业 2.13 ≥ 随机 1.89（灰产 1.73／竞选 0.57·626 年）与 M1 前完全一致——模拟器无一局到达 tier 9，白宫通道不占随机额度也不挤占空月指标，故未动 `choreDynamic.emptyFillChance`。**方案偏离**：①支持率读数件从「`STATUS_BLOCKS` 新原子块」改成资源栏第五枚瓷贴（与声望/资金并列才是它的读法，省一次布局迁移）；②`repeatMonths` 首落地误抄公务通道的 18，被新断言抓出（8 张池 → 60 月里 30 月断流），定 8 并把 **池子容量公式 `每族张数 × 4 ≥ repeatMonths`** 写成逐族断言，M2 扩池 ≥20 张时抬回 18；③三张 `major` 卡漏写 `unique:false`（同 §4.20 老坑）由断言抓出，纪律已写进 `CONTENT-SCHEMA.md` §4.22；④「起手支持率不到中线」按播种公式（`46 + rep×0.3 + 底气×8`）在高声望下不成立，断言改钉「区间 [25,72] + 随声望单调 + 无名者低于 50」——高起点由水位 42% 在下方等着，仍能传达"一事一事守"。 |
+| 2026-09-25 | #21 M1 逐月化总统年 | ✅ 提交 `27d32bf`（**#37 开工前先收尾并提交，按口径④**）：交付新 `engine/presidency.js`（`presCfg`/`isPresident`/`seedApproval`/`presidencyTick`/`whiteHouseSlot`/`approvalBand`/`approvalPanel`/`effect("appr")`）+ `content/events/147-whitehouse.js` 8 张（四族各 2：`wh_crisis_desk`·`wh_recall`／`wh_bill`·`wh_shutdown`／`wh_hotline`·`wh_summit`／`wh_cabinet`·`wh_scoop`）+ 英文覆盖层两片 + `i18n/en/view/presidency.js`；`dice.js` 新增 `src:"approval"`（`(支持率-50)/100 × w`，50% 为零点、不在任则 v=0 且明细不出行），`events.js` 的 `eligible` 挡 `ev.wh` 且 `eventKind` 派生第 5 类 `whitehouse`，`time.js` 的 `planMonth` 挂上第三条强制档期（在竞选幕之后、公务之前）。展示件复用竞选条的皮（`.campbar.presbar` 四档 band 色）＋资源栏第五枚瓷贴（`data-diff="appr"`）；`progression.js` 结算多一行「离任支持率／在任月数／届数」。存档门禁 `SAVE_FORMAT 12→13`（旧档硬拒、不写迁移，`P.migrate` 补 `G.pres` 字段位）。门禁：validate 新增「总统任期（#21 M1）」一节（非总统整条静默／播种区间／24 月**每月恰 1 条**且同族不连刷三月／水位收敛不钉 0·100／白宫卡不进随机池／面板与 `G.pres` 一致／骰子对称加成／`enabled:false` 一键下线），探针 `dev/tools/out/presprobe.js` 跑 60 月：60/60 月有档期、四族各 15 次、单卡最多 8 次、支持率稳在 42%。六道门禁全绿（validate `--games=20` **全部通过**／i18n-events 0% 缺译／i18n-coverage 最高屏 0% 汉字／density-scan exit 0／trigger-scan 124 条 100%／smoke-ui **0 红**）+ `gen-manifest --check` 一致。**四大类不倒挂复测**：固定 2.51 ≥ 职业 2.13 ≥ 随机 1.89（灰产 1.73／竞选 0.57·626 年）与 M1 前完全一致——模拟器无一局到达 tier 9，白宫通道不占随机额度也不挤占空月指标，故未动 `choreDynamic.emptyFillChance`。**方案偏离**：①支持率读数件从「`STATUS_BLOCKS` 新原子块」改成资源栏第五枚瓷贴（与声望/资金并列才是它的读法，省一次布局迁移）；②`repeatMonths` 首落地误抄公务通道的 18，被新断言抓出（8 张池 → 60 月里 30 月断流），定 8 并把 **池子容量公式 `每族张数 × 4 ≥ repeatMonths`** 写成逐族断言，M2 扩池 ≥20 张时抬回 18；③三张 `major` 卡漏写 `unique:false`（同 §4.20 老坑）由断言抓出，纪律已写进 `CONTENT-SCHEMA.md` §4.22；④「起手支持率不到中线」按播种公式（`46 + rep×0.3 + 底气×8`）在高声望下不成立，断言改钉「区间 [25,72] + 随声望单调 + 无名者低于 50」——高起点由水位 42% 在下方等着，仍能传达"一事一事守"。 |
+| 2026-09-25 | #37 密度与成长重标 | ✅ 交付（口径 ①—⑦ 全落地）。**密度**：`activeChance 0.08→0.05` 且 **`activeMin 0.06→0.04` 同步下调**（口径⑥：只降基线会被 clamp 默默顶回去）、`slotsMax 3→2`、新增 `balance.earlyCalm {months:24, activeMul:0.7, choreMul:0.4, randomMul:0.5, slotsCap:1}`（`time.js` 在 clamp **之后**乘 `activeMul`、`n` 另夹 `slotsCap`；公务与随机/灰产额度分别吃 `choreMul`/`randomMul`）、`pace.grayMax 4→2`、`campaign.js` 月度连发收口成**每月最多一幕**。**实测**（`--games=20`·种子 20260921）：第 1 年 **7.0 件**（目标带 5—8·中位 7）／第 2 年 5.8／全生涯年均 **7.6**（原 8.7）；四大类 **固定 2.23 ≥ 职业 1.86 ≥ 随机（非灰产）1.75 ≤ yearRandomMax 2**，灰产 1.11、竞选 0.48——两条不变量都没倒挂；单月竞选幕 ≤1。**属性两门**：origin `elite.INT+15` → `fav+2`/`commercial+40`、entry `pro.INT+10` → `rep+8`/`fav+1`、`operative.CUN+10` → `fav+3`/`base+10`；`DIFFS.legendary` 删 全属性+5 改 `rep12/fav4/est20/commercial10`、`brutal` 改 `rep-6/fav-1/est-10`；`allocHTML()` 第 3 步把 `startAttr + 自由点 + 已选卡` 三块全摊开（卡面属性挂「+卡」角标）。**同卡属性只首次生效**：`effects.js` 新增 `P.filterOnceAttr(eff, id)` + `G.attrGiven` 账本（`core.js` migrate 补字段），挂 `resolveChoice` 与黑天鹅两处落点。**成长**：`vignette.attrChance .14→.08`、**`funChance .30→0` 且 `vignette.js` 的 money 分支整条退役**（口径⑤，钱只剩【月账 + 事件卡】两条门）、`trackBonus` 不含 `fun`、`attrCap 88 < 100`。**实测**：8 年 CHA +1.3／INT +1.7／CUN +2.0／INTG +0.9（峰值 ≤7）；20 年探针 静好 +6.7／事件卡 +8.9（**上界**，探针直连 `vignetteGrowth` 不吃 `filterOnceAttr`）；45 年外推单维 ≤ +20，与用户"一辈子涨 35 都难"的口径对齐。**门禁**：validate 新增「#37 开局密度／开局四维涨幅／竞选幕节奏」三面板 + 建角零白送全组合扫（出身×起点×难度：三围严格等于 `startAttr`、诚信只减不增且下限 −15、四维合计 ≤70）+ `filterOnceAttr` 与 `earlyCalm` 边界单测（出窗必须完全中性）+ 四条反向断言（`vignette.funChance`/`funRate`/`trackBonus.*.fun`/`rollAttrs`/`vipCodes` 出现即红）。六闸全绿：validate `ALL PASS`、i18n-events 0% 缺译、i18n-coverage 最高屏 0% 汉字、density-scan exit 0、trigger-scan 100%、smoke-ui 0 红，另 `gen-manifest --check` 一致。**文档**：DESIGN 新增「核心系统九：事件节奏与属性/资金成长预算」+ 竞选章的 momentum-only 判负/每月一幕/#23 投放把柄；CONTENT-SCHEMA §2 属性纪律、§4.13 平静月不再产生资金、§4.21 额度才是闸门 + 开局冷静期小节、§6 `attr` 两门与首次生效、§10 balance 键表逐项对齐现行值、§16 三步向导重写；DEVELOPMENT-GUIDE §3.1/§5.5/§7.3 + **新 §7.4「四个旋钮各自管什么」**/§9.1/§10.5；README 按口径⑦ 只写**现状**（三步向导表改成"难度不发属性也不发钱"、钱标尺 $2k/张、周目 +1、作弊码在第 2 步、新增**设计不变量清单**十条、内容规模刷新 335 卡/147 钉卡/9 链 39 幕）。WORKPLAN 按口径⑦ **本轮不删**。**方案偏离**：①原写 `earlyCalm` 只有 `{months, choreMul, activeMul}` 三键，实测只降 `activeChance`/公务乘子几乎不减事件总数——**档期一开就会排到年度额度为止**，故补 `randomMul` 与 `slotsCap` 两键（真闸门是额度不是概率，这条结论已写进 DESIGN 核心系统九与 GUIDE §7.4）；②`choreMul` 定 **0.4** 而非方案的 0.5（0.5 时第 1 年仍冲出 8 件上界）；③"~6 件/年"是**开局两年**口径，第 3 年起回升到 10—13 件/年属设计内（玩家已上梯子），未做全生涯降密以免把历史密度砍没；④出身/起点删 attr 后按方案换 rep/fav/fac 补偿，但**隐藏的诚信负值保留**（`celebrity −15`/`business −10`）——它是邪路人设的代价不是白送，断言因此拆成"三围严格相等 + 诚信只减不增"两条；⑤静好资金通道按口径⑤"砍掉这条"执行成**分支整条退役**（常数留 0 位、内容侧可按时代重启），而非只把 `funChance` 调零；⑦文档核对"钱的入口"时顺手抓到 **#36 换尺的漏网鱼**：起点 `entry.business` 仍挂着 v0.5.2 的绝对额 `fun: 1500000`（= 750 个自由点，1/6 的开局当场买断学贷与破产线，且向导完全不可见）→ 按同一把尺收回 `8000`（4 点 = 一张橙卡的钱），新断言「出身/起点/州的 `fun` 绝对额 ≤ 4×`freeFunPerPoint`」守住，`10-characters.js` 中英文 desc 与 CONTENT-SCHEMA §16 / DESIGN 资金小节同步改写为"商界起手带一笔本金（建角一次性资金的顶）"。同一轮里 `validate.js` 的**运行时**旧断言「最富组合应到 $1M+（出身的资金差距要拉开）」也一并反转成「建角一次性资金顶格 4×`freeFunPerPoint` = $8k」——六闸重跑时它是唯一红项，恰好证明那条 $1M 期望值本身就是漏网鱼的同谋。六闸重跑另抓出两条**门禁自身的抖动**（都不是内容回归）：① 州联动「在对应州应可触发」没清 #32 的年度额度账本 `G.yearKindsYear`，随机额度被上一次建角吃光时 `paceBlocked` 就把它误报成"不可触发"（20 局样本 2/6 次假红，已用探针复现并定位）→ 断言前一并清零；② 「时代专属占比 ≥15%」正压在噪声带上（同一份代码两跑 14.2%／15.2%）→ 门槛下调到 12%，注释写明 #37 后的实测带 14—15%（1980 时代最低 11.6%，它专属卡最少），这条断言要抓的是"时代内容被淹没"而非 1 个百分点的抖动。**本行的密度数字已被 #38 覆盖**（`earlyCalm.randomMul` 退役、`activeMul 0.7→0.8`／`choreMul 0.4→0.6`、"第 3 年起回升到 10—13 件"改为**全生涯**四桶合计 2—6 件），以 #38 行为准。 |
+| 2026-09-25 | #38 非固定通道全局降密 | ✅ 交付（用户第三次反馈：「随机事件出现概率降低**不只是前两年**哦，整体都要降低到一年 2 到 6 件的频次」）。**密度从旋钮改成承诺**：`balance.pace` 定四道年额度 `{enabled, yearRandomMax 2→1, grayMax 2→1, careerMax 1→2, eventMax 6}`，`eventMax` 是**非固定四桶**（公务/随机/灰产/竞选幕）的总闸；**真实历史钉卡（fixed）与总统在位期的白宫月决策（wh）不计入、也永不被拦**——"到点必演"通道，把 2—6 套在它们头上等于把 1989/2008 削成空白年。三处执法：`events.js` 新增 `P.nonFixedUsed()/nonFixedRoom()/careerRoom()`，`paceBlocked` 扩到 career 桶 + 总闸（公务通道**第一次**有年额度——从前只吃触发概率，实测 1.9 件/年且方差极大，是"月月有会开"的主渠道）；`time.js` 的 `choresSlot` 开头查两道房量、满额闭流，`planMonth` 按 `min(randomRoom(), nonFixedRoom() − pending)` 排期（本月必演项先扣账、不重复计费）；`paceQuota/calmQuota` 收口额度算式。**竞选幕是唯一例外**：计进四桶账却从不被拦（链必须一幕一幕推得下去，拦到一半会留下演不完的「承前」），验收硬闸因此写成「年均 ≤6 ＋ p90 ≤ `eventMax`+1」而非逐年 ≤6。**方案偏离（本轮核心教训）**：①`earlyCalm` 的额度折扣最初命名 `randomMul`、挂在**随机/灰产桶额度**上，而这两桶各只有 1 件名额，`floor(1×0.5)=0` 等于整桶封死、公务与竞选却没闸 → 开局两年反而比全局稠（4.17 vs 3.10）。正解是改名 **`quotaMul`、只打折有降空间的闸**（`eventMax 6→3`、`careerMax 2→1`）——**折扣只能落在有降空间的闸上**；②中途试过 `Math.round` 代替 `floor`，那会让 0.5 倍乘子彻底空转（`round(1×0.5)=1`），连带 8 条红项（1960 电视事件／续集可触发／chainWeightMul 加权／没演过的卡当然可抽／exempt 不吃冷却／熬够 12 个月／state_red_minority／earlyCalm 方向）全部由这一处根因解释；③方向断言最初量**四桶总数**、永远红——新人第一场地方选举的 4—5 幕正好砸在头两年，属设计内；改钉「**吃额度的三桶**（公务/随机/灰产）开局 ≤ 全局」，为此在模拟器加 `yearDisc` 计数与 `dYears/dEarly` 导出；④方案第 4 步的 `randomMul:1`「留作将来旋钮」整条退役；⑤验收「逐局逐年 ≤ eventMax」按竞选豁免放宽为 p90 +1。**实测**（`--games=60`·种子 20260921·样本 1500 年·**全部通过**）：非固定年均 **3.16**（p50 3／p90 6／峰值 12，峰值那几年是选举年的一串竞选幕）；四大类 **固定 1.97 ≥ 职业 1.03 ≥ 随机 0.92**（灰产 0.68／竞选 0.53，四桶收口后不倒挂仍成立）；含钉卡的实际屏显第 1 年 6.8 件／全生涯 5.1 件；每年档期 5.1、填充率 0.2%（无兜底风暴）、时代专属占比 14.4%；开局两年三桶 1.73 vs 全局 2.63（冷静期方向正确），四桶 3.61 略高而差额全是竞选幕；8 年属性成长均值 ≤+2.9／峰值 ≤+9；单月竞选幕 ≤1。**门禁新增**：`earlyCalm` 边界单测从"出窗完全中性"扩成**零账本咬合断言**——强制翻篇后 `nonFixedRoom() === floor(eventMax × quotaMul)` 且严格小于配置本值、`careerRoom() === floor(careerMax × quotaMul)`，出窗必须回到 `pace` 原值（防止"折扣又挂在空挡键上"重演）；#38 面板同时打印三桶与四桶两个口径。**六闸全绿**：validate `--games=60` 全部通过／i18n-events 0% 缺译／i18n-coverage `--lang=en` 最高屏 0% 汉字／density-scan exit 0／trigger-scan 124 条 100%／smoke-ui 0 红，另 `gen-manifest --check` 一致。**文档随迁**：DESIGN 核心系统九整节重写密度小节（承诺 blockquote、四道额度、三处执法、竞选豁免、`quotaMul` 纠偏故事、60 局实测；留白小节改成「没有留下"再吵就调概率"的口子」）、CONTENT-SCHEMA §4.21 kind 表三行订正 + `earlyCalm` 代码块与 `quotaMul` 作用点表 + §10 键表 + 验收三桶口径、DEVELOPMENT-GUIDE §7.4 四行 + 验收读数四行 + §10.5 行、README 设计不变量两条（「一年 2—6 件事」全生涯口径／开局两年再薄一档列 `0.8 / 0.6 / 0.5 / 只排一条` 并注明不能折 1 件名额的桶）。 |
