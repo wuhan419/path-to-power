@@ -21,3 +21,6 @@ node_modules/
 /potus-*.miora
 /potus-assets/
 /potus-*_assets/
+
+# itch.io 上传包（package.sh 产物，不入库）
+/path-to-power-*.zip

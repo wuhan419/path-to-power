@@ -143,7 +143,7 @@
 │   ├── assets/events/        事件配图的照片（文件名 = 类型 key.jpg，见 §5.12）
 │   └── tools/                全部校验/打包/度量脚本（§9.3 工具矩阵）
 │       ├── validate.js       ★ 一键校验（默认 20 局），零依赖
-│       ├── package.sh        ★ 一键发布：validate(30 局) + 打包 dist/（docs/ 一并进 dist）
+│       ├── package.sh        ★ 一键发布：validate(30 局) + 打包 dist/（docs/ 一并进 dist）+ 出 itch.io 上传包
 │       ├── gen-manifest.js   ★ 自动登记内容包/i18n 镜像，重写 index.html 两个托管区
 │       ├── smoke-ui.js       ★ UI 冒烟（jsdom 真跑点击流程），需 jsdom
 │       ├── audit.js          全面事件审计（一览 / flag 闭环 / 链 / 时代×三值性覆盖 / 闸门自洽）
@@ -157,6 +157,7 @@
 │       ├── preview-photos.html  配图预览页（浏览器打开）
 │       └── out/              工具产物目录（草稿/截图，非事实源）
 ├── dist/                     ★ package.sh 的产物：可分发游戏本体（双击 index.html 即玩）
+├── path-to-power-v0.12.zip   ★ package.sh 的产物：itch.io 上传包（index.html 在压缩包根目录，不入库）
 ├── docs/                     DESIGN / CONTENT-SCHEMA / DEVELOPMENT-GUIDE / I18N / PARALLEL-CONTENT-WORK
 ├── README.md · CONTRIBUTING.md
 └── deprecated/               ★ pre-1980 死内容冻结归档（1912/1929/1941… 时代包与快照，不再加载）
@@ -173,6 +174,7 @@
 ```bash
 # 1. 直接玩：双击 dev/index.html（或 dist/index.html；无需构建、无需 npm install）
 #    要分发给别人玩：bash dev/tools/package.sh 之后把 dist/ 整个文件夹发出去
+#    要传 itch.io：同一条命令顺手在项目根产出 path-to-power-v0.12.zip（解压即 index.html，不套文件夹）
 
 # 2. 改完自检（数据 / 逻辑 / 生涯模拟 / 引擎-内容契约）
 cd dev && node tools/validate.js            # 默认 20 局快速档；发布口径 package.sh 会跑 30 局
@@ -906,7 +908,7 @@ choices: [
 - [ ] 契约有变化 → 已更新 `docs/CONTENT-SCHEMA.md`（i18n 相关更新 `docs/I18N.md`）
 - [ ] 破坏性变更 → 已升 `POTUS.VERSION` 主版本 + 在 git 提交说明写迁移指南
 - [ ] 已有内容包**无需修改**即可继续运行（向后兼容自测）
-- [ ] 发布 → `bash dev/tools/package.sh`（自检 + 重打 dist/，docs/ 随包进 dist）
+- [ ] 发布 → `bash dev/tools/package.sh`（自检 + 重打 dist/，docs/ 随包进 dist；同时在项目根产出 itch.io 上传包 `path-to-power-<版本>.zip`）
 
 ### 8.3 冲突处理
 - 内容需要新机制 → 提需求（描述场景 + 期望字段形状）→ 引擎侧设计并更新契约 → 确认后实现
@@ -969,7 +971,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 工具 | 什么时候跑 | 一句话 |
 |---|---|---|
 | `validate.js` | 每次提交 | 一键校验 + 生涯模拟（默认 20 局），§9.1 |
-| `package.sh` | 发布 | `bash dev/tools/package.sh` = validate 30 局 + 同步 dist/（含把仓库根 docs/ 复制进 dist/docs；`--full`=300 局深验、`--fast`=只打包、`--check`=只自检）。**dist/ 是产物，禁止手改** |
+| `package.sh` | 发布 | `bash dev/tools/package.sh` = validate 30 局 + 同步 dist/（含把仓库根 docs/ 复制进 dist/docs）+ 在项目根打 itch.io 上传包 `path-to-power-$VERSION.zip`（`VERSION` 常量在脚本顶部，发新版时改）。压缩包**根目录直接是 index.html**（脚本会验条目表，套一层文件夹的包在 itch 上是白屏）；`--full`=300 局深验、`--fast`=只打包、`--check`=只自检、`--no-zip`=不出压缩包。**dist/ 与 zip 都是产物，禁止手改；zip 不入库** |
 | `gen-manifest.js` | 新增内容/i18n 文件后 | 重写 index.html 两个托管区；`--check` 可当门禁 |
 | `smoke-ui.js` | 动过 UI/机制 | jsdom 真点击，§9.2 |
 | `audit.js` | 内容体检 | 五节报告：一览 / flag 供需闭环 / after 链完整性 / 时代×三值性覆盖 / 财富闸门自洽 |
@@ -1017,7 +1019,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 
 ## 10.5 现行机制速览（v0.5—v0.12 新接手必读）
 
-**目录四层结构（先记住这个）**：项目根 = `dev/`（开发区，引擎+内容+工具）+ `dist/`（`bash dev/tools/package.sh` 的产物，含随包的 `dist/docs/`）+ `docs/`（文档在仓库根，不在 dev/ 里）+ `deprecated/`（pre-1980 冻结归档）。改完代码一条命令：`bash dev/tools/package.sh`（先自检、全部通过后才打包）。
+**目录四层结构（先记住这个）**：项目根 = `dev/`（开发区，引擎+内容+工具）+ `dist/`（`bash dev/tools/package.sh` 的产物，含随包的 `dist/docs/`）+ `docs/`（文档在仓库根，不在 dev/ 里）+ `deprecated/`（pre-1980 冻结归档）。同一条命令还会在项目根产出 itch.io 上传包 `path-to-power-<版本>.zip`（与 dist 同内容、index.html 在压缩包根目录，`.gitignore` 已排除）。改完代码一条命令：`bash dev/tools/package.sh`（先自检、全部通过后才打包）。
 
 | 机制 | 内容包怎么写 | 引擎在哪 |
 |---|---|---|

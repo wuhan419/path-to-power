@@ -74,8 +74,11 @@
 要打包成独立分发给别人：
 
 ```bash
-bash dev/tools/package.sh   # 一键发布：先自检，通过后刷新 dist/（把 dist/ 整个文件夹发出去即可）
+bash dev/tools/package.sh   # 一键发布：先自检，通过后刷新 dist/ 并打出 itch.io 上传包 path-to-power-v0.12.zip
 ```
+
+`dist/` 整个文件夹发出去即可；根目录那个 zip 是给 itch.io 用的 —— **index.html 直接躺在压缩包根目录**（不套一层文件夹），
+上传后勾「This file will be played in the browser」就能在网页里直接玩。zip 是产物、不入库，`--no-zip` 可跳过。
 
 ### 建角（demo 版）：三步向导 —— 难度 → 天赋抽卡 → 自由点
 
@@ -124,7 +127,7 @@ node dev/tools/validate.js --games=300      # 全量平衡口径
 node dev/tools/audit.js
 ```
 
-**改完代码一条命令搞定**：`bash dev/tools/package.sh`（先跑自检、全部通过后才刷新 dist）。只想自检用 `bash dev/tools/package.sh --check`。
+**改完代码一条命令搞定**：`bash dev/tools/package.sh`（先跑自检、全部通过后才刷新 dist 并打 itch.io 包）。只想自检用 `bash dev/tools/package.sh --check`，不想出压缩包加 `--no-zip`。
 
 ---
 
