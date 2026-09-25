@@ -497,26 +497,35 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(text().indexOf("分配自由点") < 0, "第 1 步不该出现第 3 步的加点块");
   P.createStep(2);
   check(!!w.document.querySelector(".gwall"), "第 2 步是抽卡：卡墙渲染出来");
+  /* #31：作弊码兑的是【周目】，输入框也跟着搬到第 2 步天赋页 */
+  check(!!w.document.getElementById("cheatcode"), "作弊码输入框住在第 2 步天赋页");
+  {
+    const cheatIn0 = w.document.getElementById("cheatcode");
+    if (cheatIn0) {
+      cheatIn0.value = "woshishabi4";
+      check(P.submitCheat() === 4, "输入 woshishabi4 点「兑换」→ +4 周目");
+      check((P.CSEL.cheatLoops || 0) === 4, "作弊周目计入本局建角额度：" + P.CSEL.cheatLoops);
+      check(P.currentLoop() >= 5 && P.freePool() >= 16, "作弊周目同时抬高自由点池：" + P.freePool());
+      check(/4/.test(P.CSEL.cheatMsg || ""), "兑换后在界面给出反馈（不再静默）：" + P.CSEL.cheatMsg);
+      const cheatIn1 = w.document.getElementById("cheatcode");   // 重绘后是新节点
+      if (cheatIn1) cheatIn1.value = "badcode";
+      check(P.submitCheat() === 0 && (P.CSEL.cheatLoops || 0) === 4, "错码不加周目，并给出提示");
+    }
+    /* 整面卡墙每局只许刷 gacha.rerolls 次（默认 1） */
+    const left0 = P.gachaCfg().rerolls;
+    for (let i = 0; i <= left0 + 1; i++) P.rollOffer();
+    check((P.CSEL.rerollsUsed || 0) === left0, "「换一批」配额封顶在 " + left0 + " 次：" + P.CSEL.rerollsUsed);
+    check(/刷新次数用完/.test(P.CSEL.stepMsg || "") ||
+      /用完了|used up|no reroll/i.test(P.CSEL.stepMsg || ""), "配额用尽后给出提示：" + P.CSEL.stepMsg);
+  }
   P.createStep(3);
   check(text().indexOf("分配自由点") >= 0, "第 3 步是加点：出现「分配自由点」");
   const rattrN = w.document.querySelectorAll(".rattr").length;
   check(rattrN === 4, "第 3 步四个分配去处（魅力/智力/手腕/金钱），诚信不在其中：" + rattrN);
   check(text().indexOf("诚信") < 0, "加点屏不出现「诚信」字样（已退为幕后属性）");
-  /* 定命一掷已删：不再有掷骰 / 重掷入口。作弊码反过来：#20 收尾后【显式】摆一个输入框 */
+  /* 定命一掷已删：不再有掷骰 / 重掷入口。 */
   check(typeof P.rollAttrs === "undefined", "定命一掷的掷骰函数已撤下");
-  {
-    const cheatIn0 = w.document.getElementById("cheatcode");
-    check(!!cheatIn0, "作弊码输入框常驻在第 3 步加点屏（不再隐藏）");
-    if (cheatIn0) {
-      cheatIn0.value = "woshishabi4";
-      check(P.submitCheat() === 4, "输入 woshishabi4 点「兑换」→ +4 点");
-      check((P.CSEL.cheatPts || 0) === 4, "作弊点计入本局额度：" + P.CSEL.cheatPts);
-      check(/4/.test(P.CSEL.cheatMsg || ""), "兑换后在界面给出反馈（不再静默）：" + P.CSEL.cheatMsg);
-      const cheatIn1 = w.document.getElementById("cheatcode");   // 重绘后是新节点
-      if (cheatIn1) cheatIn1.value = "badcode";
-      check(P.submitCheat() === 0 && (P.CSEL.cheatPts || 0) === 4, "错码不加点，并给出提示");
-    }
-  }
+  check(!w.document.getElementById("cheatcode"), "第 3 步不再重复摆作弊码输入框");
   /* 自由点分配 API 仍在（新名 spendPoint，旧名 spendAttr 作别名） */
   P.spendPoint("CHA", 1);
   check((P.CSEL.spent.CHA || 0) === 1, "spendPoint() 能把自由点洒到属性上");

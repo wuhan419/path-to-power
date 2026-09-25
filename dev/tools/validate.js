@@ -451,6 +451,80 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   check(pinIds2008.every(id => { const e = P.evById(id); return e && (e.tierMax == null || e.tierMax >= 9); }),
     "钉卡规范化后 tierMax 应全层通行（#33 触发荒主闸）");
 
+  /* --- #33 触发荒回归守卫：钉卡必须真发得出去 ---
+     两个历史主闸（钉卡 tierMax 天花板 / G.era 写死的时代白名单）已分别由
+     normalizePins 与 P.eraAt 拆掉；这里取时代表第二档的首个钉卡年，按 planSlots 天花板
+     连跑 12 个月 × 200 次，统计因 eligible 失败被静默丢弃的钉卡比例（time.js 的 G.pinMiss）。
+     身份白名单（tracks/parties/…）按通配身份测 —— 那是设计而非荒，逐条核查交给 trigger-scan。 */
+  {
+    const eraIds = KEYS(P.reg.era);
+    const era2 = P.reg.era[eraIds[1]] || P.reg.era[eraIds[0]];
+    const pinY = (era2.scheduled || []).map(s => s.year).sort(function (a, b) { return a - b; })[0] || 1991;
+    const b33 = P.balance();
+    let slots33 = 0, drop33 = 0;
+    G.year = pinY; G.tier = 4; G.month = 0;
+    G.track = "*"; G.party = "*"; G.stance = "*"; G.origin = "*"; G.entry = "*"; G.talent = "*"; G.state = "*";
+    G.rep = 50; G.fav = 10; G.lev = 0; G.hp = 70; G.fun = 500; G.flags = [];
+    for (let run33 = 0; run33 < 200; run33++) {
+      P._pinsNormalized = false;                 // 每轮重跑一遍 normalizePins，模拟新开局
+      for (let m = 1; m <= 12; m++) {
+        G.month = m; G.pinMiss = [];
+        P.planMonth(b33.slotsMax);
+        slots33 += b33.slotsMax;
+        drop33 += (G.pinMiss || []).length;
+        G.doneIds = []; P.recentIds = [];        // 排除单局冷却，只看结构性可发
+      }
+    }
+    const ratio33 = slots33 ? drop33 / slots33 : 0;
+    console.log("  " + pinY + " 钉卡可发率 " + ((1 - ratio33) * 100).toFixed(1) +
+      "%（档期 " + slots33 + " 个 · eligible 丢弃钉卡 " + drop33 + " 张）");
+    check(ratio33 < 0.5, "钉卡丢弃率应 < 50%（#33 触发荒回归守卫，实际 " + (ratio33 * 100).toFixed(1) + "%）");
+    if (ratio33 >= 0.25) {                       // 只在可疑时甩原因分布，省得定位要改代码
+      const why33 = {};
+      (G.pinMiss || []).forEach(x => { why33[x.why] = (why33[x.why] || 0) + 1; });
+      console.log("  ⚠ 丢弃原因分布（顶格 500 条样本）：" +
+        Object.keys(why33).map(k => k + "×" + why33[k]).join(" ｜ "));
+    }
+    G.year = 1985;
+  }
+
+  /* --- #33 触发荒回归守卫（真实时代表口径）---
+     1991 年（时代表第二档）按 balance.planSlots 的天花板跑 12 个月 × 200 次：
+     钉卡因 eligible 失败被静默丢弃的比例 must < 50%。
+     两个历史主闸都已由 eraAt / normalizePins 拆掉 —— 身份白名单（tracks/parties/…）
+     是设计而非荒，这里按 pick 人群口径（track="*"）测。 */
+  {
+    const era2 = KEYS(P.reg.era)[1] || KEYS(P.reg.era)[0];
+    const pinY = (P.reg.era[era2].scheduled || []).map(s => s.year).sort()[0] || 1991;
+    const b33 = P.balance();
+    let slots33 = 0, drop33 = 0;
+    G.year = pinY; G.tier = 4; G.track = "*"; G.party = "*"; G.stance = "*";
+    G.origin = o0; G.entry = n0; G.talent = t0; G.state = "";
+    G.rep = 50; G.fav = 10; G.lev = 0; G.hp = 70; G.fun = 500; G.flags = [];
+    for (let run = 0; run < 200; run++) {
+      P._pinsNormalized = false;                 // 每次重跑一遍 normalizePins，模拟新开局
+      P.G.doneIds = []; P.recentIds = []; G.pinMiss = [];
+      for (let m = 1; m <= 12; m++) {
+        G.month = m - 1;
+        const plan = P.planMonth(b33.slotsMax);
+        slots33 += b33.slotsMax;
+        drop33 += (G.pinMiss || []).length;
+        P.G.doneIds = []; P.recentIds = [];      // 排除单局冷却，只看结构性可发
+      }
+    }
+    const ratio33 = slots33 ? drop33 / slots33 : 0;
+    console.log("  " + pinY + " 钉卡可发率 " + ((1 - ratio33) * 100).toFixed(1) +
+      "%（档期 " + slots33 + " 个 · eligible 丢弃钉卡 " + drop33 + " 张）");
+    check(ratio33 < 0.5, "钉卡丢弃率应 < 50%（#33 触发荒回归守卫，实际 " + (ratio33 * 100).toFixed(1) + "%）");
+    if (ratio33 >= 0.25) {                       // 只在可疑时甩原因分布，省得定位要改代码
+      const why = {};
+      (G.pinMiss || []).forEach(x => { why[x.why] = (why[x.why] || 0) + 1; });
+      console.log("  ⚠ 丢弃原因分布（顶格 500 条样本）：" +
+        Object.keys(why).map(k => k + "×" + why[k]).join(" ｜ "));
+    }
+    G.year = 1985; G.track = (P.reg.track[n0] || {}).track_suggest || e0;
+  }
+
   /* 时代压力：危机年 > 常态年；丑闻再把活跃度顶上去 */
   G.year = 2008; const pCrisis = P.pressure();
   G.year = 2025; const pCalm = P.pressure();
@@ -2129,13 +2203,16 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     if (r <= 2) check(mx === r * 10, "白/蓝卡属性增益严格对齐标尺（" + r + " 档 = +" + (r * 10) + "）：" + id);
   });
 
-  /* 周目 meta：无记录 = 一周目，额度 = 基础值，单维上限 = 基础软上限 */
-  const _loopRaw = [P.metaLoopKey, P.metaFreeKey].map(k => { try { return localStorage.getItem(k); } catch (e) { return null; } });
-  try { localStorage.removeItem(P.metaLoopKey); localStorage.removeItem(P.metaFreeKey); } catch (e) { }
-  check(P.currentLoop() === 1, "无 meta 时应是一周目：" + P.currentLoop());
-  check(P.readBonusFree() === 0, "一周目无累计自由点：" + P.readBonusFree());
-  check(P.freePool() === b5.freePoints, "一周目额度 = 基础值：" + P.freePool());
-  check(P.freeCap() === b5.freeCapPerAttr, "一周目单维上限 = 基础：" + P.freeCap());
+  /* 周目 meta（#31：周目数是唯一的成长账本 —— 自由点 = 基础 12 + 已完成周目 × 1） */
+  const _loopRaw = (function () { try { const v = localStorage.getItem(P.metaLoopKey); localStorage.removeItem(P.metaLoopKey); return v; } catch (e) { return null; } })();
+  const _cselBak = P.CSEL; P.CSEL = null;         // 作弊周目读自 CSEL，测前先把它摘掉
+  check(P.completedLoops() === 0 && P.currentLoop() === 1, "无 meta 时应是第 1 周目：" + P.currentLoop());
+  check(P.readBonusFree() === 0, "第 1 周目没有周目奖励：" + P.readBonusFree());
+  check(P.freePool() === b5.freePoints, "第 1 周目额度 = 基础值：" + P.freePool());
+  check(P.freeCap() === b5.freeCapPerAttr, "第 1 周目单维上限 = 基础：" + P.freeCap());
+  check(b5.loopFreeBonus === 1, "每完成一个周目送 1 点（口径：基础 12 ＋ 周目数 × 1）：" + b5.loopFreeBonus);
+  check(P.freePoolFor(6) === b5.freePoints + 5 * b5.loopFreeBonus, "freePoolFor(6) = 12 + 5：" + P.freePoolFor(6));
+  check(P.loopFreeBonus() === b5.loopFreeBonus, "loopFreeBonus 读数口一致");
 
   /* 分配夹取（spendPoint）：属性吃满前 ① 单维软上限 ② 属性 100 硬顶；金钱档不受 cap、
      吸收剩余额度；总额恒 ≤ 额度；减点不为负。 */
@@ -2147,44 +2224,47 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
   const usedSum = ATTR3.concat(["FUN"]).reduce(function (a, k) { return a + (P.CSEL.spent[k] || 0); }, 0);
   check(usedSum === POOL0, "四格灌满后总分配 = freePool（" + usedSum + "／" + POOL0 + "）");
-  /* 单维可一路点到属性 100（=10 点，旧的 6 点封顶已废）：一周目 12 点不够三围全满，
-     所以先借一笔作弊额度把三围灌满，再看多出来的点是否落进不受 cap 的金钱档。 */
-  P.CSEL.cheatPts = 30;
+  /* 单维可一路点到属性 100（=10 点，旧的 6 点封顶已废）：第 1 周目 12 点不够三围全满，
+     所以先用作弊码兑一笔周目把额度抬起来，再看多出来的点是否落进不受 cap 的金钱档。 */
+  P.CSEL.cheatLoops = 30;
+  check(P.currentLoop() === 31 && P.freePool() === POOL0 + 30, "作弊周目直接抬额度：" + P.freePool());
   ATTR3.concat(["FUN"]).forEach(function (k) { for (let i = 0; i < 300; i++) P.spendPoint(k, 1); });
   check(ATTR3.every(function (k) { return (P.CSEL.spent[k] || 0) === 10; }),
     "三围各可点到 10 点 = 属性 100（单维不再 6 点封顶）：" + ATTR3.map(k => k + ":" + P.CSEL.spent[k]).join(" "));
   check(P.CSEL.spent.FUN > 0, "三围全满后多出来的点自动落进金钱档（不受 cap）：" + P.CSEL.spent.FUN);
-  P.CSEL.cheatPts = 0;
+  P.CSEL.cheatLoops = 0;
   for (let i = 0; i < 300; i++) P.spendPoint("FUN", -1);
   check(P.CSEL.spent.FUN >= 0, "减点不应为负：" + P.CSEL.spent.FUN);
 
-  /* 周目奖励（结算领「+2 点」那一支）确实把额度与单维上限一起抬起来 */
-  P.addBonusFree(12);
-  check(P.readBonusFree() === 12, "addBonusFree 累加到 12：" + P.readBonusFree());
-  check(P.freePool() === POOL0 + 12, "累计奖励后额度 +12：" + P.freePool());
-  check(P.freeCap() === Math.min(b5.freeCapMax, b5.freeCapPerAttr + Math.floor(12 / b5.freeCapGrow)),
+  /* 真实周目（结算记的那笔 +1）同样把额度与单维上限一起抬起来 */
+  P.bumpLoop(); P.bumpLoop();
+  check(P.currentLoop() === 3, "完成两局后进入第 3 周目：" + P.currentLoop());
+  check(P.readBonusFree() === 2 * b5.loopFreeBonus, "两个周目送 " + (2 * b5.loopFreeBonus) + " 点：" + P.readBonusFree());
+  check(P.freePool() === b5.freePoints + 2 * b5.loopFreeBonus, "周目奖励后额度：" + P.freePool());
+  check(P.freeCap() === Math.min(b5.freeCapMax, b5.freeCapPerAttr + Math.floor(P.readBonusFree() / b5.freeCapGrow)),
     "单维软上限随额度抬升（每 " + b5.freeCapGrow + " 点开 1 点，封顶 " + b5.freeCapMax + "）：" + P.freeCap());
-  P.bumpLoop();
-  check(P.currentLoop() === 2, "结算后进入二周目：" + P.currentLoop());
-  try { _loopRaw.forEach(function (v, i) { const k = [P.metaLoopKey, P.metaFreeKey][i]; if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); }); } catch (e) { }
+  try { if (_loopRaw == null) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, _loopRaw); } catch (e) { }
+  P.CSEL = _cselBak;
 
-  /* 隐藏作弊码 woshishabiN：注 1~10 自由点、>10 夹到 10、静默（无 err 概念，未命中返回 0） */
-  check(P.cheatParse("woshishabi1") === 1, "woshishabi1 → +1 点");
-  check(P.cheatParse("woshishabi5") === 5, "woshishabi5 → +5 点");
-  check(P.cheatParse("woshishabi10") === 10, "woshishabi10 → +10 点");
+  /* 作弊码 woshishabiN（#31 起兑的是周目）：1~10、>10 夹到 10、未命中返回 0 */
+  check(P.cheatParse("woshishabi1") === 1, "woshishabi1 → +1 周目");
+  check(P.cheatParse("woshishabi5") === 5, "woshishabi5 → +5 周目");
+  check(P.cheatParse("woshishabi10") === 10, "woshishabi10 → +10 周目");
   check(P.cheatParse("woshishabi11") === 10, "超过 10 一律夹到 10（woshishabi11 → 10）");
   check(P.cheatParse("woshishabi99") === 10, "woshishabi99 → 夹到 10");
-  check(P.cheatParse("woshishabi0") === 0, "woshishabi0（不加点）视为未命中");
+  check(P.cheatParse("woshishabi0") === 0, "woshishabi0（不加周目）视为未命中");
   check(P.cheatParse("wjk100") === 0, "旧码形 wjk100 已作废，未命中返回 0");
   check(P.cheatParse("") === 0 && P.cheatParse("hello") === 0, "空 / 乱码静默返回 0，不给提示");
-  /* 界面入口 submitCheat()（第 3 步加点屏的输入框 + 「兑换」按钮走的就是它）：
-     直接传码兑换 → 累加本局作弊点 → 额度变大 → 并且给得出中文反馈（不再静默）。 */
+  /* 界面入口 submitCheat()（#31：输入框住在第 2 步天赋页）：
+     直接传码 → 累加本局作弊周目 → 周目口径抬高 → 并且给得出中文反馈。 */
   P.startCreate();
-  check(P.submitCheat("woshishabi3") === 3, "submitCheat('woshishabi3') → +3 点");
-  check(P.CSEL.cheatPts === 3, "作弊点累加进本局：" + P.CSEL.cheatPts);
-  check(P.freePool(P.CSEL.cheatPts) === POOL0 + 3, "额度随作弊点变大：" + P.freePool(P.CSEL.cheatPts));
+  const POOL1 = P.freePool();
+  check(P.submitCheat("woshishabi3") === 3, "submitCheat('woshishabi3') → +3 周目");
+  check(P.CSEL.cheatLoops === 3, "作弊周目累加进本局建角：" + P.CSEL.cheatLoops);
+  check(P.freePool() === POOL1 + 3 * b5.loopFreeBonus, "额度随作弊周目变大：" + P.freePool());
   check(/3/.test(P.CSEL.cheatMsg || ""), "兑换给得出反馈（不再静默）：" + P.CSEL.cheatMsg);
   check(P.submitCheat("nope") === 0 && /不对/.test(P.CSEL.cheatMsg || ""), "错码给出提示且不加分：" + P.CSEL.cheatMsg);
+  check(P.CSEL.cheatLoops === 3, "错码不动计数器：" + P.CSEL.cheatLoops);
   /* 连打：woshishabi10 不能被读成 woshishabi1 + 残 0——数字攒着，settle 一次才结算 */
   P.cheatReset();
   "woshishabi1".split("").forEach(function (c) { P.cheatFeed(c); });
@@ -2197,7 +2277,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   const mkCsel = function (spent) {
     return { era: K(P.reg.era)[0], origin: K(P.reg.origin)[0], talent: K(P.reg.talent)[0],
       entry: K(P.reg.entry)[0], party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0],
-      difficulty: "normal", name: "分配测试", spent: spent, cheatPts: 0, offer: [], picks: [] };
+      difficulty: "normal", name: "分配测试", spent: spent, cheatLoops: 0, offer: [], picks: [] };
   };
   P.CSEL = mkCsel({ CHA: 0, INT: 0, CUN: 0, FUN: 0 }); P.confirmCreate();
   const baseAttr = Object.assign({}, P.G.attr), baseFun = P.G.fun;
@@ -2309,18 +2389,63 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(P.cardPickCount("brutal") === (pk.brutal == null ? 1 : pk.brutal) &&
       P.cardPickCount("legendary") === (pk.legendary == null ? 5 : pk.legendary), "cardPickCount 应按难度取 picks（炼狱最少 / 传奇最多）");
     check(P.cardPickCount("nope") >= 1, "未知难度应给 1 张保底");
-    /* 掷牌不变量：长度=offer、无重复；未解锁总统时绝不给橙卡 */
+    /* 掷牌不变量：长度=offer、无重复；橙卡受【周目】门槛（#31：第 2 周目起进池） */
     const g = P.gachaCfg();
-    const everBak = P.everPresident; P.everPresident = function () { return false; };
+    const _lkBak = (function () { try { return localStorage.getItem(P.metaLoopKey); } catch (e) { return null; } })();
+    const _lCsel = P.CSEL; P.CSEL = null;
+    const setLoop = function (n) { try { if (n <= 0) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, String(n)); } catch (e) { } };
+    setLoop(0);
+    check(P.currentLoop() === 1 && !P.orangeUnlocked(), "第 1 周目橙卡不该进池");
     const off = P.rollCardOffer();
     check(off.length === g.offer, "一次掷牌应给 offer 张（期望 " + g.offer + "，实际 " + off.length + "）");
     check(new Set(off).size === off.length, "掷牌不得有重复卡");
-    check(off.every(id => (cards[id].rarity || 1) !== g.orangeRarity), "当过总统前不得掷出橙卡（受 everPresident 门槛）");
-    /* 解锁总统后：橙档进池（多掷几次，理论上应能撞到稀有橙；至少不报错且长度守恒） */
-    P.everPresident = function () { return true; };
+    check(off.every(id => (cards[id].rarity || 1) !== g.orangeRarity), "第 1 周目不得掷出橙卡（周目门槛）");
+    setLoop(g.orangeLoop - 1);
+    check(P.currentLoop() === g.orangeLoop && P.orangeUnlocked(), "第 " + g.orangeLoop + " 周目橙卡应进池：" + P.currentLoop());
     const off2 = P.rollCardOffer();
     check(off2.length === g.offer && new Set(off2).size === off2.length, "解锁后掷牌仍要长度守恒且无重复");
-    P.everPresident = everBak;
+    /* 高周目真掷得出橙卡（权重低，猛掷多次必须至少撞见一次 —— 否则门槛只是纸面的） */
+    setLoop(5);
+    let sawOrange = false;
+    for (let i = 0; i < 400 && !sawOrange; i++) sawOrange = P.rollCardOffer().some(id => (cards[id].rarity || 1) === g.orangeRarity);
+    check(sawOrange, "第 6 周目应能掷出橙卡（400 次内至少撞见一次）");
+    /* 稀有度权重随周目单调不降（loopRarity 表）：橙档从 0 起抬 */
+    check((P.rarityWForLoop(1, (P.balance().gacha || {}))[4] || 0) === 0 &&
+      (P.rarityWForLoop(3, (P.balance().gacha || {}))[4] || 0) > 0,
+      "loopRarity：一周目橙权重 0、三周目 >0");
+    check(P.gachaCfg().rerolls === (((P.balance().gacha || {}).rerolls) == null ? 1 : (P.balance().gacha || {}).rerolls),
+      "刷新配额读自 config（每局可刷 " + P.gachaCfg().rerolls + " 次）");
+    /* #31 卡墙刷新配额：每局 rerolls 次；用完一次都不动牌面 */
+    setLoop(0);
+    P.startCreate();
+    const quota = P.gachaCfg().rerolls;
+    const snap0 = P.CSEL.offer.slice().sort().join(",");
+    P.rollOffer();
+    check(P.CSEL.rerollsUsed === 1, "换一批应记掉一次配额：" + P.CSEL.rerollsUsed);
+    for (let i = 0; i < 5; i++) P.rollOffer();
+    check(P.CSEL.rerollsUsed === quota, "配额用尽后不得再记次（" + quota + " 次上限，实际 " + P.CSEL.rerollsUsed + "）");
+    check(!!P.CSEL.stepMsg, "配额用尽要给得出提示");
+    P.CSEL.rerollsUsed = 0; P.rollOffer();
+    check(P.CSEL.offer.length === snap0.split(",").length, "重掷仍给满 offer 张");
+    /* #31 结算无条件 +1 周目（与保卡不再二选一），且同一局重复结算不双记 */
+    const _loopBak2 = (function () { try { return localStorage.getItem(P.metaLoopKey); } catch (e) { return null; } })();
+    setLoop(0);
+    const savedG2 = P.G;
+    P.G = {
+      version: P.VERSION, year: 1996, month: 12, age: 40, tier: 2, peakTier: 2, track: K(P.reg.track)[0],
+      party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], origin: K(P.reg.origin)[0], talent: K(P.reg.talent)[0],
+      state: K(P.reg.state)[0], fun: 5000, rep: 30, hp: 60, fav: 0, lev: 0, attr: { CHA: 20, INT: 20, CUN: 20, INTG: 50 },
+      faction: {}, flags: [], cards: [], spentCards: [], history: [], log: [], contacts: {}, counters: {},
+      doneIds: [], debt: 0, debtAccr: 0, loanLate: 0, loanCaps: 0, loopCounted: 0, endingReason: null
+    };
+    P.ending("retire");
+    check(P.completedLoops() === 1 && P.G.loopCounted === 1, "结算应无条件把周目 +1（现在 " + P.completedLoops() + "）");
+    P.ending("retire");
+    check(P.completedLoops() === 1, "同一局重复结算不得双记周目：" + P.completedLoops());
+    P.G = savedG2;
+    try { if (_loopBak2 == null) localStorage.removeItem(P.metaLoopKey); else localStorage.setItem(P.metaLoopKey, _loopBak2); } catch (e) { }
+    P.CSEL = _lCsel;
+    setLoop(_lkBak == null ? 0 : Number(_lkBak) || 0);
     /* 入选结算：钱卡加钱、进卡墙；聚合被动可从 activeCards 读出 */
     const saved = P.G;
     const moneyId = ids.filter(id => cards[id].effects && cards[id].effects.fun > 0)[0];

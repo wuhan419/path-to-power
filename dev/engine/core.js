@@ -146,26 +146,23 @@ const BALANCE_DEFAULTS = {
      endYear 是唯一权威（挂在 stage.js endYear/nextYear）；死亡/入狱等仍可提前结束。 */
   endYear: 2025,
 
-  /* ---- 建角自由点（v0.12 #20：定命一掷已删除，不再掷骰）----
+  /* ---- 建角自由点（v0.12 #20 定命一掷已删；#31 周目数成为唯一的成长账本）----
    * 属性直接吃 startAttr 打底，freePoints 点在四个去处之间分配：
    *   魅力 / 智力 / 手腕 → 每点 freeAttrPerPoint 属性
    *   金钱             → 每点 freeFunPerPoint 美元（加进开局资金）
-   * freeCapPerAttr 单维点数上限：属性打底 45、硬顶 99，单维最多吃 5~6 点就到顶。
    * 诚信 INTG 不在建角分配位里（字段与内容全保留，纯靠选择后天涨跌）。
    *
-   * ⚠ freePoints 是【一周目基础值】，不是常量：这是一个会长大的元进度池 ——
-   *   每局结算时选「+2 自由点」就永久累计（见 loopFreeBonus / readBonusFree），
-   *   实际额度 = freePoints + 累计周目奖励。
-   * ⚠ 单维上限也随额度伸缩（软上限）：实际上限 = min(freeCapMax,
-   *   freeCapPerAttr + floor(额外点 / freeCapGrow))。否则池子变大多出来的点只能全灌进金钱档，
-   *   属性成长这条腿就断了。属性本身仍被 1-99 硬顶夹住（打底 45 → 满档只需 6 点）。 */
-  freePoints: 20, freeCapPerAttr: 6, freeCapMax: 8, freeCapGrow: 6,
+   * ⚠ freePoints 是【第 1 周目】的池子，不是常量：每完成一个周目永久送 loopFreeBonus 点，
+   *   实际额度 = freePoints + 已完成周目数 × loopFreeBonus（见 freePool / currentLoop）。
+   * ⚠ 单维上限也随额度伸缩（软上限）：min(freeCapMax,
+   *   freeCapPerAttr + floor(额外点 / freeCapGrow))；属性本身另有 100 硬顶（view/create.js）。 */
+  freePoints: 12, freeCapPerAttr: 10, freeCapMax: 10, freeCapGrow: 6,
   freeAttrPerPoint: 10, freeFunPerPoint: 2000,   /* #36：1 点 = +10 属性 = $2k */
-  /* 每局结算选「加点」这一支时，永久追加多少自由点（与"保留一张天赋卡"互斥，二选一）。 */
-  loopFreeBonus: 2,
-  /* 隐藏作弊码（测试彩蛋，界面上不出现任何入口）：连打 `woshishabi` + 数字即注点，
-   * woshishabi1 → +1 自由点 …… woshishabi10 → +10；超过 10 一律夹到 10。可重复打、累加。
-   * 命中与否都不给任何提示 —— 它只通过"自由点突然变多"这件事自己显形。 */
+  /* #31：周目成长系数 —— 每完成一个周目 +1 自由点（旧的「加点 / 保卡二选一」已废，保卡改为随时可选）。 */
+  loopFreeBonus: 1,
+  /* 作弊码（#31 起喂的是【周目】而不是点）：`woshishabiN` → 本次建角按「第 N+1 周目」的口径开局，
+   * 自由点额度与高稀有卡概率一起抬升；N 超过 cheatMax(10) 一律夹到 10，可重复提交、累加。
+   * 只在建角页生效、不落盘 —— 兑来的周目不会滚进真实的周目账本。 */
   cheatEnabled: true, cheatPrefix: "woshishabi", cheatMax: 10,
 
   /* ---- 时间：一个月一回合，一年 12 个月 ----
@@ -449,13 +446,15 @@ POTUS.stateWindFor = function (stateId, party) {
   return -s.strength;                            // 逆风：-1~-3（拉拢少数派的地形）
 };
 
-/* ---------- 多周目元进度（v0.12 #20：这是个会成长的多周目游戏） ----------
- * 全部存 localStorage，跨局生效、不进单局存档 —— 与 everPresident / keepCard 同一套。
- *   周目数   ：本次是第几周目（1 起）。决定掷牌稀有度概率（越高周目等级卡越多）。
- *   自由点池 ：每局结算领「+2 自由点」永久累计，让建角可分配的点数随周目变大。
+/* ---------- 多周目元进度（v0.12 #31：周目数是唯一的成长账本） ----------
+ * 全部存 localStorage，跨局生效、不进单局存档。
+ *   周目数   ：completedLoops = 已完成的周目数（首局为 0）；currentLoop = 它 + 1，即"这是第几周目"。
+ *             每局结束无条件 +1（不再有"加点 / 保卡二选一"；见 progression.js 的 ending）。
+ *   自由点   ：不再有独立账本 —— 额度 = freePoints + 已完成周目 × loopFreeBonus，见 freePool。
+ *   橙卡闸   ：第 2 周目起进池（见 orangeUnlocked），不再要求"当过总统"。
+ *   作弊周目 ：建角页输入 woshishabiN → loopExtra += N，只抬本局建角口径，绝不落盘。
  * 读失败（无痕/沙箱）一律退回 0 / 第 1 周目，绝不让建角卡死。 */
 POTUS.metaLoopKey = "potus_meta_loop_v1";
-POTUS.metaFreeKey = "potus_meta_freept_v1";
 POTUS.metaReadInt = function (key) {
   try {
     const n = parseInt(localStorage.getItem(key) || "0", 10);
@@ -465,36 +464,41 @@ POTUS.metaReadInt = function (key) {
 POTUS.metaWriteInt = function (key, n) {
   try { localStorage.setItem(key, String(n | 0)); } catch (e) { }
 };
-/* 本次要开的是第几周目：已完成的局数 + 1 */
-POTUS.currentLoop = function () { return POTUS.metaReadInt(POTUS.metaLoopKey) + 1; };
-/* 一局走到结算 → 周目数 +1（挂在 career_end 结算屏，与 markEverPresident 同一处） */
-POTUS.bumpLoop = function () { POTUS.metaWriteInt(POTUS.metaLoopKey, POTUS.metaReadInt(POTUS.metaLoopKey) + 1); };
-/* 周目累计送了多少自由点 */
-POTUS.readBonusFree = function () { return POTUS.metaReadInt(POTUS.metaFreeKey); };
-POTUS.addBonusFree = function (n) {
-  n = Math.max(0, n | 0);
-  if (!n) return POTUS.readBonusFree();
-  POTUS.metaWriteInt(POTUS.metaFreeKey, POTUS.readBonusFree() + n);
-  return POTUS.readBonusFree();
-};
-/* 建角实际可分配的自由点：一周目基础值 + 周目累计奖励 (+ 本局临时 extra，如作弊码) */
-POTUS.freePool = function (extra) {
+/* 已完成的周目数：首局开局时是 0 */
+POTUS.completedLoops = function () { return POTUS.metaReadInt(POTUS.metaLoopKey); };
+/* 作弊码兑来的周目（只活在当前这次建角里；CSEL 一消失就归零） */
+POTUS.loopExtra = function () { return (POTUS.CSEL && POTUS.CSEL.cheatLoops) || 0; };
+/* 本次要开的是第几周目（1 起）：已完成局数 + 1 + 本局作弊注入 */
+POTUS.currentLoop = function () { return POTUS.completedLoops() + 1 + POTUS.loopExtra(); };
+/* 一局走到结算 → 周目数 +1（挂在 career_end 结算屏；作弊注入不计入真实账本） */
+POTUS.bumpLoop = function () { POTUS.metaWriteInt(POTUS.metaLoopKey, POTUS.completedLoops() + 1); };
+POTUS.loopFreeBonus = function () {
   const b = POTUS.balance();
-  return (b.freePoints == null ? 20 : b.freePoints) + POTUS.readBonusFree() + (extra || 0);
+  return b.loopFreeBonus == null ? 1 : b.loopFreeBonus;
+};
+/* 周目（含作弊注入）累计送了多少自由点 */
+POTUS.readBonusFree = function () { return (POTUS.currentLoop() - 1) * POTUS.loopFreeBonus(); };
+/* 建角实际可分配的自由点：首局基础值 + 周目累计奖励 */
+POTUS.freePool = function () { return POTUS.freePoolFor(POTUS.currentLoop()); };
+/* 第 loop 周目开局有多少自由点 —— 额度公式只有这一处（结算屏预报下周目也走它） */
+POTUS.freePoolFor = function (loop) {
+  const b = POTUS.balance();
+  return (b.freePoints == null ? 12 : b.freePoints) +
+    Math.max(0, (loop | 0) - 1) * POTUS.loopFreeBonus();
 };
 /* 单维软上限：额度每多 freeCapGrow 点、单维多开 1 点，封顶 freeCapMax。
- * 不这么算的话周目/作弊送的点只能全灌进金钱档，属性成长会早早锁死。 */
-POTUS.freeCap = function (extra) {
+ * 不这么算的话高周目多出来的点只能全灌进金钱档，属性成长会早早锁死。 */
+POTUS.freeCap = function () {
   const b = POTUS.balance();
-  const base = b.freeCapPerAttr == null ? 6 : b.freeCapPerAttr;
+  const base = b.freeCapPerAttr == null ? 10 : b.freeCapPerAttr;
   const hard = b.freeCapMax == null ? base : b.freeCapMax;
   const grow = b.freeCapGrow == null ? 6 : b.freeCapGrow;
-  return Math.min(hard, base + Math.floor((POTUS.readBonusFree() + (extra || 0)) / Math.max(1, grow)));
+  return Math.min(hard, base + Math.floor(POTUS.readBonusFree() / Math.max(1, grow)));
 };
 
-/* ---------- 隐藏作弊码（测试彩蛋；不面向玩家、界面无入口、命中不提示） ----------
- * 码面 = cheatPrefix + 数字：`woshishabi5` → +5 自由点。数字 > cheatMax(10) 一律夹到 10。
- * 可连打累加。返回命中到的点数（未命中返回 0）——**不给任何错误原因**，静默。 */
+/* ---------- 作弊码（#31：明牌输入框，兑的是【周目】） ----------
+ * 码面 = cheatPrefix + 数字：`woshishabi5` → 本次建角按第 6 周目口径开局（额度 + 高稀有概率）。
+ * 数字 > cheatMax(10) 一律夹到 10。可重复提交、累加。返回命中到的周目数（未命中返回 0）。 */
 POTUS.cheatParse = function (code) {
   const b = POTUS.balance();
   if (!b.cheatEnabled) return 0;
@@ -905,22 +909,25 @@ POTUS.monthlyLedger = function (m) {
  * 单表参数在 balance.gacha；卡定义在 reg.card（content/15-cards.js）。
  * 四档稀有度：白=1 蓝=2 紫=3 橙=4。每个呈现卡位【独立掷一次稀有度】（权重见 rarityW），
  *   再在该稀有度内等概率抽一张、去重 —— 于是"少数几选里撞出橙卡"才是它上瘾的核心。
- * 橙卡受跨局 meta 门槛：只有当过总统（everPresident，localStorage 记录）后才进池，
- *   未解锁时橙权重强制 0（其余档按比例归一），一周目最多抽到紫。
+ * 橙卡受周目门槛（v0.12 #31）：第 2 周目起才进池（见 orangeUnlocked），首局最多抽到紫；
+ *   门槛未到则该档权重强制剔除（其余档按比例归一）。旧的"当过总统才解锁"已废。
  * 卡面字段分三类：
  *   effects:{...}   入选即一次性结算（走 applyEffects，如开局资金卡）；
  *   聚合字段        mods[]/critMul/critfailBoost/hpDecayMul/luckPct/attrBonus/voterDriftMul —— 持有时持续生效，多卡叠加；
  *   spare:["why"]   免死金牌（顶级橙卡）：pendingHardEnd 命中列表时豁免一次、卡烧毁、进 G.spentCards 留痕。
- * 二周目保卡存 localStorage（跨局 meta，不进存档）。 */
+ * 下周目保卡存 localStorage（跨局 meta，不进存档），结算页挑一张、可跳过。 */
 POTUS.gachaCfg = function () {
   const g = (POTUS.balance() || {}).gacha || {};
   return {
     enabled: g.enabled !== false,
     offer: g.offer == null ? 12 : g.offer,
+    loop: POTUS.currentLoop(),
     rarityW: POTUS.rarityWForLoop(POTUS.currentLoop(), g),
     loopRarity: g.loopRarity || null,
     orangeRarity: g.orangeRarity == null ? 4 : g.orangeRarity,
+    orangeLoop: g.orangeLoop == null ? 2 : g.orangeLoop,
     picks: g.picks || { brutal: 1, hard: 2, normal: 3, easy: 4, legendary: 5 },
+    rerolls: g.rerolls == null ? 1 : g.rerolls,
     keepQuota: g.keepQuota == null ? 1 : g.keepQuota,
     spareRepPenalty: g.spareRepPenalty == null ? 15 : g.spareRepPenalty
   };
@@ -937,12 +944,12 @@ POTUS.rarityWForLoop = function (loop, g) {
   for (let i = 0; i < keys.length; i++) { if (keys[i] <= loop) pick = keys[i]; }
   return Object.assign({}, table[pick]);
 };
-/* 跨局 meta：是否当过总统（橙卡解锁闸）。与"本局 president_done"无关，是历史最高荣誉。 */
-POTUS.metaEverKey = "potus_meta_everpresident_v1";
-POTUS.everPresident = function () {
-  try { return localStorage.getItem(POTUS.metaEverKey) === "1"; } catch (e) { return false; }
+/* 橙卡（命卡档）是否进池：#31 起只看周目 —— 第 2 周目起解锁，作弊码兑来的周目同样算数。
+   旧的"当过总统才放橙"（everPresident 跨局标记）已废，门槛换成可积累的周目数。 */
+POTUS.orangeUnlocked = function () {
+  const g = POTUS.gachaCfg();
+  return g.loop >= g.orangeLoop;
 };
-POTUS.markEverPresident = function () { try { localStorage.setItem(POTUS.metaEverKey, "1"); } catch (e) { } };
 /* 本局可选几张：难度=选择自由度；表外难度（缺省）给 1 张保底 */
 POTUS.cardPickCount = function (difficulty) {
   const g = POTUS.gachaCfg();
@@ -963,10 +970,10 @@ POTUS.keepCardSet = function (id) {
     else localStorage.setItem(POTUS.keepCardKey, JSON.stringify([id]));
   } catch (e) { /* 隐私模式写不进就算了 */ }
 };
-/* 掷一次稀有度（按权重；未解锁总统则剔除橙档后归一）。返回稀有度数值。 */
+/* 掷一次稀有度（按权重；未到橙卡周目门槛则剔除橙档后归一）。返回稀有度数值。 */
 POTUS.rollRarity = function () {
   const g = POTUS.gachaCfg();
-  const unlocked = POTUS.everPresident();
+  const unlocked = POTUS.orangeUnlocked();
   const byR = POTUS.cardsByRarity();
   const weights = {};
   let total = 0;
@@ -996,8 +1003,8 @@ POTUS.cardsByRarity = function () {
    保卡必现（顶掉一张非保卡）。返回 id 数组。 */
 POTUS.rollCardOffer = function () {
   const g = POTUS.gachaCfg(), byR = POTUS.cardsByRarity(), out = [], used = {};
-  /* 可补位的档：非空、且若为橙档则须已解锁总统（跟 rollRarity 同一套门禁）。升序，低档优先补。 */
-  const unlocked = POTUS.everPresident();
+  /* 可补位的档：非空、且若为橙档则须已过周目门槛（跟 rollRarity 同一套门禁）。升序，低档优先补。 */
+  const unlocked = POTUS.orangeUnlocked();
   const fillTiers = Object.keys(byR).map(Number).sort(function (a, b) { return a - b; })
     .filter(function (r) { return byR[r].length && !(r === g.orangeRarity && !unlocked); });
   const takeFrom = function (r) {
