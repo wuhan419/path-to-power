@@ -1,6 +1,6 @@
 /* ============================================================================
  * CONTENT · i18n/en/events/65-campaign-acts-b.js
- * 中文文件 content/events/65-campaign-acts.js 后半段（按文件内 id 顺序第 56 个
+ * 中文文件 content/events/65-campaign-acts.js 后半段（按文件内 id 顺序第 57 个
  * id 起：camp_federal_primary 的 steady_defend 选项 → 至 camp_pres_swing 全卡）
  * 的英文覆盖层。前半段（含 camp_federal_primary 卡级字段）归 65-campaign-acts-a。
  *
@@ -147,8 +147,8 @@ POTUS.define("l10n", {
             id: "pro_clip",
             text: "Launch with a cinematic ad",
             outcomes: {
-              crit: { body: "The ad blankets every screen. Overnight, you are the story." },
-              ok: { body: "You launch with force." },
+              crit: { body: "The ad blankets every screen. Overnight, you are the story — and the donation page crashes that same night." },
+              ok: { body: "You launch with force, and the sign-up list turns into a mailing list." },
               meh: { body: "Well made. Not many watched." },
               fail: { body: "Critics call it hollow. It moves no one." },
               critfail: { body: "Every frame gets picked apart online. The state laughs at you." }
@@ -242,8 +242,8 @@ POTUS.define("l10n", {
             id: "command",
             text: "Steady the stage, show a leader's bearing",
             outcomes: {
-              crit: { body: "Calm, specific, empathetic. The polls jump on the spot." },
-              ok: { body: "A solid night. You hand your rival nothing." },
+              crit: { body: "Calm, specific, empathetic. The polls jump, and small donations pour in behind them." },
+              ok: { body: "A solid night. You hand your rival nothing — and the money people notice." },
               meh: { body: "Serviceable. Nobody changes their mind." },
               fail: { body: "Tense and evasive — you do not look the part." },
               critfail: { body: "You lose your temper live. The clip runs on a loop." }
@@ -633,8 +633,8 @@ POTUS.define("l10n", {
             id: "deal_make",
             text: "Cut deals with every faction for the votes",
             outcomes: {
-              crit: { body: "The last blocs close in the back rooms. The nomination is set." },
-              ok: { body: "You take the nomination." },
+              crit: { body: "The last blocs close in the back rooms. The nomination is set — and the party hands over the keys to its vault." },
+              ok: { body: "You take the nomination, and with it the donors' rolodex." },
               meh: { body: "You win it — having handed out a thousand slices of cake." },
               fail: { body: "Short of the magic number. The party begins to doubt you." },
               critfail: { body: "A surprise second ballot pulls you down." }

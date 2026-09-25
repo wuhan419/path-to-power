@@ -17,6 +17,7 @@
  *             真实初值由 engine 的 P.seedMomentum() 按身位/声望/基本盘/派系好感现算（起手 12—35），
              再与这里的声明值取小。想压低某场竞选的开局声势就调小它。
  *             warchest=竞选金库（仍是初值）：它只决定买不买得动广告，**不参与判负**。
+ *             #39 起这句话终于落地 —— 广告类选项写了 `req:{camp:N}`，金库不够就被拦（见 engine/view/stage.js）。
  *   stages[]  一幕一幕。**每一幕都必须演出来**（不像主线可以跳幕）：
  *               event       这一幕的事件（末幕复用 60-progression.js 的 prog_*）
  *               final:true  标记投票日：演完这一场就按 tier 是否抵达目标判胜/败
@@ -29,9 +30,11 @@
  *
  * ---------- 规模随职级缩放（越往上、竞选越漫长）----------
  *   基层(council/city)  3 幕：宣布 → 基层动员 → 投票日
- *   州级(state/upper/stwide)  4 幕：宣布 → 初选 → 造势 → 投票日
+ *   州级(state/upper/stwide)  5 幕：宣布 → 初选 → 筹款 → 造势 → 投票日
  *   联邦/大位(federal/senate/vp)  5 幕：宣布 → 初选 → 筹款/辩论 → 摇摆 → 投票日
  *   总统(president)  6 幕：宣布 → 初选 → 提名 → 辩论 → 摇摆州 → 投票日
+ *   （#39：州级三链补了筹款幕，与联邦同长 —— 从这一级起"没有金库就没有广告"是明规则。
+ *     筹款幕 camp_raise_state 三链共用一张卡，靠 tierMin/tierMax 钉在起跳级 2—4 上。）
  * ==========================================================================*/
 (function () {
   const P = POTUS;
@@ -42,6 +45,15 @@
       meterDrift: 0.8,       // 每个平静月选情自然流失（注意力/金钱不续费就往下走）
       retryCooldown: 12,     // 败选后隔这么多个月才允许卷土重来（基层可重试时用）
       meterNames: { momentum: "选情", warchest: "金库" },
+      /* #39 起手选情的五项系数（engine/campaign.js 的 seedMomentum 读这张表）。
+         · perFun / funRef：家底折成「弹药档数」（家底 ÷ 级别价，与加码面板同一把尺子），
+           以 funRef=8 档为零点**对称**取对数差 —— 低于它扣分、高于它加分，两边夹在 ±5 点。
+           于是"软门槛只咬人、不赏钱"：有钱的人拿到的还是 #35 标定过的那一分，
+           只有押不出一档广告钱的人起手往下掉。
+         · perTier / perRep 保持 #35 的 2 / 0.4：实测收这两条会整体压垮高层晋升漏斗
+           （30 局里唯一跑到等级10 的那局被压到等级7）。要压某场竞选的开局声势，
+           用的是那条链自己的 def.meters.momentum 天花板 —— 见下面州级三链的 momentum: 30。 */
+      seed: { floor: 12, ceil: 35, perTier: 2, perRep: 0.4, perShare: 15, perFac: 0.1, perFun: 5, funRef: 8 },
       /* #23 投放把柄：一次花几份料、两种靶各给多少甜头、大选靶多容易被翻出来。
          引擎侧（campaign.js dropCfg）有一模一样的兜底默认，这里只是把数值摆到明面。 */
       levDrop: {
@@ -93,10 +105,11 @@
       lede: "选区从一条街变成一个县，竞选第一次需要一台机器。",
       tier: 3,
       gate: { tierRaw: true, tierMin: 2, tierMax: 2, minTenure: 12 },
-      meters: { momentum: 45 },
+      meters: { momentum: 30, warchest: 10 },   /* #39：州级起步天花板压到 30（=投票日 34% 开局），差额靠筹款与加码一幕一幕挣。金库同理只给「半波广告」的量级——买得起这一场的火力，得先去演筹款幕 */
       stages: [
-        { event: "camp_state_announce", title: "宣布竞选州议会", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_state_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "党内初选", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_state_announce", title: "宣布竞选州议会", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_state_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "党内初选", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_raise_state", title: "筹款：把金库填起来", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
         { event: "camp_state_rally", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "选战造势", maxMonths: 5, metersDelta: { momentum: 5 } },
         { event: "prog_state", title: "投票日", final: true, maxMonths: 8 }
       ]
@@ -108,10 +121,11 @@
       lede: "州议会的上半院，席位更少，赌注更大。",
       tier: 4,
       gate: { tierRaw: true, tierMin: 3, tierMax: 3, minTenure: 18 },
-      meters: { momentum: 45 },
+      meters: { momentum: 30, warchest: 12 },   /* #39：起步天花板 30 + 只够半波广告的起点金库 */
       stages: [
-        { event: "camp_upper_announce", title: "瞄准参议院席位", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_upper_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "初选对决", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_upper_announce", title: "瞄准参议院席位", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_upper_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "初选对决", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_raise_state", title: "筹款：把金库填起来", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
         { event: "camp_upper_rally", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "巡回拉票", maxMonths: 5, metersDelta: { momentum: 5 } },
         { event: "prog_upper", title: "投票日", final: true, maxMonths: 8 }
       ]
@@ -123,10 +137,11 @@
       lede: "第一次要向整个州自我介绍。",
       tier: 5,
       gate: { tierRaw: true, tierMin: 4, tierMax: 4, minTenure: 20 },
-      meters: { momentum: 45 },
+      meters: { momentum: 30, warchest: 14 },   /* #39：起步天花板 30 + 只够半波广告的起点金库 */
       stages: [
-        { event: "camp_stwide_announce", title: "全州性宣告", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_stwide_convention", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "州党代表大会", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_stwide_announce", title: "全州性宣告", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_stwide_convention", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "州党代表大会", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_raise_state", title: "筹款：把金库填起来", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
         { event: "camp_stwide_media", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "打响 statewide 知名度", maxMonths: 6, metersDelta: { momentum: 5 } },
         { event: "prog_stwide", title: "投票日", final: true, maxMonths: 8 }
       ]
@@ -138,11 +153,11 @@
       lede: "通往国会的那一跳：初选、金钱、和一块真正属于你的全国版图。",
       tier: 6,
       gate: { tierRaw: true, tierMin: 5, tierMax: 5, minTenure: 24 },
-      meters: { momentum: 45, warchest: 30 },
+      meters: { momentum: 45, warchest: 16 },   /* #39：起点金库只够半波广告，其余靠 camp_federal_money */
       stages: [
-        { event: "camp_federal_announce", title: "宣布角逐国会席位", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_federal_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "国会初选", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
-        { event: "camp_federal_money", title: "筹款与金主", maxMonths: 6, metersDelta: { momentum: 4 }, /* #35⑤：金库闸已删——钱见底只是买不动广告，不判败选 */ },
+        { event: "camp_federal_announce", title: "宣布角逐国会席位", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_federal_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "国会初选", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_federal_money", title: "筹款与金主", maxMonths: 6, metersDelta: { momentum: 4, warchest: 3 }, /* #35⑤：金库闸已删——钱见底只是买不动广告，不判败选 */ },
         { event: "camp_federal_swing", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "摇摆选区的最后一周", maxMonths: 6, metersDelta: { momentum: 6 }, abortBelow: { momentum: 12 } },
         { event: "prog_federal", title: "投票日 · 决战国会", final: true, maxMonths: 8 }
       ]
@@ -154,11 +169,11 @@
       lede: "一场覆盖全州的选举，一支真正的竞选机器。",
       tier: 7,
       gate: { tierRaw: true, tierMin: 6, tierMax: 6, minTenure: 28 },
-      meters: { momentum: 45, warchest: 35 },
+      meters: { momentum: 45, warchest: 18 },   /* #39：同上 —— 金库是广告幕的门票，不是装饰品 */
       stages: [
-        { event: "camp_senate_announce", title: "宣布竞逐大位", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_senate_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "全州初选", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
-        { event: "camp_senate_debate", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "电视辩论", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 12 } },
+        { event: "camp_senate_announce", title: "宣布竞逐大位", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_senate_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "全州初选", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_senate_debate", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "电视辩论", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 12 } },
         { event: "camp_senate_swing", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "争夺摇摆地区", maxMonths: 6, metersDelta: { momentum: 6 }, /* #35⑤：同上，只留 momentum 线 */ },
         { event: "prog_senate", title: "投票日", final: true, maxMonths: 8 }
       ]
@@ -170,7 +185,7 @@
       lede: "你不再为自己竞选，你是一整张竞选海报上的另一半。",
       tier: 8,
       gate: { tierRaw: true, tierMin: 7, tierMax: 7, minTenure: 34 },
-      meters: { momentum: 45, warchest: 40 },
+      meters: { momentum: 45 },   /* #39：本链没有需要金库的一幕，所以刻意不给金库表——只写不读的表就是装饰 */
       stages: [
         { event: "camp_vp_announce", title: "进入候选视野", maxMonths: 5, metersDelta: { momentum: 4 } },
         { event: "camp_vp_vetting", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "背景审查与试探", maxMonths: 6, metersDelta: { momentum: 4 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
@@ -189,12 +204,12 @@
          连任在 camp_reelect 里解决；败选/弹劾之后再"东山再起"会绕过 22 修正案，
          也会让 presidency.js 的届数账本（term/termStart）失去意义。 */
       gate: { tierRaw: true, tierMin: 8, tierMax: 8, minTenure: 40, notFlags: ["president_left"] },
-      meters: { momentum: 45, warchest: 45 },
+      meters: { momentum: 45, warchest: 24 },   /* #39：起点金库只够半波广告 */
       stages: [
-        { event: "camp_pres_announce", title: "宣布竞选总统", maxMonths: 5, metersDelta: { momentum: 4 } },
-        { event: "camp_pres_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "各州初选连胜", maxMonths: 7, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
-        { event: "camp_pres_nomination", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "锁定党内提名", maxMonths: 6, metersDelta: { momentum: 6 }, abortBelow: { momentum: 12 } },
-        { event: "camp_pres_debate", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "总统电视辩论", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 12 } },
+        { event: "camp_pres_announce", title: "宣布竞选总统", maxMonths: 5, metersDelta: { momentum: 4, warchest: 3 } },
+        { event: "camp_pres_primary", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "各州初选连胜", maxMonths: 7, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 10 }   /* #35①：闸门随低起步种子下移（旧 16/18 是按写死 45 标定的） */ },
+        { event: "camp_pres_nomination", drop: "primary",   /* #23：这一幕可投放把柄（打党内同僚：掷对手退赛） */ title: "锁定党内提名", maxMonths: 6, metersDelta: { momentum: 6, warchest: 3 }, abortBelow: { momentum: 12 } },
+        { event: "camp_pres_debate", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "总统电视辩论", maxMonths: 6, metersDelta: { momentum: 5, warchest: 3 }, abortBelow: { momentum: 12 } },
         { event: "camp_pres_swing", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "摇摆州的最后冲刺", maxMonths: 6, metersDelta: { momentum: 6 }, /* #35⑤：同上，只留 momentum 线 */ },
         { event: "prog_president", title: "投票日 · 问鼎白宫", final: true, maxMonths: 8 }
       ]
@@ -220,7 +235,7 @@
         tierRaw: true, tierMin: 9, tierMax: 9,
         cond: function (G) { return !!(G.pres && G.pres.raceDue === "reelect"); }
       },
-      meters: { momentum: 45, warchest: 50 },
+      meters: { momentum: 45 },   /* #39：在任链不接金库闸，也就不给金库表（裁定 4：加码与门票只给竞选幕） */
       stages: [
         { event: "camp_re_announce", title: "宣布寻求连任", maxMonths: 3, metersDelta: { momentum: 4 } },
         { event: "camp_re_primary", drop: "primary",   /* #23：党内挑战者 */ title: "党内的挑战者", maxMonths: 4, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 } },
@@ -240,7 +255,7 @@
         tierRaw: true, tierMin: 9, tierMax: 9,
         cond: function (G) { return !!(G.pres && G.pres.raceDue === "midterm"); }
       },
-      meters: { momentum: 40, warchest: 40 },
+      meters: { momentum: 40 },   /* #39：同上 */
       stages: [
         { event: "camp_mt_agenda", title: "党团要一个交代", maxMonths: 3, metersDelta: { momentum: 4 } },
         { event: "camp_mt_rally", drop: "general",   /* #23：把矛头对准谁，决定这波水花 */ title: "全国助选", maxMonths: 4, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 } },

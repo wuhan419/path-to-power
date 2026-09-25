@@ -10,7 +10,18 @@
  * 直接落到当前竞选的选情表上；campaignTick 的 abortBelow 闸据此判"中途崩盘"。
  * 与三值性契约：这些都是 risk（有输有赢、可搞砸）；量级 mid（比小事有分量，不是大事件）。
  * tierRaw + tierMin/tierMax 钉在本场竞选的起跳级上（与对应 prog_* 同调）。
+ *
+ * #39 资源入场券：**只有语义上就是"砸钱换声势 / 借人脉办事"的选项才接 stake**（见下面两个常量），
+ * 于是加码面板在竞选幕真的会弹出来。三条红线：
+ *   ① 基层两链（council/city）整体不接 —— 入场家底 $0—1k，给了只是一排按不动的按钮；
+ *   ② 每张卡至少留一个**无加码**的选项（草根/稳守那一面）—— 投不投是真选择，不是默认最优；
+ *   ③ 投票日的 prog_* 一概不接（validate 有断言）—— 钱只买声势，买不到开盘夜那张票。
  * ==========================================================================*/
+
+/* 竞选幕的加码规格。比日常事件（4%/档、30% 封顶）更陡：这几场竞选本就是要花钱办事的，
+   7 档买到 +42% 才配得上"入场券"三个字。单价仍走 #28① 的级别价（月薪×量级），不改口径。 */
+const CAMP_FUN = { fun: { w: 0.06, cap: 0.42 } };
+const CAMP_FAV = { fav: true };
 
 POTUS.define("event", [
 
@@ -178,6 +189,7 @@ POTUS.define("event", [
       {
         id: "big_bang", text: "召开发布会，高调开跑", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "地方报纸头版，党内重量级人物站台，你一举进入视野。", effects: { rep: 2.5, camp: { momentum: 12 } } },
           ok: { body: "宣布到位，机器开始招募志愿者。", effects: { rep: 1, camp: { momentum: 7 } } },
@@ -219,6 +231,7 @@ POTUS.define("event", [
       {
         id: "win_elites", text: "争取党内建制背书", base: 0.45,
         mods: [{ src: "fac", key: "establishment", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "党魁公开为你站台，初选对手知难而退。", effects: { rep: 1.5, fac: { establishment: 8 }, camp: { momentum: 12 } } },
           ok: { body: "你拿到了关键背书。", effects: { fac: { establishment: 4 }, camp: { momentum: 7 } } },
@@ -249,6 +262,8 @@ POTUS.define("event", [
         id: "air_war", text: "买广告、打空中战", base: 0.5,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
         cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
+        req: { camp: 20 },   /* #39：金库闸 —— 起步金库只有 10，不演筹款幕就买不动这一波广告 */
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "广告精准打击，你的名字成了本选区的口头禅。", effects: { rep: 2, camp: { momentum: 13, warchest: -4 } } },
           ok: { body: "曝光稳步上涨，只是烧钱。", effects: { camp: { momentum: 7, warchest: -5 } } },
@@ -281,6 +296,67 @@ POTUS.define("event", [
     ]
   },
 
+  /* ================= 州级三链共用的筹款幕（state / upper / stwide）=================
+   * #39：这张卡是"入场券"的字面机制 —— 金库（camp.warchest）从这一幕起才有进项，
+   * 而广告类选项写了 req.camp，筹不到钱就只能走草根。四条路各自贵在不同的地方：
+   * 金主晚宴欠建制、小额募款慢而干净、党机器垫资欠人情、押积蓄什么都不欠只欠自己账户。
+   * self_fund 的价码走 #35② 的级别价通道（cost.funLevel），所以同一手棋在等级 3
+   * 和等级 5 根本不是一个价 —— 身位越高，越押得起，也越押得动。 */
+  {
+    id: "camp_raise_state", brief: { lede: "竞选机器要加油，油箱就是这张金库表。", known: ["广告位、班车、志愿者的盒子，都从同一笔钱里出。", "金主晚宴来钱快，小额募款来得干净。", "押自己的积蓄最稳，也最疼。"], unknown: ["没筹到钱的下一幕，你连广告都买不动。"] }, grade: "mid", category: "campaign", unique: false,
+    valence: "risk", tierRaw: true, tierMin: 2, tierMax: 4, weight: 1,
+    title: "筹款：把金库填起来",
+    body: "广告位、班车、印刷厂都要现钱。你面前有几种填金库的法子，每一种都在不同的地方见血。",
+    choices: [
+      {
+        id: "donor_dinner", text: "办一场金主晚宴", base: 0.5,
+        mods: [{ src: "fac", key: "establishment", w: 0.5 }, { src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "一桌人当场开票，金库一夜之间鼓起来，还有人答应替你去县城站台。", effects: { rep: 1, fac: { establishment: 6 }, camp: { momentum: 4, warchest: 16 } } },
+          ok: { body: "晚宴办得体面，款项按承诺到账。", effects: { fac: { establishment: 3 }, camp: { momentum: 2, warchest: 11 } } },
+          meh: { body: "来的都是熟面孔，钱不多，但关系聊热了。", effects: { camp: { warchest: 6 } } },
+          fail: { body: "金主们客套地听完，一支笔都没落。", effects: { fac: { establishment: -3 }, camp: { momentum: -3, warchest: 1 } } },
+          critfail: { body: "晚宴被人拍下来剪成「他为有钱人选」的广告片，钱没筹到，标签先贴上了。", effects: { rep: -2, fac: { base: -5 }, camp: { momentum: -8 } } }
+        }
+      },
+      {
+        id: "small_dollar", text: "发动小额募款，一块两块地攒", base: 0.5,
+        mods: [{ src: "attr", key: "CHA", w: 0.45 }, { src: "fac", key: "base", w: 0.35 }],
+        outcomes: {
+          crit: { body: "一封募款信被转发爆了，几百笔小钱汇成一条像样的现金流。", effects: { rep: 1.5, fac: { base: 6 }, camp: { momentum: 7, warchest: 11 } } },
+          ok: { body: "支持者掏了零钱，也把自己算进了这场竞选。", effects: { fac: { base: 3 }, camp: { momentum: 4, warchest: 7 } } },
+          meh: { body: "募来的钱勉强够付下一批传单。", effects: { camp: { momentum: 1, warchest: 4 } } },
+          fail: { body: "没人理会那封募款信，油箱还是空的。", effects: { camp: { momentum: -3, warchest: 1 } } },
+          critfail: { body: "你把「草根募款」当卖点到处讲，被人算出总共只筹了几百块。", effects: { rep: -1.5, camp: { momentum: -7 } } }
+        }
+      },
+      {
+        id: "self_fund", text: "把自己的积蓄押上", base: 0.7,
+        mods: [{ src: "attr", key: "CUN", w: 0.3 }],
+        cost: { funLevel: 3 },   /* #35②：3 档级别价 —— 押的是身位决定的一笔，不是写死的裸数 */
+        outcomes: {
+          crit: { body: "你把家底拍在桌上，机器当月就转了起来 —— 而且没人能说你「舍不得投入」。", effects: { rep: 1, camp: { momentum: 5, warchest: 14 } } },
+          ok: { body: "积蓄进了金库。账上薄了，声势厚了。", effects: { camp: { momentum: 3, warchest: 12 } } },
+          meh: { body: "钱确实到位了，只是看着账户往下掉让你心里发虚。", effects: { camp: { warchest: 10 } } },
+          fail: { body: "自己垫的钱只够烧一阵子，缺口还是缺口。", effects: { camp: { momentum: -2, warchest: 6 } } },
+          critfail: { body: "「拿自己的钱作秀」被对手翻出来讲，你钱也花了，还倒欠一笔解释。", effects: { rep: -1.5, camp: { momentum: -6, warchest: 3 } } }
+        }
+      },
+      {
+        id: "machine_credit", text: "让党机器先垫一笔", base: 0.55,
+        mods: [{ src: "fac", key: "establishment", w: 0.45 }],
+        req: { fac: "establishment", min: 25 },
+        outcomes: {
+          crit: { body: "党部把资金和一名老顾问一起拨给你，你隔天就像一场正经竞选了。", effects: { fac: { establishment: 4 }, camp: { momentum: 5, warchest: 15 }, fav: -1 } },
+          ok: { body: "垫款到位，代价是你答应在下周的党代会上替人说话。", effects: { camp: { momentum: 2, warchest: 12 }, fav: -1 } },
+          meh: { body: "党机器给了钱，也顺手记下了你的名字。", effects: { camp: { warchest: 8 }, fav: -1 } },
+          fail: { body: "党部拖了两周才放款，数目还砍了一半。", effects: { camp: { momentum: -3, warchest: 4 } } },
+          critfail: { body: "党机器临阵收回垫资去挺别人，你的账上一夜之间只剩赤字。", effects: { rep: -1.5, fac: { establishment: -5 }, camp: { momentum: -8 } } }
+        }
+      }
+    ]
+  },
+
   /* ========================= 等级4：州参议员（upper）========================= */
   {
     id: "camp_upper_announce", brief: { lede: "上院席位更少、盘子更大，位子将空。", known: ["一个现任即将离任，空位人人盯着。", "抢先定调赌先手，静观其变赌后劲。", "这一级的对手都更有分量。"], unknown: ["动作太慢，好位置会被别人先占。"] }, grade: "mid", category: "campaign", unique: false,
@@ -291,6 +367,7 @@ POTUS.define("event", [
       {
         id: "early_mover", text: "抢先宣布，占住话题", base: 0.5,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你抢在所有人前面，成了'这个席位的默认人选'。", effects: { rep: 2, camp: { momentum: 12 } } },
           ok: { body: "先声夺人，你把议题定成了自己的。", effects: { rep: 1, camp: { momentum: 7 } } },
@@ -321,6 +398,7 @@ POTUS.define("event", [
       {
         id: "contrast", text: "打出'新一代'的对比", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你把'变革'讲得动人，年轻选民倒向你。", effects: { rep: 2, camp: { momentum: 13 } } },
           ok: { body: "对比鲜明，你惊险出线。", effects: { camp: { momentum: 7 } } },
@@ -332,6 +410,7 @@ POTUS.define("event", [
       {
         id: "establish", text: "强调资历与稳固", base: 0.5,
         mods: [{ src: "fac", key: "establishment", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "党内大佬齐挺'可靠的那个'，你稳进大选。", effects: { rep: 1.5, fac: { establishment: 6 }, camp: { momentum: 11 } } },
           ok: { body: "你以'不会出事'说服了初选选民。", effects: { camp: { momentum: 7 } } },
@@ -372,6 +451,8 @@ POTUS.define("event", [
       {
         id: "targeted", text: "只打关键县，好钢用在刀刃", base: 0.55,
         mods: [{ src: "attr", key: "INT", w: 0.5 }],
+        req: { camp: 20 },   /* #39：金库闸 —— 定向投放要从这一场的金库里拨钱（本链起步 12 + 三幕拨款，缺口靠筹款幕）*/
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你把资源全砸在摇摆县，效率惊人。", effects: { rep: 1.5, camp: { momentum: 11 } } },
           ok: { body: "重点突破，你在关键地区拉开差距。", effects: { camp: { momentum: 7 } } },
@@ -393,6 +474,7 @@ POTUS.define("event", [
       {
         id: "state_tour", text: "巡回三城，正式宣告", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "三城联动，你一夜之间成了全州都听过的名字。", effects: { rep: 2.5, camp: { momentum: 12 } } },
           ok: { body: "宣告到位，知名度铺开了。", effects: { rep: 1.5, camp: { momentum: 7 } } },
@@ -404,6 +486,7 @@ POTUS.define("event", [
       {
         id: "endorse_chain", text: "先攒一串地方背书再露面", base: 0.55,
         mods: [{ src: "fac", key: "base", w: 0.4 }, { src: "fac", key: "establishment", w: 0.3 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "一堆市长县党部集体站台，你的宣告分量十足。", effects: { rep: 1.5, fac: { base: 6, establishment: 4 }, camp: { momentum: 11 } } },
           ok: { body: "背书链慢慢成形，你底气足了。", effects: { camp: { momentum: 6 } } },
@@ -433,6 +516,7 @@ POTUS.define("event", [
       {
         id: "work_room", text: "逐名代表谈判，锁定提名", base: 0.5,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }, { src: "fac", key: "establishment", w: 0.3 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "你在走廊里谈下足够票数，第一轮就拿下提名。", effects: { rep: 2, fac: { establishment: 6 }, camp: { momentum: 13 } } },
           ok: { body: "你笑到了大会最后，握住提名。", effects: { camp: { momentum: 8 } } },
@@ -474,6 +558,8 @@ POTUS.define("event", [
         id: "media_buy", text: "砸钱上黄金时段广告", base: 0.5,
         cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
+        req: { camp: 22 },   /* #39：金库闸（起步 14 + 一次中等筹款）*/
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "洗脑式广告让全州都会哼你的竞选口号。", effects: { rep: 2, camp: { momentum: 13, warchest: -6 } } },
           ok: { body: "知名度稳步上扬，金库也见到底。", effects: { rep: 1, camp: { momentum: 7, warchest: -8 } } },
@@ -516,6 +602,7 @@ POTUS.define("event", [
       {
         id: "national_launch", text: "高规格启动，直取国会议题", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你的启动吸引了全国政治记者，筹款邮件爆量。", effects: { rep: 2.5, camp: { momentum: 12, warchest: 8 } } },
           ok: { body: "启动到位，你进入了全国视野。", effects: { rep: 1, camp: { momentum: 7, warchest: 4 } } },
@@ -556,6 +643,7 @@ POTUS.define("event", [
       {
         id: "defend", text: "以在位优势稳住局面", base: 0.55,
         mods: [{ src: "fac", key: "establishment", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "你动用机器把挑战者压了下去，初选大胜。", effects: { rep: 2, fac: { establishment: 6 }, camp: { momentum: 13 } } },
           ok: { body: "你涉险拿下初选。", effects: { camp: { momentum: 8 } } },
@@ -636,6 +724,8 @@ POTUS.define("event", [
       {
         id: "floor_push", text: "最后一周地毯式拜票", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
+        req: { camp: 26 },   /* #39：金库闸 —— 班车、传单、志愿者盒子里没有一样是免费的（起步 16 + 宣布幕 + 筹款幕）*/
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你把郊区敲了个遍，选情在最后一刻翻起。", effects: { rep: 2, fac: { base: 6 }, camp: { momentum: 14 } } },
           ok: { body: "最后一周的拼劲稳住了关键人群。", effects: { camp: { momentum: 8 } } },
@@ -668,10 +758,11 @@ POTUS.define("event", [
       {
         id: "pro_clip", text: "发一支电影级宣传片开跑", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
-          crit: { body: "宣传片刷屏，你一夜之间成了全州话题。", effects: { rep: 2.5, camp: { momentum: 12 } } },
-          ok: { body: "开跑声势浩大。", effects: { rep: 1, camp: { momentum: 7 } } },
-          meh: { body: "片了不错，看的人不算多。", effects: { camp: { momentum: 3 } } },
+          crit: { body: "宣传片刷屏，你一夜之间成了全州话题，捐款页当晚就挤爆了。", effects: { rep: 2.5, camp: { momentum: 12, warchest: 8 } } },
+          ok: { body: "开跑声势浩大，报名邮箱变成募款名单。", effects: { rep: 1, camp: { momentum: 7, warchest: 5 } } },
+          meh: { body: "片了不错，看的人不算多。", effects: { camp: { momentum: 3, warchest: 2 } } },
           fail: { body: "宣传片被指空洞，没打动任何人。", effects: { camp: { momentum: -6 } } },
           critfail: { body: "宣传片被逐帧挘错，成了全网鬼畜。", effects: { rep: -2, camp: { momentum: -12 } } }
         }
@@ -719,6 +810,7 @@ POTUS.define("event", [
       {
         id: "fire_base", text: "点燃初选基本盘", base: 0.5,
         mods: [{ src: "fac", key: "base", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "基本盘为你赴汤蹈火，初选大胜。", effects: { fac: { base: 8 }, camp: { momentum: 11 } } },
           ok: { body: "热情选民把你抬过了终点。", effects: { camp: { momentum: 7 } } },
@@ -739,9 +831,9 @@ POTUS.define("event", [
         id: "command", text: "稳住阵脚，展现领袖气象", base: 0.5,
         mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
         outcomes: {
-          crit: { body: "你镇定、具体、有同理心，民调立跳。", effects: { rep: 2.5, camp: { momentum: 14 } } },
-          ok: { body: "你表现稳健，没给对手可乘之机。", effects: { camp: { momentum: 7 } } },
-          meh: { body: "不功不过，没人因为辩论改变主意。", effects: { camp: { momentum: 2 } } },
+          crit: { body: "你镇定、具体、有同理心，民调立跳，小额捐款跟着涌进来。", effects: { rep: 2.5, camp: { momentum: 14, warchest: 8 } } },
+          ok: { body: "你表现稳健，没给对手可乘之机。", effects: { camp: { momentum: 7, warchest: 5 } } },
+          meh: { body: "不功不过，没人因为辩论改变主意。", effects: { camp: { momentum: 2, warchest: 2 } } },
           fail: { body: "你紧张、回避，被指'不像当大位的料'。", effects: { rep: -1, camp: { momentum: -7 } } },
           critfail: { body: "你在直播中失态，剪辑版全天循环。", effects: { rep: -2.5, camp: { momentum: -14 } } }
         }
@@ -779,6 +871,8 @@ POTUS.define("event", [
         id: "blanket", text: "广告加人海，全面包围摇摆县", base: 0.5,
         cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
+        req: { camp: 24 },   /* #39：金库闸（起步 18，进项要靠在宣布幕/辩论幕舍得开声量）*/
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你把摇摆县打成了自己的颜色。", effects: { rep: 4, camp: { momentum: 14, warchest: -8 } } },
           ok: { body: "关键县选情稳步向好。", effects: { camp: { momentum: 8, warchest: -10 } } },
@@ -790,6 +884,7 @@ POTUS.define("event", [
       {
         id: "surrogate", text: "派重量级盟友替你出征", base: 0.55,
         mods: [{ src: "fac", key: "establishment", w: 0.4 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "明星盟友替你拉动了摇摆选民。", effects: { fac: { establishment: 4 }, camp: { momentum: 12 } } },
           ok: { body: "盟友巡回帮你在关键县补位。", effects: { camp: { momentum: 7 } } },
@@ -832,6 +927,7 @@ POTUS.define("event", [
       {
         id: "prove_loyal", text: "为党魁鞍前马后，表忠心", base: 0.55,
         mods: [{ src: "fac", key: "establishment", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "你成了党内最可靠的人，候选席为你敞开。", effects: { fac: { establishment: 8 }, camp: { momentum: 11 } } },
           ok: { body: "党魁记住了你的功劳。", effects: { fac: { establishment: 4 }, camp: { momentum: 6 } } },
@@ -862,6 +958,7 @@ POTUS.define("event", [
       {
         id: "spin", text: "提前包装、回避敏感区", base: 0.45,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
+        stake: CAMP_FUN,   /* #39：这一手本来就是花钱请公关团队做危机预案 */
         outcomes: {
           crit: { body: "你滴水不漏，审查团队挑不出错。", effects: { camp: { momentum: 9 } } },
           ok: { body: "你熚过了大部分质询。", effects: { camp: { momentum: 5 } } },
@@ -891,6 +988,7 @@ POTUS.define("event", [
       {
         id: "seal_it", text: "锁定提名，走上讲台", base: 0.5,
         mods: [{ src: "fac", key: "establishment", w: 0.5 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "大会主席念出你的名字，全场起立。", effects: { rep: 3, fac: { establishment: 8 }, camp: { momentum: 15 } } },
           ok: { body: "你拿到了提名。", effects: { rep: 1.5, camp: { momentum: 9 } } },
@@ -931,6 +1029,7 @@ POTUS.define("event", [
       {
         id: "tireless", text: "马不停蹄，走遍各州", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
+        stake: CAMP_FAV,
         outcomes: {
           crit: { body: "你成了全国最有号召力的助选人，人脉铺满各州。", effects: { rep: 2, fac: { base: 8 }, camp: { momentum: 13 } } },
           ok: { body: "你刷足了全国存在感。", effects: { rep: 1, camp: { momentum: 7 } } },
@@ -963,6 +1062,7 @@ POTUS.define("event", [
       {
         id: "grand", text: "在家乡小镇发表宏大开幕演说", base: 0.5,
         mods: [{ src: "attr", key: "CHA", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "演说传遍全国，你的民调一夜跳升。", effects: { rep: 5.5, camp: { momentum: 13, warchest: 8 } } },
           ok: { body: "开幕有力，全国开始认真对待你。", effects: { rep: 1.5, camp: { momentum: 8 } } },
@@ -1003,6 +1103,7 @@ POTUS.define("event", [
       {
         id: "early_wins", text: "全押早期州，赌连胜势头", base: 0.45,
         mods: [{ src: "attr", key: "CUN", w: 0.5 }],
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你在首场州连胜，势头不可阻挡。", effects: { rep: 5, camp: { momentum: 14 } } },
           ok: { body: "早期州你拿下了关键几场。", effects: { camp: { momentum: 8 } } },
@@ -1033,10 +1134,11 @@ POTUS.define("event", [
       {
         id: "deal_make", text: "逐派交易，凑定提名票数", base: 0.5,
         mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "establishment", w: 0.4 }],
+        stake: CAMP_FAV,
         outcomes: {
-          crit: { body: "你在后台谈拢了最后一批票，提名板上钉钉。", effects: { rep: 2.5, fac: { establishment: 8 }, camp: { momentum: 15 } } },
-          ok: { body: "你拿下了提名。", effects: { rep: 1.5, camp: { momentum: 9 } } },
-          meh: { body: "提名到手，但党被你切了无数块蛋糕。", effects: { camp: { momentum: 4 }, fav: -1 } },
+          crit: { body: "你在后台谈拢了最后一批票，提名板上钉钉 —— 党机器把金库钥匙也一并交了出来。", effects: { rep: 2.5, fac: { establishment: 8 }, camp: { momentum: 15, warchest: 10 } } },
+          ok: { body: "你拿下了提名。", effects: { rep: 1.5, camp: { momentum: 9, warchest: 6 } } },
+          meh: { body: "提名到手，但党被你切了无数块蛋糕。", effects: { camp: { momentum: 4, warchest: 3 }, fav: -1 } },
           fail: { body: "票数差临门一脚，党内对你生疑。", effects: { fac: { establishment: -5 }, camp: { momentum: -8 } } },
           critfail: { body: "一场反常的'第2轮投票'把你拉下马。", effects: { rep: -2.5, fac: { establishment: -8 }, camp: { momentum: -15 } } }
         }
@@ -1104,6 +1206,8 @@ POTUS.define("event", [
         id: "swing_blanket", text: "金库全开，轰炸摇摆州", base: 0.5,
         cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
+        req: { camp: 34 },   /* #39：金库闸（起步 24 + 四幕拨款：初选与代表大会打空了，摇摆州就轰炸不动）*/
+        stake: CAMP_FUN,
         outcomes: {
           crit: { body: "你把摇摆州刷成了自己的颜色，基本盘被彻底点燃。", effects: { rep: 2.5, fac: { base: 8 }, camp: { momentum: 15, warchest: -12 } } },
           ok: { body: "关键州选情被你拉了起来，支持者重新兴奋起来。", effects: { fac: { base: 6 }, camp: { momentum: 9, warchest: -14 } } },

@@ -314,6 +314,15 @@
     if (!r) return null;
     if (r.fun != null && G.fun < r.fun) return P.t("ui.stage.reqFun", "需要资金 ≥ ${v}", { v: r.fun.toLocaleString() });
     if (r.lev != null && (G.lev || 0) < r.lev) return P.t("ui.stage.reqLev", "需要把柄 ≥ {v}", { v: r.lev });
+    /* #39：竞选金库门槛 —— "买不买得起广告"由这一场筹到的钱决定，不是私人余额。
+       金库从此有了读者（它过去只写不读）。这一场根本没有金库这张表时不拦：
+       基层链没这张表、校验器也会直掷幕卡，那时维度不存在 ≠ 玩家不够格。 */
+    if (r.camp != null) {
+      const cur = P.campaignCurrent ? P.campaignCurrent() : null;
+      const w = cur && cur.meters ? cur.meters.warchest : null;
+      if (w != null && w < r.camp)
+        return P.t("ui.stage.reqCamp", "需要竞选金库 ≥ {v}（现在 {now}）", { v: r.camp, now: Math.round(w) });
+    }
     if (r.rep != null && G.rep < r.rep) return P.t("ui.stage.reqRep", "需要声望 ≥ {v}", { v: r.rep });
     /* #35④：投票日的门槛只看人头，不看钱包 —— 基本盘（好感+死忠）占注册选民的比例 */
     if (r.voterShare != null && (P.baseShare ? P.baseShare() : 0) < r.voterShare)

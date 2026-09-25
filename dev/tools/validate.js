@@ -1108,6 +1108,13 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
   }
   check(!moneyGate.length, "投票日选项不得再写 req.fun（钱=门票）：" + moneyGate.join(", "));
   check(!noBallot.length, "每条民选链的末幕都要有按选情开价的选项：" + noBallot.join(", "));
+  /* #39：投票日不开放加码面板 —— 钱与人情只买前几幕的声势，开盘夜那一分属于选情。
+     prog_city.run 曾挂着全仓库唯一一处 ballot+stake（"不交钱也能选、交了稳赢"的漏口），本轮剥掉。 */
+  const ballotStake = [];
+  for (const ev of P.events) {
+    for (const ch of ev.choices || []) if (ch.ballot && ch.stake) ballotStake.push(ev.id + "/" + ch.id);
+  }
+  check(!ballotStake.length, "投票日选项（ballot）不得声明 stake 加码：" + ballotStake.join(", "));
   {
     const run = (P.evById("prog_president").choices || []).filter(c => c.id === "run")[0];
     G.tier = 8; G.track = "electoral"; G.fun = 0; G.rep = 10;
@@ -1130,10 +1137,13 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
     const def = P.reg.campaign[cid];
     const gates = [].concat(def.abortBelow || [], (def.stages || []).map(s => s.abortBelow).filter(Boolean));
     for (const g of gates) for (const k in g) if (k !== "momentum") chestGate.push(cid + ":" + k);
+    /* #39 M4：州级三条链把起步天花板从 45 压到 30 —— 这正是软门槛的落地方式：
+       种子照样夹在 [FLOOR,CEIL]，链上少掉的那一截要靠筹款幕和加码一幕一幕挣。
+       这里只钉"天花板不得低于播种下限"：低于 floor 就等于新人一开局顶格、播种白算。 */
     const mtr = (def.meters || {}).momentum;
-    if (mtr != null && mtr < CEIL) chestGate.push(cid + " 起步天花板 " + mtr + " 低于播种上限");
+    if (mtr != null && mtr < FLOOR) chestGate.push(cid + " 起步天花板 " + mtr + " 低于播种下限 " + FLOOR);
   }
-  check(!chestGate.length, "abortBelow 只允许 momentum 一种表（#35⑤：钱见底=买不动广告，不判负）：" + chestGate.join(", "));
+  check(!chestGate.length, "判负只看选情（abortBelow 只允许 momentum）+ 起步天花板不得低于播种下限（#35⑤／#39 M4）：" + chestGate.join(", "));
 
   /* ⑥ 大钱手段的价码由级别价推导（cost.funLevel），不再是幕间裸数 */
   {
@@ -1166,6 +1176,122 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
   /* —— 还原现场 —— */
   G.tier = bak.tier; G.rep = bak.rep; G.fun = bak.fun; G.track = bak.track;
   G.faction = bak.faction; G.voters = bak.voters; G.campaign = bak.campaign;
+}
+
+/* ---------- 竞选：资源是入场券（#39）----------
+ * 用户报的 bug：都升到等级 4/5 了，整场竞选没有一个"动用人情/钱"的入口。
+ * 根因是结构性的两处：① 80 张竞选幕卡里 0 个选项声明 stake（投注面板永不弹）；
+ * ② 金库（warchest）被写了 64 次、读 0 次 —— 一张纯装饰表。
+ * 契约在这里钉死，防止回退：
+ *   ① 州级以上的每条晋升链，非投票日幕里既要能砸钱（stake.fun ≥1 幕）、也要能欠人情（stake.fav ≥1 幕）；
+ *   ② req.camp（金库闸）只准挂在真有金库表（meters.warchest）的链上，且不许把整卡都闸死；
+ *   ③ 加码永远是可选项：带 stake 的竞选幕必须至少留一个不带 stake、不带代价、不吃金库的选项；
+ *   ④ 竞选幕的资金加成封顶 +42%（高于日常 30%，但不许有人写成买定离手）。
+ * 覆盖面按裁定收在「花钱能办事的幕」：辩论/背景审查这类幕刻意不接（砸钱不改台上表现）。
+ * 基层两链（council/city）不接：那是"零家底也参选"的开局教学关；
+ * 在任两条链（reelect/midterm）本轮未接 —— 已知缺口，不是回退。 */
+console.log("\n== 竞选：资源是入场券（#39）==");
+{
+  const GRASS = { camp_council: 1, camp_city: 1, camp_reelect: 1, camp_midterm: 1 };
+  const thinChain = [], noFree = [], orphanGate = [], gateBlockedAll = [], capBad = [];
+  /* 事件 → 它挂在哪些链上（camp_raise_state 一张卡被三条州级链共用） */
+  const chainsOf = {};
+  for (const cid in P.reg.campaign)
+    for (const s of P.reg.campaign[cid].stages || [])
+      (chainsOf[s.event] || (chainsOf[s.event] = [])).push(cid);
+
+  for (const cid in P.reg.campaign) {
+    if (GRASS[cid]) continue;
+    let money = 0, favor = 0, acts = 0;
+    for (const s of P.reg.campaign[cid].stages || []) {
+      const ev = P.evById(s.event);
+      if (!ev || s.final) continue;
+      acts++;
+      const cs = ev.choices || [];
+      if (cs.some(c => c.stake && c.stake.fun)) money++;
+      if (cs.some(c => c.stake && c.stake.fav)) favor++;
+    }
+    console.log("  " + cid.padEnd(14) + " 非投票日幕 " + acts + " 幕：可砸钱 " + money + " ／ 可欠人情 " + favor);
+    if (!money || !favor) thinChain.push(cid + "（钱 " + money + "／人情 " + favor + "）");
+  }
+  /* 金库闸：闸本身只在这条链真的有钱表时才有意义 */
+  for (const ev of P.events) {
+    const cs = ev.choices || [];
+    const gated = chainsOf[ev.id] != null;
+    for (const c of cs) {
+      if (!c.req || c.req.camp == null) continue;
+      const on = chainsOf[ev.id] || [];
+      for (const cid of on) if ((P.reg.campaign[cid].meters || {}).warchest == null)
+        orphanGate.push(ev.id + "/" + c.id + "@" + cid);
+      if (!on.length) orphanGate.push(ev.id + "/" + c.id + "（不在任何竞选链上）");
+      if (cs.every(x => x.req && x.req.camp != null)) gateBlockedAll.push(ev.id);
+    }
+    for (const c of cs) {
+      if (c.stake && c.stake.fun) {
+        const cap = c.stake.fun === true ? 0.30 : c.stake.fun.cap;
+        if (!(cap > 0 && cap <= 0.42)) capBad.push(ev.id + "/" + c.id + "=" + cap);
+      }
+      if (c.stake && gated && !cs.some(x => !x.stake && !x.cost && !(x.req && x.req.camp != null)))
+        noFree.push(ev.id);
+    }
+  }
+  check(!thinChain.length, "州级以上每条晋升链都要既有砸钱的幕、也有欠人情的幕：" + thinChain.join(", "));
+  check(!noFree.length, "带加码的竞选幕必须留一条不投任何资源也能过的路：" + noFree.join(", "));
+  check(!orphanGate.length, "req.camp 只能挂在有金库表（meters.warchest）的链上：" + orphanGate.join(", "));
+  check(!gateBlockedAll.length, "带金库闸的卡不能整卡都要金库（否则必然踩到保底）：" + gateBlockedAll.join(", "));
+  check(!capBad.length, "竞选幕资金加成必须封顶在 +42% 以内：" + capBad.join(", "));
+  /* 金库闸的两端：**拦得住**（闸值高于这条链的起步金库，否则它永远不咬人 —— #39 的病根就是"只写不读"，
+     一道从不生效的闸是同一种病的另一面）＋ **挣得到**（闸值不得超过"起步 + 前面每一幕最好进项"的上限，
+     否则这条广告永久买不动，把玩家逼进死局）。 */
+  {
+    const dead = [], reachBad = [];
+    for (const cid in P.reg.campaign) {
+      const def = P.reg.campaign[cid], stg = def.stages || [];
+      const start = (def.meters || {}).warchest;
+      if (start == null) continue;
+      let reach = start;
+      for (const s of stg) {
+        const ev = P.evById(s.event);
+        if (!ev) continue;
+        for (const c of ev.choices || []) {
+          if (!c.req || c.req.camp == null) continue;
+          if (c.req.camp <= start) dead.push(cid + " 起步金库 " + start + " 已 ≥ 闸值 " + c.req.camp + "（" + ev.id + "/" + c.id + "）");
+          if (c.req.camp > reach) reachBad.push(cid + " " + ev.id + "/" + c.id + " 闸 " + c.req.camp + " > 可达上限 " + reach);
+          console.log("  金库闸 " + cid.padEnd(14) + (ev.id + "/" + c.id).padEnd(30) +
+            " 要 " + String(c.req.camp).padStart(3) + " ｜ 起步 " + start + " ｜ 走到这一幕最多攒到 " + reach);
+        }
+        if (s.final) break;
+        let best = (s.metersDelta || {}).warchest || 0;   /* 按幕拨款是确定进项，先算进来 */
+        for (const c of ev.choices || [])
+          for (const o in c.outcomes || [])
+            for (const ch of [].concat((c.outcomes[o] || {}).effects || []))
+              if (ch && ch.camp && ch.camp.warchest > best) best = ch.camp.warchest;
+        reach += best;
+      }
+    }
+    check(!dead.length, "金库闸必须高过这条链的起步金库，否则它是第二张只写不读的表：" + dead.join(", "));
+    check(!reachBad.length, "金库闸必须挣得回来（≤ 起步 + 前置各幕最好进项）：" + reachBad.join(", "));
+  }
+  /* 播种的第五项（家底）= 软门槛：低于参照线才扣分，且上下各封 ±perFun（5 点）。
+     裁定口径「谁都能选，但起手天然低」——所以它必须 ①对穷者成立 ②永远买不到第 6 点。 */
+  {
+    const G = P.G;
+    const bak = { tier: G.tier, rep: G.rep, fun: G.fun, track: G.track, faction: G.faction, voters: G.voters };
+    const sd = (P.balance().campaign || {}).seed || {};
+    G.tier = 3; G.rep = 20; G.track = "electoral";
+    G.faction = { establishment: 0, commercial: 0, base: 0, press: 0, military: 0, church: 0, agency: 0 };
+    G.voters = { warm: 0, diehard: 0, oppose: 0 };
+    const per = Math.max(1, P.stakeFunPer("mid").per);
+    const at = (notches) => (G.fun = notches * per, P.seedMomentum());
+    const poor = at(0), ref = at(sd.funRef || 8), hi = at(80), vhi = at(8000);
+    console.log("  软门槛：同一个人，家底 0 / " + (sd.funRef || 8) + " 档 / 80 档 / 8000 档 → 种子选情 " +
+      poor + " / " + ref + " / " + hi + " / " + vhi + "（对称于参照线，上下各封 ±" + (sd.perFun || 5) + " 点）");
+    check(poor < ref, "低于参照线（押不满 " + (sd.funRef || 8) + " 档）起手必须更低（" + poor + " vs " + ref + "）—— 这就是入场券的语义");
+    check(hi === vhi, "再多钱也买不到第 6 点（" + hi + " vs " + vhi + "）：钱只买声势，不买门票");
+    check(hi - ref <= (sd.perFun || 5) && ref - poor <= (sd.perFun || 5), "家底一项的作用范围必须夹在 ±" + (sd.perFun || 5) + " 点内");
+    G.tier = bak.tier; G.rep = bak.rep; G.fun = bak.fun; G.track = bak.track;
+    G.faction = bak.faction; G.voters = bak.voters;
+  }
 }
 
 /* ---------- 把柄 × 竞选：投放把柄（#23）----------
@@ -1237,7 +1363,8 @@ console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
       "对手退赛应把初选靶的选情一次给足（+" + (lv.primaryWin || 15) + "）");
     check(G.campaign.dropN === 1, "累计投放次数应 +1");
     check(P.levDropInfo().can === false, "同一幕投放第二次必须被拒");
-    mk("camp_state", 2);   // 造势幕（general 靶）
+    mk("camp_state", P.campaignDef("camp_state").stages.findIndex(s => s.drop === "general"));
+    /* #39 起州级链在造势前插了共用筹款幕，下标会从 2 挪到 3 —— 按靶子找幕，别再写死 */
     check(P.levDropInfo().can === true, "换一幕就该重新能投（每幕一次，不是每场一次）");
   }
 

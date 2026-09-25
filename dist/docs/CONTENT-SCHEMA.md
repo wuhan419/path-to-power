@@ -323,6 +323,7 @@ req: { party: "D" }                    // 指定党派
 req: { fac: "base", min: 20 }          // 派系好感门槛
 req: { flag: "president" }             // 指定状态标记
 req: { lev: 1 }                        // 把柄门槛：手上至少 1 份把柄
+req: { camp: 20 }                      // #39 竞选金库门槛：这一场筹到的钱（无活跃竞选/无这张表时不拦）
 req: { contact: "fixer" }              // 人脉门槛：必须已经认识「掮客」（见 §4.10）
 ```
 
@@ -424,6 +425,8 @@ stake: { fun: { per: 500000, w: 0.06, cap: 0.3 } }  // 单项自定义：写死 
 - 这一注该由玩家自己决定押多大（赌一把 vs 稳着来）→ 加 `stake`。
 - 这个选项就是固定代价、无可选择 → 只用 `cost`，不要加 `stake`。
 - 想让"人情"这个资源有独特的战术价值 → 在关键判定上给 `fav: true`。
+
+> **竞选幕有一档更陡的价目表**（#39）：`stake: { fun: { w: 0.06, cap: 0.42 } }` —— 6%/档、7 档封顶 +42%（日常事件 4%/30% → 8 档）。理由：宣布、初选、买量、最后冲刺这几场本来就是要花钱办事的，+30% 配不上"入场券"。**单价口径不变**（仍走 §4.16.3 级别价，禁止钱包锚），**投票日（`ballot`）一概不许接**（validate 判红）。详见 §14.3。
 
 ### 4.5 三者的分工（别混用）
 
@@ -1819,7 +1822,7 @@ camp_federal: {
 | `tier` | ✔ | 目标级（0..9）。引擎在链走完后看 `G.tier >= tier` 判 WON/LOST |
 | `retryable` |  | 基层链标 `true`（配 `prog_*` 的 `unique:false`），败选可过 `retryCooldown` 再战 |
 | `gate` | ✔ | 开启条件。用统一的 `P.when` 词汇（与事件门槛同一套），**与对应 `prog_*` 的 `tierRaw/tierMin/tierMax/minTenure` 完全对齐** |
-| `meters` | ✔ | 选情表。**#35 起 `momentum` 的语义是「起步天花板」**：真正的起手值由 `P.seedMomentum()` 按人物状态播种（层级/声望/基本盘/组织关系，夹在 `balance.campaign.seed` 的 `[12,35]`），再与本字段取小 —— 这里写的数只是"这张脸最多能起手多高"。`warchest` 仍是字面初值。validate 会钉住 `momentum ≥ seed.ceil`，别把它改回起手值 |
+| `meters` | ✔ | 选情表。**#35 起 `momentum` 的语义是「起步天花板」**：真正的起手值由 `P.seedMomentum()` 按人物状态播种（层级/声望/基本盘/组织关系/**家底**，夹在 `balance.campaign.seed` 的 `[12,35]`），再与本字段取小 —— 这里写的数只是"这张脸最多能起手多高"。**#39 起州级三链刻意把它压到 30（低于播种上限 35）**：少掉的那一截要靠筹款幕与加码一幕一幕挣，这正是"软门槛"的落点。validate 只钉 `momentum ≥ seed.floor`（低于 floor 等于新人一开局就顶格、播种白算），**不再要求顶到 ceil**。`warchest` 仍是字面初值，且 #39 起它有读者了（见 §14.3 与 §4.2） |
 | `stages[]` | ✔ | 分幕数组，按下面子字段 |
 
 #### stage 子字段
@@ -1841,6 +1844,17 @@ camp_federal: {
 - **钱退到门票之外**：当选类选项不再写 `req.fun`（validate 判红）；钱的作用改写成成功加成 `mods:[{src:"res",key:"fun",min:…,w:…}]`，而总统的资格闸改由基本盘 `req.voterShare` 把守。幕事件里的大钱手段一律写 `cost: { funLevel: N }`（N 档**级别价**，由 §15 的月薪表推导，`P.realize` 展开成 `cost.fun`），不再写绝对美元。
 - **各幕事件都是 `risk`**（有输有赢、可搭砸），量级 `mid`（总统幕 `major`），带 `tierRaw:true` 与 `tierMin/tierMax` 钉在本场起跳级。它们**不锁 track**——各级民选台阶是所有轨道共用的晋升阶梯。
 - **这些幕事件不会被随机抽到**：campaign.js 把它们锁定，只在它们正是“当前幕”时强制演出（借 `drawEvent` 对带 `eventId` 的定点档期直接返回、不查 `eligible` 的既有通道）。
+- **资源是入场券（#39）**：语义上就是"砸钱换声势 / 借人脉办事"的幕选项要接 `stake`（`const CAMP_FUN = { fun: { w: 0.06, cap: 0.42 } }` / `const CAMP_FAV = { fav: true }` 两个常量在 `65-campaign-acts.js` 顶部），于是投注面板在竞选幕真的会弹。竞选幕的资金档**比日常陡**（6%/档、7 档封顶 +42%，日常 4%/30%），单价仍走 §4.16.3 的级别价，不另开口径。三条契约由 validate 钉住：
+  1. **投票日（`ballot:true`）绝不接 `stake`** —— 钱只买声势，买不到开盘夜那张票；
+  2. **每一幕至少留一个不带 `stake`、不带 `cost`、不吃 `req.camp` 的选项** —— 投不投是真选择，不是默认最优；
+  3. **`req.camp`（金库闸，见 §4.2）只能挂在 `meters.warchest != null` 的链上**，且同一张卡不许整卡都上闸；
+  4. **闸要两头都钉住**（validate）：`闸值 > 这条链的起步金库`（否则它永远不咬人，等于又一张只写不读的表）、
+     且 `闸值 ≤ 起步金库 + 前面每一幕的最好进项`（否则这条广告永久买不动，把玩家逼进死局）。
+     现行标定：起步金库只给"半波广告"（州级 10/12/14 · 联邦 16 · 参州 18 · 总统 24），闸值 20—34 随职级递增；
+     中间那截靠**每幕定额拨款 `stages.metersDelta:{warchest:3}`**（19 个投票日之前的幕）+ 三处事件进项挣回来。
+     **一条链没有需要金库的一幕，就整张表都别写**（`camp_vp`/`camp_reelect`/`camp_midterm` 因此不设 `warchest`）。
+  覆盖面按裁定收紧：基层两链（council/city）整体不接（入场家底 $0—1k，给了只是一排按不动的按钮）；辩论/审查类幕不接（砸钱不改台上表现）；在任两条链（`camp_reelect`/`camp_midterm`）本轮未接，属**已知缺口**。
+- **州级三链共用一张筹款幕**（#39）：`camp_raise_state`（`tierMin 2 / tierMax 4`）插在初选之后、造势之前，四手棋分别把 派系好感 / 魅力 / **私人积蓄（`cost:{funLevel:3}`）** / 党机器好感 换成 `camp.warchest`。它是"押上积蓄换取打得起广告的一战"的字面机制。金库的正现金流只此三处（另有 `camp_federal_money`、`camp_senate_announce`/`camp_senate_debate` 的声量带动捐款、`camp_pres_nomination` 的代表大会），写新幕时照这个清单加，别把金库写成只进不出的装饰。
 
 ### 14.4 引擎参数（`balance.campaign`）
 
@@ -1859,7 +1873,7 @@ POTUS.define("balance", { campaign: {
 | 链 | 幕数 | 台阶 |
 |---|---|---|
 | `camp_council` / `camp_city` | 3 | 宣布 → 基层动员/辩论 → 投票日 |
-| `camp_state` / `camp_upper` / `camp_stwide` | 4 | 宣布 → 初选 → 造势 → 投票日 |
+| `camp_state` / `camp_upper` / `camp_stwide` | 5 | 宣布 → 初选 → **筹款（#39，三链共用 `camp_raise_state`）** → 造势 → 投票日 |
 | `camp_federal` / `camp_senate` / `camp_vp` | 5 | 宣布 → 初选 → 筹款/辩论 → 摇摆 → 投票日 |
 | `camp_president` | 6 | 宣布 → 初选 → 提名 → 辩论 → 摇摆州 → 投票日 |
 

@@ -298,6 +298,60 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
   check(P.stakeMax("fun", allIn) >= 1, "T0 家底 $10k 至少投得起 1 档（旧版固定 $250k 时恒为 0）");
 
+  /* ---------- #39 竞选幕：资源真能投进去，金库真有人读 ----------
+     用户原话："我已经是等级 5 了，也没有在竞选动用这些资源的选项。"
+     根因：竞选幕 0 个选项声明 stake（面板永不弹）+ warchest 只写不读。 */
+  console.log("\n== #39 竞选幕的加码与金库闸 ==");
+  /* 真实路径是 drawEvent → realize 后才 presentEvent（cost.funLevel 在那一步换成美元），
+     这里同调：不展开的卡会把 funLevel 当成一个不存在的资源键，整条选项误判"缺少"。 */
+  const rally = P.realize(P.events.find(e => e.id === "camp_state_rally"));
+  const air = rally.choices.find(c => c.id === "air_war");     /* stake.fun + cost + req.camp 三合一 */
+  const rallyIdx = P.campaignDef("camp_state").stages.findIndex(s => s.event === "camp_state_rally");
+  P.G.track = "electoral"; P.G.tier = 3; P.G.fun = 3000000; P.G.fav = 3; P.G.ap = 8; P.G.rep = 20;
+  P.G.campaign = {
+    id: "camp_state", stageIdx: rallyIdx, since: P.monthSeq(), since0: P.monthSeq(),
+    played: rallyIdx, status: "active", meters: { momentum: 24, warchest: 3 }
+  };
+  check(!!P.campaignCurrent() && P.campaignCurrent().meters.warchest === 3, "引擎读得到当前竞选的金库（warchest 3）");
+  P.presentEvent(rally, { grade: "mid" });
+  let rbtns = [...w.document.querySelectorAll(".choice")];
+  check(rbtns[0].disabled, "金库只有 3 点时，「买广告、打空中战」点不动（req.camp " + air.req.camp + "）");
+  check(/竞选金库/.test(rbtns[0].textContent) && /现在\s*3/.test(rbtns[0].textContent),
+    "禁用的理由写在选项上：" + rbtns[0].textContent.replace(/\s+/g, " ").trim().slice(0, 46));
+  check(!rbtns[1].disabled, "同卡的地面拜票不吃金库，照样能点（每幕留一条不投资源的路）");
+  P.G.campaign.meters.warchest = air.req.camp;
+  P.presentEvent(rally, { grade: "mid" });
+  check(![...w.document.querySelectorAll(".choice")][0].disabled,
+    "金库涨到闸值 " + air.req.camp + " 点，同一条广告立刻解禁");
+  delete P.G.campaign.meters.warchest;                          /* 模拟基层链：整条链没有金库表 */
+  P.presentEvent(rally, { grade: "mid" });
+  check(![...w.document.querySelectorAll(".choice")][0].disabled, "链上没有金库表时这道闸自动放行（不会把广告永久锁死）");
+  P.G.campaign.meters.warchest = 20;
+
+  /* 点一下就是要开面板 —— 这是整件事的症状 */
+  P.presentEvent(rally, { grade: "mid" });
+  w.document.querySelectorAll(".choice")[0].click();
+  check(!!w.document.getElementById("stake"), "点击竞选幕的加码选项真的弹出投注面板（旧版永不弹）");
+  const airPer = P.stakeSpec(air).fun.per;
+  check(P.stakeCapPct("fun", air) === 42, "竞选幕资金加成封顶 +42%（日常事件 +30%）");
+  check(P.stakeMax("fun", air) === 7, "…即 7 档（0.42 ÷ 0.06），$3M 的家底押得满（每档 " + P.fmtUsd(airPer) + "）");
+  for (let i = 0; i < 12; i++) { const b = w.document.getElementById("stFunPlus"); if (b && !b.disabled) b.click(); }
+  check(w.document.getElementById("stFunPlus").disabled, "资金 ＋ 加到 7 档后自己置灰");
+  const airP0 = P.computeP(air).P, airP1 = P.computeP(air, P.stakeInfo(air, { fun: 7 })).P;
+  check(airP1 > airP0 + 0.3, "把金库押满确实抬高胜算：" + (airP0 * 100).toFixed(0) + "% → " + (airP1 * 100).toFixed(0) + "%");
+  check(P.stakeSpec(rally.choices.find(c => c.id === "boots")) === null, "「不投任何资源」的选项仍然留在同一张卡上");
+  w.document.getElementById("stBack").click();
+
+  /* 但投票日那一掷绝不卖：钱只买声势 */
+  const council = P.events.find(e => e.id === "prog_council");
+  P.presentEvent(council, { grade: "mid" });
+  const cbtns = [...w.document.querySelectorAll(".choice")];
+  check(cbtns.every(b => b.textContent.indexOf("可投入资源") < 0), "投票日卡上没有任何「可投入资源」的入口");
+  check((council.choices || []).every(c => P.stakeSpec(c) === null), "投票日选项的 stakeSpec 恒为 null（点不开面板）");
+  P.G.campaign = null;
+  w.document.getElementById("stake") && w.document.getElementById("stake").remove();
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
+
   /* ---------- 死局保护：所有选项都点不动时，必须留一条路 ---------- */
   console.log("\n== 死局保护 ==");
   const deadEv = {

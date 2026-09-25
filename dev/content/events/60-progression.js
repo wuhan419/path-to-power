@@ -1727,7 +1727,6 @@ POTUS.define("event", [
           { "src": "attr", "key": "CHA", "w": 0.4 },
           { "src": "fac", "key": "establishment", "w": 0.3 }
         ],
-        "stake": { "fun": true },
         "outcomes": {
           "crit": { "body": "党内顺利背书，你以高票当选市议员。", "effects": { "tier": 1, "rep": 2.5, "fac": { "establishment": 8, "base": 6 } } },
           "ok": { "body": "你赢下了这个席位，第一次成为民选官员。", "effects": { "tier": 1, "rep": 1.5, "fac": { "establishment": 5 } } },

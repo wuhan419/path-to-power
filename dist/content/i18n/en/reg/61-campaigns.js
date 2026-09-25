@@ -47,6 +47,7 @@ POTUS.define("l10n", {
         stages: [
           { title: "Announcing for the Legislature" },
           { title: "The Primary" },
+          { title: "Filling the War Chest" },
           { title: "Hitting the Trail" },
           { title: "Election Day" }
         ]
@@ -57,6 +58,7 @@ POTUS.define("l10n", {
         stages: [
           { title: "Eyeing the Senate Seat" },
           { title: "Primary Showdown" },
+          { title: "Filling the War Chest" },
           { title: "The County Tour" },
           { title: "Election Day" }
         ]
@@ -67,6 +69,7 @@ POTUS.define("l10n", {
         stages: [
           { title: "The Statewide Announcement" },
           { title: "State Convention" },
+          { title: "Filling the War Chest" },
           { title: "Becoming a Name Statewide" },
           { title: "Election Day" }
         ]
