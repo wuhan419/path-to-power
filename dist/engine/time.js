@@ -9,6 +9,8 @@
  *   4. 时代压力（era.pressure）+ 玩家活跃度（丑闻/调查/选举年/层级）决定：
  *        这个月有没有档期 → 有几个 → 量级偏高还是偏低。
  *   5. 时代可以写"定点事件"（era.scheduled）：到了某年某月必定发生。
+ *   6. #21 M1 的例外：入主白宫之后每个月必有一条白宫决策档期（engine/presidency.js 的
+ *      whiteHouseSlot）—— 总统的月份不该"什么也没发生"。
  *
  * 纯机制，不含任何剧情数值。
  * ==========================================================================*/
@@ -174,9 +176,17 @@
     const G = P.G, b = P.balance(), d = b.choreDynamic || {};
     if (d.enabled === false) return null;
     if (!G) return null;                                    // 层级门槛由 choreEligible 逐条把关（含志愿者 tier 0）
-    const p = isEmptyMonth
+    let p = isEmptyMonth
       ? (d.emptyFillChance == null ? 0.7 : d.emptyFillChance)
       : (d.chance == null ? 0 : d.chance);
+    /* #38：公务通道第一次有年额度（careerMax），并同样吃非固定总闸。
+       从前它只吃触发概率，实测 1.9 件/年、方差极大 —— 上梯之后"月月有会开"
+       正是"接二连三"体感里最大的一股。 */
+    if (P.careerRoom && P.careerRoom() <= 0) return null;
+    if (P.nonFixedRoom && P.nonFixedRoom() <= 0) return null;
+    /* #37①：开局的日常公务最吵（第一年 5.3 件/年里它占大头）—— 一个社区志愿者
+       不该月月有"公务"。冷静期按 choreMul 打折，两年后自动恢复正常频率。 */
+    p *= P.earlyCalm().choreMul;
     if (!(p > 0) || !P.chance(p)) return null;
     const snap = P.snap();
     const pool = P.events.filter(function (e) { return choreEligible(e, snap); });
@@ -206,6 +216,13 @@
       if (cs) out.unshift(cs);
     }
 
+    /* #21 M1 总统任期：入主白宫后每月必排一条白宫决策（危机/立法/外交/人事四族轮转）。
+       同一条「到点必演」通道 —— 总统月不该有"这个月什么也没发生"。 */
+    if (P.whiteHouseSlot) {
+      const whs = P.whiteHouseSlot(month);
+      if (whs) out.unshift(whs);
+    }
+
     /* 日常公务注入：本月已有 fixed/竞选档期时按小概率追加一条（默认 0），
        空转月按 emptyFillChance 兜底一条。balance.choreDynamic.enabled=false 即完全关闭。 */
     if (P.choresSlot) {
@@ -219,6 +236,9 @@
       + pressure * (b.activePressureMul == null ? 0.1 : b.activePressureMul)
       + bonus * (b.activeBonusMul == null ? 0.06 : b.activeBonusMul);
     pActive = P.clamp(pActive, b.activeMin == null ? 0.08 : b.activeMin, b.activeMax == null ? 0.95 : b.activeMax);
+    /* #37① 开局冷静期：夹取之后才乘，否则 activeMin 这条下限会把折扣整个吃掉。 */
+    const calm = P.earlyCalm();
+    pActive *= calm.activeMul;
 
     const hasSomething = out.length > 0;
     if (!hasSomething && !P.chance(pActive)) return [];
@@ -229,11 +249,25 @@
       + (bonus >= (b.slotsBonusAt == null ? 2 : b.slotsBonusAt) ? 1 : 0)
       + variance;
     n = P.clamp(n, 1, b.slotsMax == null ? 3 : b.slotsMax);
+    /* #37① 冷静期：一个月只排一条。已经必演上的（史实/竞选幕/白宫/公务）留在表里不受影响，
+       只是不再往同一个月叠随机档期 —— "刚开局就接二连三"正是从这里来的。 */
+    n = Math.min(n, calm.slotsCap);
     /* #32 随机限流：本月能排的随机档期不超过本年剩余名额（fixed/竞选/公务已在 out 里，
        不占额度）。名额用尽又没有别的档期时，这个月就静下去 —— 绝不能把没名额的月份
        推给填充器，那是"超发"换了个马甲。 */
-    const room = P.randomRoom ? P.randomRoom() : Infinity;
-    if (Number.isFinite(room)) n = Math.min(n, out.length + room);
+    /* #38：本月已经排定、但还没结算的非固定档期（竞选幕/公务）先从总闸扣账，
+       否则"一条竞选幕 + 两条随机"会一起挤进同月，把年闸从 6 件踩成 7 件。
+       固定史实与白宫月决策不计（它们是"到点必演"通道，见 events.js 的 NONFIXED）。 */
+    let pending = 0;
+    out.forEach(function (s) {
+      const e = s.eventId ? P.evById(s.eventId) : null;
+      if (!e) return;
+      const k = P.eventKind(e);
+      if (k !== "fixed" && k !== "whitehouse") pending++;
+    });
+    let room = P.randomRoom ? P.randomRoom() : Infinity;
+    if (P.nonFixedRoom && Number.isFinite(room)) room = Math.min(room, P.nonFixedRoom() - pending);
+    if (Number.isFinite(room)) n = Math.min(n, out.length + Math.max(0, room));
     if (n <= 0) return [];
     /* 每个档期独立掷三值性（机遇/风险/威胁）：类与类之间互不挤占、
        与本月初生无关 —— 坏事件不会因为本月已有好事件就不来。 */
@@ -259,6 +293,8 @@
       G.month = m;
       /* 竞选链：每月推一次（推幕 / 选情流失 / 崩盘判定）。主线 arc 已停用，这里只推竞选。 */
       if (P.campaignTick) P.campaignTick(m);
+      /* #21 M1：总统任期每月推一次（就职播种 / 支持率漂移 / 届数记账）。非总统时几乎零成本。 */
+      if (P.presidencyTick) P.presidencyTick(m);
       /* v0.9：每月经手结一次"上班的账"（工资-开销 / 学贷 / 选民增减），有事无事都算，
          这样收益才跟着身位走 —— 幂等记入 G.ledger，界面只读不再重复扣钱。 */
       if (P.monthlyLedger) P.monthlyLedger(m);

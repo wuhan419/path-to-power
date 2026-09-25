@@ -50,7 +50,7 @@
         generalWin: 9, generalBack: 3,                   // 大选靶：干净 / 被翻出来
         generalExpose: 0.45, exposePerIntg: 0.5,         // 暴露基线 −（INTG−50)/100 × 0.5
         dropoutPerCun: 0.25, dropoutPerDrop: 0.10,       // 退赛率 = 0.15 + 累计次数×0.10 +（CUN−50)/100×0.25
-        repBack: -1.2, wrathBack: 12                     // 暴露的代价：声望 + dirty_trick/wrath_oppo 账本
+        repBack: -1.2, wrathBack: 12                     // 暴露的代价：声望 + dirty_trick/wrath_opposition 账本
       }
     }
   });
@@ -185,7 +185,10 @@
       office: "总统",
       lede: "世界上最漫长的一场竞选。",
       tier: 9,
-      gate: { tierRaw: true, tierMin: 8, tierMax: 8, minTenure: 40 },
+      /* M3 一次性门：走出过白宫的人这一局不再回到那张选票上。
+         连任在 camp_reelect 里解决；败选/弹劾之后再"东山再起"会绕过 22 修正案，
+         也会让 presidency.js 的届数账本（term/termStart）失去意义。 */
+      gate: { tierRaw: true, tierMin: 8, tierMax: 8, minTenure: 40, notFlags: ["president_left"] },
       meters: { momentum: 45, warchest: 45 },
       stages: [
         { event: "camp_pres_announce", title: "宣布竞选总统", maxMonths: 5, metersDelta: { momentum: 4 } },
@@ -194,6 +197,54 @@
         { event: "camp_pres_debate", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "总统电视辩论", maxMonths: 6, metersDelta: { momentum: 5 }, abortBelow: { momentum: 12 } },
         { event: "camp_pres_swing", drop: "general",   /* #23：这一幕可投放把柄（打对手阵营：吃 INTG 反噬检定） */ title: "摇摆州的最后冲刺", maxMonths: 6, metersDelta: { momentum: 6 }, /* #35⑤：同上，只留 momentum 线 */ },
         { event: "prog_president", title: "投票日 · 问鼎白宫", final: true, maxMonths: 8 }
+      ]
+    },
+
+    /* ===== #21 M2：在任者的两条选举线 ==============================
+     * 总统已经在 tierMax，「目标级 = 现级 + 1」这条硬闸对他必然不成立 —— 所以这两条链
+     * 不假造第十级，而是声明 incumbent + winKind:"retain"（引擎侧见 campaign.js）：
+     *   · 档期由日历外的事定开（presidency.js 按届内月序置 G.pres.raceDue），
+     *     gate 的 cond 就只认那一个字，于是"该打这场了"与"你恰好想打"分开表达；
+     *   · 胜负不看 tier（人就在顶上），改由末幕胜局 outcome 盖 def.winFlag 那面旗；
+     *   · 连任赢 → term++ 进第二届；输 → 末幕自己写 fall:1 下野（复用既有软 BE，不判死）；
+     *   · 中期链不动总统本人的位：它选的是国会，账记在派系/支持率/清算池上。
+     * 两场的 ctx 按届记（campaign.js incCtx），所以第二届还能再打一次中期。 */
+    camp_reelect: {
+      office: "总统连任",
+      lede: "现任者的对手从来不只在对岸——还有自己这四年的账。",
+      tier: 9,
+      incumbent: true,
+      winKind: "retain",
+      winFlag: "pres_re_elected",
+      gate: {
+        tierRaw: true, tierMin: 9, tierMax: 9,
+        cond: function (G) { return !!(G.pres && G.pres.raceDue === "reelect"); }
+      },
+      meters: { momentum: 45, warchest: 50 },
+      stages: [
+        { event: "camp_re_announce", title: "宣布寻求连任", maxMonths: 3, metersDelta: { momentum: 4 } },
+        { event: "camp_re_primary", drop: "primary",   /* #23：党内挑战者 */ title: "党内的挑战者", maxMonths: 4, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 } },
+        { event: "camp_re_debate", drop: "general",   /* #23：老对手再上一次台 */ title: "第二次电视辩论", maxMonths: 4, metersDelta: { momentum: 5 }, abortBelow: { momentum: 12 } },
+        { event: "prog_reelect", title: "投票日 · 连任", final: true, maxMonths: 6 }
+      ]
+    },
+
+    camp_midterm: {
+      office: "中期选举（守住国会）",
+      lede: "两年一验货：选民不问你下一任想干什么，只问这两年干成了什么。",
+      tier: 9,
+      incumbent: true,
+      winKind: "retain",
+      winFlag: "pres_midterm_hold",
+      gate: {
+        tierRaw: true, tierMin: 9, tierMax: 9,
+        cond: function (G) { return !!(G.pres && G.pres.raceDue === "midterm"); }
+      },
+      meters: { momentum: 40, warchest: 40 },
+      stages: [
+        { event: "camp_mt_agenda", title: "党团要一个交代", maxMonths: 3, metersDelta: { momentum: 4 } },
+        { event: "camp_mt_rally", drop: "general",   /* #23：把矛头对准谁，决定这波水花 */ title: "全国助选", maxMonths: 4, metersDelta: { momentum: 5 }, abortBelow: { momentum: 10 } },
+        { event: "prog_midterm", title: "投票日 · 中期", final: true, maxMonths: 6 }
       ]
     }
 

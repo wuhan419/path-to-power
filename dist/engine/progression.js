@@ -114,6 +114,15 @@
       "<br>" +
       P.t(wasPresident ? "ui.progression.wasPresident" : "ui.progression.noPresident",
         wasPresident ? "✓ 曾入主白宫" : "— 未入白宫") + "<br>" +
+      /* #21 M1：曾任总统就要交代「支持率收在多少、坐了几个月」——
+         这三行账本就是 M3 结局分档（40-endings.js 的 S/A/B 三档）的同一份数据源。 */
+      (wasPresident && P.G.pres
+        ? P.t("ui.progression.presidencyLine", "白宫记账：离任支持率 {a}% ｜ 在任 {m} 个月 ｜ 第 {t} 届<br>",
+          {
+            a: Math.round(P.G.pres.appr || 0), m: P.G.pres.months || 0,
+            t: P.G.pres.term || 1
+          })
+        : "") +
       /* v0.12 PSLF 成就印：任何终局都挂这一行（不抢结局标题，但整排结算里必须有名字） */
       (P.G.pslfDone || P.hasFlag("pslf_forgiven")
         ? P.t("ui.progression.pslfLine", "✓ 公职贷款豁免（PSLF）：{n} 个月公职按时供款，学生贷款一笔勾销",

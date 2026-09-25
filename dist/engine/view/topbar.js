@@ -278,13 +278,25 @@
       rep:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.1 6.6.6-5 4.4 1.5 6.5L12 16.9 5.9 20.1 7.4 13.6l-5-4.4 6.6-.6z"/></svg>',
       fun:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M16.5 6.5H10a3 3 0 000 6h4a3 3 0 010 6H7"/></svg>',
       fav:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><path d="M16 5.4a3.2 3.2 0 010 5.9M18.5 20a5.5 5.5 0 00-2.8-4.6"/></svg>',
-      lev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l8 8M16 16l2-2M14 18l2-2"/></svg>'
+      lev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l8 8M16 16l2-2M14 18l2-2"/></svg>',
+      /* 支持率：三根投票柱状条 */
+      appr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V12M10 20V5M16 20v-7M22 20H2"/></svg>'
     };
+    /* #21 M1：总统支持率就挂在同一格资源栏里（第五枚瓷贴），不另起一块面板 ——
+       它和声望/资金是同一类东西：玩家每个决策都在动的读数。
+       数据来自 P.approvalPanel()（非总统为 null → 整枚瓷贴不出现）。 */
+    const ap = P.approvalPanel ? P.approvalPanel() : null;
+    const apprStat = !ap ? "" :
+      stat(P.t("ui.topbar.resAppr", "支持率"), ap.value + "%", 's-appr band-' + ap.band.cls,
+        ICON.appr, ap.band.cls === "danger",
+        P.t("ui.topbar.tipAppr", "全国民意调查。白宫每个月的决策都吃它（判定加成按 50% 为零点），每月还会向自然水位回归、缓慢流失；跌到危险区时党内会有人来敲门。"),
+        "appr", ap.value);
     return '<div class="topstat"><div class="tsrow statgrid">' +
         stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。"), "rep", G.rep) +
         stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。"), "fun", G.fun) +
         stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。"), "fav", G.fav) +
         stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。"), "lev", G.lev || 0) +
+        apprStat +
       '</div></div>';
   };
 
@@ -389,6 +401,29 @@
       '</div>';
   };
 
+  /* ---------------- #21 M1 总统任期条（presidency.js 的界面投影）----------------
+   * 只在入主白宫后出现。皮直接复用竞选条那一套（.campbar 的兄弟 .presbar + 同款进度条），
+   * 因为玩家要读的是同一件事：「我此刻的势头值多少」。区别在两处：
+   *   · 支持率是 0—100 的真百分比，不像 momentum 那样有 60 的满格参考值；
+   *   · 条上没有「投放把柄」按钮 —— 竞选手段在任内不该还在手边（M2 的中期选举会另开行动）。
+   * 非总统 / presidency.enabled=false 时返回空串，DOM 里什么都不留。 */
+  P.presidencyHTML = function () {
+    const ap = P.approvalPanel ? P.approvalPanel() : null;
+    if (!ap) return "";
+    const trend = ap.delta > 0 ? " up" : ap.delta < 0 ? " down" : "";
+    const trendTxt = ap.delta > 0 ? "+" + ap.delta : ap.delta < 0 ? String(ap.delta) : "±0";
+    return '<div class="campbar presbar band-' + ap.band.cls + '">' +
+      '<div class="cmp-head"><span class="cmp-tag">' + P.t("ui.topbar.presTag", "在任") + "</span>" +
+      '<b class="cmp-office">' + P.t("ui.topbar.presOffice", "总统") + "</b>" +
+      '<span class="cmp-stage">' + P.t("ui.topbar.presTerm", "第 {t} 届 · 在任 {m} 个月", { t: ap.term, m: ap.months }) + "</span>" +
+      '<span class="pres-band">' + ap.band.text + "</span></div>" +
+      '<div class="pres-meter"><i>' + P.t("ui.topbar.presApproval", "支持率") + "</i>" +
+      '<span class="cmp-track"><b style="width:' + ap.value + '%"></b></span>' +
+      '<em>' + ap.value + "%</em>" +
+      '<span class="pres-trend' + trend + '">' + trendTxt + "</span></div>" +
+      "</div>";
+  };
+
   /* ---------------- 状态区（v0.10 组件化流式布局） ----------------
      状态卡拆成原子块：注册表 P.STATUS_BLOCKS（id → HTML 工厂）+ 布局配置 P.STATUS_LAYOUT。
      LAYOUT 项两种写法：
@@ -429,6 +464,9 @@
    *     竖屏默认折叠的档案 chip 虽被标上但看不见，等玩家展开档案时角标仍在，无害。 */
   P.statusVals = function () {
     const G = P.G, m = { rep: G.rep, fun: G.fun, fav: G.fav, lev: G.lev || 0 };
+    /* #21 M1：总统支持率进对照表 —— 白宫卡结算完那一手，涨跌要标红标绿 */
+    const ap = P.approvalPanel ? P.approvalPanel() : null;
+    if (ap) m.appr = ap.value;
     const a = G.attr || {};
     ["CHA", "INT", "CUN"].forEach(function (k) { m["attr_" + k] = a[k] || 0; });
     const f = G.faction || {};
@@ -520,6 +558,7 @@
     return '<div class="sb tier-' + G.tier + '"><div class="idc">' +
       '<div class="idc-flow">' + P.STATUS_LAYOUT.map(render).join("") + '</div>' +
       P.campaignHTML() +
+      P.presidencyHTML() +
       '</div></div>';
   };
 })();

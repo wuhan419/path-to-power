@@ -103,6 +103,27 @@
   .campbar .cmp-drop:not(.off):hover{background:var(--bad);color:#fff}
   .campbar .cmp-drop-p{font-size:11px;color:var(--muted)}
   .campbar .cmp-drop-p.why{font-style:italic;opacity:.75}
+  /* ---- #21 M1 白宫 HUD：复用 .campbar 的皮，只换左轨颜色 + 四档 band 状态色 ----
+     band 颜色同时供支持率瓷贴（.topstat .s-appr）与横幅（.presbar）使用，一处定义。 */
+  .campbar.presbar{border-left-color:var(--good)}
+  .campbar.presbar .cmp-tag{background:var(--good)}
+  .campbar .pres-band{margin-left:auto;font-size:11px;letter-spacing:1.2px;color:var(--muted)}
+  .campbar .pres-meter{display:inline-flex;align-items:center;gap:7px;margin-top:7px;
+    font-size:11.5px;color:var(--muted)}
+  .campbar .pres-meter i{font-style:normal}
+  .campbar .pres-meter .cmp-track{width:132px}
+  .campbar .pres-meter em{font-style:normal;font-family:var(--mono);font-weight:700;color:var(--ink)}
+  .campbar .pres-trend{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .campbar .pres-trend.up{color:var(--good)}
+  .campbar .pres-trend.down{color:var(--bad)}
+  .presbar.band-strong,.presbar.band-strong .pres-band{border-left-color:var(--good);color:var(--good)}
+  .presbar.band-steady,.presbar.band-steady .pres-band{border-left-color:var(--era1);color:var(--era1)}
+  .presbar.band-soft,.presbar.band-soft .pres-band{border-left-color:var(--warm);color:var(--warm)}
+  .presbar.band-danger,.presbar.band-danger .pres-band{border-left-color:var(--bad);color:var(--bad)}
+  .topstat .stat.s-appr{--sc:var(--era1)}
+  .topstat .stat.s-appr.band-strong{--sc:var(--good)}
+  .topstat .stat.s-appr.band-soft{--sc:var(--warm)}
+  .topstat .stat.s-appr.band-danger{--sc:var(--bad)}
   /* era skin（1960_CAMELOT / 1974_WATERGATE 已随 pre-1980 死内容清理；其余时代走默认变量） */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   /* newspaper card */
@@ -628,6 +649,10 @@
     color:var(--accent);min-width:40px;text-align:center}
   .rspent{font-style:normal;font-size:12px;color:#7a5a00;background:#f3e6c4;border:1px solid #d8c48a;
     padding:1px 6px;border-radius:9px}
+  /* #37②：卡池那份加成单独一枚角标（与"自由点 +"并列，读得出这格由几块拼成） */
+  .rscard{font-style:normal;font-size:12px;color:#2c5a7a;background:#e2eef6;border:1px solid #b6d2e4;
+    padding:1px 6px;border-radius:9px}
+  .alloc-cardsum{font-size:12px;margin:2px 0 4px}
   .rctrl{display:inline-flex;gap:4px;margin-left:auto}
   .rleft{font-size:13px;color:var(--muted);margin:2px 0 6px}
   .rleft.done{color:var(--good);font-weight:700}
@@ -821,6 +846,20 @@
   .news.editorial .body{font-size:15.5px;line-height:1.95;white-space:pre-wrap;color:#2a251c}
   /* 导语为空时不要让双层下边框悬空 */
   .news.editorial .standfirst:empty{display:none}
+
+  /* #21 M4：椭圆办公室皮肤。白宫月（ev.wh）的卡片换一张皮 —— 判据只有 .oval 一个类，
+     平民月份那条字符串根本不生成，所以抽卡热路径与既有版面零影响。
+     徽章底纹不引外部图：一枚淡金圆形水印压在右上角，靠 radial-gradient 画。 */
+  .news.editorial.oval{border-left:5px solid #1d2f52;background:
+      radial-gradient(150px 150px at calc(100% - 44px) 30px,
+        rgba(154,124,58,.17), rgba(154,124,58,.05) 55%, rgba(154,124,58,0) 70%) #f8f5ec}
+  .news.editorial.oval h1.headline{color:#16233d}
+  .news.editorial.oval .dnum{color:#8a6d2f}
+  .news.editorial.oval .standfirst{color:#3b4560;border-bottom-color:#1d2f52}
+  .news.editorial.oval .body{color:#242a36}
+  /* 选项瓷贴从报纸灰换成总统藏青 */
+  .news.editorial.oval .cchip{color:#ece5d2;border-color:#2c4470;background:#22345a}
+  .news.editorial.oval .cchip.medium{color:#ece5d2;border-color:#16233d;background:#2f4779}
 
   /* 建角：难度卡带 25 岁头像 */
   .create .opt-diff{display:flex;align-items:center;gap:12px}

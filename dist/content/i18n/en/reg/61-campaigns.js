@@ -115,6 +115,26 @@ POTUS.define("l10n", {
           { title: "The Final Sprint in the Swing States" },
           { title: "Election Day · The White House" }
         ]
+      },
+      /* #21 M2：在任者的两条链。stages 按数组下标对齐中文，顺序不许动。 */
+      camp_reelect: {
+        office: "Reelection",
+        lede: "An incumbent's opponent never lives only on the other side — there is also the bill for these four years.",
+        stages: [
+          { title: "Announcing a Second Term" },
+          { title: "A Challenger From Your Own Party" },
+          { title: "The Second Debate" },
+          { title: "Election Day · Reelection" }
+        ]
+      },
+      camp_midterm: {
+        office: "Midterms (Hold Congress)",
+        lede: "Every two years the goods get inspected: voters don't ask what you'll do next term, only what these two years did.",
+        stages: [
+          { title: "The Caucus Wants an Accounting" },
+          { title: "Campaigning Nationwide" },
+          { title: "Election Day · Midterms" }
+        ]
       }
     }
   }

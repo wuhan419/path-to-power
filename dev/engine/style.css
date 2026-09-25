@@ -847,6 +847,20 @@
   /* 导语为空时不要让双层下边框悬空 */
   .news.editorial .standfirst:empty{display:none}
 
+  /* #21 M4：椭圆办公室皮肤。白宫月（ev.wh）的卡片换一张皮 —— 判据只有 .oval 一个类，
+     平民月份那条字符串根本不生成，所以抽卡热路径与既有版面零影响。
+     徽章底纹不引外部图：一枚淡金圆形水印压在右上角，靠 radial-gradient 画。 */
+  .news.editorial.oval{border-left:5px solid #1d2f52;background:
+      radial-gradient(150px 150px at calc(100% - 44px) 30px,
+        rgba(154,124,58,.17), rgba(154,124,58,.05) 55%, rgba(154,124,58,0) 70%) #f8f5ec}
+  .news.editorial.oval h1.headline{color:#16233d}
+  .news.editorial.oval .dnum{color:#8a6d2f}
+  .news.editorial.oval .standfirst{color:#3b4560;border-bottom-color:#1d2f52}
+  .news.editorial.oval .body{color:#242a36}
+  /* 选项瓷贴从报纸灰换成总统藏青 */
+  .news.editorial.oval .cchip{color:#ece5d2;border-color:#2c4470;background:#22345a}
+  .news.editorial.oval .cchip.medium{color:#ece5d2;border-color:#16233d;background:#2f4779}
+
   /* 建角：难度卡带 25 岁头像 */
   .create .opt-diff{display:flex;align-items:center;gap:12px}
   .create .opt-port{flex:0 0 auto;width:54px;height:58px;object-fit:cover;padding:2px;

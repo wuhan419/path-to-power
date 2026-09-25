@@ -392,6 +392,19 @@ POTUS.define("l10n", {
               fail: { body: "Some grumble the gear came late, then cannot quite recall whom to grumble at." },
               critfail: { body: "One false scare passes; we should have stockpiled drifts for two days and dissolves." }
             }
+          },
+          {
+            /* #21 M4：总统视角支（situation_room） */
+            id: "situation_room",
+            text: "Take it on yourself: shut the national mail, open the vaccine reserve, and go on television to talk about the bacteria in person",
+            note: "Betting that a frightened country will only look at one face. Risk: every failure in the response now belongs to that face.",
+            outcomes: {
+              crit: { body: "You finish the bacteria speech from the Oval Office; that night the postal lines reopen and every state falls in behind the federal guidance. Six months on, at the hearing, your name appears on the same page as the words it did not spiral." },
+              ok: { body: "The national biodefense budget doubles from that night. You become the president who handled anthrax, and history packs those years tight." },
+              meh: { body: "Two days off the mail, and the loss estimates reach your desk; you change the order to phased restoration. Nothing happens, and nobody remembers that you decided anything." },
+              fail: { body: "Another spore letter arrives on a route the federal government had assured was controlled. Reporters stop asking where the bacteria came from and start asking when the president knew." },
+              critfail: { body: "Two infections follow a federal announcement that risk was contained. Your briefings are read back sentence by sentence, and Congress starts discussing how to remove a government that is contagious." }
+            }
           }
         ]
       },

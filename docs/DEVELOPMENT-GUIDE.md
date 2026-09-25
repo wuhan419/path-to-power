@@ -1010,7 +1010,8 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.10 | 头版社论版式（标题→导语→图→正文）；选择反馈、悬浮说明 | 年带迁移：120—128 铺至 2024、129—133 补隙 | ✅ |
 | v0.11 | **经济重配**（工资曲线/负债谷底）；**i18n 双语地基**；**1980→2025 生涯线 + `career_end` 结算 7 条成就结局** | `en/` 覆盖层全量落树；1991—2024 密度达标 | ✅ |
 | v0.12 | **清算线**（wrath 登记 / `count` 效果 / `count*` 门槛 / fail 即死）；**学贷螺旋**（断供→bankrupt）；~~**投注三锚立方根 + 资金闸**~~（已划到 **#28① 级别价**：单价只看身位、`potShare`/`cashStakeShare`/`stakePot()` 全删）；**#28②** `pace:"exempt"` 豁免通道 + `funMul` 的 INT 修正；单卡终身衰减 + `rereq`；**竖屏/移动适配** | `140-reckoning.js` 清算包（前哨 25/清算 55 两拍、黑色幽默成就文案）；**#28③ `138-speculation.js` 投机包**（6 张 `shady`+`exempt` 的庄家生意） | ✅ 当前 |
-| 下一步 | **P2：总统任期逐月化**（白宫里的月度危机/立法节奏）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | ~~**把柄 × 竞选**~~（**#23 已落地**：竞选面板「投放把柄」行动，初选靶掷退赛 / 大选靶吃 INTG 反噬）；~~**开局抽卡/gacha**~~（**#20/#31 已落地**：三步向导第 2 步，四稀有度随周目递增）；缺译回补（`i18n-events` 清零） | ⏳ |
+| v0.12 #21 | **总统任期逐月化 M1—M4**：`engine/presidency.js`（白宫月决策槽四族轮转 + 支持率 `appr` 与水位 + 届内日历 `raceDue` + `leaveOffice`/`presExitSettle` + `impeachmentDue`）；`campaign.js` 的 `incumbent`/`winKind:"retain"`/`winFlag` 三字段豁免；`dice.js` 的 `src:"approval"`（50% 零点对称）；`stage.js`+`style.css` 的椭圆办公室皮（`P.ovalCls`） | `147—151` 白宫池 24 张轮转（四族各 6，每族 1 张次任专属）+ 弹劾卡；`153/154` 连任与中期两条在任链（7 幕）；`40-endings.js` 遗产三档 S/A/B；5 张 1xx 线卡的总统视角选项；validate 六节断言 + 96 月探针 | ✅ |
+| 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
 

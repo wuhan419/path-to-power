@@ -34,6 +34,10 @@ POTUS.define("l10n", {
     "ui.dice.fuzz.2": "Coin flip",
     "ui.dice.fuzz.3": "In your favor",
     "ui.dice.fuzz.4": "Confident",
-    "ui.dice.fuzz.5": "Near certain"
+    "ui.dice.fuzz.5": "Near certain",
+
+    /* #21 M1 白宫卡上的判定来源：总统支持率（50% 为零点） */
+    "ui.dice.modApproval": "Approval {n}%",
   }
+
 });

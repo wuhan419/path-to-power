@@ -119,6 +119,19 @@ POTUS.define("l10n", {
               fail: { body: "While the country toasted, you chased the bill. Donors started leaving; \"he wanted this war to lose\" went back on the loop." },
               critfail: { body: "The occupation ledger you cited turns out to have been badly wrong. 'Awake early' to 'barking mad' took exactly one week." }
             }
+          },
+          {
+            /* #21 M4：总统视角支（carry_deck） */
+            id: "carry_deck",
+            text: "Land on the carrier and declare major combat over: turn the victory into your own capital, and set the rules of occupation in the same breath",
+            note: "Right now the country will hear exactly one sentence, and it is yours to say. Risk: those two words will be held up against you for eight years.",
+            outcomes: {
+              crit: { body: "Flight suit, arrest wire, applause on the deck: you stage it clean. You spend the announcement day signing the occupation order - civilians run reconstruction, war money on its own ledger, audits public. Two years on, even the people condemning the war concede that those first months of order were not an accident." },
+              ok: { body: "Approval hits its highest point of your presidency. On that strength your people on the Hill reach into accounts nobody could previously move." },
+              meh: { body: "The photograph is superb and the speech goes smoothly. Next morning a staffer asks who owns the occupation phase, and you find the list is not written." },
+              fail: { body: "The Mission Accomplished banner becomes the stock opening shot of every roadside-bomb package that follows. You won those three weeks, and those three weeks will question you every year after." },
+              critfail: { body: "Seventy-two hours after the speech the first patrol without resupply is blown up. The reconstruction calendar you left out is filled in from then on by the casualty notifications of soldiers." }
+            }
           }
         ]
       },

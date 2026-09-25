@@ -339,6 +339,20 @@ POTUS.define("event", [
           fail: { body: "贷款条款里有一项是本地厂得先减薪。你骂了资本，也被自己的选区骂。", effects: { rep: -1.2, fac: { commercial: -6, establishment: -5 } } },
           critfail: { body: "厂方放出你和工会往来的邮件，反咬你「两头吃」。两头一起翻脸，建制把你钉进被告席。", effects: { rep: -2.2, fac: { commercial: -9, establishment: -6, press: -4 }, flags: ["scandal_2"] } }
         }
+      },
+      /* #21 M4：总统视角 —— 十二月的白宫，签字笔在你手里：救，但要按你的条件救。 */
+      {
+        id: "controlled_bust", text: "自己拍板：给钱，但先走一遍有管理的破产——砍岗位、废卡车补贴、董事会换血",
+        when: { tierRaw: true, tierMin: 9 },
+        note: "赌全国恨过程但更恨失业。风险：你把「救资本」和「动资本」同时记在自己账上。",
+        base: 0.48, mods: [{ src: "approval", w: -0.3 }, { src: "attr", key: "INT", w: 0.3 }],
+        outcomes: {
+          crit: { body: "工厂在春末重新开工，岗位少了一半但厂子活着。两份骂你的声明出自同一批人，而州长替你说了一句「至少有人做了决定」。", effects: { rep: 2.2, appr: 3, fac: { base: 8, establishment: 5, commercial: -8 }, attr: { INT: 2 } } },
+          ok: { body: "钱放出去了，条款也真的执行了。车企活着，工会嫌你狠，华尔街嫌你多事——你两边都不是自己的人。", effects: { rep: 1, appr: -1, fac: { commercial: -6, base: 4 } } },
+          meh: { body: "程序按你写的走，市场按自己的走。三家厂里保住两家，第三家还是倒了。", effects: { rep: 0.2, appr: -2, fac: { establishment: -3 } } },
+          fail: { body: "「总统替资方砍工人」剪成一条四十秒的口播，在你选区的电视循环播放。", effects: { rep: -1.8, appr: -6, fac: { base: -10, press: -6 } } },
+          critfail: { body: "破产管理人把上一届董事会的奖金单和联邦条款一起放上网。所有人问同一句：批条款的人知不知道。", effects: { rep: -3, appr: -9, fac: { base: -10, press: -9, establishment: -6 }, flags: ["scandal_2"] } }
+        }
       }
     ]
   },

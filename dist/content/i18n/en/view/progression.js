@@ -28,6 +28,10 @@ POTUS.define("l10n", {
     "ui.progression.keepDone": "✓ Kept “{card}” — it's guaranteed to show up on your card wall next run.",
     "ui.progression.loopLine": "Run {this} ends → next up is run {next}: {pool} free points at character creation{orange}",
     "ui.progression.orangeIn": " · legend (orange) cards are now in the pool",
-    "ui.progression.orangeOut": " · legend (orange) cards only enter the pool from run {n}"
+    "ui.progression.orangeOut": " · legend (orange) cards only enter the pool from run {n}",
+
+    /* #21 M1：结算屏上的白宫记账行 */
+    "ui.progression.presidencyLine": "The White House books: left office at {a}% approval | {m} months in office | term {t}<br>",
   }
+
 });

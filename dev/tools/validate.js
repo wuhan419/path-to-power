@@ -1174,7 +1174,7 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
  *   ① 内容侧：每一幕的 drop 只能是 primary / general（宣布幕与投票日不许放靶子），
  *      州级以上的链必须两种靶都在（否则这个行动只剩一半意义）；
  *   ② 结算侧：一次 1 点把柄、每幕一次；初选靶掷"对手退赛"，大选靶吃 INTG 反噬检定，
- *      反噬要真的写进 scandal 账本（dirty_trick 旗 + wrath_oppo 计数，喂 140 清算池）。 */
+ *      反噬要真的写进 scandal 账本（dirty_trick 旗 + wrath_opposition 计数，喂 140 清算池）。 */
 console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
 {
   const G = P.G;
@@ -1245,7 +1245,7 @@ console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
   {
     const rint = P.rint, rep0 = G.rep;
     G.flags = []; G.counters = Object.assign({}, G.counters);
-    const w = G.counters.wrath_oppo || 0;
+    const w = G.counters.wrath_opposition || 0;
     const m0 = G.campaign.meters.momentum;
     P.rint = function () { return 1; };   // 强制"被翻出来"
     const r = P.levDrop();
@@ -1255,10 +1255,10 @@ console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
     check(G.campaign.meters.momentum === m0 + (lv.generalBack || 3), "暴露只给保底的选情增益（+" + (lv.generalBack || 3) + "）");
     check(G.rep < rep0, "暴露必须掉声望（" + rep0 + " → " + G.rep + "）");
     check(G.flags.indexOf("dirty_trick") >= 0, "暴露要插 dirty_trick 旗（喂 scandal / 清算管线）");
-    check((G.counters.wrath_oppo || 0) >= w + (lv.wrathBack || 12),
-      "暴露要往 wrath_oppo 攒恨（#140 清算池的入口），实际 " + w + " → " + G.counters.wrath_oppo);
+    check((G.counters.wrath_opposition || 0) >= w + (lv.wrathBack || 12),
+      "暴露要往 wrath_opposition 攒恨（#140 清算池的入口），实际 " + w + " → " + G.counters.wrath_opposition);
     console.log("  结算：初选靶 +" + (lv.primaryWin || 15) + " 选情／退赛；大选靶暴露 → 声望 " + rep0 + "→" + G.rep +
-      "、dirty_trick、wrath_oppo +" + (lv.wrathBack || 12));
+      "、dirty_trick、wrath_opposition +" + (lv.wrathBack || 12));
   }
 
   /* ⑤ 界面：按钮的置灰态与可用态都从同一个口径出（不另判一次） */
@@ -1495,6 +1495,274 @@ console.log("\n== 总统任期：白宫月决策槽（#21 M1）==");
   }
 
   /* —— 还原现场 —— */
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M2：池容量与次任专属 ----------
+ * M1 只钉住「池子别饿死」。M2 扩到 24 张以后必须换一把更严的尺：
+ *   ① 容量按**首任真抽得到**的张数算 —— 次任专属卡（事件级 flags:["pres_two_terms"]）
+ *      与弹劾卡在第一个任期一张都不会出现，把它们算进分母就是假绿灯；
+ *   ② 每族至少留一张次任卡，否则第二届的桌上全是回头客；
+ *   ③ 次任卡那扇门要真的开关：没旗开不了，插旗才开。 */
+console.log("\n== 白宫池容量与次任专属（#21 M2）==");
+{
+  const G = P.G;
+  const c = P.presCfg();
+  const fams = c.families;
+  const wh = P.events.filter(function (e) { return !!e.wh; });
+  const isSecond = function (e) { return (e.flags || []).indexOf("pres_two_terms") >= 0; };
+  check(wh.length >= 24, "白宫池只有 " + wh.length + " 张（M2 定稿 24 张轮转 + 1 张弹劾）");
+  fams.forEach(function (f) {
+    const all = wh.filter(function (e) { return e.whFamily === f; });
+    const first = all.filter(function (e) { return !isSecond(e) && e.id !== c.impeach.card; });
+    check(first.length * 4 >= c.repeatMonths,
+      "族 " + f + " 首任可用只有 " + first.length + " 张 × 每 4 月轮到一次 < repeatMonths " + c.repeatMonths +
+      "（次任卡与弹劾卡不计入分母，M1 那把旧尺会把这一条掩盖掉）");
+    check(all.filter(isSecond).length >= 1, "族 " + f + " 没有次任专属卡：第二届只会重复首任的桌面");
+  });
+  check(wh.filter(isSecond).length >= fams.length,
+    "次任专属卡共 " + wh.filter(isSecond).length + " 张 < 族数 " + fams.length);
+  {
+    const bak = { tier: G.tier, pres: G.pres, flags: G.flags, year: G.year, month: G.month };
+    G.tier = P.balance().tierMax; G.pres = { appr: 50, months: 1, term: 1, famIdx: 0 };
+    G.year = 2000; G.month = 6;
+    const secs = wh.filter(isSecond);
+    G.flags = [];
+    check(secs.every(function (e) { return P.when(e, P.snap()) === false; }),
+      "没插 pres_two_terms 时次任卡漏进了首任池（那首任的实际容量比断言算的还小）");
+    G.flags = ["pres_two_terms"];
+    check(secs.every(function (e) { return P.when(e, P.snap()) === true; }),
+      "插了 pres_two_terms 次任卡仍打不开 —— 它一年也演不到，等于白写");
+    Object.assign(G, bak);
+  }
+}
+
+/* ---------- #21 M2：连任与中期链可开 ----------
+ * 两条在任链是 M2 的风险集中点：既可能被 campaignCandidates 的「target === tier+1」
+ * 硬闸挡死（永远开不出来），也可能被 campaignTick 的「G.tier >= def.tier → DROPPED」
+ * 当场误杀（一进场就死）。两头都要钉，外加内容侧的死引用检查：
+ * 幕卡 event id 必须真存在，winFlag 必须真有人盖（否则 winKind:"retain" 恒判负）。 */
+console.log("\n== 连任与中期链可开（#21 M2）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, flags: G.flags,
+    counters: G.counters, campaign: G.campaign, campaignLog: G.campaignLog,
+    campaignCool: G.campaignCool, doneIds: G.doneIds, log: G.log
+  };
+  const tierMax = P.balance().tierMax;
+  const stageOf = { camp_reelect: "reelect", camp_midterm: "midterm" };
+  ["camp_reelect", "camp_midterm"].forEach(function (id) {
+    const def = P.campaignDef(id);
+    check(!!def, "缺少在任竞选定义：" + id);
+    if (!def) return;
+    check(def.incumbent === true, id + " 必须 incumbent:true（否则 target=tier+1 那道硬闸把它永久挡死）");
+    check(def.winKind === "retain" && !!def.winFlag,
+      id + " 该用 winKind:retain + winFlag 定胜负 —— 人已经在 tierMax，看 tier 必判负");
+    check(def.tier === tierMax, id + " 的 def.tier 应是总统级 " + tierMax);
+    (def.stages || []).forEach(function (st) {
+      const ev = P.evById(st.event);
+      check(!!ev, id + " 的某一幕指向不存在的事件：" + st.event);
+      if (!ev) return;
+      check(Array.isArray(ev.choices) && ev.choices.length >= 2, "幕卡 " + st.event + " 选项不足 2 个");
+      check(P.eligible(ev, true) === false,
+        "幕卡 " + st.event + " 能通过随机卡池闸 —— 它会被没在竞选的月份抽走");
+    });
+    const fin = (def.stages || [])[def.stages.length - 1];
+    const fev = P.evById(fin && fin.event);
+    const stamped = ((fev && fev.choices) || []).some(function (ch) {
+      const os = ch.outcomes || {};
+      return ["crit", "ok", "meh", "fail", "critfail"].some(function (k) {
+        return (((os[k] || {}).effects) || {}).flags && ((os[k].effects.flags) || []).indexOf(def.winFlag) >= 0;
+      });
+    });
+    check(stamped, id + " 的末幕没有任何 outcome 盖 " + def.winFlag + " —— retain 判胜是死路");
+    /* 开闸 → 进候选；不置闸 → 绝不进候选 */
+    G.tier = tierMax; G.campaign = null; G.campaignLog = []; G.doneIds = []; G.log = [];
+    G.flags = ["president_done"]; G.counters = {}; G.campaignCool = 0;
+    G.year = 2000; G.month = 6;
+    G.pres = { appr: 55, months: 36, term: 1, famIdx: 0, termStart: 0, raceDue: null, midDone: 0, lowStreak: 0 };
+    const closed = P.campaignCandidates(P.snap()).map(function (x) { return x.id; });
+    check(closed.indexOf(id) < 0, id + " 在 raceDue=null 时就进了候选表（引擎那道日历闸形同虚设）");
+    G.pres.raceDue = stageOf[id];
+    G.month++;                                  // campaignCandidates 按 monthSeq 缓存，换个月份再问
+    const open = P.campaignCandidates(P.snap()).map(function (x) { return x.id; });
+    check(open.indexOf(id) >= 0, id + " 明明 raceDue 却进不了候选表（incumbent 豁免没生效）");
+    /* 进场不被误杀 */
+    G.campaign = {
+      id: id, stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0,
+      meters: { momentum: 40, warchest: 40 }, status: P.CAMPAIGN_STATUS.ACTIVE
+    };
+    G.month++;
+    P.campaignTick(G.month);
+    const lastLog = (G.campaignLog || [])[G.campaignLog.length - 1];
+    check(!(lastLog && lastLog.status === P.CAMPAIGN_STATUS.DROPPED),
+      id + " 一进场就被 campaignTick 判 DROPPED（在任链的 tier 豁免漏了）");
+    check(G.campaign && G.campaign.id === id, id + " 跑了一个月就不在打了");
+  });
+  /* 反向对照：豁免只该给 incumbent，普通链在 tierMax 仍须收掉 */
+  G.tier = tierMax; G.campaignLog = []; G.month++;
+  G.campaign = {
+    id: "camp_senate", stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0,
+    meters: { momentum: 40, warchest: 40 }, status: P.CAMPAIGN_STATUS.ACTIVE
+  };
+  G.month++;
+  P.campaignTick(G.month);
+  check(!G.campaign || G.campaign.id !== "camp_senate",
+    "camp_senate 在 tierMax 还在跑 —— DROPPED 硬闸被整条放开了，不只是豁免了在任链");
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M3：legacy 三档 ----------
+ * 逐月化之后「当过总统」不是一个布尔，而是一份账：term / months / appr + 两面羞辱旗。
+ * 结局屏要把这份账换成 S/A/B 三档，并且必须在旧的 career_president 兜底之前命中。 */
+console.log("\n== 总统 legacy 三档（#21 M3）==");
+{
+  const G = P.G;
+  const bak = { tier: G.tier, pres: G.pres, flags: G.flags, counters: G.counters, endingReason: G.endingReason };
+  ["career_president_great", "career_president_adequate", "career_president_flawed"].forEach(function (id) {
+    const r = (P.reg.ending || []).filter(function (x) { return x.id === id; })[0];
+    check(!!r, "缺少 legacy 结局规则：" + id);
+    if (!r) return;
+    check("SAB".indexOf(String(r.grade)) >= 0, id + " 的 grade 应是 S/A/B 之一，实际 " + r.grade);
+    check((r.when || {}).reason === "career_end",
+      id + " 只该挂在 career_end 上（否则入狱/身败名裂等中途结局会被它顶掉）");
+  });
+  const gr = function (id) { return (P.reg.ending.filter(function (x) { return x.id === id; })[0] || {}).priority; };
+  check(gr("career_president_great") > gr("career_president_adequate") &&
+    gr("career_president_adequate") > gr("career_president_flawed") &&
+    gr("career_president_flawed") > gr("career_president"),
+    "四档总统结局的优先级序必须是 好 > 守 > 糊 > 旧兜底");
+  const pick = function (pres, extraFlags) {
+    G.tier = 8; G.pres = pres; G.counters = {};
+    G.flags = ["president_done"].concat(extraFlags || []);
+    const r = P.evaluateEnding("career_end");
+    return r && r.id;
+  };
+  check(pick({ term: 2, appr: 55, months: 80 }) === "career_president_great", "两届 + 收在 55% 该是 S 档");
+  check(pick({ term: 2, appr: 55, months: 80 }, ["impeached"]) !== "career_president_great",
+    "被弹劾过的人不该拿 S 档（无论支持率收在多高）");
+  check(pick({ term: 2, appr: 55, months: 80 }, ["scandal_4"]) !== "career_president_great",
+    "四级丑闻在场时 S 档必须让位");
+  check(pick({ term: 2, appr: 45, months: 80 }) === "career_president_adequate",
+    "两届但收在 45%（过了四年线却不到中线）→ A 档：S 档要的是体面地走");
+  check(pick({ term: 1, appr: 48, months: 48 }) === "career_president_adequate", "干满一届、离任 48% → A 档");
+  check(pick({ term: 1, appr: 30, months: 10 }) === "career_president_flawed", "提前下野 → B 档");
+  check(pick(null) === "career_president",
+    "没有白宫账本（逐月化之前的旧档）应落到 career_president 兜底，而不是混进三档");
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M3：卸任清算喂料 + 弹劾开门 ----------
+ * 140-reckoning 池只认 G.counters["wrath_<组>"]（25 前哨 / 55 清算）。
+ * 在任时得罪人的账从前没人结，卸任就永远演不出清算 —— presExitSettle 就是那条管线。
+ * 全部走既有键（count/flags），所以断言钉的是「账有没有记上、有没有记重」。 */
+console.log("\n== 卸任清算喂料与弹劾开门（#21 M3）==");
+{
+  const G = P.G;
+  const bak = {
+    tier: G.tier, pres: G.pres, year: G.year, month: G.month, flags: G.flags,
+    counters: G.counters, doneIds: G.doneIds, log: G.log
+  };
+  const c = P.presCfg();
+  const gone = function (pres, flags, counters) {
+    G.tier = P.balance().tierMax - 1;        // 人已经走出白宫：tick 的离场分支负责结账
+    G.pres = pres; G.flags = flags || []; G.counters = counters || {};
+    G.year = 2000; G.month = 6;
+    return P.presidencyTick(G.month);
+  };
+  gone({ appr: 22, months: 48, term: 1, lowStreak: c.pressureMonths }, [], {});
+  check(P.hasFlag("president_left"), "离任没插 president_left 旗（连任闸与 140 池都认它）");
+  check((G.counters.wrath_establishment || 0) >= c.exitWrath.establishment,
+    "低支持率 + 长期危险线以下离任，却没往 wrath_establishment 记恨 → 党内的账永远演不出来");
+  gone({ appr: 60, months: 48, term: 1, lowStreak: 0 }, ["scandal_3", "investigation_open"], {});
+  check((G.counters.wrath_press || 0) >= c.exitWrath.press, "带着丑闻离任没喂给新闻界那条清算线");
+  check((G.counters.wrath_agency || 0) >= c.exitWrath.agency, "调查未结就离任，没喂给联邦机器那条线");
+  gone({ appr: 58, months: 80, term: 2, lowStreak: 0 }, ["pres_re_elected"], {});
+  check(!G.counters.wrath_establishment && !G.counters.wrath_press && !G.counters.wrath_agency,
+    "高支持率、无丑闻、无调查的体面收杆也记恨 → 清算成了必演剧情，140 池就失去含义了");
+  check(P.hasFlag("president_left"), "体面离任同样要插旗（它不只惩罚失败者，它还是届数闸）");
+  {   /* 幂等：同一场离任只结一次账 */
+    const p = { appr: 30, months: 48, term: 1, lowStreak: 0 };
+    gone(p, [], {});
+    const once = JSON.stringify(G.counters);
+    P.presidencyTick(7); P.presidencyTick(8);
+    check(JSON.stringify(G.counters) === once, "离任结算被重复记账（每月 tick 一次，恨值会涨到天上）");
+  }
+  {   /* 弹劾：引擎只判「这个月该不该演」，输赢交给卡自己的骰子 */
+    const ic = P.evById(c.impeach.card);
+    check(!!ic && ic.wh === true && ic.unique === false,
+      "弹劾卡必须存在、走白宫通道且不是一次性（任期八年，一锤子买卖撑不起）");
+    G.tier = P.balance().tierMax; G.doneIds = []; G.log = [];
+    G.year = 2000; G.month = 6;
+    G.flags = ["investigation_open", "scandal_2"];
+    G.pres = { appr: 20, months: 30, term: 1, famIdx: 0, lowStreak: c.pressureMonths };
+    check(P.impeachmentDue() === true, "支持率连压 + 调查未结 → 弹劾闸该开");
+    const slot = P.whiteHouseSlot(G.month);
+    check(slot && slot.eventId === c.impeach.card, "闸开着，白宫这个月的档期却没给弹劾卡");
+    check(P.impeachmentDue() === false, "刚演过一次，同月又敲一次门（impeachAt 闩失效 = 一个月两出新）");
+    G.pres.impeachAt = null;
+    G.flags = ["scandal_1"];
+    check(P.impeachmentDue() === false, "丑闻不足 " + c.impeach.scandalMin + " 级、调查也没开 → 不该弹劾");
+    G.pres.lowStreak = 0;
+    G.flags = ["investigation_open"];
+    check(P.impeachmentDue() === false, "支持率没连压在危险线以下 → 党内还不敢动手，不该弹劾");
+    G.pres.lowStreak = c.pressureMonths; G.flags = ["investigation_open"];
+    check(P.when(ic, P.snap()) === true, "弹劾卡自带的 cond 与引擎的闸对不上");
+    G.flags = [];
+    check(P.when(ic, P.snap()) === false, "闸关掉之后弹劾卡还开着（它会被普通白宫月份抽走）");
+  }
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M4：椭圆办公室皮 + 总统视角历史锚点 ----------
+ * 两件事都不许越界：oval 只在 ev.wh 时多一个类名；五张 1xx 线卡的总统档
+ * 在 tier 9 必须露、在地方档位必须藏，而且藏掉它之后低层玩家仍要有按钮可点。 */
+console.log("\n== Oval Office 皮与总统视角选项（#21 M4）==");
+{
+  const G = P.G;
+  check(P.ovalCls({ wh: true }) === " oval", "白宫月的卡片没挂上 oval 类");
+  check(P.ovalCls({}) === "" && P.ovalCls(null) === "",
+    "非白宫卡也带 oval —— 平民月份的卡片字符串都不该多一个字符");
+  const css = fs.readFileSync(path.join(ROOT, "engine", "style.css"), "utf8");
+  check(/\.news\.editorial\.oval\s*\{/.test(css), "style.css 里没有 .news.editorial.oval 规则（类名挂上了却没皮）");
+  check(/\.oval\s+h1\.headline/.test(css) && /\.oval\s+\.cchip/.test(css),
+    "oval 皮只改了容器：标题与选项筹码没跟着换色");
+  const five = [
+    ["ln01_anthrax", "situation_room"], ["ln03_war", "carry_deck"], ["ln08_auto", "controlled_bust"],
+    ["ln20_covid", "war_powers"], ["ln21_capitol", "command_in_chief"]
+  ];
+  const bak = { tier: G.tier, pres: G.pres, flags: G.flags, counters: G.counters };
+  G.pres = { appr: 55, months: 40, term: 1 }; G.flags = []; G.counters = {};
+  five.forEach(function (pair) {
+    const ev = P.evById(pair[0]);
+    check(!!ev, "缺少挂了总统档的 1xx 线卡：" + pair[0]);
+    if (!ev) return;
+    const ch = (ev.choices || []).filter(function (x) { return x.id === pair[1]; })[0];
+    check(!!ch, pair[0] + " 没有总统视角选项 " + pair[1]);
+    if (!ch) return;
+    check(ch.when && ch.when.tierRaw === true && ch.when.tierMin === P.balance().tierMax,
+      pair[0] + "/" + pair[1] + " 的门禁应是 tierRaw + tierMin:" + P.balance().tierMax +
+      "（少了 tierRaw 会被 tierBand 重映射，档位就不是总统那一级）");
+    G.tier = P.balance().tierMax;
+    const hiOK = P.when(ch.when, P.snap()) === true;
+    const visHi = P.visibleChoices(ev).map(function (x) { return x.id; });
+    G.tier = 4;
+    const loOK = P.when(ch.when, P.snap()) === false;
+    const visLo = P.visibleChoices(ev).map(function (x) { return x.id; });
+    check(hiOK && visHi.indexOf(pair[1]) >= 0,
+      pair[0] + "：总统在位时这一档打不开或渲染器把它藏了（#32⑤ 的分层白写）");
+    check(loOK && visLo.indexOf(pair[1]) < 0,
+      pair[0] + "：地方官员（tier 4）看得见/点得到总统的桌子");
+    check(visLo.length >= 1, pair[0] + "：分层之后低档位一个选项都不剩（玩家会面对没有按钮的卡）");
+    const os = ch.outcomes || {};
+    check(["crit", "ok", "meh", "fail", "critfail"].every(function (k) { return !!os[k]; }),
+      pair[0] + "/" + pair[1] + " 五档 outcome 不齐");
+    check(Object.keys(os).some(function (k) { return (((os[k] || {}).effects) || {}).appr != null; }),
+      pair[0] + "/" + pair[1] + " 没有一个档位吃支持率 —— 总统档必须动总统自己的读数");
+    check((ch.mods || []).some(function (m) { return m && m.src === "approval"; }),
+      pair[0] + "/" + pair[1] + " 的胜算没吃支持率（决策档应与民心挂钩）");
+  });
   Object.assign(G, bak);
 }
 
@@ -3260,24 +3528,40 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   /* --- v0.11 P1：生涯结算（career_end）按终局档位/总统标记分流 ---
    * 结算规则用 tierRaw:true，档位直接按新 10 级空间读，故这里 G.tier 写真实级（0..9）。
    * 本块会覆盖 G.tier/flags/endingReason，测完还原，避免污染后续用例。 */
-  const _svTier = P.G.tier, _svFlags = P.G.flags, _svReason = P.G.endingReason;
-  const careerAt = function (tier, flags) {
-    P.G.tier = tier; P.G.flags = flags || []; return P.evaluateEnding("career_end").id;
+  const _svTier = P.G.tier, _svFlags = P.G.flags, _svReason = P.G.endingReason, _svPres = P.G.pres;
+  const careerAt = function (tier, flags, pres) {
+    P.G.tier = tier; P.G.flags = flags || [];
+    P.G.pres = pres === undefined ? null : pres;          // 三档 legacy 全读这本账，不清就会串上一用例
+    return P.evaluateEnding("career_end").id;
   };
   check(["career_president_great","career_president","career_heavyweight","career_federal",
          "career_state","career_local","career_quiet"].every(function (id) {
     return P.reg.ending.some(function (r) { return r.id === id; });
   }), "career_end 成就结局规则应全部注册（7 条）");
-  check(careerAt(9, ["president_done"]) === "career_president_great", "任满+清白 的 2025 结算应是载入史册的总统");
-  check(careerAt(9, ["president_done","scandal_4"]) === "career_president", "任满+丑闻 的结算应降为留下印记的总统");
+  /* #21 M3：逐月化之后「任满」不再是 flags 里的一面旗，而是一份可核对的账
+     （term / months / appr）。所以这一组用例必须把账本摆进去，判据才与内容同源。 */
+  const twoTerms = { term: 2, appr: 55, months: 80 };
+  check(careerAt(9, ["president_done"], twoTerms) === "career_president_great",
+    "干满两届、离任 55% 且清白 → S 档（载入史册的总统）");
+  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 80, lowStreak: 0 }) === "career_president_great",
+    "S 档只看账本三件事，别让 lowStreak 之类的野字段悄悄改判");
+  /* 带大丑闻时不再直接掉回通用兜底：M3 给了它一档专属的 B（S/A 两档都不收 scandal_4），
+     career_president 从此只兜「逐月化之前、没有白宫账本」的旧档。 */
+  check(careerAt(9, ["president_done", "scandal_4"], twoTerms) === "career_president_flawed",
+    "任满+四级丑闻 → B 档（档案比讲话更厚的总统）");
+  check(careerAt(9, ["president_done", "impeached"], twoTerms) !== "career_president_great",
+    "被弹劾过的人不该拿 S 档");
+  check(careerAt(9, ["president_done"]) === "career_president",
+    "没有白宫账本（旧档）才走通用兜底：三档都要求 G.pres 在场");
   check(careerAt(8, []) === "career_heavyweight", "终局 8 级（无总统）应结算为权倾一方");
   check(careerAt(5, []) === "career_federal", "终局 5 级应结算为联邦层面的名字");
   check(careerAt(3, []) === "career_state", "终局 3 级应结算为州政的常青树");
   check(careerAt(1, []) === "career_local", "终局 1 级应结算为地方深耕者");
   check(careerAt(0, []) === "career_quiet", "终局 0 级应结算为无声的四十一年");
-  /* 曾任总统且清白：2025 结算按总统身份收口（不看终局档位）；若带大丑闻则降为印记 */
-  check(careerAt(2, ["president_done"]) === "career_president_great", "曾任总统+清白，下野后 2025 仍以总统成就收口");
-  P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason;
+  /* 曾任总统且清白：2025 结算按总统账本收口（不看终局档位）—— 下野后重爬到 2 级也一样 */
+  check(careerAt(2, ["president_done"], { term: 1, appr: 48, months: 48 }) === "career_president_adequate",
+    "曾任总统+清白，哪怕下野后只剩 2 级，2025 仍以总统账本收口（A 档）");
+  P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason; P.G.pres = _svPres;
 
   /* --- 效果键 setTrack / setStance --- */
   const track0 = P.G.track;

@@ -205,15 +205,87 @@ const BALANCE_DEFAULTS = {
                         共窗口等于抽完一张就饿两年多，节奏线补不上。*/
   choreDynamic: { enabled: true, chance: 0.10, emptyFillChance: 0.40, repeatMonths: 18 },
 
-  /* ---- 事件四大类的年度节奏（#32）----
+  /* ---- #21 M1 总统任期：白宫月决策槽 + 支持率（见 engine/presidency.js）----
+     入主白宫前，"一个月一回合"这套月引擎管的是一个人怎么往上爬；爬到顶之后它管不动了：
+     总统一月不出一个决策，玩家手里就只剩工资条。所以这里开**第三条强制档期通道**
+     （前两条：竞选幕 campaignForceSlot、日常公务 choresSlot），总统在位时每月必排一条白宫事务。
+     · enabled=false  → 整条通道下线，回到"当总统 = 拿高薪的普通上班年"；
+     · termMonths     → 一届多少个月（48 = 四年）。M1 只记账，连任判定在 M2 接选举链；
+     · seed           → 就职月支持率播种（与 P.seedMomentum 同纪律：起手不到中线，
+                        46 + 声望偏移 + 选民底气偏移，夹进 [floor, ceil]）；
+     · baseline/revert/drift → 支持率的自然水位、向水位回归的速率、每月净流失。
+                        默认值定出 ~42 的均衡点（45 的水位减 0.15 的月流失）：
+                        一事一事挣来的涨幅会自己往下掉，"在位越久越难"是刻意的；
+     · pressure       → 丑闻/调查每月额外压掉的支持率（负数）；
+     · pressureBelow/pressureMonths → 连续 N 月低于水位线只在日志里出"党内压力"一句，
+                        **M1 不判负**（弹劾与逼宫是 M3 的活，骨架阶段不留半成品死局）；
+     · repeatMonths   → 同一张白宫卡的重演间隔（照 choresSlot 的教训：不与随机卡的
+                        recentIds 共窗口，8 张池共 20 抽窗口会直接饿死）。
+                        它受**池子容量公式**约束：四族轮转 = 每 4 月轮到一族，
+                        所以「每族张数 × 4 ≥ repeatMonths」，否则那条硬断言
+                        （总统月每月必出 1 条）会在月中饿断 —— validate.js 把这条
+                        公式钉成了断言。M1 每族 2 张 → 周期只能 8；**M2 扩到每族 6 张**
+                        （其中 1 张次任专属，首届可用 5 张）→ 抬回 18，与公务卡同频。
+     ---- M2 在任选举（连任战 / 中期保卫战）：见 engine/presidency.js 的 presRaces ----
+     总统没有"下一级"可选，所以这两条链走 def.incumbent + winKind:"retain"（campaign.js），
+     档期由这里按**届内月序**开，不看运气也不看冷却：
+     · midtermAt   → 每届第几个月开中期保卫战的档期（14 ≈ 上任第二年开春，投在 11 月）；
+     · reelectLead → 任期最后 N 月开连任战档期（12 = 选举年一月起跑，6 幕够走完）；
+     · raceGrace   → 届满时那场选举还没打完的宽限月数（超了就按"没能连任"离任）；
+     · raceDefs    → 两个档期各自对应哪条竞选链（内容改 id 只动这里，引擎不写死）。
+     ---- M3 离任：清算喂料 + 弹劾 ----
+     · exitWrath → 走出白宫那个月按在任账本给 140-reckoning 池记恨（G.counters["wrath_*"]）。
+       这些键正是该池 countMin 25/55 的入口 —— 没有这一笔，卸任清算永远演不出来。
+     · impeach   → 弹劾/逼宫的触发口径：连续 pressureMonths 月低于 pressureBelow，
+       且（丑闻 ≥ scandalMin 或调查已开）。它只是把 wh_impeachment 插进本月档期，
+       **判定仍走事件自己的骰子**（复用 dice 的 src:"approval"），引擎不判死。 */
+  presidency: {
+    enabled: true, termMonths: 48, repeatMonths: 18,
+    seed: { base: 46, perRep: 0.3, perEdge: 8, floor: 25, ceil: 72 },
+    baseline: 45, revert: 0.05, drift: -0.15,
+    pressure: { scandal: -0.5, investigation: -0.4 },
+    pressureBelow: 28, pressureMonths: 4,
+    midtermAt: 14, reelectLead: 12, raceGrace: 6,
+    raceDefs: { midterm: "camp_midterm", reelect: "camp_reelect" },
+    exitWrath: { apprBelow: 35, establishment: 12, press: 10, agency: 15 },
+    impeach: { scandalMin: 2, card: "wh_impeachment", retryMonths: 24 }
+  },
+
+  /* ---- 事件四大类的年度节奏（#32 → #38 定稿）----
      四大类（随机 / 职业 / 固定历史 / 竞选）由 engine/events.js 的 P.eventKind 从已有声明派生。
-     这里只管随机类的手闸：氛围性巧合一年 1—2 件就够，超发会让属性与钱白手起家、
-     后期十拿九稳。固定历史、职业、竞选三类不吃额度（它们到点必演 / 是该干的活）。
+     玩家口径：**一年看到 2—6 件"会刷屏"的事**——非固定四桶（公务＋随机＋灰产＋竞选幕）的总闸，
+     全生涯同一条尺，不再只管开局两年。真实历史钉卡与总统在位期的白宫月决策是"到点必演"通道，
+     另计、不吃额度（否则 1989/2008 这些年份会被削成空白年）。
      · enabled=false → 完全关闭限流，回到"随机不设闸"的现状；
-     · yearRandomMax → 每个自然年最多排几条**非灰产**随机档期；
+     · eventMax     → 每个自然年最多几条**非固定**事件（四桶合计；总闸）；
+     · careerMax    → 日常公务另立的年度额度（#38 新增：它从前只吃触发概率，
+                      实测 1.9 件/年且方差极大，是"月月有会开"的主渠道）；
+     · yearRandomMax → 每个自然年最多排几条**非灰产**随机档期（#38：2 → 1，
+                      事件总量的一半本来就不该是巧合）；
      · grayMax       → 灰产投机（category:"shady"，#28 的豁免通道）另立的年度额度：
-                       给反复赌的人留门，但不挤占正常随机事件的名额。 */
-  pace: { enabled: true, yearRandomMax: 2, grayMax: 4 },
+                       给反复赌的人留门，但不挤占正常随机事件的名额。
+                       #37① 4 → 2、#38 再 2 → 1：T0 志愿者一年 1.7 件投机不合理
+                       （既不像他的生活，也是一条刷属性/刷钱的侧门）。 */
+  pace: { enabled: true, yearRandomMax: 1, grayMax: 1, careerMax: 2, eventMax: 6 },
+
+  /* ---- #37① 开局冷静期：前两年再静一档（#38 起是"轻闸"）----
+     用户实测（1980 全年）：刚开局那几个月接二连三出牌，前 24 个月里只有 1 个平静月，
+     「一个人在 1980 年只是个社区志愿者，怎么天天有大事」——这是第一印象问题，不是数值问题。
+     #38 之后全局本身已经落到 2—6 件/年，所以这里的乘子从"补偿过吵的全局"退成
+     "让开局比全局再薄一点"（目标：开局两年 非固定 ≤3 件/年）：
+     · activeMul → 乘在 pActive（这个月有没有档期）上，夹取之后才乘，否则下限把它吃掉；
+     · choreMul  → 乘在日常公务的触发概率上（第一年 5.3 件/年里最大的一股）；
+     · quotaMul  → 乘在**年度额度总闸**上（`pace.eventMax` 与 `pace.careerMax`，都取 floor）。
+                   实测教训：随机事件的实际件数从来不由
+                   pActive 决定 —— 只要这个月有事，它就会一路填到年度额度封顶。
+                   另一条同源的坑：这个乘子最初落在随机/灰产的**桶额度**上，而那两个桶已经只有
+                   1 件名额，`floor(1×0.5)=0` 等于整桶封死、公务与竞选却没闸，结果开局两年反而比
+                   全局稠（4.17 vs 3.10 件/年）。折扣只能落在**有降空间**的闸上：6→3、2→1。
+     · slotsCap  → 窗口内一个月最多排几条档期（含已排的必演项）。额度不动它的话，
+                   一个月里同时撞两件巧合，正是"接二连三"的体感来源。
+     注意：**不碰** fixed/竞选/白宫三条"到点必演"通道 —— 史实与流程不该被冷静期免掉。
+     enabled=false 即整条下线；months=0 同理。*/
+  earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul: 0.5, slotsCap: 1 },
 
   /* ---- 权重管线：玩家处境造成的倾斜（见 engine/events.js 的 P.weightBreakdown）----
    *   w = 基础 × 时代 × 续集 × tilt
@@ -280,8 +352,10 @@ const BALANCE_DEFAULTS = {
        想要"平静的月份让人喘口气"的手感，把它调到 0.04，并重跑 300 局看结局分布。 */
     hpChance: 0, hpGain: 1,
     repChance: 0.06, repGain: 1,
-    contactChance: 0.20, contactGain: 1,
-    funRate: 0               // 平静月的资金生息（默认 0：生息统一放在年终结算）
+    contactChance: 0.20, contactGain: 1
+    /* #37③：这里不再有资金项。平静月的钱只有【月账】一条门（工资-开销-学贷-利息，
+       见 P.monthlyLedger），生息只在年终结算 —— 随笔侧账改 G.fun 会让玩家
+       在「这个月的账」上看见一笔对不上流水的进出。 */
   }
 };
 
@@ -420,6 +494,27 @@ POTUS.monthsAtTier = function () {
   const G = POTUS.G;
   if (!G) return 0;
   return POTUS.monthSeq() - (G.tierSince == null ? POTUS.monthSeq() : G.tierSince);
+};
+/* 本局已走过多少个月（开局 = 0）。年龄和年份在活树里始终同步步进，
+   所以 (age-startAge)×12 + 月序 比记第二个水位线更省、也不会和存档打架。 */
+POTUS.monthsInRun = function () {
+  const G = POTUS.G;
+  if (!G) return 0;
+  const b = POTUS.balance();
+  const sa = b.startAge == null ? 24 : b.startAge;
+  return Math.max(0, ((G.age || sa) - sa)) * 12 + Math.max(0, (G.month || 1) - 1);
+};
+/* #37① 开局冷静期的乘子：不在窗口内（或整条下线）时全部返回"不打折"。 */
+POTUS.earlyCalm = function () {
+  const OFF = { activeMul: 1, choreMul: 1, quotaMul: 1, slotsCap: Infinity };
+  const e = POTUS.balance().earlyCalm || {};
+  if (e.enabled === false || !(e.months > 0) || POTUS.monthsInRun() >= e.months) return OFF;
+  return {
+    activeMul: e.activeMul == null ? 1 : e.activeMul,
+    choreMul: e.choreMul == null ? 1 : e.choreMul,
+    quotaMul: e.quotaMul == null ? 1 : e.quotaMul,
+    slotsCap: e.slotsCap == null ? Infinity : e.slotsCap
+  };
 };
 
 /* ---------- 人脉（contacts）----------
@@ -1141,12 +1236,13 @@ POTUS.stamp = function (eventId) {
 
 /* ---------- 存档 ---------- */
 const SAVE_KEY = "potus_save_v1";
-/* v0.12 存档格式门禁：saveVer 记录存档的内容格式号（结构演进时 +1 —— 本次 12：
-   学贷改单利制，旧档的 debt 里混着历史复利，语义已不可信）。
+/* v0.12 存档格式门禁：saveVer 记录存档的内容格式号（结构演进时 +1 —— 12：学贷改单利制，
+   旧档的 debt 里混着历史复利，语义已不可信；13：#21 M1 总统任期，G.pres 支持率是新的
+   月度结算状态，旧档里没有"在任月序"可对，硬接会让 appr 从错误的起点漂）。
    低于 SAVE_FORMAT_MIN 的旧档一律硬拒：不迁移、不向下兼容 —— 载入/导入只给
    「删档 / 开新局」两条路（黑色幽默弹窗），读取列表里的旧档只留删除钮。 */
-POTUS.SAVE_FORMAT = 12;
-const SAVE_FORMAT_MIN = 12;
+POTUS.SAVE_FORMAT = 13;
+const SAVE_FORMAT_MIN = 13;
 POTUS.saveIsStale = function (G) { return !!G && ((G.saveVer || 0) < SAVE_FORMAT_MIN); };
 POTUS.serialize = function () { const G = POTUS.G; if (G) G.saveVer = POTUS.SAVE_FORMAT; return JSON.stringify(G); };
 
@@ -1207,6 +1303,19 @@ POTUS.migrate = function (G) {
   if (G.campaign == null) G.campaign = null;
   if (G.campaignLog == null) G.campaignLog = [];
   if (G.campaignCool == null) G.campaignCool = 0;
+  /* v0.12 #21 M1 总统任期：白宫状态（支持率 / 在任月数 / 届数 / 四族轮转游标）。
+     真正赋值在 presidency.js 的 P.presidencyTick 首次入主时（那要算播种），这里只保证字段存在。
+     M2 起 G.pres 多三个字段（termStart 届内基准月 / raceDue 在任选举档期 / midDone 本届中期已开过）：
+     全是**加性**状态且缺省值就是"还没发生过"，所以按 #20 的先例就地补默认、不升 SAVE_FORMAT
+     ——13 版存档里那位在任总统接得上，只是他的中期选举从下一个档期起才开始排。 */
+  if (G.pres == null) G.pres = null;
+  if (G.pres) {
+    if (G.pres.termStart == null) G.pres.termStart = 0;
+    if (G.pres.raceDue == null) G.pres.raceDue = null;
+    if (G.pres.midDone == null) G.pres.midDone = 0;
+  }
+  /* #37② 「这张卡的属性发过了」账本：可重复卡第二次结算时不再发属性。 */
+  if (G.attrGiven == null) G.attrGiven = {};
   /* v0.5 主线之后的机制：出生州 / 下野 / 年初快照（年终叙事要对比"今年与去年"） */
   if (G.voters == null) G.voters = { warm: 0, diehard: 0, oppose: 0 };   /* v0.5.2 选民池 */
   if (G.state == null) G.state = "";

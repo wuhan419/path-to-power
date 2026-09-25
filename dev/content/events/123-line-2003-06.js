@@ -128,6 +128,20 @@ POTUS.define("event", [
           fail: { body: "胜选余温里你追着要账单，捐款名单开始漏人。「他盼着这仗输」被反复重播。", effects: { rep: -1.8, fac: { establishment: -6, military: -5 } } },
           critfail: { body: "你援引的那份「占领开销」被证实数字错得离谱，从「先醒的人」到「乱咬的人」只用了一个星期。", effects: { rep: -2.8, fac: { press: -10, establishment: -6 }, flags: ["scandal_2"] } }
         }
+      },
+      /* #21 M4：总统视角 —— 横幅挂在你身后，「任务完成」这四个字只有你能说出口。 */
+      {
+        id: "carry_deck", text: "落在航母甲板上宣布主要战事结束：把胜利写成自己的政治资本，同时定下占领的规矩",
+        when: { tierRaw: true, tierMin: 9 },
+        note: "全国此刻只听得进一句话，而那句话归你说。风险：「任务完成」四个字将成为此后八年的对照。",
+        base: 0.55, mods: [{ src: "approval", w: 0.3 }, { src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "飞行服、拦阻索、甲板上的掌声——这一场戏你排得干净。你把宣布当天用来签占领令：文官管重建、军费单列、审计公开。两年后骂这场战争的人，也承认那半年的秩序不是意外。", effects: { rep: 2.6, appr: 7, fac: { military: 10, establishment: 8, base: 4 }, voters: { warm: 500 } } },
+          ok: { body: "支持率冲到任内峰值。趁着这股劲，你国会山的人把手伸进了原本推不动的账目里。", effects: { rep: 1.4, appr: 4, fac: { military: 5, establishment: 5 } } },
+          meh: { body: "照片很好看，宣布很顺利。第二天幕僚问你占领阶段谁负责，你发现名单还没定。", effects: { rep: 0.3, appr: 1, fac: { establishment: -2 } } },
+          fail: { body: "「任务完成」的横幅被剪成此后每一段路边炸弹新闻的前奏。你赢了那三周，此后年年被这三周追问。", effects: { rep: -1.6, appr: -5, fac: { press: -8, base: -5 } } },
+          critfail: { body: "宣布后第七十二小时，第一起没有补给的巡逻被炸。你当初省略的那份重建时间表，从此由士兵的阵亡通知替它填上。", effects: { rep: -2.8, appr: -9, fac: { press: -10, military: -6, base: -8 }, flags: ["scandal_1"] } }
+        }
       }
     ]
   },

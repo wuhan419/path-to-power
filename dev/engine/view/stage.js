@@ -667,6 +667,10 @@
       "</span>";
   }
 
+  /* #21 M4：白宫月的卡片换一张椭圆办公室的皮。判据只有 ev.wh 一个字段，
+     所以平民月份连字符串都不变——抽卡热路径不额外开销。 */
+  P.ovalCls = function (ev) { return ev && ev.wh ? " oval" : ""; };
+
   /* 头版导语（standfirst）：有 ev.standfirst 直接用；否则从正文第一句提炼一句斜体引文。
      不写回事件文件——只做界面层的呈现提炼。 */
   function standfirstOf(ev) {
@@ -735,7 +739,7 @@
       settleHTML = P.ledgerBoxHTML([P.G.ledger[P.G.month]], P.t("ui.stage.monthSettle", "本月 · 身位结算"));
     }
     box.innerHTML =
-      '<article class="news editorial fade">' +
+      '<article class="news editorial fade' + P.ovalCls(ev) + '">' +
       '<div class="dossier-head">' +
         '<span class="dnum">DOSSIER // EVENT NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
         '<span class="dmeta">' + vchip +

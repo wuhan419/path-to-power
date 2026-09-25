@@ -113,11 +113,36 @@ POTUS.define("ending", [
   /* ---- 生涯结算结局（reason: "career_end"）：一路打到 2025 硬上限后主动查看成就。
    *     做到哪一级 = 终局 tier；曾任总统靠 president_done flag 区分（与当前档位无关）。
    *     tierRaw:true 让下面的 tierMin 按新的 10 级空间原样读，不再走 when.js 的旧档映射。 ---- */
+  /* ---- #21 M3：白宫账本进结局分级 ----
+   * 逐月化之后"当过总统"不再是一个布尔，而是一份可核对的账：
+   *   G.pres.months（在任月数）· G.pres.appr（离任支持率）· G.pres.term（干到第几届）
+   *   + impeached / scandal_4·5 这两面羞辱旗。
+   * 判据一律走 when.js 的 cond 逃生口（第一个参数是真的 G，不是快照——快照里没有 pres），
+   * 于是"遗产分档"不新增任何数值系统：引擎已有的四张账，直接换成四档评语。
+   * 最后那条 career_president 兜的是**逐月化之前的旧档**：没有白宫账本，就没有资格被分档。 */
   {
-    id: "career_president_great", priority: 95,
-    when: { reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5"] },
-    title: "载入史册的总统", grade: "S",
-    body: "你把这局棋一路下到了 2025。白宫的几年之后，你没有急着谢幕，而是留在牌桌上看着自己签下的每一条法律、任命的每一个人慢慢改变这个国家。从 1980 走到今天，你的名字早已写进教科书——干净的写进去。"
+    id: "career_president_great", priority: 97,
+    when: {
+      reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5", "impeached"],
+      cond: function (G) { const p = G.pres; return !!(p && (p.term || 1) >= 2 && (p.appr || 0) >= 50); }
+    },
+    title: "干满两届的总统", grade: "S",
+    body: "你赢下连任，把白宫的椅子坐满了八年，走的时候支持率还在中线以上——这三件事同时成立的人，两只手数得过来。从 1980 走到 2025，你的名字早就进了教科书，而且是干净地进去的。"
+  },
+  {
+    id: "career_president_adequate", priority: 96,
+    when: {
+      reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5"],
+      cond: function (G) { const p = G.pres; return !!(p && (p.months || 0) >= 24 && (p.appr || 0) >= 42); }
+    },
+    title: "守住了四年的总统", grade: "A",
+    body: "你在白宫熬过了最难的两年一验货，没有中途被人抬走，也没有把自己的名字写进弹劾条款。任期结束时你的支持率仍在四成以上——在这个国家，这已经算一场成功的执政。"
+  },
+  {
+    id: "career_president_flawed", priority: 95,
+    when: { reason: "career_end", flags: ["president_done"], cond: function (G) { return !!G.pres; } },
+    title: "档案比讲话更厚的总统", grade: "B",
+    body: "你确实当过这个国家的总统，也确实把这几年过成了一场消耗战：支持率一路往下，丑闻和调查替你占据了版面。历史没有否定你来过，只是把你的名字排在那些守住了位子的总统后面。"
   },
   {
     id: "career_president", priority: 94,

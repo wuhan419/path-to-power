@@ -31,11 +31,11 @@ POTUS.define("l10n", {
 
     /* ---- 难度名 + 难度说明（DIFFS，取用点提取，key = ui.create.diff.<id>.label/note） ---- */
     "ui.create.diff.legendary.label": "Legendary",
-    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +7 reputation, +4 favors, +10 establishment, +5 to every attribute — the deepest pockets and the most cards to spend.",
+    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +12 reputation, +4 favors, +20 establishment, +10 business — the deepest pockets and the most cards to spend.",
     "ui.create.diff.easy.label": "Easy",
     "ui.create.diff.easy.note": "Political family · pick 4 talent cards · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
     "ui.create.diff.normal.label": "Normal",
-    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +15 Wit, but the grassroots don't trust you.",
+    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +40 business, +2 favors, but the grassroots don't trust you.",
     "ui.create.diff.hard.label": "Hard",
     "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit.",
     "ui.create.diff.brutal.label": "Brutal",
@@ -61,6 +61,8 @@ POTUS.define("l10n", {
     "ui.create.loopTag": "Run no. {n}",
     "ui.create.allocRate": "1 point = +{per} Charisma / Intellect / Cunning · 1 point = +${fun}k cash · any single attribute can be pushed to 100",
     "ui.create.allocMoney": "Cash",
+    "ui.create.allocCardTag": "card",
+    "ui.create.allocFromCards": "Your {n} talent card(s) add: {LIST} (already folded into the rows above; Integrity is a hidden attribute and only shows up here)",
     "ui.create.capped": "max",
     "ui.create.freePoints": "Free points: <b>{left}</b> of {total} left",
     "ui.create.poolMeta": " · {base} on run 1 + {bonus} from run {loop}",

@@ -115,7 +115,7 @@
       P.t(wasPresident ? "ui.progression.wasPresident" : "ui.progression.noPresident",
         wasPresident ? "✓ 曾入主白宫" : "— 未入白宫") + "<br>" +
       /* #21 M1：曾任总统就要交代「支持率收在多少、坐了几个月」——
-         legacy 分级进结局规则是 M3 的活，本轮只把数据摆上结算屏。 */
+         这三行账本就是 M3 结局分档（40-endings.js 的 S/A/B 三档）的同一份数据源。 */
       (wasPresident && P.G.pres
         ? P.t("ui.progression.presidencyLine", "白宫记账：离任支持率 {a}% ｜ 在任 {m} 个月 ｜ 第 {t} 届<br>",
           {

@@ -343,6 +343,20 @@ POTUS.define("event", [
           fail: { body: "征用令被人告到法院，程序暂停的那三周恰好是最缺货的三周。", effects: { rep: -1.9, fun: -0.8, fac: { commercial: -12, establishment: -8, base: -4 } } },
           critfail: { body: "被征用的那家厂本已接到别的州更高的出价。你被写成「拿紧急权做地方交易」，听证会反过来审你。", effects: { rep: -3, fun: -1.2, fac: { commercial: -16, establishment: -10, press: -10, base: -6 }, flags: ["scandal_2"] } }
         }
+      },
+      /* #21 M4：总统视角 —— 3 月 11 日之后，全国只剩一个问题：谁在说话。 */
+      {
+        id: "war_powers", text: "把这件事当成自己的战争：宣布全国紧急状态，启用生产法，每晚自己上电视",
+        when: { tierRaw: true, tierMin: 9 },
+        note: "赌一个人反复出现在镜头前能换来配合。风险：全国的病床数从此都是你一个人的数字。",
+        base: 0.46, mods: [{ src: "approval", w: 0.35 }, { src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "紧急状态与生产法在同一天签下，两周后第一批呼吸机按你定的分配表落地。你把每日简报开成了全国的钟点，反对派嫌你作秀，州长们承认至少货到了。", effects: { rep: 2.4, appr: 5, fac: { base: 8, agency: 6, establishment: 4 }, attr: { CHA: 2 } } },
+          ok: { body: "联邦机器第一次按周而不是按季度动。数字仍然难看，但没人能说没人管。", effects: { rep: 1.1, appr: 2, fac: { agency: 5, establishment: 3 } } },
+          meh: { body: "你成了每晚出现的那张脸，可测试量、床位和州里的争吵一件没少。人们开始讨论你看稿子的眼神。", effects: { rep: -0.4, appr: -3, fac: { press: -4 } } },
+          fail: { body: "「几周后会好转」的那场直播被剪成对照片，在每一篇讣告下面重播。生产法签了，工厂却没转过来。", effects: { rep: -2, appr: -7, fac: { press: -9, base: -7 } } },
+          critfail: { body: "紧急采购名单被公开：几笔合同给过你晚宴上的人，钱在你宣布全国紧急状态的同一天付出去。特别顾问的办公室开始打电话。", effects: { rep: -3.2, appr: -10, fac: { press: -11, establishment: -9, base: -8 }, flags: ["scandal_2", "investigation_open"] } }
+        }
       }
     ]
   },
@@ -563,6 +577,21 @@ POTUS.define("event", [
           meh: { body: "你的声明混进了当晚几百份声明里，连你自己都懒得再提。", effects: { rep: 0.1 } },
           fail: { body: "「只说程序」被读成「不敢说人话」，两拨人对你的失望同时到货。", effects: { rep: -0.5, fac: { base: -3 } } },
           critfail: { body: "一周后你的沉默被翻成「默认」，被人挂在门口喊话。", effects: { rep: -1, fac: { press: -3 } } }
+        }
+      },
+      /* #21 M4：总统视角 —— 圆顶里正在被搜查的是你自己的政府。
+         这一支刻意不分党派：在场的最高统帅只有「叫不叫卫队、说不说硬话」这一个决定。 */
+      {
+        id: "command_in_chief", text: "以最高统帅的身份处理：电话调国民警卫队进楼，随后自己念一份电视声明",
+        when: { tierRaw: true, tierMin: 9 },
+        note: "赌程序能靠一个人先止住血。风险：叫停这场骚乱的所有责任，也一并归那一个人。",
+        base: 0.5, mods: [{ src: "approval", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
+        outcomes: {
+          crit: { body: "命令在下午两点十七分接通：一千多名卫队天亮前上了国会山台阶，两院在深夜复会时已经有人数清了票。你的声明只用了三分十一秒，没有一句替冲卡的人找理由。", effects: { rep: 2.5, appr: 4, fac: { establishment: 10, military: 6, base: 4 }, voters: { warm: 400 } } },
+          ok: { body: "楼里的人被清出去了，计票没有停。第二天各党都来谢你，也各留了一句「他早该这么干」。", effects: { rep: 1.2, appr: 1, fac: { establishment: 5, military: 3 } } },
+          meh: { body: "电话打了一个半小时才有人接。楼最终保住了，而全世界看着它被人搜了两个小时。", effects: { rep: -0.6, appr: -4, fac: { press: -6, establishment: -4 } } },
+          fail: { body: "你的声明拖到夜里九点才念出来，稿子里没有出现「冲进来的人」这个主语。第二天开始，问题变成你自己做了什么。", effects: { rep: -2.1, appr: -7, fac: { press: -9, establishment: -6, base: -5 }, flags: ["scandal_1"] } },
+          critfail: { body: "通话记录被公开：你在人群进楼之后四十分钟里既没下令也没打电话，先打的那通是给别人出主意的。弹劾条款的第一段就抄这份记录。", effects: { rep: -3.4, appr: -11, fac: { press: -12, establishment: -10, base: -8 }, flags: ["scandal_2", "investigation_open"] } }
         }
       }
     ]

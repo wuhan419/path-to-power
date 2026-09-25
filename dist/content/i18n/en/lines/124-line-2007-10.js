@@ -316,6 +316,19 @@ POTUS.define("l10n", {
               fail: { body: "One clause of the loan demands local wage cuts first. You cursed capital and your own district curses you back." },
               critfail: { body: "The company leaks your mail with the union and calls you two-faced. Both sides turn at once, and the establishment puts you in the dock." }
             }
+          },
+          {
+            /* #21 M4：总统视角支（controlled_bust） */
+            id: "controlled_bust",
+            text: "Decide it yourself: the money goes out, but through a managed bankruptcy first - cut jobs, kill the truck subsidies, clear out the boards",
+            note: "Betting the country hates the process but hates unemployment more. Risk: you end up owning both the rescue of capital and the beating you give it.",
+            outcomes: {
+              crit: { body: "The plants restart in late spring with half the jobs but still as going concerns. Two sets of people who denounced you issued the statements in the same week, and a governor says out loud what nobody else will: at least somebody made a decision." },
+              ok: { body: "The credit line opens and the conditions actually bind. The carmakers survive, the union thinks you ruthless, Wall Street thinks you meddlesome - you are no one's man." },
+              meh: { body: "The procedure runs exactly as you wrote it; the market runs as it likes. Two of three plants stand, the third falls anyway." },
+              fail: { body: "The president cutting jobs for capital is cut into a forty-second package that runs on loop in your own districts." },
+              critfail: { body: "The bankruptcy trustee posts the outgoing board's bonus schedule next to the federal terms. Everyone asks the same question: did the person who signed them know." }
+            }
           }
         ]
       },

@@ -64,7 +64,16 @@
     const b = Object.assign({ floor: 0.10, ceil: 0.85, perMomentum: 0.008 }, cbal().ballot || {});
     const cur = P.campaignCurrent();
     if (!cur || !cur.meters) return declared;
-    return P.clamp(b.floor + (Number(cur.meters.momentum) || 0) * b.perMomentum, b.floor, b.ceil);
+    let m = Number(cur.meters.momentum) || 0;
+    /* #21 M2：在任者的选票先要过自己支持率这一关。
+       50% 是零点（高于它顺风、低于它逆风），系数在 balance.campaign.incumbentAppr。
+       没有这一项，"把国家管成什么样"和"能不能连任"就脱钩了——那不是美式选举。 */
+    if (cur.def && cur.def.incumbent) {
+      const w = fnum(cbal().incumbentAppr, 0.6);
+      const appr = (P.G.pres && fnum(P.G.pres.appr, 50)) || 50;
+      m += (appr - 50) * w;
+    }
+    return P.clamp(b.floor + Math.max(0, m) * b.perMomentum, b.floor, b.ceil);
   };
 
   /* ---------- 当前竞选 ----------
@@ -154,8 +163,11 @@
     if (status === STATUS.WON && def && def.onWin) P.applyEffects(def.onWin);
     if (status === STATUS.LOST && def && def.onFail) P.applyEffects(def.onFail);
     if (note) P.pushLog(note);
-    // 败选后设一段冷却，免得当月就重开同一场（重开要靠下次候选匹配）
-    if (status === STATUS.LOST) G.campaignCool = P.monthSeq() + fnum(cbal().retryCooldown, 18);
+    // 败选后设一段冷却，免得当月就重开同一场（重开要靠下次候选匹配）。
+    // 在任链不冷却（#21 M2）：它的档期是日历定的（任期节奏），被冷却拖走就错过了那次选举。
+    if (status === STATUS.LOST) {
+      G.campaignCool = def && def.incumbent ? 0 : P.monthSeq() + fnum(cbal().retryCooldown, 18);
+    }
     _curKey = null; _candKey = null;
     return G.campaign;
   }
@@ -163,12 +175,26 @@
   /* ---------- 候选：找到当前该打的那一场 ----------
    * gate 命中 + 本局没打过（可重试的除外）+ 目标级正好是"再往上一级"。
    * 单线制：一局同一时刻只有一场活跃竞选；候选按目标级降序取最高一场。 */
+  /* ---------- #21 M2：在任者的选举（连任战 / 中期保卫战）----------
+   * 总统已经是 tierMax，「目标级 = 现级 + 1」这条硬闸对他必然不成立，中期与连任
+   * 也因此不能假造一个第十级。def.incumbent:true 表示这是一场**守住现有位势**的选举：
+   *   · 候选闸（campaignCandidates）跳过 tier+1 匹配；
+   *   · 「已爬到目标级即收场」（campaignTick）对它不适用，否则开局当月就 DROPPED；
+   *   · 胜负不看 tier（他已经在顶上），改由 def.winKind:"retain" + def.winFlag 判；
+   *   · 档期由日历定（engine/presidency.js 的 G.pres.raceDue），不该被败选冷却拖走。
+   * 「打过没有」也按届记：同一场中期选举每届只打一次，下一届还能再打（ctx = 届身份）。 */
+  function incCtx(def) {
+    if (typeof def.ctx === "function") return String(def.ctx(P.G, P));
+    return String((P.G.pres && P.G.pres.term) || 0);
+  }
   let _candKey = null, _candVal = null;
   function playedBefore(id) {
     const log = P.G.campaignLog || [];
     const def = P.campaignDef(id);
+    const ctx = def && def.incumbent ? incCtx(def) : null;
     for (let i = 0; i < log.length; i++) {
       if (log[i].id !== id) continue;
+      if (ctx != null && log[i].ctx !== ctx) continue;                  // 上一届打的，不算这一届
       if (def && def.retryable && log[i].status === STATUS.LOST) continue; // 败过还能再战
       return true;
     }
@@ -190,7 +216,7 @@
       if (!P.when(def.gate, snap)) continue;
       // 目标级：竞选末幕要抵达的那一级 = 当前级 + 1（不做跨级竞选）
       const target = fnum(def.tier, (snap.tier || 0) + 1);
-      if (target !== (snap.tier || 0) + 1) continue;
+      if (!def.incumbent && target !== (snap.tier || 0) + 1) continue;
       out.push({ id: id, def: def, tier: target });
     }
     out.sort(function (a, b) { return b.tier - a.tier; });
@@ -210,7 +236,7 @@
     meters.momentum = Math.min(ceil, P.seedMomentum());
     G.campaign = { id: id, stageIdx: 0, since: seq, since0: seq, played: 0, meters: meters, status: STATUS.ACTIVE };
     if (!G.campaignLog) G.campaignLog = [];
-    G.campaignLog.push({ id: id, from: seq, to: null, status: STATUS.ACTIVE });
+    G.campaignLog.push({ id: id, from: seq, to: null, status: STATUS.ACTIVE, ctx: def && def.incumbent ? incCtx(def) : null });
     _curKey = null; _candKey = null;
     if (def && def.onStart) P.applyEffects(def.onStart);
     P.pushLog(P.t("ui.campaign.start", "竞选开打：{office} —— 你把自己的名字放上了选票。", { office: ((def && def.office) || id) }));
@@ -233,8 +259,9 @@
       if (!def) { G.campaign = null; }
       else {
         const stages = def.stages || [];
-        /* 已经爬到/越过目标级（破格跳级等）→ 这场竞选失去意义，体面收掉，不占位。 */
-        if (G.tier >= fnum(def.tier, 1e9)) { end(STATUS.DROPPED); G.campaign = null; }
+        /* 已经爬到/越过目标级（破格跳级等）→ 这场竞选失去意义，体面收掉，不占位。
+           在任链（#21 M2）不适用：总统本来就在 tierMax，一进场就会被这条误杀。 */
+        if (!def.incumbent && G.tier >= fnum(def.tier, 1e9)) { end(STATUS.DROPPED); G.campaign = null; }
         else {
           /* 选情自然流失（平静月也在掉）：注意力、金钱、士气不续费就往下走。 */
           const drift = fnum(b.meterDrift, 0.8);
@@ -250,7 +277,12 @@
             while (guard++ < 40) {
               if (G.campaign.stageIdx >= stages.length) {
                 // 链走完 = 投票日已演。真正的胜负看 tier 是否抵达目标级（末幕掷骰可能落败）。
-                if (G.tier >= fnum(def.tier, 1e9)) {
+                // 在任链（#21 M2 winKind:"retain"）不看 tier——人已经在顶上；
+                // 由末幕的胜局 outcome 自己盖章（def.winFlag），引擎只认那面旗。
+                const won = def.winKind === "retain"
+                  ? !!(def.winFlag && P.hasFlag(def.winFlag))
+                  : G.tier >= fnum(def.tier, 1e9);
+                if (won) {
                   end(STATUS.WON, P.t("ui.campaign.won", "你赢下了这场选举：{office}。", { office: ((def && def.office) || def.name || G.campaign.id) }));
                 } else {
                   end(STATUS.LOST, P.t("ui.campaign.ballotLost", "票开箱了，但你没能拿下：{office} 落败。", { office: ((def && def.office) || G.campaign.id) }));
@@ -324,7 +356,7 @@
    *   primary（初选/提名幕，打党内同僚）：掷一次「对手退赛」，概率随累计投放次数与 CUN 上升；
    *     退赛 = momentum 一笔到位，没退也多少捡到声量。
    *   general（大选幕，打对手阵营）：momentum 增益更稳，但要过一次 INTG 检定 ——
-   *     不择手段会被翻出来：rep 掉、插 dirty_trick 旗、往 wrath_oppo 攒恨（喂 140-reckoning 清算管线）。
+   *     不择手段会被翻出来：rep 掉、插 dirty_trick 旗、往 wrath_opposition 攒恨（喂 140-reckoning 清算管线）。
    * 一次 1 点把柄、每幕限一次；效果全部走既有键（camp / rep / flags / count），不新增数值系统。 */
   function dropCfg() {
     return Object.assign({
@@ -379,7 +411,7 @@
       const back = P.rint(1, 100) <= Math.round(info.p * 100);
       const gain = back ? b.generalBack : b.generalWin;
       const eff = { camp: { momentum: gain } };
-      if (back) { eff.rep = b.repBack; eff.flags = ["dirty_trick"]; eff.count = { wrath_oppo: b.wrathBack }; }
+      if (back) { eff.rep = b.repBack; eff.flags = ["dirty_trick"]; eff.count = { wrath_opposition: b.wrathBack }; }
       P.applyEffects(eff);
       out = { hit: !back, momentum: gain, back: back };
       P.pushLog(back

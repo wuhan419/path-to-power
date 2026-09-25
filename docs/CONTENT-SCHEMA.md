@@ -1138,21 +1138,37 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 
 ---
 
-### 4.22 wh（白宫事务池 · 总统月决策槽 · #21 M1）
+### 4.22 wh（白宫事务池 · 总统月决策槽 · #21 M1—M4）
 
-爬到 `tierMax`（总统）之后，"一年抽象一次"的引擎就管不动了：总统一月不出一个决策，玩家手里只剩工资条。所以开了**第三条强制档期通道**（前两条：竞选幕 `campaignForceSlot`、日常公务 `choresSlot`），语义同一条：**到点必演，不看运气**。引擎在 `engine/presidency.js`，卡池在 `content/events/147-whitehouse.js`。
+爬到 `tierMax`（总统）之后，"一年抽象一次"的引擎就管不动了：总统一月不出一个决策，玩家手里只剩工资条。所以开了**第三条强制档期通道**（前两条：竞选幕 `campaignForceSlot`、日常公务 `choresSlot`），语义同一条：**到点必演，不看运气**。引擎在 `engine/presidency.js`，卡池在 `content/events/147—151`（轮转 24 张 + 弹劾 1 张），在任选举链在 `153/154`。
 
 - **入口**：事件写 `wh: true` + `whFamily:` 四族之一（`crisis` 危机 / `legislation` 立法 / `foreign` 外交 / `personnel` 人事）。`eligible` 顶部 `if (ev.wh) return false` —— 白宫卡**永不进随机池**，只经 `P.whiteHouseSlot(month)` 注入。
 - **谁能撞上**：`P.isPresident()` = `G.tier >= balance.tierMax`；卡上仍写 `tierRaw:true, tierMin:9, tierMax:9` 把身份闸显式留在内容里。
 - **节奏**：四族轮转，游标 `G.pres.famIdx` 逐月往后走一格，本族饿着就顺延下一族 → 总统在位**每月恰 1 条**白宫档期（validate 有硬断言），同族绝不连刷三个月。四族都饿着时这个月就静着，不硬塞刚演过的卡。
-- **⚠ 池子容量公式**：`每族张数 × 4 ≥ repeatMonths`。轮转周期是 4 个月，所以一族只有 2 张卡时 `repeatMonths` 上限就是 8，抬到 18 会在月中断流（实测：60 月里有 30 月零档期）。M1 = 每族 2 张 / `repeatMonths:8`；**M2 扩池到 ≥24 张时把周期抬回 18**，与公务卡同频。这条公式 validate 逐族钉着。
+- **⚠ 池子容量公式**：`每族「首任可用」张数 × 4 ≥ repeatMonths`（现 18，与公务卡同频）。"首任可用"= 该族卡里**剔掉**次任专属（事件级 `flags:["pres_two_terms"]`）与弹劾卡（`id === balance.presidency.impeach.card`，它不占轮转名额）之后剩下的张数——把它们算进分母就是假绿灯（M1 首落地时正是这条断言把误抄的 18 抓回 8）。轮转周期是 4 个月，所以 5 张的下限就是 `repeatMonths 20`，留 2 点余量。
+- **⚠ 每族必留 1 张次任专属卡**（`flags:["pres_two_terms"]`）：这面旗由引擎在连任胜选那月插上了（`presRaces`），所以它的判据留在**事件级** `flags`，走 `whEligible → P.when` 那条现成的闸，不新增机制。第一届它一张都不该出现，第二届它必须出现——两个方向 validate 都钉。
 - **⚠ 必须显式写 `unique:false`**：`grade:"major"` 的卡默认一局一次（§4.20 同一条坑），而任期 96 个月靠的就是同一批卡轮演——漏写就是一次性卡，第二轮起整族饿死。
 - **支持率（`G.pres.appr`，0—100）不是展示件**：卡上每卡至少一个选项挂 `mods:[{src:"approval"}]`（§5），效果键写 `effects:{ appr: ±n }`。`appr` **不进 `SCALE_KEYS`**（`dyn:true` 卡的钱/声望系数会折算它，但支持率是刻度不是体量，`engine/scale.js` 里没有这个键，所以 `+4` 就是 +4 个百分点）。
-- **水位**：每月 `appr += (baseline-appr)·revert + drift`，默认定出 ~42 的均衡点 —— 一事一事挣来的涨幅会自己往下掉，"在位越久越难"是刻意的；丑闻/调查另按 `pressure` 逐月加压。低于 `pressureBelow` 连续 `pressureMonths` 月只出"党内压力"一句日志，**M1 不判负**（弹劾/逼宫是 M3）。
+- **水位**：每月 `appr += (baseline-appr)·revert + drift`，默认定出 ~42 的均衡点 —— 一事一事挣来的涨幅会自己往下掉，"在位越久越难"是刻意的；丑闻/调查另按 `pressure` 逐月加压。低于 `pressureBelow` 连续 `pressureMonths` 月：先出"党内压力"一句日志，条件再叠上"丑闻 ≥2 级或调查未结"就触发 §4.23 的弹劾门。
 - **开关**：`balance.presidency.enabled:false` 一键下线整条通道 —— 决策槽、任期条、支持率瓷贴同时消失，回到"当总统 = 拿高薪的普通上班年"。
-- **探针**：`node dev/tools/out/presprobe.js`（headless 把人摆到 tier 9 跑 60 月，打印支持率轨迹 + 单卡命中次数 + 断流月）。
+- **探针**：`node dev/tools/out/presprobe.js`（headless 把人摆到 tier 9 跑满 96 个月，**每月档期都真的结算成效果**，逐项打印 每族命中／同族连刷／两条在任链开闸与末幕／届数与次任卡／离任后清算池可出场 的 PASS·FAIL）。
 
-> 读数件复用竞选条那套皮（`.campbar` 的兄弟 `.presbar`），支持率另挂在资源栏第五枚瓷贴上（`data-diff="appr"`，白卡结算的红绿高亮自动吃到）。
+> 读数件复用竞选条那套皮（`.campbar` 的兄弟 `.presbar`），支持率另挂在资源栏第五枚瓷贴上（`data-diff="appr"`，白卡结算的红绿高亮自动吃到）。白宫月的卡片本体换椭圆办公室的皮：`stage.js` 的 `P.ovalCls(ev)` 只认 `ev.wh` 一个字段，样式在 `style.css` 的 `.news.editorial.oval`（深藏青左边框 + 金徽底纹 + `.cchip` 换色），非总统月份渲染出的字符串一字不变。
+
+---
+
+### 4.23 在任者的选举链与总统账本（#21 M2—M3）
+
+总统已经在 `tierMax`，而竞选引擎的两道硬闸都假设"竞选是往上爬"：`campaignCandidates` 要求 `def.tier === 现级+1`，`campaignTick` 见 `G.tier >= def.tier` 就把这场判 `DROPPED`。所以**不假造第十级**，改用三个字段把这两道闸豁免掉，胜负口径同时换掉：
+
+- `def.incumbent: true` —— 跳过上面那两道闸（`campaign.js`）。**别把它理解成"这场不算数"**：中期链不动总统本人的位子，它结算的是国会、派系与清算账。
+- `def.winKind: "retain"` + `def.winFlag: "<旗>"` —— 链走完时不看 `tier`，只认末幕某条胜局 outcome 亲手盖下去的那面旗。**内容侧的硬契约**：末幕必须真有选项写 `effects:{flags:[winFlag]}`，否则永远判负（validate 查这条死引用）。
+- `def.gate.cond: function (G) { return G.pres && G.pres.raceDue === "reelect"; }` —— 档期由届内日历开（`termStart + midtermAt` / `+termMonths−reelectLead`），引擎只负责置/摘 `raceDue`；"该打这场了"与"你恰好想打"分成两件事表达。`ctx` 默认取 `String(G.pres.term)`，所以同一场中期选举每届各打一次。
+- **⚠ 在任链的选票选项不许再挂 `mods:{src:"approval"}`**：`incumbentAppr`（`balance.campaign`）已经把 `G.pres.appr` 折进 `ballotBase` 的起步选情，再挂一次就是民心算两遍。这条与 §4.22 的"每卡至少一个 approval 选项"不冲突——那是白宫事务卡的规矩，这是投票日。
+- **败选与定罪都只落 `fall:1`**，不用 `hardEnd`：与 #35「竞选不再由引擎掷赌骰判死」同一条纪律。`fall` 把 tier 摔下 `tierMax`，白宫通道随 `isPresident()` 转 false 自动关账，离任结算在 `presidencyTick` 的离场分支里幂等地做一次（`presExitSettle`：低支持率/长期危险线 → `wrath_establishment`，丑闻 → `wrath_press`，调查或弹劾 → `wrath_agency`，并插 `president_left`）。**这正是 §4.18 清算池的入口**，卸任后真的会演清算，不需要新数值系统。
+- **弹劾卡**（`balance.presidency.impeach.card`）：白宫殿把它排在四族轮转**之前**、且不推游标（它占的还是"每月恰 1 条"那个名额，弹完照原节奏继续轮），卡自带 `cond: P.impeachmentDue()`，于是被当普通卡抽也只有该演的那个月抽得到。演过插 `impeached`，`retryMonths` 内不再敲同一扇门。
+- **遗产三档**（`content/40-endings.js`）：`career_president_great/adequate/flawed` = S/A/B，判据一律走 `when` 的 `cond` 逃生口读 `G.pres`（**快照里没有 `pres`，第一个参数才是真 `G`**），外加 `impeached`/`scandal_4·5` 两道上限闸。没有白宫账本的旧档才落到通用 `career_president`。
+- **总统视角历史锚点**：给 1xx 年代线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（§4.21 的选项级分层），不动既有选项 id。`tierRaw` 不可省；这一档**必须**至少有一个档位吃 `appr`、且胜算挂 `approval`（validate 逐条查），否则"总统的桌子"和普通表态没有区别。
 
 ---
 
@@ -1816,7 +1832,7 @@ camp_federal: {
 | `maxMonths` | ✔ | 这一幕的窗口；窗口内始终没演出来 = 竞选拖垮 = 崩盘（LOST） |
 | `metersDelta` |  | 演完这一幕后的选情保底增减（代表“推进竞选本身的惯性”） |
 | `abortBelow` |  | 这一幕结束时的崩盘闸。**#35 起只允许 `momentum` 一种表**（`{ warchest }` 会被 validate 判红：金库见底只是买不动广告，不判败选）。闸门值要按 `seed` 的低起步标定（现行：初选幕 10 / 关键幕 12） |
-| `drop` |  | **#23 投放把柄的靶子**，只能是 `"primary"`（初选/提名幕，打党内同僚）或 `"general"`（大选幕，打对手阵营）。宣布幕与 `final` 投票日**不许标**（validate 判红）。竞选面板上因此出现「投放把柄」按钮：一次花 `balance.campaign.levDrop.cost` 份把柄（默认 1），每幕限一次。primary 掷"对手退赛"（成功率随累计投放次数与 CUN 上升，命中 `momentum +primaryWin`、未命中 `+primaryFail`）；general 收益更稳（`+generalWin`）但要过反噬检定（暴露率随 INTG 下降），暴露则只 `+generalBack` 并 `rep` 受损 + `flags:["dirty_trick"]` + `count:{wrath_oppo}`（喂 §4.18 清算池）。四幕以上的链应两种靶都有 |
+| `drop` |  | **#23 投放把柄的靶子**，只能是 `"primary"`（初选/提名幕，打党内同僚）或 `"general"`（大选幕，打对手阵营）。宣布幕与 `final` 投票日**不许标**（validate 判红）。竞选面板上因此出现「投放把柄」按钮：一次花 `balance.campaign.levDrop.cost` 份把柄（默认 1），每幕限一次。primary 掷"对手退赛"（成功率随累计投放次数与 CUN 上升，命中 `momentum +primaryWin`、未命中 `+primaryFail`）；general 收益更稳（`+generalWin`）但要过反噬检定（暴露率随 INTG 下降），暴露则只 `+generalBack` 并 `rep` 受损 + `flags:["dirty_trick"]` + `count:{wrath_opposition}`（喂 §4.18 清算池）。四幕以上的链应两种靶都有 |
 
 ### 14.3 选情怎么动（与三值性契约）
 

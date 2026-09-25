@@ -431,6 +431,22 @@ POTUS.define("event", [
           fail: { body: "有人嫌装备发得慢，骂完也还想不起骂谁。", effects: { rep: -0.2 } },
           critfail: { body: "一单虚惊过后，「早该多备」的闲话飘了两天就散了。", effects: { rep: -0.3 } }
         }
+      },
+      /* #21 M4：总统视角 —— 全国只有你一个人能对着一亿封信说话。
+         卡级 tierMax 由 time.js 的钉卡抬闸放到 9，所以这一支真看得见。 */
+      {
+        id: "situation_room", text: "把它接成自己的仗：停掉全国邮路、启动疫苗储备，你本人上电视讲细菌",
+        note: "赌全国在恐慌里只认总统一张脸。风险：防疫的每一起失误从此都归你。",
+        when: { tierRaw: true, tierMin: 9 },
+        base: 0.5, mods: [{ src: "approval", w: 0.3 }, { src: "attr", key: "INT", w: 0.25 }],
+        cost: { fun: 3 }, stake: { fun: true },
+        outcomes: {
+          crit: { body: "你在椭圆办公室念完那篇讲细菌的稿子，当晚邮局复工、各州照着联邦指引排好了检测。半年后听证会上，你的名字和「没失控」写在同一页。", effects: { rep: 2.4, appr: 5, fac: { agency: 10, military: 6, establishment: 6, base: 4 } } },
+          ok: { body: "全国生物防御的预算从这一夜起翻倍。你成了那个「处理过炭疽」的总统，历史把这四年写得很挤。", effects: { rep: 1.2, appr: 3, fac: { agency: 6, establishment: 4 } } },
+          meh: { body: "停邮两天，经济损失摆上桌面，你把口令改回「分级恢复」。没出事，也没人记得你做过决定。", effects: { rep: -0.3, appr: -1, fac: { commercial: -4 } } },
+          fail: { body: "又一封带孢子的信在你们自己管控不力的邮路里寄到了。记者不再问细菌从哪来，改问总统什么时候知道的。", effects: { rep: -1.8, appr: -5, fac: { press: -8, agency: -6 }, flags: ["scandal_1"] } },
+          critfail: { body: "两起感染都发生在联邦宣布「已受控」之后，你的简报被逐句反着念。国会开始讨论罢免一个会传染的政府。", effects: { rep: -3, appr: -9, fac: { press: -10, establishment: -8, base: -6 }, flags: ["scandal_2"] } }
+        }
       }
     ]
   },

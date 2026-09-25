@@ -224,14 +224,31 @@ const BALANCE_DEFAULTS = {
                         它受**池子容量公式**约束：四族轮转 = 每 4 月轮到一族，
                         所以「每族张数 × 4 ≥ repeatMonths」，否则那条硬断言
                         （总统月每月必出 1 条）会在月中饿断 —— validate.js 把这条
-                        公式钉成了断言。M1 每族 2 张 → 周期上限 8；M2 扩到每族 ≥5 张
-                        （全池 ≥20）时把它抬回 18，与公务卡同频。 */
+                        公式钉成了断言。M1 每族 2 张 → 周期只能 8；**M2 扩到每族 6 张**
+                        （其中 1 张次任专属，首届可用 5 张）→ 抬回 18，与公务卡同频。
+     ---- M2 在任选举（连任战 / 中期保卫战）：见 engine/presidency.js 的 presRaces ----
+     总统没有"下一级"可选，所以这两条链走 def.incumbent + winKind:"retain"（campaign.js），
+     档期由这里按**届内月序**开，不看运气也不看冷却：
+     · midtermAt   → 每届第几个月开中期保卫战的档期（14 ≈ 上任第二年开春，投在 11 月）；
+     · reelectLead → 任期最后 N 月开连任战档期（12 = 选举年一月起跑，6 幕够走完）；
+     · raceGrace   → 届满时那场选举还没打完的宽限月数（超了就按"没能连任"离任）；
+     · raceDefs    → 两个档期各自对应哪条竞选链（内容改 id 只动这里，引擎不写死）。
+     ---- M3 离任：清算喂料 + 弹劾 ----
+     · exitWrath → 走出白宫那个月按在任账本给 140-reckoning 池记恨（G.counters["wrath_*"]）。
+       这些键正是该池 countMin 25/55 的入口 —— 没有这一笔，卸任清算永远演不出来。
+     · impeach   → 弹劾/逼宫的触发口径：连续 pressureMonths 月低于 pressureBelow，
+       且（丑闻 ≥ scandalMin 或调查已开）。它只是把 wh_impeachment 插进本月档期，
+       **判定仍走事件自己的骰子**（复用 dice 的 src:"approval"），引擎不判死。 */
   presidency: {
-    enabled: true, termMonths: 48, repeatMonths: 8,
+    enabled: true, termMonths: 48, repeatMonths: 18,
     seed: { base: 46, perRep: 0.3, perEdge: 8, floor: 25, ceil: 72 },
     baseline: 45, revert: 0.05, drift: -0.15,
     pressure: { scandal: -0.5, investigation: -0.4 },
-    pressureBelow: 28, pressureMonths: 4
+    pressureBelow: 28, pressureMonths: 4,
+    midtermAt: 14, reelectLead: 12, raceGrace: 6,
+    raceDefs: { midterm: "camp_midterm", reelect: "camp_reelect" },
+    exitWrath: { apprBelow: 35, establishment: 12, press: 10, agency: 15 },
+    impeach: { scandalMin: 2, card: "wh_impeachment", retryMonths: 24 }
   },
 
   /* ---- 事件四大类的年度节奏（#32 → #38 定稿）----
@@ -1287,8 +1304,16 @@ POTUS.migrate = function (G) {
   if (G.campaignLog == null) G.campaignLog = [];
   if (G.campaignCool == null) G.campaignCool = 0;
   /* v0.12 #21 M1 总统任期：白宫状态（支持率 / 在任月数 / 届数 / 四族轮转游标）。
-     真正赋值在 presidency.js 的 P.presidencyTick 首次入主时（那要算播种），这里只保证字段存在。 */
+     真正赋值在 presidency.js 的 P.presidencyTick 首次入主时（那要算播种），这里只保证字段存在。
+     M2 起 G.pres 多三个字段（termStart 届内基准月 / raceDue 在任选举档期 / midDone 本届中期已开过）：
+     全是**加性**状态且缺省值就是"还没发生过"，所以按 #20 的先例就地补默认、不升 SAVE_FORMAT
+     ——13 版存档里那位在任总统接得上，只是他的中期选举从下一个档期起才开始排。 */
   if (G.pres == null) G.pres = null;
+  if (G.pres) {
+    if (G.pres.termStart == null) G.pres.termStart = 0;
+    if (G.pres.raceDue == null) G.pres.raceDue = null;
+    if (G.pres.midDone == null) G.pres.midDone = 0;
+  }
   /* #37② 「这张卡的属性发过了」账本：可重复卡第二次结算时不再发属性。 */
   if (G.attrGiven == null) G.attrGiven = {};
   /* v0.5 主线之后的机制：出生州 / 下野 / 年初快照（年终叙事要对比"今年与去年"） */
