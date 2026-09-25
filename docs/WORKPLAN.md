@@ -23,7 +23,7 @@
 | 20 | 开局抽卡 + 建角三步向导 | 存量 | 🟡 代码已落地 `aef8aed`，剩文档同步 |
 | 21 | P2：逐月化总统年 | 存量 | ⬜ pending |
 | 23 | 把柄×竞选：「投放把柄」行动 | 存量 | ⬜ pending |
-| 28 | 钱系统重构（stake 纯级别价 + 灰产免冷却） | 存量 | ⬜ pending |
+| 28 | 钱系统重构（stake 纯级别价 + 灰产免冷却） | 存量 | ✅ 代码落地，docs 已同步 |
 | 29 | 派系声望四栏面板 | 存量 | ⬜ pending |
 | 31 | 周目制终局结算（currentLoop 一等参数 · +1 点/周目 · 橙卡第 2 周目起 · 保卡可选 · 刷新一次） | 存量 | ✅ `04632d0` |
 | 32 | 事件四大类分层与节奏重标 | 新增 | ⬜ pending |
@@ -43,10 +43,10 @@
 ### #19 学贷校准 🟡
 连续断供 N 月即 game over 已实装框架，卡在条款标定：6/4/3 过狠。待「单利资本化 + 存档门禁」
 落地后跑 100 局模拟校准断供月数与利率。**依赖：** 无硬依赖，但建议在 #36 钱标尺定稿后再校准，
-否则月供/身家的比例会二次返工。
+否则月供/身家的比例会二次返工。建议只要初始资金加2个自由点达到4k,即可保证50%的存活率(也就是前期有一半的局数不会因为学贷gameover)即可.
 
 **细化方案（#36 已定标，本条解锁）**：
-1. 先校准条款：断供月数 6/4/3 放宽为 **12/8/5**（毕业/第一/第二档），连续断供才计数、
+1. 先校准条款：断供月数 6/4/3 放宽为 **5/5/5**（毕业/第一/第二档），连续断供才计数、
    还款即清零的语义保留；利率 0.03 与资本化口径以现实现为准复核一轮（单利+年度资本化）。
 2. 跑 `validate.js --games=100`（headless），统计：破产/断供 game over 率、T0–T2 月收入 vs 月供曲线、
    毕业档负债起点 vs 第一份公职薪水的月数比。目标：**不刻意还贷的玩家 1980s 内不至于必死，
@@ -92,7 +92,7 @@ M1 先行，M2—M4 视本轮产能滚动。
 4. 把柄来源沿用现有 lev 积累（清算/调查/黑料卡）；投放后 lev-1。
 5. 验收：validate 新增「无把柄时按钮置灰」「投放后 lev/camp 双结算」「暴露失败进 scandal 旗」断言。
 
-### #28 钱系统重构 ⬜
+### #28 钱系统重构 ✅
 ① **stake 纯级别价**：`engine/dice.js` 的 `stakeFunPer/stakeMax/stakeSpec` 废除三锚中的
 钱袋闸（per ≤ 现金×6%）与事件钱量级锚，每档价只挂钩职级/身位。这是 `smoke-ui.js`
 「投注上限护栏」4 红的正式归口（预存失败，非回归）。
@@ -121,6 +121,15 @@ M1 先行，M2—M4 视本轮产能滚动。
    挂进对应年代线文件，`funMul + pace:"exempt"`，中英双轨。
 7. 验收：validate 新增「级别价不随余额变化」「exempt 卡重复触发不衰减」断言；smoke-ui 0 红。
    手感基准：T0 投不起高档（一档 ≈ 月薪量级），T7+ 一档六位数——全由 officeSalary 表推导，不单独定价。
+
+**落地口径（与上面方案的差异，写文档时按这版）**：
+① `stakeFunPer` 只留身位锚：`per = clamp(officeSalary × perSalaryMonths(1) × gradeMul{.6/1/1.8}, perMin 500, perMax 500000)`
+抹零（`niceUsd`）；`cashStakeShare`/`potShare` 两参数与 `P.stakePot()` 函数**一并删除**，
+余额只进 `stakeMax`。② `funMul` 的 INT 系数写在 `balance.funMulIntLev: 0.4`，盈按 k、亏按 1/k。
+③ 6 张新卡**没有塞进年代线文件**，独立成 `content/events/138-speculation.js`（号段已在
+`PARALLEL-CONTENT-WORK.md` §2.1 登记，前缀 `sp{YY}_`），因为这一包的口径是"同一天的另一条街"，
+与史实卡同年不重复。契约文档：`CONTENT-SCHEMA.md` §4.16.3（级别价）/ §4.21（豁免通道）/ §6（funMul 吃 INT），
+设计论述见 `DESIGN.md` 核心系统四与「单卡终身衰减」两节。
 
 ### #29 派系声望四栏面板 ⬜
 建制派/华尔街/军工/宗教 × 仇恨/友好两轴四栏（「人生模拟器」档案观感）。落点：`effects.js` fac 键、
@@ -254,7 +263,7 @@ M1 先行，M2—M4 视本轮产能滚动。
    （tools 属红名单，改动随门禁跑）；smoke-ui 73-77/601-613 断言按新交互重写。
 5. 验收：三件套全绿 + headless 截图核验（游戏第 2 年跨年不再弹两屏；带 era 头图的事件卡出现）。
 
-### #32 事件四大类分层与节奏重标 ⬜
+### #32 事件四大类分层与节奏重标 ✅
 **用户分类模型**（写入 `docs/CONTENT-SCHEMA.md`，并给每个事件补 `kind` 标签或在 05-categories.js 映射）：
 1. **随机事件**（金主晚会/一桩丑闻/半夜捞人这类氛围卡）：**目标 1—2 件/年**。
    现状超发→属性资源刷太快、后期十拿九稳。手段：类别权重整体下调、冷却加长、
@@ -322,8 +331,9 @@ M1 先行，M2—M4 视本轮产能滚动。
 - **回归门禁清单**（每阶段提交前跑）：
   `node dev/tools/validate.js --games=20`、`node dev/tools/i18n-coverage.js --lang=en`（0% 缺译）、
   `node dev/tools/density-scan.js`（内容量口径）、`node dev/tools/trigger-scan.js`
-  （#33 产物：钉卡触发率门禁，改 era/fixed/scheduled 表或动 eligible 闸后必跑）、smoke-ui 允许且仅允许
-  #28 归口的 4 红直至 #28 落地。
+  （#33 产物：钉卡触发率门禁，改 era/fixed/scheduled 表或动 eligible 闸后必跑）。
+  曾长期挂着的「#28 归口 4 红」已随 #28 落地改写为级别价断言（`smoke-ui.js`「投注级别价」一节），
+  不再是允许的既有失败。
 
 ---
 
@@ -339,3 +349,5 @@ M1 先行，M2—M4 视本轮产能滚动。
 | 2026-09-25 | #33 触发荒 | ✅ 提交 `600ae2f`：`P.eraAt(year)` 让「属于哪个时代」一律按日历解（when/time/events/stage/progression/shell/core 七个消费点全量改，G.era 只留迁移期兼容），`scheduledHits` 首跑 `normalizePins()` 把 141 张 fixed/scheduled 钉卡的 tierMax 抬到 9（tierMin 保留），eligible 挡下的钉卡记进 `G.pinMiss`。新门禁 `tools/trigger-scan.js`：1980—2024 逐年 × tier{0,4,8} 结构可发性，身份逐维重试、链条 gaps 注入（另给 `--strict-chains` 体检口径），1991—2024 钉卡 121 条 tier8 触发率 **100%**（验收线 ≥80%）。validate 补 eraAt/scheduled 复活/钉卡 tierMax 三组断言、合成测试卡摘掉 `era:["__T"]`（日历解下永不成立）。四道门禁全绿：validate 全部通过、i18n 0% 缺译、density-scan exit 0、smoke-ui 仅 #28 预存 4 红。**方案偏离**：原计划脚本批量改内容文件的 tierMax，改为引擎侧一次性规范化（141 处数值不进 git 差异、新增钉卡自动生效、可回退）；原计划的「headless 跑 30 局重建实际触发」以结构口径替代（实际触发依赖随机抽取，30 局样本对 121 条钉卡覆盖不足）。 |
 | 2026-09-25 | #31 周目化 | ✅ 提交 `04632d0`：跨局账本收敛成一本——删 `metaFreeKey`/`addBonusFree`/`metaEverKey`/`everPresident`/`markEverPresident`，只留 `potus_meta_loop_v1`（存已完成周目数）+ `currentLoop()` 对外口径；`bumpLoop()` 补上调用点（`P.ending()` 里 `G.loopCounted` 防同一局重记，此前周目计数器根本没有增口，属死账）。自由点额度 = `freePoolFor(loop)` 单一来源（12 + (loop-1)×`loopFreeBonus(1)`），`freeCap` 随 `readBonusFree` 生长；橙卡门槛由「当过总统」改 `currentLoop >= gacha.orangeLoop(2)`（**首局不出现橙卡，第 2 周目起进池**），`15-cards.js` 注释同迁。结算屏改为无条件周目成长印 `ui.progression.loopLine`（下周目第几周目/自由点池/橙卡是否进池）+ 保卡转为可选提示；作弊码 `woshishabiN` 改兑 N 个周目、只写 `CSEL.cheatLoops`（会话级，不进 localStorage），输入框从第 3 步加点页搬到第 2 步天赋页；卡墙每局刷新 1 次（`gacha.rerolls`/`C.rerollsUsed`，用尽置灰＋提示、牌面不动）。门禁：validate 重写 meta/自由点/作弊与卡池四组断言（含第 6 周目 400 掷必出橙、cheatLoops=30 夹到上限、结算两次只记 1 周目），并把 #33 触发荒守卫固化成「1991 钉卡可发率」200×12 月 `planMonth` 抽样（实测 100%、丢弃 0 张）；smoke-ui 改测作弊周目→自由点联动与刷新配额封顶；EN 补 `loopLine`/`orangeIn`/`orangeOut` 并把橙卡前后缀整句入 i18n（避免 EN 模式漏中文字）。五道门禁全绿：validate 全部通过、i18n 0% 缺译、density-scan exit 0、trigger-scan 100% PASS、smoke-ui 仅 #28 预存 4 红。**方案偏离**：doc 原写「loop=已完成周目数、额度 12+loop」，实现改为对外 1 起的 `currentLoop`（存储层仍是已完成数），避免 UI/结算两处各写一套 +1；「+1 点/周目」与「第 2 周目起出橙」两条口径按用户最新表述覆盖原「二周目开局不出现橙卡」的笔误。 |
 | 2026-09-25 | #34 砍两屏 + 头版挂卡 | ✅ 提交 `4b31303`：`startYear` 瘦成「开年后台（水位归零 + `yearStartSnap` 重建）+ `renderShell()` 游戏壳」，铺完壳直接 `nextMonth`/`resumeMonth` 落进本年第一个有事的月份，时代简报屏与 `eraFrontPhoto` 一并撤下；`endYear` 保留全部后台结算（老化/hp 衰减/利息/精力复位/丑闻消退/把柄过期/黑天鹅/autosave/日志）后**程序直调**下一年，撞 `balance.endYear` 直调 `careerEnd`（`P.nextYear` 随按钮一起删除），平静月年末按钮改口「进入下一年 →」。**era 头版逐张看图定位后挂卡**：补上 1985(rg85_plaza)/1987(rg87_wall)/1996(ln96_election)/1998(ln98_impeach)/1999(ln99_balkans)/2000(ln00_hang)/2011(ln11_binladen)/2013(ln13_shutdown) 八个空窗年，脚本核对 1980—2020 每年至少一张钉卡带头版、trigger-scan 121 条钉卡 tier8 触发率仍 100%。**例外条款落点 = `era-2012.jpg`**（奥巴马双拳高举那张）：不挂任何卡，2012 回退通用头版 `era.jpg`（挂在 ln12_election 上并写注释说明理由）；`era-2008.jpg`（纽约交易所前比 V）按「这张就是 ln08_election 那条『第一位黑人候选人走进白宫』本体」保留。**门禁随迁**：删 29 条 `ui.stage.*` 死串 + `.yearcard/.heads/.bs/.ytales/.era-front/.sechead` 死样式，i18n-coverage 的 `ledger 年终结算` 屏入口改指 `quiet 平静月合并屏`，smoke-ui 改测「开局无简报屏 / endYear 直接翻年 / 终点年直调生涯结算」，validate 新增 `createOnly()` 掐掉月循环（否则建角初始盘断言量到的是跑过一个月后的账，出现假红负债）。五道门禁全绿（smoke 仅 #28 预存 4 红）+ 浏览器实测：开局/读档续局/跨年三径都直进事件卡，ln00_hang 头版正常出图。**方案偏离**：①原写「45 张图」，实存 41 张（2021—2024 无素材，其钉卡沿用 era-2020.jpg）；②1985/1987 两张头版的可见报头分别是 GENEVA SUMMIT / ARMS PACT，与所挂卡（广场协议 / 柏林墙喊话）不是同一件事——按「era-<year>.jpg 本就是**年度**头版」的设定放行，未新增 rg85_geneva、rg87_inf 两张卡（那属 #32 的「每年≥2 件」补齐范围）；③黑天鹅正文改记进日志（结算屏下线后日志是唯一落点）。 |
+| 2026-09-25 | #28 钱系统重构 | ✅ 提交 `b51a35c`：① `stakeFunPer` 只剩身位锚 —— `per = clamp(officeSalary(track,tier) × perSalaryMonths(1) × gradeMul{minor .6 / mid 1 / major 1.8}, perMin 500, perMax 500k)` 再 `niceUsd` 抹零，`cashStakeShare`/`potShare` 两参数与 `P.stakePot()` 整个函数一并删除，余额只进 `stakeMax = min(ceil(cap÷w)=8 档, floor(现金÷单价))`。实测级别价 T0 $1k / T3 $4k / T5 $8k / T9 $33k；同一选项在 T3 把余额从 2 万改到 200 万，单价恒 $4k 而档数 5→8（「同一件事穷时便宜富时贵」这条用户投诉到此为止）。`P.stakeRateNote` 收成「级别价 / 剧情写定」两条分支，英文侧退役 `tierBase/matterBase/walletBase/rateNote/tailCash/rateNoteSeat` 五条死串。② `effects.funMul` 吃 INT：`k = 1 + (INT-50)/100 × balance.funMulIntLev(0.4)`，盈利 ×k、亏损 ÷k（聪明人赚得多、翻车亏得少），没有本金（`cost.fun`/`req.fun`/投注）时 warn 并空转；新增 `P.paceExempt`（`pace:"exempt"` 不吃单卡终身衰减、不进 24 个月硬冷却，但照旧吃 `pace.grayMax` 年度额度），validate 加 `__flip`(exempt) vs `__once` 对照探针。③ 新包 `content/events/138-speculation.js` 六张（sp85_plaza / sp87_monday / sp97_currency / sp07_cracks / sp08_liquidity / sp22_run）+ 英文覆盖层 210 条串，gen-manifest 登记 134/136/137/138。门禁：validate `--games=20` **全部通过（468 项）**、smoke-ui **0 红**（原 #28 归口的 4 红清零）、i18n-events 0% 缺译、i18n-coverage 0% 汉字、density-scan exit 0、trigger-scan 124 条 100%。**方案偏离**：①六张卡独立成包（理由见上「落地口径」）；②原写「T7+ 一档六位数」只对名人/财富轨成立（electoral_7 月薪 $17k → mid 档 $17k），按薪资表实值放行不追调；③原写「随余额成正比保留」的 potShare 语义整体退役（它就是被投诉的那条锚）；④首落地有 6 个 `funMul` 选项漏写本金（sp87/wait、sp97/blame、sp07/keep、sp22/first_out、public_stay、quiet_info），由新加的本金声明闸抓出并修（真保底项改绝对 `fun` 系数，需要仓位/存款的补 `req.fun`）。**存量内容债**：运行时仍有零星「funMul 没有本金」告警出自旧卡（如 93-media-2 出书、108-era-2016 数据选项），属逐卡清理项、不是 #28 回归。 |
+| 2026-09-25 | #32 四大类节奏 | ✅ 提交 `b51a35c`（与 #28 合成一笔）：`P.eventKind` 从既有声明派生四大类（campaign / fixed / career / random，零人工字段零迁移），`paceBucket` 把 `pace:"exempt"` 与 `category:"shady"` 折进灰产额度，随机类受 `balance.pace.yearRandomMax(2)`、灰产受 `grayMax(4)` 两道年度闸，固定/职业/竞选不吃额度。**公务通道脱钩**：`choreEligible` 不再借用随机卡的 `recentIds`（20 抽窗口≈2.4 年，而一个层级只有几张公务卡共用它 = 自我饿死，职业年均被压在 1.60 反而低于随机），改走自己的 `choreDynamic.repeatMonths:18` 月份冷却（记在随存档的 `G.doneSeq` 上）；`chance/emptyFillChance` 定标 0.10/0.45。实测（`--games=20`，样本 370 年）**固定 2.21 ≥ 职业 2.04 ≥ 随机 1.85**（另灰产 1.64）、竞选 0.38、每年档期 8.7、填充 6.9%、月份降级 6.5%、时代专属占比 20.2%。内容侧：111-chores 年代覆盖拉到 2025（11 张改 `maxYear`、`chore_school` 保留 1999 并收窄到 T2—4、新增 7 张 patrol/schbudget/portvisit/harbor/dataleak/tour2/fair，每个簇×年代 ≥4）；125/126/127 四张旗舰做**同年分层**（`ln12_benghazi` / `ln13_snowden` / `ln20_covid` 选项级 `when.tierBand` 底 0—3／中 4—6／高 7+，原选项 id 全保留，ln20_covid 因已有 4 选项落成 2/3/2）；新增 `ln15_charlie`（2015-01-07 钉卡，六选项三分档）；**连锁** 136-chain-911（ch911_watch→ch911_blame）与 137-chain-credit（ch08_short→ch10_blame）+ 134-line-2025 收官年。门禁：trigger-scan 1991—2024 钉卡 124 条 tier8 结构可发 **100%**、density-scan 1980—2025 每年 ≥2 钉卡 exit 0、validate 新增四大类节奏断言（额度闸 + 倒挂转正 + 公务通道不被硬冷却误伤）。**方案偏离**：①career 取 `category:"govt"`（政务）+ `"career"`（仕途）；原方案的 `civic` 在注册表里实为 `civil`（民权运动），若按原文归类会把整个民权语料踢出随机额度，故 `civil` 留在随机；②职业频率目标由「T2—T6 每 2—4 月一蹦 ≈ 3—5 件/年」下调到 ≈ 每 5—6 月一蹦（2.04/年）——排在前面的是「固定 ≥ 职业」这条用户优先级（固定历史最看重），公务不得盖过钉卡；③分层用选项级 `when.tierBand` 而非同 id 变体卡（省内容量，与方案倾向一致）。 |
