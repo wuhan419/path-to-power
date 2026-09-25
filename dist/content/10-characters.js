@@ -15,12 +15,12 @@ POTUS.define("origin", {
     effects: { fac: { establishment: 30 }, rep: 8, fav: 2, flags: ["mentor"] }
   },
   immigrant: {
-    name: "移民二代", desc: "韧性 基层+20 精力+10；白手起家 建制-20",
-    effects: { fac: { base: 20, establishment: -20 }, ap: 10 }
+    name: "移民二代", desc: "韧性 基层+20；白手起家 建制-20",
+    effects: { fac: { base: 20, establishment: -20 } }
   },
   labor: {
-    name: "蓝领工人", desc: "工会+40 基层+15 健康+10 人情+1；家无余财 商业-25",
-    effects: { fac: { labor: 40, base: 15, commercial: -25 }, hp: 10, fav: 1 }
+    name: "蓝领工人", desc: "工会+40 基层+15 人情+1；家无余财 商业-25",
+    effects: { fac: { labor: 40, base: 15, commercial: -25 }, fav: 1 }
   },
   elite: {
     name: "商学院/法学院精英", desc: "智力+15 商业+30；基层信任-15（开局钱改由卡池给）",

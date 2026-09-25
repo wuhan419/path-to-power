@@ -58,8 +58,8 @@ POTUS.define("event", [
           crit: { body: "你把一条街都聊成了朋友，义举上门的选民答应帮你拉票。", effects: { rep: 2, fac: { base: 8 }, camp: { momentum: 14 } } },
           ok: { body: "支持者慢慢攒起来了，你的名字不再是陌生人。", effects: { rep: 1, fac: { base: 4 }, camp: { momentum: 8 } } },
           meh: { body: "吃了很多闭门羹，但总算见了人。", effects: { camp: { momentum: 3 } } },
-          fail: { body: "嗓子喊哑，收效寥寥。", effects: { hp: -2, camp: { momentum: -6 } } },
-          critfail: { body: "你累垮了，还被投诉骚扰住户。", effects: { hp: -4, rep: -1.5, camp: { momentum: -12 } } }
+          fail: { body: "嗓子喊哑，收效寥寥。", effects: { camp: { momentum: -6 } } },
+          critfail: { body: "你累垮了，还被投诉骚扰住户。", effects: { rep: -1.5, camp: { momentum: -12 } } }
         }
       },
       {
@@ -240,7 +240,7 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_state_rally", brief: { lede: "大选前最后冲刺，每分注意力都要抢。", known: ["广告烧钱换曝光，拜票耗力换人心。", "金库有限，火力怎么分是一笔账。", "适度造势能不透支，也不至于烧穿。"], unknown: ["透支或省过头，都会把势头漏掉。"] }, grade: "mid", category: "campaign", unique: false,
+    id: "camp_state_rally", brief: { lede: "大选前最后冲刺，每分注意力都要抢。", known: ["广告烧钱换曝光，拜票跑腿换人心。", "金库有限，火力怎么分是一笔账。", "适度造势能不透支，也不至于烧穿。"], unknown: ["透支或省过头，都会把势头漏掉。"] }, grade: "mid", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 2, tierMax: 2, weight: 1,
     title: "选战造势",
     body: "大选前的最后冲刺。广告、集会、拜票——每一分注意力都要抢。",
@@ -248,7 +248,7 @@ POTUS.define("event", [
       {
         id: "air_war", text: "买广告、打空中战", base: 0.5,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
-        cost: { fun: 8000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         outcomes: {
           crit: { body: "广告精准打击，你的名字成了本选区的口头禅。", effects: { rep: 2, camp: { momentum: 13, warchest: -4 } } },
           ok: { body: "曝光稳步上涨，只是烧钱。", effects: { camp: { momentum: 7, warchest: -5 } } },
@@ -364,9 +364,9 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你的拼劲传为佳话，各地媒体轮着报道你。", effects: { rep: 2, camp: { momentum: 12 } } },
           ok: { body: "你跑遍了选区，选情稳步走高。", effects: { camp: { momentum: 7 } } },
-          meh: { body: "累得够呛，效果平平。", effects: { hp: -2, camp: { momentum: 3 } } },
-          fail: { body: "行程太满，你在两场活动里状态失守。", effects: { hp: -3, camp: { momentum: -6 } } },
-          critfail: { body: "你累倒在旅途中，缺席了关键一场辩论。", effects: { hp: -6, rep: -2, camp: { momentum: -12 } } }
+          meh: { body: "累得够呛，效果平平。", effects: { camp: { momentum: 3 } } },
+          fail: { body: "行程太满，你在两场活动里状态失守。", effects: { camp: { momentum: -6 } } },
+          critfail: { body: "你累倒在旅途中，缺席了关键一场辩论。", effects: { rep: -2, camp: { momentum: -12 } } }
         }
       },
       {
@@ -472,7 +472,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "media_buy", text: "砸钱上黄金时段广告", base: 0.5,
-        cost: { fun: 20000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
         outcomes: {
           crit: { body: "洗脑式广告让全州都会哼你的竞选口号。", effects: { rep: 2, camp: { momentum: 13, warchest: -6 } } },
@@ -639,9 +639,9 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你把郊区敲了个遍，选情在最后一刻翻起。", effects: { rep: 2, fac: { base: 6 }, camp: { momentum: 14 } } },
           ok: { body: "最后一周的拼劲稳住了关键人群。", effects: { camp: { momentum: 8 } } },
-          meh: { body: "你累到脱形，选情持平。", effects: { hp: -2, camp: { momentum: 3 } } },
-          fail: { body: "郊区不买账，你白跑一趟。", effects: { hp: -3, camp: { momentum: -7 } } },
-          critfail: { body: "最后一周连环失言，选情雪崩。", effects: { hp: -5, rep: -2, camp: { momentum: -14 } } }
+          meh: { body: "你累到脱形，选情持平。", effects: { camp: { momentum: 3 } } },
+          fail: { body: "郊区不买账，你白跑一趟。", effects: { camp: { momentum: -7 } } },
+          critfail: { body: "最后一周连环失言，选情雪崩。", effects: { rep: -2, camp: { momentum: -14 } } }
         }
       },
       {
@@ -777,7 +777,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "blanket", text: "广告加人海，全面包围摇摆县", base: 0.5,
-        cost: { fun: 30000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把摇摆县打成了自己的颜色。", effects: { rep: 4, camp: { momentum: 14, warchest: -8 } } },
@@ -934,9 +934,9 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你成了全国最有号召力的助选人，人脉铺满各州。", effects: { rep: 2, fac: { base: 8 }, camp: { momentum: 13 } } },
           ok: { body: "你刷足了全国存在感。", effects: { rep: 1, camp: { momentum: 7 } } },
-          meh: { body: "跑了多少场，平平。", effects: { hp: -2, camp: { momentum: 3 } } },
-          fail: { body: "行程压垮了你，好几场状态失守。", effects: { hp: -3, camp: { momentum: -6 } } },
-          critfail: { body: "你连轴转下错话，帮了倒忙。", effects: { hp: -5, rep: -2, camp: { momentum: -12 } } }
+          meh: { body: "跑了多少场，平平。", effects: { camp: { momentum: 3 } } },
+          fail: { body: "行程压垮了你，好几场状态失守。", effects: { camp: { momentum: -6 } } },
+          critfail: { body: "你连轴转下错话，帮了倒忙。", effects: { rep: -2, camp: { momentum: -12 } } }
         }
       },
       {
@@ -1102,7 +1102,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "swing_blanket", text: "金库全开，轰炸摇摆州", base: 0.5,
-        cost: { fun: 60000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把摇摆州刷成了自己的颜色，基本盘被彻底点燃。", effects: { rep: 2.5, fac: { base: 8 }, camp: { momentum: 15, warchest: -12 } } },
@@ -1118,9 +1118,9 @@ POTUS.define("event", [
         outcomes: {
           crit: { body: "你一场接一场的集会点燃摇摆州。", effects: { fac: { base: 8 }, camp: { momentum: 14 } } },
           ok: { body: "你拼到最后一刻，关键州回暖。", effects: { camp: { momentum: 8 } } },
-          meh: { body: "你跑断了腿，选情持平。", effects: { hp: -2, camp: { momentum: 3 } } },
-          fail: { body: "人力难回天，身体也亮红灯。", effects: { hp: -3, camp: { momentum: -6 } } },
-          critfail: { body: "冲刺途中你病倒，选情失控。", effects: { hp: -6, rep: -2, camp: { momentum: -14 } } }
+          meh: { body: "你跑断了腿，选情持平。", effects: { camp: { momentum: 3 } } },
+          fail: { body: "人力难回天，身体也亮红灯。", effects: { camp: { momentum: -6 } } },
+          critfail: { body: "冲刺途中你病倒，选情失控。", effects: { rep: -2, camp: { momentum: -14 } } }
         }
       },
       {

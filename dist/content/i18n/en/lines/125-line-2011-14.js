@@ -205,6 +205,42 @@ POTUS.define("l10n", {
               fail: { body: "Someone asks at the door why you are only ever photographed here and never on the record." },
               critfail: { body: "A picture of you at the dinner table after the service starts circulating with one line under it." }
             }
+          },
+          {
+            id: "say_very_little",
+            text: "Release one line of condolence and never say the word accountability",
+            note: "Betting this is not your fight. Risk: silence is a position too, and nobody keeps notes for you.",
+            outcomes: {
+              crit: { body: "The wording is careful and a family secretary sends back one thank-you. The county paper puts your name in the fourth paragraph." },
+              ok: { body: "The statement goes out and a bigger headline covers it the same day. Nobody comes back for more." },
+              meh: { body: "Nobody quotes you. Nobody challenges you either. The month passes." },
+              fail: { body: "A reporter waits at your office until dark and prints 'declined to respond'." },
+              critfail: { body: "The call log from those nine hours is released, and one number in it is one you once saved. You never explain a word." }
+            }
+          },
+          {
+            id: "hold_session",
+            text: "Hold a public hearing at home and read the security approval chain out, one declined request at a time",
+            note: "Betting the procedure speaks for you. Risk: whoever you read out remembers you.",
+            outcomes: {
+              crit: { body: "The transcript is online the same day. By the seventh declined request, cable finally has footage it can run." },
+              ok: { body: "The procedure is completed and the file is archived. The party says you jumped the gun; the paper says you did the reading." },
+              meh: { body: "Eleven people come. Next morning's front page is the ballgame." },
+              fail: { body: "A witness reverses on the stand, and your hearing is written up as a funeral you staged for yourself." },
+              critfail: { body: "Your witness turns out to be tied to the contractor's lobbying shop. The whole session becomes their fundraising mailer." }
+            }
+          },
+          {
+            id: "sign_subpoena",
+            text: "Sign the subpoena: the minute-by-minute record of those nine hours, produced by a deadline",
+            note: "Betting your procedural power actually opens the executive's door. Risk: if it does not, you overreached on camera.",
+            outcomes: {
+              crit: { body: "The subpoena is served and the log arrives two weeks later. You read the first minute of those nine hours out loud on national television." },
+              ok: { body: "Part of it is produced — enough for three stories. You become the standing voice for the word accountability." },
+              meh: { body: "The subpoena turns into a scheduling fight, and the court sets it after the election." },
+              fail: { body: "A court voids it on jurisdiction. Your opponent prints the ruling ten thousand times." },
+              critfail: { body: "The subpoena is ruled a partisan act, your committee seat is suspended first, and the inquiry turns around and walks into your own office." }
+            }
           }
         ]
       },
@@ -533,6 +569,42 @@ POTUS.define("l10n", {
               meh: { body: "You read a few hundred pages of local contracts and find nothing." },
               fail: { body: "While looking into other people's authorizations, somebody looks into yours." },
               critfail: { body: "He signed one himself goes in the last sentence of the article." }
+            }
+          },
+          {
+            id: "own_wires",
+            text: "Say nothing; move your own office's phones and files onto a vendor that does not answer that court",
+            note: "Betting this ends as a nuisance rather than a scandal. Risk: staying clean is not the same as being safe.",
+            outcomes: {
+              crit: { body: "Two weeks after the switch a bulk request does land in your county, and none of your lines are in it. Staff start saying 'he keeps records' as a compliment." },
+              ok: { body: "You change vendors, the bill goes up a little, and nothing lands on you." },
+              meh: { body: "You spend a month on it and nobody knows you spent it." },
+              fail: { body: "The switching invoice surfaces locally, under the headline 'what is he afraid of'." },
+              critfail: { body: "Your new vendor is named in the same week. The man dodging the story becomes the man with something to hide." }
+            }
+          },
+          {
+            id: "write_position",
+            text: "Publish a six-page memo: which orders should be public, which statute should change",
+            note: "Betting paper outlasts slogans. Risk: whoever writes it clearly gets questioned line by line.",
+            outcomes: {
+              crit: { body: "Two national papers run your memo and the tech crowd prints it as a handbook. From now on the debate quotes your categories." },
+              ok: { body: "The memo is read seriously for two days. Your name goes on the list of people who do the work." },
+              meh: { body: "The file sits on your site with eight downloads." },
+              fail: { body: "A security-desk reporter finds two amateur sentences, and the tone moves from competent to reaching." },
+              critfail: { body: "You wrote that none of this touches domestic numbers. New documents appear the next day. That sentence follows you." }
+            }
+          },
+          {
+            id: "vote_sunsets",
+            text: "Put your own authority on the ballot: the clause lapses unless a public vote renews it",
+            note: "Betting you will trade your procedural seat for one national decision. Risk: if the vote fails, you are the one who let the collection go.",
+            outcomes: {
+              crit: { body: "The clause goes to a forced reauthorization debate. You spend three minutes on national television explaining why a government must ask permission to read your records, and people quote those three minutes for years." },
+              ok: { body: "Renewal comes attached to a public reporting duty. Small, but now it is on the record." },
+              meh: { body: "Your amendment is parked in procedure, leaving only a number." },
+              fail: { body: "A foiled attack ends the debate that night. Your vote becomes the thing done to us at a time like this." },
+              critfail: { body: "The reauthorization fails, and it surfaces that your office took money from a technology contractor before the vote. Both sides start calling you a traitor." }
             }
           }
         ]

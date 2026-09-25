@@ -21,10 +21,10 @@
   /* ---------- 时代压力：0-5，越高越动荡 ---------- */
   P.pressure = function () {
     const G = P.G, w = P.reg.worldline || {};
-    const era = P.reg.era[G.era] || {};
+    const era = P.reg.era[P.eraAt(G.year)] || {};
     const y = String(G.year);
     /* 优先按绝对年读全局时间轴的世界线压力；时间轴没铺到的年份整体回落 era
-       （渐进迁移、可回退：未迁移的 2008 等年代照旧走 reg.era[G.era].pressure）。 */
+       （渐进迁移、可回退：未迁移的 2008 等年代照旧走当年 era 的 pressure）。 */
     const wm = (w.pressure && typeof w.pressure === "object") ? w.pressure : null;
     const raw = (wm && wm[y] != null) ? wm[y] : era.pressure;
     let v = 1;
@@ -95,8 +95,24 @@
    * 注意：定点事件仍然要过一遍 P.eligible()——tier / flag / era 不满足就跳过，
    *       所以「给低层级玩家写的定点事件」不会硬塞给还没爬到那个位置的人。
    */
+  /* ---------- #33 钉卡规范化（一次性）----------
+   * 凡出现在 reg.fixed / 任一 era.scheduled 里的卡 = 世界事实，到点必发：
+   * tierMax 一律抬到 9（当年写死的顶层闸会把爬到中高层的玩家整年挡在史实之外——
+   * 1990 后「事件荒」六成根因）。tierMin 保留：底层玩家还没资格卷入高层专属卡。 */
+  function normalizePins() {
+    if (P._pinsNormalized) return;
+    P._pinsNormalized = 1;
+    const ids = P.pinIds();
+    let n = 0;
+    P.events.forEach(function (ev) {
+      if (ids[ev.id] && ev.tierMax != null && ev.tierMax < 9) { ev.tierMax = 9; n++; }
+    });
+    P.pinCount = n;
+  }
+
   function scheduledHits(month) {
-    const G = P.G, era = P.reg.era[G.era] || {};
+    normalizePins();
+    const G = P.G, era = P.reg.era[P.eraAt(G.year)] || {};
     /* 全局定点事件表 fixed（按绝对年月）+ 迁移期兼容的 era.scheduled，两路合并 */
     const lists = [];
     if (P.reg.fixed && P.reg.fixed.length) lists.push(P.reg.fixed);
@@ -117,7 +133,15 @@
         if (once && s.event && G.doneIds.indexOf(s.event) >= 0) return;
         const ev = s.event && P.evById(s.event);
         if (s.event && !ev) return;
-        if (ev && !P.eligible(ev)) return;            // tier / flag / 近期去重 等
+        if (ev && !P.eligible(ev)) {
+          /* #33：静默丢弃变响——记下为什么没发出去，供 trigger-scan / 完成记录诊断 */
+          let why = "gate";
+          if (ev.tierMin != null && G.tier < ev.tierMin) why = "tierMin";
+          else if (ev.tierMax != null && G.tier > ev.tierMax) why = "tierMax";
+          (G.pinMiss = G.pinMiss || []).push({ y: G.year, id: s.event, why: why });
+          if (G.pinMiss.length > 500) G.pinMiss.shift();
+          return;
+        }
         if (s.event) seen[s.event] = 1;
         out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major",
           valence: ev ? P.valenceOf(ev) : "risk", scheduled: true });
@@ -138,7 +162,12 @@
     if (!P.yearOK(e) || !P.mediumOK(e)) return false;
     const G = P.G;
     if (P.isUnique(e) && G.doneIds.indexOf(e.id) >= 0) return false;
-    if (P.recentIds.indexOf(e.id) >= 0) return false;
+    /* 公务不去挤全局 recentIds（随机卡池的 20 抽窗口 ≈ 2.4 年）：
+       每个层级 band 只有几公务卡，共用那条窗口会自我饿死 —— 抽完一张就要等两年多才回来，
+       「每 2—4 个月蹦一条职业事务」的节奏线根本补不上。改成自己的月份冷却：
+       同一张公务隔 repeatMonths 个月才重演，落在 doneSeq 上、随存档走。 */
+    const rm = Number((P.balance().choreDynamic || {}).repeatMonths);
+    if (rm > 0) { const since = P.monthsSince(e.id); if (since != null && since < rm) return false; }
     return true;
   }
   P.choresSlot = function (isEmptyMonth) {
@@ -200,6 +229,12 @@
       + (bonus >= (b.slotsBonusAt == null ? 2 : b.slotsBonusAt) ? 1 : 0)
       + variance;
     n = P.clamp(n, 1, b.slotsMax == null ? 3 : b.slotsMax);
+    /* #32 随机限流：本月能排的随机档期不超过本年剩余名额（fixed/竞选/公务已在 out 里，
+       不占额度）。名额用尽又没有别的档期时，这个月就静下去 —— 绝不能把没名额的月份
+       推给填充器，那是"超发"换了个马甲。 */
+    const room = P.randomRoom ? P.randomRoom() : Infinity;
+    if (Number.isFinite(room)) n = Math.min(n, out.length + room);
+    if (n <= 0) return [];
     /* 每个档期独立掷三值性（机遇/风险/威胁）：类与类之间互不挤占、
        与本月初生无关 —— 坏事件不会因为本月已有好事件就不来。 */
     while (out.length < n) out.push({ grade: P.pickGrade(pressure), valence: P.pickValence(pressure) });

@@ -93,6 +93,16 @@
   .campbar .cmp-meter em{font-style:normal;font-family:"SF Mono",Menlo,Consolas,monospace;
     font-weight:700;color:var(--ink);min-width:18px}
   .campbar .cmp-meter.low em{color:var(--bad)}
+  /* #23 投放把柄：竞选面板底部那一行黑料行动 */
+  .campbar .cmp-drop-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;
+    padding-top:7px;border-top:1px dashed var(--line)}
+  .campbar .cmp-drop{font-size:11.5px;padding:3px 9px;border:1px solid var(--bad);
+    background:transparent;color:var(--bad);letter-spacing:.5px;cursor:pointer}
+  .campbar .cmp-drop b{margin-left:4px;font-family:"SF Mono",Menlo,Consolas,monospace}
+  .campbar .cmp-drop.off,.campbar .cmp-drop:disabled{border-color:var(--line);color:var(--muted);cursor:not-allowed}
+  .campbar .cmp-drop:not(.off):hover{background:var(--bad);color:#fff}
+  .campbar .cmp-drop-p{font-size:11px;color:var(--muted)}
+  .campbar .cmp-drop-p.why{font-style:italic;opacity:.75}
   /* era skin（1960_CAMELOT / 1974_WATERGATE 已随 pre-1980 死内容清理；其余时代走默认变量） */
   body.era-2008_CRASH{--era1:#1f3a2a;--era2:#0f5132;--era3:#caa53a;--accent:#0f5132}
   /* newspaper card */
@@ -182,6 +192,32 @@
   .qchip.tint-n1{background:#fbf1ef}
   .qchip.tint-n2{background:#f8e3de;border-color:#e6bfb5}
   .qchip.tint-n3{background:#f4d3ca;border-color:#dda192}
+  /* ---- #29 派系四栏面板：2×2 宫格 + 每格一条镜像双轴（左半仇恨 / 右半友好）---- */
+  .sb-facs{align-items:stretch}
+  .fac-body{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-width:0}
+  .facgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0}
+  .faccell{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name val" "word val" "bars bars";
+    align-items:center;column-gap:5px;padding:3px 6px 4px;border:1px solid var(--line);border-radius:3px;
+    background:#fff;min-width:0}
+  .faccell .fac-name{grid-area:name;font-size:10.5px;color:var(--muted);letter-spacing:.3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .faccell .fac-word{grid-area:word;font-style:normal;font-size:10px;color:var(--muted);line-height:1.2}
+  .faccell .fac-val{grid-area:val;align-self:center;font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:15px;font-weight:700;color:var(--muted)}
+  .faccell .fac-bars{grid-area:bars;display:flex;margin-top:2px}
+  .faccell .fac-hate,.faccell .fac-love{flex:1 1 50%;height:5px;background:#efe9db;overflow:hidden;display:flex}
+  .faccell .fac-hate{justify-content:flex-end;border-radius:2px 0 0 2px}
+  .faccell .fac-love{border-radius:0 2px 2px 0}
+  .faccell .fac-hate b,.faccell .fac-love b{display:block;height:100%}
+  .faccell .fac-hate b{background:var(--bad)}
+  .faccell .fac-love b{background:var(--good)}
+  /* 分档：与 chip 同一套三档口径（|v|≥40 / ≥15 / >0），正值淡绿、负值淡红 */
+  .faccell.t1p{background:#f0f5e7}   .faccell.t2p{background:#e3efcf;border-color:#c4dba0}
+  .faccell.t3p{background:#d4e8b4;border-color:#a9cc7d}
+  .faccell.t1n{background:#fbf1ef}   .faccell.t2n{background:#f8e3de;border-color:#e6bfb5}
+  .faccell.t3n{background:#f4d3ca;border-color:#dda192}
+  .faccell.t1p .fac-val,.faccell.t2p .fac-val,.faccell.t3p .fac-val{color:var(--good)}
+  .faccell.t1n .fac-val,.faccell.t2n .fac-val,.faccell.t3n .fac-val{color:var(--bad)}
   .log-sm{font-size:11px;line-height:1.45;color:var(--muted);margin-top:5px;
     border-top:1px dotted var(--line);padding-top:4px;max-height:none;overflow:visible}
   .sb-detail .log{max-height:none;overflow:visible}
@@ -309,10 +345,6 @@
   .art-press-broken img{display:none}
   .art-press-broken::after,.art-press-broken::before{display:none}
   .art-press-broken .art-back{display:block}
-  /* 时代简报头版：比事件配图略矮的横幅，作为简报的「报头大图」 */
-  .art-press.era-front{margin:10px 0 6px}
-  .art-press.era-front img{height:174px}
-  .art-press.era-front .art-ptag{font-size:11px;letter-spacing:1.5px}
   a.link{color:var(--accent)}
   /* ending */
   .ending{border:3px double var(--line);padding:18px;background:#fbf7ec}
@@ -552,11 +584,6 @@
     font-size:12.5px;color:var(--muted)}
   .yearbar div{margin:1px 0}
   .yearbar b{color:var(--ink)}
-  .sechead{font-size:14px;margin:12px 0 2px}
-  .heads{margin:0;padding-left:18px}
-  .heads li{font-size:12.5px;color:#4a4437;margin:2px 0}
-  .bs{border:1px solid #9c2b2b;background:#fbf1f0;padding:8px 10px;margin:10px 0}
-  .bs h2{margin:2px 0 4px;font-size:17px}
   /* 月历条：把"平静过去的月份"和"这个月"排成一条时间线 */
   .mstrip{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .mlabel{display:flex;align-items:center;gap:6px;border:1px solid var(--line);
@@ -638,11 +665,6 @@
   .loanline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:3px 0 2px}
   .loanline .gchip2.muted{color:var(--muted);font-weight:600;background:#f2efe6}
   .loanline .forbear-btn{font-size:11.5px;padding:1px 9px;border-radius:9px}
-  /* 年终随笔：三段人话，衬线、首行缩进、上边一道双线 */
-  .ytales{border-top:1px double var(--line);border-bottom:1px double var(--line);
-    margin:10px 0;padding:10px 2px;background:transparent}
-  .ytale-p{margin:0 0 10px;text-indent:2em;line-height:2;color:#2a251c}
-  .ytale-p:last-child{margin-bottom:0}
   /* 选项说明：按钮内嵌的折叠块（点说明不触发选择） */
   .choice .chnote{margin-top:6px;border-top:1px dotted #cfc6ad;padding-top:4px}
   .choice .chnote summary{font-size:11.5px;color:var(--muted);cursor:pointer;user-select:none;
@@ -899,7 +921,6 @@
     .news.editorial .standfirst{font-size:13px;margin-bottom:10px}
     .art-press{margin:10px 0}
     .art-press img{height:auto;max-height:24vh;object-fit:contain;width:100%}
-    .art-press.era-front img{height:auto;max-height:22vh}
     .brief-slot{display:none}           /* 背景折叠：竖屏不进卡片流 */
     .ledgerbox,.ledger{font-size:11px}
 

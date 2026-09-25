@@ -64,7 +64,6 @@ POTUS.define("event", [
       {
         id: "feed", text: "给他一条真料：一件只有你知道的事",
         base: 0.62, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "attr", key: "CHA", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: pOut("他当场把笔记本翻到新的一页。三周后那篇专栏里你的名字出现了四次，而且每一次都在句子的前半段。",
             { rep: 2.75, contact: { columnist: 18 }, fac: { press: 12, base: 5 } }),
@@ -81,7 +80,7 @@ POTUS.define("event", [
       {
         id: "dinner", text: "请他去老地方喝一顿，什么都不求",
         base: 0.7, mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { fun: 0.3, ap: 1 },
+        cost: { fun: 0.3 },
         outcomes: {
           crit: pOut("你们喝到十一点，他讲了他那一次输掉的选举。走的时候他说：「你比他们有意思。」这句话不是稿子，但比稿子有用。",
             { rep: 1.25, contact: { columnist: 14 }, fac: { press: 9 } }),
@@ -150,7 +149,7 @@ POTUS.define("event", [
       {
         id: "preempt", text: "先发制人：在报摊开门之前，把那笔钱说清楚",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.35 }],
-        cost: { ap: 2, rep: 0.6 },
+        cost: { rep: 0.6 },
         outcomes: {
           crit: pOut("周三下午你开了一场二十分钟的发布会，把账单、日期和收款人全部念了出来。周四那篇稿子登了出来——它读起来像一篇旧闻。",
             { rep: 0.8, fac: { press: 14, base: 6 } }),
@@ -167,7 +166,7 @@ POTUS.define("event", [
       {
         id: "money", text: "找总编：他儿子的学费，你也可以出一份",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
-        cost: { fun: 1.75, ap: 1 }, stake: { fun: true, fav: true },
+        cost: { fun: 1.75 }, stake: { fun: true, fav: true },
         outcomes: {
           crit: pOut("稿子没登。三天后同一版的第三栏出现了一篇写你义务法律咨询的短稿，署名是另一个记者。总编什么都没说过，你也什么都没说过。",
             { rep: 0.4, fac: { press: 6, establishment: 4 }, flags: ["bought"] }),
@@ -184,7 +183,7 @@ POTUS.define("event", [
       {
         id: "lev", text: "用一份把柄：让这条线里的人自己开口喊停",
         base: 0.66, mods: [{ src: "attr", key: "CUN", w: 0.55 }],
-        cost: { lev: 1, ap: 1 },
+        cost: { lev: 1 },
         outcomes: {
           crit: pOut("你只打了一个电话，没提稿子，只提了一个编号和一年前的一个下午。第二天总编亲自把那篇稿子从版面上拿了下来，还顺手换掉了那个记者的线口。",
             { rep: 0.8, fac: { press: 4, establishment: 8 }, flags: ["compromised"] }),
@@ -253,7 +252,7 @@ POTUS.define("event", [
       {
         id: "swap", text: "给他一条更大的新闻，把版面占掉",
         base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "CUN", w: 0.3 }],
-        cost: { ap: 2 }, req: { contact: "columnist" },
+        cost: {}, req: { contact: "columnist" },
         outcomes: {
           crit: pOut("你把一件本来打算留到秋天的东西提前放了出去。主编当场把版换了，还给你加了一篇署名的分析稿——他以为你是自己人。",
             { rep: 1, contact: { columnist: 12 }, fac: { press: 14, establishment: 6 } }),

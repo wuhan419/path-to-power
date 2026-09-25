@@ -76,7 +76,6 @@ POTUS.define("event", [
       {
         id: "protect", text: "先顾家里：公开为被怀疑的阿拉伯裔商户说话",
         base: 0.5, mods: [{ src: "attr", key: "INTG", w: 0.5 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "在人人自危的爱国潮里，你公开替被泼脏水的商户说了话。他们社区的感激是终身的，且会在下一次选举里变成实打实的票。",
             effects: { rep: 0.9, fac: { base: 10, church: 8, civil: 6, establishment: -4 }, flags: ["minority_guard"] } },
@@ -148,7 +147,6 @@ POTUS.define("event", [
         id: "absorb", text: "不打人，抢议题：把选民不满的经济话替他们说出来",
         note: "釜底抽薪：把第三党靠的那股气接过来，风险是显得你对本党「不够忠诚」。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.35 }],
-        cost: { ap: 1 },
         outcomes: {
           crit: { body: "你抢先把「工作、工厂、加油站」挂在嘴边，选民觉得「要说的话你说了」，第三党的由头一下小了一半。",
             effects: { rep: 1.75, fac: { base: 12, labor: 6, establishment: -4 } } },
@@ -301,14 +299,13 @@ POTUS.define("event", [
         id: "go", text: "接招上节目，用他的规则打他",
         note: "高风险高回报：顶得住圈粉，破防了就是全国笑柄。",
         base: 0.48, mods: [{ src: "attr", key: "CHA", w: 0.5 }, { src: "attr", key: "CUN", w: 0.3 }],
-        stake: { ap: true },
         outcomes: {
           crit: { body: "你在直播间里谈笑自若，反将了主播一军。当晚本地话题全是你，「这人敢上、还会说」一夜传开。",
             effects: { rep: 2.75, fac: { base: 8, press: 4 } } },
           ok: { body: "你顶住了主播的挑衅，还抢了几句好话。没大获全胜，也没输。",
             effects: { rep: 1.25, fac: { base: 3 } } },
           meh: { body: "你被主播牵着走了一晚上，勉强全身而退，没留下什么好片段。",
-            effects: { rep: -0.4, hp: -1 } },
+            effects: { rep: -0.4 } },
           fail: { body: "你被主播连环追问逼到语塞，那句「我……这个嘛」被剪成了当晚片花。",
             effects: { rep: -2, fac: { press: -6, base: -3 }, flags: ["scandal_1"] } },
           critfail: { body: "你恼羞成怒在直播里说了句没退路的话，这段录音在你下次竞选时以完整版重播。",

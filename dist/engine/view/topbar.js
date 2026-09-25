@@ -12,11 +12,13 @@
        **诚信 INTG 撤下展示**：它仍是活跃的幕后属性（239 处判定权重照常吃它、事件照常涨跌它），
        只是不再上面板、不再写进卡面（卡面改为"你的话没人当真"这类模糊措辞）。引擎数值与判定一律不动。
      · res hp/ap/intg：健康/精力/公信力（公信力并入声望）——不再上资源瓷贴
-     · fac press/labor/religious/intel：媒体/工会（常量）+ 宗教/情报（死轴）——不再上派系区 */
+     · fac press/labor/agency：媒体/工会（常量）+ 情报（死轴）——不再上派系区。
+       ⚠ 旧注释这里写的是 religious/intel，注册表实键是 church/agency（键名对不上＝白藏）。
+       #29 起 church（宗教·道德团体）与 military（军工复合体）改由左栏 2×2 面板展示（P.FAC_PANELS）。 */
   P.UI_HIDE = {
     attr: { INTG: 1 },
     res: { hp: 1, ap: 1, intg: 1 },
-    fac: { press: 1, labor: 1, religious: 1, intel: 1 }
+    fac: { press: 1, labor: 1, agency: 1 }
   };
 
   /* 时间：年 / 月 / 日
@@ -346,7 +348,15 @@
 
   /* ---------------- 竞选条（campaign.js 的界面投影） ----------------
    * 只在有一场活跃竞选时出现：这一场在选什么、走到第几幕、这一幕的窗口还剩几个月、
-   * 选情表（动量 / 金库）的实时读数。让玩家看得见"这是一场一连串事件的竞选"，而不是一锤子买卖。 */
+   * 选情表（动量 / 金库）的实时读数。让玩家看得见"这是一场一连串事件的竞选"，而不是一锤子买卖。
+   * #23：条上还挂着一颗「投放把柄」按钮 —— 把 lev 花成这一幕的选情（每幕一次，双靶两本账）。
+   * 能不能按、为什么按不了，口径全在 P.levDropInfo()，界面只负责照抄。 */
+  P.levDropClick = function () {
+    const r = P.levDrop ? P.levDrop() : null;
+    if (!r) return;
+    if (P.autosave) P.autosave();
+    if (P.refreshPanel) P.refreshPanel();
+  };
   P.campaignHTML = function () {
     const cp = P.campaignPanel ? P.campaignPanel() : null;
     if (!cp) return "";
@@ -361,6 +371,13 @@
     };
     const left = cp.stepLeft == null ? "" :
       '<span class="cmp-left' + (cp.stepLeft <= 1 ? ' warn' : '') + '">' + P.t("ui.topbar.campLeft", "这一幕还剩 {n} 个月", { n: cp.stepLeft }) + '</span>';
+    const d = P.levDropInfo ? P.levDropInfo() : null;
+    const drop = !d ? "" :
+      '<div class="cmp-drop-row"><button class="btn cmp-drop' + (d.can ? '' : ' off') + '"' + (d.can ? ' onclick="POTUS.levDropClick()"' : ' disabled') +
+      ' data-tip="' + esc(d.can ? d.label : d.why) + '">' +
+      P.t("ui.topbar.dropBtn", "投放把柄") +
+      '<b>' + (d.can ? "−" + d.cost : "") + '</b></button>' +
+      (d.can ? '<span class="cmp-drop-p">' + esc(d.label) + '</span>' : '<span class="cmp-drop-p why">' + esc(d.why) + '</span>') + '</div>';
     return '<div class="campbar">' +
       '<div class="cmp-head"><span class="cmp-tag">' + P.t("ui.topbar.campTag", "竞选中") + '</span>' +
       '<b class="cmp-office">' + esc(cp.office) + '</b>' +
@@ -368,6 +385,7 @@
       left + '</div>' +
       (cp.lede ? '<div class="cmp-lede">' + esc(cp.lede) + '</div>' : "") +
       (cp.meters.length ? '<div class="cmp-meters">' + cp.meters.map(bar).join("") + '</div>' : "") +
+      drop +
       '</div>';
   };
 

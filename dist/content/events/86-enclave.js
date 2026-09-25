@@ -16,7 +16,7 @@
  *   1) 社区可以给你的是「到场人数」和「信任」，不是钱。所以这里的收益主要是
  *      fac.base（基层选民）/ fac.civil（民权）/ fac.labor（工会），以及人脉。
  *   2) 社区也会要你付出——时间、面子、以及在某些事上公开站队。
- *      所以这里的成本主要是 ap（精力）和 rep（声望），很少是 fun（资金）。
+ *      所以这里的成本主要是 rep（声望）与检定风险，很少是 fun（资金）。
  *   3) 每一个事件都留一条不要钱、不设门槛的路。你可以一直是那个
  *      「不掺和他们自己的事」的人。这在一开始完全没有代价。
  * ==========================================================================*/
@@ -63,7 +63,7 @@ POTUS.define("event", [
       {
         id: "speak", text: "上去讲。讲你自己家里的事，不讲政策",
         base: 0.64, mods: [{ src: "attr", key: "CHA", w: 0.45 }, { src: "attr", key: "INTG", w: 0.3 }],
-        cost: { ap: 1, rep: 0.4 }, stake: { ap: true, fav: true },
+        cost: { rep: 0.4 }, stake: { fav: true },
         outcomes: {
           crit: eOut("你讲了六分钟，其中五分钟在讲你母亲来这个国家的第一年。散场的时候没有人跟你握手，他们只是把手放在你肩膀上。这个社区从此记住了一件关于你的事。",
             { rep: 2.5, contact: { preacher: 18, brother: 6 }, fac: { church: 16, base: 12, civil: 8 }, flags: ["enclave_base"] }),
@@ -99,7 +99,7 @@ POTUS.define("event", [
         base: 0.74, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
           crit: eOut("你没去。半年后你才明白那场礼拜上发生了一件更重要的事，而你没有卷进去 —— 有时候不出现也是一种正确。",
-            { rep: 0.8, hp: 1, fac: { base: 3 } }),
+            { rep: 0.8, fac: { base: 3 } }),
           ok: eOut("你在家待了一个上午。这个世界上少了一个不认识你的人数过你的名字。",
             { rep: 0.4 }),
           meh: eOut("你没去，也没人问。这个社区本来就没有等过你。",
@@ -149,7 +149,6 @@ POTUS.define("event", [
       {
         id: "ask", text: "先问：你们要我办哪一件事",
         base: 0.66, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "CHA", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: eOut("你问对了。他们说的是街区改造款的申请材料 —— 一份需要有人去市政厅盯三个月的材料。你真的去盯了。三个月后这条街的门面换了七十扇。",
             { rep: 2.5, contact: { brother: 8, fixer: 10 }, fac: { civil: 14, base: 10, commercial: 6 }, flags: ["enclave_base"] }),
@@ -235,7 +234,7 @@ POTUS.define("event", [
       {
         id: "public", text: "公开站出来：把这件事变成一件所有报纸都会写的事",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.45 }, { src: "fac", key: "civil", w: 0.35 }],
-        cost: { ap: 2, rep: 0.6 }, stake: { ap: true, fav: true },
+        cost: { rep: 0.6 }, stake: { fav: true },
         outcomes: {
           crit: eOut("你在市政厅门口开了一场十五分钟的记者会，说的全是数据。第二天方案被退回重审。一年后那三个站的双语选票使用率变成了原来的四倍 —— 因为从那天起有人开始问了。",
             { rep: 2.5, contact: { columnist: 12, preacher: 10 }, fac: { civil: 20, base: 14, press: 12, establishment: -10 }, flags: ["enclave_base", "civil_win"] }),
@@ -252,14 +251,14 @@ POTUS.define("event", [
       {
         id: "inside", text: "走内部：找选务处主任，给他一个不用丢面子的方案",
         base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "CUN", w: 0.3 }],
-        cost: { fun: 0.6, ap: 1 },
+        cost: { fun: 0.6 },
         outcomes: {
           crit: eOut("你带着一份现成的替代方案去见他：把三个站的成本改由社区基金会承担一半。他在文件上签了字，还在备注里写了一句「由社区自筹解决」。那三个站保住了，而且没有人输。",
             { rep: 1.5, contact: { fixer: 8 }, fac: { civil: 12, establishment: 8, base: 8 }, flags: ["civil_win"] }),
           ok: eOut("他答应把撤并推迟两年。两年里你可以做很多事。",
             { rep: 0.8, fac: { civil: 7, establishment: 4 } }),
           meh: eOut("他收下了材料，也收下了你的客气。方案改了一个字：把「撤掉」改成了「并入邻近站点」。",
-            { rep: 0, hp: -0.5, fac: { civil: 2, establishment: 1 } }),
+            { rep: 0, fac: { civil: 2, establishment: 1 } }),
           fail: eOut("他非常有礼貌地告诉你，他只是一名公务员。三天后方案按时通过。",
             { rep: -0.4, fac: { civil: 2, establishment: -4 } }),
           critfail: eOut("你去找他的这件事被人报了上去。委员会里有人问：「为什么有人要先找主任，再上报纸？」",
@@ -269,7 +268,7 @@ POTUS.define("event", [
       {
         id: "media", text: "先不动声色，把这件事交给一个会写的人",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "press", w: 0.3 }],
-        cost: { ap: 1 }, req: { contact: "columnist" },
+        cost: {}, req: { contact: "columnist" },
         outcomes: {
           crit: eOut("他没有写行政决定，他写了一千七百个人的名字是怎么从名单上消失的。这篇稿子后来被别的报纸转载了十一次。",
             { rep: 2, contact: { columnist: 14 }, fac: { civil: 16, press: 14, base: 10 }, flags: ["enclave_base", "civil_win"] }),
@@ -338,31 +337,31 @@ POTUS.define("event", [
       {
         id: "support", text: "支持巡逻队，但要求它挂在社区协会名下",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "civil", w: 0.3 }],
-        cost: { ap: 2, fav: 1 }, stake: { ap: true },
+        cost: { fav: 1 }, stake: {},
         outcomes: {
           crit: eOut("你让他们挂了靠。协会章程、值班表、禁止携带物品的清单，全是按你的意思写的。巡逻队跑了十一个月，这条街的夜间报案数降了六成，没有出过一件事。",
             { rep: 1.5, contact: { union_boss: 10, preacher: 8 }, fac: { civil: 16, base: 12, labor: 8, agency: -10 }, flags: ["enclave_base", "street_patrol"] }),
           ok: eOut("巡逻队成立了。有人不满意，但到了冬天，街上确实安静了一些。",
             { rep: 0.8, fac: { civil: 10, base: 8, agency: -6 }, flags: ["street_patrol"] }),
           meh: eOut("巡逻队成立了，跑了两个月，然后因为值班排不开而解体。街上的抢劫案回到了原来的样子。",
-            { rep: 0.2, hp: -1, fac: { civil: 3, agency: -3 } }),
+            { rep: 0.2, fac: { civil: 3, agency: -3 } }),
           fail: eOut("巡逻队成立的第三周，两个年轻人把一个路人堵在了巷口。没有人受伤，但警察来了两辆车。",
-            { rep: -1, hp: -1, fac: { civil: 2, base: -4, agency: -14 }, flags: ["scandal_2"] }),
+            { rep: -1, fac: { civil: 2, base: -4, agency: -14 }, flags: ["scandal_2"] }),
           critfail: eOut("你支持的巡逻队和警方在现场起了冲突，还上了本地新闻。这件事之后，两边的账都记在了你的名字上。",
-            { rep: -1.5, hp: -1.25, fac: { civil: 3, base: -6, agency: -18, press: -8 }, flags: ["scandal_3", "investigation_open"] })
+            { rep: -1.5, fac: { civil: 3, base: -6, agency: -18, press: -8 }, flags: ["scandal_3", "investigation_open"] })
         }
       },
       {
         id: "police", text: "不搞巡逻队，去把警力要回来",
         base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "agency", w: 0.4 }],
-        cost: { ap: 2, fun: 0.2 }, req: { fac: "agency", min: 10 },
+        cost: { fun: 0.2 }, req: { fac: "agency", min: 10 },
         outcomes: {
           crit: eOut("你在预算听证会上把八个街区的等候时间做成了一张表，念了三分钟。一个月后这条街多了一个夜间巡逻车组，而且是常驻的。",
             { rep: 1.5, attr: { INT: 2 }, fac: { agency: 16, establishment: 8, base: 8, civil: 6 } }),
           ok: eOut("警局答应每周多加两班车。不多，但街上的人看得见警灯。",
             { rep: 0.8, attr: { INT: 1 }, fac: { agency: 10, base: 5 } }),
           meh: eOut("他们非常客气地听完了，然后说今年的编制已经定了。",
-            { rep: 0, hp: -0.8, fac: { agency: 3, base: -2 } }),
+            { rep: 0, fac: { agency: 3, base: -2 } }),
           fail: eOut("你在听证会上说得太直接，让一位副局长当场难堪。车没加，那条街的等候时间变成了四十一分钟。",
             { rep: -0.6, fac: { agency: -8, base: -6 } }),
           critfail: eOut("你替警局说话这件事被那二十三个老板听说了。他们开始怀疑你到底是哪一边的人 —— 这条街上最怕的就是这个怀疑。",
@@ -372,18 +371,18 @@ POTUS.define("event", [
       {
         id: "both", text: "两边都请来开会：让巡逻队和警局坐进同一个房间",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.5 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { ap: 3, fun: 0.1 },
+        cost: { fun: 0.1 },
         outcomes: {
           crit: eOut("三个小时，吵了两次，最后谈成了一件小事：巡逻队负责打电话，警局承诺十分钟内接线。有时候两边不需要互相信任，只需要一个电话号码。",
             { rep: 2, contact: { union_boss: 8, fed: 8 }, fac: { civil: 12, base: 12, agency: 10, establishment: 6 }, flags: ["enclave_base"] }),
           ok: eOut("会开完了，两边都没有当场走人。这本身就是一个结果。",
-            { rep: 1, hp: -1, fac: { civil: 7, base: 7, agency: 5 } }),
+            { rep: 1, fac: { civil: 7, base: 7, agency: 5 } }),
           meh: eOut("会开了四个小时，最后什么也没定。两边都对你很客气，两边都认为你在替另一边说话。",
-            { rep: 0, hp: -1.25, fac: { civil: 2, base: 2, agency: 2 } }),
+            { rep: 0, fac: { civil: 2, base: 2, agency: 2 } }),
           fail: eOut("第三十分钟就吵起来了，一位老板说了不该说的话。会后那两位穿制服的先生对你说：「以后有事直接找我们。」",
-            { rep: -0.6, hp: -1, fac: { civil: -6, base: -6, agency: 4 } }),
+            { rep: -0.6, fac: { civil: -6, base: -6, agency: 4 } }),
           critfail: eOut("会议记录被谁传了出去。两边都从里面挑出了对自己有利的句子，然后同时开始怀疑是你放出去的。",
-            { rep: -1.5, hp: -1.25, fac: { civil: -10, base: -8, agency: -8, press: -6 }, flags: ["scandal_2"] })
+            { rep: -1.5, fac: { civil: -10, base: -8, agency: -8, press: -6 }, flags: ["scandal_2"] })
         }
       },
       {
@@ -442,7 +441,7 @@ POTUS.define("event", [
       {
         id: "accept", text: "自己上。以社区的名义去选——最坏情况烧掉党内关系，最好情况直接拿下席位",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { ap: 3, rep: 0.2 }, stake: { ap: true, fav: true },
+        cost: { rep: 0.2 }, stake: { fav: true },
         outcomes: {
           crit: eOut("你站起来了，只说了两句话：「我不搬走。不管选上选不上，我下个月还来这儿。」然后你听见椅子响成一片。他们不光推你去选——他们把整条街翻过来了。选举还没开始，对手已经在退。",
             { tier: 1, rep: 1.5, contact: { preacher: 20, brother: 10, union_boss: 10 }, fac: { civil: 22, base: 18, church: 12, establishment: -15 }, flags: ["enclave_base", "enclave_standard"] }),
@@ -459,7 +458,7 @@ POTUS.define("event", [
       {
         id: "broker", text: "推别人上去，我出钱出人操盘——他赢了以后那个位子听我的（走棋手路线，不破党内关系）",
         base: 0.6, mods: [{ src: "attr", key: "CUN", w: 0.5 }],
-        cost: { fun: 0.3, ap: 2 },
+        cost: { fun: 0.3 },
         outcomes: {
           crit: eOut("你推的是这条街上一个开了十九年餐馆的人。他赢了。五年之后，那个位子上的人做每一个决定之前，都会先打一个电话问一句「公所那边怎么说」。这个电话打给你。",
             { rep: 1, contact: { preacher: 16, fixer: 14, lobbyist: 10 }, fac: { civil: 14, base: 12, establishment: 12 }, flags: ["enclave_base", "kingmaker", "enclave_standard"] }),

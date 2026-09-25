@@ -22,11 +22,11 @@ POTUS.define("l10n", {
       },
       immigrant: {
         name: "Second-Gen Immigrant",
-        desc: "Grit: Grassroots +20 · Energy +10; self-made, Establishment -20"
+        desc: "Grit: Grassroots +20; self-made, Establishment -20"
       },
       labor: {
         name: "Blue-Collar",
-        desc: "Unions +40 · Grassroots +15 · Health +10 · Favors +1; not a spare dollar, Business -25"
+        desc: "Unions +40 · Grassroots +15 · Favors +1; not a spare dollar, Business -25"
       },
       elite: {
         name: "Ivy Elite",

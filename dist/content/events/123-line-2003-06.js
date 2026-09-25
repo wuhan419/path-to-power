@@ -14,13 +14,15 @@
 POTUS.define("event", [
 
   /* ======================================================================
-   * 2003-05 · 开战余波：航母甲板上的「任务完成」
+   * 2003-05 · 开战余波：航母甲板上的「任务完成」（已做层级分层）
    *   （开战与背书角度已由存量卡 wt03_wmd 覆盖，本卡只做「速胜庆功」余波）
+   *   选项级 when 用 tierRaw 写在 0—9 真实层级：底 T0—3 自救、中 T4—6 办事、
+   *   高 T7—9 定调；每档两条。卡级去掉 tierMax，让高段玩家也发得出这张卡。
    * ==================================================================== */
   {
     id: "ln03_war", grade: "major", category: "foreign",
     valence: "risk", dyn: true,
-    minYear: 2003, maxYear: 2003, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
+    minYear: 2003, maxYear: 2003, scoped: true, tierRaw: true, tierMin: 0, weight: 13, unique: true,
     medium: ["tv", "cable", "print", "internet"], month: 5,
     title: "总统在航母上宣布「任务完成」，举国替这场战争喝彩",
     body: "开战三周，巴格达陷落，雕像被拉倒的画面循环播了一整周。五月一日，总统穿着飞行服降落在航母甲板，身后挂着「任务完成」的横幅。支持率冲上峰值，「志愿联盟」成了最体面的词。\n" +
@@ -49,6 +51,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "ride_victory", text: "站上庆功台：把自己算进「胜利者」里",
+        when: { tierRaw: true, tierMin: 7 },
         note: "赌的是胜利能变成你的台阶。风险：潮水退时，台上的人最显眼。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "military", w: 0.3 }],
         stake: { fun: true },
@@ -62,6 +65,7 @@ POTUS.define("event", [
       },
       {
         id: "ask_after", text: "当众追问「然后呢」：谁管这座城，钱从哪来",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         note: "赌的是你比全国早醒一年。风险：现在没人爱听扫兴话。",
         base: 0.40, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "attr", key: "INTG", w: 0.2 }],
         outcomes: {
@@ -74,6 +78,7 @@ POTUS.define("event", [
       },
       {
         id: "toast_troops", text: "只向士兵道谢，战后安排一个字不评",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         note: "赌的是不沾「然后呢」三个字。风险：两头都嫌你话少。",
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
         outcomes: {
@@ -82,6 +87,46 @@ POTUS.define("event", [
           meh: { body: "你道了谢，风头都被名字更大的人占了。", effects: {} },
           fail: { body: "两拨人都来劝你表态，你都没接，两边的饭局从此少摆你的牌子。", effects: { rep: -0.3 } },
           critfail: { body: "你的「谁也不得罪」被两头各自解读：一边说你心虚，一边说你滑头。", effects: { rep: -0.6, fac: { press: -2 } } }
+        }
+      },
+      {
+        id: "welcome_home", text: "去基地门口接回家的人：替乡邻接下行李，送他到家",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.62, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "military", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你接的那个兵就住你隔壁街。他母亲在门廊上当着所有人说：「多亏有你跑这一趟。」军属社区记住了你。", effects: { rep: 1.0, fac: { military: 6, base: 6 } } },
+          ok: { body: "你跑了三趟大巴站，帮两家把人和行李安顿回家。没人登报道谢，可那两家记得。", effects: { rep: 0.4, fac: { base: 3 } } },
+          meh: { body: "你去接了，接站的人比下车的还多，你帮不上什么大忙。", effects: { rep: 0.1 } },
+          fail: { body: "你替一位母亲去问儿子的归期，几处都被官腔挡回。你那句「我尽力了」说得自己都不信。", effects: { rep: -0.5, fac: { military: -3 } } },
+          critfail: { body: "你接回的那名士兵次日被本地报拍到进了戒所处。有人问：「你接人时就没看出他有伤？」", effects: { rep: -1.2, fac: { base: -4, military: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "care_desk", text: "在本州设一个归建过渡窗口：床位、岗位、伤残评定一次排办",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        note: "花钱把「能办事」做成招牌。庆功的人不爱听伤兵的事，可这张桌子写你的名字。",
+        base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "military", w: 0.25 }],
+        cost: { fun: 1 },
+        outcomes: {
+          crit: { body: "你的窗口三个月办完了别人两年的量，国防部把你这套办法写进各州参考文本。伤兵家庭管你叫「那位办事的」。", effects: { rep: 1.5, fun: -0.5, fac: { military: 8, establishment: 5, base: 3 } } },
+          ok: { body: "桌子支起来了，队排上了，事办成了大半。经费烧得不慢，好在账目干净。", effects: { rep: 0.6, fun: -1, fac: { military: 4 } } },
+          meh: { body: "窗口是开了，流程却卡在联邦表格上。你贴出来的只是一张又一张「等待中」。", effects: { rep: 0.05, fun: -1.5 } },
+          fail: { body: "一笔转拨被审计咬住，你的「安置桌」成了「挪用公款」的新闻素材。", effects: { rep: -1.5, fun: -2, fac: { press: -5, establishment: -3 } } },
+          critfail: { body: "一名等不及的伤兵出了事，家属举着你的竞选传单在州府门口质问：窗口不是你开的吗？", effects: { rep: -2.2, fun: -2, fac: { base: -6, press: -6 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "demand_plan", text: "把「然后呢」变成正式质询：要国防部分管官员交出占领开销与重建时间表",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "全国版面替你把问题放大，也替对手把靶子画大。这一步迈出去，就没有中间。",
+        base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.2 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你逼出的那份开销清单第一次进了听证记录，「谁付账」从此有人负责追问。两年后每支战争回顾片里都有你那一页。", effects: { rep: 2.0, voters: { warm: 300 }, fac: { press: 8, establishment: -6, base: 5 }, flags: ["saw_it_early"] } },
+          ok: { body: "质询立住了，时间表挤出来半页。建制骂你扫兴，报界记你清醒。", effects: { rep: 0.8, fac: { press: 4, establishment: -3 } } },
+          meh: { body: "你的质询被一句「支持前线部队」的程序动议绕开，没成记录。", effects: { rep: -0.2, fac: { establishment: -3 } } },
+          fail: { body: "胜选余温里你追着要账单，捐款名单开始漏人。「他盼着这仗输」被反复重播。", effects: { rep: -1.8, fac: { establishment: -6, military: -5 } } },
+          critfail: { body: "你援引的那份「占领开销」被证实数字错得离谱，从「先醒的人」到「乱咬的人」只用了一个星期。", effects: { rep: -2.8, fac: { press: -10, establishment: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]
@@ -434,12 +479,14 @@ POTUS.define("event", [
   },
 
   /* ======================================================================
-   * 2005-08 · 卡特里娜飓风与新奥尔良溃堤 —— 本带最高优先级
+   * 2005-08 · 卡特里娜飓风与新奥尔良溃堤 —— 本带最高优先级（已做层级分层）
+   *   存量四选项按档归位：底（自救）= 热线与车队、中（表态/执行）= 直播点名与
+   *   程序搬资源；另补两条高段（T7—9 决策/担当），全卡收成 2/2/2。
    * ==================================================================== */
   {
     id: "ln05_katrina", grade: "major", category: "crisis",
     valence: "bane", dyn: true,
-    minYear: 2005, maxYear: 2005, scoped: true, tierRaw: true, tierMin: 0, tierMax: 6, weight: 14, unique: true,
+    minYear: 2005, maxYear: 2005, scoped: true, tierRaw: true, tierMin: 0, weight: 14, unique: true,
     medium: ["tv", "cable", "radio", "internet", "print"], month: 8,
     title: "卡特里娜袭击新奥尔良，堤坝决口，城市沉入水下",
     body: "八月二十九日凌晨，风眼登陆；午后堤坝接连决口，八成城市没入水下。超级穹顶体育馆和会展中心成了最后的孤岛：没有胰岛素的老人、抱婴儿排队的女人、等不来救援大巴的居民、等不来冰的遗体。\n" +
@@ -467,6 +514,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "confront", text: "直播镜头前点名联邦救灾失灵，逼驻军与联邦资源立刻下来",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         note: "赌的是观众站在溺水的人那边。风险：甩锅者先把你变成锅。",
         base: 0.44, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "press", w: 0.25 }],
         outcomes: {
@@ -479,6 +527,7 @@ POTUS.define("event", [
       },
       {
         id: "convoy", text: "自掏腰包组织车队：跨州借大巴飞机，先把人出来",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         note: "赌的是办成事不需要谁批准。风险：钱与命都压在你一个人的决定上。",
         base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "fac", key: "base", w: 0.25 }],
         cost: { fun: 1 },
@@ -492,6 +541,7 @@ POTUS.define("event", [
       },
       {
         id: "work_channels", text: "一句狠话不说：在拨款与审批程序里熬夜搬资源",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         note: "赌的是程序也认得会哭会磨的人。风险：没人知道你搬了多少。",
         base: 0.47, mods: [{ src: "attr", key: "CUN", w: 0.45 }, { src: "fac", key: "agency", w: 0.2 }],
         outcomes: {
@@ -504,6 +554,7 @@ POTUS.define("event", [
       },
       {
         id: "hotline", text: "只接一个电话：搭寻亲热线，帮邻里临时安置",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         note: "不赌。风险：你照看的是眼前的人，风头都归了喊话的人。",
         base: 0.60, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
@@ -512,6 +563,34 @@ POTUS.define("event", [
           meh: { body: "你接了很多电话，帮了很多具体的小忙，没人记得。", effects: {} },
           fail: { body: "热线占线太多，有个家庭没能联系上亲人，投诉归到了「服务不利」那一栏。", effects: { rep: -0.25 } },
           critfail: { body: "「他在灾后只来得及接电话」被对手讲成了一个小时的段子。", effects: { rep: -0.5 } }
+        }
+      },
+      {
+        id: "take_command", text: "请缨接管联邦协调：把三级甩锅收成一个指挥链，出了事你负责",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "把别人不敢接的锅接过来。办成了是果断，办砸了你就是这场失灵的最后负责人。",
+        base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "military", w: 0.25 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你接手的指挥链在七十二小时里把大巴、冰和药品跑通了。事后复盘把那几天单独立成一章，标题是「终于有人负责」。", effects: { rep: 2.2, attr: { INT: 2 }, voters: { warm: 400 }, fac: { military: 8, establishment: 6, base: 5, agency: -4 } } },
+          ok: { body: "协调权归了你，乱局没能全止住，但救援确实快了一拍。各级都松了口气，也都记了你一笔。", effects: { rep: 0.9, fac: { establishment: 4, military: 3 } } },
+          meh: { body: "你接到的只是个「协调」名分，各机关照旧各跑各的。", effects: { rep: -0.2, fac: { agency: -3 } } },
+          fail: { body: "一条调令慢了半拍，一处避难所多撑了一夜。问责名单的头一个名字是你。", effects: { rep: -2.0, fac: { press: -6, establishment: -5 } } },
+          critfail: { body: "你签发的一道调度把一支救援队送错了街区，他们被困的水位比谁都深。这场灾最后姓了你的姓。", effects: { rep: -3.0, fac: { base: -8, press: -8, agency: -6 }, flags: ["scandal_2", "investigation_open"] } }
+        }
+      },
+      {
+        id: "rebuild_bill", text: "推联邦重建与堤坝问责捆绑立法：钱和审计一起到，签字的人上听证席",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "把救急钱和查责任捆成一张纸。工程界欢迎你，整条审批链恨你。",
+        base: 0.48, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.25 }],
+        cost: { fun: 1.5 },
+        outcomes: {
+          crit: { body: "案子过了：重建拨款与堤坝审计同文本生效，工程问责第一次写进联邦条文。你那句「先查坝、再修城」成了党纲里的话。", effects: { rep: 1.8, fun: -1, voters: { warm: 300 }, fac: { establishment: 6, base: 6, press: 4, agency: -5 } } },
+          ok: { body: "钱批下来了，审计条款被砍剩骨架。城市开始复工，你的名字在提案人一栏。", effects: { rep: 0.7, fun: -1.5, fac: { establishment: 4, base: 2 } } },
+          meh: { body: "拨款过了，问责被并进了别的案子。你那份文本躺进了档案。", effects: { rep: 0.1, fun: -2 } },
+          fail: { body: "捆绑条款被骂「趁灾要权」，案子卡在委员会里，连金主都嫌你多事。", effects: { rep: -1.6, fun: -2, fac: { establishment: -5, press: -4 } } },
+          critfail: { body: "有人翻出你连任捐款里有承建商的钱，「他修坝是为自己的票」坐成了头条。", effects: { rep: -2.6, fun: -2, fac: { press: -8, base: -5, establishment: -5 }, flags: ["scandal_2"] } }
         }
       }
     ]

@@ -7,12 +7,12 @@
  *   所以各档的开局资金全部搬进卡池（见 effects.fun 的钱卡），能不能拿到好牌看脸。
  *
  * 稀有度四档（rarity：白 1 / 蓝 2 / 紫 3 / 橙 4）；逐位独立掷（engine/core.js rollRarity）。
- *   橙卡受跨局 meta 门槛：只有当过总统（everPresident）后才进池，一周目最多抽到紫。
+ *   橙卡受周目门槛（#31）：第 2 周目起进池（gacha.orangeLoop），第一周目最多抽到紫。
  *
  * ---- 数值标尺（v0.12 #20 收尾定稿，与建角自由点同一把尺）----
- *   1 单位 = +10 属性 = $25k 金钱（= 1 自由点，见 balance.freeAttrPerPoint / freeFunPerPoint）
- *   白 = 1 单位（+10 / $25k）　蓝 = 2 单位（+20 / $50k）
- *   紫 = 3 单位（+30 / $75k）　橙 = 4 单位（+40 / $100k，多维合计）
+ *   1 单位 = +10 属性 = $2k 金钱（= 1 自由点，见 balance.freeAttrPerPoint / freeFunPerPoint · #36 定标）
+ *   白 = 1 单位（+10 / $2k）　蓝 = 2 单位（+20 / $4k）
+ *   紫 = 3 单位（+30 / $6k）　橙 = 4 单位（+40 / $8k 等价，多维合计）
  *   派系点、mods / crit / luck / hpDecay / voterDrift / spare 是卡的"风味与被动"，
  *   不占这把尺 —— 重标只动纯数值面（attr / fun），被动原样保留。
  *
@@ -23,11 +23,11 @@
  * 展示字段只有 name/desc 会被多语言覆盖（见 i18n/en/reg/15-cards.js）；其余都是结构键，不许翻。
  * ==========================================================================*/
 
-/* ---------- 白（rarity 1）：1 单位 —— +10 属性 / $25k ---------- */
+/* ---------- 白（rarity 1）：1 单位 —— +10 属性 / $2k ---------- */
 POTUS.define("card", {
   hometown: {
-    rarity: 1, name: "老家帮衬", desc: "爸妈把压箱底的钱塞过来：开局资金 +$2.5万",
-    effects: { fun: 25000 }
+    rarity: 1, name: "老家帮衬", desc: "爸妈把压箱底的钱塞过来：开局资金 +$2k",
+    effects: { fun: 2000 }
   },
   softie: {
     rarity: 1, name: "老好人", desc: "谁都念你的好、也信得过你，建制却嫌你耳根软：公信力+10 基层+8 建制-5",
@@ -47,7 +47,7 @@ POTUS.define("card", {
   }
 });
 
-/* ---------- 蓝（rarity 2）：2 单位 —— +20 属性 / $50k ---------- */
+/* ---------- 蓝（rarity 2）：2 单位 —— +20 属性 / $4k ---------- */
 POTUS.define("card", {
   orator_card: {
     rarity: 2, name: "天生演说家", desc: "魅力+20，魅力检定 +15%",
@@ -58,8 +58,8 @@ POTUS.define("card", {
     effects: { attr: { INT: 20 } }, mods: [{ src: "attr", key: "INT", w: 0.15 }]
   },
   trust_fund: {
-    rarity: 2, name: "信托基金", desc: "开局资金 +$5万，代价是浑身铜味、承诺越来越没人信：公信力-10",
-    effects: { fun: 50000, attr: { INTG: -10 } }
+    rarity: 2, name: "信托基金", desc: "开局资金 +$4k，代价是浑身铜味、承诺越来越没人信：公信力-10",
+    effects: { fun: 4000, attr: { INTG: -10 } }
   },
   union_kin: {
     rarity: 2, name: "工会世家", desc: "工会+20 基层+10 人情+1：一代人的动员底盘",
@@ -79,7 +79,7 @@ POTUS.define("card", {
   }
 });
 
-/* ---------- 紫（rarity 3）：3 单位 —— +30 属性 / $75k ---------- */
+/* ---------- 紫（rarity 3）：3 单位 —— +30 属性 / $6k ---------- */
 POTUS.define("card", {
   gambler_card: {
     rarity: 3, name: "赌徒直觉", desc: "大成功概率翻倍，大失败概率也翻倍",
@@ -90,8 +90,8 @@ POTUS.define("card", {
     luckPct: 5
   },
   old_money: {
-    rarity: 3, name: "老钱家族", desc: "开局资金 +$7.5万，建制与华尔街同时为你开门（基层-10）",
-    effects: { fun: 75000, fac: { establishment: 20, commercial: 15, base: -10 } }
+    rarity: 3, name: "老钱家族", desc: "开局资金 +$6k，建制与华尔街同时为你开门（基层-10）",
+    effects: { fun: 6000, fac: { establishment: 20, commercial: 15, base: -10 } }
   },
   silver_tongue: {
     rarity: 3, name: "魅力神选", desc: "魅力近乎拉满，起手声望就领先：魅力+30 声望+12",
@@ -103,7 +103,7 @@ POTUS.define("card", {
   }
 });
 
-/* ---------- 橙（rarity 4）：4 单位（多维合计 +40）—— 命卡，仅当过总统后进池 ---------- */
+/* ---------- 橙（rarity 4）：4 单位（多维合计 +40）—— 命卡，第 2 周目起进池 ---------- */
 POTUS.define("card", {
   global_icon: {
     rarity: 4, name: "全球偶像", desc: "施瓦辛格／特朗普式：自带全国知名度，魅力+40 声望+45，建制却防着你",

@@ -218,13 +218,14 @@ POTUS.define("event", [
   },
 
   /* ======================================================================
-   * 2020-03 · 新冠疫情美国应对（本带最高优先级·多重抉择）
+   * 2020-03 · 新冠疫情美国应对（本带最高优先级·多重抉择·分层卡）
    *   03-11 WHO 宣布大流行；03-13 联邦紧急状态；测试滞后、呼吸机缺口、熔断
+   *   底（0-3）旁观自救 · 中（4-6）表态执行 · 高（7-9）决策担当
    * ==================================================================== */
   {
     id: "ln20_covid", photo: "era-2020.jpg", grade: "major", category: "crisis",
     valence: "bane", dyn: true,
-    minYear: 2020, maxYear: 2020, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 15, unique: true,
+    minYear: 2020, maxYear: 2020, scoped: true, tierRaw: true, tierMin: 0, weight: 15, unique: true,
     medium: ["tv", "cable", "internet", "social"], month: 3, day: 11,
     title: "大流行落在美国本土，而每一级政府都在打太极",
     body: "3 月 11 日，世卫宣布大流行；白宫当晚还在说「风险很低」，两天后联邦紧急状态，股指两周内第四次熔断。测试严重不足，口罩靠医院自制，而复活节彩蛋游行没几个人宣布取消。\n" +
@@ -253,6 +254,7 @@ POTUS.define("event", [
       {
         id: "act_first", text: "抢在上级之前停聚集：关影院、停庆典、学校转网课",
         note: "赌曲线在你门口之前压平。赌对了是先知，赌错了是「砸人饭碗的越权者」。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         base: 0.47, mods: [{ src: "attr", key: "INT", w: 0.45 }, { src: "fac", key: "base", w: 0.2 }],
         cost: { fav: 1 },
         outcomes: {
@@ -266,6 +268,7 @@ POTUS.define("event", [
       {
         id: "keep_open", text: "保住店门：不搞一刀切，只发「自愿保持距离」指引",
         note: "拿钱换「理性」人设。赌病毒比你慢，也赌选民只记得谁让他们丢了工。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         base: 0.44, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "fac", key: "commercial", w: 0.3 }],
         cost: { fun: 1 }, stake: { fun: true },
         outcomes: {
@@ -279,6 +282,7 @@ POTUS.define("event", [
       {
         id: "federal_line", text: "跟联邦口径走：上面说风险低，你只说可控",
         note: "把身家押在白宫的鼓点上。顺风时你是红人，退潮时你是那个「跟着喊的人」。",
+        when: { tierRaw: true, tierMin: 7 },
         base: 0.5, mods: [{ src: "fac", key: "establishment", w: 0.4 }, { src: "attr", key: "CUN", w: 0.3 }],
         cost: { fav: 1 },
         outcomes: {
@@ -291,6 +295,7 @@ POTUS.define("event", [
       },
       {
         id: "prepare", text: "只备而不宣：清点床位、囤口罩、扩救济粮站",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         base: 0.58, mods: [{ src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
           crit: { body: "潮水真来的时候，只有你这摊事先备好。没上过头条的人，成了医院感谢名单的第一行。", effects: { rep: 0.9, attr: { INT: 2 }, fac: { establishment: 4, base: 3 } } },
@@ -298,6 +303,45 @@ POTUS.define("event", [
           meh: { body: "物资备下大半，潮水绕着走。你像个对着晴天修地窖的人。", effects: { rep: 0.1 } },
           fail: { body: "囤的口罩过期、床位没理顺，「他忙了一通，忙错了」的闲话在医院里飘。", effects: { rep: -0.4 } },
           critfail: { body: "一车没验收的检测耗材砸在手里，「他拿疫情做存货生意」的说法第一次有人笑着讲。", effects: { rep: -0.9, fac: { press: -3 } } }
+        }
+      },
+      {
+        id: "shop_notice", text: "只管自家门口：给店铺贴告示、给老人送菜、不接全国的话",
+        note: "赌你能把自己那条街看住。风险：病毒不看行政边界，也不看你的告示。",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.68, mods: [{ src: "attr", key: "INTG", w: 0.3 }, { src: "fac", key: "base", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你挨家把告示贴了一遍，顺手替三位老人买了两周的菜。这条街后来只记得你干过这件事。", effects: { rep: 0.5, fac: { base: 4, church: 2 } } },
+          ok: { body: "告示贴上了，志愿名单上多了七个人。事情很小，但都是能办成的。", effects: { rep: 0.3, fac: { base: 2 } } },
+          meh: { body: "你跑了两天，多数人已经在自己想办法了。", effects: { rep: 0.05 } },
+          fail: { body: "有人拍你贴告示的手，配文是「上面不管，他也只管贴纸」。", effects: { rep: -0.4, fac: { press: -3, base: -2 } } },
+          critfail: { body: "你劝大家别聚集的那条街，两周后自己出了聚集性感染。有人问你贴纸时知不知道。", effects: { rep: -0.7, fac: { press: -4, base: -4 } } }
+        }
+      },
+      {
+        id: "push_state", text: "把州里逼到台面上：公开要求统一检测口径与床位调度",
+        note: "赌公开信比私下求更有分量。风险：州里一旦回绝，你就成了那个不配合的人。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "press", w: 0.2 }],
+        outcomes: {
+          crit: { body: "州长在记者追问下当场答应给你所在的县单列调度。你的公开信被本地报整版登出。", effects: { rep: 1.4, fac: { press: 8, base: 6, establishment: -6 } } },
+          ok: { body: "州里给了句官样答复，但口径统一了两周。够医院排班了。", effects: { rep: 0.7, fac: { press: 4, establishment: -3 } } },
+          meh: { body: "信寄出去，石沉大海。你把同一封信又寄了一遍。", effects: { rep: 0.1 } },
+          fail: { body: "州里反手公布你县的低遵守率数据，媒体的标题变成「先管管你自己」。", effects: { rep: -1.3, fac: { establishment: -8, press: -6 } } },
+          critfail: { body: "你要求调度的那批床位被查出根本不存在。你替一个空头数字向全州的医护发了声。", effects: { rep: -2.3, fac: { press: -10, establishment: -8, base: -5 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "fed_power", text: "动用自己的权限：征用本地产能、跨区调货、把联邦资金一次性申请到底",
+        note: "赌程序权限能在市场之前把货拿到手。风险：越界的那一步，将来由你一个人站出来说明。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.46, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "commercial", w: 0.2 }],
+        outcomes: {
+          crit: { body: "两条产线在十天内转产，呼吸机先落进你的州。全国的医院协会公开谢了这一次调配，也公开提了你的名字。", effects: { rep: 2.2, attr: { INT: 2 }, voters: { warm: 400 }, fac: { base: 10, commercial: 8, establishment: 5, press: 6 } } },
+          ok: { body: "货拿到了，价谈崩了。你为一次调配得罪了两家厂商，但也救回了一批床位。", effects: { rep: 1.3, fac: { base: 5, commercial: -5, establishment: 3 } } },
+          meh: { body: "你的授权签下去了，执行却排在别人的货之后。", effects: { rep: 0.3, fac: { commercial: -2 } } },
+          fail: { body: "征用令被人告到法院，程序暂停的那三周恰好是最缺货的三周。", effects: { rep: -1.9, fun: -0.8, fac: { commercial: -12, establishment: -8, base: -4 } } },
+          critfail: { body: "被征用的那家厂本已接到别的州更高的出价。你被写成「拿紧急权做地方交易」，听证会反过来审你。", effects: { rep: -3, fun: -1.2, fac: { commercial: -16, establishment: -10, press: -10, base: -6 }, flags: ["scandal_2"] } }
         }
       }
     ]

@@ -20,41 +20,15 @@ POTUS.define("l10n", {
     "ui.stage.briefRumor": "What you've heard · unverified",
     "ui.stage.briefUnknown": "What you don't know yet",
 
-    /* ---------------- 年终随笔 / 年终结算 ---------------- */
+    /* ---------------- 年度后台结算（#34 后只剩日志，结算屏已下线） ---------------- */
     "ui.stage.yourState": "your state",
     "ui.stage.yearSettleLog": "Year in review: age {age}, reputation {rep}, cash ${fun}k.",
-    "ui.stage.yearN": "{y}",
-    "ui.stage.yearEndTag": " · Year in review",
-    "ui.stage.yearDone": "{y} is over",
-    "ui.stage.sumAge": "Age {n}",
-    "ui.stage.sumOffice": "({n} months in seat)",
-    "ui.stage.sumScandal": "Scandal Lv",
-    "ui.stage.noScandal": "No scandal",
-    "ui.stage.sumQuiet": "{n} quiet months",
-    "ui.stage.sumRep": "Reputation {v}",
-    "ui.stage.sumCash": "Cash ${v}k",
-    "ui.stage.sumLev": "Blackmail {n}",
-    "ui.stage.sumContacts": "Contacts {n}",
-    "ui.stage.sumLevLost": "{n} blackmail files went stale this year",
-    "ui.stage.yearHeads": "Headlines of the year",
-    "ui.stage.enterYear": "Enter {y} →",
     "ui.stage.wideSep": " · ",
 
-    /* ---------------- 时代头版照 / 年初播报 ---------------- */
-    "ui.stage.eraFrontAlt": "{year} era briefing, front page",
-    "ui.stage.eraFrontTag": "Era front page",
-    "ui.stage.eraFrontNum": "File {year}",
-    "ui.stage.yearBrief": "{year}: the storms keep coming.",
-    "ui.stage.yearWorld": "The world in {year}",
-    "ui.stage.yearBriefHead": "{year}: era briefing",
+    /* ---------------- 平静月合并屏（跨年那一屏，时代压力住在这里） ---------------- */
     "ui.stage.pressureLabel": "Era pressure: ",
-    "ui.stage.pressureNote": "({v}/6) · The higher the pressure, the more trouble — and the bigger it is.",
-    "ui.stage.mediaNow": "Media of the day: ",
-    "ui.stage.newYearHead": "A new year begins",
-    "ui.stage.backToMonth": "Back to month {m} →",
-    "ui.stage.enterJan": "Enter January →",
     "ui.stage.continue": "Continue →",
-    "ui.stage.toYearEnd": "Year in review →",
+    "ui.stage.toNextYear": "Into the next year →",
 
     /* ---------------- 平静月 ---------------- */
     "ui.stage.quietDefault": "You handled the work in front of you.",
@@ -89,6 +63,7 @@ POTUS.define("l10n", {
     "ui.stage.reqFun": "Needs cash ≥ ${v}",
     "ui.stage.reqLev": "Needs blackmail ≥ {v}",
     "ui.stage.reqRep": "Needs reputation ≥ {v}",
+    "ui.stage.reqShare": "Needs a base of ≥ {v}% of registered voters",
     "ui.stage.reqTier": "Needs {t} or higher",
     "ui.stage.reqNamed": "Needs \"{name}\"",
     "ui.stage.reqFac": "Needs {name} favor ≥ {v}",
@@ -194,9 +169,7 @@ POTUS.define("l10n", {
       "political life holds, the steps are still there.",
 
     /* ---------------- 年终结算日志（endYear） ---------------- */
-    "ui.stage.settleCareer": "View career summary →",
     "ui.stage.levDecay": "Time passes: {n} blackmail files lost their edge — the principals left, or the story did.",
-    "ui.stage.blackswan": "Black swan",
-    "ui.stage.blackswanLog": "Black swan: {t}"
+    "ui.stage.blackswanLog": "Black swan: {t} — {body}"
   }
 });

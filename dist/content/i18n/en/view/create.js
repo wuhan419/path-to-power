@@ -41,12 +41,16 @@ POTUS.define("l10n", {
     "ui.create.diff.brutal.label": "Brutal",
     "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
 
-    /* ---- 开局抽卡卡墙（gachaHTML） ---- */
+    /* ---- 开局抽卡卡墙（gachaHTML · #31 周目门槛 + 一次刷新 + 作弊码入口） ---- */
     "ui.create.gachaHeading": "Talent Draw (difficulty = number of picks)",
     "ui.create.gachaReroll": "Re-draw",
     "ui.create.gachaCount": "Picked {n}/{need}",
+    "ui.create.gachaRerollsLeft": "{n} refresh left",
+    "ui.create.gachaNoReroll": "No refreshes left ({n} per run) — make do with this batch.",
     "ui.create.gachaEmpty": "Hit “Re-draw” to pull your starting talent cards.",
-    "ui.create.gachaLocked": "🔒 Orange (destiny) cards only enter the pool once you've been president before — this run tops out at purple.",
+    "ui.create.gachaLoop": "Run no. {loop} · Orange (destiny) cards {state}",
+    "ui.create.orangeInPool": "are in the pool",
+    "ui.create.orangeLocked": "unlock at run no. {n}",
     "ui.create.rarity.1": "White",
     "ui.create.rarity.2": "Blue",
     "ui.create.rarity.3": "Purple",
@@ -59,11 +63,11 @@ POTUS.define("l10n", {
     "ui.create.allocMoney": "Cash",
     "ui.create.capped": "max",
     "ui.create.freePoints": "Free points: <b>{left}</b> of {total} left",
-    "ui.create.poolMeta": " · first run {base} + run bonuses {bonus}",
-    /* 作弊码输入框（#20 收尾：不再隐藏，常驻在第 3 步加点屏） */
-    "ui.create.cheatPlaceholder": "Cheat code: woshishabi10 (redeem +10 points)",
+    "ui.create.poolMeta": " · {base} on run 1 + {bonus} from run {loop}",
+    /* 作弊码输入框（#31：搬到第 2 步天赋页，兑的是周目而不是点） */
+    "ui.create.cheatPlaceholder": "Cheat code: woshishabi10 = start as run no. 11",
     "ui.create.cheatBtn": "Redeem",
-    "ui.create.cheatOk": "+{n} free points injected ({total} from cheats this run)",
+    "ui.create.cheatOk": "+{n} runs injected → you're on run no. {loop}: {pool} free points, high-rarity odds rise too (hit Re-draw to reroll the wall).",
     "ui.create.cheatBad": "That code doesn't work — try woshishabi10.",
 
     /* ---- 开局日志（confirmCreate） ---- */

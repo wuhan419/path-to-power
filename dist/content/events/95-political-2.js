@@ -43,11 +43,10 @@ POTUS.define("event", [
         id: "grassroots", text: "走基层：征集签名登上选票，用志愿者淹没会议室",
         note: "拼组织和双腿。机器的名单对不上你敲门敲出来的名单时，中立就成了笑话。",
         base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "你交上去的签名是法定要求的三倍，党支部会议那晚你的志愿者坐满了前三排。机器「重新评估了中立」。", effects: { rep: 1.75, fac: { base: 12, establishment: 4 }, voters: { diehard: 250 }, flags: ["pol2_prim_won"] } },
           ok: { body: "征签过关，初选打赢。你的同志电话里说了句体面话，他的桩脚们没说。", effects: { rep: 1.25, fac: { base: 8, establishment: -2 }, voters: { diehard: 150 }, flags: ["pol2_prim_won"] } },
-          meh: { body: "初选赢了，赢得难看：投票率低，双方的广告互相踩了一个月。大选从内耗那天起就在倒计时。", effects: { rep: 0.6, fac: { base: 5, establishment: -3 }, hp: -0.8 } },
+          meh: { body: "初选赢了，赢得难看：投票率低，双方的广告互相踩了一个月。大选从内耗那天起就在倒计时。", effects: { rep: 0.6, fac: { base: 5, establishment: -3 } } },
           fail: { body: "机器的名单终究比你的敲门名单长半个选区。你输了初选，保住了体面——和政治生涯。", effects: { rep: 0.2, fac: { base: 4, establishment: -4 } } },
           critfail: { body: "你的征签表被查出两页造假的签名（志愿者干的，账算你头上）。初选没开打，你的名字先上了本党的负面简报。", effects: { rep: -1.25, fac: { base: -6, establishment: -8, press: -4 }, flags: ["scandal_2"] } }
         }
@@ -198,12 +197,11 @@ POTUS.define("event", [
         id: "grind_seats", text: "熬资历：把县里每一个党团例会坐满",
         note: "最笨也最稳的路。出席率、苦活、和「他总是在」的名声——基层代表的货币。",
         base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "fac", key: "establishment", w: 0.25 }],
-        cost: { ap: 2 },
         outcomes: {
           crit: { body: "一年零四个月，你出席了辖区里每一个党团例会，包括暴雪那晚只有七个人的那一次。名单公布那天，你的名字排在「新一代」的两个名额里的第一个。", effects: { rep: 1.5, fac: { establishment: 12, base: 3 }, flags: ["pol2_delegate"] } },
           ok: { body: "你坐满了板凳，拿到了席位。党团的书记在名单上给你写了一句：可靠。", effects: { rep: 1, fac: { establishment: 9 }, flags: ["pol2_delegate"] } },
           meh: { body: "席位拿到的是候补。会场你进不去，材料你照收——候补也是名单的一部分。", effects: { rep: 0.4, fac: { establishment: 5 } } },
-          fail: { body: "你熬了两年，名单公布那天排在你前面的都是熬了四年的。你学会的不是放弃，是接着熬。", effects: { rep: 0.2, fac: { establishment: 3 }, hp: -0.5 } },
+          fail: { body: "你熬了两年，名单公布那天排在你前面的都是熬了四年的。你学会的不是放弃，是接着熬。", effects: { rep: 0.2, fac: { establishment: 3 } } },
           critfail: { body: "为了出席率你荒了自己的正职，选民服务投诉上了本地报纸。党内名单没上，你的名字上了另一份名单。", effects: { rep: -1, fac: { base: -6, establishment: -3, press: -3 } } }
         }
       },
@@ -224,8 +222,8 @@ POTUS.define("event", [
         note: "保底选项：代表大会的窄门四年后还开。你错过的可能是椅子，保住的可能是别的。",
         base: 0.75,
         outcomes: {
-          crit: { body: "别人在会场走廊交换名片的那一周，你把选区三件拖了两年的事推到了结尾。选民不知道党代会在开，只知道你办了事。", effects: { rep: 1, fac: { base: 6 }, voters: { warm: 200 }, hp: 0.8 } },
-          ok: { body: "安静的一季。家里的饭桌和选区的电话，你都接住了。", effects: { rep: 0.4, fac: { base: 3 }, hp: 0.5 } },
+          crit: { body: "别人在会场走廊交换名片的那一周，你把选区三件拖了两年的事推到了结尾。选民不知道党代会在开，只知道你办了事。", effects: { rep: 1, fac: { base: 6 }, voters: { warm: 200 } } },
+          ok: { body: "安静的一季。家里的饭桌和选区的电话，你都接住了。", effects: { rep: 0.4, fac: { base: 3 } } },
           meh: { body: "党代会如期召开，与你无关。新闻里那些名字，有两个去年还向你请教过。", effects: { rep: 0.2 } },
           fail: { body: "党部的书记在电话里说得很客气：名单是「按参与度排的」。你听懂了。", effects: { fac: { base: -2, establishment: -4 } } },
           critfail: { body: "你缺席的这一届党代会改了规则——支持你这类「地方实干者」的那条章程被删掉了。在场的人都没替你说话，因为没人在场认识你。", effects: { rep: -0.8, fac: { establishment: -6, base: -3 } } }
@@ -379,7 +377,7 @@ POTUS.define("event", [
         note: "保底选项：躲过风暴眼。清洗最激烈的九十天你不在场——回来时名单已定，只是没人记得替你说过话。",
         base: 0.65,
         outcomes: {
-          crit: { body: "你的「病假」恰到好处：风暴过去，两边的刀都钝了。回来那天，你的办公室还在，走廊里的人对你点头——像什么都没发生过。", effects: { rep: 0.2, fac: { establishment: 2, base: 2 }, hp: 0.3 } },
+          crit: { body: "你的「病假」恰到好处：风暴过去，两边的刀都钝了。回来那天，你的办公室还在，走廊里的人对你点头——像什么都没发生过。", effects: { rep: 0.2, fac: { establishment: 2, base: 2 } } },
           ok: { body: "九十天，报纸换了三轮头条。你的名字没上任何一页——这就是全部的胜利。", effects: { rep: 0.1 } },
           meh: { body: "回来了，桌子还在，电话不响。政治在场性这东西，丢了要慢慢捡。", effects: { fac: { base: -2, establishment: -2 } } },
           fail: { body: "你躲过了刀，没躲过缺席的定价：旧派系记你「跑了」，新当权派记你「没来」。两边的小本子都有你，各记各的。", effects: { rep: -0.3, fac: { base: -5, establishment: -5 } } },
