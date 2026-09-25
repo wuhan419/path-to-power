@@ -25,9 +25,9 @@
 | 23 | 把柄×竞选：「投放把柄」行动 | 存量 | ⬜ pending |
 | 28 | 钱系统重构（stake 纯级别价 + 灰产免冷却） | 存量 | ⬜ pending |
 | 29 | 派系声望四栏面板 | 存量 | ⬜ pending |
-| 31 | 结算周二选一永久奖励（**已改 +1**） | 存量 | ⬜ pending |
+| 31 | 周目制终局结算（loop 一等参数 · +1 点/周目 · 橙卡 loop≥2 · 保卡可选 · 刷新一次） | 存量 | ⬜ pending |
 | 32 | 事件四大类分层与节奏重标 | 新增 | ⬜ pending |
-| 33 | 1990+ 定点事件触发荒诊断 | 新增 | ⬜ pending |
+| 33 | 1990+ 定点事件触发荒诊断 | 新增 | ✅ `600ae2f` |
 | 34 | 砍年度结算/年初简报，头条图挂进时代事件 | 新增 | ⬜ pending |
 | 35 | 竞选机制改造（选情值主导，钱退出门票） | 新增 | ⬜ pending |
 | 36 | 钱标尺重定：1 自由点 = $2k | 新增 | ✅ `60cb7f9` |
@@ -82,201 +82,6 @@ M1 先行，M2—M4 视本轮产能滚动。
 竞选面板新增「投放把柄」行动，初选/大选双靶各算效果；与 #35 共用选情表（momentum），
 **排 #35 之后**实现。
 
-### #28 钱系统重构 ⬜
-① **stake 纯级别价**：`engine/dice.js` 的 `stakeFunPer/stakeMax/stakeSpec` 废除三锚中的
-钱袋闸（per ≤ 现金×6%）与事件钱量级锚，每档价只挂钩职级/身位。这是 `smoke-ui.js`
-「投注上限护栏」4 红的正式归口（预存失败，非回归）。
-② **灰产/投机豁免衰减**：`engine/effects.js` `funMul`  commit 随余额成正比保留，新增 INT 系数
-（高 INT 赢得多、翻车少，标定随 #36 标尺做）；不吃 #24 单卡衰减（`events.js:136`
-`Math.pow(per,counts)` 开 exempt 分支）与 #27 降频，可反复赌。`major` 默认 `unique:true`
-（`events.js:12-13`），投机大卡须显式 `unique:false`。
-③ 素材：广场协议 1985、黑色星期一 1987、大空头 2008、1997 投机资本、次贷裂缝 2007-08、
-2022 挤兑 + 已带 `funMul` 的储贷/抄底/shady_oneshot；category 不新增 key，复用 `shady`，
-配图沿用 `shady.jpg`。
-
-**细化方案（执行口径）**：
-1. `dice.js stakeFunPer()`：删「钱袋锚 B（现金×6%）」与「事件钱量级锚 C」两项，
-   只留**身位锚 A = officeSalary(track,tier) × perSalaryMonths × gradeMul**；
-   `stakeMax` 的档数上限逻辑保留。`01-config.js:465-490` stake 注释块同步重写，
-   perMin/perMax 护栏按 #36 标尺重定（量级：一档 ≈ 该职级 1 个月月薪）。
-2. 投不投得起 = 现金够不够级别价，**每档价恒定不随余额浮动**（余额只决定你能押几档）。
-3. `smoke-ui.js` 投注护栏 4 断言按新规则改写（$23k 余额在 T5 级别价下上限应为 0 档或按新公式），
-   改完 4 红清零。
-4. `effects.js funMul`：加 INT 系数——`倍率修正 = 1 + (INT-50)/100 × intLev`（balance 可调，
-   默认 intLev≈0.4）：高 INT 同时**提高成功档收益、压低翻车档亏损**；阈值判定走既有 outcome
-   roll，不另开骰。
-5. `events.js:136` 衰减改 `per ** counts`→ 若 `ev.pace === "exempt"` 则跳过；
-   灰产/投机卡统一标 `pace:"exempt", unique:false`；#27 降频的同分支放行。
-6. 新卡 6 张（1985 广场协议/1987 黑色星期一/1997 投机资本/2007 次贷裂缝/2008 大空头/2022 挤兑），
-   挂进对应年代线文件，`funMul + pace:"exempt"`，中英双轨。
-7. 验收：validate 新增「级别价不随余额变化」「exempt 卡重复触发不衰减」断言；smoke-ui 0 红。
-   手感基准：T0 投不起高档（一档 ≈ 月薪量级），T7+ 一档六位数——全由 officeSalary 表推导，不单独定价。
-
-### #29 派系声望四栏面板 ⬜
-建制派/华尔街/军工/宗教 × 仇恨/友好两轴四栏（「人生模拟器」档案观感）。落点：`effects.js` fac 键、
-`view/topbar.js`/`view/leftbar.js` 读数（`leftbar.js:76` 已把这四项列入「不再展示」，本任务把它们
-以新面板形式放回）；STATUS_LAYOUT 已有 factions 行。i18n：引擎串走 `P.t` +
-`content/i18n/en/view|ui`，派系名走 `en/reg`；守 `i18n-coverage --lang=en` 0% 缺译门禁。
-
-**细化方案（2026-09-25 调查定稿）**：
-1. 派系注册表全集 11 键（`POTUS.define("faction")`，01-config.js:535-547），四栏取
-   **establishment（党建制派）/ commercial（商业·华尔街）/ military（军工复合体）/ church（宗教·道德团体）**；
-   英文名 i18n/en/reg/01-config.js:28-43，取用走 `P.factionName(k)`（core.js:371）。
-   wrath 仇家注册表（01-config.js:553-559）与本面板无关，别混。
-2. 数值域现成：fac clamp **-100..100**（effects.js:13），正=友好、负=仇恨——两轴即符号切分，
-   **无需新数据**，纯展示层重排。
-3. 新增「四栏归类」元数据：faction 注册项加 `panel: "establishment"|...` 或直接常量数组
-   `P.FAC_PANELS = [establishment, commercial, military, church]`（leftbar 消费）。
-4. 面板落点：左栏 `leftbar.js:158` factions 行由 chip 流改为 **2×2 四宫格**（每格：派系名 +
-   友好/仇恨双条：正值为「友好」绿色进度、负值为「仇恨」红色进度，镜像对称），
-   「人生模拟器」档案观感：格内大号数值 + 分档形容词（|v|≥40/≥15/>0 沿用现有 tint 三档口径
-   leftbar.js:89-94）。其余 7 派系仍在折叠「档案」列（topbar.js:394-397 STATUS_LAYOUT）保留 chip。
-5. 顺手修正注释错位：`topbar.js:16-20` `P.UI_HIDE.fac` 写的是 `religious/intel` 而注册表实键是
-   `church/agency`——按用户意图（宗教要在四栏里展示）**解除 church 隐藏**、`military` 同样入面板；
-   `press/labor/agency` 维持隐藏口径不变。
-6. i18n：新串全部走 `P.t` + `i18n/en/view/leftbar.js`；派系名已有覆盖层，不新增 reg 串。
-7. 验收：validate 新增四宫格渲染断言（jsdom 里四格齐、正负条分侧）；i18n-coverage 0%；
-   截屏人工核验观感。
-
-### #31 周目制终局结算 ✅方案（2026-09-25 用户改口径）⬜
-**新口径（覆盖旧「A/B 二选一」设计）**：周目（loop）升级为一等参数：
-1. 每局结束 **周目数 +1（无条件）**，随之**自然带动**两项收益：
-   - **自由点 +1/周目**（永久累计，建角额度 = 12 + (loop-1) + readBonusFree 口径并入 loop）；
-   - **高稀有卡概率提升**：橙卡解锁条件由「当过总统」改为 **loop ≥ 2**（一周目永不出现橙卡），
-     各稀有度权重随 loop 递增的现有机制保留并复核。
-2. **天赋卡带卡改为可选**：结算屏提供「选一张带进下周目（keepQuota=1）」或「不带」，
-   **不再与加点互斥**（加点是周目自带的）。
-3. **作弊码语义变更**：woshishabi 系列不再直接注入自由点，而是 **loop +1**
-   —— 周目参数上涨自然带来自由点与卡牌概率，与正常结算同路。
-4. 实现：`core.js` meta 键 `potus_meta_loop_v1`（沿用现有 loop 读数 currentLoop，若已持久化则
-   并入奖励计算即可）；`gachaCfg`/`rollRarity` 橙门槛改 loop≥2；`create.js` freePool =
-   balance.freePoints + (loop-1)×loopFreeBonus（loopFreeBonus:1）；结算屏
-   （careerEnd）展示「第 N+1 周目 · +1 点 · 橙卡已解锁/未解锁」+ 可选保卡按钮；
-   submitCheat 改调 addLoop(1) 并即时反馈「周目 +1（附带自由点与卡池提升）」。
-5. 验收：validate 新增断言——一周目抽卡 0 橙、loop=2 可出橙；作弊后 loop/freePool 联动；
-   保卡可选可不选、不阻塞结算。
-
-### #19 学贷校准 🟡
-连续断供 N 月即 game over 已实装框架，卡在条款标定：6/4/3 过狠。待「单利资本化 + 存档门禁」
-落地后跑 100 局模拟校准断供月数与利率。**依赖：** 无硬依赖，但建议在 #36 钱标尺定稿后再校准，
-否则月供/身家的比例会二次返工。
-
-**细化方案（#36 已定标，本条解锁）**：
-1. 先校准条款：断供月数 6/4/3 放宽为 **12/8/5**（毕业/第一/第二档），连续断供才计数、
-   还款即清零的语义保留；利率 0.03 与资本化口径以现实现为准复核一轮（单利+年度资本化）。
-2. 跑 `validate.js --games=100`（headless），统计：破产/断供 game over 率、T0–T2 月收入 vs 月供曲线、
-   毕业档负债起点 vs 第一份公职薪水的月数比。目标：**不刻意还贷的玩家 1980s 内不至于必死，
-   但放任不管必死**；毕业档 game over 率落进 10–25%。
-3. 依据分布回调三参数（断供月数、interestRate、startDebt），把 100 局关键分位数写进本条完成记录。
-4. 存档门禁已合入（#26），无需再动。
-
-### #20 建角/抽卡收尾 🟡
-代码部分已于 `aef8aed` 全部落地（三步向导、四稀有度、周目递增、12 自由点、单维可点满、作弊码明牌）。
-剩余：**文档同步**——`docs/DEVELOPMENT-GUIDE.md:212/970`、`docs/CONTENT-SCHEMA.md:1169/1350/1417`
-仍写着「gacha 未实装 / freePoints 8 / 定命一掷现行」，须改成现口径。
-**⚠ 卡池金额将随 #36 二次重标，文档里金额示例以 #36 定稿为准，避免改两遍。**
-
-**细化方案（#36 已定稿，白=+10/$2k、蓝=+20/$4k、紫=+30/$6k、橙合计+40/$8k 等价，可一次改对）**：
-1. `DEVELOPMENT-GUIDE.md:212/970`：删「gacha 未实装 / 定命一掷现行」，改为三步向导 +
-   四稀有度抽卡（周目递增·橙卡需当过总统）+ 12 自由点现口径。
-2. `CONTENT-SCHEMA.md:1169/1350/1417`：freePoints 8→12、掷骰建角段替换为分配制
-   （1 点 = +10 属性 = +$2k，单维上限 10 点、三围可点满 100）、作弊码转明牌输入框一句带过。
-3. 全文 grep `定命一掷|freePoints: ?8|未实装` 清残留；诚信建角位→隐藏属性的表述同步。
-4. 验收：文档示例数值与 `validate.js` 断言一致（人工比对一遍即可）。
-
-### #21 P2 逐月化总统年 ⬜
-roadmap 既定：总统任期从「年度抽象」改为逐月推进。**本轮先立骨架、分四期落地**：
-- M1 核心循环：入主白宫后 `time.js` 改走逐月决策槽（复用现有月引擎），新增 `approval`（0-100
-  总统支持率，复用 momentum 展示件）；
-- M2 素材：月度总统事务池（危机/立法/外交/人事四族 × 首任/次任），中期选举直接复用 #35 后的
-  campaign 系统；
-- M3 结局线：legacy 结算并入 40-endings 与 #31 结算屏；卸任后清算池（140-reckoning）对接。
-- M4 打磨： Oval Office 专属 UI、逐月历史锚点（1xx 线卡总统视角变体，即 #32 的 T7+ 档）。
-M1 先行，M2—M4 视本轮产能滚动。
-
-### #23 把柄×竞选 ⬜
-竞选面板新增「投放把柄」行动，初选/大选双靶各算效果；与 #35 共用选情表（momentum），
-**排 #35 之后**实现。
-
-### #28 钱系统重构 ⬜
-① **stake 纯级别价**：`engine/dice.js` 的 `stakeFunPer/stakeMax/stakeSpec` 废除三锚中的
-钱袋闸（per ≤ 现金×6%）与事件钱量级锚，每档价只挂钩职级/身位。这是 `smoke-ui.js`
-「投注上限护栏」4 红的正式归口（预存失败，非回归）。
-② **灰产/投机豁免衰减**：`engine/effects.js` `funMul`  commit 随余额成正比保留，新增 INT 系数
-（高 INT 赢得多、翻车少，标定随 #36 标尺做）；不吃 #24 单卡衰减（`events.js:136`
-`Math.pow(per,counts)` 开 exempt 分支）与 #27 降频，可反复赌。`major` 默认 `unique:true`
-（`events.js:12-13`），投机大卡须显式 `unique:false`。
-③ 素材：广场协议 1985、黑色星期一 1987、大空头 2008、1997 投机资本、次贷裂缝 2007-08、
-2022 挤兑 + 已带 `funMul` 的储贷/抄底/shady_oneshot；category 不新增 key，复用 `shady`，
-配图沿用 `shady.jpg`。
-
-**细化方案（执行口径）**：
-1. `dice.js stakeFunPer()`：删「钱袋锚 B（现金×6%）」与「事件钱量级锚 C」两项，
-   只留**身位锚 A = officeSalary(track,tier) × perSalaryMonths × gradeMul**；
-   `stakeMax` 的档数上限逻辑保留。`01-config.js:465-490` stake 注释块同步重写，
-   perMin/perMax 护栏按 #36 标尺重定（量级：一档 ≈ 该职级 1 个月月薪）。
-2. 投不投得起 = 现金够不够级别价，**每档价恒定不随余额浮动**（余额只决定你能押几档）。
-3. `smoke-ui.js` 投注护栏 4 断言按新规则改写（$23k 余额在 T5 级别价下上限应为 0 档或按新公式），
-   改完 4 红清零。
-4. `effects.js funMul`：加 INT 系数——`倍率修正 = 1 + (INT-50)/100 × intLev`（balance 可调，
-   默认 intLev≈0.4）：高 INT 同时**提高成功档收益、压低翻车档亏损**；阈值判定走既有 outcome
-   roll，不另开骰。
-5. `events.js:136` 衰减改 `per ** counts`→ 若 `ev.pace === "exempt"` 则跳过；
-   灰产/投机卡统一标 `pace:"exempt", unique:false`；#27 降频的同分支放行。
-6. 新卡 6 张（1985 广场协议/1987 黑色星期一/1997 投机资本/2007 次贷裂缝/2008 大空头/2022 挤兑），
-   挂进对应年代线文件，`funMul + pace:"exempt"`，中英双轨。
-7. 验收：validate 新增「级别价不随余额变化」「exempt 卡重复触发不衰减」断言；smoke-ui 0 红。
-   手感基准：T0 投不起高档（一档 ≈ 月薪量级），T7+ 一档六位数——全由 officeSalary 表推导，不单独定价。
-
-### #29 派系声望四栏面板 ⬜
-建制派/华尔街/军工/宗教 × 仇恨/友好两轴四栏（「人生模拟器」档案观感）。落点：`effects.js` fac 键、
-`view/topbar.js`/`view/leftbar.js` 读数（`leftbar.js:76` 已把这四项列入「不再展示」，本任务把它们
-以新面板形式放回）；STATUS_LAYOUT 已有 factions 行。i18n：引擎串走 `P.t` +
-`content/i18n/en/view|ui`，派系名走 `en/reg`；守 `i18n-coverage --lang=en` 0% 缺译门禁。
-
-**细化方案（2026-09-25 调查定稿）**：
-1. 派系注册表全集 11 键（`POTUS.define("faction")`，01-config.js:535-547），四栏取
-   **establishment（党建制派）/ commercial（商业·华尔街）/ military（军工复合体）/ church（宗教·道德团体）**；
-   英文名 i18n/en/reg/01-config.js:28-43，取用走 `P.factionName(k)`（core.js:371）。
-   wrath 仇家注册表（01-config.js:553-559）与本面板无关，别混。
-2. 数值域现成：fac clamp **-100..100**（effects.js:13），正=友好、负=仇恨——两轴即符号切分，
-   **无需新数据**，纯展示层重排。
-3. 新增「四栏归类」元数据：faction 注册项加 `panel: "establishment"|...` 或直接常量数组
-   `P.FAC_PANELS = [establishment, commercial, military, church]`（leftbar 消费）。
-4. 面板落点：左栏 `leftbar.js:158` factions 行由 chip 流改为 **2×2 四宫格**（每格：派系名 +
-   友好/仇恨双条：正值为「友好」绿色进度、负值为「仇恨」红色进度，镜像对称），
-   「人生模拟器」档案观感：格内大号数值 + 分档形容词（|v|≥40/≥15/>0 沿用现有 tint 三档口径
-   leftbar.js:89-94）。其余 7 派系仍在折叠「档案」列（topbar.js:394-397 STATUS_LAYOUT）保留 chip。
-5. 顺手修正注释错位：`topbar.js:16-20` `P.UI_HIDE.fac` 写的是 `religious/intel` 而注册表实键是
-   `church/agency`——按用户意图（宗教要在四栏里展示）**解除 church 隐藏**、`military` 同样入面板；
-   `press/labor/agency` 维持隐藏口径不变。
-6. i18n：新串全部走 `P.t` + `i18n/en/view/leftbar.js`；派系名已有覆盖层，不新增 reg 串。
-7. 验收：validate 新增四宫格渲染断言（jsdom 里四格齐、正负条分侧）；i18n-coverage 0%；
-   截屏人工核验观感。
-
-### #31 结算周二选一 ⬜（口径已从 +2 改为 **+1**）
-每局结束在结算屏二选一：**A. 永久 +1 自由点** XOR **B. 保留一张天赋卡进下周目抽卡池**。
-实现：`core.js` 新增 `potus_meta_freept_v1` 键 + `readBonusFree()/addBonusFree(n)`；
-`balance.loopFreeBonus: 1`；结算屏先出 A/B 两按钮，选 B 才走 `chooseKeepCard`，选 A 后保卡锁死；
-`create.js` `freePoints = balance.freePoints + readBonusFree()`。
-**关联：** 一周目基础点 12（`aef8aed` 已落地），多周目累计逻辑同步改成 +1。
-
-**细化方案（执行口径）**：
-1. `core.js`：`loopFreeBonus: 2 → 1`（core.js:165 附近 + L157 注释「+2 自由点」字样同步）；
-   meta 键 `potus_meta_freept_v1`，`readBonusFree()/addBonusFree(n)` 累加带上限保护
-   （上限 = balance.loopFreeCap，默认 8，防无限堆点）。
-2. 结算屏（`careerEnd`/结局屏，stage.js:1052 一带）：`gainedThisRun` 时先出 **A/B 两按钮**——
-   A `addBonusFree(1)` 立即置灰 B；B 走现有 `chooseKeepCard`（keepQuota=1）。
-   互斥落盘：结局屏点击即 `P.metaSet` 记「本局奖励已领」（用存档 seed），重开结局屏不复发。
-3. `create.js fillDefaults`：额度 = `balance.freePoints + readBonusFree()`；单维 cap 不放宽
-   （维持 10 点/维=100），多出的点进总额度。
-4. 顶栏/建角屏「第 N 周目 · 累计奖励 +x 点」展示走现有 loop 读数（create.js:205 一带 freePool）。
-5. 验收：validate 新增 A 支（+1 累加、上限夹取）/B 支（保卡必现）/互斥（领 A 后 B 锁）三组断言。
-
-### #23 把柄×竞选 ⬜
-竞选面板新增「投放把柄」行动，初选/大选双靶各算效果；与 #35 共用选情表（momentum），
-**排 #35 之后**实现。
-
 **细化方案（执行口径，依赖 #35 落地的选情表）**：
 1. 行动入口：`campaign.js:283 campaignPanel()`（竞选面板）加「投放把柄」按钮，
    消耗 `lev`（把柄点数）1 点/次，竞选进行中每幕限 1 次。
@@ -286,6 +91,86 @@ M1 先行，M2—M4 视本轮产能滚动。
 3. 效果全部走 `camp` meter 键（effects.js:275 handler），不新增数值系统。
 4. 把柄来源沿用现有 lev 积累（清算/调查/黑料卡）；投放后 lev-1。
 5. 验收：validate 新增「无把柄时按钮置灰」「投放后 lev/camp 双结算」「暴露失败进 scandal 旗」断言。
+
+### #28 钱系统重构 ⬜
+① **stake 纯级别价**：`engine/dice.js` 的 `stakeFunPer/stakeMax/stakeSpec` 废除三锚中的
+钱袋闸（per ≤ 现金×6%）与事件钱量级锚，每档价只挂钩职级/身位。这是 `smoke-ui.js`
+「投注上限护栏」4 红的正式归口（预存失败，非回归）。
+② **灰产/投机豁免衰减**：`engine/effects.js` `funMul`  commit 随余额成正比保留，新增 INT 系数
+（高 INT 赢得多、翻车少，标定随 #36 标尺做）；不吃 #24 单卡衰减（`events.js:136`
+`Math.pow(per,counts)` 开 exempt 分支）与 #27 降频，可反复赌。`major` 默认 `unique:true`
+（`events.js:12-13`），投机大卡须显式 `unique:false`。
+③ 素材：广场协议 1985、黑色星期一 1987、大空头 2008、1997 投机资本、次贷裂缝 2007-08、
+2022 挤兑 + 已带 `funMul` 的储贷/抄底/shady_oneshot；category 不新增 key，复用 `shady`，
+配图沿用 `shady.jpg`。
+
+**细化方案（执行口径）**：
+1. `dice.js stakeFunPer()`：删「钱袋锚 B（现金×6%）」与「事件钱量级锚 C」两项，
+   只留**身位锚 A = officeSalary(track,tier) × perSalaryMonths × gradeMul**；
+   `stakeMax` 的档数上限逻辑保留。`01-config.js:465-490` stake 注释块同步重写，
+   perMin/perMax 护栏按 #36 标尺重定（量级：一档 ≈ 该职级 1 个月月薪）。
+2. 投不投得起 = 现金够不够级别价，**每档价恒定不随余额浮动**（余额只决定你能押几档）。
+3. `smoke-ui.js` 投注护栏 4 断言按新规则改写（$23k 余额在 T5 级别价下上限应为 0 档或按新公式），
+   改完 4 红清零。
+4. `effects.js funMul`：加 INT 系数——`倍率修正 = 1 + (INT-50)/100 × intLev`（balance 可调，
+   默认 intLev≈0.4）：高 INT 同时**提高成功档收益、压低翻车档亏损**；阈值判定走既有 outcome
+   roll，不另开骰。
+5. `events.js:136` 衰减改 `per ** counts`→ 若 `ev.pace === "exempt"` 则跳过；
+   灰产/投机卡统一标 `pace:"exempt", unique:false`；#27 降频的同分支放行。
+6. 新卡 6 张（1985 广场协议/1987 黑色星期一/1997 投机资本/2007 次贷裂缝/2008 大空头/2022 挤兑），
+   挂进对应年代线文件，`funMul + pace:"exempt"`，中英双轨。
+7. 验收：validate 新增「级别价不随余额变化」「exempt 卡重复触发不衰减」断言；smoke-ui 0 红。
+   手感基准：T0 投不起高档（一档 ≈ 月薪量级），T7+ 一档六位数——全由 officeSalary 表推导，不单独定价。
+
+### #29 派系声望四栏面板 ⬜
+建制派/华尔街/军工/宗教 × 仇恨/友好两轴四栏（「人生模拟器」档案观感）。落点：`effects.js` fac 键、
+`view/topbar.js`/`view/leftbar.js` 读数（`leftbar.js:76` 已把这四项列入「不再展示」，本任务把它们
+以新面板形式放回）；STATUS_LAYOUT 已有 factions 行。i18n：引擎串走 `P.t` +
+`content/i18n/en/view|ui`，派系名走 `en/reg`；守 `i18n-coverage --lang=en` 0% 缺译门禁。
+
+**细化方案（2026-09-25 调查定稿）**：
+1. 派系注册表全集 11 键（`POTUS.define("faction")`，01-config.js:535-547），四栏取
+   **establishment（党建制派）/ commercial（商业·华尔街）/ military（军工复合体）/ church（宗教·道德团体）**；
+   英文名 i18n/en/reg/01-config.js:28-43，取用走 `P.factionName(k)`（core.js:371）。
+   wrath 仇家注册表（01-config.js:553-559）与本面板无关，别混。
+2. 数值域现成：fac clamp **-100..100**（effects.js:13），正=友好、负=仇恨——两轴即符号切分，
+   **无需新数据**，纯展示层重排。
+3. 新增「四栏归类」元数据：faction 注册项加 `panel: "establishment"|...` 或直接常量数组
+   `P.FAC_PANELS = [establishment, commercial, military, church]`（leftbar 消费）。
+4. 面板落点：左栏 `leftbar.js:158` factions 行由 chip 流改为 **2×2 四宫格**（每格：派系名 +
+   友好/仇恨双条：正值为「友好」绿色进度、负值为「仇恨」红色进度，镜像对称），
+   「人生模拟器」档案观感：格内大号数值 + 分档形容词（|v|≥40/≥15/>0 沿用现有 tint 三档口径
+   leftbar.js:89-94）。其余 7 派系仍在折叠「档案」列（topbar.js:394-397 STATUS_LAYOUT）保留 chip。
+5. 顺手修正注释错位：`topbar.js:16-20` `P.UI_HIDE.fac` 写的是 `religious/intel` 而注册表实键是
+   `church/agency`——按用户意图（宗教要在四栏里展示）**解除 church 隐藏**、`military` 同样入面板；
+   `press/labor/agency` 维持隐藏口径不变。
+6. i18n：新串全部走 `P.t` + `i18n/en/view/leftbar.js`；派系名已有覆盖层，不新增 reg 串。
+7. 验收：validate 新增四宫格渲染断言（jsdom 里四格齐、正负条分侧）；i18n-coverage 0%；
+   截屏人工核验观感。
+
+### #31 周目制终局结算 ✅方案（2026-09-25 用户两次改口径，本条为准）⬜
+**新口径（覆盖旧「A/B 二选一」设计）**：周目（loop）升级为一等参数：
+0. **周目计数口径**：`loop` = **已完成的周目数**，首局开局时 loop=0，每局结束无条件 +1。
+   因此「基础 12 + 周目数 × 1」直接写作 `12 + loop`，不必再绕 (loop-1)。
+1. 每局结束 **周目数 +1（无条件）**，随之**自然带动**两项收益：
+   - **自由点 +1/周目**：建角额度 = `balance.freePoints(12) + loop × loopFreeBonus(1)`，
+     旧的 `readBonusFree` 独立累加口径并入 loop（同一个数不再两套账）。
+   - **高稀有卡概率提升**：橙卡解锁条件由「当过总统」改为 **loop ≥ 2**（首局与二周目开局
+     不出现橙卡），各稀有度权重随 loop 递增的现有机制保留并复核。
+2. **天赋卡带卡改为可选**：结算屏提供「选一张带进下周目（keepQuota=1）」或「不带」，
+   **不再与加点互斥**（加点是周目自带的）。
+3. **作弊码语义变更 + 搬家**：woshishabi 系列不再直接注入自由点，而是 **loop +1**
+   —— 周目上涨自然带来自由点与卡池提升，与正常结算同路；
+   **输入框从建角页移到天赋（抽卡）页**，随该页重绘反馈「周目 +1（附带自由点与卡池提升）」。
+4. **天赋卡允许刷新一次**：抽卡结果页给一个「刷新」按钮，每局限用 1 次
+   （重抽一次并覆盖前一次结果；用后置灰）。刷新配额写进 `gachaCfg`（rerolls:1），
+   与 loop 无关（不吃周目加成，避免和「概率随周目上涨」混成两套）。
+5. 实现：`core.js` meta 键 `potus_meta_loop_v1`（沿用现有 loop 读数，若已持久化则并入奖励计算）；
+   `gachaCfg`/`rollRarity` 橙门槛改 loop≥2；`create.js` freePool = 12 + loop、
+   作弊入口迁到天赋页、加 rerollOnce 状态；结算屏（careerEnd）展示
+   「第 loop+1 周目 · +1 点 · 橙卡已解锁/未解锁」+ 可选保卡按钮。
+6. 验收：validate 新增断言——首局抽卡 0 橙、loop=2 可出橙；作弊后 loop/freePool 联动；
+   保卡可选可不选、不阻塞结算；刷新按钮第二次点击无效。
 
 ---
 
@@ -314,7 +199,7 @@ M1 先行，M2—M4 视本轮产能滚动。
 6. 验收：validate --games=20 全绿；`i18n-coverage --lang=en` 0% 缺译；smoke-ui 仅 #28 预存 4 红。
 **不在本条范围**：stake 级别价（#28①）、事件 funMul 收益量级（#28②）——它们引用本锚自行换算。
 
-### #33 1990+ 定点事件触发荒诊断 ⬜
+### #33 1990+ 定点事件触发荒诊断 ✅（`600ae2f`）
 **现象**：用户实玩一局，1990 年后固定历史事件几乎不触发；但 `tools/density-scan.js`
 显示 1991—2024 逐年 Σ=A+B 无偏薄年（内容量达标）。
 
@@ -432,7 +317,8 @@ M1 先行，M2—M4 视本轮产能滚动。
   长期改成 `rsync --delete` 进脚本本体。
 - **回归门禁清单**（每阶段提交前跑）：
   `node dev/tools/validate.js --games=20`、`node dev/tools/i18n-coverage.js --lang=en`（0% 缺译）、
-  `node dev/tools/density-scan.js`（#33 后升级为触发密度门禁）、smoke-ui 允许且仅允许
+  `node dev/tools/density-scan.js`（内容量口径）、`node dev/tools/trigger-scan.js`
+  （#33 产物：钉卡触发率门禁，改 era/fixed/scheduled 表或动 eligible 闸后必跑）、smoke-ui 允许且仅允许
   #28 归口的 4 红直至 #28 落地。
 
 ---
@@ -441,7 +327,9 @@ M1 先行，M2—M4 视本轮产能滚动。
 
 | 日期 | 条目 | 结果 |
 |------|------|------|
-| 2026-09-25 | 精力/健康退役收尾 | ✅ 删除「凌晨两点来电」demo_2am_call；27 个事件文件清掉 `cost:{ap}`；70-demo-resources / 88-finance-2 / 86-enclave / 111-chores / 65-campaign-acts / 01-config 中英文案残留 14 处改为非资源措辞（叙事成语保留）；validate 全过、i18n 0% 缺译、smoke-ui 仅 #28 预存 4 红。未提交。 |
+| 2026-09-25 | 精力/健康退役收尾 | ✅ 删除「凌晨两点来电」demo_2am_call；27 个事件文件清掉 `cost:{ap}`；70-demo-resources / 88-finance-2 / 86-enclave / 111-chores / 65-campaign-acts / 01-config 中英文案残留 14 处改为非资源措辞（叙事成语保留）；validate 全过、i18n 0% 缺译、smoke-ui 仅 #28 预存 4 红。提交 `21a8301`（合成一笔）。 |
 | 2026-09-25 | 本方案 | ✅ docs/WORKPLAN.md 建档，#32—#36 立项，#31 口径改 +1。 |
 | 2026-09-25 | #36 钱标尺 | ✅ 提交 `60cb7f9`：freeFunPerPoint 2000、白/蓝/紫钱卡 $2k/$4k/$6k、中英卡面、validate 断言同步；三件套全绿（smoke 仅 #28 预存 4 红）。 |
 | 2026-09-25 | 细化方案 | ✅ 全部条目（#19/#20/#21/#23/#28/#29/#31/#32/#33/#34/#35）子方案写入本文件；#33 根因由子任务查明（层级闸 60% + era 白名单僵死 30%）。 |
+| 2026-09-25 | 本方案（二次） | ✅ 删除 §1 与「细化方案」批量写入时留下的 131 行重复任务块（#19—#29 旧副本 + 已作废的 #31「A/B 二选一」条），#23 的唯一增量（细化方案五条）并入 §1；#31 按用户最新口径三次改定（loop 一等参数 / 12+loop / 橙卡 loop≥2 / 保卡可选 / 作弊码搬天赋页 / 抽卡可刷新一次）。 |
+| 2026-09-25 | #33 触发荒 | ✅ 提交 `600ae2f`：`P.eraAt(year)` 让「属于哪个时代」一律按日历解（when/time/events/stage/progression/shell/core 七个消费点全量改，G.era 只留迁移期兼容），`scheduledHits` 首跑 `normalizePins()` 把 141 张 fixed/scheduled 钉卡的 tierMax 抬到 9（tierMin 保留），eligible 挡下的钉卡记进 `G.pinMiss`。新门禁 `tools/trigger-scan.js`：1980—2024 逐年 × tier{0,4,8} 结构可发性，身份逐维重试、链条 gaps 注入（另给 `--strict-chains` 体检口径），1991—2024 钉卡 121 条 tier8 触发率 **100%**（验收线 ≥80%）。validate 补 eraAt/scheduled 复活/钉卡 tierMax 三组断言、合成测试卡摘掉 `era:["__T"]`（日历解下永不成立）。四道门禁全绿：validate 全部通过、i18n 0% 缺译、density-scan exit 0、smoke-ui 仅 #28 预存 4 红。**方案偏离**：原计划脚本批量改内容文件的 tierMax，改为引擎侧一次性规范化（141 处数值不进 git 差异、新增钉卡自动生效、可回退）；原计划的「headless 跑 30 局重建实际触发」以结构口径替代（实际触发依赖随机抽取，30 局样本对 121 条钉卡覆盖不足）。 |
