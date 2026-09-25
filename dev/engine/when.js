@@ -55,6 +55,18 @@
     return n;                       // 已在(或超出)新空间：原样透传
   };
 
+  /* ---------- #33：era 按日历解 ----------
+   * G.era 自时代选择器下线后恒为 1980_REAGAN，不能再当条件闸用——
+   * 「这条事件属于哪个时代」一律由年份落在哪个 era 区间决定。 */
+  P.eraAt = function (year) {
+    let best = null, bs = -1e9;
+    for (const id in P.reg.era) {
+      const sy = P.reg.era[id].startYear;
+      if (sy != null && sy <= year && sy > bs) { bs = sy; best = id; }
+    }
+    return best || "1980_REAGAN";
+  };
+
   /* ---------- 玩家此刻的样子（条件的求值对象） ----------
    * 只在需要时构造。事件抽取会在一次抽取里构造一次、往下传（见 events.js 的 drawEvent），
    * 所以 300 局模拟里这张快照只被造十几万次，而不是几千万次。 */
@@ -65,7 +77,7 @@
     let n = 0;
     for (const k in contacts) n++;
     return {
-      era: G.era, year: G.year, month: G.month, age: G.age,
+      era: P.eraAt(G.year), year: G.year, month: G.month, age: G.age,
       track: G.track, party: G.party, stance: G.stance,
       origin: G.origin, entry: G.entry, talent: G.talent,
       state: G.state || "",

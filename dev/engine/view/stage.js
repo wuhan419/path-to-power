@@ -83,7 +83,7 @@
     const dTier = G.tier - snap0.tier;
     const kFun = Math.round(dFun / 1000);
     const ctx = {
-      era: G.era, year: G.year, month: 12, age: G.age, track: G.track, party: G.party, stance: G.stance,
+      era: P.eraAt(G.year), year: G.year, month: 12, age: G.age, track: G.track, party: G.party, stance: G.stance,
       origin: G.origin, entry: G.entry, talent: G.talent, state: G.state, tier: G.tier,
       rep: G.rep, hp: G.hp, fun: G.fun, fav: G.fav, lev: G.lev || 0,
       contactN: P.myContacts().length, knownIds: G.contacts || {},
@@ -128,7 +128,7 @@
 
   P.startYear = function (resume) {
     P.SCREEN = "game";
-    const G = P.G, w = P.reg.worldline || {}, era = P.reg.era[G.era] || { name: G.era, brief: {} };
+    const G = P.G, w = P.reg.worldline || {}, era = P.reg.era[P.eraAt(G.year)] || { name: P.eraAt(G.year), brief: {} };
     /* 年初播报：优先全局时间轴的按年条目，其次 era.brief（按年或通配），
        再退回时间轴通配 —— 未迁移年代照旧走 era，可回退。 */
     const brief = (w.brief && w.brief[G.year])
@@ -161,7 +161,7 @@
       /* 右栏 = 上状态栏 + 下操作栏（#statusbox 必须在 .col-right 内，别放回顶部全宽） */
       '<div id="statusbox" class="statusbox">' + P.statusPanel() + '</div>' +
       '<div class="actbar"><div id="actbody"></div></div></aside></div>';
-    document.body.className = "game era-" + G.era;
+    document.body.className = "game era-" + P.eraAt(G.year);
     // v0.5.4：年度简报「进入 N 月 →」继续按钮进右栏 #actbar（与事件流一致，操作不滚动中栏）
     actAppend('<div class="acthead">' + P.t("ui.stage.newYearHead", "进入新的一年") + '</div><button class="btn primary actbtn" onclick="POTUS.' +
       (resume ? "resumeMonth" : "nextMonth") + '()">' +
@@ -999,7 +999,7 @@
     let bsHTML = "";
     if (P.chance(b.blackswanChance)) {
       const wl = P.reg.worldline || {};
-      const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[G.era] || [];
+      const list = (wl.blackswan && (wl.blackswan[G.year] || wl.blackswan["*"])) || P.reg.blackswan[P.eraAt(G.year)] || [];
       if (list.length) {
         const bs = P.pick(list);
         P.addFlag("bs_" + (bs.id || bs.title));

@@ -323,7 +323,7 @@
   P.generateFiller = function (slot) {
     const G = P.G;
     const grade = (slot && slot.grade) || "minor";
-    const pack = P.reg.filler[G.era] || P.reg.filler["*"];
+    const pack = P.reg.filler[P.eraAt(G.year)] || P.reg.filler["*"];
     if (!pack) return P._safetyFiller(grade);
     if (typeof pack === "function") return pack(P, G, grade);
     const topic = P.pick(pack.topics || [P.t("ui.events.fillerTopic", "一桩地方丑闻")]);
@@ -332,7 +332,7 @@
     const cats = pack.categories || ["general"];
     return {
       id: "filler_" + Math.random().toString(36).slice(2, 8),
-      era: [G.era], tierMin: 0, tierMax: 99, weight: 1, filler: true,
+      era: [P.eraAt(G.year)], tierMin: 0, tierMax: 99, weight: 1, filler: true,
       unique: false, grade: grade, category: P.pick(cats), valence: (slot && slot.valence) || "risk",
       title: topic,
       body: tpl.replace("{act}", act).replace("{topic}", topic),
@@ -361,7 +361,7 @@
     };
     return {
       id: "filler_safe_" + Math.random().toString(36).slice(2, 8),
-      era: [P.G.era], tierMin: 0, tierMax: 99, weight: 1, filler: true,
+      era: [P.eraAt(P.G.year)], tierMin: 0, tierMax: 99, weight: 1, filler: true,
       unique: false, grade: grade || "minor", category: "general", valence: "risk",
       title: P.t("ui.events.fillerTopic", "一桩地方丑闻"), body: P.t("ui.events.safeBody", "你被卷进一桩地方丑闻。必须在聚光灯下做出选择。"),
       choices: [mk(P.t("ui.events.safeChoiceHi", "高调处理，抢占道德高地"), "CHA"), mk(P.t("ui.events.safeChoiceLow", "低调摆平，用关系解决"), "CUN")]
@@ -370,10 +370,10 @@
 
   /* 新闻标题（离线模板；内容可覆盖 outlets / newsTpl） */
   P.makeNews = function (headline) {
-    const era = P.reg.era[P.G.era] || {};
+    const era = P.reg.era[P.eraAt(P.G.year)] || {};
     const wl = P.reg.worldline || {};
     const wOut = wl.outlets && (wl.outlets[P.G.year] || wl.outlets["*"]);
-    const outlets = wOut || P.reg.newsOutlets[P.G.era] || era.outlets || [P.t("ui.events.newsOutlet", "本报")];
+    const outlets = wOut || P.reg.newsOutlets[P.eraAt(P.G.year)] || era.outlets || [P.t("ui.events.newsOutlet", "本报")];
     const tpl = wl.newsTpl || era.newsTpl || P.t("ui.events.newsTpl", "【{outlet}】{year}年{month}月｜{name}：{headline}");
     return tpl.replace("{outlet}", P.pick(outlets)).replace("{year}", P.G.year)
       .replace("{month}", P.G.month || 1)

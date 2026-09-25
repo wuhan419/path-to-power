@@ -21,10 +21,10 @@
   /* ---------- 时代压力：0-5，越高越动荡 ---------- */
   P.pressure = function () {
     const G = P.G, w = P.reg.worldline || {};
-    const era = P.reg.era[G.era] || {};
+    const era = P.reg.era[P.eraAt(G.year)] || {};
     const y = String(G.year);
     /* 优先按绝对年读全局时间轴的世界线压力；时间轴没铺到的年份整体回落 era
-       （渐进迁移、可回退：未迁移的 2008 等年代照旧走 reg.era[G.era].pressure）。 */
+       （渐进迁移、可回退：未迁移的 2008 等年代照旧走当年 era 的 pressure）。 */
     const wm = (w.pressure && typeof w.pressure === "object") ? w.pressure : null;
     const raw = (wm && wm[y] != null) ? wm[y] : era.pressure;
     let v = 1;
@@ -95,8 +95,27 @@
    * 注意：定点事件仍然要过一遍 P.eligible()——tier / flag / era 不满足就跳过，
    *       所以「给低层级玩家写的定点事件」不会硬塞给还没爬到那个位置的人。
    */
+  /* ---------- #33 钉卡规范化（一次性）----------
+   * 凡出现在 reg.fixed / 任一 era.scheduled 里的卡 = 世界事实，到点必发：
+   * tierMax 一律抬到 9（当年写死的顶层闸会把爬到中高层的玩家整年挡在史实之外——
+   * 1990 后「事件荒」六成根因）。tierMin 保留：底层玩家还没资格卷入高层专属卡。 */
+  function normalizePins() {
+    if (P._pinsNormalized) return;
+    P._pinsNormalized = 1;
+    const ids = {};
+    const take = (l) => (l || []).forEach((s) => { if (s.event) ids[s.event] = 1; });
+    take(P.reg.fixed);
+    for (const id in P.reg.era) take(P.reg.era[id].scheduled);
+    let n = 0;
+    P.events.forEach(function (ev) {
+      if (ids[ev.id] && ev.tierMax != null && ev.tierMax < 9) { ev.tierMax = 9; n++; }
+    });
+    P.pinCount = n;
+  }
+
   function scheduledHits(month) {
-    const G = P.G, era = P.reg.era[G.era] || {};
+    normalizePins();
+    const G = P.G, era = P.reg.era[P.eraAt(G.year)] || {};
     /* 全局定点事件表 fixed（按绝对年月）+ 迁移期兼容的 era.scheduled，两路合并 */
     const lists = [];
     if (P.reg.fixed && P.reg.fixed.length) lists.push(P.reg.fixed);
@@ -117,7 +136,15 @@
         if (once && s.event && G.doneIds.indexOf(s.event) >= 0) return;
         const ev = s.event && P.evById(s.event);
         if (s.event && !ev) return;
-        if (ev && !P.eligible(ev)) return;            // tier / flag / 近期去重 等
+        if (ev && !P.eligible(ev)) {
+          /* #33：静默丢弃变响——记下为什么没发出去，供 trigger-scan / 完成记录诊断 */
+          let why = "gate";
+          if (ev.tierMin != null && G.tier < ev.tierMin) why = "tierMin";
+          else if (ev.tierMax != null && G.tier > ev.tierMax) why = "tierMax";
+          (G.pinMiss = G.pinMiss || []).push({ y: G.year, id: s.event, why: why });
+          if (G.pinMiss.length > 500) G.pinMiss.shift();
+          return;
+        }
         if (s.event) seen[s.event] = 1;
         out.push({ eventId: s.event, grade: s.grade || P.gradeOf(ev) || "major",
           valence: ev ? P.valenceOf(ev) : "risk", scheduled: true });

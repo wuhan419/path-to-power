@@ -8,7 +8,7 @@
 
   /* 是否选举年（周期可被 balance 覆盖） */
   P.electionYear = function () {
-    const b = P.balance(), w = P.reg.worldline || {}, era = P.reg.era[P.G.era] || { startYear: P.G.year };
+    const b = P.balance(), w = P.reg.worldline || {}, era = P.reg.era[P.eraAt(P.G.year)] || { startYear: P.G.year };
     const base = w.electionBase != null ? w.electionBase : era.startYear;
     const cycle = w.electionCycle || era.electionCycle || b.midtermCycle || 2;
     return (P.G.year - base) % cycle === 0;
@@ -54,10 +54,10 @@
   P.ending = function (reason) {
     P.SCREEN = "ending";
     /* 结局屏是单页长文，撤下 body.game 的「整屏固定高度 + 栏内自滚」布局，避免被裁切（保留 era 皮肤） */
-    document.body.className = "era-" + P.G.era;
+    document.body.className = "era-" + P.eraAt(P.G.year);
     const rule = P.evaluateEnding(reason);
     const s = P.scores();
-    const era = P.reg.era[P.G.era] || { name: P.G.era };
+    const era = P.reg.era[P.eraAt(P.G.year)] || { name: P.eraAt(P.G.year) };
     const track = P.reg.track[P.G.track] || { name: P.G.track };
     const party = P.reg.party[P.G.party] || { name: P.G.party };
     const stance = P.reg.stance[P.G.stance] || { name: P.G.stance };

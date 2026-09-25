@@ -433,6 +433,24 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   const G = P.G;
   G.flags = []; G.tier = 0;
 
+  /* --- #33：era 按日历解 + 钉卡全层通行（在 __T 测试时代注册前校验真实时代表） ---
+     G.era 自时代选择器下线后恒为 1980_REAGAN；「这条事件属于哪个时代」一律由
+     P.eraAt(year) 落在哪个 era 区间决定，且凡 fixed/scheduled 钉卡 tierMax 抬到 9。 */
+  check(P.eraAt(1985) === "1980_REAGAN" && P.eraAt(1995) !== "1980_REAGAN" &&
+    P.eraAt(2009) === "2008_CRASH" && P.eraAt(2020) === P.eraAt(2016), "eraAt：年份应落进正确的时代区间");
+  G.year = 2008;
+  check(P.snap().era === "2008_CRASH", "snap().era 应按日历解，不再读 G.era");
+  G.year = 1985;
+  P.G.doneIds = []; P.recentIds = []; G.month = 0;
+  P.planMonth(9);                                   // 触发一次钉卡规范化（normalizePins）
+  P.G.doneIds = []; P.recentIds = [];
+  const pinIds2008 = [];
+  (P.reg.era["2008_CRASH"].scheduled || []).forEach(s => { if (s.event) pinIds2008.push(s.event); });
+  (P.reg.fixed || []).forEach(s => { if (s.event && s.year === 2008) pinIds2008.push(s.event); });
+  check(pinIds2008.length > 0, "2008 年应有钉卡（scheduled/fixed 任一源）");
+  check(pinIds2008.every(id => { const e = P.evById(id); return e && (e.tierMax == null || e.tierMax >= 9); }),
+    "钉卡规范化后 tierMax 应全层通行（#33 触发荒主闸）");
+
   /* 时代压力：危机年 > 常态年；丑闻再把活跃度顶上去 */
   G.year = 2008; const pCrisis = P.pressure();
   G.year = 2025; const pCalm = P.pressure();
@@ -1495,9 +1513,8 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     check(P.prevEventOf(head) === null, "没有前情的事件不该返回上一幕");
     /* 链上的每一幕都声明了 era: 全部时代，所以这里要先把当前局面挪回一个真实时代，
        否则「不可触发」会因为时代不符而成立 —— 那是假阳性。 */
-    P.G.era = "2008_CRASH";
     P.G.tier = 3; P.G.lev = 0; P.G.doneIds = []; P.recentIds = []; P.G.flags = []; P.G.contacts = { columnist: 10 };
-    P.G.year = 2010; P.G.month = 6; P.G.doneSeq = {};
+    P.G.year = 2010; P.G.month = 6; P.G.doneSeq = {};  // #33：时代按日历解，2010 落在 2008_CRASH
     check(!P.eligible(act2), "前情没演过时，续集不该可触发");
     P.stamp("archive_get");
     P.G.month = 7;                                   // 间隔 1 个月，还没到 minMonthsAfter = 3
@@ -1512,14 +1529,13 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     check(!P.eligible(act2), "超过 maxMonthsAfter 之后续集不该再出现（窗口过期）");
     check(P.monthsSince("archive_get") === 63, "monthsSince 应算出 63 个月，实际 " + P.monthsSince("archive_get"));
     check(P.monthsSince("不存在的事件") === null, "没演过的事件 monthsSince 应返回 null");
-    P.G.era = "__T";                                 // 还原，后面的合成事件都挂在 __T 下
   }
 
   /* --- 续集加权：已解锁的续集必须明显更容易被抽到 ---
    * 这是"一条故事线能不能被玩家看见"的关键。做法是拿两个权重相同的
    * 合成事件对抽 2000 次，看续集的胜率是否接近 chainWeightMul/(chainWeightMul+1)。 */
   const mkEv = function (id, after) {
-    const e = { id: id, era: ["__T"], tierMin: 0, tierMax: 5, weight: 1, grade: "mid", category: "general", title: id, body: id };
+    const e = { id: id, tierMin: 0, tierMax: 5, weight: 1, grade: "mid", category: "general", title: id, body: id };
     if (after) e.after = after;
     return e;
   };
@@ -1565,7 +1581,6 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     /* debuff 续燃示范：sca2_family_member 靠 rereq 豁免衰减 */
     const rrEv = P.events.find(function (e) { return e.id === "sca2_family_member"; });
     check(!!rrEv && !!rrEv.rereq, "sca2_family_member 应声明 rereq（麻烦的家人：捞过一次人就会被再次捞）");
-    P.G.era = "__T";
     P.stamp("sca2_family_member");
     check(Math.abs(P.idRepeatFactor(rrEv) - b.idRepeatMul) < 1e-9, "rereq 未满足时，该卡照样吃衰减");
     P.addFlag("sca2_family_hidden");
@@ -1591,11 +1606,11 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
    *   2) 日常公务走 time.js 的 choreEligible 独立通道 —— 不经过这里的冷却闸；
    *   3) prog_* 晋升卡在 eligible 里显式豁免 —— 失败后每年重试是设计。 */
   {
-    P.G.era = "__T"; P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
+    P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
     P.G.tierSince = P.monthSeq();                   // prog_repel 挂了 minTenure:0，把在位计时摆正
     P.define("event", [
-      { id: "__repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "general", title: "t", body: "t" },
-      { id: "prog_repel", era: ["__T"], tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "career", minTenure: 0, title: "t", body: "t" }
+      { id: "__repel", tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "general", title: "t", body: "t" },
+      { id: "prog_repel", tierMin: 0, tierMax: 5, weight: 5, grade: "minor", category: "career", minTenure: 0, title: "t", body: "t" }
     ]);
     const rc = P.evById("__repel"), pc = P.evById("prog_repel");
     const _ym = P.G.year * 12 + P.G.month;               // monthSeq 快照，测完好戻
@@ -1618,7 +1633,7 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   const progGate = P.events.filter(function (e) { return e.id.indexOf("prog_") === 0; });
   check(progGate.length && progGate.every(function (e) { return e.minTenure != null; }),
     "所有晋升事件（prog_*）都应声明 minTenure —— 否则十年就能爬到顶，一局太短");
-  P.define("event", [{ id: "__tenure", era: ["__T"], tierMin: 0, tierMax: 5, weight: 1, grade: "minor", minTenure: 12, title: "t", body: "t" }]);
+  P.define("event", [{ id: "__tenure", tierMin: 0, tierMax: 5, weight: 1, grade: "minor", minTenure: 12, title: "t", body: "t" }]);
   const tv = P.events.find(function (e) { return e.id === "__tenure"; });
   P.G.tierSince = P.monthSeq();
   check(P.monthsAtTier() === 0 && !P.eligible(tv), "刚晋级时，要求在位 12 个月的事件不该可触发");

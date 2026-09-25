@@ -1336,7 +1336,8 @@ POTUS.saveToSlot = function (i, btn) {
 POTUS.saveBrief = function (raw) {
   try {
     const G = JSON.parse(raw);
-    const era = (POTUS.reg.era[G.era] || {}).name || G.era || "";
+    const eraKey = POTUS.eraAt ? (POTUS.eraAt(G.year) || G.era) : G.era;
+    const era = (POTUS.reg.era[eraKey] || {}).name || eraKey || "";
     const oTable = POTUS.reg.office || {};
     const fb = POTUS.balance().officeFallback || [];
     const oHit = oTable[(G.track || "*") + "_" + (G.tier || 0)] || oTable["*_" + (G.tier || 0)];
@@ -1456,7 +1457,7 @@ POTUS.doLoad = function (key) {
     const g = JSON.parse(s);
     if (POTUS.saveIsStale(g)) { POTUS.staleSaveDialog(full); return; }   /* v0.12 格式门禁：旧档硬拒 */
     POTUS.G = POTUS.migrate(g);
-    document.body.className = "era-" + POTUS.G.era;
+    document.body.className = "era-" + POTUS.eraAt(POTUS.G.year);
     const m = document.querySelector(".modal"); if (m) m.remove();
     POTUS.renderLoadedScreen();
     POTUS.SCREEN = "game";
@@ -1503,7 +1504,7 @@ POTUS.importSave = function () {
       try {
         const g = JSON.parse(r.result);
         if (POTUS.saveIsStale(g)) { POTUS.staleSaveDialog(null); return; }   /* 旧格式导入档：硬拒（文件不在手里，只留开新局） */
-        POTUS.G = POTUS.migrate(g); document.body.className = "era-" + POTUS.G.era; POTUS.renderLoadedScreen(); POTUS.SCREEN = "game";
+        POTUS.G = POTUS.migrate(g); document.body.className = "era-" + POTUS.eraAt(POTUS.G.year); POTUS.renderLoadedScreen(); POTUS.SCREEN = "game";
       }
       catch (e) { alert(POTUS.t("ui.core.importFailed", "导入失败：{e}", { e: e.message })); }
     };
