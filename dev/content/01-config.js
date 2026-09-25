@@ -237,7 +237,8 @@ POTUS.define("balance", {
     hpTierLean: 0.12,      /* 健康磨损随层级（比声望慢 —— 高位的人更扛得住） */
     attrLean: 0.40,        /* 主属性每偏离 50 点 ±0.4%×倍数：100 属性 ≈ +20% 收益 */
     coefMin: -8, coefMax: 8,                         /* dyn 卡系数合法区间（校验用） */
-    coefMaxFun: 150      /* money 单独放宽：大额贿金/收购/竞选款对低标尺天然上百份（只防绝对值忘除的极端） */
+    coefMaxFun: 150,     /* money 单独放宽：大额贿金/收购/竞选款对低标尺天然上百份（只防绝对值忘除的极端） */
+    repGateMax: 80       /* dyn 卡 req.rep 门槛展开后的天花板：声望 0—100 有界，门槛不许顶出可达区 */
   },
 
   midtermCycle: 2,

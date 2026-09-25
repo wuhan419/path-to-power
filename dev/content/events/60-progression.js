@@ -532,7 +532,7 @@ POTUS.define("event", [
       {
         "id": "senate",
         "text": "竞选联邦参议员（全国舞台）",
-        "req": { "rep": 4.5 },
+        "req": { "rep": 2.8 },        /* major×T7 展开 ≈ 55 声望：dyn 门槛只按量级×身位，见 scale.js 的 repGate */
         "ballot": true,
         "base": 0.45,
         "mods": [
@@ -600,7 +600,7 @@ POTUS.define("event", [
       {
         "id": "governor",
         "text": "竞选州长（地方实权）",
-        "req": { "rep": 4 },
+        "req": { "rep": 3.2 },        /* major×T7 展开 ≈ 63 声望：与参院分支（55）同阶，且低于下一级的副总统门槛（68） */
         "ballot": true,
         "base": 0.5,
         "mods": [
@@ -1924,7 +1924,7 @@ POTUS.define("event", [
       {
         "id": "accept",
         "text": "应声接受，站上这张海报的另一半",
-        "req": { "rep": 6 },
+        "req": { "rep": 3 },        /* major×T8 展开 ≈ 68 声望：旧值 6 会算出 135+，把唯一的升位选项锁死 */
         "ballot": true,
         "base": 0.5,
         "mods": [

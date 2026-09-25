@@ -50,14 +50,20 @@
     /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
        本金 = 选项 cost.fun（或入场费 req.fun）+ 投注的 stake 资金 —— 结算前由 stage.js
-       resolveChoice 写进 G.__stakeBase。v0.12 收紧旧兜底：没有本金声明时【不再】
-       按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。
+       resolveChoice 写进 G.__stakeBase；其中**真正从账上扣走的那一截**（cost + 投注，
+       不含只做资格用的 req.fun）另记在 G.__stakePaid。v0.12 收紧旧兜底：没有本金声明时
+       【不再】按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。
        #28②：倍率吃 INT —— 同一条生意，聪明人赚得多、翻车时亏得少（见 funMulIntMul）。 */
     funMul: function (v, G) {
       const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : 0;
       if (!base) { console.warn("[POTUS] funMul 没有本金声明（cost.fun / req.fun / 投注都为空），本笔收益空转"); return; }
       const k = funMulIntMul(G);
-      G.fun += Math.round(base * (v >= 0 ? v * k : v / k));
+      /* 本金在 resolveChoice 里已由 payCost 扣走，所以这里给的是【回款】：还本金 + 收益。
+         旧实现漏了"还本金"那一截（只加 base×倍率），于是每张投资卡少还一份本金 ——
+         ok(funMul 0.8) 反而净亏 12%，critfail(-1.0) 净亏 191%，与上面那句
+         “-1.0 = 本金全亏”自相矛盾。夹在 0：最多把本金亏光，不许倒欠。 */
+      const paid = (G.__stakePaid != null && G.__stakePaid > 0) ? G.__stakePaid : 0;
+      G.fun += Math.max(0, Math.round(paid + base * (v >= 0 ? v * k : v / k)));
     },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
     /* v0.9 退役：健康/精力不再是玩家可感资源。事件里残留的 hp/ap 增减一律**空操**（保留 handler 入口

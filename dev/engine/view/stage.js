@@ -406,14 +406,20 @@
       const pct = Math.round(eff.funMul * 100);
       if (pct) {
         const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
-        /* 口径说清楚：本金在选下这项时已扣，这里给的是"这一单回款到账多少"。
-           赚 80% = 投 5k 回 9k（5×1.8）；亏 60% = 投 5k 只回 2k。 */
+        /* 口径说清楚：本金在选下这项时已扣，这里给的是"这一单回款到账多少"（**含归还本金**）。
+           赚 80% = 投 5k 回 9k（5×1.8）；亏 60% = 投 5k 只回 2k。
+           金额与 effects.js 的 funMul 同一个式子（含 #28② 的 INT 修正、夹 0），
+           显示的百分数按实际到账反推，账面与结算不再两张皮。 */
         const fmtK = n => (Math.abs(n) >= 100 ? Math.round(n / 1000) : Math.round(n / 100) / 10) + "k";
         let v;
-        if (base != null && pct >= 0) {
-          v = P.t("ui.stage.funMulGain", "回款 ${v}（本金 ${b} 赚 {p}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), p: pct });
-        } else if (base != null) {
-          v = P.t("ui.stage.funMulLoss", "回款 ${v}（本金 ${b} 已亏 {l}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), l: -pct });
+        if (base != null) {
+          const k = P.funMulIntMul ? P.funMulIntMul(P.G) : 1;
+          const paid = (P.G.__stakePaid != null && P.G.__stakePaid > 0) ? P.G.__stakePaid : 0;
+          const back = Math.max(0, Math.round(paid + base * (pct >= 0 ? pct / 100 * k : pct / 100 / k)));
+          const net = Math.round((back - paid) / base * 100);
+          v = net >= 0
+            ? P.t("ui.stage.funMulGain", "回款 ${v}（本金 ${b} 赚 {p}%）", { v: fmtK(back), b: fmtK(base), p: net })
+            : P.t("ui.stage.funMulLoss", "回款 ${v}（本金 ${b} 已亏 {l}%）", { v: fmtK(back), b: fmtK(base), l: -net });
         } else {
           /* 没有本金声明（req/cost/投注全空）：引擎侧这笔会空转（effects.js），显示同样不给金额 */
           v = P.t("ui.stage.funMulPct", "{pct}%（本金）", { pct: (pct >= 0 ? "+" : "") + pct });
@@ -826,9 +832,11 @@
     P.refreshPanel();
   };
 
-  /* funMul 的本金基数（investment base）：
-     结算前写入，applyEffects 用，结算完清零。 */
-  function G_stakeBase(v) { P.G.__stakeBase = v; }
+  /* funMul 的两个本金量，结算前写入、applyEffects 与结算条共用、结算完清零：
+       __stakeBase —— 本金【参照】（cost.fun + 入场费 req.fun + 投注）：收益按它乘倍率；
+       __stakePaid —— 其中【真扣走】的那截（cost.fun + 投注，不含只当资格闸的 req.fun）：
+                     payCost 已把它从账上拿走，所以回款必须先把它还回来。 */
+  function G_stakeBase(v, paid) { P.G.__stakeBase = v; P.G.__stakePaid = paid || 0; }
 
   /* 右栏（#actbar）的两个 HTML 快捷操作 */
   function actClear() { const bar = document.getElementById("actbody"); if (bar) bar.innerHTML = ""; }
@@ -858,10 +866,12 @@
     const effFinal = P.withEventVoters
       ? P.withEventVoters(out.effects, ev, ch, out, res.tier)
       : (out.effects || {});
-    /* 投资本金基数：选项 cost + 入场费门槛 req.fun + 投注的资金 —— funMul 按它算回报（不是总余额）。
-       v0.12：req.fun 也计入（"账上要有 60 万才吃得下这单"= 60 万压进这单）；
+    /* 投资本金：收益按【参照本金】乘倍率（cost + 入场费 req.fun + 投注），
+       而 payCost 只真扣掉 cost + 投注 —— 后者单独记一份，funMul 结算时按它【归还本金】。
+       v0.12：req.fun 也计入参照（"账上要有 60 万才吃得下这单"= 60 万的生意），
        三者全空的 funMul 在 effects.js 空转告警，绝不再拿总余额乘倍数。 */
-    G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (ch.req && ch.req.fun ? ch.req.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
+    const stPaid = (ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0);
+    G_stakeBase(stPaid + (ch.req && ch.req.fun ? ch.req.fun : 0), stPaid);
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、
@@ -870,7 +880,6 @@
     /* #37②：可重复卡的属性只发第一次（账面与实际同步，故在显示与结算之前过滤） */
     const effApply = P.filterOnceAttr(effFinal, ev.id);
     P.applyEffects(effApply);
-    P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
     /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
     const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
     const div = document.createElement("div");
@@ -886,6 +895,11 @@
       gb.innerHTML = gainHTML;
       mainInsert(gb);
     }
+    /* 结算条要按本金算出"回款 $X"，所以清本金必须排在它之后 ——
+       原先清在 applyEffects 与渲染之间，渲染时 __stakeBase 已经是 0，
+       "回款 $X"那一档分支永远走不到（只剩"80%（本金）"这种没金额的说法）。
+       用完即清的语义不变：这里仍是本次结算的最后一站。 */
+    G_stakeBase(0, 0);
     const eff = effFinal || {};
     const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
     if (newScandal || out.news) {

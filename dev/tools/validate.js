@@ -844,28 +844,36 @@ console.log("\n== 投注级别价（单价随身位·不随钱包）==");
   check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
     "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
 
-  /* ⑨ #28② 投机收益吃 INT：同一条生意，聪明人赚得多、翻车亏得少 */
+  /* ⑨ 投资结算：回款【含归还本金】，倍率吃 INT（#28②：聪明人赚得多、翻车亏得少） */
   {
     const lev = P.balance().funMulIntLev;
     check(lev > 0, "funMulIntLev 应默认开启（#28②），实际 " + lev);
-    P.G.__stakeBase = 100000;
-    const gain = function (int) {
-      P.G.fun = 0; P.G.attr.INT = int;
-      P.applyEffects({ funMul: 2 });
-      return P.G.fun;
+    /* 复刻 resolveChoice 的账，返回这一手的【净增减】——就是玩家在结算条上看到的那个数：
+       先按 payCost 扣掉真扣得走的那截本金（cost.fun + 投注），再把参照本金
+       （cost + 只当资格闸的 req.fun + 投注）交给 funMul 结算。 */
+    const net = function (int, v, base, paid) {
+      P.G.attr.INT = int; P.G.fun = 1000000 - paid;
+      P.G.__stakeBase = base; P.G.__stakePaid = paid;
+      P.applyEffects({ funMul: v });
+      return P.G.fun - 1000000;                 // 相对"点选项之前"的净增减
     };
-    const dumb = gain(30), mid = gain(50), smart = gain(80);
+    const dumb = net(30, 2, 1e5, 1e5), mid = net(50, 2, 1e5, 1e5), smart = net(80, 2, 1e5, 1e5);
     check(dumb < mid && mid < smart, "同一笔本金，收益应随 INT 递增（" + dumb + " / " + mid + " / " + smart + "）");
-    check(mid === 200000, "INT=50 时倍率不缩放，$100k × 2.0 = $200k，实际 " + mid);
+    check(mid === 200000, "INT=50 倍率不缩放：投 $100k 赚 200% = 净 +$200k（回款 $300k），实际 " + mid);
     check(smart === Math.round(100000 * 2 * (1 + 0.3 * lev)), "INT=80 的收益应正好按公式放大，实际 " + smart);
-    const loss = function (int) {
-      P.G.fun = 1000000; P.G.attr.INT = int;
-      P.applyEffects({ funMul: -1 });
-      return 1000000 - P.G.fun;
-    };
-    check(loss(80) < loss(30), "翻车时高 INT 亏得更少（" + loss(30) + " vs " + loss(80) + "）");
+    /* 守卫（本 bug 的回归闸）：只要倍率非负，结算就【绝不许净亏】——本金必须先还回来。
+       旧实现只加利润不还本金，于是 ok 档 funMul 0.8 净亏 12%：玩家看到"成功"，钱却变少。 */
+    [0.2, 0.6, 0.8, 1.5, 2].forEach(function (v) {
+      check(net(50, v, 1e5, 1e5) === Math.round(1e5 * v), "funMul " + v + " 应净赚本金×" + v + "，实际 " + net(50, v, 1e5, 1e5));
+    });
+    /* 亏到底 = 正好把本金亏光（内容写 funMul:-1.0 的语义就是"本金全亏"），不许倒欠 */
+    check(net(50, -1, 1e5, 1e5) === -100000, "-1.0 应正好亏光本金，实际 " + net(50, -1, 1e5, 1e5));
+    check(net(30, -1, 1e5, 1e5) === -100000, "低 INT 翻车也不许多亏本金以外的钱，实际 " + net(30, -1, 1e5, 1e5));
+    check(net(80, -1, 1e5, 1e5) > -100000, "翻车时高 INT 亏得更少（" + net(30, -1, 1e5, 1e5) + " vs " + net(80, -1, 1e5, 1e5) + "）");
+    /* 只当资格闸的 req.fun 计进参照本金（生意按它开价），但没从账上扣走，所以不许倒扣 */
+    check(net(50, 0.5, 6e5, 0) === 300000, "req.fun 型本金按参照额算收益、不扣款，实际 " + net(50, 0.5, 6e5, 0));
     P.G.attr.INT = 50;
-    P.G.fun = 0; P.G.__stakeBase = 0;
+    P.G.fun = 0; P.G.__stakeBase = 0; P.G.__stakePaid = 0;
     P.applyEffects({ funMul: 2 });
     check(P.G.fun === 0, "没有本金声明时 funMul 不许凭空生钱");
   }
@@ -1122,6 +1130,35 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
     check(run.req && run.req.voterShare != null, "总统资格改由基本盘把关（req.voterShare），实际 " + JSON.stringify(run.req));
     check(run.mods && run.mods.some(m => m.src === "res" && m.key === "fun"), "原来的钱门槛应转成成功加成 mod");
     G.campaign = null;
+  }
+
+  /* ④b 声望门槛必须够得着：dyn 卡的 req.rep 会按标尺展开，而声望是 0—100 的有界量
+     （effects.js 硬夹在 [0,100]），门槛展开过头等于把这张卡唯一的升位选项永久锁死 ——
+     真实存档里 prog_vp 的旧系数 6 在 T8 展成 148，玩家只能眼看着"需要声望 ≥ 148"干瞪眼。
+     现在门槛走 ruler.repGate（只按量级×身位，不吃 attrF）并夹在 balance.econ.repGateMax 下。 */
+  {
+    const REP_CAP = 100;
+    const gateMax = (P.balance().econ || {}).repGateMax;
+    check(gateMax > 0 && gateMax <= REP_CAP, "repGateMax 必须落在 (0, 100] 的可达区内，实际 " + gateMax);
+    const snapTier = P.G.tier, snapAttr = Object.assign({}, P.G.attr);
+    const over = [], ladder = [];
+    for (const ev of P.events) {
+      if (!ev.dyn) continue;
+      P.G.tier = ev.tierMax != null ? ev.tierMax : (ev.tierMin != null ? ev.tierMin : snapTier);
+      ["CHA", "INT", "CUN"].forEach(function (a) { P.G.attr[a] = REP_CAP; });   // 最坏情况：门槛被顶到最高的那种人物
+      const r = P.realize(ev);
+      for (const ch of r.choices || []) {
+        const g = ch.req && ch.req.rep;
+        if (typeof g !== "number") continue;
+        if (String(ev.id).indexOf("prog_") === 0) ladder.push(String(ch.id) + "=" + g);
+        if (g > REP_CAP) over.push(ev.id + "/" + ch.id + "=" + g);
+      }
+    }
+    P.G.tier = snapTier; P.G.attr = snapAttr;
+    check(!over.length, "dyn 卡的声望门槛展开后不得顶破声望上限（该选项会永久锁死）：" + over.join(", "));
+    check(!over.length && ladder.every(s => Number(s.split("=")[1]) <= gateMax),
+      "晋升脊柱的声望门槛应全部落在 repGateMax 之内");
+    console.log("  晋升门槛 ladder（展开后·三围顶格）：" + ladder.join("  "));
   }
 
   /* ⑤ 判负只看选情：任何竞选链都不许再拿金库当死刑 */
