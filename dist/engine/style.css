@@ -254,11 +254,12 @@
   /* 仇家 chip：红底 + 名单感（谁记恨你、攒了多少） */
   .qchip.wrath{background:#f6e2df;border-color:#c49a9a}
   .qchip.wrath b{color:#9c2b2b}
-  /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑） */
-  .sb.tier-0,.idcard.tier-0,.saveline.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1,.saveline.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2,.saveline.tier-2{--tier:#3a4a63}
-  .sb.tier-3,.idcard.tier-3,.saveline.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4,.saveline.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5,.saveline.tier-5{--tier:#caa53a}
-  .sb.tier-6,.idcard.tier-6,.saveline.tier-6{--tier:#b8862f}.sb.tier-7,.idcard.tier-7,.saveline.tier-7{--tier:#9a2f2f}.sb.tier-8,.idcard.tier-8,.saveline.tier-8{--tier:#6a1f6b}
-  .sb.tier-9,.idcard.tier-9,.saveline.tier-9{--tier:#14142b}
+  /* 等级 1–10 色阶：职位徽标底色 + 状态区左描边随层级变化（基层灰 → 顶点金紫→王座黑）。
+   * .ffl = 升职庆典弹窗的阶梯格（view/fanfare.js），复用同一份色阶，不另开一套。 */
+  .sb.tier-0,.idcard.tier-0,.saveline.tier-0,.ffl.tier-0{--tier:#6b6354}.sb.tier-1,.idcard.tier-1,.saveline.tier-1,.ffl.tier-1{--tier:#8a5a2a}.sb.tier-2,.idcard.tier-2,.saveline.tier-2,.ffl.tier-2{--tier:#3a4a63}
+  .sb.tier-3,.idcard.tier-3,.saveline.tier-3,.ffl.tier-3{--tier:#5b3a63}.sb.tier-4,.idcard.tier-4,.saveline.tier-4,.ffl.tier-4{--tier:#1f6b3a}.sb.tier-5,.idcard.tier-5,.saveline.tier-5,.ffl.tier-5{--tier:#caa53a}
+  .sb.tier-6,.idcard.tier-6,.saveline.tier-6,.ffl.tier-6{--tier:#b8862f}.sb.tier-7,.idcard.tier-7,.saveline.tier-7,.ffl.tier-7{--tier:#9a2f2f}.sb.tier-8,.idcard.tier-8,.saveline.tier-8,.ffl.tier-8{--tier:#6a1f6b}
+  .sb.tier-9,.idcard.tier-9,.saveline.tier-9,.ffl.tier-9{--tier:#14142b}
   .sb .jobbadge{background:var(--tier,var(--accent))}
   .sb.tier-5 .jobbadge{color:#3a2f00}.sb.tier-5 .jobbadge b{color:#241c00}
   /* stats panel */
@@ -382,6 +383,69 @@
     display:flex;flex-direction:column;gap:5px;padding-right:4px}
   .logmodal .logline{padding:5px 9px;background:#fbf7ec;border:1px solid var(--line);
     border-left:3px solid var(--muted);border-radius:3px;color:var(--ink)}
+  /* ================= 升职庆典弹窗（engine/view/fanfare.js） =================
+   * 层级 +1 时盖一层典礼窗。全部效果用 CSS 画（conic-gradient 光束 + 文字渐变扫光），
+   * 不引入任何图片/字体资源 —— 零依赖是这个项目的产品红线。
+   * ⚠ 本块留在竖屏专区（文件末尾）之前：竖屏只在最后覆盖字号与阶梯条宽度。 */
+  .modal.fanfare{background:rgba(14,11,4,.66);z-index:30}
+  .fanfare .box{position:relative;overflow:hidden;max-width:560px;text-align:center;padding:20px 18px 18px;
+    background:linear-gradient(180deg,#fbf6e8,var(--paper2));
+    box-shadow:0 0 0 1px rgba(202,165,58,.5),0 18px 48px rgba(0,0,0,.45);
+    animation:ffIn .45s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes ffIn{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+  .fanfare .box>*{position:relative}
+  /* 顶部放射光束：金色扇形缓慢旋转，被 mask 裁成从标题后方透出来的光 */
+  .fanfare .ff-rays{position:absolute;left:-25%;right:-25%;top:-60%;height:180%;pointer-events:none;opacity:.55;
+    background:conic-gradient(from 0deg,rgba(202,165,58,.30) 0 5deg,transparent 5deg 18deg);
+    -webkit-mask-image:radial-gradient(circle at 50% 22%,#000 0,transparent 60%);
+    mask-image:radial-gradient(circle at 50% 22%,#000 0,transparent 60%);
+    animation:ffSpin 30s linear infinite}
+  @keyframes ffSpin{to{transform:rotate(360deg)}}
+  .fanfare .ff-kicker{font-size:11.5px;letter-spacing:5px;color:var(--muted)}
+  /* 十级台阶：第 1 级在左、顶点在右；正站上的那格抬高并发光，被跳过的格画斜纹（资历债） */
+  .fanfare .ff-ladder{display:flex;justify-content:center;align-items:flex-end;gap:3px;margin:14px 0 12px}
+  .fanfare .ff-ladder .step{flex:0 0 26px;height:13px;border:1px solid var(--line);border-radius:2px 2px 0 0;
+    background:#ded5c0;display:flex;align-items:center;justify-content:center;font-style:normal}
+  .fanfare .ff-ladder .step b{font-size:10px;font-weight:700;color:#8b8271}
+  .fanfare .ff-ladder .step.past{background:#c8bda2}
+  .fanfare .ff-ladder .step.skip{background:repeating-linear-gradient(45deg,#dcc99b,#dcc99b 3px,#b3a173 3px,#b3a173 6px)}
+  .fanfare .ff-ladder .step.now{height:34px;background:var(--tier,#caa53a);
+    box-shadow:0 0 12px rgba(202,165,58,.8);animation:ffPop .55s .12s both}
+  .fanfare .ff-ladder .step.now b{font-size:13px;color:#fff}
+  @keyframes ffPop{0%{opacity:0;transform:translateY(10px) scale(.6)}
+    60%{opacity:1;transform:translateY(-4px) scale(1.12)}100%{transform:none}}
+  /* 新头衔：金字 + 缓慢呼吸的扫光 */
+  .fanfare .ff-name{font-size:26px;font-weight:700;line-height:1.3;letter-spacing:1px;
+    background:linear-gradient(92deg,#8a6a12,#e8cd72 42%,#8a6a12);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:ffShine 3.2s ease-in-out infinite}
+  @keyframes ffShine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+  .fanfare .ff-was{margin-top:3px;font-size:12.5px;color:var(--muted)}
+  .fanfare .ff-skip{margin:9px auto 0;max-width:430px;font-size:12px;line-height:1.5;color:#7a5a00;
+    background:#f5eac9;border:1px solid #d8c48a;border-left:3px solid #b8862f;padding:5px 9px;text-align:left}
+  .fanfare .ff-rows{margin:15px auto 8px;max-width:420px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+  .fanfare .ff-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:5px;border-bottom:1px dotted var(--rule)}
+  .fanfare .ff-row .ff-k{color:var(--muted);letter-spacing:1px}
+  .fanfare .ff-row .ff-v{text-align:right}
+  .fanfare .ff-row .ff-v s{margin-right:5px;font-size:12px;color:#9a9384}
+  .fanfare .ff-row .ff-v em{font-style:normal;font-weight:700;color:var(--ink)}
+  .fanfare .ff-row .ff-v u{text-decoration:none;margin-left:5px;font-size:11.5px;color:var(--good)}
+  /* 注解（倍率 / 死忠被稀释）不是好消息，别涂绿 */
+  .fanfare .ff-row .ff-v u.note{color:#9a9384;font-style:italic}
+  .fanfare .ff-next{margin:9px 0 0;font-size:12.5px;color:var(--accent)}
+  .fanfare .ff-next.max{font-size:13px;font-weight:700;letter-spacing:1px}
+  .fanfare .ff-stat{margin:9px 0 14px;font-size:11.5px;letter-spacing:.5px;color:var(--muted)}
+  .fanfare .ff-go{margin-top:4px;padding:8px 28px;font-size:15px;letter-spacing:3px}
+  @media(max-width:600px){
+    .fanfare .ff-name{font-size:21px}
+    .fanfare .ff-ladder .step{flex-basis:19px}
+    .fanfare .ff-ladder .step.now{height:26px}
+    .fanfare .ff-rows{font-size:12px}
+  }
+  /* 玩家要求的是仪式感，不是晕动感：系统级减弱动效时只留静态金框 */
+  @media(prefers-reduced-motion:reduce){
+    .fanfare .box,.fanfare .ff-rays,.fanfare .ff-name,.fanfare .ff-ladder .step.now{animation:none}
+  }
   .hidden{display:none}
   /* 资源代价标签（选项内） */
   .choice .costtag{display:inline-block;font-size:11.5px;color:#7a5a00;background:#f3e6c4;

@@ -181,6 +181,9 @@
       P.ending(why);
       return;
     }
+    /* 当选发生在月度推进里（campaignTick 于 time.js 收官），后面没有 resolveChoice 也没有 afterEvent
+       可等 —— 不在这儿 flush，计票夜的庆典就要压到下一个事件结算时才弹。排在终局判定之后。 */
+    if (P.popFanfare) P.popFanfare();
     if (run.length) {
       const nextCall = ok ? "POTUS.nextSlot()" : "POTUS.endYear()";
       /* #34：年终结算屏下线后，年末按钮直接写「进入下一年」—— endYear 结完账自己翻年 */
@@ -905,6 +908,9 @@
     P.refreshPanel();
     if (P.flashStatusDiffs) P.flashStatusDiffs(prevVals);   // 状态栏标出这一手改变了什么
     P.autosave();
+    /* 升职了就在结果页上盖一层典礼窗（口径见 view/fanfare.js）：结算叙事照常渲染在底层，
+       玩家点「就任 →」关掉后回到这一页继续读收益和头条 —— 庆祝排在读结果之前，但不吃掉结果。 */
+    if (P.popFanfare) P.popFanfare();
   };
 
   P.afterEvent = function () {
@@ -924,6 +930,9 @@
     /* v0.11 P1：入主白宫不再是终局。达成最高层级时只记「曾任总统」状态，游戏继续打到 2025。
        完整任期/连任/表现分机制见 P2；此处先让「总统成为一种可继续任职的状态」。 */
     if (G.tier >= b.tierMax && !P.hasFlag("president_done")) { P.addFlag("president_done"); }
+    /* 兜底 flush：覆盖既不走 resolveChoice、也不走 nextMonth 的层级变化（开局卡效果、主线 onEnd）。
+       排在终局判定之后 —— 人已经死了就不该再放礼花。 */
+    if (P.popFanfare) P.popFanfare();
     /* 软 BE「下野」：fall 效果已把层级/声望/标记处理完。这里单独出一页交代卡，
        玩家点「继续」才推进 —— 不然 nextSlot 会立刻把这一页冲掉。游戏继续，东山再起留给后面。 */
     if (G.fallenThisTurn) {

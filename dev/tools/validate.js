@@ -3811,6 +3811,93 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     console.log("  按比例资金档（funMul）" + mulCount + " 处 ｜ 高投入选项经济断言通过");
   }
 
+  /* ================= 升职庆典弹窗（tier up fanfare） =================
+   * 弹窗本体是 view/fanfare.js 的纯函数 fanfareHTML + 一层 DOM 挂载。
+   * 这里的口径：入队判定（谁配弹、谁不该弹）+ HTML 结构 + 无 DOM 环境不炸。
+   * 真点击流程交给 smoke-ui.js（jsdom）。 */
+  {
+    const G = P.G;
+    const bak = { tier: G.tier, tierSince: G.tierSince, track: G.track, rep: G.rep, voters: G.voters, promoteCount: G.promoteCount, fanfareQ: G.fanfareQ, peakTier: G.peakTier };
+    const tMax = P.balance().tierMax;
+
+    check(typeof P.salaryAt === "function" && typeof P.electorateAt === "function", "core.js 必须提供 salaryAt / electorateAt（弹窗按层级查价码）");
+    check(P.salaryAt(G.tier) === P.officeSalary(), "salaryAt(当前级) 必须与 officeSalary() 同值 —— 口径不许分叉");
+    check(P.electorateAt(G.tier) === P.electorateSize(), "electorateAt(当前级) 必须与 electorateSize() 同值");
+    check(P.salaryAt(0) < P.salaryAt(tMax), "月薪必须随层级严格上台阶（庆典里那一行才有得看）");
+    /* 每一级都要有可读头衔：弹窗的大标题直接查 reg.office，缺了就是裸的「等级 N」 */
+    for (let t = 0; t <= tMax; t++) check(!!P.tierName(t), "tier " + t + " 缺可读头衔（庆典标题会露出内部代号）");
+
+    /* ---- 入队判定 ---- */
+    G.track = "electoral"; G.rep = 50; G.fanfareQ = []; G.promoteCount = 0; G.peakTier = 0;
+    G.tier = 2; G.tierSince = P.monthSeq() - 99;                 // 熬够资历，闸不拦
+    P.applyEffects({ tier: 1 });
+    check(G.tier === 3, "基准用例：熬够资历的 tier:+1 应升一级");
+    check(G.fanfareQ.length === 1, "升一级必须入队一条庆典");
+    const q1 = G.fanfareQ[0] || {};
+    check(q1.from === 2 && q1.to === 3 && q1.n === 1, "载荷字段：from/to/第几次晋升 要对得上（实得 " + JSON.stringify(q1) + "）");
+    check(q1.size1 > q1.size0 && q1.size0 === P.electorateAt(2), "选区规模必须是「旧 → 新」两个不同值");
+    check(q1.die1 > 0, "升完这级要真给死忠选民（对比行不能是 0 → 0）");
+    check(G.promoteCount === 1, "promoteCount 是持久账本，必须跟着 +1");
+
+    /* 资历闸拦住的晋升不配庆典 —— handler 在入队之前就 return 了 */
+    G.tierSince = P.monthSeq();                                   // 刚上任，0 个月
+    const rep0 = G.rep, qLen0 = G.fanfareQ.length;
+    P.applyEffects({ tier: 1 });
+    check(G.tier === 3, "资历闸必须拦住（在位 0 个月就再升一级 = 台阶没意义）");
+    check(G.fanfareQ.length === qLen0 && G.rep > rep0, "被闸拦住的晋升不许入队，只折成声望");
+
+    /* 跳级：+3 只算一件事，但窗子里要标出资历债 */
+    G.tierSince = P.monthSeq() - 99;
+    G.fanfareQ = [];
+    P.applyEffects({ tier: 3 });
+    check(G.tier === 6, "tier:+3 视为破格直提，绕过资历闸");
+    check(G.fanfareQ.length === 1 && G.fanfareQ[0].to - G.fanfareQ[0].from === 3, "跳级只入队一条（一次庆典，不是三次）");
+    /* 起点（3 级）记 served，被跳过的 4、5 两级留白 —— 这就是「资历债」的账面 */
+    check(!!(G.counters || {})["served_3"], "晋升的起点级必须记入 served（你确实坐过这一级）");
+    check(!((G.counters || {})["served_4"]) && !((G.counters || {})["served_5"]), "跳级时被跳过的中间级不该记资历（日后德不配位事件据此发难）");
+
+    /* 下野 / 往下摔不弹反面窗（产品口径：只庆祝往上走） */
+    const qLen1 = G.fanfareQ.length;
+    P.applyEffects({ fall: 1 });
+    check(G.tier < 6, "fall 必须真降级（基准用例的前提）");
+    check(G.fanfareQ.length === qLen1, "降级/下野不入庆典队列");
+
+    /* ---- HTML 结构 ---- */
+    const htmlMid = P.fanfareHTML({ from: 2, to: 3, n: 1, size0: P.electorateAt(2), size1: P.electorateAt(3), die0: 100, die1: 400 });
+    check(htmlMid.indexOf("ff-ladder") >= 0, "庆典窗必须有阶梯条");
+    check((htmlMid.match(/class="step ffl/g) || []).length === tMax + 1, "阶梯条必须画满 10 格（" + ((htmlMid.match(/class="step ffl/g) || []).length) + "）");
+    check(htmlMid.indexOf("step ffl now") >= 0, "正站上的那一格要标 now");
+    check((htmlMid.match(/ past/g) || []).length === 3, "走过的 3 格（含起点）要标 past");
+    check(htmlMid.indexOf("ff-name") >= 0 && htmlMid.indexOf(P.tierName(3)) >= 0, "大标题就是新头衔");
+    check((htmlMid.match(/class="ff-row"/g) || []).length === 3, "对比行固定三行：月薪 / 选区 / 死忠");
+    check(htmlMid.indexOf("ff-next") >= 0 && htmlMid.indexOf("atMax") < 0, "非顶点要预告下一级");
+    check(htmlMid.indexOf("ff-go") >= 0, "必须有「就任 →」按钮（唯一出口）");
+    const htmlSkip = P.fanfareHTML({ from: 3, to: 6, n: 2, size0: P.electorateAt(3), size1: P.electorateAt(6), die0: 100, die1: 400 });
+    check(htmlSkip.indexOf("ff-skip") >= 0 && htmlSkip.indexOf("skip") >= 0, "跳级要在窗子里说明资历债");
+    const htmlTop = P.fanfareHTML({ from: 8, to: tMax, n: 9, size0: P.electorateAt(8), size1: P.electorateAt(tMax), die0: 100, die1: 400 });
+    check(htmlTop.indexOf("ff-next max") >= 0 && htmlTop.indexOf("宣誓就职") >= 0, "顶点那一窗换专属措辞与按钮");
+
+    /* ---- 无真 DOM 的环境（本脚本的 document 是桩）：只清队列，不抛 ---- */
+    G.fanfareQ = [{ from: 0, to: 1, n: 1, size0: 0, size1: 1, die0: 0, die1: 0 }];
+    let threw = null;
+    try { check(P.popFanfare() === false, "桩 DOM 下不该声称弹窗成功"); } catch (e) { threw = e; }
+    check(!threw, "popFanfare 在缺 appendChild 的 DOM 桩上必须安静跳过：" + (threw && threw.message));
+    check(G.fanfareQ.length === 0, "跳过也要清队列 —— 残留会在下一次开屏凭空顶出窗子");
+
+    /* ---- 旧档兼容：字段全缺也不炸（additive，不升 SAVE_FORMAT） ---- */
+    delete G.fanfareQ; delete G.promoteCount;
+    G.tier = 4; G.tierSince = P.monthSeq() - 99;
+    P.applyEffects({ tier: 1 });
+    check(Array.isArray(G.fanfareQ) && G.fanfareQ.length === 1, "没有 fanfareQ 字段的旧状态要就地建队");
+    const mg = P.migrate(JSON.parse(JSON.stringify(G)));
+    check(Array.isArray(mg.fanfareQ) && mg.fanfareQ.length === 0, "migrate 必须清空庆典队列（它是 UI 交接件，不是账本）");
+    check(mg.promoteCount >= 1, "migrate 要保住 promoteCount 账本");
+
+    G.tier = bak.tier; G.tierSince = bak.tierSince; G.track = bak.track; G.rep = bak.rep;
+    G.voters = bak.voters; G.promoteCount = bak.promoteCount; G.fanfareQ = bak.fanfareQ; G.peakTier = bak.peakTier;
+    console.log("  升职庆典：入队判定（升 / 闸拦 / 跳级 / 下野）｜ 窗子结构（10 格阶梯 + 三行对比 + 下一级 + 就任按钮）｜ 桩 DOM 跳过 ｜ 旧档字段缺失 全通过");
+  }
+
   /* --- 选项说明（note）：可选字段，写了必须是字符串 --- */
   const badNote = [];
   P.events.forEach(function (ev) {

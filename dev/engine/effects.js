@@ -91,6 +91,9 @@
       /* 层级一变就重置"在位时长"，晋升台阶的门槛（ev.minTenure）靠它计量；
          同时重算选民池——升位=选区扩大，旧地盘的人只能带过来一小部分（跳级带得更少） */
       if (G.tier !== before) {
+        /* 升职庆典的「旧那一栏」必须在换选区之前拍：rescaleVoters 会把死忠人数就地改写，
+           晚一拍就变成新旧两栏同一个数（弹窗的对比也就没有意义了）。 */
+        const die0 = (P.voterPools() || {}).diehard || 0;
         G.tierSince = P.monthSeq();
         if (P.rescaleVoters) P.rescaleVoters(before, G.tier);
         if (G.tier > before && P.applyVoters) {
@@ -100,6 +103,20 @@
           const warm = Math.round(diehard * 2.5);
           const oppose = Math.round(diehard * 1.5);
           P.applyVoters({ diehard: diehard, warm: warm, oppose: oppose });
+        }
+        /* 只有往上走才配庆典：闸拦住的（下面提前 return 了）、fall/弹劾往下摔的都不进这条队列。
+           队列而非单值：极少数一手连升两级也能各弹一次，不漏仪式感。UI 侧的 flush 点见 view/fanfare.js。 */
+        if (G.tier > before) {
+          G.promoteCount = (G.promoteCount || 0) + 1;
+          (G.fanfareQ = G.fanfareQ || []).push({
+            from: before, to: G.tier, seq: P.monthSeq(), n: G.promoteCount,
+            size0: P.electorateAt ? P.electorateAt(before) : 0,
+            size1: P.electorateAt ? P.electorateAt(G.tier) : 0,
+            die0: die0, die1: (P.voterPools() || {}).diehard || 0
+          });
+          /* 日志记在引擎侧而不是弹窗里：窗子可以被跳过（无 DOM 的模拟），这本账不能丢 */
+          if (P.pushLog) P.pushLog(P.t("ui.effects.promoted", "★ 晋升：{from} → {to}（等级 {n}）",
+            { from: P.tierName(before), to: P.tierName(G.tier), n: G.tier + 1 }));
         }
         /* 胜利线里程碑：首次抵达 demo 目标级（默认等级 7 / 联邦众议员）记一笔高光，不结束游戏 */
         if (b.victoryTier != null && G.tier > before && G.tier >= b.victoryTier && before < b.victoryTier && P.pushLog) {

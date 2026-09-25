@@ -596,6 +596,58 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!w.document.querySelector('.kicker-band button[data-lang="en"]'),
     "事件屏（事件卡渲染期间）顶栏中/EN 切换仍可见");
 
+  /* ---------- 升职庆典：层级 +1 就在结果页上盖一层典礼窗 ---------- */
+  console.log("\n== 升职庆典弹窗（view/fanfare.js） ==");
+  P.G.tier = 2; P.G.rep = 50; P.G.flags = []; P.G.tierSince = P.monthSeq() - 99;
+  P.G.fanfareQ = []; P.G.promoteCount = 0;
+  /* 真走一遍结算：验证「结果一出立刻自动弹」这个口径挂在 resolveChoice 尾部 */
+  P.resolveChoice(
+    { id: "smoke_fanfare", title: "补选提名", grade: "major", category: "career", choices: [] },
+    { id: "go", text: "接受提名", outcomes: { ok: { body: "你第一次有了自己的头衔。", effects: { tier: 1 } } } },
+    null);
+  check(P.G.tier === 3, "结算用例：层级 +1 生效");
+  check(!!w.document.querySelector(".result"), "结果页照常渲染在底层（庆祝不吃掉叙事）");
+  const ff = w.document.querySelector(".modal.fanfare");
+  check(!!ff, "升职当场盖出庆典窗（.modal.fanfare）");
+  check(P.G.fanfareQ.length === 0, "弹窗即出队，不留残留");
+  if (ff) {
+    check(ff.querySelectorAll(".ff-ladder .step").length === P.balance().tierMax + 1, "阶梯条画满 10 格");
+    check(!!ff.querySelector(".step.now") && !!ff.querySelector(".step.past"), "正站上的格高亮、走过的格留色");
+    const nmTxt = (ff.querySelector(".ff-name") || {}).textContent || "";
+    check(nmTxt.length > 0 && nmTxt.indexOf("等级") < 0, "大标题是真头衔而不是「等级 N」：" + nmTxt);
+    check(ff.querySelectorAll(".ff-row").length === 3, "三行新旧对比（月薪 / 选区 / 死忠）");
+    check((ff.querySelector(".ff-rows") || {}).textContent && /\$/.test(ff.querySelector(".ff-rows").textContent), "月薪行给了金额");
+    check((ff.textContent || "").indexOf("下一级") >= 0, "非顶点要预告下一级");
+    /* 唯一出口：点背景不关、不自动消失 */
+    ff.dispatchEvent(new w.MouseEvent("click", { bubbles: true }));
+    await sleep(1200);
+    check(!!w.document.querySelector(".modal.fanfare"), "点背景与等一段时间都不关闭（仪式没有逃生口）");
+    ff.querySelector(".ff-go").click();
+    check(!w.document.querySelector(".modal.fanfare"), "点「就任 →」才关窗");
+  }
+  /* 不经事件结算的晋升（开局卡 / 主线 onEnd）由 afterEvent 兜底 flush */
+  P.G.fanfareQ = [{ from: 3, to: 4, n: 2, size0: P.electorateAt(3), size1: P.electorateAt(4), die0: 300, die1: 900 }];
+  P.G.hp = 100; P.G.pendingHardEnd = null;
+  P.afterEvent();
+  const ff2 = w.document.querySelector(".modal.fanfare");
+  check(!!ff2, "afterEvent 兜底把漏网的晋升也弹出（不吞掉庆典）");
+  if (ff2) {
+    check((ff2.textContent || "").indexOf("第 2 次") >= 0, "生涯统计行报出本局第几次晋升");
+    ff2.querySelector(".ff-go").click();
+  }
+  /* 当选在月度推进里收官（campaignTick），后面没有结算页可等 → nextMonth 必须当场弹 */
+  P.G.fanfareQ = [{ from: 4, to: 5, n: 3, size0: P.electorateAt(4), size1: P.electorateAt(5), die0: 900, die1: 1500 }];
+  P.G.pendingHardEnd = null;
+  P.nextMonth();
+  const ff3 = w.document.querySelector(".modal.fanfare");
+  check(!!ff3, "nextMonth 把当选的庆典当场弹出（不压到下一个事件）");
+  if (ff3) ff3.querySelector(".ff-go").click();
+  /* 下野不配庆典：往下摔只走原来的交代页 */
+  P.G.fanfareQ = []; P.G.fallenShieldUntil = 0; P.G.fallenThisTurn = false;
+  P.applyEffects({ fall: 1 });
+  check(P.G.fanfareQ.length === 0, "降级/下野不入庆典队列");
+  P.SCREEN = "game";
+
   /* ---------- 下野（软 BE）：afterEvent 补交代，游戏继续 ---------- */
   console.log("\n== 下野（软 BE）与硬结局 ==");
   P.G.tier = 3; P.G.rep = 60; P.G.flags = []; P.G.fallenShieldUntil = 0; P.G.fallenThisTurn = false;
