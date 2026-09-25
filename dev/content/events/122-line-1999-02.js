@@ -89,7 +89,7 @@ POTUS.define("event", [
    * 1999-05 · 北约轰炸南联盟与误炸中国使馆 —— 78 天与一枚「错误」的弹
    * ==================================================================== */
   {
-    id: "ln99_balkans", grade: "major", category: "foreign",
+    id: "ln99_balkans", photo: "era-1999.jpg", grade: "major", category: "foreign",
     valence: "risk", dyn: true,
     minYear: 1999, maxYear: 1999, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "cable", "print", "radio"], month: 5,
@@ -299,7 +299,7 @@ POTUS.define("event", [
    * 2000-11 · 大选计票僵局 —— 几百张票悬着一顶王冠
    * ==================================================================== */
   {
-    id: "ln00_hang", grade: "major", category: "political",
+    id: "ln00_hang", photo: "era-2000.jpg", grade: "major", category: "political",
     valence: "risk", dyn: true,
     minYear: 2000, maxYear: 2000, scoped: true, tierRaw: true, tierMin: 0, tierMax: 6, weight: 14, unique: true,
     medium: ["tv", "cable", "print", "internet", "radio"], month: 11,

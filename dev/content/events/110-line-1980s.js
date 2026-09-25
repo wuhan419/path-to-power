@@ -224,7 +224,7 @@ POTUS.define("event", [
    * 1985-09 · 广场协议 —— 美元一夜转向（金融/贸易，中高层）
    * ==================================================================== */
   {
-    id: "rg85_plaza", grade: "mid", category: "finance",
+    id: "rg85_plaza", photo: "era-1985.jpg", grade: "mid", category: "finance",
     valence: "risk", dyn: true,
     minYear: 1985, maxYear: 1985, scoped: true, tierRaw: true, tierMin: 2, tierMax: 6, weight: 11, unique: true,
     medium: ["print", "tv"], month: 9,
@@ -1186,7 +1186,7 @@ POTUS.define("event", [
    * 1987-06 · 推倒这堵墙 —— 勃兰登门前的一句喊话（冷战高点）
    * ==================================================================== */
   {
-    id: "rg87_wall", grade: "major", category: "foreign",
+    id: "rg87_wall", photo: "era-1987.jpg", grade: "major", category: "foreign",
     valence: "risk", dyn: true,
     minYear: 1987, maxYear: 1987, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 13, unique: true,
     medium: ["tv", "radio", "print"], month: 6,

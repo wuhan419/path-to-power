@@ -2151,6 +2151,13 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.stateName(states[0]) && P.stateName(states[0]) !== states[0], "州应有人名（name）");
 
   /* --- 初始资源平衡（v0.5.1）：基础盘是穷小子，出身只往上加，任何组合不得开局负债/负声望 --- */
+  /* #34：confirmCreate → startYear 现在会把玩家直接放进本年第一个月，而月循环会动钱/属性。
+     下面这些断言要的是【建角那一瞬间】的初始盘，所以临时掐掉跨年后的推进。 */
+  function createOnly(fn) {
+    const nm = P.nextMonth, rm = P.resumeMonth;
+    P.nextMonth = function () { }; P.resumeMonth = function () { };
+    try { return fn(); } finally { P.nextMonth = nm; P.resumeMonth = rm; }
+  }
   {
     const bStart = P.balance();
     check(bStart.startFun <= 20000, "基础盘资金应压在 $20k 以内（刚毕业的穷小子），当前 $" + bStart.startFun);
@@ -2158,7 +2165,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     const combos = [];
     for (const o in P.reg.origin) for (const e in P.reg.entry) {
       P.CSEL = { era: K(P.reg.era)[0], origin: o, talent: K(P.reg.talent)[0], entry: e, party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0], name: "平衡测试", rolled: { CHA: 45, INT: 45, CUN: 45, INTG: 45 }, spent: {}, rerolled: {}, freeExtra: 0 };
-      P.confirmCreate();
+      createOnly(P.confirmCreate);
       combos.push({ o: o, e: e, fun: P.G.fun, rep: P.G.rep, fav: P.G.fav });
     }
     const inDebt = combos.filter(c => c.fun < 0);
@@ -2279,9 +2286,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
       entry: K(P.reg.entry)[0], party: K(P.reg.party)[0], stance: K(P.reg.stance)[0], state: states[0],
       difficulty: "normal", name: "分配测试", spent: spent, cheatLoops: 0, offer: [], picks: [] };
   };
-  P.CSEL = mkCsel({ CHA: 0, INT: 0, CUN: 0, FUN: 0 }); P.confirmCreate();
+  P.CSEL = mkCsel({ CHA: 0, INT: 0, CUN: 0, FUN: 0 }); createOnly(P.confirmCreate);
   const baseAttr = Object.assign({}, P.G.attr), baseFun = P.G.fun;
-  P.CSEL = mkCsel({ CHA: 2, INT: 0, CUN: 0, FUN: 3 }); P.confirmCreate();
+  P.CSEL = mkCsel({ CHA: 2, INT: 0, CUN: 0, FUN: 3 }); createOnly(P.confirmCreate);
   check(P.G.attr.CHA === baseAttr.CHA + 20, "CHA 分配 2 点 = +20 属性（" + baseAttr.CHA + "→" + P.G.attr.CHA + "）");
   check(P.G.attr.INTG === baseAttr.INTG, "诚信不参与建角分配，固定打底：" + P.G.attr.INTG);
   check(P.G.fun === baseFun + 3 * 2000, "金钱档 3 点 = +$6k 开局资金（" + baseFun + "→" + P.G.fun + "）");

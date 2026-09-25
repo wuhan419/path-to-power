@@ -68,18 +68,15 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(/era-/.test(w.document.body.className), "时代皮肤已应用到 body");
   check(Array.isArray(P.G.monthPlan) && Array.isArray(P.G.doneIds), "存档结构已切到月回合（monthPlan / doneIds）");
 
-  /* ---------- 年卡 → （有事直接事件 / 平静合并卡） → 档期 ---------- */
-  console.log("\n== 年卡 → 事件/平静 → 档期 ==");
-  check(text().indexOf("时代简报") >= 0, "开局显示时代简报");
-  check(/时代压力/.test(text()), "年卡上标出时代压力");
-  check(/此刻存在的媒介/.test(text()), "年卡上列出本年存在的媒介");
-  const yBtn = btn("进入 1 月");
-  check(!!yBtn, "年卡上有「进入 1 月 →」按钮");
-  yBtn.click();
+  /* ---------- #34：开局不再有时代简报屏 —— 建角完成直接落进本年第一个页面 ---------- */
+  console.log("\n== 开局直进（事件 / 平静卡） ==");
+  const bodyTxt = w.document.body.textContent || "";
+  check(bodyTxt.indexOf("时代简报") < 0, "开局不再出现「时代简报」屏");
+  check(!btn("进入 1 月"), "「进入 1 月 →」中间按钮已随简报屏下线");
   /* v0.9 需求①：有事的月份不再有月历中间页——直接进事件；平静的月份合并成一张卡 */
   const janEvent = w.document.querySelectorAll(".choice").length > 0 || !!w.document.querySelector(".editorial");
   const janQuiet = !!w.document.querySelector(".quietcard");
-  check(janEvent || janQuiet, "点击后进入 1 月：有事→直接事件卡，或平静→平静月卡");
+  check(janEvent || janQuiet, "开局即进 1 月：有事→直接事件卡，或平静→平静月卡");
   check(P.G.month >= 1 && P.G.month <= 12, "月份落在 1-12：" + P.G.month);
   /* v0.5.6：原右上角 .masthead .meta 已合并进顶部状态条（去重），报头只留时代名 */
   check(!w.document.querySelector(".masthead .meta"), "右上角信息已合并进顶部状态条（报头不再有 .meta）");
@@ -604,22 +601,33 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(P.SCREEN === "ending", "hardEnd 直接收口进终局");
   check(text().indexOf("身败名裂") >= 0 || text().indexOf("史学家评语") >= 0, "终局页渲染（disgrace 规则）");
 
-  /* 回到游戏，继续年终部分：重建年卡界面（ending 页把 #main 换掉了） */
+  /* 回到游戏，继续跨年部分：#34 之后年终结算屏与年初简报屏都下线了，
+     endYear 只结后台账，结完直接翻年并把玩家放进下一年的第一个页面。 */
   P.SCREEN = "game";
   P.G.endingReason = null; P.G.flags = [];
   P.startYear(true);
 
   /* 年终结算会顺带处理把柄贬值与人脉统计 */
-  console.log("\n== 年终结算 ==");
+  console.log("\n== 跨年直进（年度结算屏 / 年初简报屏已下线） ==");
+  const y0 = P.G.year;
   P.G.month = 12; P.G.yearHeads = ["【测试报】一条头条"];
   P.G.vigMonth = 0; P.G.quietMonths = [10, 11];
   P.G.quietLog = [10, 11].map(function (m) { return { year: P.G.year, month: m, text: m + " 月，岁末的日子。", gain: { attr: { INT: 1 }, hp: 0, rep: 0, contact: 0 } }; });
   P.endYear();
-  check(!!w.document.querySelector(".yearcard"), "月历走完一年后渲染出年终结算卡");
-  check(/年度结算/.test(text()), "年终结算卡标出「年度结算」");
-  check(/平静的月份/.test(text()), "年终结算卡统计了平静的月份数");
-  check(text().indexOf("平静的月份") >= 0, "年终卡统计了平静的月份数（文字已逐月出过，不再重复）");
-  check(!!btn("进入"), "年终结算卡上有进入下一年的按钮");
+  check(P.G.year === y0 + 1, "endYear 结完账直接翻年：" + y0 + " → " + P.G.year);
+  check(!w.document.querySelector(".yearcard"), "年终结算卡不再上屏");
+  check((w.document.body.textContent || "").indexOf("时代简报") < 0, "年初时代简报屏不再上屏");
+  check(!!P.G.yearStartSnap, "新年初快照仍会重建（年终叙事的差值来源）");
+  check(!!w.document.getElementById("main") && !!w.document.getElementById("statusbox") &&
+    !!w.document.getElementById("actbody"), "跨年后的三个持久容器齐备（#main / #statusbox / #actbody）");
+  check(!!w.document.querySelector("#main .news"), "玩家直接落在下一年的第一个页面上");
+
+  /* 终点年：撞 2025 墙由 endYear 程序直调生涯结算，不再等按钮 */
+  P.G.year = P.balance().endYear; P.G.month = 12; P.SCREEN = "game";
+  P.endYear();
+  check(P.SCREEN === "ending", "走到终点年后 endYear 直调生涯结算：" + P.G.endingReason);
+  /* 终局页把 #main 换成了结算页，后面的布局断言要游戏壳，重铺一层 */
+  P.SCREEN = "game"; P.G.endingReason = null; P.renderShell();
 
   /* ---------- 两栏布局（v0.8+）：左=事件 #main，右=.col-right（上状态卡 + 下操作栏） ----------
      回归事故记忆（v0.5.5）：模板多写一个 </div> 会把 .grid 提前闭合、右栏掉到 #app 下。

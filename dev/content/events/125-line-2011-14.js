@@ -16,7 +16,7 @@ POTUS.define("event", [
    * 2011-05 · 本·拉丹被击毙 —— 十年战争的句号落在一个深夜
    * ==================================================================== */
   {
-    id: "ln11_binladen", grade: "mid", category: "foreign",
+    id: "ln11_binladen", photo: "era-2011.jpg", grade: "mid", category: "foreign",
     valence: "boon", dyn: true,
     minYear: 2011, maxYear: 2011, scoped: true, tierRaw: true, tierMin: 0, tierMax: 3, weight: 14, unique: true,
     medium: ["tv", "cable", "internet", "social"], month: 5,
@@ -285,7 +285,9 @@ POTUS.define("event", [
    * 2012-11 · 大选之夜 —— 连任尘埃落定后的第二天早上
    * ==================================================================== */
   {
-    id: "ln12_election", grade: "major", category: "political",
+    /* era-2012.jpg 是那张振臂高呼的奥巴马图：按 #34 裁定不挂任何卡（真人胜选照
+       不该压给一张玩家可能站到对立面的事件卡），本年回退通用头版 era.jpg。 */
+    id: "ln12_election", photo: "era.jpg", grade: "major", category: "political",
     valence: "risk", dyn: true,
     minYear: 2012, maxYear: 2012, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 16, unique: true,
     medium: ["tv", "cable", "internet", "social"], month: 11,
@@ -565,7 +567,7 @@ POTUS.define("event", [
    * 2013-10 · 联邦政府停摆 —— 十七天没有工资的那批人
    * ==================================================================== */
   {
-    id: "ln13_shutdown", grade: "mid", category: "political",
+    id: "ln13_shutdown", photo: "era-2013.jpg", grade: "mid", category: "political",
     valence: "risk", dyn: true,
     minYear: 2013, maxYear: 2013, scoped: true, tierRaw: true, tierMin: 0, tierMax: 4, weight: 14, unique: true,
     medium: ["tv", "cable", "print", "social"], month: 10,
