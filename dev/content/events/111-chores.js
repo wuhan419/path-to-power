@@ -10,8 +10,21 @@
  *   · tierRaw:true —— 门槛按真实 0..9 层级直写，跟晋升阶梯对齐，不受旧 tierBand 抬档影响。
  *   · 按层级分簇：基层 T0–2、市政 T2–4、州 T4–6、联邦 T6+，让不同位置的人撞上不同的琐事。
  *   · 主吃 voters（warm/diehard↑、oppose↓），辅以一点点 rep；偶有时间代价但都留保底。
+ *   · 年代覆盖（#32 职业线）：这条通道只在"当月有层级/年份合适的 chore"时才发得出卡，
+ *     所以池子的年代覆盖就是它的成败线。早期 12 张全写 maxYear:1999 → 2000 年后整条断流，
+ *     玩家过半生涯无声无息。现在的规矩：
+ *       — 题材"去时代"（致悼词/剪彩/邻里篱笆/接待日/预算听证/巡回/水灾/联邦个案/市民大会/
+ *         医院探访——今天照样发生）的卡，一律把 maxYear 抬到 2025；
+ *       — 只有"确实贴死旧年代"的一张——小学"读报进课堂 + 公民课"（报读活动是纸媒时代的
+ *         校园制度）——保留 maxYear:1999，另写成人版"学区预算说明会"（chore_schbudget）跨代补位，
+ *         并把它的层级带从 T2–5 收到 T2–4，让州级（T4–6）在 2000 年后不再靠一张断代卡凑数；
+ *       — 再补 6 张新 chore（2000 年代 / 2010 年代 / 2020 年代 × 市政 / 州 / 联邦），
+ *         让"层级簇 × 年代"每一格都有 ≥ 4 张可发。新卡 minYear 按题材真实起始年（媒体门控会
+ *         自动把关：社交卡只在 2008 年后才发得出）；
+ *       — 又补 1 张"去时代"基层卡（县集市 chore_fair）：8 局样本里生涯多停在 T0–T1，
+ *         基层可发簇原本只有 5 张、被 recentCap 去重节流到空档月填不出琐事。补到 6 张即够把职业
+ *         抬进"随机≤职业≤固定"的窗口——再深则琐事淹没固定钉卡（职业反超固定即倒挂），故为平衡深度。
  *   · valence 多为 boon：经营选民是"只赚不赔但赚得不多"的日常；引擎会抹平任何负值。
- *   · minYear:1980 —— 本轮随 1980—1990 时间轴一起铺；年代更晚自会把 maxYear 抬上去复用。
  *
  * 铁律：只用「」；每卡至少一个既无 cost 又无 req 的保底选项；五档结果齐全。
  * ==========================================================================*/
@@ -22,7 +35,7 @@ POTUS.define("event", [
   {
     id: "chore_eulogy", brief: { lede: "老邻居过世，家属请你这个公职人说两句。", known: ["你手里没有稿子，全靠临场。", "讲一件真事最打动人，也最考验分寸。", "只念标准慰问稳，却显得敷衍。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
-    minYear: 1980, maxYear: 1999, medium: ["print", "radio"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "radio"],
     title: "一位老邻居过世，家人请你致悼词",
     body: "{CITY}的殡仪馆坐满了人，大多是你在选举夜握过手的老面孔。家属说「您是本地公共服务的人，说两句吧」。你手里没有稿子。",
     choices: [
@@ -54,7 +67,7 @@ POTUS.define("event", [
   {
     id: "chore_ribbon", brief: { lede: "翻新图书馆开张，志愿者就差一个剪彩的人。", known: ["他们图的不是你讲话，是你到场。", "顺手帮敲募款的门，能把事办实。", "送花篮缺席省事，却冷了现场的心。"], unknown: ["露面是加分，被拍到敷衍则减分。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "社区活动中心翻新剪彩，就差一个剪彩的人",
     body: "在{PLACE}，一座翻新的图书馆侧翼要开张，志愿者举着剪刀等你到场。他们不图你说话，图的是「来了，就说明这事被当回事」。",
     choices: [
@@ -86,8 +99,8 @@ POTUS.define("event", [
   {
     id: "chore_beat", brief: { lede: "警察工会请你「体验一晚夜班巡逻」。", known: ["名义是了解一线，实为给配合者发奖状。", "真跟一条街能听见巷子里的真话。", "婉谢让给同僚不得罪，也丢了这张脸。"], unknown: ["作秀感若被看穿，反而丢了体面。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
-    minYear: 1980, maxYear: 1999, medium: ["print"],
-    title: "跟夜班巡警走一条街",
+    minYear: 1980, maxYear: 2025, medium: ["print"],
+    title: "跟着夜班巡警走一条街",
     body: "{CITY}的警察工会照例邀请民意代表「体验一晚巡逻」。理由冠冕：了解一线。实际是工会在给配合它的人发奖状。",
     choices: [
       {
@@ -118,7 +131,7 @@ POTUS.define("event", [
   {
     id: "chore_dispute", brief: { lede: "两家邻居为一堵篱笆吵到你办公室。", known: ["一位是拉过票的老住户，一位是新搬来的。", "泡咖啡劝各退一步赌人情。", "翻地契按规矩断赌法理，却伤情面。"], unknown: ["偏了哪头，那头就记你一账。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
-    minYear: 1980, maxYear: 1999,
+    minYear: 1980, maxYear: 2025,
     title: "两家邻居为一堵篱笆吵到你办公室",
     body: "在{PLACE}，一位是给你拉过票的老住户，一位是刚搬来的年轻家庭。两家人为几寸地界争得脸红脖子粗，都要你「评评理」。",
     choices: [
@@ -151,7 +164,7 @@ POTUS.define("event", [
   {
     id: "chore_clinic", brief: { lede: "每周接待日，一屋子人来讨说法。", known: ["不少人不是要解决，是要有人肯听。", "逐个坐下来能真办成几件，最耗神。", "编成办事指南交助手，省事却远了距离。"], unknown: ["敷衍被看穿，善事也办成怨气。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "选民服务接待日：一屋子人来讨说法",
     body: "每周的接待日，{CITY}的队伍排到门外：丢了补助的、被税务局缠上的、孩子进不了学区班的。他们不都要你解决问题，要的是「有人肯听」。",
     choices: [
@@ -183,7 +196,7 @@ POTUS.define("event", [
   {
     id: "chore_budget", brief: { lede: "要不要花钱修西桥，听证会上各有说法。", known: ["到场有货运工会、沿河商户和桥下住户。", "让每方说完再逐条回应稳，却拖。", "亮方案强推痛快，也得罪慢的人。"], unknown: ["压不住场，一场听证能吵成站队。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
-    minYear: 1980, maxYear: 1999, medium: ["print"],
+    minYear: 1980, maxYear: 2025, medium: ["print"],
     title: "一场关于是否修补西桥的预算听证",
     body: "镇上的老桥年年漏、年年修，今年要定一笔钱。来作证的有货运工会、沿河商户，还有一位举着「桥下是我们家」标语的住户。",
     choices: [
@@ -214,7 +227,7 @@ POTUS.define("event", [
 
   {
     id: "chore_school", brief: { lede: "小学读报活动，请你上一堂「公民课」。", known: ["一屋十岁孩子，问什么都有可能。", "认真讲透「政府干什么」最出彩。", "只念故事签书省力，也能出好照片。"], unknown: ["童言直问，一句含糊会被学回家。"] }, grade: "minor", category: "govt",
-    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 5, weight: 6,
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "小学的读报活动，请你来上一堂「公民课」",
     body: "{CITY}的校报小读者活动，老师把你请进教室，让一群十岁孩子问关于「当官」的一切问题。这活儿没风险，却也藏着一张好照片。",
@@ -248,7 +261,7 @@ POTUS.define("event", [
   {
     id: "chore_state_tour", brief: { lede: "州情咨文后一周地方巡回，一天转三个县。", known: ["媒体要标题，党部要人头，你要别累垮。", "笑走每站铺开声量，最耗体力。", "砍两站深扎一处出内容，却失曝光。"], unknown: ["被拍到呵欠连天，巡回反成负报道。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv", "radio"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv", "radio"],
     title: "州情咨文后的一周地方巡回",
     body: "你的一场演讲要落到地方：一天转三个县，剪彩、午餐、圆桌。{PUB}想要标题，县党部想要人头，你自己只想要一张疲惫的脸别被拍到。",
     choices: [
@@ -280,7 +293,7 @@ POTUS.define("event", [
   {
     id: "chore_flood", brief: { lede: "上游泄洪迟了一步，几个镇被泡了。", known: ["人已撤出，损失要有人看、有人表态。", "赶赴现场赌执行力，也赌镜头前失态。", "坐镇后方催补助，钱实却缺了露面人情。"], unknown: ["去不去都可能错：像作秀，或像缺席。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "上游泄洪，几个镇被泡了",
     body: "雨下了三天，河道管理处的泄洪通知迟了一步。几个镇进水，人撤出来了，可损失要有人来看着、有人来表态。州里的镜头已上路。",
     choices: [
@@ -313,7 +326,7 @@ POTUS.define("event", [
   {
     id: "chore_casework", brief: { lede: "联邦办公室的求助信堆成了山。", known: ["选区人把你当「在首都说得上话的人」。", "亲自盯最难的几封易办成，也易打包票。", "成立小组出清单治本，慢却像花架子。"], unknown: ["大话放出去却落空，反成对手弹药。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv", "radio"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv", "radio"],
     title: "联邦选区办公室的求助信堆成了山",
     body: "社保断缴、签证卡壳、退伍军人领不到补助——华盛顿的官僚把普通人卡得死去活来，{CITY}的人写信找你这位「在首都说得上话的人」。",
     choices: [
@@ -345,7 +358,7 @@ POTUS.define("event", [
   {
     id: "chore_townhall", brief: { lede: "回选区开市民大会，五百人坐满体育馆。", known: ["有人质问，有人只看你还认不认乡音。", "来者不拒逐个答最见坦率，也最易被问倒。", "只讲准备好的三件事稳，却被嫌念稿。"], unknown: ["被本区数字问倒，沉默会被循环播。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
-    minYear: 1980, maxYear: 1999, medium: ["tv", "radio", "print"],
+    minYear: 1980, maxYear: 2025, medium: ["tv", "radio", "print"],
     title: "回选区开一场市民大会",
     body: "{DISTRICT}的体育馆里坐了五百人，麦克风在传，有人质问、有人诉苦、有人纯粹来看你这个「去了华盛顿的人」还认不认老家的口音。",
     choices: [
@@ -377,7 +390,7 @@ POTUS.define("event", [
   {
     id: "chore_vetvisit", brief: { lede: "退伍军人医院请你「英雄日」露个面。", known: ["他们要联邦的一双耳朵，你要一张握手照。", "真听并带回补助案，赢「靠得住」。", "只讲得体致敬稳，却像走过场。"], unknown: ["当拍照背景被老兵当场说穿，最伤。"] }, grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
-    minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "退伍军人医院的一次例行探访",
     body: "退伍军人医院邀请你在「英雄日」露个面。他们要的是联邦层面的一双耳朵，你要的是这张与老兵握手、听他们讲话的照片。",
     choices: [
@@ -401,6 +414,243 @@ POTUS.define("event", [
           meh: { body: "你念完悼词式的一段话就走了，没出错。", effects: { rep: 0.05 } },
           fail: { body: "有人说你「来了又走，什么也没留下」。", effects: { rep: 0, voters: { oppose: 90 } } },
           critfail: { body: "你把致敬讲得浮夸，与病房里的真实苦难相形见绌，照片配文格外刺眼。", effects: { rep: -0.15, fac: { press: -2 }, voters: { oppose: 150 } } }
+        }
+      }
+    ]
+  },
+
+  /* ================= 年代补位 · 2000s / 2010s / 2020s =================
+   * 六张新 chore 填上"层级簇 × 年代"的空格（媒体门控自动把关各卡的年份下限）。 */
+
+  /* 基层 T0–2：社区自治的现代琐事 */
+  {
+    id: "chore_patrol", brief: { lede: "居民办起社区夜巡队，请你陪着在街区走一晚。", known: ["夜巡的是邻居义务排班，不是警力，图个彼此照应。", "跟着走一圈，能听见白天听不到的抱怨。", "露一面就走最省事，可大家一眼看得出你来没来真走。"], unknown: ["你是压惊的定心丸，还是镜头前的过路人，这一晚就见分晓。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
+    minYear: 2000, maxYear: 2025, medium: ["print", "tv", "social"],
+    title: "社区治安夜巡：和居民一起走一圈街区",
+    body: "在{PLACE}，街坊们自发组织起社区夜巡队，逢周末结伴在街区走一圈。领队请你这个公职人来走一晚：不为别的，为的是让大家看见「有人跟咱站在一起」。",
+    choices: [
+      {
+        id: "walk", text: "换双平底鞋，跟着队伍实打实走完整条街",
+        base: 0.56, mods: [{ src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你边走边记下好几处坏路灯和空铺面，回头一项项催着修了，街坊说「他是真走够了路的人」。", effects: { rep: 0.35, fac: { base: 5 }, voters: { warm: 440, diehard: 80 } } },
+          ok: { body: "你走完全程，一路握手聊天，社区报登了你的名字。", effects: { rep: 0.2, voters: { warm: 280 } } },
+          meh: { body: "你跟着走了一段，没出岔子也没留下什么。", effects: { rep: 0.1, voters: { warm: 110 } } },
+          fail: { body: "你走几步就上车的画面被邻居瞧见，夜巡队心里凉了半截。", effects: { rep: 0, voters: { warm: -50 } } },
+          critfail: { body: "有人直言「他连一条巷子都嫌累，还管得了咱的治安」。", effects: { rep: -0.1, fac: { base: -2 }, voters: { oppose: 130 } } }
+        }
+      },
+      {
+        id: "cheer", text: "到集合点说几句鼓劲的话，就不陪上夜班了",
+        base: 0.65, mods: [{ src: "attr", key: "INT", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你那几句暖到了点上，领队特意来函谢你没摆架子。", effects: { rep: 0.2, voters: { warm: 200 } } },
+          ok: { body: "你说了几句，气氛热络了一下。", effects: { rep: 0.1, voters: { warm: 90 } } },
+          meh: { body: "你露了面说了话，没人特别念叨。", effects: { rep: 0.05 } },
+          fail: { body: "有人说你「来了就讲两句，走都没陪」。", effects: { rep: 0, voters: { warm: -40 } } },
+          critfail: { body: "鼓完劲你转身就上了车，那句「辛苦了」听着格外讽刺。", effects: { rep: -0.1, fac: { base: -2 }, voters: { oppose: 110 } } }
+        }
+      }
+    ]
+  },
+
+  /* 市政 T2–4：学区与码头的现代议题（学区卡为断代 chore_school 的跨代成人版补位） */
+  {
+    id: "chore_schbudget", brief: { lede: "学区要砍课后项目，家长要你把这笔账当面讲明白。", known: ["账上的窟窿是真的，砍谁留谁都得罪人。", "把数字摊开、让人提问，比念稿更容易被信。", "让校方独自挨骂你落得清闲，可家长记住的是你躲了。"], unknown: ["一场说明会能把怒气冲着账本，也能把怒气冲着你。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
+    minYear: 1980, maxYear: 2025, medium: ["print", "tv", "internet"],
+    title: "学区要砍课后项目，请你来开一场预算说明会",
+    body: "{CITY}的学区年年缺钱，今年盘算着把课后托管和乐团砍掉一块。家长急了，校董会请你这个管钱的人来给大伙儿当面把账讲清楚。",
+    choices: [
+      {
+        id: "open", text: "把账本摊在桌上，一条条回答家长的追问",
+        base: 0.58, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你把钱花在哪讲得明明白白，家长虽心疼，却说「他没把咱当外行糊弄」。", effects: { rep: 0.3, fac: { base: 4 }, voters: { warm: 360, oppose: -140 } } },
+          ok: { body: "你答得体面，火气散了不少。", effects: { rep: 0.2, voters: { warm: 210 } } },
+          meh: { body: "你念了半小时账，没讲通也没讲砸。", effects: { rep: 0.05, voters: { warm: 60 } } },
+          fail: { body: "你一处数字卡了壳，家长当场质疑你连账都没看。", effects: { rep: 0, fac: { press: -2 }, voters: { oppose: 120 } } },
+          critfail: { body: "你把窟窿一股脑推给上届，家长觉得你只会甩锅，联名要个说法。", effects: { rep: -0.1, fac: { establishment: -2 }, voters: { oppose: 160 } } }
+        }
+      },
+      {
+        id: "defer", text: "让校长独自面对家长，你只在门口说句「会想办法」",
+        base: 0.64, mods: [{ src: "attr", key: "CUN", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你不硬扛也不躲，校长领了情，家长觉得你还算稳。", effects: { rep: 0.15, fac: { establishment: 2 }, voters: { warm: 120 } } },
+          ok: { body: "你客气收了场，没人特别怪你。", effects: { rep: 0.05 } },
+          meh: { body: "你躲过这一晚，也没留下什么印象。", effects: {} },
+          fail: { body: "家长堵在门口追问那笔钱砍不砍，你被问得下不来台。", effects: { rep: 0, voters: { oppose: 100 } } },
+          critfail: { body: "「他一拍屁股走了」第二天登在本地报上。", effects: { rep: -0.1, fac: { press: -2 }, voters: { oppose: 140 } } }
+        }
+      }
+    ]
+  },
+
+  {
+    id: "chore_portvisit", brief: { lede: "海港堵了货，本地商家等着你去码头看一眼、说句话。", known: ["堵在港口的不只是箱子，是等米下锅的小店和工厂。", "实地走一趟，能摸出联邦文件上看不到的堵点。", "光发个声明省事，可商家要的是你站出来说这是本地的难处。"], unknown: ["你在码头讲的哪句话，明天会被商会和港务各自引用。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
+    minYear: 2008, maxYear: 2025, medium: ["print", "tv", "social"],
+    title: "海港堆满集装箱，货运卡了本地商家的货",
+    body: "在{CITY}，海港的集装箱堆成了山，等着入关的货一排就是几个星期。本地商家一边催一边诉苦，市里请你去码头实地看一趟，回来替这条街说句话。",
+    choices: [
+      {
+        id: "visit", text: "亲自去码头走一圈，把卡车队列和堆场看个明白",
+        base: 0.56, mods: [{ src: "attr", key: "INT", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你摸清了卡在哪个环节，回市里带出一份有实料的催办函，商家都说你这次问到了点子上。", effects: { rep: 0.35, fac: { commercial: 3, base: 4 }, voters: { warm: 400, diehard: 60 } } },
+          ok: { body: "你走了一圈，抓住了几个能催的堵点。", effects: { rep: 0.2, voters: { warm: 250 } } },
+          meh: { body: "你按安排看了流程，没摸出新东西。", effects: { rep: 0.1, voters: { warm: 100 } } },
+          fail: { body: "你被港务几句官话搪塞回来，商家觉得你白跑一趟。", effects: { rep: 0, fac: { commercial: -1 }, voters: { warm: -50 } } },
+          critfail: { body: "你在码头说了句外行话，被本地报引来当「他不懂本地经济」的例证。", effects: { rep: -0.12, fac: { press: -2 }, voters: { oppose: 130 } } }
+        }
+      },
+      {
+        id: "statement", text: "在办公室发一份声明，替本地商家向联邦催办",
+        base: 0.64, mods: [{ src: "attr", key: "CUN", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你的声明点到要害，联邦那边真动了动手，商家记下你这份心。", effects: { rep: 0.2, fac: { establishment: 2 }, voters: { warm: 200 } } },
+          ok: { body: "声明发出去了，声量有一点，事还堵着。", effects: { rep: 0.1, voters: { warm: 90 } } },
+          meh: { body: "声明没人特别在意，货照旧堵着。", effects: { rep: 0.05 } },
+          fail: { body: "商家嫌你「只会发纸，不敢来现场」。", effects: { rep: 0, voters: { warm: -40 } } },
+          critfail: { body: "你的声明被港务一句话驳回，成了本地的笑话。", effects: { rep: -0.1, fac: { press: -2 }, voters: { oppose: 110 } } }
+        }
+      }
+    ]
+  },
+
+  /* 州 T4–6：灾后与跨界的现代州务 */
+  {
+    id: "chore_harbor", brief: { lede: "飓风过后，州里派你去沿海安置点清点缺什么。", known: ["人撤进安置点只是第一步，接下来几天全靠这里撑着。", "亲眼去转一圈，缺的电和药当场就能调。", "坐镇后方打电话省事，可灾民没看见你这个人。"], unknown: ["你是灾民眼里的定心丸，也是镜头里的候选人——失态一下就上了明天的标题。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
+    minYear: 2008, maxYear: 2025, medium: ["tv", "cable", "social"],
+    title: "飓风过后，你去沿海安置点转一圈",
+    body: "一场飓风刮过，{CITY}沿海几个镇断电进水，人撤进了临时安置的体育馆。州里派你去转一圈看看缺什么。州里的镜头已经跟在你身后。",
+    choices: [
+      {
+        id: "inspect", text: "趁夜把几个安置点走一遍，现场调来缺的发电机和床位",
+        base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.35 }],
+        outcomes: {
+          crit: { body: "你一夜跑完几处安置点，缺的物资天亮前送到，灾民说「有他在，心里踏实」。", effects: { rep: 0.4, fac: { base: 4, establishment: 3 }, voters: { warm: 500, diehard: 80 } } },
+          ok: { body: "你在现场协调有方，安置点没出乱子。", effects: { rep: 0.25, voters: { warm: 310 } } },
+          meh: { body: "你转了一圈，帮不上大忙，但人到了。", effects: { rep: 0.1, voters: { warm: 130 } } },
+          fail: { body: "有一处安置点缺医少药，你调度慢了半拍，被灾民当面数落。", effects: { rep: 0, fac: { establishment: -2 }, voters: { oppose: 130 } } },
+          critfail: { body: "镜头前你在安置点指手画脚却不解决问题，第二天配的字格外难听。", effects: { rep: -0.15, fac: { press: -3, base: -2 }, voters: { oppose: 180 } } }
+        }
+      },
+      {
+        id: "rear", text: "坐镇后方，把物资与联邦援助的电话挨个催到位",
+        base: 0.65, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
+        outcomes: {
+          crit: { body: "物资一样样按你说的补齐，钱和货比人先到，镇上念你实诚。", effects: { rep: 0.25, fac: { base: 3, agency: 3 }, voters: { warm: 250 } } },
+          ok: { body: "电话催通了，货陆续到位，只是没见着你的面。", effects: { rep: 0.15, fac: { agency: 2 }, voters: { warm: 150 } } },
+          meh: { body: "事办了，人在后方，存在感低了些。", effects: { rep: 0.1 } },
+          fail: { body: "有灾民觉得这么大的事他连来都没来，货到了人情没到。", effects: { rep: 0, voters: { oppose: 110 } } },
+          critfail: { body: "一处安置点断了电没人管，你的后方调度成了对手的弹药。", effects: { rep: -0.15, fac: { press: -2 }, voters: { oppose: 170 } } }
+        }
+      }
+    ]
+  },
+
+  /* 联邦 T6+：数字时代与多媒体时代的国家机器琐事 */
+  {
+    id: "chore_dataleak", brief: { lede: "大公司泄露了选民的个人信息，愤怒的群众要你出来说话。", known: ["大多数人说不清丢了什么，只想要一句有人负责。", "把企业与监管方一并召来当面质询，能把焦点立在你身上。", "先查清再表态稳妥，可群众要的是此刻有个肯说的声音。"], unknown: ["这场会你开成问责，还是开成作秀，隔天网上一见分晓。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
+    minYear: 2013, maxYear: 2025, medium: ["internet", "social", "cable"],
+    title: "一家大公司泄露数据，卷进了选区居民",
+    body: "一家人人都在用的公司被曝泄露了海量个人信息，{CITY}的选民也在名单里。投诉电话、追问的记者一夜之间挤满你的办公室：政府到底管不管？",
+    choices: [
+      {
+        id: "confront", text: "把企业和监管机构一并召来，当着受害者面逐条质询",
+        base: 0.56, mods: [{ src: "attr", key: "CUN", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你逼得企业当场承诺补救赔偿，受害者在电视上说「这位是真替咱问了」。", effects: { rep: 0.4, fac: { base: 4, establishment: 2 }, voters: { warm: 480, diehard: 80 } } },
+          ok: { body: "你问出了几句硬话，企业松了口。", effects: { rep: 0.25, voters: { warm: 300 } } },
+          meh: { body: "你质询了一小时，企业打太极，你没接住也没失分。", effects: { rep: 0.1, voters: { warm: 120 } } },
+          fail: { body: "你在技术细节上被问住，一场质询成了企业的公关秀。", effects: { rep: 0, fac: { press: -2 }, voters: { oppose: 130 } } },
+          critfail: { body: "有人扒出你收过涉事企业的捐款，问责的人反成了被问责的。", effects: { rep: -0.15, fac: { press: -3, commercial: -2 }, voters: { oppose: 170 } } }
+        }
+      },
+      {
+        id: "investigate", text: "先按下不发，等查清泄露链条再给公众一个准信",
+        base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你拿出实打实的调查结论，把该担责的一方钉得死死的，媒体也夸你稳。", effects: { rep: 0.25, fac: { agency: 2 }, voters: { warm: 250 } } },
+          ok: { body: "你出手不算快，可话站得住。", effects: { rep: 0.15, voters: { warm: 150 } } },
+          meh: { body: "你还在查，热度已被下一条新闻盖过去了。", effects: { rep: 0.05 } },
+          fail: { body: "群众等不及，说你在替企业争取时间。", effects: { rep: 0, voters: { oppose: 110 } } },
+          critfail: { body: "调查结果迟迟不出，那句「再等等」被人剪成段子在网上传。", effects: { rep: -0.15, fac: { press: -2 }, voters: { oppose: 160 } } }
+        }
+      }
+    ]
+  },
+
+  {
+    id: "chore_tour2", brief: { lede: "国情咨文后连轴转的全国巡回，传统台和新平台两头要照顾。", known: ["有线台、门户网站、社交平台，每一家要的口径都不一样。", "一站接一站不冷场，最考验你的状态和口才。", "砍几站深耕一处出内容，却丢了该要的曝光。"], unknown: ["一段你在飞机上累垮的十五秒片段，可能比所有演讲传得更远。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
+    minYear: 2016, maxYear: 2025, medium: ["tv", "cable", "social", "shortvideo"],
+    title: "国情咨文后的全国巡回，镜头从早跟到晚",
+    body: "你的一场演讲要落到全国：一天转几个城，接受电视台连线、赶地方圆桌、夜里还要录一段短视频。{PUB}要标题，党部要人头，你只想别在镜头前露出疲态。",
+    choices: [
+      {
+        id: "grin", text: "笑脸走完每一站，电视、直播一场不落",
+        base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.35 }],
+        outcomes: {
+          crit: { body: "你一天几站滴水不漏，各家平台都在转你的现场，党部把你当成能扛票的人。", effects: { rep: 0.4, fac: { establishment: 4, base: 3 }, voters: { warm: 520, diehard: 90 } } },
+          ok: { body: "巡回顺利，你把基层的场面扫了一遍。", effects: { rep: 0.25, voters: { warm: 320 } } },
+          meh: { body: "你笑着赶完场，累得没留下什么印象。", effects: { rep: 0.1, voters: { warm: 140 } } },
+          fail: { body: "有一站你明显撑不住，讲了句敷衍的话，被人录了下来。", effects: { rep: 0, fac: { press: -2 }, voters: { oppose: 120 } } },
+          critfail: { body: "你在镜头前累垮呵欠连天，那段十五秒被循环了一整周。", effects: { rep: -0.15, fac: { press: -3 }, voters: { oppose: 170 } } }
+        }
+      },
+      {
+        id: "deep", text: "砍掉几站，只在一处扎下去认真聊一上午",
+        base: 0.64, mods: [{ src: "attr", key: "INT", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你在一处挖出了真问题，回国会带回有分量的案子，那地界从此是你的铁票。", effects: { rep: 0.3, fac: { base: 4 }, voters: { diehard: 100, warm: 300 } } },
+          ok: { body: "你把一处聊透了，只是曝光少了两站。", effects: { rep: 0.2, voters: { warm: 200 } } },
+          meh: { body: "你聊了一上午，全国没人在意少了几个城。", effects: { rep: 0.1 } },
+          fail: { body: "被砍掉的那几站党部来电话问「为什么不来」。", effects: { rep: 0, fac: { establishment: -2 }, voters: { oppose: 110 } } },
+          critfail: { body: "你厚此薄彼被放大成政治信号，落选的几地联名抱怨。", effects: { rep: -0.15, fac: { establishment: -3 }, voters: { oppose: 160 } } }
+        }
+      }
+    ]
+  },
+
+  /* ================= 基层池加深：生涯绝大多数年月停在 T0–T1 =================
+   * 8 局样本里生涯终局多停在 T0–T1（志愿者/基层党员）。chore 通道每局靠 recentCap 去重节流，
+   * 低层可发卡太少 → 空档月填不出琐事 → 职业线漏得厉害。补一张"去时代"基层卡（县集市），
+   * 全 1980–2025、weight 7（基层最高），把 T0–T1 的可发簇从 5 张撑到 6 张即够，
+   * 再深则琐事反超固定钉卡形成倒挂（fixed>=career 闸），故停在平衡点。 */
+
+  {
+    id: "chore_fair", brief: { lede: "县集市开幕，主舞台就差一个本地公职人露个面。", known: ["拖家带口来逛的都是本地选民。", "挨摊走一圈、跟摊主搭两句话最接地气。", "上台念一段开幕词稳当，可没人爱听官腔。"], unknown: ["你在集市上的一句话，比任何电视广告都传得快。"] }, grade: "minor", category: "govt",
+    valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
+    minYear: 1980, maxYear: 2025, medium: ["print", "radio", "tv"],
+    title: "县集市开幕，就差你上台露一面",
+    body: "{CITY}的县集市一年一度，炸果汁、摆摊卖陶罐、牵着孩子看牲畜。组委会请你这位本地公职人剪个彩、说两句——其实大家更想看看你是不是还认得这些老摊位。",
+    choices: [
+      {
+        id: "stroll", text: "不下台，挨个摊位走过去，跟摊主、家长搭两句话",
+        base: 0.56, mods: [{ src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你在炸果酱摊前停下来跟老板娘聊了十分钟，照片上了集市简报，街坊都说「他还记得咱这口」。", effects: { rep: 0.35, fac: { base: 5 }, voters: { warm: 460, diehard: 70 } } },
+          ok: { body: "你走了一圈，握了不少手，孩子围着你拍照。", effects: { rep: 0.2, voters: { warm: 280 } } },
+          meh: { body: "你随着人流逛了半圈，没说什么也没做错。", effects: { rep: 0.1, voters: { warm: 110 } } },
+          fail: { body: "你嫌吵走马观花，摊主觉得你嫌弃这集市。", effects: { rep: 0, voters: { warm: -50 } } },
+          critfail: { body: "你只挑好拍照的摊位走，被一位老摊主当场问「你怎么没来过我这摊」。", effects: { rep: -0.1, fac: { base: -2 }, voters: { oppose: 130 } } }
+        }
+      },
+      {
+        id: "speech", text: "上台把开幕词念完，体体面面交差",
+        base: 0.66, mods: [{ src: "attr", key: "INTG", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你的开幕词简短又有人情味，念完台下真给了掌声。", effects: { rep: 0.2, voters: { warm: 200 } } },
+          ok: { body: "你念完了稿子，流程走得干净。", effects: { rep: 0.12, voters: { warm: 100 } } },
+          meh: { body: "你念得官腔，台下一半人在啃玉米。", effects: { rep: 0.05 } },
+          fail: { body: "你的稿子太长，孩子哭闹、家长离席，气氛散了。", effects: { rep: 0, voters: { warm: -40 } } },
+          critfail: { body: "你把集市的数据念错了，台下有人纠正，你成了「连本地事都说不清」的笑话。", effects: { rep: -0.1, fac: { press: -2 }, voters: { oppose: 110 } } }
         }
       }
     ]

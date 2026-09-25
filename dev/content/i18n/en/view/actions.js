@@ -9,13 +9,8 @@ POTUS.define("l10n", {
   ui: {
     /* ---- 价码依据（stakeRateNote） ---- */
     "ui.actions.perTierContent": "{v} per notch — this bet is priced by the story itself.",
-    "ui.actions.tierBase": "Seat anchor {a} (salary {s} × {m} months{gm})",
     "ui.actions.gradeMul": " × event scale {g}",
-    "ui.actions.matterBase": "Event worth {c} ({pct}% of its {p} money)",
-    "ui.actions.walletBase": "Pocket cap {w} ({p}% of your {c} on hand)",
-    "ui.actions.rateNote": "{v} per notch: {t}, {m}{tail}",
-    "ui.actions.tailCash": " — a blend of the three, capped by your wallet: the deeper the pocket, the meatier each notch, yet maxing out never burns more than half your cash.",
-    "ui.actions.rateNoteSeat": "{v} per notch: {t}{w}. No money was written into this event, so it is priced by your seat and your wallet.",
+    "ui.actions.rateNoteLevel": "{v} per notch: priced by your seat — salary {s} × {m} months{gm}. Your cash only decides how many notches you can afford, never the unit price.",
 
     /* ---- 投注面板（renderStake） ---- */
     "ui.actions.stakeTitle": "Stake Resources, Boost Your Odds",

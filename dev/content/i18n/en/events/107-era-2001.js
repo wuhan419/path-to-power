@@ -83,6 +83,41 @@ POTUS.define("l10n", {
               fail: { body: "Tending home reads as not caring about the country. In such hours, keeping to yourself is also a crime." },
               critfail: { body: "You speak for a suspected community just as a local crime scare breaks; the two stories splice into: he is one of them." }
             }
+          },
+          {
+            id: "volunteer",
+            text: "Sign up for the rescue volunteer line: haul stretchers, ladle soup, no slogans",
+            outcomes: {
+              crit: { body: "You work the volunteer line outside the pile for a week and wear through two pairs of gloves. Nobody interviews you; everyone in the soup line remembers the face." },
+              ok: { body: "You went, took the dirtiest job there was, and never mentioned it after. The neighborhood calls you decent." },
+              meh: { body: "You signed up and got slotted at the tail of a roster that was already full. You were home by noon." },
+              fail: { body: "Someone on the volunteer line recognizes you. The photo lands in the local column on politicians visiting disaster." },
+              critfail: { body: "A reporter asks exactly how many cases you carried. You cannot say. \"Collecting on the national grief\" sets in." }
+            }
+          },
+          {
+            id: "open_letter",
+            text: "Co-sign a letter with local business and churches: back the response, oppose suspecting whole neighborhoods",
+            note: "Signing at the worst possible moment to say but. You draft it; the order of names is the attitude.",
+            outcomes: {
+              crit: { body: "The letter is quoted on the national wires: he wrote 'but' inside the fury. Two ethnic chambers of commerce stand on one platform for you for the first time." },
+              ok: { body: "The letter ran, the curses came, and everyone who meant to sign did. You held one square of ground." },
+              meh: { body: "Your letter blends into the dozen similar statements that week. Nobody reads it twice." },
+              fail: { body: "The party machine calls to ask who drafted it. Before you answer, 'shaky on security' is already on file." },
+              critfail: { body: "Someone cuts 'no presumption of guilt' out of context, and \"he won't back this response\" goes straight onto your opponent's flyer." }
+            }
+          },
+          {
+            id: "demand_probe",
+            text: "Aim above the crowd: publicly demand the warning agencies and airspace control be pulled under one roof",
+            note: "Asking during national grief cuts deepest — and holds longest. Wrong, and you are the man who troubles the responders.",
+            outcomes: {
+              crit: { body: "The merged warning-and-airspace body you pressed for gets drawn up with your wording on its charter, and for the first time a hearing table quotes you by name." },
+              ok: { body: "Your proposal reaches the planning memo. The agencies think you talk too much; the press notes you think." },
+              meh: { body: "The country is shouting for revenge; your 'merge the warnings first' earns one 'we'll get to it.'" },
+              fail: { body: "The intelligence side leaks that you 'sabotage the response.' The donation calls go cold overnight." },
+              critfail: { body: "The agencies throw a near-miss timeline at you: 'the days you wanted merged, we were short-staffed.' You carry that accusation for years." }
+            }
           }
         ]
       },

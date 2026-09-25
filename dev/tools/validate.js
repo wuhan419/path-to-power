@@ -673,7 +673,7 @@ console.log("\n== 资源经济 / 投注 ==");
   };
   P.G.fun = 2000000; P.G.fav = 2;
   const noStake = P.computeP(tChoice).P;
-  const tPer = P.stakeSpec(tChoice).fun.per;      /* v0.7：每档金额是动态的，从引擎取 */
+  const tPer = P.stakeSpec(tChoice).fun.per;      /* 级别价由引擎算，探针不写死金额 */
   const st = P.stakeInfo(tChoice, { fun: 2, fav: 1 });
   const withStake = P.computeP(tChoice, st);
   check(withStake.P > noStake, "投注资金/人情后胜算应提高（" + noStake + " → " + withStake.P + "）");
@@ -687,7 +687,7 @@ console.log("\n== 资源经济 / 投注 ==");
   const capSt = P.stakeInfo(tChoice, { fun: 999999, fav: 1 });
   check(P.computeP(tChoice, capSt).P <= 0.95, "投注后胜算不应超过 0.95");
 
-  /* 余额不足 → 投注被夹到可用余额 */
+  /* 余额不足 → 投注被夹到可用余额（单价恒定，档数看家底） */
   P.G.fun = 100000; P.G.fav = 0;
   const poor = P.stakeInfo(tChoice, { fun: 5, fav: 1 });
   check(poor.cost.fun <= 100000 && poor.cost.fav === 0,
@@ -721,7 +721,7 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
 
   /* 资金：每档 +4%、上限 +30% → 吃满上限需要 8 档（档数由 cap÷w 决定，与每档金额无关） */
   const funCh = { id: "__fun", text: "t", base: 0.4, stake: { fun: true }, outcomes: {} };
-  const per = P.stakeSpec(funCh).fun.per;         /* v0.7：每档金额按 身位 × 事件钱量级 动态算 */
+  const per = P.stakeSpec(funCh).fun.per;         /* 级别价：一档 ≈ 该职级月薪 */
   console.log("  资金：每档 " + P.fmtUsd(per) + " → +4%、上限 +30%");
   P.G.fun = 999999999;
   const funMaxRich = P.stakeMax("fun", funCh);
@@ -729,18 +729,18 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(Math.abs(funMaxRich * 0.04 - 0.30) < 0.05, "资金满档应能吃到接近 +30% 的上限，实际 +" + (funMaxRich * 0.04 * 100).toFixed(0) + "%");
   check(P.stakeInfo(funCh, { fun: 999 }).cost.fun <= P.G.fun, "资金扣款不得超过现有资金");
 
-  /* v0.12 资金闸：单档 ≤ 资金×6%×量级系数 → 满档 8 档最多吃掉四成多资产；
-     余额夹档仍在（stakeMax 用 floor(fun/per)），只是闸由钱包决定、价码自己随行就市 */
+  /* #28① 之后余额只夹档数：家底只够 5 档，单价一分不改 */
   P.G.fun = per * 5;
   {
-    const p2 = P.stakeSpec(funCh).fun.per;         // 价码跟着新家底重算
+    const p2 = P.stakeSpec(funCh).fun.per;         // 级别价与余额无关
     const max2 = P.stakeMax("fun", funCh);
+    check(p2 === per, "余额变少不许改动单价（" + P.fmtUsd(per) + " → " + P.fmtUsd(p2) + "）");
     check(max2 * p2 <= P.G.fun, "钱只够几档就该被夹在几档内（" + max2 + " 档 × " + P.fmtUsd(p2) + " > " + P.fmtUsd(P.G.fun) + "）");
     check(P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun === max2 * p2, "扣款应等于档数×汇率，实际 " + P.stakeInfo(funCh, { fun: max2 + 9 }).cost.fun);
   }
 
   /* 一档都投不起 → 上限必须是 0（界面据此把 ＋ 置灰并说明原因，而不是"点了没反应"） */
-  P.G.fun = 300; P.G.fav = 0;                     // 低于 perMin：几何均也被抹到 $500 下限
+  P.G.fun = 300; P.G.fav = 0;                     // 低于 perMin：单价夹在地板之上
   const favCh = { id: "__fav", text: "t", base: 0.4, stake: { fav: true }, outcomes: {} };
   check(P.stakeMax("fun", funCh) === 0, "钱不够一档时资金上限应为 0（正是『资金＋点了没用』的成因）");
   check(P.stakeMax("fav", favCh) === 0, "没人情时人情上限应为 0");
@@ -757,96 +757,112 @@ console.log("\n== 投注档位上限 / 死局保护 ==");
   check(P.stakeMax("fav", favCh) === 1 || P.G.fav === 0, "有人情时人情应可投 1 点");
 }
 
-/* ---------- 动态投注汇率（v0.7 两锚；v0.12 加资金闸） ----------
- * 用户实测反馈的 bug：过去每档固定 $250k，于是
- *   ① 社区小兵（T0 月薪 $1k、家底 $10k）永远投不进第一档 —— 资金这一栏形同虚设；
- *   ② "收益只有 $50k 的事件让你花 $250k 搏" —— 价码与事情的钱量级脱钩。
- * v0.12 再修：③ 投入金额和掌握的资金成正比（否则前期没资格、后期太鸡肋）。
- * 现在 per = min(∛(身位锚 × 事件锚 × 资金闸), 资金闸)，资金闸 = 现有资金 × 6% × gradeMul。 */
-console.log("\n== 动态投注汇率（身位 × 事件金额）==");
+/* ---------- 投注级别价（#28①：单价只看身位，不看钱包） ----------
+ * 演进：v0.6 全游戏写死 $250k（T0 永远投不进第一档）→ v0.7 补"事件钱量级"锚 →
+ * v0.12 再补"钱袋闸"（单价随余额涨 —— 玩家投诉"同一件事，穷时便宜富时贵"）→
+ * #28① 三条锚删到只剩身位锚：per = officeSalary(track,tier) × perSalaryMonths × gradeMul，
+ * 夹进 [perMin, perMax] 后抹零。**余额唯一的作用是决定你押得起几档**（见 stakeMax）。 */
+console.log("\n== 投注级别价（单价随身位·不随钱包）==");
 {
   P.CSEL = { era: firstEra, origin: firstOrigin, talent: firstTalent, entry: firstEntry, party: firstParty, stance: firstStance, name: "汇率测试" };
   P.confirmCreate();
-  /* v0.12 #20：出身不再发开局资金（钱全搬进天赋卡池），刚 confirmCreate 出来的角色可能很穷，
-     于是资金闸 fun×6% 会把每档价码夹到地板、抹平身位/事件两轴。本测试探针是**公式形状**（单调、随量级递增），
-     需要一个"办得起事"的资金前提 —— 显式设一笔代表性现钱，而不是依赖出身。 */
-  P.G.fun = 3000000;
+  /* 本块的断言都拿 mid 量级当尺子，先把"当前量级"定死：
+     前面某块（三值性/节奏探针）present 过 minor 卡的话，G.__curGrade 会残留成 minor，
+     级别价就按 0.6× 算，下面的 档数 × 单价 全部对不上。 */
+  P.G.__curGrade = "mid";
   const CL = (cost, oc) => ({ id: "__r", text: "t", base: 0.4, cost: cost, stake: { fun: true }, outcomes: oc || {} });
-  const smallCh = CL({ fun: 400000 });                       // 有钱量级
-  const nomoneyCh = CL({ rep: 1 });                           // 没有钱量级
-  const tinyCh = CL({ rep: 1 }, { ok: { effects: { fun: 50000 } } });
+  const bigCh = CL({ fun: 400000 });                          // 事件里写着大钱
+  const noMoneyCh = CL({ rep: 1 });                           // 事件里一分钱没写
 
-  /* ① 身位轴：同一个选项，职位越高每档越贵 */
+  /* ① 身位轴：同一个选项，职位越高每档越贵 —— 价码全部由薪资表推导 */
   const byTier = [];
   for (let t = 0; t <= P.balance().tierMax; t++) {
     P.G.tier = t; P.G.track = "electoral";
-    byTier.push(P.stakeFunPer(smallCh).per);
+    byTier.push(P.stakeFunPer().per);
   }
-  console.log("  同一个选项各身位每档价码：" + byTier.map((v, i) => "T" + i + " " + P.fmtUsd(v)).join(" / "));
+  console.log("  同一选项各身位一档价码：" + byTier.map((v, i) => "T" + i + " " + P.fmtUsd(v)).join(" / "));
   check(byTier.every((v, i) => i === 0 || v >= byTier[i - 1]), "每档金额必须随身位单调不降");
   check(byTier[byTier.length - 1] > byTier[0], "最高身位的价码必须显著高于最低身位（" + P.fmtUsd(byTier[0]) + " → " + P.fmtUsd(byTier[byTier.length - 1]) + "）");
-  check(P.stakeSpec(smallCh).fun.per === byTier[P.G.tier], "stakeSpec 必须把动态价码写进 spec.fun.per");
+  check(P.stakeSpec(bigCh).fun.per === byTier[P.G.tier], "stakeSpec 必须把级别价写进 spec.fun.per");
 
-  /* ② 事件轴：事件的钱量级越大，每档越贵 */
+  /* ② #36 标尺：一档 ≈ 该职级 perSalaryMonths 个月的月薪（默认 1 个月） */
   P.G.tier = 3; P.G.track = "electoral";
-  const perOf = (c) => P.stakeFunPer(c).per;
-  check(perOf(tinyCh) < perOf(smallCh), "事件钱量级越大，每档应越贵（" + P.fmtUsd(perOf(tinyCh)) + " < " + P.fmtUsd(perOf(smallCh)) + "）");
-  check(perOf(nomoneyCh) > 0, "没写钱的选项也必须给出价码（退回身位锚）");
-  check(P.stakePot(nomoneyCh) === 0 && P.stakePot(smallCh) === 400000, "stakePot 应认出选项的钱量级");
-  check(P.stakePot(CL({ fun: 30000 }, { ok: { effects: { funMul: 2 } } })) === 60000, "funMul 应折算回美元（$30k × 2.0 = $60k）");
+  const months = P.balance().stakeRates.fun.perSalaryMonths;
+  check(months === 1, "perSalaryMonths 应为 1（一档 = 一个月月薪），实际 " + months);
+  check(P.stakeFunPer("mid").per === P.niceUsd(P.officeSalary()), "mid 量级的一档应正好是月薪抹零，实际 " + P.fmtUsd(P.stakeFunPer("mid").per) + " vs " + P.fmtUsd(P.officeSalary()));
 
-  /* ③ v0.12 资金闸：单档 ≤ 资金×6%×量级系数（满档 8 档 ≤ 近半家底）；
-        旧"8 档 ≤ 2× 事件钱量级"随事件锚硬顶一起退役——富豪为大生意出大钱是设计目标 */
-  let worstPer = 0, worstHalf = 0;
-  for (const c of [tinyCh, smallCh, CL({ fun: 2000000 })]) {
-    for (const t of [0, 3, P.balance().tierMax]) {
-      for (const cash of [20000, 200000, 5000000]) {
-        P.G.tier = t; P.G.track = "wealth"; P.G.fun = cash;
-        const sp = P.stakeFunPer(c);
-        const gmul = (P.balance().stakeRates.fun.gradeMul || {})[P.G.__curGrade || "mid"];
-        worstPer = Math.max(worstPer, sp.per / (cash * 0.06 * (gmul == null ? 1 : gmul)));
-        worstHalf = Math.max(worstHalf, sp.per * 8 / cash);
-      }
-    }
+  /* ③ #28① 核心断言：单价与余额、与事件钱量级**彻底脱钩** */
+  const unit = P.stakeFunPer("mid").per;
+  for (const cash of [3000, 20000, 200000, 5000000, 50000000]) {
+    P.G.fun = cash;
+    check(P.stakeFunPer("mid").per === unit, "余额 " + P.fmtUsd(cash) + " 不该改动单价（级别价锚已退役钱袋闸）");
   }
-  console.log("  单档 ÷ 资金闸 的最坏比值：" + worstPer.toFixed(2) + "× ｜ 8 档总投入 ÷ 家底 最坏 " + (worstHalf * 100).toFixed(0) + "%");
-  check(worstPer <= 1.1, "单档不得超过资金闸（6%×量级系数），实际 " + worstPer.toFixed(2) + "×");
-  check(worstHalf <= 0.6, "满档总投入不得超过六成家底，实际 " + (worstHalf * 100).toFixed(0) + "%");
+  P.G.fun = 20000;
+  check(P.stakeFunPer("mid").per === unit, "事件写没写钱都不改单价（钱量级锚已退役）：无钱选项 " + P.fmtUsd(P.stakeFunPer("mid").per) + " vs 有钱选项");
+  check(P.stakeSpec(noMoneyCh).fun.per === P.stakeSpec(bigCh).fun.per, "同一身位下，两种钱量级的选项应报同一个单价");
+  check(P.stakeFunPer("major").per > P.stakeFunPer("minor").per, "量级系数仍生效：major 一档应比 minor 贵（" + P.fmtUsd(P.stakeFunPer("minor").per) + " → " + P.fmtUsd(P.stakeFunPer("major").per) + "）");
 
-  /* ③b 钱包成正比（用户报的核心诉求）：同一事件，富人单档必须比穷人贵 */
-  P.G.tier = 3; P.G.track = "wealth";
-  P.G.fun = 20000; const poorPer = P.stakeFunPer(smallCh).per;
-  P.G.fun = 2000000; const richPer = P.stakeFunPer(smallCh).per;
-  check(richPer > poorPer * 3, "同一事件：大款单档价码应显著高于小兵（投入与掌握的资金成正比），" + P.fmtUsd(poorPer) + " → " + P.fmtUsd(richPer));
+  /* ④ 余额只决定"押得起几档"：大款押得更多，但每档同价 */
+  P.G.fun = 20000; const poorNotches = P.stakeMax("fun", bigCh);
+  P.G.fun = 2000000; const richNotches = P.stakeMax("fun", bigCh);
+  console.log("  同一身位（T3）余额 2 万 → " + poorNotches + " 档，200 万 → " + richNotches + " 档（单价恒为 " + P.fmtUsd(unit) + "）");
+  check(richNotches > poorNotches, "钱多只能体现为档数更多（" + poorNotches + " → " + richNotches + "）");
+  check(P.stakeMax("fun", bigCh) === Math.min(8, Math.floor(P.G.fun / unit)), "档数上限应 = min(cap÷w 档, floor(余额÷单价))");
+  check(P.stakeInfo(bigCh, { fun: 999 }).cost.fun === richNotches * unit, "扣款应等于档数×单价，实际 " + P.stakeInfo(bigCh, { fun: 999 }).cost.fun);
 
-  /* ④ 用户报的核心 bug 已修：小兵也投得起第一档 */
-  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;    // 开局家底
-  check(P.stakeMax("fun", nomoneyCh) >= 1, "T0 家底 $10k 至少要投得起 1 档（旧版恒为 0）");
+  /* ⑤ 手感基准：T0 志愿者（月薪 $1k）投得起第一档，但押不满 */
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
+  check(P.stakeMax("fun", bigCh) >= 1, "T0 家底 $10k 至少要投得起 1 档（旧版写死 $250k 时恒为 0）");
   P.G.fun = 3000;
-  check(P.stakeMax("fun", CL({ fun: 14000 })) >= 0, "极小钱量级的事件不该报错");
+  check(P.stakeMax("fun", bigCh) >= 0, "极小家底不该报错");
 
-  /* ⑤ 内容写死 per 时以内容为准（不参与动态换算） */
+  /* ⑥ 内容写死 per 时以内容为准（不参与级别价换算） */
   const fixedCh = { id: "__f", text: "t", base: 0.4, cost: { fun: 400000 }, stake: { fun: { per: 777000, w: 0.05, cap: 0.25 } }, outcomes: {} };
   const fixedSpec = P.stakeSpec(fixedCh);
   check(fixedSpec.fun.per === 777000, "写死的 per 必须原样保留，实际 " + fixedSpec.fun.per);
   check(fixedSpec.fun.__rate.source === "content", "写死 per 的汇率来源应标为 content");
 
-  /* ⑥ 抹零与边界：每档金额是好读的整数，且仍落在事件锚之下 */
+  /* ⑦ 抹零与边界：每档金额是好读的整数，且落在护栏内 */
   P.G.tier = 2;
-  const rp = P.stakeFunPer(smallCh);
+  const rp = P.stakeFunPer();
   check(rp.per % 500 === 0, "每档金额应是 500 的整数倍（" + rp.per + "）");
-  check(rp.per >= (P.balance().stakeRates.fun.perMin) && rp.per <= P.balance().stakeRates.fun.perMax, "每档金额应落在 [perMin, perMax] 内");
-  check(rp.per <= rp.ceiling + 1e-9, "抹零不得把价码抬到事件锚之上");
+  check(rp.per >= P.balance().stakeRates.fun.perMin && rp.per <= P.balance().stakeRates.fun.perMax, "每档金额应落在 [perMin, perMax] 内");
 
-  /* ⑦ 界面文案必须说得清价码来源（动态汇率不能是新的黑箱） */
-  const note = ZH(() => P.stakeRateNote(smallCh, "mid"));
-  check(note.indexOf("月薪") >= 0 && note.indexOf("钱量级") >= 0, "汇率说明应同时交代身位与事件金额：" + note);
-  check(ZH(() => P.stakeRateNote(nomoneyCh, "mid")).indexOf("没写钱") >= 0, "没写钱的事件应说明『只按身位算』");
+  /* ⑧ 界面文案必须说得清价码来源（级别价不能是新的黑箱） */
+  const note = ZH(() => P.stakeRateNote(bigCh, "mid"));
+  check(note.indexOf("月薪") >= 0 && note.indexOf("身位") >= 0, "汇率说明应交代『按身位定价 + 月薪推导』：" + note);
+  check(note.indexOf("家底") >= 0 && note.indexOf("单价") >= 0, "汇率说明应讲明余额只决定押得起几档：" + note);
   check(ZH(() => P.stakeRateNote(fixedCh, "mid")).indexOf("剧情写定") >= 0, "写死 per 的事件应说明『价码由剧情写定』");
   check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
     "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
 
-  /* ⑧ 工资与投注同源：officeSalary 是唯一口径 */
+  /* ⑨ #28② 投机收益吃 INT：同一条生意，聪明人赚得多、翻车亏得少 */
+  {
+    const lev = P.balance().funMulIntLev;
+    check(lev > 0, "funMulIntLev 应默认开启（#28②），实际 " + lev);
+    P.G.__stakeBase = 100000;
+    const gain = function (int) {
+      P.G.fun = 0; P.G.attr.INT = int;
+      P.applyEffects({ funMul: 2 });
+      return P.G.fun;
+    };
+    const dumb = gain(30), mid = gain(50), smart = gain(80);
+    check(dumb < mid && mid < smart, "同一笔本金，收益应随 INT 递增（" + dumb + " / " + mid + " / " + smart + "）");
+    check(mid === 200000, "INT=50 时倍率不缩放，$100k × 2.0 = $200k，实际 " + mid);
+    check(smart === Math.round(100000 * 2 * (1 + 0.3 * lev)), "INT=80 的收益应正好按公式放大，实际 " + smart);
+    const loss = function (int) {
+      P.G.fun = 1000000; P.G.attr.INT = int;
+      P.applyEffects({ funMul: -1 });
+      return 1000000 - P.G.fun;
+    };
+    check(loss(80) < loss(30), "翻车时高 INT 亏得更少（" + loss(30) + " vs " + loss(80) + "）");
+    P.G.attr.INT = 50;
+    P.G.fun = 0; P.G.__stakeBase = 0;
+    P.applyEffects({ funMul: 2 });
+    check(P.G.fun === 0, "没有本金声明时 funMul 不许凭空生钱");
+  }
+
+  /* ⑩ 工资与投注同源：officeSalary 是唯一口径 */
   P.G.tier = 3; P.G.track = "electoral";
   check(P.officeSalary() === P.reg.officeSalary["electoral_3"], "officeSalary 应取 reg.officeSalary 的表值");
   P.G.track = "__none__";
@@ -1086,6 +1102,10 @@ let draws = 0, games_ = 0, fillers = 0, gradeHit = { major: 0, mid: 0, minor: 0 
    否则分布一变就分不清是机制变了还是投注策略变了。 */
 let stakeEvents = 0, stakeFunSpent = 0, stakeFunTiers = 0;
 let slotsPerYear = [], monthHist = {}, catHit = {}, medHit = { none: 0, gated: 0 }, dateDrift = 0;
+/* #32 四大类实际出场账：验收要看两件事 ——
+   ① 随机类年均 ≤ pace.yearRandomMax（超发就是刷属性/刷钱）；
+   ② 倒挂转正：固定历史 ≥ 职业 ≥ 随机（玩家最看重的是"史实到点必演"，不是巧合）。 */
+let kindHit = { fixed: 0, campaign: 0, career: 0, random: 0, shady: 0 }, simYears = 0;
 let eraSpecific = 0, eraGeneric = 0;
 /* 静好岁月：平静月一共结算了多少段随笔、其中有多少段抽不出文字（说明素材有洞） */
 let quietTotal = 0, vigCount = 0, vigEmpty = 0;
@@ -1119,6 +1139,7 @@ for (let r = 0; r < games; r++) {
     const G = P.G, b = P.balance();
     let done = false;
     for (let y = 0; y < 55 && !done; y++) {
+      simYears++;
       // 每年恢复精力（与 endYear 同口径），保证 ap 类代价有东西可付
       G.ap = P.clamp((b.apBase == null ? 6 : b.apBase) + Math.floor(G.hp / (b.apHealthDiv || 25)), b.apMin || 1, b.apMax || 12);
       G.month = 0; G.quietMonths = []; G.monthPlan = []; G.slotIndex = 0; G.slotCount = 0;
@@ -1155,6 +1176,11 @@ for (let r = 0; r < games; r++) {
           gradeHit[P.gradeOf(ev)] = (gradeHit[P.gradeOf(ev)] || 0) + 1;
           if (ev.filler) fillers++;
           catHit[ev.category || "—"] = (catHit[ev.category || "—"] || 0) + 1;
+          /* #32：真实出场过的四大类（灰产单列，它走独立额度） */
+          if (!ev.filler) {
+            const bk = (P.eventKind(ev) === "random" && ev.category === "shady") ? "shady" : P.eventKind(ev);
+            kindHit[bk] = (kindHit[bk] || 0) + 1;
+          }
           {
             const isSp = ev.era && ev.era.length < eras.length;
             if (isSp) eraSpecific++; else eraGeneric++;
@@ -1260,6 +1286,7 @@ return {
   tiers: tiers, demoTiers: demoTiers, endings: endings, errs: errs, draws: draws, games: games_, fillers: fillers, gradeHit: gradeHit,
   stakeEvents: stakeEvents, stakeFunSpent: stakeFunSpent, stakeFunTiers: stakeFunTiers,
   monthHist: monthHist, catHit: catHit, medHit: medHit, dateDrift: dateDrift,
+  kindHit: kindHit, simYears: simYears,
   eraSpecific: eraSpecific, eraGeneric: eraGeneric, eraMix: eraMix,
   quietTotal: quietTotal, vigCount: vigCount, vigEmpty: vigEmpty, avgSlots: avgSlots,
   valHit: valHit,
@@ -1371,6 +1398,14 @@ console.log("  每局平均事件 " + (draws / Math.max(1, games)).toFixed(0) + 
     " ｜ <12 个月 " + (g.length ? (lt12 / g.length * 100).toFixed(1) : "0") + "% ｜ 单局同卡最多 " + sim.repWorst.n + " 次（" + sim.repWorst.id + "）");
 }
 console.log("  类型分布: " + JSON.stringify(catHit));
+{   /* #32 四大类实际节奏：随机类年均 ≤ 额度，且倒挂转正（固定历史 ≥ 职业 ≥ 随机）。 */
+  const k = sim.kindHit || {}, Y = Math.max(1, sim.simYears || 1);
+  const per = (n) => (n / Y).toFixed(2);
+  const rand = (k.random || 0) + (k.shady || 0);
+  console.log("  四大类【年均/局】: 固定 " + per(k.fixed) + " ｜ 职业 " + per(k.career) +
+    " ｜ 随机 " + per(rand) + "（含灰产 " + per(k.shady) + "） ｜ 竞选 " + per(k.campaign) +
+    " ｜ 额度 " + JSON.stringify(P.balance().pace) + " ｜ 样本 " + Y + " 年");
+}
 console.log("  投注观测：押过钱的判定 " + (stakeEvents / Math.max(1, draws) * 100).toFixed(1) + "% 次" +
   "（平均 " + (stakeFunTiers / Math.max(1, stakeEvents)).toFixed(2) + " 档）" +
   " ｜ 每局押掉 $" + Math.round(stakeFunSpent / Math.max(1, games) / 1000) + "k");
@@ -1435,6 +1470,17 @@ check(eraSpecific / Math.max(1, draws) >= 0.15,
   "时代专属事件占比过低（" + (eraSpecific / Math.max(1, draws) * 100).toFixed(1) + "%）——通用事件淹没了时代内容，考虑调高 eraWeightMul 或给该时代加内容");
 check(vigCount > 0, "模拟里一段「静好岁月」都没结算——平静月的成长/叙事路径没被走到");
 check(vigEmpty === 0, "有 " + vigEmpty + " 段随笔抽不出文字（素材库在某种状态下缺槽位）");
+{   /* ---- #32 事件四大类节奏验收 ----
+     年均额度是引擎硬闸，与样本量无关（--games=1 的 worker 也该抓得住回归）；
+     「倒挂转正」是分布结论，留给统计样本。 */
+  const kk = sim.kindHit || {}, Y = Math.max(1, sim.simYears || 1), pc = P.paceCfg();
+  const rate = { fixed: (kk.fixed || 0) / Y, career: (kk.career || 0) / Y, random: (kk.random || 0) / Y, shady: (kk.shady || 0) / Y };
+  check(rate.random <= pc.yearRandomMax + 0.05, "随机类年均 " + rate.random.toFixed(2) + " 件，超出 pace.yearRandomMax=" + pc.yearRandomMax + " —— 属性与钱会刷太快");
+  check(rate.shady <= pc.grayMax + 0.05, "灰产投机年均 " + rate.shady.toFixed(2) + " 件，超出 pace.grayMax=" + pc.grayMax);
+  check(rate.fixed > 0, "四大类里固定历史事件一件没出（kindHit.fixed=0）——钉卡通道断了");
+  check(thinSample || rate.fixed >= rate.career, "四大类倒挂未转正：固定历史 " + rate.fixed.toFixed(2) + "/年 < 职业 " + rate.career.toFixed(2) + "/年");
+  check(thinSample || rate.career >= rate.random, "四大类倒挂未转正：职业 " + rate.career.toFixed(2) + "/年 < 随机 " + rate.random.toFixed(2) + "/年");
+}
 
 /* ---------- 渲染冒烟（无头 DOM） ---------- */
 console.log("\n== 渲染冒烟 ==");
@@ -1626,6 +1672,8 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
          两候选同等抹除，比值口径不变。 */
       P._monthSeen = []; P._monthKey = null;
       delete P.G.doneSeq.__chain_plain; delete P.G.doneSeq.__chain_next;
+      /* 每年随机额度（#32②）同理会把合成卡饿死 —— 这里测的是权重比，逐次抹平额度。 */
+      P.G.yearKinds = null;
       const picked = P.drawEvent({ grade: "mid" });
       if (picked.id === "__chain_next") next++; else if (picked.id === "__chain_plain") plain++;
     }
@@ -1688,17 +1736,45 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
     ]);
     const rc = P.evById("__repel"), pc = P.evById("prog_repel");
     const _ym = P.G.year * 12 + P.G.month;               // monthSeq 快照，测完好戻
+    /* 这里测的是硬冷却的作用域，不是每年随机额度（#32②）：每次断言前抹平额度，
+       否则前面探针抽过的卡会把本行余额吃掉，eligible 假阴性。 */
+    const noPace = function () { P.G.yearKinds = null; };
+    noPace();
     check(P.eligible(rc, true), "没演过的卡当然可抽");
     P.stamp("__repel"); P.stamp("prog_repel");
+    noPace();
     check(!P.eligible(rc, true), "普通单发卡演过后，硬冷却窗口内连 pass3（ignoreRecent）都不该放行");
     check(P.eligible(pc, true), "prog_* 晋升卡演过就该立刻可重试 —— 冷却闸不许碰晋升脊柱");
     const forced = P.drawEvent({ eventId: "__repel", grade: "minor" });
     check(forced && forced.id === "__repel", "定点档期（竞选幕/时代脚本/公务）冷却中照样必出 —— 它不经 eligible");
     P.G.month += 24;                                     // 熬过 24 个月窗口
+    noPace();
     check(P.eligible(rc, true), "冷却到期后该卡应重回卡池");
     P.G.year = Math.floor(_ym / 12); P.G.month = _ym % 12;  // 还原月份（后面的测试也算 monthSeq）
     /* 公务通道自查：chore 卡演过后 choreEligible 不该拦（冷却闸不许注入通道误伤） */
     P.G.doneSeq = {};
+  }
+
+  /* --- #28② 投机/灰产豁免通道：可反复赌，但只免"同卡重复"，不免年度额度 ---
+   * 三道闸逐个钉死：衰减豁免、硬冷却豁免、grayMax 仍然拦人。
+   * 外加内容纪律：pace:"exempt" 必须显式 unique:false（major 卡默认一局一次，忘了写就永远等不到第二回）。 */
+  {
+    P.G.tier = 3; P.G.doneIds = []; P.G.flags = []; P.G.doneSeq = {}; P.recentIds = [];
+    P.define("event", [
+      { id: "__flip", tierMin: 0, tierMax: 5, weight: 5, grade: "mid", category: "shady", unique: false, pace: "exempt", title: "t", body: "t" },
+      { id: "__once", tierMin: 0, tierMax: 5, weight: 5, grade: "mid", category: "shady", title: "t", body: "t" }
+    ]);
+    const fl = P.evById("__flip"), on = P.evById("__once");
+    check(P.paceExempt(fl) && !P.paceExempt(on), "P.paceExempt 应只认 pace:\"exempt\"");
+    P.stamp("__flip");
+    check(P.idRepeatFactor(fl) === 1, "exempt 卡演过一次后权重不该衰减（同一笔庄家生意可以再做一次）");
+    check(P.eligible(fl, true), "exempt 卡不该吃 24 个月硬冷却");
+    const badPace = P.events.filter(function (e) { return P.paceExempt(e) && e.unique; });
+    check(!badPace.length, "pace:\"exempt\" 的卡必须显式 unique:false，否则第一次就绝版：" + badPace.map(function (e) { return e.id; }).join("、"));
+    /* 年度灰产额度仍然拦人 */
+    P.G.yearKinds = { fixed: 0, campaign: 0, career: 0, random: 0, shady: P.paceCfg().grayMax };
+    check(!P.eligible(fl, true), "灰产年度额度（grayMax）满了，exempt 卡也该被挡下 —— 豁免的是重复，不是无限量");
+    P.G.yearKinds = null; P.G.doneSeq = {};
   }
 
   /* --- 在位时长（minTenure）：晋升要熬够月份 --- */
@@ -1710,9 +1786,11 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   P.define("event", [{ id: "__tenure", tierMin: 0, tierMax: 5, weight: 1, grade: "minor", minTenure: 12, title: "t", body: "t" }]);
   const tv = P.events.find(function (e) { return e.id === "__tenure"; });
   P.G.tierSince = P.monthSeq();
+  P.G.yearKinds = null;                                  // 同上：只看年限闸，不看随机额度
   check(P.monthsAtTier() === 0 && !P.eligible(tv), "刚晋级时，要求在位 12 个月的事件不该可触发");
   P.G.tierSince = P.monthSeq() - 12;
   check(P.monthsAtTier() === 12, "monthsAtTier 应为 12，实际 " + P.monthsAtTier());
+  P.G.yearKinds = null;
   check(P.eligible(tv), "熬够 12 个月后，该事件应可触发");
   /* 晋级会重置在位计时（effects.js 的 tier 处理器） */
   P.G.tierSince = P.monthSeq() - 120;          /* v0.5.4 年限闸：先熬够 10 年 */

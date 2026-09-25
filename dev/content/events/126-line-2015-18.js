@@ -4,7 +4,7 @@
  *
  * 形制（见 docs/PARALLEL-CONTENT-WORK.md §4.3 与 docs/CONTENT-SCHEMA.md §1.5/§1.6/§11.7）：
  *   · 新卡不写 era —— 一律 minYear/maxYear + scoped，绝对年窗走 when.js。
- *   · 到点必发 —— 九张新卡与三张存量卡（soc16_election / soc17_fakenews / soc18_data
+ *   · 到点必发 —— 十张新卡与三张存量卡（soc16_election / soc17_fakenews / soc18_data
  *     只 pin 不重写）全部钉进文件末尾的 POTUS.define("fixed", …)。
  *   · 每卡一个「保底」选项：无 cost、无 req、高地板低天花板、不埋负面 flag（§6.1）。
  *   · 冒险项支出↔把握↔天花板三者错位，收益至少铺两根轴（§6.2）。
@@ -13,6 +13,123 @@
  * ==========================================================================*/
 
 POTUS.define("event", [
+
+  /* ======================================================================
+   * 2015-01 · 巴黎讽刺周刊编辑部遇袭与百万人游行 —— 美国这一边的题目（分层旗舰卡）
+   *   01-07 编辑部遭袭，12 人遇害；01-11 全城大游行。
+   *   法国是背景，主角题目是：登不登那几格画、上不上那条街、这一票怎么记名。
+   *   底（0-3）旁观自救 · 中（4-6）表态执行 · 高（7-9）决策担当
+   * ==================================================================== */
+  {
+    id: "ln15_charlie", grade: "major", category: "crisis",
+    valence: "risk", dyn: true,
+    minYear: 2015, maxYear: 2015, scoped: true, tierRaw: true, tierMin: 0, weight: 12, unique: true,
+    medium: ["tv", "cable", "print", "internet", "social"], month: 1, day: 7,
+    title: "巴黎一家讽刺周刊的编辑部遇袭，四天后全城上街",
+    body: "一月中旬的中午，巴黎一家讽刺周刊的编辑部被人持械闯入，十二人遇害，其中包括几个画漫画的、一名专栏作家和两个警察。起因是几年前登过的那几格画。\n" +
+      "四天后全城上街，队伍走了一公里多，多国元首并肩走在最前排。同一天下午，国内几家报馆关起门开会：这几格画，我们登不登。你的电话从那一刻开始响。",
+    brief: {
+      lede: "一场落在别的国家的袭击，考题却在你这一边：登不登、上不上、怎么记名。",
+      known: [
+        "周刊因那几格画被告过，编辑部早有安全警告。",
+        "游行定在四天后，多国领导已确认站第一排。",
+        "国内几家报馆正在关门决定要不要转载。",
+        "你选区有清真餐馆，也有刚回国的驻外记者。"
+      ],
+      rumor: [
+        "有人说更早的安全通报没被送到编辑部。",
+        "有人说这趟游行是给下周的法案搭台。"
+      ],
+      unknown: [
+        "言论的边界会不会因此重画。",
+        "你这次的措辞几年后会被怎么用。"
+      ],
+      terms: [
+        { k: "讽刺周刊", v: "以政治漫画和嘲弄为常设内容的周报。" },
+        { k: "重登", v: "外国报馆转载引来袭击的那几格画，本身即为立场。" }
+      ]
+    },
+    choices: [
+      {
+        id: "window_sign", text: "在办公室门口挂一张纸，其余什么都不说",
+        note: "赌这件事轮不到你有立场。风险：门口那张纸也会被读成立场。",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.7, mods: [{ src: "attr", key: "CHA", w: 0.25 }],
+        outcomes: {
+          crit: { body: "那张纸写得刚好：哀悼，不评论。本地周报把它拍下来放在社会版角落，没人挑出毛病。", effects: { rep: 0.4, fac: { establishment: 3, base: 2 } } },
+          ok: { body: "你把纸挂上了，接了两句访客的话，然后回屋里干活。", effects: { rep: 0.2, fac: { establishment: 2 } } },
+          meh: { body: "纸挂了一周，没人停下来看。", effects: {} },
+          fail: { body: "有人拍下那张纸问「你为什么不写清楚」。你没答。", effects: { rep: -0.3, fac: { press: -3 } } },
+          critfail: { body: "那张纸被人换了一个字，换了的那版在你选区传了一个星期。", effects: { rep: -0.6, fac: { press: -4, base: -2 } } }
+        }
+      },
+      {
+        id: "small_vigil", text: "在图书馆台阶办一场二十人的守夜，不请任何人讲话",
+        note: "小、稳、不上全国新闻。风险：没人记得，也就没人替你说话。",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.66, mods: [{ src: "attr", key: "INTG", w: 0.3 }, { src: "fac", key: "church", w: 0.2 }],
+        outcomes: {
+          crit: { body: "来了二十个人，其中一个是本地清真餐馆的老板。他后来跟人说：那晚他们也被请了。", effects: { rep: 0.25, fac: { church: 3, base: 2 } } },
+          ok: { body: "蜡烛点了一个小时，安静散场。该看见的人都看见了。", effects: { rep: 0.2, fac: { base: 2 } } },
+          meh: { body: "来了八个人，一半是来还书的。", effects: { rep: 0.05 } },
+          fail: { body: "有人贴出另一张海报，说这场守夜「只给一边点蜡烛」。你连一句稿子都没写。", effects: { rep: -0.2, fac: { church: -2 } } },
+          critfail: { body: "本地报只写了六个字：「无人发言，散。」你把这场守夜办成了一件没发生的事。", effects: { rep: -0.25, fac: { press: -3 } } }
+        }
+      },
+      {
+        id: "republish", text: "让本地报系重登那几格画，配一篇社论",
+        note: "赌恐惧之后是敬意。风险：本地商户当天就撤广告。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.48, cost: { fun: 1.2 }, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "press", w: 0.3 }],
+        outcomes: {
+          crit: { body: "那格画上了头版，社论只有一栏宽。三家大学报馆来要你那份排版授权，报协把你的名字写进年度声明第一段。", effects: { rep: 1.5, attr: { INT: 1 }, fac: { press: 12, base: 5, establishment: 4, church: -6 } } },
+          ok: { body: "版登出去了，骂声和谢声各占一半。你至少有一句能拿去引用的话。", effects: { rep: 0.8, fac: { press: 7, base: 3, church: -4 } } },
+          meh: { body: "你付了版面，画登在第 11 版。没人翻到那一页。", effects: { rep: 0.1, fun: -0.4 } },
+          fail: { body: "两家商户第二天撤了广告，标题写的是「他要我们为几格画付账」。", effects: { rep: -1.2, fun: -0.6, fac: { commercial: -8, base: -4 } } },
+          critfail: { body: "重登的那格被本地教会读成另一件事，你所在的党当天与你切割。有人开始逐笔问你版面的钱。", effects: { rep: -2.2, fun: -1, fac: { church: -10, commercial: -8, establishment: -5 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "letters_back", text: "给大使馆和本国报协各写一封公开信，把立场写成条款",
+        note: "表态要落成条款才不亏。风险：条款会被人逐字挑刺。",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.52, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你那三条被报协全盘采用，大使馆把信贴在厅里。全国有人引用「一位本地民意代表写道」。", effects: { rep: 1.4, fac: { press: 8, establishment: 7, base: 4, church: -3 } } },
+          ok: { body: "信被认真回了，回函里有一句是你写的。够了。", effects: { rep: 0.7, fac: { establishment: 5, press: 4 } } },
+          meh: { body: "两封信都寄出了，回的都是模板。", effects: { rep: 0.15 } },
+          fail: { body: "你写的第二条被人抓出措辞漏洞，报协公开与你的用词保持距离。", effects: { rep: -1.1, fac: { press: -6, establishment: -5 } } },
+          critfail: { body: "你的信被译成原文寄回，附了一份本国新闻自律条文：写这封信的人显然没读过。", effects: { rep: -2.1, fac: { press: -10, establishment: -6 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "march_front", text: "飞去巴黎站进第一排，回国当天就把话变成法案",
+        note: "第一排的镜头是全国级的。风险：回国后你得替这张照片解释到底。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.46, cost: { fav: 1 }, mods: [{ src: "fac", key: "establishment", w: 0.35 }, { src: "attr", key: "CHA", w: 0.3 }],
+        outcomes: {
+          crit: { body: "那张并肩走的照片上了全国头版。你回国第二天提出的那件法案，两周后就过了第一关。", effects: { rep: 2.2, voters: { warm: 400 }, fac: { establishment: 12, press: 10, base: 5, church: -6 } } },
+          ok: { body: "你站在了该站的位置上，也说了该说的话。党满意，一部分选民觉得你走得太远。", effects: { rep: 1.2, fac: { establishment: 7, press: 6, base: -3 } } },
+          meh: { body: "你在第十三排，镜头没找你。回程的机票被人问了一次。", effects: { rep: 0.3, fun: -0.3 } },
+          fail: { body: "全国的注意力第二天就换了题，你带回来的法案一个字没动。有人说这趟是公费观光。", effects: { rep: -1.6, fun: -0.8, fac: { press: -8, base: -6 } } },
+          critfail: { body: "照片确实用上了，不过是在对手的筹款广告里。你随团的花销被逐项公开，一项一项地念。", effects: { rep: -2.9, fun: -1.3, fac: { establishment: -8, press: -12, base: -8 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "floor_vote", text: "把这一票摆上桌：公开提案、公开记名，谁也不许含糊",
+        note: "赌你愿意把自己的票变成一条公开记录。风险：方向错了，这个名字跟着你十年。",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.44, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.25 }],
+        outcomes: {
+          crit: { body: "记名投票那张表后来被报馆装进相框。你在全国电视台把「一条界线」讲了三分钟，那三分钟被引用了很多年。", effects: { rep: 2.4, attr: { INT: 2 }, voters: { warm: 450 }, fac: { press: 14, base: 8, establishment: 6, church: -10 } } },
+          ok: { body: "你的提案进了记录。它可能通不过，但从今天起谁表态都得提你那条。", effects: { rep: 1.3, fac: { press: 8, establishment: 4, church: -5 } } },
+          meh: { body: "提案被排进下个会期，也就是排进抽屉。", effects: { rep: 0.3, fac: { establishment: -2 } } },
+          fail: { body: "票没过去。你被写成「借着别人的血办自己的法」，党内要你缓一缓。", effects: { rep: -1.9, fun: -0.8, fac: { establishment: -12, church: -8, press: -5 } } },
+          critfail: { body: "记名表上你的名字底下，是同一周你办公室悄悄撤回的另一份更硬的条文。「当面一套」被做成了图表。", effects: { rep: -3, fun: -1.2, fac: { establishment: -14, press: -12, base: -8, church: -6 }, flags: ["scandal_2"] } }
+        }
+      }
+    ]
+  },
 
   /* ======================================================================
    * 2015-06 · 同性婚姻全国合法 —— 一纸裁定把措辞权交到你手上
@@ -753,7 +870,7 @@ POTUS.define("event", [
  * ==========================================================================*/
 POTUS.define("worldline", {
   pressure: {
-    "2015": 3,   // 教堂枪击、裁定、邦联旗、初选前哨战
+    "2015": 3,   // 巴黎遇袭与全国言论之争、教堂枪击、裁定、邦联旗、初选前哨战
     "2016": 5,   // 大选年：奥兰多、执法冲突、邮寄与民调失灵、两面反转
     "2017": 5,   // 解职与调查、夏洛茨维尔、双飓风与救灾失灵
     "2018": 4    // 校园枪击与学生游行、中期选举重画名单
@@ -773,11 +890,13 @@ POTUS.define("worldline", {
 });
 
 /* ============================================================================
- * 定点表 fixed · 2015—2018（12 个锚点，major 4 个 ≈1/3）
- *   · 九张新卡 + 三张存量卡（108-era-2016 的 soc16_election / soc17_fakenews /
+ * 定点表 fixed · 2015—2018（13 个锚点，major 5 个 ≈2/5）
+ *   · 十张新卡 + 三张存量卡（108-era-2016 的 soc16_election / soc17_fakenews /
  *     soc18_data 只 pin 不重写，年月按卡片自身窗口核对）。
  * ==========================================================================*/
 POTUS.define("fixed", [
+  /* 巴黎讽刺周刊遇袭：1 月 7 日；四天后（1 月 11 日）全城游行。取遇袭当日。 */
+  { event: "ln15_charlie", year: 2015, month: 1, grade: "major" },
   { event: "ln15_marriage", year: 2015, month: 6, grade: "major" },
   { event: "ln15_charleston", year: 2015, month: 7, grade: "mid" },
   { event: "ln16_flint", year: 2016, month: 1, grade: "mid" },

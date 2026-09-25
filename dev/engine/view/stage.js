@@ -767,7 +767,8 @@
       cbox.appendChild(choicesHost);
     }
     const cTarget = choicesHost || P.$("#choices");
-    const chs = ev.choices || [];
+    /* #32⑤：选项级分层 —— 写了 ch.when 的选择支只在对的身份档位上出现 */
+    const chs = P.visibleChoices ? P.visibleChoices(ev) : (ev.choices || []);
     /* 保底机制：如果所有选项都被堵死（没钱 / 没声望 / 没层级），放行一个，
        免得玩家卡在一个点不动的事件上。正常情况下不该触发（校验器强制每个事件
        都有保底选项），这里只是兜底。 */

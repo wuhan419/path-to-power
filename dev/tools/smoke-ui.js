@@ -271,18 +271,27 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(w.document.getElementById("stFunPlus").disabled, "资金到顶后 ＋ 同样置灰");
   check(P.stakeInfo(allIn, { fun: 40 }).bonus <= 0.3000001, "资金加成不超过上限 +30%");
 
-  /* ---------- v0.7 动态汇率：同样的选项，身位不同价码不同，且面板交代得清 ---------- */
-  console.log("\n== 动态投注汇率（身位 × 事件钱量级）==");
+  /* ---------- #28① 级别价：身位不同价码不同，且与余额彻底脱钩 ---------- */
+  console.log("\n== 投注级别价（单价随身位·不随钱包）==");
   const noteOn = () => (w.document.getElementById("stake").querySelector(".stake-rate") || {}).textContent || "";
   const perAt = (track, tier) => { P.G.track = track; P.G.tier = tier; return perFun(); };
   const p0 = perAt("electoral", 0), p5 = perAt("electoral", 5);
   check(p5 > p0, "同一选项：T5 的每档价码高于 T0（" + P.fmtUsd(p0) + " → " + P.fmtUsd(p5) + "）");
   const pWealth = perAt("wealth", 5);
   check(pWealth >= p5, "同层级下财富轨道（月薪更高）不便宜于选举轨道（" + P.fmtUsd(p5) + " vs " + P.fmtUsd(pWealth) + "）");
+  /* #28① 的正身断言：同一档位，余额翻一千倍，单价一分不动 */
+  P.G.track = "electoral"; P.G.tier = 5;
+  const perPoor = (P.G.fun = 50000, perFun());
+  const perRich = (P.G.fun = 50000000, perFun());
+  check(perPoor === perRich, "单价不随余额浮动（" + P.fmtUsd(perPoor) + " vs " + P.fmtUsd(perRich) + "）");
+  const notchPoor = (P.G.fun = 50000, P.stakeMax("fun", allIn));
+  const notchRich = (P.G.fun = 50000000, P.stakeMax("fun", allIn));
+  check(notchRich > notchPoor, "余额只体现为档数（" + notchPoor + " 档 → " + notchRich + " 档）");
   P.G.track = "electoral"; P.G.tier = 1; P.G.fun = 3000000;
   w.document.getElementById("stBack").click();
   openStake();
-  check(noteOn().indexOf("月薪") >= 0 && noteOn().indexOf("身位基准") >= 0, "面板给出汇率依据：" + noteOn());
+  check(noteOn().indexOf("月薪") >= 0 && noteOn().indexOf("按身位定价") >= 0, "面板给出汇率依据：" + noteOn());
+  check(noteOn().indexOf("家底") >= 0, "面板讲明余额只决定押得起几档：" + noteOn());
   check(!!w.document.querySelector("#stake .stake-rate"), "面板渲染出 .stake-rate 说明条");
 
   /* 用户报的核心 bug 已修：小兵（家底 $10k）至少投得起一档 */

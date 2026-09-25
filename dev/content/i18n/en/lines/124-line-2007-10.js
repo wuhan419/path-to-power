@@ -149,6 +149,41 @@ POTUS.define("l10n", {
               fail: { body: "The builder collapses regardless. Your money went in and did not come out, and the laid-off men recognize you on the list." },
               critfail: { body: "The bankruptcy trustee finds the brokerage: public money unrecovered, your own money inside first. The state attorney's office calls." }
             }
+          },
+          {
+            id: "calm_queue",
+            text: "Stand at the bank door and talk people down: no stampede for withdrawals, go home and wait",
+            outcomes: {
+              crit: { body: "You persuaded the first dozen households in line that day to go home. Next morning's bank-run story skipped this branch, and the town's savings held another week." },
+              ok: { body: "You stood there all afternoon and walked back whoever you could. No thanks printed; the queue did loosen a little." },
+              meh: { body: "You talked; they queued. Nobody knew anybody." },
+              fail: { body: "The day after you talked people out of withdrawing, the branch posted its shut-down notice. Your words get retold backwards." },
+              critfail: { body: "Somebody swears you knew the doors would close and told depositors to wait anyway. One honest sentence, delivered on the worst possible day." }
+            }
+          },
+          {
+            id: "disclose",
+            text: "Convene a public inquiry of the branch: local loan exposure and capital position, laid on the table",
+            note: "Public accounting earns the most hatred and the most 'meticulous' credit. Every phone in the room is recording; one wrong word runs away with you.",
+            outcomes: {
+              crit: { body: "Under a forest of raised phones the branch president opened those few pages of numbers. You reported the riskiest piece to the state — and your inquiry sits in the appendix of the eventual seizure order." },
+              ok: { body: "Two hours of inquiry, thirty minutes of diplomatic filler from the president — but the two figures you shook out ran in the local paper." },
+              meh: { body: "The meeting produced one sentence: fully compliant. You knew that's how you'd be brushed off." },
+              fail: { body: "The bank's lawyers fire back a letter accusing your inquiry of 'engineering a run.' Local business starts walking around you." },
+              critfail: { body: "A week after your meeting the branch is seized — and every depositor's panic gets billed to you: 'He's the one who scared us.'" }
+            }
+          },
+          {
+            id: "senate_inquiry",
+            text: "Send the interrogation to the federal level: demand hearings on the mortgage-securitization chain and the rating agencies",
+            note: "Naming two funds is only the start; naming the whole chain is the decision. Wrong, you're just the man who doesn't understand finance.",
+            outcomes: {
+              crit: { body: "Your question — who certified these bonds as safe — pins itself onto the national agenda. Months later the federal subpoenas land, on the issuers and the raters the same day." },
+              ok: { body: "The case is filed; the hearings calendar runs into next year. You make the 'understands this business' short list, and Wall Street's blacklist." },
+              meh: { body: "Your demand gets filed under 'pre-election theater,' and the hearing date slides indefinitely." },
+              fail: { body: "Your donors pull their lines in a body. Pundits laugh: he called two funds a crisis. The contribution list thins by a full column." },
+              critfail: { body: "One page of asset data you quoted is disproven on the spot. 'He reads tabloids, not annual reports' leads the business section." }
+            }
           }
         ]
       },

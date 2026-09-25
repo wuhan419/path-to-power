@@ -87,12 +87,14 @@ POTUS.define("event", [
   },
 
   /* ======================================================================
-   * 2007-08 · 次贷裂缝 —— 两只基金倒下，县里的钱还在里面（风险）
+   * 2007-08 · 次贷裂缝 —— 两只基金倒下，县里的钱还在里面（风险·已做层级分层）
+   *   选项级 when 用 tierRaw 写在 0—9 真实层级：底 T0—3 自救、中 T4—6 表态、
+   *   高 T7—9 定调，每档两条；卡级放开 tierMax，高段玩家也发得出这张卡。
    * ==================================================================== */
   {
     id: "ln07_subprime", photo: "era-2007.jpg", grade: "mid", category: "finance",
     valence: "risk", dyn: true,
-    minYear: 2007, maxYear: 2007, scoped: true, tierRaw: true, tierMin: 1, tierMax: 5, weight: 12, unique: true,
+    minYear: 2007, maxYear: 2007, scoped: true, tierRaw: true, tierMin: 0, weight: 12, unique: true,
     medium: ["print", "cable", "internet"], month: 8,
     title: "两只基金倒了，县里的退休金还在那家银行",
     body: "八月的一个礼拜里，两只靠房贷证券吃饭的基金被冻结赎回，「次级贷款」第一次上了电视。\n" +
@@ -118,6 +120,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "pull", text: "召集董事会表决，把退休金先挪走",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         note: "赌的是银行真撑不住。风险：本地建商当场骂你。",
         base: 0.44, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.2 }],
         cost: { fun: 0.5 },
@@ -131,6 +134,7 @@ POTUS.define("event", [
       },
       {
         id: "stay", text: "按兵不动：钱留在原处，只说一切合规",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         note: "赌的是银行还撑得住。风险：崩了你是没预警那一个。",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
@@ -143,6 +147,7 @@ POTUS.define("event", [
       },
       {
         id: "rescue", text: "私下撮合：让银行续贷本地建商，你也入一股",
+        when: { tierRaw: true, tierMin: 7 },
         note: "赌的是这次能软着陆。风险：钱和名声一起垫进去。",
         base: 0.4, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "commercial", w: 0.3 }],
         cost: { fun: 1 }, req: { fun: 2 },
@@ -152,6 +157,44 @@ POTUS.define("event", [
           meh: { body: "你垫了钱，贷款还是抽了一半。没人记得你跑过这一趟。", effects: { rep: -0.2 } },
           fail: { body: "建商还是倒了。你的钱进去没出来，被裁的人却在名单上认得你。", effects: { rep: -1.2, fac: { base: -6, labor: -4 } } },
           critfail: { body: "破产清算人翻出这笔撮合：公家的钱还没保住，你自己的先坐在里面。州检察长的办公室来电话了。", effects: { rep: -2, fac: { base: -8, press: -6 }, flags: ["scandal_1", "investigation_open"] } }
+        }
+      },
+      {
+        id: "calm_queue", text: "站在银行门口劝邻里：别挤提，先回家等消息",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "base", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你劝住了当天排队最前的十几户。第二天挤提的新闻里少了这家分行，镇民的存款多稳了一个礼拜。", effects: { rep: 0.8, fac: { base: 6 } } },
+          ok: { body: "你站了一下午，劝回几户是几户。没人道谢，门口的秩序确实松了一点。", effects: { rep: 0.35, fac: { base: 3 } } },
+          meh: { body: "你说你的，排队的排队，谁也不认得谁。", effects: { rep: 0 } },
+          fail: { body: "你劝人别挤提的第二天，分行贴出暂停营业的告示。你的话被人拿来反着讲。", effects: { rep: -0.6, fac: { base: -4 } } },
+          critfail: { body: "有人咬定你「早知道要关门还劝人别取钱」。你不过说了句实话，却挑了最坏的日子说。", effects: { rep: -1.3, fac: { base: -5, commercial: -3 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "disclose", text: "开一场对分行的公开问询会：把本地贷款敞口和资本状况摊到桌上",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        note: "公开要账最招恨，也最攒「较真」的名声。全场手机都举着，话说错一个字都跑不掉。",
+        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "commercial", w: 0.2 }],
+        outcomes: {
+          crit: { body: "行长顶不住满堂的手机，摊开了那几页数字。你把最险的一块报给州里——后来的接管文书里，你这场问询会是附件之一。", effects: { rep: 1.4, fac: { base: 6, press: 4, commercial: -4, establishment: 3 } } },
+          ok: { body: "问询会开了两小时，行长讲了半小时外交辞令，但你问出的那两位数被本地报登了出来。", effects: { rep: 0.5, fac: { press: 2, commercial: -2 } } },
+          meh: { body: "会上只有一句「一切合规」。你早知道会被这么打发。", effects: { rep: 0.05 } },
+          fail: { body: "银行律师反函你的办公室，指控问询会「制造挤提」。本地生意人开始绕着你走。", effects: { rep: -1.2, fac: { commercial: -6, establishment: -3 } } },
+          critfail: { body: "问询会一周后这家分行真被接管——储户的恐慌全被算到你头上：「谁叫你先去吓人的。」", effects: { rep: -2, fac: { base: -6, commercial: -6 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "senate_inquiry", text: "把质询递到联邦层面：要求就房贷证券链与评级机构开调查听证",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "点名两只基金只是开始，点名整条链条才是决断。赌错，你就是「不懂金融的人」。",
+        base: 0.44, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你问的那句「谁给这些债券盖的合格章」钉上了全国议程。数月后联邦调查令下来，发贷方与评级机构同一天收到传票。", effects: { rep: 1.9, attr: { INT: 2 }, voters: { warm: 300 }, fac: { press: 7, base: 6, commercial: -8, establishment: 3 }, flags: ["saw_it_early"] } },
+          ok: { body: "案子立了，传唤排到了明年。你上了「懂这行」的短名单，也上了华尔街的黑名单。", effects: { rep: 0.7, fac: { press: 3, base: 3, commercial: -4 } } },
+          meh: { body: "你的质询被归进「选前表演」，听证排期无限往后拖。", effects: { rep: -0.1, fac: { commercial: -2 } } },
+          fail: { body: "金主集体撤线，评论员笑你把两只基金说成一场危机。你的捐款名单瘦了一圈。", effects: { rep: -1.7, fun: -1.5, fac: { commercial: -8, establishment: -5 } } },
+          critfail: { body: "你引用的一页资产数据被当场证伪，「他不读年报，只读小报」上了财经版头排。", effects: { rep: -2.7, fun: -1.5, fac: { press: -8, establishment: -6, commercial: -4 }, flags: ["scandal_1"] } }
         }
       }
     ]

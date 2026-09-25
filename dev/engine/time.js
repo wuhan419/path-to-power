@@ -102,10 +102,7 @@
   function normalizePins() {
     if (P._pinsNormalized) return;
     P._pinsNormalized = 1;
-    const ids = {};
-    const take = (l) => (l || []).forEach((s) => { if (s.event) ids[s.event] = 1; });
-    take(P.reg.fixed);
-    for (const id in P.reg.era) take(P.reg.era[id].scheduled);
+    const ids = P.pinIds();
     let n = 0;
     P.events.forEach(function (ev) {
       if (ids[ev.id] && ev.tierMax != null && ev.tierMax < 9) { ev.tierMax = 9; n++; }
@@ -165,7 +162,12 @@
     if (!P.yearOK(e) || !P.mediumOK(e)) return false;
     const G = P.G;
     if (P.isUnique(e) && G.doneIds.indexOf(e.id) >= 0) return false;
-    if (P.recentIds.indexOf(e.id) >= 0) return false;
+    /* 公务不去挤全局 recentIds（随机卡池的 20 抽窗口 ≈ 2.4 年）：
+       每个层级 band 只有几公务卡，共用那条窗口会自我饿死 —— 抽完一张就要等两年多才回来，
+       「每 2—4 个月蹦一条职业事务」的节奏线根本补不上。改成自己的月份冷却：
+       同一张公务隔 repeatMonths 个月才重演，落在 doneSeq 上、随存档走。 */
+    const rm = Number((P.balance().choreDynamic || {}).repeatMonths);
+    if (rm > 0) { const since = P.monthsSince(e.id); if (since != null && since < rm) return false; }
     return true;
   }
   P.choresSlot = function (isEmptyMonth) {
@@ -227,6 +229,12 @@
       + (bonus >= (b.slotsBonusAt == null ? 2 : b.slotsBonusAt) ? 1 : 0)
       + variance;
     n = P.clamp(n, 1, b.slotsMax == null ? 3 : b.slotsMax);
+    /* #32 随机限流：本月能排的随机档期不超过本年剩余名额（fixed/竞选/公务已在 out 里，
+       不占额度）。名额用尽又没有别的档期时，这个月就静下去 —— 绝不能把没名额的月份
+       推给填充器，那是"超发"换了个马甲。 */
+    const room = P.randomRoom ? P.randomRoom() : Infinity;
+    if (Number.isFinite(room)) n = Math.min(n, out.length + room);
+    if (n <= 0) return [];
     /* 每个档期独立掷三值性（机遇/风险/威胁）：类与类之间互不挤占、
        与本月初生无关 —— 坏事件不会因为本月已有好事件就不来。 */
     while (out.length < n) out.push({ grade: P.pickGrade(pressure), valence: P.pickValence(pressure) });

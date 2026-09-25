@@ -7,7 +7,9 @@
 POTUS.define("event", [
 
   /* ------------------------------------------------------------------------
-   * 1) 九月十一日 —— 国运转折（大事件，史实锚点 9/11）
+   * 1) 九月十一日 —— 国运转折（大事件，史实锚点 9/11；已做层级分层）
+   *    选项级 when 用 tierRaw 直接写在 0—9 真实层级上：底 T0—3 自救、
+   *    中 T4—6 表态、高 T7—9 定调；每档两条，任何一级玩家都有得选。
    * ---------------------------------------------------------------------- */
   {
     id: "wt01_september", photo: "era-2001.jpg", grade: "major", category: "crisis",
@@ -40,6 +42,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "rally", text: "全盘挺同：动武、扩权、一个都不落",
+        when: { tierRaw: true, tierMin: 7 },
         note: "骑在最顶峰的民意上最风光，可你也就此和这场没尽头的战争绑在了一起。",
         base: 0.62, mods: [{ src: "fac", key: "military", w: 0.4 }, { src: "fac", key: "establishment", w: 0.35 }],
         stake: { fun: true },
@@ -58,6 +61,7 @@ POTUS.define("event", [
       },
       {
         id: "balance", text: "支持反击，但拦住法案里那些和反恐无关的扩权条款",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
         note: "在最不适宜讲「但是」的时刻讲「但是」。会被骂「不清醒」，却可能守住一条底线。",
         base: 0.48, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "attr", key: "INT", w: 0.3 }],
         outcomes: {
@@ -75,6 +79,7 @@ POTUS.define("event", [
       },
       {
         id: "home", text: "不谈海外，先顾本地：护住被盘问的族裔社区、安抚军属",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "当所有人盯着远方，你在本地替被无端盘问的邻居撑了腰、给军属办了实事。这份「身边人」的口碑比任何全国头条都持久。",
@@ -87,6 +92,60 @@ POTUS.define("event", [
             effects: { rep: -0.4, fac: { establishment: -5, base: -3 } } },
           critfail: { body: "你替被怀疑族裔说话，正撞上一桩本地治安案，两件事被拼成了「他就是那一伙的」。",
             effects: { rep: -0.9, fac: { base: -6, military: -6 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "volunteer", text: "报名去救援志愿线：搬担架、分热汤，不提任何口号",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.6, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "base", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你在废墟外围的志愿线连轴转了一礼拜，磨穿两副手套。没人采访你，可排队领汤的人都记住了这张脸。",
+            effects: { rep: 0.9, fac: { base: 7, church: 4 } } },
+          ok: { body: "你去了，挑最脏的活干，回来一个字没提。邻里说你厚道。",
+            effects: { rep: 0.4, fac: { base: 4 } } },
+          meh: { body: "你报了名，被排进人手已经过剩的名单末尾，半天就回了家。",
+            effects: { rep: 0.1 } },
+          fail: { body: "有人在志愿线上认出你，照片进了本地报的「政客作秀」专栏。",
+            effects: { rep: -0.5, fac: { press: -3 } } },
+          critfail: { body: "记者追问你到底搬了几箱水，你答不上来。「借着国难刷存在」的说法就这么立住了。",
+            effects: { rep: -1.2, fac: { press: -5, base: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "open_letter", text: "联署本地工商与教会的公开信：支持反击，但反对按族裔猜人",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        note: "在最不容「但是」的时刻签字。信要你自己起草，署名的先后就是态度。",
+        base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "church", w: 0.25 }],
+        outcomes: {
+          crit: { body: "公开信被全国报链引用，「他敢在愤怒里写『但是』」。本地两族商会头一回同台替你站台。",
+            effects: { rep: 1.3, fac: { church: 7, press: 5, base: 4, establishment: -3 } } },
+          ok: { body: "信发了，骂声也有，但该署名的都署了。你守住了一块地方。",
+            effects: { rep: 0.5, fac: { church: 3, base: 2 } } },
+          meh: { body: "你的公开信混进几十份同类声明，没人多看一眼。",
+            effects: { rep: 0.05 } },
+          fail: { body: "党部来电追问信是不是你起草的，你还没开口，「立场动摇」已先记了一笔。",
+            effects: { rep: -0.9, fac: { establishment: -5 } } },
+          critfail: { body: "有人把信里「反对有罪推定」一句剪去上下文，「他不一心反恐」上了对手的传单。",
+            effects: { rep: -1.8, fac: { press: -5, establishment: -4, base: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "demand_probe", text: "把话说到决策层头上：公开主张合并各情报机关的预警与空域管制",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "国难追问最伤人，也最立得住。赌错，你成了「替体制找难题的人」。",
+        base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.25 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你主张的合并预警与空域管制写进了新设机关的职权表，国会听证桌上第一次有人引用你的原话。",
+            effects: { rep: 1.8, attr: { INT: 2 }, voters: { warm: 300 }, fac: { press: 8, establishment: -4, agency: -6, base: 5 }, flags: ["saw_it_early"] } },
+          ok: { body: "你的主张进了筹备组的参考文本，安全机构嫌你多嘴，报界记下你有脑子。",
+            effects: { rep: 0.7, fac: { press: 4, base: 2, agency: -3 } } },
+          meh: { body: "全国在喊复仇，你的「先合并预警」只换来一句「以后再说」。",
+            effects: { rep: -0.1, fac: { establishment: -2 } } },
+          fail: { body: "情报系统放风说你「拆反恐的台」，捐款电话一夜之间冷了下去。",
+            effects: { rep: -1.6, fac: { agency: -6, establishment: -5 } } },
+          critfail: { body: "安全机构把一桩未遂案的时间表甩给你看：「你要合并的那几天，正缺人。」这顶锅你背了很多年。",
+            effects: { rep: -2.6, fac: { press: -8, base: -5, agency: -8 }, flags: ["scandal_2"] } }
         }
       }
     ]

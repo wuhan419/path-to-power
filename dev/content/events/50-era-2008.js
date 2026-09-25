@@ -43,6 +43,7 @@ POTUS.define("event", [
       {
         "id": "sign",
         "text": "签名背书，登上全国荧幕",
+        "when": { "tierRaw": true, "tierMin": 4, "tierMax": 6 },
         "base": 0.5,
         "mods": [
           {
@@ -117,6 +118,7 @@ POTUS.define("event", [
       {
         "id": "refuse",
         "text": "拒绝，发声明批评救市不公",
+        "when": { "tierRaw": true, "tierMin": 7 },
         "base": 0.45,
         "mods": [
           {
@@ -185,6 +187,7 @@ POTUS.define("event", [
       {
         "id": "leak",
         "text": "把简报泄露给记者，换取曝光",
+        "when": { "tierRaw": true, "tierMin": 0, "tierMax": 3 },
         "req": {
           "track": "operative"
         },
@@ -262,6 +265,232 @@ POTUS.define("event", [
               "flags": [
                 "investigation_open",
                 "scandal_2"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "shop_floor",
+        "text": "不接电视邀约：把被收房的邻里请进办公室，挨户登记求助",
+        "when": { "tierRaw": true, "tierMin": 0, "tierMax": 3 },
+        "base": 0.62,
+        "mods": [
+          {
+            "src": "attr",
+            "key": "CHA",
+            "w": 0.35
+          },
+          {
+            "src": "fac",
+            "key": "base",
+            "w": 0.3
+          }
+        ],
+        "outcomes": {
+          "crit": {
+            "body": "你一晚上登记了三十多户。名单递到镇公所那天，办事员头一回按纸面给你让了座。",
+            "effects": {
+              "rep": 0.9,
+              "fac": {
+                "base": 6,
+                "church": 3
+              }
+            }
+          },
+          "ok": {
+            "body": "你把能替人填的表都填了。没人道谢，来年街上却多了几张记得你的脸。",
+            "effects": {
+              "rep": 0.4,
+              "fac": {
+                "base": 3
+              }
+            }
+          },
+          "meh": {
+            "body": "来的人多半只想问电视里到底出了什么事。你答不上，只能陪着坐。",
+            "effects": {
+              "rep": 0.05
+            }
+          },
+          "fail": {
+            "body": "有人认出你也在这份名单上，问的却不是救市，是你自己的钱放在哪家银行。",
+            "effects": {
+              "rep": -0.6,
+              "fac": {
+                "base": -4
+              }
+            }
+          },
+          "critfail": {
+            "body": "你的登记名单被人复印带走，印成「他连这些账都在记」。你的热心成了现成的罪证。",
+            "effects": {
+              "rep": -1.3,
+              "fac": {
+                "press": -5,
+                "base": -4
+              },
+              "flags": [
+                "scandal_1"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "amend_terms",
+        "text": "上电视，但只背书把住房救济条款写进去的那个版本",
+        "when": { "tierRaw": true, "tierMin": 4, "tierMax": 6 },
+        "note": "接住话筒，也开出条件。财政部可能改口，也可能直接换人。",
+        "base": 0.5,
+        "mods": [
+          {
+            "src": "attr",
+            "key": "INT",
+            "w": 0.4
+          },
+          {
+            "src": "fac",
+            "key": "press",
+            "w": 0.2
+          }
+        ],
+        "cost": {
+          "fun": 1
+        },
+        "outcomes": {
+          "crit": {
+            "body": "你那三十秒被剪进晚间新闻，「救机构先救房主」成了全国引用。委员会把这条写进了修正案。",
+            "effects": {
+              "rep": 1.4,
+              "fun": -1,
+              "fac": {
+                "press": 6,
+                "base": 4,
+                "establishment": 3
+              }
+            }
+          },
+          "ok": {
+            "body": "你上了电视、开了价。条款只添了几行，那几行用的是你给的字句。",
+            "effects": {
+              "rep": 0.6,
+              "fun": -1,
+              "fac": {
+                "press": 3,
+                "base": 2
+              }
+            }
+          },
+          "meh": {
+            "body": "你的背书被当成噪音，修正案一条没过。",
+            "effects": {
+              "rep": 0,
+              "fun": -1
+            }
+          },
+          "fail": {
+            "body": "财政部把你的「但是」原样奉还：条款不改，背书照收。",
+            "effects": {
+              "rep": -1.2,
+              "fun": -1.5,
+              "fac": {
+                "establishment": -4,
+                "press": -3
+              }
+            }
+          },
+          "critfail": {
+            "body": "你引用的止赎数字被当场证伪，你一夜之间从「讲条件的人」变成「不会算账的人」。",
+            "effects": {
+              "rep": -2,
+              "fun": -1.5,
+              "fac": {
+                "press": -6,
+                "establishment": -4
+              },
+              "flags": [
+                "scandal_1"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "floor_vote",
+        "text": "把背书换成表决立场：公开念出你的附加条件，赞成反对都在这一票里",
+        "when": { "tierRaw": true, "tierMin": 7 },
+        "note": "全国盯的就是你这一票。定的是价钱，砸的是自己的信用。",
+        "base": 0.45,
+        "mods": [
+          {
+            "src": "attr",
+            "key": "CUN",
+            "w": 0.35
+          },
+          {
+            "src": "fac",
+            "key": "establishment",
+            "w": 0.3
+          }
+        ],
+        "stake": {
+          "fav": true
+        },
+        "outcomes": {
+          "crit": {
+            "body": "你念出的几处修改意见逐条写进了重新表决的文本，整案按你的价码重排。当晚，两党都要打你的电话。",
+            "effects": {
+              "rep": 1.8,
+              "voters": {
+                "warm": 300
+              },
+              "fac": {
+                "establishment": 10,
+                "press": 6,
+                "base": 4,
+                "commercial": -5
+              }
+            }
+          },
+          "ok": {
+            "body": "你换进一条，其余被砍。你的名字上了「会谈判」的那页纸。",
+            "effects": {
+              "rep": 0.7,
+              "fac": {
+                "establishment": 5,
+                "base": -2
+              }
+            }
+          },
+          "meh": {
+            "body": "你的条件被并进冗长辩论记录，没人记得是谁提的。",
+            "effects": {
+              "rep": 0.1
+            }
+          },
+          "fail": {
+            "body": "首轮表决被否的那二十四小时，全国镜头对着「讨价还价的人」，你排第一个。",
+            "effects": {
+              "rep": -1.8,
+              "fac": {
+                "establishment": -6,
+                "press": -5
+              }
+            }
+          },
+          "critfail": {
+            "body": "你争到的那条例外，被翻出正是替某家金主改的字。调查函与连任初选同一天寄到。",
+            "effects": {
+              "rep": -2.6,
+              "fac": {
+                "press": -8,
+                "base": -6,
+                "establishment": -5
+              },
+              "flags": [
+                "scandal_2",
+                "investigation_open"
               ]
             }
           }

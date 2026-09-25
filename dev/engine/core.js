@@ -189,10 +189,29 @@ const BALANCE_DEFAULTS = {
      主吃选民池、量级轻。它不参与随机抽卡（事件带 chore:true，eligible 直接挡掉），
      只经 time.js 的 choresSlot 注入通道出现，频率可控、可回退。
      · enabled=false → 完全关闭，回到现状；
-     · chance        → 本月已有档期时，额外再塞 1 条日常公务的概率（默认 0，保守）；
+     · chance        → 本月已有档期时，额外再塞 1 条日常公务的概率；
      · emptyFillChance → 本月本会空转（无 fixed/竞选/随机档期）时，用一条日常公务
-                        兜底的概率。设成 1 = "空月保底 1"；默认 0.7，留出纯静好岁月月份。*/
-  choreDynamic: { enabled: true, chance: 0, emptyFillChance: 0.7 },
+                        兜底的概率。#32 的定标口径是**四大类不许倒挂**（固定 ≥ 职业 ≥ 随机），
+                        不是「公务越多越好」：实测关闭公务通道时职业只有 0.62/年（随机 1.85），
+                        全开（0.25/0.7）又冲到 3.68/年把固定历史（2.3）压了下去。
+                        现行 0.10/0.45 落在职业 2.04/年 —— 平均 5—6 个月蹦一条，
+                        比原设想（T2—T6 每 2—4 月一蹦）稀，因为更看重的那两类不能被它盖过。
+                        另外两条实测教训：概率只是水闸，真正的瓶颈常在池子本身 ——
+                        111-chores 早先十二张全写 maxYear:1999，2000 年以后这条线直接断流；
+     · repeatMonths  → 同一张公务的重演间隔（月）。公务卡不走随机卡的 recentIds 窗口：
+                        那条 20 抽窗口≈2.4 年，而一个层级 band 只有几公务卡，
+                        共窗口等于抽完一张就饿两年多，节奏线补不上。*/
+  choreDynamic: { enabled: true, chance: 0.10, emptyFillChance: 0.45, repeatMonths: 18 },
+
+  /* ---- 事件四大类的年度节奏（#32）----
+     四大类（随机 / 职业 / 固定历史 / 竞选）由 engine/events.js 的 P.eventKind 从已有声明派生。
+     这里只管随机类的手闸：氛围性巧合一年 1—2 件就够，超发会让属性与钱白手起家、
+     后期十拿九稳。固定历史、职业、竞选三类不吃额度（它们到点必演 / 是该干的活）。
+     · enabled=false → 完全关闭限流，回到"随机不设闸"的现状；
+     · yearRandomMax → 每个自然年最多排几条**非灰产**随机档期；
+     · grayMax       → 灰产投机（category:"shady"，#28 的豁免通道）另立的年度额度：
+                       给反复赌的人留门，但不挤占正常随机事件的名额。 */
+  pace: { enabled: true, yearRandomMax: 2, grayMax: 4 },
 
   /* ---- 权重管线：玩家处境造成的倾斜（见 engine/events.js 的 P.weightBreakdown）----
    *   w = 基础 × 时代 × 续集 × tilt
@@ -226,6 +245,11 @@ const BALANCE_DEFAULTS = {
     minor: { base: 7.0, perPressure: -0.5 }
   },
   gradeFallback: { major: ["major", "mid", "minor"], mid: ["mid", "minor"], minor: ["minor"] },
+
+  /* ---- #28② 投机收益的 INT 系数（effects.js 的 funMul 用）----
+   * 倍率修正 = 1 + (INT-50)/100 × funMulIntLev：聪明人同一条生意赚得多、翻车时亏得少。
+   * 0 = 关闭（收益与脑子脱钩）。阈值判定照旧走 outcome roll，这里只改落袋的钱。 */
+  funMulIntLev: 0.4,
 
   /* ---- 年度结算 ---- */
   hpDecayMin: 1, hpDecayMax: 3, interestRate: 0.03, scandalDecayChance: 0.25,

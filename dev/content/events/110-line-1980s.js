@@ -224,7 +224,7 @@ POTUS.define("event", [
    * 1985-09 · 广场协议 —— 美元一夜转向（金融/贸易，中高层）
    * ==================================================================== */
   {
-    id: "rg85_plaza", photo: "era-1985.jpg", grade: "mid", category: "finance",
+    id: "rg85_plaza", grade: "mid", category: "finance",
     valence: "risk", dyn: true,
     minYear: 1985, maxYear: 1985, scoped: true, tierRaw: true, tierMin: 2, tierMax: 6, weight: 11, unique: true,
     medium: ["print", "tv"], month: 9,
@@ -830,10 +830,238 @@ POTUS.define("event", [
     ]
   },
 
+ /* ======================================================================
+  * 1984-08 · 中西部农场拍卖潮 —— 土地价钱塌了，银行来收地（分层示范卡）
+  *   #32⑤ 示范：同一史实、三种身份视角。选项级 when 用 tierRaw 直接写在 0—9 的
+  *   真实层级上（不写 tierRaw 会被 when.js 抬进旧 6 档空间）。底 T0—3 自救、
+  *   中 T4—6 办事、高 T7—9 定调；每档各留两条，玩家在任何一级都有得选。
+  * ==================================================================== */
+  {
+    id: "rg84_farm", grade: "mid", category: "finance",
+    valence: "risk", dyn: true,
+    minYear: 1984, maxYear: 1984, scoped: true, tierRaw: true, tierMin: 0, weight: 12, unique: true,
+    medium: ["print", "radio", "tv"], month: 8, day: 6,
+    title: "县银行门口贴出拍卖单，一家的三代地按斤称",
+    body: "粮价塌了，地价钱跟着塌，利率还压在头上。八月，县里又贴出一张拍卖单：一块三代人种的地，抵不上欠银行和农场信贷局的账。\n" +
+      "中西部几个州刚争来抵押贷款展期，联邦的农业贷款机构一边喊宽限一边收地。看拍卖的人群里有人哭，有人骂，有人举着「银行家才是输家」的纸板。你身边的人都在看你——你在哪儿站着，站着干什么。",
+    brief: {
+      lede: "一张拍卖单把「农业复苏」的全国叙事撕开一个口子：口子在你这条街上。",
+      known: [
+        "地价与粮价双杀，欠的是联邦农业贷款和地方银行两笔账。",
+        "有的州已给抵押贷款展期；展期不等于免债，只是晚一年。",
+        "联邦农业部长刚宣布过一年期债务宽限，能不能落到这个县没人说得准。"
+      ],
+      rumor: [
+        "有人说银行早把这块地按低价收进了自己的名录，拍卖只是走程序。",
+        "有人说州里准备派员「维稳」，举牌的人要被当成闹事的。"
+      ],
+      unknown: [
+        "这场危机的真正清算要等到几年后的银行坏账曝光。",
+        "你今天说的哪一句话，会被印在对手下一次选举的传单上。"
+      ],
+      terms: [
+        { k: "抵押贷款展期", v: "州法允许农民把到期的农地贷款往后推，先不被收地。" },
+        { k: "农产品计划", v: "联邦以休耕与价格支持换供给收缩，钱按账不按人头发。" }
+      ]
+    },
+    choices: [
+      {
+        id: "help_neighbor", text: "先去那家农场的谷仓：帮着把牲畜、农机和孩子的学杂费一件件安排掉",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.62, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "base", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你把一家的颜面保住了：机器连夜分存到邻居家，孩子没转学。镇上人不说你官大，说你是「那天在场的人」。", effects: { rep: 1.1, fac: { base: 9, church: 5 } } },
+          ok: { body: "你跑了两夜，能帮的都帮上了。事情没变，但这家人记住了你。", effects: { rep: 0.5, fac: { base: 4 } } },
+          meh: { body: "你去了，站着帮了会儿忙，说了句「有什么需要就来找我」。谁也没当真。", effects: { rep: 0.1 } },
+          fail: { body: "你答应的事一件没办成，被问到时只能说「这个县的事我管不着」。", effects: { rep: -0.8, fac: { base: -5 } } },
+          critfail: { body: "拍卖那天你在场，可你上车走了。第二周镇上开始流传你「怕被拍到和闹事的人站一起」。", effects: { rep: -1.8, fac: { base: -9, church: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "stand_with", text: "站到拍卖台前面：不吵不打，只让所有人看见你也在这儿",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        note: "赌的是「敢站」比「能说」值钱。赌错，你成了县银行名单上最难办的那个名字。",
+        base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "fac", key: "labor", w: 0.3 }],
+        stake: { fun: true },
+        outcomes: {
+          crit: { body: "照片第二天上了州报：一个本地人站在举牌的人群前头。农场县开始把你当自己人。", effects: { rep: 1.4, fac: { labor: 8, base: 8, establishment: -4 } } },
+          ok: { body: "你站住了，没说话，也没走。当地人口耳相传：「他没躲」。", effects: { rep: 0.6, fac: { base: 4, labor: 3 } } },
+          meh: { body: "人太多，没人注意到你。你自己也觉得这更像一场表演。", effects: { rep: 0 } },
+          fail: { body: "拍卖照走，你被银行界的朋友提醒「别把自己搭进去」。", effects: { rep: -0.7, fac: { commercial: -6 } } },
+          critfail: { body: "现场有人砸了玻璃，你恰好在旁边被拍进画面。「煽动暴民」的帽子和「他不敢承认」的辩解一起送到。", effects: { rep: -2.2, fac: { commercial: -8, press: -6, establishment: -4 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "state_probe", text: "回州里开听证：把农业信贷局的地方办事处叫来，一县一县念账",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.25 }],
+        cost: { fun: 1.5 },
+        outcomes: {
+          crit: { body: "听证桌上摆出三十七户被同一份内部指示展期失败的家。州里被迫发出口头指令：收地暂缓，逐案复核。", effects: { rep: 1.6, attr: { INT: 1 }, fun: -1, fac: { labor: 8, base: 6, commercial: -5, establishment: 4 } } },
+          ok: { body: "办事处来了人，念了两小时规则。什么都没改，但账第一次被摊在桌上。", effects: { rep: 0.6, fun: -1.5, fac: { base: 3, labor: 2 } } },
+          meh: { body: "听证变成一次「程序已走完」的记录。钱花了，新闻只有一句。", effects: { rep: 0.1, fun: -2 } },
+          fail: { body: "被传唤的机构请来了律师，反过来质询你收过谁的捐款。", effects: { rep: -1.4, fun: -2, fac: { press: -5, establishment: -3 } } },
+          critfail: { body: "听证散会那天，你替自己选区争到的那笔纾困被查出走了熟人的账。「用公权做私事」上了州报头版。", effects: { rep: -2.6, fun: -2.5, fac: { press: -8, base: -6, establishment: -5 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "keep_credit", text: "护住本地的信贷：先保住银行不塌，才有钱借给明年的农民",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        note: "这话农民不爱听， banker 爱听。风险：你被记成「替收地的人说话」。",
+        base: 0.55, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "commercial", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你把话说在点上：坏账若把本地两家银行压垮，明年连种子钱都借不到。商会与农会各让了一步。", effects: { rep: 1.2, fac: { commercial: 9, establishment: 5, labor: -3 } } },
+          ok: { body: "你的稳调子让银行界松了口气，农民骂你，但项目还在推进。", effects: { rep: 0.4, fac: { commercial: 5, base: -2 } } },
+          meh: { body: "两头都没记住你的话，只记住你「谁也没帮」。", effects: { rep: 0 } },
+          fail: { body: "那家银行秋天还是倒了，你的「保银行」变成一句现成的罪状。", effects: { rep: -1.5, fac: { base: -6, press: -4 } } },
+          critfail: { body: "倒闭前一个月，你家人的账户往那家银行转过一笔钱。这个问题你要回答整整十年。", effects: { rep: -2.5, fun: -2, fac: { press: -8, base: -7 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "farm_bill", text: "在农业法案上投票：把债务重组、展期和拍卖通知期一起写进联邦条文",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.5, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "labor", w: 0.2 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你争到的那一条成了整案的交换条件：联邦农业贷款机构必须给展期，收地前先公示。全国农业县记住了这个州的名字。", effects: { rep: 2, voters: { warm: 400 }, fac: { labor: 10, base: 8, establishment: 6, commercial: -4 }, flags: ["farm_champion"] } },
+          ok: { body: "条文过了，被砍掉一半。展期是真的，钱是不够的。农民谢你，也骂你。", effects: { rep: 0.8, fac: { base: 4, labor: 3 } } },
+          meh: { body: "你的名字在提案人后面第 47 位，法案在参院磨成了别的东西。", effects: { rep: 0.15 } },
+          fail: { body: "案子死了。你花掉的信用换不回一块地，对手已经开始排练「他只会念稿」。", effects: { rep: -1.6, fac: { base: -6, establishment: -4 } } },
+          critfail: { body: "为换票你在价格支持上松了口，两个阵营同日发声明：「他背叛了农民」。你的名字成了反面教材。", effects: { rep: -2.8, fac: { base: -10, labor: -6, press: -6 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "national_line", text: "接住全国的话头：上节目替这届政府的农业政策辩护，说危机会过去",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "全国版面很值钱，也很烫。风险：明年粮价再塌一次，这句话会回来找你。",
+        base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "establishment", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你讲得比华盛顿的人诚恳得多，节目播出后州里的捐款电话被打爆，上面把你当成能解释政策的那个人。", effects: { rep: 1.5, fac: { establishment: 10, commercial: 5, base: -3 }, flags: ["reagan_belt"] } },
+          ok: { body: "你稳稳把话接住了。党满意，农民不买账，但你上了全国的短名单。", effects: { rep: 0.5, fac: { establishment: 6 } } },
+          meh: { body: "你在镜头前说了三分钟，没人记得你说过什么。", effects: { rep: 0 } },
+          fail: { body: "主持人拿本地拍卖单追问你，你答不上那个县的名字。「他没见过那张纸」剪成片段循环播。", effects: { rep: -1.5, fac: { press: -6, base: -5 } } },
+          critfail: { body: "你说「危机会过去」的第二周，这个州又有一家人在拍卖台上自杀。那段录像从此跟着你。", effects: { rep: -3, fac: { base: -12, press: -8, establishment: -3 }, flags: ["scandal_2"] } }
+        }
+      }
+    ]
+  },
+
   /* ======================================================================
-   * 1988-11 · 大选交接 —— 「里根之后」的第一把火
+   * 1985-11 · 日内瓦峰会 —— 两位领袖关起门谈了五个半小时（分层示范卡）
+   *   与 110 里的 rg85_plaza（经济）互为同年两张钉卡：一场在酒店里按下去美元，
+   *   一场在湖畔别墅里按下核。头版图 era-1985.jpg 归这张（报眼就是 GENEVA SUMMIT）。
    * ==================================================================== */
   {
+    id: "rg85_geneva", photo: "era-1985.jpg", grade: "major", category: "foreign",
+    valence: "risk", dyn: true,
+    minYear: 1985, maxYear: 1985, scoped: true, tierRaw: true, tierMin: 0, weight: 12, unique: true,
+    medium: ["tv", "print", "radio"], month: 11, day: 19,
+    title: "日内瓦：没有协议，但两个人说还要再谈",
+    body: "十年不欢的峰会，忽然就成了。两位领袖在日内瓦关起门谈了五个半小时，从核武谈到「星球大战」，最后没签一个字，却约定还要再见面。\n" +
+      "电视把两人并肩走路的画面循环了一整天。本地有人松了口气，有人说这是又一次「用空头换时间」。你身边的人开始问你：你站哪一边。",
+    brief: {
+      lede: "一场没结果的峰会之所以是大事，是因为它把「永远打不了」这件事第一次变成可以谈的东西。",
+      known: [
+        "谈判卡在战略防御计划上：一方要留，一方要砍。",
+        "没有签署任何条约；双方只说下一轮要更快、更实。",
+        "本地军工厂与大学里有两条神经同时被拨动：一条怕裁军砸饭碗，一条怕核战砸一切。"
+      ],
+      rumor: [
+        "有人说白宫内部把这趟行程当成选举资产，先谈成「气氛」再说。",
+        "有人说苏联那边真正要的是拖住军费，而不是真让步。"
+      ],
+      unknown: [
+        "下一次在雷克雅未克几乎就达成协议，然后当众谈崩。",
+        "今天你替哪句话背书，四年后就要替它解释。"
+      ],
+      terms: [
+        { k: "战略防御计划", v: "设想用天基拦截挡住核打击的反弹道系统，谈判的核心结。" },
+        { k: "峰会外交", v: "首脑直接会谈本身被当成成果：先建立关系，再谈数字。" }
+      ]
+    },
+    choices: [
+      {
+        id: "watch_local", text: "看住本地那根弦：给军工厂和基地写信，说「什么都没变，别慌」",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        base: 0.62, mods: [{ src: "attr", key: "INT", w: 0.3 }, { src: "fac", key: "military", w: 0.3 }],
+        outcomes: {
+          crit: { body: "你的短信把一场全国恐慌按住了：基地照常开工，订单没撤。厂方和镇民都认你这个「懂分寸的人」。", effects: { rep: 1.1, fac: { military: 8, commercial: 4, base: 3 } } },
+          ok: { body: "你把话说稳了，没人再传「裁军要砸我们的饭碗」。", effects: { rep: 0.5, fac: { military: 4 } } },
+          meh: { body: "信发了，没人回。大家都忙着自己的猜测。", effects: { rep: 0.05 } },
+          fail: { body: "两周后一笔转产评估被本地报翻出来，你的「什么都没变」显得像没做功课。", effects: { rep: -0.8, fac: { labor: -4, press: -3 } } },
+          critfail: { body: "工厂真关了，而你把话说得太早。失业者举着你的话堵在党部门口。", effects: { rep: -1.9, fac: { labor: -8, base: -5, press: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "freeze_local", text: "趁这口气办一场本地核冻结集会：把「和平」做成你能主持的事",
+        when: { tierRaw: true, tierMin: 0, tierMax: 3 },
+        note: "街头能量真实，也真实地被两党各自记账。",
+        base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "base", w: 0.3 }],
+        outcomes: {
+          crit: { body: "教堂和学校把场地给了你，镇厅挤满了人。本地第一次觉得「外交」这件大事自己也插得上话。", effects: { rep: 1.3, fac: { base: 9, church: 7, establishment: -5 } } },
+          ok: { body: "集会平稳办成，报上有一栏你的照片。", effects: { rep: 0.5, fac: { base: 4, church: 3 } } },
+          meh: { body: "来了一半人。你意识到这场会主要是给自己开的。", effects: { rep: 0.1 } },
+          fail: { body: "有人把集会说成「替对面张目」，你的名字第一次出现在保守派的名单上。", effects: { rep: -0.9, fac: { establishment: -5, church: -3 } } },
+          critfail: { body: "集会上有人烧了征兵卡，警察带走人时镜头全对准你。这一晚足够毁掉一条仕途。", effects: { rep: -2.2, fac: { military: -10, establishment: -7, press: -5 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "back_summit", text: "公开替峰会背书：把「愿意坐下来谈」讲成本党该有的样子",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.35 }, { src: "fac", key: "establishment", w: 0.25 }],
+        outcomes: {
+          crit: { body: "你的话被全国引用了一次，两党都需要一个「会谈也敢谈」的人，你排进了那个短名单。", effects: { rep: 1.5, fac: { establishment: 9, press: 5, base: 3 } } },
+          ok: { body: "你把一件还没结果的事讲成了方向。温和派满意，鹰派记了一笔。", effects: { rep: 0.6, fac: { establishment: 4, press: 2 } } },
+          meh: { body: "声明发出去，被埋在峰会花絮新闻里。", effects: { rep: 0.1 } },
+          fail: { body: "峰会没有下文，你的「方向」变成一句空话，还被对手剪成了短片。", effects: { rep: -1.1, fac: { press: -4, base: -3 } } },
+          critfail: { body: "下一轮谈崩了，你在镜头前说过的「几乎要成了」被一字一字回放给你听。", effects: { rep: -2.1, fac: { establishment: -6, press: -7 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "press_spend", text: "反过来逼问：峰会再漂亮，也要先把本地基地的防护与预算摊开讲",
+        when: { tierRaw: true, tierMin: 4, tierMax: 6 },
+        note: "把国家议题拉回本地账，是地方官最稳的打法；也最容易被骂「不懂大局」。",
+        base: 0.55, mods: [{ src: "attr", key: "INTG", w: 0.35 }, { src: "fac", key: "military", w: 0.2 }],
+        outcomes: {
+          crit: { body: "你把「握手之前先修好掩体」讲成了本地共识，军方与镇民同时接了你的账。", effects: { rep: 1.3, attr: { INTG: 1 }, fac: { military: 7, base: 5, establishment: 3 } } },
+          ok: { body: "你争到一次现场视察，新闻说你这人「实在」。", effects: { rep: 0.55, fac: { military: 4, base: 2 } } },
+          meh: { body: "你的追问被归进「地方抱怨」，没人接。", effects: { rep: 0.05 } },
+          fail: { body: "「他在峰会上泼冷水」这句话从华盛顿传下来，党里开始给你贴标签。", effects: { rep: -1, fac: { establishment: -5, press: -3 } } },
+          critfail: { body: "你坚持公开的那份防护清单被认定涉密，一纸警告寄到你办公室。", effects: { rep: -2, fac: { military: -8, establishment: -6, press: -4 }, flags: ["scandal_1"] } }
+        }
+      },
+      {
+        id: "arms_framework", text: "在上一层做局：推动一整套核查与通报机制，把「不再见面」变成制度",
+        when: { tierRaw: true, tierMin: 7 },
+        base: 0.48, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.25 }],
+        stake: { fav: true },
+        outcomes: {
+          crit: { body: "你搭的那份跨党框架成了下一轮谈判的底稿。史书写到这一步时，你的名字在脚注里。", effects: { rep: 2.1, voters: { warm: 300 }, fac: { establishment: 11, press: 7, base: 4 }, flags: ["statesman"] } },
+          ok: { body: "机制通过了一半，但「两个人谈完还得有制度接住」这句话站住了。", effects: { rep: 0.9, fac: { establishment: 6, press: 3 } } },
+          meh: { body: "你的方案在委员会里躺了半年，最后被并进出口的另一份文本。", effects: { rep: 0.15 } },
+          fail: { body: "两党都嫌你多事：白宫要自由裁量，对手要立刻裁军。你两头不落地。", effects: { rep: -1.5, fac: { establishment: -6, base: -4 } } },
+          critfail: { body: "你替一桩私下换好处的军控条款说话，正好赶在雷克雅未克谈崩之后。你成了「拿国家安全做交易」的标本。", effects: { rep: -3, fac: { press: -10, establishment: -6, military: -6 }, flags: ["scandal_2"] } }
+        }
+      },
+      {
+        id: "red_phone", text: "只管把风险按住：主张先建直通通信与事故通报，裁军以后再说",
+        when: { tierRaw: true, tierMin: 7 },
+        note: "最不像成果的成就，也最不容易被打脸。",
+        base: 0.6, mods: [{ src: "attr", key: "INT", w: 0.35 }, { src: "fac", key: "military", w: 0.25 }],
+        outcomes: {
+          crit: { body: "一场误传的火箭预警之后，你的「先通电话」成了全场唯一能立刻做的事。两党一致通过。", effects: { rep: 1.6, attr: { INT: 1 }, fac: { military: 9, establishment: 6, press: 4 } } },
+          ok: { body: "你把这个不性感的东西做了出来：一条热线，一份事故清单。", effects: { rep: 0.7, fac: { military: 5, establishment: 3 } } },
+          meh: { body: "热线的旧机器修好了，没人庆祝。", effects: { rep: 0.1 } },
+          fail: { body: "有人讥笑你「只会修电话」。你的谨慎被当成没有想象力。", effects: { rep: -1, fac: { press: -4, base: -3 } } },
+          critfail: { body: "热线真出了一次故障，而你曾保证它从不断。听证会开了整整一天。", effects: { rep: -2, fac: { establishment: -6, military: -7, press: -5 }, flags: ["scandal_1"] } }
+        }
+      }
+    ]
+  },
+
+  /* ======================================================================
+   * 1988-11 · 大选交接 —— 「里根之后」的第一把火
+   * ==================================================================== */  {
     id: "rg88_election", photo: "era-1988.jpg", grade: "mid", category: "political",
     valence: "risk", dyn: true,
     minYear: 1988, maxYear: 1988, scoped: true, tierRaw: true, tierMin: 0, tierMax: 5, weight: 12, unique: true,
@@ -1261,7 +1489,11 @@ POTUS.define("fixed", [
   { event: "rg82_unemp", year: 1982, month: 11, grade: "mid" },
   { event: "rg83_beirut", year: 1983, month: 10, grade: "mid" },
   { event: "rg84_landslide", year: 1984, month: 11, grade: "mid" },
+  /* #32④：1984 原本全年只有一张钉卡（密度门禁要求每年 ≥2）——补农场拍卖潮这张 */
+  { event: "rg84_farm", year: 1984, month: 8, grade: "mid" },
   { event: "rg85_plaza", year: 1985, month: 9, grade: "mid" },
+  /* #32④：1985 同上补日内瓦峰会；era-1985.jpg 从广场协议移交给它（报眼即 GENEVA SUMMIT） */
+  { event: "rg85_geneva", year: 1985, month: 11, grade: "major" },
   { event: "rg86_challenger", year: 1986, month: 1, grade: "mid" },
   { event: "rg86_libya", year: 1986, month: 4, grade: "mid" },
   /* —— 伊朗门事件串（前奏→爆发→余波） —— */

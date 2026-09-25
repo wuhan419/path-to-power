@@ -1,12 +1,16 @@
 /* ============================================================================
- * tools/trigger-scan.js —— #33 触发密度门禁（结构口径）
- * 对 1980—2024 逐年、取低/中/高三档层级（tier 0/4/8），把每一条钉卡
+ * tools/trigger-scan.js —— #33/#32 钉卡密度与触发门禁（结构口径）
+ * 对开局年—balance.endYear 逐年、取低/中/高三档层级（tier 0/4/8），把每一条钉卡
  * （reg.fixed ∪ 任一 era.scheduled）拿引擎真实的 P.eligible() 过一遍闸：
  *   · 先复现 time.js normalizePins 的效果（钉卡 tierMax 一律抬到 9），
  *   · 逐卡分类失败原因：noEvent / tierMin / tierMax / yearWin / era / when / ok。
  * 「tierMin 挡掉」按设计不计入荒（底层玩家还没资格卷入高层专属卡）。
- * 验收线：1991—2024 的钉卡在 tier8 档位结构可发率 ≥80%；死引用（noEvent）为零。
- * 用法：node dev/tools/trigger-scan.js [--root=dist] [--verbose]
+ * 两条验收线：
+ *   ① #33：1991—2024 的钉卡在 tier8 档位结构可发率 ≥80%；死引用（noEvent）为零。
+ *   ② #32：每个历史年 ≥--min-per-year（默认 2）条钉卡 —— 固定历史事件是玩家最看重的
+ *      一类，"到点必演"不能靠运气。随机限流（pace.yearRandomMax）把节奏空档让出来之后，
+ *      必须由钉卡填上，否则多年会真的空白。
+ * 用法：node dev/tools/trigger-scan.js [--root=dist] [--verbose] [--min-per-year=2]
  * ==========================================================================*/
 "use strict";
 const fs = require("fs");
@@ -141,16 +145,21 @@ const TIERS = [0, 4, 8];
 const byId = {};
 for (const ev of P.events) byId[ev.id] = ev;
 const verbose = process.argv.includes("--verbose");
+const MIN_PER_YEAR = Number(arg("min-per-year", 2));
+const END_YEAR = Number(((P.balance() || {}).endYear) || 2024);
 const deadRefs = [];
 const deadPins = [];   // 三档全被非 tierMin 闸挡死
+const thinYears = [];  // #32：钉卡不足 MIN_PER_YEAR 条的年份
 let totalPins91 = 0, fireT8_91 = 0, excl91 = 0;
 
 console.log("boot：" + path.relative(path.resolve(__dirname, "..", ".."), ROOT) + "/index.html" +
   " ｜ 钉卡年份条目 " + [...pinsByYear.values()].reduce((s, l) => s + l.length, 0) +
-  " ｜ 规范化抬 tierMax " + raised + " 张");
+  " ｜ 规范化抬 tierMax " + raised + " 张 ｜ 年窗 1980—" + END_YEAR +
+  " ｜ 密度验收线 每年 ≥" + MIN_PER_YEAR + " 条");
 
-for (let y = 1980; y <= 2024; y++) {
+for (let y = 1980; y <= END_YEAR; y++) {
   const list = pinsByYear.get(y) || [];
+  if (list.length < MIN_PER_YEAR) thinYears.push(y + "→" + list.length);
   if (!list.length) continue;
   const stats = {};
   for (const t of TIERS) stats[t] = { ok: 0, excl: 0, other: {} };
@@ -194,9 +203,10 @@ console.log("\n1991—2024 钉卡 " + totalPins91 + " 条 ｜ tier8 结构可发
   " ｜ 按设计排除(tierMin/chain) " + excl91 + " ｜ 触发率 " + (rate * 100).toFixed(1) + "% （验收线 ≥80%）" +
   (strictChains ? " 【严格链条口径】" : ""));
 if (deadRefs.length) console.log("✗ 死引用（fixed/scheduled 指向不存在的事件）：" + deadRefs.join(" "));
+if (thinYears.length) console.log("✗ 钉卡不足 " + MIN_PER_YEAR + " 条的年份（#32 要求每个历史年 ≥" + MIN_PER_YEAR + "）：" + thinYears.join(" "));
 if (deadPins.length) {
   console.log("✗ 三档全挡死的年份（非设计原因）：");
   deadPins.forEach((s) => console.log("   " + s));
 }
-if (rate < 0.8 || deadRefs.length) { process.exitCode = 1; console.log("FAIL"); }
+if (rate < 0.8 || deadRefs.length || thinYears.length) { process.exitCode = 1; console.log("FAIL"); }
 else console.log("PASS");

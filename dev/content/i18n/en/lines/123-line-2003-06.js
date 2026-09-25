@@ -84,6 +84,41 @@ POTUS.define("l10n", {
               fail: { body: "Both camps came asking you to pick a side. You declined both, and both stopped saving you a seat." },
               critfail: { body: "Your even-handed silence got read two ways: guilty to one side, slippery to the other." }
             }
+          },
+          {
+            id: "welcome_home",
+            text: "Wait at the base gate for the ones coming back: take a neighbor's son's bag, see him home",
+            outcomes: {
+              crit: { body: "The soldier you met lives a block from you. His mother says it on her porch, in front of everyone: \"Thank God you made the run.\" The military families remember." },
+              ok: { body: "You worked the bus depot three runs and settled two families' boys and their bags. No paper thanks; both families have one." },
+              meh: { body: "You went to meet someone. There were more welcomers than arrivals. You were no use." },
+              fail: { body: "You went asking after one mother's son and every office answered in form letters. \"I did my best\" fooled even you." },
+              critfail: { body: "The soldier you drove home was picked up by the provost marshal the next day. Somebody asks: didn't you see he was unwell?" }
+            }
+          },
+          {
+            id: "care_desk",
+            text: "Open a state return-to-duty window: beds, jobs, disability ratings, all on one table",
+            note: "Money buys the \"gets things done\" sign. Celebrants don't love wounded veterans — but this desk carries your name.",
+            outcomes: {
+              crit: { body: "Your desk cleared in three months what the feds do in two years, and the Pentagon circulates your model to the states. Wounded families call you \"the one who handled it.\"" },
+              ok: { body: "The table went up, the line moved, most cases closed. Spend ran fast, but the books stayed clean." },
+              meh: { body: "The window opened; the process stalled on federal forms. All you posted were more 'please wait' signs." },
+              fail: { body: "An audit sinks its teeth into one transfer, and your 'welcome desk' becomes the embezzlement story's local face." },
+              critfail: { body: "A waiting veteran came to harm, and his family held your campaign flyer at the statehouse gate: wasn't this your desk?" }
+            }
+          },
+          {
+            id: "demand_plan",
+            text: "Turn \"what next\" into a formal inquiry: make the defense officials hand over the occupation's bill and a rebuild calendar",
+            note: "The national stage magnifies your question — and your opponent's target. Step this far out and there is no middle.",
+            outcomes: {
+              crit: { body: "The cost ledger you forced out enters the hearing record for the first time, and from now on someone owns the question 'who pays.' Every war retrospective two years on runs your page." },
+              ok: { body: "The inquiry stood; the calendar came out half a page. The establishment called you a killjoy; the press filed you under clear-headed." },
+              meh: { body: "Your inquiry was routed around by a point of order 'in support of our troops at the front.' It made no record." },
+              fail: { body: "While the country toasted, you chased the bill. Donors started leaving; \"he wanted this war to lose\" went back on the loop." },
+              critfail: { body: "The occupation ledger you cited turns out to have been badly wrong. 'Awake early' to 'barking mad' took exactly one week." }
+            }
           }
         ]
       },
@@ -499,6 +534,30 @@ POTUS.define("l10n", {
               meh: { body: "You took the calls, fixed small concrete kindnesses, and nobody remembered." },
               fail: { body: "The line jammed too often. One family never reached their daughter, and the complaint logged it \"mismanaged.\"" },
               critfail: { body: "\"All he could manage after the flood was answer phones\" became an hour of opposition material." }
+            }
+          },
+          {
+            id: "take_command",
+            text: "Offer to take over federal coordination: one chain of command over three levels of blame, and you carry it if it breaks",
+            note: "Take the pot nobody wants. Right, it was decisiveness. Wrong, you are the last man responsible for the failure.",
+            outcomes: {
+              crit: { body: "The chain of command you seized moved buses, ice and medicine within seventy-two hours. The after-action review gives those days their own chapter, titled: 'someone finally owned it.'" },
+              ok: { body: "Coordination came to you. The chaos didn't end, but relief sped up a beat. Every level exhaled — and every level kept a note on you." },
+              meh: { body: "You received a title, 'coordinator.' The agencies kept running their own errands." },
+              fail: { body: "One order moved half a day late; one shelter held out one night too long. The first name on the accountability list is yours." },
+              critfail: { body: "A dispatch you signed sent a rescue crew into the wrong ward; the water there was deeper than anywhere. In the end, this disaster took your surname." }
+            }
+          },
+          {
+            id: "rebuild_bill",
+            text: "Bind reconstruction money to levee accountability in one federal bill: the audit comes with the check, and the signers face the hearing",
+            note: "Relief funds and blame, stapled into one text. The builders applaud you; the whole approval chain despises you.",
+            outcomes: {
+              crit: { body: "The bill passed: rebuild appropriations and levee audit take effect in one text, engineering accountability written into federal law for the first time. Your 'audit the levees, then rebuild the city' became a platform line." },
+              ok: { body: "The money cleared; the audit clauses were cut to a skeleton. The city started rebuilding, and your name sits in the sponsor box." },
+              meh: { body: "Appropriations passed; accountability was folded into somebody else's bill. Your text went to the files." },
+              fail: { body: "The bundled clauses were branded 'power grab in a disaster.' The bill froze in committee; even your donors called you meddlesome." },
+              critfail: { body: "Someone digs contractor money out of your re-election fund. \"He rebuilds levees to rebuild his majority\" becomes the lead story." }
             }
           }
         ]
