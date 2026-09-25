@@ -85,6 +85,7 @@
       rep: G.rep, hp: G.hp, fun: G.fun, fav: G.fav, lev: G.lev || 0,
       contactN: n, knownIds: contacts,
       scandal: P.scandalLevel ? P.scandalLevel() : 0,
+      baseShare: P.baseShare ? P.baseShare() : 0,
       tenure: P.monthsAtTier ? P.monthsAtTier() : 0,
       flags: G.flags || [],
       counters: G.counters || {},
@@ -99,13 +100,16 @@
     ["tierMin", "minTier", "tier"], ["minYear", null, "year"],
     ["minAge", "ageMin", "age"], ["minRep", "repMin", "rep"], ["minHp", null, "hp"],
     ["minFun", "funMin", "fun"], ["minFav", null, "fav"], ["minLev", null, "lev"],
-    ["minContacts", null, "contactN"], ["minTenure", null, "tenure"], ["scandalMin", null, "scandal"]
+    ["minContacts", null, "contactN"], ["minTenure", null, "tenure"], ["scandalMin", null, "scandal"],
+    /* #35：基本盘占比（0..1 的小数，不是百分数） */
+    ["minShare", "shareMin", "baseShare"]
   ];
   const HIGH = [
     ["tierMax", "maxTier", "tier"], ["maxYear", null, "year"],
     ["maxAge", "ageMax", "age"], ["maxRep", null, "rep"], ["maxHp", null, "hp"],
     ["maxFun", null, "fun"], ["maxFav", null, "fav"], ["maxLev", null, "lev"],
-    ["maxContacts", null, "contactN"], ["maxTenure", null, "tenure"], ["scandalMax", null, "scandal"]
+    ["maxContacts", null, "contactN"], ["maxTenure", null, "tenure"], ["scandalMax", null, "scandal"],
+    ["maxShare", "shareMax", "baseShare"]
   ];
 
   /* 条件里所有会被识别的字段名（给文档、校验器、UI 的"为什么找上你"用） */
@@ -125,7 +129,8 @@
     "minYear", "maxYear", "minAge", "ageMin", "maxAge", "ageMax",
     "minRep", "repMin", "maxRep", "minHp", "maxHp", "minFun", "funMin", "maxFun",
     "minFav", "maxFav", "minLev", "maxLev", "minContacts", "maxContacts",
-    "minTenure", "maxTenure", "scandalMin", "scandalMax"];
+    "minTenure", "maxTenure", "scandalMin", "scandalMax",
+    "minShare", "maxShare", "shareMin", "shareMax"];
 
   /* ---------- 主入口 ----------
    * cond = 声明式条件对象（可缺省 = 恒成立）

@@ -105,6 +105,15 @@
     return { per: per, anchor: A, source: "office", raw: A };
   };
 
+  /* ---------- #35② 大钱手段的价码：按级别价推导，不写裸数 ----------
+   * 幕事件里"砸钱买曝光"这类选项，旧口径在内容里写死 $8000/$20000/$60000 ——
+   * 同一个动作在不同身位值多少钱，本该由 #28 的唯一价码来源（月薪）说了算。
+   * 内容写 `cost: { funLevel: 3 }`（3 档级别价，不写 cost.fun），
+   * 由 scale.js 的 realize 在展开时换成绝对美元，下游照旧只看 cost.fun。 */
+  P.levelPrice = function (steps, grade) {
+    return niceUsd(P.stakeFunPer(grade).per * Math.max(1, Number(steps) || 1));
+  };
+
   P.stakeSpec = function (choice, grade) {
     if (!choice || !choice.stake) return null;
     const def = P.balance().stakeRates || {};
@@ -184,10 +193,13 @@
     return out;
   };
 
-  /* 选项的胜算：base + 选项修饰符 + 天赋全局修饰符 + 投注，限制在 [0.05, 0.95] */
+  /* 选项的胜算：base + 选项修饰符 + 天赋全局修饰符 + 投注，限制在 [0.05, 0.95]
+   * base 有两种来源：普通选项读内容写死的数；标了 `ballot: true` 的投票日选项按
+   * 当前竞选的选情现推（见 campaign.js 的 P.ballotBase）—— 赢不赢选举看选情，不看赌骰。 */
   P.computeP = function (choice, stake) {
-    let p = choice.base;
-    const bd = [{ label: P.t("ui.dice.baseOdds", "基础"), pct: choice.base * 100 }];
+    const b0 = (choice.ballot && P.ballotBase) ? P.ballotBase(choice.base) : choice.base;
+    let p = b0;
+    const bd = [{ label: b0 === choice.base ? P.t("ui.dice.baseOdds", "基础") : P.t("ui.dice.ballotOdds", "选情"), pct: b0 * 100 }];
     const apply = function (m) {
       const r = evalMod(m);
       if (r.v) { p += r.v; bd.push({ label: r.label, pct: r.v * 100 }); }

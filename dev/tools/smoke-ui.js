@@ -664,6 +664,42 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
     "职位卡含选民三档（死忠/有好感/反对）");
   check(!!sbBox && !!sbBox.querySelector(".idc-chips .sbrow"), "状态卡含 chips 行（标签/派系/人脉）");
   check(!!sbBox && !!sbBox.querySelector(".idc-chip-toggle"), "窄屏折叠开关 .idc-chip-toggle 存在（桌面端由 CSS 隐藏）");
+
+  /* ---------- #29 派系四栏面板：DOM 里四格齐、正负条分侧、分档上色 ---------- */
+  const facBak = Object.assign({}, P.G.faction);
+  P.G.faction = { establishment: 62, commercial: -47, military: 20, church: 5, foreign: -12 };
+  P.refreshPanel();
+  const fcells = w.document.querySelectorAll(".statusbox .faccell");
+  check(fcells.length === 4, "派系四栏面板渲染出 4 格（实际 " + fcells.length + "）");
+  const fc = i => fcells[i];
+  check(!!fc(0) && /\+62/.test((fc(0).querySelector(".fac-val") || {}).textContent || ""), "格内大号读数带符号（+62）");
+  const barStyle = (cell, sel) => { const el = cell && cell.querySelector(sel); return el ? (el.getAttribute("style") || "") : ""; };
+  const barText = (cell, sel) => { const el = cell && cell.querySelector(sel); return el ? (el.textContent || "") : ""; };
+  check(!!fc(0) && /width:62%/.test(barStyle(fc(0), ".fac-love b")), "正值格：右半「友好」条长到 62%");
+  check(!!fc(0) && /width:0%/.test(barStyle(fc(0), ".fac-hate b")), "正值格：左半「仇恨」条为空");
+  check(!!fc(1) && /width:47%/.test(barStyle(fc(1), ".fac-hate b")), "负值格：左半「仇恨」条长到 47%");
+  check(!!fc(1) && /t3n/.test(fc(1).className), "负值大档整格上淡红底（t3n）");
+  check(!!fc(1) && /敌视|戒备/.test(barText(fc(1), ".fac-word")), "格内有分档形容词：" + barText(fc(1), ".fac-word"));
+  const otherChips = w.document.querySelector(".statusbox .sb-facs .qchips");
+  check(!!otherChips && /外国势力/.test(otherChips.textContent), "四栏之外的派系仍在同一行里出 chip");
+  P.G.faction = facBak; P.refreshPanel();
+
+  /* ---------- #23 竞选面板的「投放把柄」：置灰 ↔ 可点 ↔ 扣料 ---------- */
+  const camBak = P.G.campaign, levBak = P.G.lev, tierBak = P.G.tier, trackBak = P.G.track;
+  P.G.tier = 2; P.G.track = "electoral";
+  P.G.campaign = {
+    id: "camp_state", stageIdx: 1, since: P.monthSeq(), since0: P.monthSeq(),
+    played: 1, status: "active", meters: { momentum: 30 }
+  };
+  P.G.lev = 0; P.refreshPanel();
+  check(!!w.document.querySelector(".campbar .cmp-drop.off"), "没把柄 → 竞选面板上的「投放把柄」置灰");
+  P.G.lev = 2; P.refreshPanel();
+  const dropBtn = w.document.querySelector(".campbar .cmp-drop");
+  check(!!dropBtn && !dropBtn.classList.contains("off"), "有把柄 → 按钮可点");
+  P.levDropClick();
+  check(P.G.lev === 1, "点一次恰好扣 1 把柄（2 → " + P.G.lev + "）");
+  check(P.G.campaign.meters.momentum !== 30, "投放之后选情表动了（→ " + P.G.campaign.meters.momentum + "）");
+  P.G.campaign = camBak; P.G.lev = levBak; P.G.tier = tierBak; P.G.track = trackBak; P.refreshPanel();
   const kickerEl = w.document.querySelector(".kicker-band");
   check(!!kickerEl && /第 \d+ 个年头/.test(kickerEl.textContent), "顶栏含「第 N 个年头」");
   check(!!kickerEl && !/[（(]\d{4}[）)]/.test(kickerEl.textContent), "时代名不再带年份后缀 (YYYY)");

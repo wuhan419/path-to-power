@@ -312,6 +312,9 @@
     if (r.fun != null && G.fun < r.fun) return P.t("ui.stage.reqFun", "需要资金 ≥ ${v}", { v: r.fun.toLocaleString() });
     if (r.lev != null && (G.lev || 0) < r.lev) return P.t("ui.stage.reqLev", "需要把柄 ≥ {v}", { v: r.lev });
     if (r.rep != null && G.rep < r.rep) return P.t("ui.stage.reqRep", "需要声望 ≥ {v}", { v: r.rep });
+    /* #35④：投票日的门槛只看人头，不看钱包 —— 基本盘（好感+死忠）占注册选民的比例 */
+    if (r.voterShare != null && (P.baseShare ? P.baseShare() : 0) < r.voterShare)
+      return P.t("ui.stage.reqShare", "需要基本盘 ≥ {v}% 的注册选民", { v: Math.round(r.voterShare * 100) });
     if (r.tier != null && G.tier < r.tier) return P.t("ui.stage.reqTier", "需要身居 {t} 或以上", { t: P.tierName(r.tier) });
     if (r.track && G.track !== r.track) return P.t("ui.stage.reqNamed", "需要「{name}」", { name: ((P.reg.track[r.track] || {}).name || r.track) });
     if (r.party && G.party !== r.party) return P.t("ui.stage.reqNamed", "需要「{name}」", { name: ((P.reg.party[r.party] || {}).name || r.party) });

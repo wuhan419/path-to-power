@@ -194,14 +194,16 @@ const BALANCE_DEFAULTS = {
                         兜底的概率。#32 的定标口径是**四大类不许倒挂**（固定 ≥ 职业 ≥ 随机），
                         不是「公务越多越好」：实测关闭公务通道时职业只有 0.62/年（随机 1.85），
                         全开（0.25/0.7）又冲到 3.68/年把固定历史（2.3）压了下去。
-                        现行 0.10/0.45 落在职业 2.04/年 —— 平均 5—6 个月蹦一条，
-                        比原设想（T2—T6 每 2—4 月一蹦）稀，因为更看重的那两类不能被它盖过。
+                        现行 0.10/0.40：#35 重做竞选节奏后空档月变多（竞选拖垮/提前收口
+                        腾出的月份被空月兜底吃掉），0.45 时职业抬到 2.54/年重新压过
+                        固定 2.31/年 → 水位下调，实测固定 2.51 ≥ 职业 2.13 ≥ 随机 1.89。
+                        这条线是联动量：动竞选节奏 / 随机额度 / 钉卡密度后要重读四大类年均。
                         另外两条实测教训：概率只是水闸，真正的瓶颈常在池子本身 ——
                         111-chores 早先十二张全写 maxYear:1999，2000 年以后这条线直接断流；
      · repeatMonths  → 同一张公务的重演间隔（月）。公务卡不走随机卡的 recentIds 窗口：
                         那条 20 抽窗口≈2.4 年，而一个层级 band 只有几公务卡，
                         共窗口等于抽完一张就饿两年多，节奏线补不上。*/
-  choreDynamic: { enabled: true, chance: 0.10, emptyFillChance: 0.45, repeatMonths: 18 },
+  choreDynamic: { enabled: true, chance: 0.10, emptyFillChance: 0.40, repeatMonths: 18 },
 
   /* ---- 事件四大类的年度节奏（#32）----
      四大类（随机 / 职业 / 固定历史 / 竞选）由 engine/events.js 的 P.eventKind 从已有声明派生。
@@ -611,6 +613,15 @@ POTUS.electionStrength = function () {
   const rest = Math.max(0, size - v.diehard - v.warm - v.oppose);
   const total = mine + theirs + rest * 0.35;
   return { mine: mine, theirs: theirs, rest: rest, size: size, pct: Math.round(Math.min(100, mine / Math.max(1, total) * 100)) };
+};
+
+/* 基本盘占比（#35）：好感 + 死忠 占本选区注册选民的比例，0..1。
+   和 electionStrength().pct 的区别：pct 是"算上未定盘之后的得票率"，
+   share 是"你已经攥在手里的人头"——竞选开局播种与总统资格门槛都用后者，
+   因为它不会被 oppose 的规模反向放大。 */
+POTUS.baseShare = function () {
+  const v = POTUS.voterPools(), size = POTUS.electorateSize();
+  return POTUS.clamp((v.warm + v.diehard) / Math.max(1, size), 0, 1);
 };
 
 /* ---------- 选民动态（v0.6）----------

@@ -248,7 +248,7 @@ POTUS.define("event", [
       {
         id: "air_war", text: "买广告、打空中战", base: 0.5,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
-        cost: { fun: 8000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         outcomes: {
           crit: { body: "广告精准打击，你的名字成了本选区的口头禅。", effects: { rep: 2, camp: { momentum: 13, warchest: -4 } } },
           ok: { body: "曝光稳步上涨，只是烧钱。", effects: { camp: { momentum: 7, warchest: -5 } } },
@@ -472,7 +472,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "media_buy", text: "砸钱上黄金时段广告", base: 0.5,
-        cost: { fun: 20000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "attr", key: "INT", w: 0.4 }],
         outcomes: {
           crit: { body: "洗脑式广告让全州都会哼你的竞选口号。", effects: { rep: 2, camp: { momentum: 13, warchest: -6 } } },
@@ -777,7 +777,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "blanket", text: "广告加人海，全面包围摇摆县", base: 0.5,
-        cost: { fun: 30000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把摇摆县打成了自己的颜色。", effects: { rep: 4, camp: { momentum: 14, warchest: -8 } } },
@@ -1102,7 +1102,7 @@ POTUS.define("event", [
     choices: [
       {
         id: "swing_blanket", text: "金库全开，轰炸摇摆州", base: 0.5,
-        cost: { fun: 60000 },
+        cost: { funLevel: 3 }   /* #35②：3 档级别价，价码随月薪表推导 */,
         mods: [{ src: "fac", key: "base", w: 0.3 }],
         outcomes: {
           crit: { body: "你把摇摆州刷成了自己的颜色，基本盘被彻底点燃。", effects: { rep: 2.5, fac: { base: 8 }, camp: { momentum: 15, warchest: -12 } } },

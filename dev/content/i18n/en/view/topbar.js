@@ -104,6 +104,9 @@ POTUS.define("l10n", {
     "ui.topbar.langTip": "Switch UI language (takes effect after the page reloads)",
     "ui.topbar.langLabel": "Language",
     "ui.topbar.langZh": "中",
-    "ui.topbar.langEn": "EN"
+    "ui.topbar.langEn": "EN",
+
+    /* #23 竞选面板上的「投放把柄」按钮 */
+    "ui.topbar.dropBtn": "Leak the dirt"
   }
 });

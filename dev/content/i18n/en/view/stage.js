@@ -63,6 +63,7 @@ POTUS.define("l10n", {
     "ui.stage.reqFun": "Needs cash ≥ ${v}",
     "ui.stage.reqLev": "Needs blackmail ≥ {v}",
     "ui.stage.reqRep": "Needs reputation ≥ {v}",
+    "ui.stage.reqShare": "Needs a base of ≥ {v}% of registered voters",
     "ui.stage.reqTier": "Needs {t} or higher",
     "ui.stage.reqNamed": "Needs \"{name}\"",
     "ui.stage.reqFac": "Needs {name} favor ≥ {v}",

@@ -170,11 +170,19 @@ for (const ev of P.events) {
       if (r.party) check(P.reg.party[r.party], "req.party 不存在：" + ev.id + "/" + ch.id);
       if (r.fac) check(P.reg.faction[r.fac], "req.fac 不存在：" + ev.id + "/" + ch.id);
     }
-    /* 资源代价 cost：键必须在 RES_KEYS 内，数值必须 > 0 */
+    /* 资源代价 cost：键必须在 RES_KEYS 内，数值必须 > 0。
+       #35② 另有一种"级别价代价"写法 cost:{funLevel:N}：不写绝对美元，
+       由 scale.realize 按 #28 的月薪锚换成 N 档 —— 它必须独占，且只能给资金。 */
     if (ch.cost) {
       check(typeof ch.cost === "object", "cost 必须是对象：" + ev.id + "/" + ch.id);
+      const lv = ch.cost.funLevel;
+      if (lv != null) {
+        check(Object.keys(ch.cost).length === 1, "cost.funLevel 必须独占（不能再并列写 fun）：" + ev.id + "/" + ch.id);
+        check(typeof lv === "number" && lv >= 1 && lv === Math.round(lv), "cost.funLevel 应为正整数档数：" + ev.id + "/" + ch.id);
+      }
       for (const k in ch.cost) {
-        check(RES_KEYS.indexOf(k) >= 0, "cost 未知资源键 " + k + "：" + ev.id + "/" + ch.id);
+        check(k === "funLevel" || RES_KEYS.indexOf(k) >= 0, "cost 未知资源键 " + k + "：" + ev.id + "/" + ch.id);
+        if (k === "funLevel") continue;
         check(typeof ch.cost[k] === "number" && ch.cost[k] > 0, "cost 数值必须 >0：" + ev.id + "/" + ch.id + "/" + k);
       }
     }
@@ -1035,6 +1043,288 @@ console.log("\n== 投注级别价（单价随身位·不随钱包）==");
     G.pendingHardEnd = bak.pendingHardEnd;
     G.flags = bak.flags; G.log = bak.log;
   }
+}
+
+/* ---------- 竞选：选情主导、钱退门票（#35）----------
+ * 旧病灶三条：
+ *   ① momentum 一律写死 45 —— 刚替人跑腿的志愿者第一场就"选情过半"；
+ *   ② 投票日是一枚写死的骰子（base 0.4）外加一道钱包门槛（总统卡 dyn 系数 25 ≈ 千万级现金），
+ *      等于"不交一大笔钱就不能当选"；
+ *   ③ 金库跌破 abortBelow 当场判负 —— 没钱=输，钱换了个身份还是门票。
+ * #35 的三条替换：momentum 由人物状态播种（12—35）、投票日 P = f(momentum)、判负只看 momentum。
+ * 下面逐条钉住，防止回退。 */
+console.log("\n== 竞选：选情主导、钱退门票（#35）==");
+{
+  const G = P.G;
+  const bak = { tier: G.tier, rep: G.rep, fun: G.fun, track: G.track, faction: G.faction, voters: G.voters, campaign: G.campaign };
+  const seed = P.balance().campaign && P.balance().campaign.seed;   // 未声明则走引擎默认（12—35）
+  const FLOOR = (seed && seed.floor) || 12, CEIL = (seed && seed.ceil) || 35;
+
+  /* ① 播种：处境越好起手越高，但永远够不到"直接过半" */
+  G.faction = { establishment: 0, commercial: 0, base: 0, press: 0, military: 0, church: 0, agency: 0 };
+  G.voters = { warm: 0, diehard: 0, oppose: 0 };
+  G.tier = 0; G.rep = 5; G.track = "electoral";
+  const lowSeed = P.seedMomentum();
+  G.tier = 8; G.rep = 90; G.voters = { warm: 3000000, diehard: 1500000, oppose: 0 };
+  G.faction = { establishment: 60, commercial: 40, base: 50, press: 30, military: 20, church: 10, agency: 10 };
+  const highSeed = P.seedMomentum();
+  console.log("  选情播种：新人 " + lowSeed + " → 重量级 " + highSeed + "（夹在 [" + FLOOR + "," + CEIL + "]，旧口径写死 45）");
+  check(highSeed > lowSeed, "选情播种必须随处境上升（" + lowSeed + " → " + highSeed + "）");
+  check(lowSeed <= CEIL && highSeed <= CEIL, "播种值不得越过天花板（" + lowSeed + "/" + highSeed + " > " + CEIL + "）");
+  check(highSeed < 45, "任何人开局都不该白手拿过半选情（播种 " + highSeed + " ≥ 旧写死值 45）");
+
+  /* ② 基本盘占比：只数攥在手里的人头，且夹在 0..1 */
+  G.tier = 8;   // electoral_8 选区 2000 万人
+  const sh = P.baseShare();
+  check(Math.abs(sh - (3000000 + 1500000) / P.electorateSize()) < 1e-9, "baseShare 应 = (好感+死忠)÷注册选民，实际 " + sh);
+  check(P.when({ minShare: 0.12 }, P.snap()) === (sh >= 0.12), "when 的 minShare 判据应与 baseShare 同调");
+  G.voters = { warm: 0, diehard: 0, oppose: 0 };
+  check(P.baseShare() === 0 && P.when({ minShare: 0.12 }, P.snap()) === false, "零基本盘应被 minShare 挡下");
+
+  /* ③ 投票日 = f(选情)：标了 ballot 的选项不再吃写死的 base */
+  G.campaign = { id: "camp_council", stageIdx: 0, since: P.monthSeq(), since0: P.monthSeq(), played: 0, status: "active", meters: { momentum: 50 } };
+  const bb = m => { G.campaign.meters.momentum = m; return P.ballotBase(0.4); };
+  console.log("  投票日胜率：选情 0→" + bb(0).toFixed(2) + " / 20→" + bb(20).toFixed(2) + " / 50→" + bb(50).toFixed(2) + " / 80→" + bb(80).toFixed(2) + " / 200→" + bb(200).toFixed(2));
+  check(Math.abs(bb(50) - 0.50) < 1e-9, "选情 50 应给五五开，实际 " + bb(50));
+  check(bb(20) < bb(50) && bb(50) < bb(80), "胜率必须随选情单调上升");
+  check(bb(0) === 0.10 && bb(200) === 0.85, "投票日胜率应夹在 [0.10, 0.85]");
+  G.campaign = null;
+  check(P.ballotBase(0.4) === 0.4, "没有活跃竞选时应回落到内容写的 base（校验/诊断口径）");
+
+  /* ④ 钱彻底退出门票：候选选项不设 req.fun，没钱也照样能当选 */
+  const ELECT = ["prog_council", "prog_city", "prog_state", "prog_upper", "prog_stwide", "prog_federal", "prog_senate", "prog_vp", "prog_president"];
+  const moneyGate = [], noBallot = [];
+  for (const id of ELECT) {
+    const ev = P.evById(id);
+    if (!ev) { moneyGate.push(id + "（缺卡）"); continue; }
+    let hasBallot = false;
+    for (const ch of ev.choices || []) {
+      const grants = Object.keys(ch.outcomes || {}).some(t => { const e = ch.outcomes[t].effects; return e && e.tier > 0; });
+      if (ch.ballot) hasBallot = true;
+      if (grants && ch.req && ch.req.fun != null) moneyGate.push(id + "/" + ch.id);
+      if (grants && !ch.ballot) noBallot.push(id + "/" + ch.id);
+    }
+    if (!hasBallot) noBallot.push(id + "（整卡无 ballot 选项）");
+  }
+  check(!moneyGate.length, "投票日选项不得再写 req.fun（钱=门票）：" + moneyGate.join(", "));
+  check(!noBallot.length, "每条民选链的末幕都要有按选情开价的选项：" + noBallot.join(", "));
+  {
+    const run = (P.evById("prog_president").choices || []).filter(c => c.id === "run")[0];
+    G.tier = 8; G.track = "electoral"; G.fun = 0; G.rep = 10;
+    G.campaign = { id: "camp_pres", stageIdx: 5, since: P.monthSeq(), since0: P.monthSeq(), played: 5, status: "active", meters: { momentum: 50 } };
+    G.voters = { warm: 2000000, diehard: 600000, oppose: 0 };   // 基本盘 1.3% < 12% → 只挡资格，不挡概率
+    const p0 = P.computeP(run).P;
+    const rich = JSON.parse(JSON.stringify(run)); rich.req = null; G.fun = 50000000;
+    const p1 = P.computeP(rich).P;
+    console.log("  总统：$0 现款按选情 50 的胜率 " + (p0 * 100).toFixed(0) + "% ／ $50M 且去掉基本盘门槛 " + (p1 * 100).toFixed(0) + "%（差额只可能是加成，不是门票）");
+    check(p0 > 0.05, "身无分文也必须能参选（P=" + p0 + "）");
+    check(Math.abs(p0 - 0.5) < 0.2, "选情 50 的总统胜率应在五五开附近，实际 " + p0);
+    check(run.req && run.req.voterShare != null, "总统资格改由基本盘把关（req.voterShare），实际 " + JSON.stringify(run.req));
+    check(run.mods && run.mods.some(m => m.src === "res" && m.key === "fun"), "原来的钱门槛应转成成功加成 mod");
+    G.campaign = null;
+  }
+
+  /* ⑤ 判负只看选情：任何竞选链都不许再拿金库当死刑 */
+  const chestGate = [];
+  for (const cid in P.reg.campaign) {
+    const def = P.reg.campaign[cid];
+    const gates = [].concat(def.abortBelow || [], (def.stages || []).map(s => s.abortBelow).filter(Boolean));
+    for (const g of gates) for (const k in g) if (k !== "momentum") chestGate.push(cid + ":" + k);
+    const mtr = (def.meters || {}).momentum;
+    if (mtr != null && mtr < CEIL) chestGate.push(cid + " 起步天花板 " + mtr + " 低于播种上限");
+  }
+  check(!chestGate.length, "abortBelow 只允许 momentum 一种表（#35⑤：钱见底=买不动广告，不判负）：" + chestGate.join(", "));
+
+  /* ⑥ 大钱手段的价码由级别价推导（cost.funLevel），不再是幕间裸数 */
+  {
+    const rally = P.evById("camp_state_rally");
+    const ch = (rally.choices || []).filter(c => c.cost && c.cost.funLevel != null)[0];
+    check(!!ch, "camp_state_rally 的买广告选项应改写成 cost.funLevel（#35②）");
+    if (ch) {
+      G.tier = 2; G.track = "electoral";
+      const priced = P.realize(rally).choices.filter(c => c.id === ch.id)[0];
+      check(priced.cost.funLevel == null, "funLevel 必须在展开时消解掉，只剩 cost.fun");
+      check(priced.cost.fun === P.levelPrice(ch.cost.funLevel, P.gradeOf(rally)),
+        "展开后的价码应 = N 档级别价，实际 " + priced.cost.fun + " vs " + P.levelPrice(ch.cost.funLevel, P.gradeOf(rally)));
+      const poor = P.levelPrice(ch.cost.funLevel, "mid");
+      G.tier = 8;
+      const higher = P.levelPrice(ch.cost.funLevel, "mid");
+      check(higher > poor, "同一件事在 T8 应比 T2 贵（" + P.fmtUsd(poor) + " → " + P.fmtUsd(higher) + "）");
+      G.tier = 2;
+      check(P.realize(P.evById("camp_council_announce")) === P.evById("camp_council_announce"),
+        "没有级别价代价的非 dyn 卡必须原样返回（热路径零开销）");
+    }
+    /* 竞选幕事件里不得再出现绝对美元代价：要么走 funLevel，要么本卡就是 dyn */
+    const bare = [];
+    for (const ev of P.events) {
+      if (P.eventKind && P.eventKind(ev) !== "campaign") continue;
+      for (const c of ev.choices || []) if (c.cost && c.cost.fun != null && !ev.dyn) bare.push(ev.id + "/" + c.id + " $" + c.cost.fun);
+    }
+    check(!bare.length, "竞选幕事件的资金代价应写 cost.funLevel（或由 dyn 卡按标尺展开）：" + bare.join(", "));
+  }
+
+  /* —— 还原现场 —— */
+  G.tier = bak.tier; G.rep = bak.rep; G.fun = bak.fun; G.track = bak.track;
+  G.faction = bak.faction; G.voters = bak.voters; G.campaign = bak.campaign;
+}
+
+/* ---------- 把柄 × 竞选：投放把柄（#23）----------
+ * 把柄（lev）过去只有一条被动去路（被反噬、过期）。#23 给它一条主动去路：
+ * 竞选进行中把手里的料喂出去，换这一幕的选情。两条钉子：
+ *   ① 内容侧：每一幕的 drop 只能是 primary / general（宣布幕与投票日不许放靶子），
+ *      州级以上的链必须两种靶都在（否则这个行动只剩一半意义）；
+ *   ② 结算侧：一次 1 点把柄、每幕一次；初选靶掷"对手退赛"，大选靶吃 INTG 反噬检定，
+ *      反噬要真的写进 scandal 账本（dirty_trick 旗 + wrath_oppo 计数，喂 140 清算池）。 */
+console.log("\n== 把柄 × 竞选：投放把柄（#23）==");
+{
+  const G = P.G;
+  const bak = { campaign: G.campaign, lev: G.lev, rep: G.rep, attr: G.attr, counters: G.counters, flags: G.flags, log: G.log };
+
+  /* ① 内容契约 */
+  const badDrop = [], miss = [];
+  let droppable = 0;
+  for (const cid in P.reg.campaign) {
+    const def = P.reg.campaign[cid], st = def.stages || [];
+    let pri = 0, gen = 0;
+    st.forEach(function (s, i) {
+      if (s.drop == null) return;
+      if (s.drop !== "primary" && s.drop !== "general") badDrop.push(cid + "#" + i + "=" + s.drop);
+      if (i === 0 || s.final) badDrop.push(cid + "#" + i + "（宣布幕/投票日不该有靶子）");
+      droppable++;
+      if (s.drop === "primary") pri++; else gen++;
+    });
+    if (st.length >= 4 && (!pri || !gen)) miss.push(cid + (pri ? " 缺大选靶" : " 缺初选靶"));
+  }
+  check(!badDrop.length, "campaign stage.drop 只能写 primary / general，且不落在宣布幕或投票日：" + badDrop.join(", "));
+  check(!miss.length, "四幕以上的竞选链应两种靶齐备：" + miss.join(", "));
+  check(droppable >= 15, "可投放的幕太少（" + droppable + "）——这个行动在多数竞选里没有落点");
+  console.log("  内容：四幕以上的竞选链各有初选靶与大选靶，可投放的幕共 " + droppable + " 幕");
+
+  /* ② 闸门：没竞选 / 没靶 / 没料 / 这一幕放过一次 —— 四种情况都得置灰 */
+  const mk = function (id, stageIdx, momentum) {
+    G.campaign = {
+      id: id, stageIdx: stageIdx, since: P.monthSeq(), since0: P.monthSeq(),
+      played: stageIdx, status: "active", meters: { momentum: momentum == null ? 30 : momentum }
+    };
+  };
+  G.attr = Object.assign({}, G.attr, { INTG: 50, CUN: 50 });
+  G.log = G.log || [];
+  G.campaign = null;
+  check(P.levDropInfo().can === false, "没有进行中的竞选时不该能投放");
+  mk("camp_state", 0);   // 宣布幕
+  check(P.levDropInfo().can === false, "宣布幕没有靶子，按钮应置灰");
+  mk("camp_state", 1);   // 党内初选（primary 靶）
+  G.lev = 0;
+  let info = P.levDropInfo();
+  check(info.can === false, "手上没把柄时按钮应置灰（lev=0）");
+  G.lev = 3;
+  info = P.levDropInfo();
+  check(info.can === true && info.kind === "primary", "有把柄 + 初选幕 → 应可投放，实际 " + JSON.stringify(info.can + "/" + info.kind));
+  check(info.cost === 1, "一次投放应恰好花 1 点把柄，实际 " + info.cost);
+  console.log("  闸门：无竞选 / 无靶 / 无把柄 / 每幕一次 四种情形都判不可用；有把柄的初选幕 → 可投放（成本 " + info.cost + "）");
+
+  /* ③ 初选靶：花 1 点把柄 → 掷对手退赛 → 选情结算，且这一幕不能再投 */
+  {
+    const rint = P.rint;
+    P.rint = function () { return 1; };   // 强制命中（把随机从断言里摘出去）
+    const before = P.G.campaign.meters.momentum;
+    const r = P.levDrop();
+    P.rint = rint;
+    check(!!r && r.hit === true, "强制命中时初选投放应判对手退赛");
+    check(G.lev === 2, "投放后把柄应 -1（3 → " + G.lev + "）");
+    const lv = P.balance().campaign.levDrop || {};
+    check(P.G.campaign.meters.momentum === before + (lv.primaryWin || 15),
+      "对手退赛应把初选靶的选情一次给足（+" + (lv.primaryWin || 15) + "）");
+    check(G.campaign.dropN === 1, "累计投放次数应 +1");
+    check(P.levDropInfo().can === false, "同一幕投放第二次必须被拒");
+    mk("camp_state", 2);   // 造势幕（general 靶）
+    check(P.levDropInfo().can === true, "换一幕就该重新能投（每幕一次，不是每场一次）");
+  }
+
+  /* ④ 大选靶：吃到反噬时必须留下 scandal 账本 */
+  {
+    const rint = P.rint, rep0 = G.rep;
+    G.flags = []; G.counters = Object.assign({}, G.counters);
+    const w = G.counters.wrath_oppo || 0;
+    const m0 = G.campaign.meters.momentum;
+    P.rint = function () { return 1; };   // 强制"被翻出来"
+    const r = P.levDrop();
+    P.rint = rint;
+    const lv = P.balance().campaign.levDrop || {};
+    check(!!r && r.back === true, "强制反噬时大选投放应判暴露");
+    check(G.campaign.meters.momentum === m0 + (lv.generalBack || 3), "暴露只给保底的选情增益（+" + (lv.generalBack || 3) + "）");
+    check(G.rep < rep0, "暴露必须掉声望（" + rep0 + " → " + G.rep + "）");
+    check(G.flags.indexOf("dirty_trick") >= 0, "暴露要插 dirty_trick 旗（喂 scandal / 清算管线）");
+    check((G.counters.wrath_oppo || 0) >= w + (lv.wrathBack || 12),
+      "暴露要往 wrath_oppo 攒恨（#140 清算池的入口），实际 " + w + " → " + G.counters.wrath_oppo);
+    console.log("  结算：初选靶 +" + (lv.primaryWin || 15) + " 选情／退赛；大选靶暴露 → 声望 " + rep0 + "→" + G.rep +
+      "、dirty_trick、wrath_oppo +" + (lv.wrathBack || 12));
+  }
+
+  /* ⑤ 界面：按钮的置灰态与可用态都从同一个口径出（不另判一次） */
+  if (P.campaignHTML) {
+    G.tier = 2; G.track = "electoral"; mk("camp_state", 1);
+    G.lev = 0;
+    const off = P.campaignHTML();
+    G.lev = 2;
+    const on = P.campaignHTML();
+    check(off.indexOf("cmp-drop") >= 0 && on.indexOf("cmp-drop") >= 0, "竞选面板必须有「投放把柄」这一行");
+    check(off.indexOf("cmp-drop off") >= 0 && /disabled/.test(off), "没把柄时按钮应渲染成置灰 + disabled");
+    check(on.indexOf("cmp-drop off") < 0 && on.indexOf('onclick="POTUS.levDropClick()"') >= 0 && on.indexOf("<b>−1</b>") >= 0,
+      "有把柄时按钮应可点，并把价码（−1 把柄）标出来");
+    console.log("  界面：lev=0 → 置灰；lev=2 → 可点并标注 −1 把柄");
+  }
+
+  /* —— 还原现场 —— */
+  G.campaign = bak.campaign; G.lev = bak.lev; G.rep = bak.rep; G.attr = bak.attr;
+  G.counters = bak.counters; G.flags = bak.flags; G.log = bak.log;
+}
+
+/* ---------- 派系四栏面板（#29）----------
+ * 四条轴（党建制派 / 商业·华尔街 / 军工复合体 / 宗教·道德团体）从 chip 流升级成 2×2 宫格：
+ * 每格一条镜像双轴（左半仇恨、右半友好）+ 大号读数 + 分档形容词。
+ * 纯展示层——所以断言也只钉展示：四格齐、正负分侧、三档 tint 与 chip 同一口径、
+ * 面板吃掉的键不再重复出 chip、其余派系照旧。 */
+console.log("\n== 派系四栏面板（#29）==");
+{
+  const G = P.G;
+  const bak = { faction: G.faction, tier: G.tier };
+  const want = ["establishment", "commercial", "military", "church"];
+  check(JSON.stringify(P.FAC_PANELS) === JSON.stringify(want), "四栏应取 " + want.join("/") + "，实际 " + (P.FAC_PANELS || []).join("/"));
+  const hidden = (P.UI_HIDE || {}).fac || {};
+  const clash = want.filter(k => hidden[k] || !P.reg.faction[k]);
+  check(!clash.length, "四栏成员必须都在派系注册表里、且不再被 UI_HIDE 藏掉：" + clash.join(", "));
+  {
+    G.tier = 2;
+    G.faction = { establishment: 62, commercial: -47, military: 20, church: 5, base: 30, foreign: -12 };
+    const html = P.factionPanelHTML();
+    const cells = html.split('class="faccell').slice(1);
+    check(cells.length === 4, "面板应恰好四格，实际 " + cells.length);
+    const seg = k => { const hit = cells.filter(c => c.indexOf('data-diff="fac_' + k) >= 0)[0]; return hit || ""; };
+    check(/fac-love"><b style="width:62%/.test(seg("establishment")) && /fac-hate"><b style="width:0%/.test(seg("establishment")),
+      "正值只该长右半（友好条），左半归零");
+    check(/fac-hate"><b style="width:47%/.test(seg("commercial")) && /fac-love"><b style="width:0%/.test(seg("commercial")),
+      "负值只该长左半（仇恨条），右半归零");
+    check(seg("establishment").indexOf("t3p") >= 0 && seg("commercial").indexOf("t3n") >= 0 &&
+      seg("military").indexOf("t2p") >= 0 && seg("church").indexOf("t1p") >= 0,
+      "分档应与 chip 同口径：|v|≥40→3、≥15→2、>0→1");
+    check(P.factionName("military") && seg("military").indexOf(P.factionName("military")) >= 0, "每格该写派系名");
+    const rows = P.statusRows();
+    check(rows.factions.indexOf('data-diff="fac_foreign"') >= 0, "四栏之外的派系仍应在档案里出 chip");
+    check(rows.factions.indexOf("facgrid") >= 0, "四宫格应在 factions 那一行里");
+    check((rows.factions.match(/data-diff="fac_military"/g) || []).length === 1,
+      "进了四栏的派系不该再重复出一份 chip");
+    check(rows.factions.indexOf('data-diff="fac_press"') < 0, "UI_HIDE 里的派系不该出现在任何一侧");
+    G.faction = { establishment: 0 };
+    const zero = P.factionPanelHTML();
+    /* 注意别写成 indexOf("t1")：派系有 desc 时格子上挂着 hastip + data-tip，
+       而 0 值本来就不该有 tint，判据只能是「faccell 后面紧跟 tint 类名」。 */
+    check(!/faccell t[123][pn]/.test(zero) && zero.split('class="faccell').length - 1 === 4,
+      "0 值不该上底色（四格齐、但一格 tint 类名都不该有）");
+    check(P.factionWord(0) && P.factionWord(-80) && P.factionWord(80), "三档形容词两侧都得有词");
+    console.log("  四格：建制派 +62 → 右条 62%·t3p ｜ 华尔街 −47 → 左条 47%·t3n ｜ 军工 +20 → t2p ｜ 宗教 +5 → t1p");
+  }
+  G.faction = bak.faction; G.tier = bak.tier;
 }
 
 /* ---------- 死局保护 ---------- */

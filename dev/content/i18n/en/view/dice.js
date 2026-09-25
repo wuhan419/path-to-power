@@ -21,6 +21,7 @@ POTUS.define("l10n", {
     "ui.dice.modFunOk": "Well funded",
     "ui.dice.modVoters": "Voter backing {pct}%",
     "ui.dice.baseOdds": "Base odds",
+    "ui.dice.ballotOdds": "Campaign momentum",
 
     /* 投注明细 */
     "ui.dice.stakeFun": "Funds {amt}",

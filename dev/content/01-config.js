@@ -379,9 +379,15 @@ POTUS.define("balance", {
     lateMonths: 12,
     /* lateLimit：连续断供多少个月 → 信用破产（hardEnd "bankrupt"，见 core.js loanStep）。
        断供 = 当月连利息都没交上（欠息桶在增长），部分还款且盖住利息即重新计时。
-       按难度分档，未列出的难度（easy/legendary，开局无贷）= 不启用。
-       ⚠ 单利改制后断供分布会变，此组数值待 #19 用新物理重新校准（cap 99 测量）。 */
-    lateLimit: { normal: 6, hard: 4, brutal: 3 },
+       #19 定稿：**三档统一 20 个月**（旧口径 6/4/3）。两条理由——
+       ① 旧值太狠：不设防实测 20 局的「每局最长连续断供」中位就有 10 个月、p90 35，
+          阈值定在 6 等于 80% 的局在 1980s 就被银行判死（`--late-cap=99` 换算表：
+          5→85%、6→80%、10→70%、12→65%、16→60%、20→50%）。定 20 → 破产率 ≈50%，
+          而且那是**上界**：模拟器不会主动用缓交（forbear）泄压，真人玩家会。
+       ② 旧口径还"越穷宽限期越短"（normal 6 / hard 4 / brutal 3）——难度本该只决定
+          欠多少（startDebt 65k/42k/28k 已经承担了这件事），不该再叠一层"银行给几天脸"。
+       12 个月起有「催收/征信」压力事件（lateMonths）先警告，20 个月才判死：放任必死，但不是一脚踩死。 */
+    lateLimit: { normal: 20, hard: 20, brutal: 20 },
     forbear: { maxMonths: 24, perMonths: 6, repCost: 3 },
     pslf: { months: 120, minTier: 1 },
   },
@@ -534,12 +540,12 @@ POTUS.define("balance", {
 /* ---------- 派系（好感度条） ---------- */
 POTUS.define("faction", {
   base: { name: "基层组织", desc: "工会/教会/社团等基层组织对你的态度（机器好感，不是选民人数——选民看选民池）" },
-  establishment: { name: "党建制派" },
-  commercial: { name: "商业/华尔街" },
+  establishment: { name: "党建制派", desc: "党务机器、州党部与大金主——提名是他们手里发出来的" },
+  commercial: { name: "商业/华尔街", desc: "企业董事会与市场：出钱给朋友，也惩罚看起来像威胁的人" },
   labor: { name: "工会/劳工" },
   press: { name: "媒体" },
-  military: { name: "军工复合体" },
-  church: { name: "宗教/道德团体" },
+  military: { name: "军工复合体", desc: "军火商、五角大楼，以及那些把基地开进选区的城镇" },
+  church: { name: "宗教/道德团体", desc: "教会与价值观组织：用祝福换政策" },
   agency: { name: "情报/执法机构" },
   foreign: { name: "外国势力" },
   tech: { name: "科技巨头" },
