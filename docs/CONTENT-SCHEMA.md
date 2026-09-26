@@ -142,6 +142,7 @@ POTUS.define("era", {
 
 > **定点事件仍要过一遍普通事件的触发条件**（tier / flag / era / 媒介年份 …），不满足就跳过。
 > 所以「写给高层级玩家的定点事件」不会硬塞给还没爬到那个位置的人。
+> 层级闸的另一半在 §1.6：**钉卡在总统级默认封顶 `tierMax-1`**，只有备好了总统那一档决策选项的卡才放行。
 
 > ⚠ **迁移已收尾**：`era.scheduled` 是**旧机制**，引擎仍支持（`time.js scheduledHits` 照旧合并），但现役树只剩 5 个时代（1980_REAGAN / 1990_GULF / 2001_WARONTERROR / 2008_CRASH / 2016_SOCIAL），且仅 2008_CRASH 还留着 3 条兜底 scheduled；1980 前的 1912…1970s 时代已整体冻结进 `deprecated/snapshots/20-eras.js`，不再挂在加载清单上。新铺的年代一律用**全局 `fixed` 表**（§1.6）+ **绝对年窗 `minYear`/`maxYear`**，不再往 era 里写 `scheduled`、事件也不再钉 `era`。
 
@@ -177,6 +178,16 @@ POTUS.define("fixed", [
 
 - **固定事件串**不复活已停用的 `arc.js`，而是用现有机制拼：把 2~3 幕（前奏→爆发→余波）各自钉进 `fixed`，后幕靠事件自带的 `after:{id,minMonthsAfter}` / `flags` 续接。**前幕若因层级/机缘没演，后幕的 `after` 不成立即静默跳过**——是一条"可断裂"的串，符合"历史 catch-up 但不强灌"。
 - 串里的每一幕事件本身仍写 `minYear`/`maxYear` + `scoped:true`（见 §4 / §4.2.1），`fixed` 只负责"到点必发"，事件自己负责"够不够格发"。
+
+#### 总统在位期不演"旁观者口径"的历史钉卡（#42）
+
+钉卡写的是**这件事找上你的政治身份**——你的县、你的辖区、你要不要替厂方去华盛顿说句好话。已经在白宫里的人没有"你的县"：`ln00_hang`（开票三天，全国还不知道总统是谁）演给在任总统看，等于让玩家替自己主持选举。所以 `time.js` 的 `normalizePins()` 不再一刀把钉卡 `tierMax` 抬到顶，而是**默认压到 `balance.tierMax - 1`（即 T8）**，只有一类卡例外：
+
+- **放行判据 = 这张卡自己备好了总统那一档的决策选项**：某个 `ch.when` 同时满足 `tierRaw:true` **且 `tierMin` 压在 `tierMax`（现 9）上**（也就是 #21 M4 / §4.22 的写法）。判据是**选项级**、由引擎真读门槛得出，不是卡上某个注释或标记——`P.pinPresidentView(ev)` 就是这条判据的探针，`trigger-scan.js` 复用它。
+- 现况：**146 张钉卡里 5 张**放行到总统级（`ln01_anthrax` / `ln03_war` / `ln08_auto` / `ln20_covid` / `ln21_capitol`），其余在 T9 全部以 `why:"president"` 挡下，逐条可在 `G.pinMiss` 里查（validate 有回归断言钉住"2000-11 的 `ln00_hang` 在 T8 演、在 T9 不演"）。
+- **不会饿死总统的档期**：白宫每月恰 1 条强制档期走的是另一条通道（`P.whiteHouseSlot`，§4.22），与钉卡无关；`trigger-scan` 的"≥2 钉卡/年 + T8 结构可发率 ≥80%"仍是**按能爬到 T8 的玩家**验收的，总统期另看白宫池。
+- **写新钉卡想让它演到白宫**：在卡里补一支 `when:{tierRaw:true, tierMin:9}` 的决策选项，并按 §4.21 的纪律**在总统那一档留住一个无 `cost` 无 `req` 的保底**。手写卡级 `tierMax:9` 没用——`normalizePins` 会照判据把它压回 T8。
+- **反向纪律**：放行到总统级的卡上，地方口吻的选项（"替厂方去华盛顿游说"这类）要用 `when:{tierRaw:true, tierMax:8}` 挡在总统档之外；挡之前逐张核该档还剩不花钱、无门槛的一条路，**不满足就别挡**。
 
 ## 2. origin / talent / entry
 
@@ -1043,7 +1054,7 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 | 类 | 派生规则（按顺序命中即止） | 节奏由谁负责 |
 |---|---|---|
 | `campaign` 竞选 | `category:"campaign"`，或 `P.isCampaignActEvent(id)`（竞选幕） | `campaign.js` 逐幕推进，**计进四桶账但从不被额度拦**（链要一幕幕演完），只受"每月一幕"约束 |
-| `fixed` 固定历史 | 在钉卡表里（`P.pinIds()` = `reg.fixed` ∪ 各 era 的 `scheduled`），**或** `minYear === maxYear` | 到点必演（`planMonth` 以 eventId 定点排期），**不计入也不吃额度** |
+| `fixed` 固定历史 | 在钉卡表里（`P.pinIds()` = `reg.fixed` ∪ 各 era 的 `scheduled`），**或** `minYear === maxYear` | 到点必演（`planMonth` 以 eventId 定点排期），**不计入也不吃额度**；总统级默认封顶 `tierMax-1`，见 §1.6「#42」 |
 | `career` 职业/公务 | `chore:true`，或 `category:"career"` / `"govt"` | `time.js` 的 `choresSlot` 注入（§4.17），**吃 `careerMax` 年额度**（#38 起） |
 | `random` 随机 | 其余全部（含 `shady` 灰产、`civil` 民权、`media`、`scandal`…） | **吃年度额度**，见下 |
 
@@ -1125,7 +1136,7 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 - 中 `when: { tierRaw: true, tierMin: 4, tierMax: 6 }` —— 表态与办事：州一级的人物，公开定性、开听证、争条款。
 - 高 `when: { tierRaw: true, tierMin: 7 }` —— 决策与担当：你自己那一票/那道命令就是历史的一部分。
 
-硬规矩三条：① 三档必须铺满 0—9（`tierRaw` 别忘，否则档位被旧 `tierBand` 重映射）；② **每一档内部**至少留一条既无 `cost` 又无 `req` 的选项——全局保底检查只看"整卡存在保底"，档位一切走后穷人档里没路可点，玩家就被自己的身份卡死；③ 量级随档位递增，高档的 critfail 要真的能毁掉一条仕途。
+硬规矩四条：① 三档必须铺满 0—9（`tierRaw` 别忘，否则档位被旧 `tierBand` 重映射）；② **每一档内部**至少留一条既无 `cost` 又无 `req` 的选项——全局保底检查只看"整卡存在保底"，档位一切走后穷人档里没路可点，玩家就被自己的身份卡死；③ 量级随档位递增，高档的 critfail 要真的能毁掉一条仕途；④ **"高"档不等于"总统"档**——`tierMin:7` 那条口吻是"你自己那一票/那道命令"，写给国会议员与州长也成立；真的要让在任总统撞上同一件事，得单写一支 `tierMin` 压在 `tierMax`（现 9）上的决策选项，钉卡才会被 §1.6 的判据放行到总统级。反过来，一支地方口吻的选项挂 `tierMax:8` 挡掉总统之前，先确认总统那一档还剩免费的一条路，**不满足就别挡**。
 引擎的兜底顺序（`visibleChoices`）：命中 `when` 的选项 > 全部不带 `when` 的选项 > 原样全给——任何情况下都不会渲染出零按钮的卡，但那是保险丝，不是设计。
 
 #### 连锁后幕：可以断，不可以硬灌
@@ -1171,7 +1182,7 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 - **败选与定罪都只落 `fall:1`**，不用 `hardEnd`：与 #35「竞选不再由引擎掷赌骰判死」同一条纪律。`fall` 把 tier 摔下 `tierMax`，白宫通道随 `isPresident()` 转 false 自动关账，离任结算在 `presidencyTick` 的离场分支里幂等地做一次（`presExitSettle`：低支持率/长期危险线 → `wrath_establishment`，丑闻 → `wrath_press`，调查或弹劾 → `wrath_agency`，并插 `president_left`）。**这正是 §4.18 清算池的入口**，卸任后真的会演清算，不需要新数值系统。
 - **弹劾卡**（`balance.presidency.impeach.card`）：白宫殿把它排在四族轮转**之前**、且不推游标（它占的还是"每月恰 1 条"那个名额，弹完照原节奏继续轮），卡自带 `cond: P.impeachmentDue()`，于是被当普通卡抽也只有该演的那个月抽得到。演过插 `impeached`，`retryMonths` 内不再敲同一扇门。
 - **遗产三档**（`content/40-endings.js`）：`career_president_great/adequate/flawed` = S/A/B，判据一律走 `when` 的 `cond` 逃生口读 `G.pres`（**快照里没有 `pres`，第一个参数才是真 `G`**），外加 `impeached`/`scandal_4·5` 两道上限闸。没有白宫账本的旧档才落到通用 `career_president`。
-- **总统视角历史锚点**：给 1xx 年代线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（§4.21 的选项级分层），不动既有选项 id。`tierRaw` 不可省；这一档**必须**至少有一个档位吃 `appr`、且胜算挂 `approval`（validate 逐条查），否则"总统的桌子"和普通表态没有区别。
+- **总统视角历史锚点**：给 1xx 年代线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（§4.21 的选项级分层），不动既有选项 id。`tierRaw` 不可省；这一档**必须**至少有一个档位吃 `appr`、且胜算挂 `approval`（validate 逐条查），否则"总统的桌子"和普通表态没有区别。**这张卡若是钉卡（在 `fixed` 表里），这一支 `tierMin:9` 的选项同时就是它进总统级的放行钥匙**——`normalizePins()` 只把"备好了总统档决策选项"的钉卡 `tierMax` 抬到 9，其余一律封顶 `tierMax-1`（见 §1.6「#42」）。
 
 ---
 

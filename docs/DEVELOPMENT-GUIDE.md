@@ -151,6 +151,7 @@
 │       ├── choice-audit.js   选项取舍探测器（占优/过平/同轴单调——"闭眼都会选"检测）
 │       ├── text-audit.js     文字审计（标题通顺度 / body ≤200 字 / 缺 brief 清单）
 │       ├── density-scan.js   年度大事密度（逐年 Σ=fixed+钉年卡，偏薄年份退出码 1）
+│       ├── trigger-scan.js   钉卡触发门禁（逐年 ≥2 条 + tier8 结构可发率 ≥80% + 零死引用；复现 normalizePins 的总统级放行判据）
 │       ├── i18n-coverage.js  逐屏语言探针（英文屏中文占比 >5% 退出码 1，可当门禁）
 │       ├── i18n-events.js    逐卡缺译探针（zh/en 两次 boot 逐叶子比对）
 │       ├── migrate-scale.js  一次性迁移辅助（绝对金额 → dyn 系数草稿）
@@ -990,6 +991,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | `choice-audit.js` | 手感体检 | 找"闭眼都会选"的选项：占优 / 过平 / 同轴单调 |
 | `text-audit.js` | 文字体检 | 标题通顺度 / body 超 200 字 / 缺 brief 清单 |
 | `density-scan.js` | 铺年带后 | 年度大事密度（Σ=fixed+钉年卡 vs 1980—1988 基准），偏薄退出码 1 |
+| `trigger-scan.js` | 动过钉卡 / 层级闸后 | 逐年钉卡 **≥2** + **tier8 结构可发率 ≥80%** + 零死引用（`noEvent`）。它自己复现 `time.js normalizePins()` 的抬闸效果，所以**改总统级放行判据必须同步改这里**（判据已抽成 `P.pinPresidentView`，两边共用）；`--verbose` 逐卡打印挡下的原因（`tierMin` / `president` / `era` / `when`） |
 | `i18n-coverage.js` | 双语门禁 | 逐屏中文占比（英文屏 >5% 中文退出码 1） |
 | `i18n-events.js` | 补翻译 | 逐卡缺译探针（zh/en 双 boot 逐叶子比对） |
 | `migrate-scale.js` | 一次性 | 绝对金额 → dyn 系数草稿 + 三值性预判（产物在 tools/out/，人工审查后落卡） |
@@ -1028,6 +1030,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.12 升职庆典 | **`engine/view/fanfare.js`**：层级只要往上走就盖一层典礼窗。触发缝在 `effects.js` 的 `tier` handler（唯一写 `G.tier` 处）——晋升/跳级/当选/转轨全自动吃到，资历闸拦住的与 `fall` 下跌不弹；`core.js` 抽出 `salaryAt(tier)`/`electorateAt(tier)` 两个纯查表版本供窗子复用；`G.fanfareQ` 是**一次性 UI 交接件**（`migrate()` 一律清空），`G.promoteCount` 才是账本；两个字段纯 additive，**不升 SAVE_FORMAT** | 新增 `ui.fanfare.*` 13 键 + `ui.effects.promoted`（EN 覆盖同步）；validate 庆典节 + smoke-ui 真点击一屏 | ✅ |
 | v0.12 #39 | **竞选：资源是入场券**——把"钱/人情/把柄"真接进竞选幕。三条病因：① 全库 130+ 处 `stake` 里竞选幕 30 张 **0 处**（面板永不弹出）② 内容侧 64 处 `camp.warchest` 而引擎侧**零读者**（只写不读的表是装饰）③ 越往高越好赢（种子选情 tier≥3 顶格）。落点：`req.camp` 新 req 词汇给金库第一个读者（`view/stage.js`）+ 州级三链补 `meters.warchest` 与共用筹款幕 `camp_raise_state`（幕数 4→5）+ 26 个选项接加码（15 投钱 `CAMP_FUN` 6%/档 · +42% 封顶，11 欠人情 `CAMP_FAV`）+ `seedMomentum` 第五项「家底」软门槛（对数、对称于 `funRef=8` 档、±`perFun=5`）。**金库要咬得住**：初版四道闸（6/10/14/18）全低于各链起步金库 → 探针读出 17 次出场 **0 次拦截**，等于又造了一张只写不读的表；重调为**起步金库下调**（10/12/14/16/18/24）+ **每幕定额拨款 `metersDelta:{warchest:3}`** + 6 道闸位（20/20/22/24/26/34）+ 三处新增进项（初选宣传片、辩论、党代会交易），实测 40 局拦 20%（不是墙、也不是空气）；`camp_vp`/`camp_reelect`/`camp_midterm` 干脆**删掉 warchest**（没有需要金库的一幕就不写这张表）。**红线**：基层两链整体不接、每张带加码卡留一条零资源通路、`ballot` 选项永不接 stake（并剥掉 `prog_city.run` 那处遗留） | `65-campaign-acts.js`（+1 卡、26 个 stake、6 处 `req.camp`）、`61-campaigns.js`（六链 meters 重排 + 新幕 + 19 幕拨款 + `balance.campaign.seed.perFun/funRef`）、`i18n/en/reg/61-campaigns.js` 幕名 + `en/events/65-campaign-acts-b.js` 正文；validate 新增「资源是入场券」节 8 断言（含闸值两端）+ 软门槛读数 + 金库闸面板、smoke-ui 14 断言（闸值从内容读、不写死）；探针 `tools/out/campres-probe.js`（30—40 局入场家底 / 押得起档数分布 / 闸拦截率 / 面板弹出次数 / 投票日胜率带）与 `campmap-probe.js`（逐卡 stake 清单） | ✅ |
 | v0.12 总统门槛与平衡两修（分支 `dev/presidency-guard`，已并入本支） | **白宫只认票数**：`P.applyEffects(eff, ctx)` 多一个上下文参，`tier` 处理器在「跨过 `balance.tierMax` 且缺 `ctx.election`」时拦下（与资历闸同表达：位子不动、折 +3 声望）；放行口只有两处 —— `view/stage.js` 按 `ch.ballot` 传、`campaign.js` 的链 `onWin` 打 `{election:true}`（副总统继任**仍未实现**，将来要开得用显式继任卡）。**声望门槛**：`scale.js` 新增 `ruler.repGate = repBase[量级] × tierF`（**不吃 attrF** —— 旧口径把 6 倍系数在 T8 展成 148，超过声望上限 100 等于把那张卡唯一的升位选项永久锁死，还造成"魅力越高入场券越难拿"的反向闸门），再夹 `balance.econ.repGateMax = 80`；内容侧系数回落（`prog_senate` 4.5→2.8 等）。**投资回款先还本金**：`effects.js` 的 `funMul` 用新增 `G.__stakePaid` 区分「参照本金」（cost + 只当资格闸的 req.fun + 投注，收益按它乘倍率）与「真扣走的那截」（cost + 投注），结果夹 0（`funMul:-1` 的语义是本金全亏，不许倒欠）。**总统级选区地名**：`voterBase.nationalTier: 9` → `topbar.js` 改口「美利坚 · 全国选民」，不再挂家乡州 | `60-progression.js` 8 张 `prog_*` 末幕按**开票夜**口径重写（中英含 known/rumor/unknown 条数对齐，`base/mods/req/outcomes` 数值一字未改；`prog_senate` 的"参议员/州长二选一"留给链侧一起改）；validate 新增 ④b 声望门槛守卫 + 重写 ⑨ 投资结算回归闸 + 总统闸五条 + 全国选区卡面断言。**与本支改动的接缝**：`effects.js` 的总统闸排在资历闸之前 `return`，所以被拦下的那一步**不进升职庆典队列**（`58c4a49`）；两侧共用 `ballot` 词汇但各查各的（#39 查它不许接 `stake`，总统闸查它给不给授级），合并零文本冲突、以上八道门禁在合并后的树上全绿 | ✅ |
+| v0.12 #42 | **历史钉卡不再演给在任总统**：玩家已入主白宫却还撞上「开票三天，全国还不知道总统是谁」（`ln00_hang`）、「联邦来人在你辖区调阅记录」（`wt02_patriot`）——钉卡写的是"这件事找上你的**地方身份**"，而总统没有"你的县"。`time.js normalizePins()` 从"#33 的一刀抬到 9"改成**默认封顶 `tierMax-1`（T8）**；放行判据是**选项级**的：某支 `ch.when` 带 `tierRaw:true` 且 `tierMin` 压在 `balance.tierMax` 上（= #21 M4 那五张的决策档），抽成 `P.pinPresidentView(ev)` 供引擎与探针共用，**不新增字段、不维护清单**。顶上一律走 `P.tierTop()`（`core.js` 新纯函数，读 `balance.tierMax`），`9` 从此不再在各处写死。挡下的逐条记 `G.pinMiss`（`why:"president"`，`scheduledHits` 里新增这一分支）。**总统期不断粮**：白宫每月恰 1 条走独立的 `whiteHouseSlot`，与钉卡无关，所以挡掉 141 张不会造成总统月空档 | `122-line-1999-02.js`（`ln01_anthrax`）/ `123-line-2003-06.js`（`ln03_war`）/ `124-line-2007-10.js`（`ln08_auto`）/ `127-line-2019-21.js`（`ln20_covid` + `ln21_capitol`）：放行卡上地方口吻的选项反手挂 `when:{tierRaw:true,tierMax:8}`（炭疽 2 支、国会山 2 支、救市 3 支、伊拉克的"正式质询"1 支、新冠的"跟联邦口径走"1 支），**每档保住一条无 `cost` 无 `req` 的保底**（炭疽保 `prep`、国会山保 `calm`、救市保 `controlled_bust`、伊拉克保 `ride_victory`、新冠保 `fed_power` —— 再挡就只剩一个按钮，那一支就不挡）；validate 把旧的"钉卡全层通行"断言换成**总统级放行 ratchet**（现 146 张钉卡 / 放行 5 张 / 逐张反查 T9 不越权）+ 行为断言（`ln00_hang` 在 T8 演、在 T9 不演，`ln01_anthrax`/`ln20_covid` 反向）；`trigger-scan.js` 同步复用 `P.pinPresidentView`，读数打印「规范化改 tierMax 144 张（放行到总统级 5 张）」，T8 结构可发率仍 100% | ✅ |
 | 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
@@ -1090,6 +1093,8 @@ A：事件池被抽空了。看 `validate.js` 的「填充事件占比」。
 
 **Q：历史大事件怎么没按年发生？**
 A：大事件不再靠"从池子里碰运气"，而是钉在 `fixed` 定点表上**到点必发**（全库百余条定点，口径以 validate/density-scan 为准；era.scheduled 仅剩 2008 兼容层）。没发生通常是：① 那一局没活到那一年；② **事件自己的**年窗/tier/`flags`/`cond` 不满足——定点只保证"到点尝试发"，不满足会静默跳过；③ `fixed` 引用了不存在的 event id（validate 会报）。密度偏薄另跑 `node tools/density-scan.js` 看哪一年。
+
+**（#42）已经当上总统了，为什么某些历史大事件反而不再演？** 钉卡写的是"这件事找上你的地方身份"（你的县、你的辖区、你要不要去华盛顿说情），而总统没有这些身份——「开票三天，全国还不知道总统是谁」演给在任总统看更是直接自相矛盾。所以 `time.js normalizePins()` 把钉卡默认封顶在 `tierMax-1`（T8），**只有卡里备好了总统档决策选项**（某支 `ch.when` 带 `tierRaw:true` 且 `tierMin` 压在 `tierMax` 上）才放行到顶层，现役 5 张（炭疽 / 伊拉克 / 救市 / 新冠 / 国会山）。被挡下的逐条记在 `G.pinMiss`（`why:"president"`），`node tools/trigger-scan.js --verbose` 也能逐卡看到。总统期的档期不会因此断供——白宫每月恰 1 条走的是独立的 `whiteHouseSlot` 通道。
 
 **Q：写了事件链（`after`），但续集从来没出现过？**
 A：按顺序排查五点：

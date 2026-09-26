@@ -397,6 +397,8 @@ POTUS.define("event", [
       {
         id: "hardline", text: "推动全面应急：大筛查、扩拘留权、来一部更狠的法案",
         note: "赌恐慌中人肯换自由换安心。风险：账日后算到你头上。",
+        /* 结果文案写的是「联邦把你的方案抄进全国指引」——地方样板口吻，在位总统不该点它 */
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.45, mods: [{ src: "fac", key: "agency", w: 0.35 }, { src: "fac", key: "military", w: 0.25 }],
         cost: { fun: 1.5 }, stake: { fun: true },
         outcomes: {
@@ -410,6 +412,8 @@ POTUS.define("event", [
       {
         id: "truth", text: "逼联邦交底：公开真实风险，本地先组织医院演练",
         note: "赌人不恨说真话的人。风险：恐慌会被算到你头上。",
+        /* 「逼联邦交底」的主语不能是在任总统 */
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.53, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "attr", key: "INTG", w: 0.3 }],
         cost: { fav: 1 },
         outcomes: {
@@ -421,6 +425,7 @@ POTUS.define("event", [
         }
       },
       {
+        /* 不分档：这支是本卡唯一无 cost 无 req 的保底，总统档也要有一个不冒险的按钮可点 */
         id: "prep", text: "不喊口号：给邮递员配防护装备，排好分发点",
         note: "赌的是不沾染。风险：做完了没人知道是你。",
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
@@ -433,7 +438,8 @@ POTUS.define("event", [
         }
       },
       /* #21 M4：总统视角 —— 全国只有你一个人能对着一亿封信说话。
-         卡级 tierMax 由 time.js 的钉卡抬闸放到 9，所以这一支真看得见。 */
+         卡级 tierMax 由 time.js 的钉卡抬闸放到 9，认的就是这一支决策档；
+         上面两支地方口吻的已挡在 8 级以下，保底那支留在所有档位。 */
       {
         id: "situation_room", text: "把它接成自己的仗：停掉全国邮路、启动疫苗储备，你本人上电视讲细菌",
         note: "赌全国在恐慌里只认总统一张脸。风险：防疫的每一起失误从此都归你。",

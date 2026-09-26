@@ -117,7 +117,9 @@ POTUS.define("event", [
       },
       {
         id: "demand_plan", text: "把「然后呢」变成正式质询：要国防部分管官员交出占领开销与重建时间表",
-        when: { tierRaw: true, tierMin: 7 },
+        when: { tierRaw: true, tierMin: 7, tierMax: 8 },
+        /* 正式质询与听证记录是国会那侧的刀；在任总统要账单不必质询自己的部门。
+           挡完之后总统档还剩 ride_victory（无 cost 无 req）+ carry_deck，仍然是个选择。 */
         note: "全国版面替你把问题放大，也替对手把靶子画大。这一步迈出去，就没有中间。",
         base: 0.45, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "press", w: 0.2 }],
         stake: { fav: true },

@@ -282,7 +282,9 @@ POTUS.define("event", [
       {
         id: "federal_line", text: "跟联邦口径走：上面说风险低，你只说可控",
         note: "把身家押在白宫的鼓点上。顺风时你是红人，退潮时你是那个「跟着喊的人」。",
-        when: { tierRaw: true, tierMin: 7 },
+        /* 「上面」「白宫的鼓点」不能是在任总统自己。fed_power 不挡：总统档还剩它 + war_powers，
+           两处权限动作虽重叠，但一个是地方调配、一个是全国担当，仍是真选择；再挡就只剩一个按钮。 */
+        when: { tierRaw: true, tierMin: 7, tierMax: 8 },
         base: 0.5, mods: [{ src: "fac", key: "establishment", w: 0.4 }, { src: "attr", key: "CUN", w: 0.3 }],
         cost: { fav: 1 },
         outcomes: {
@@ -546,6 +548,8 @@ POTUS.define("event", [
       {
         id: "name_it", text: "点名定性：这是叛乱，追责要到总统",
         note: "最响也最烫：赌建制回潮比你家火气先到。赌错，基本盘把你钉在叛徒栏。",
+        /* 「追责要到总统」不能由在任总统点 */
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.45, mods: [{ src: "attr", key: "INTG", w: 0.45 }, { src: "fac", key: "establishment", w: 0.25 }],
         outcomes: {
           crit: { body: "复会那夜的媒体名单上，你是地方一级第一个把「叛乱」说完整的人。两党温和派与商界的电话一起打过来。", effects: { rep: 1.5, fac: { establishment: 9, press: 8, base: -8 }, flags: ["institutionalist"] } },
@@ -558,6 +562,8 @@ POTUS.define("event", [
       {
         id: "both_sides", text: "含糊降温：痛恨暴力，但也要听「爱国者」的委屈",
         note: "两边各递一杯水。小心端法——洒了，两身都湿。",
+        /* 结果里那份「派车观队」的报名表是集会参与者的账，不在统帅名下 */
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.4, mods: [{ src: "attr", key: "CUN", w: 0.45 }],
         cost: { fav: 1 }, stake: { fun: true },
         outcomes: {
@@ -569,6 +575,8 @@ POTUS.define("event", [
         }
       },
       {
+        /* 刻意不分档位：这句「要求恢复正常运转」是每一级都说得出口的话，
+           也是本卡总统档仅剩的无 cost 无 req 保底（另一支是 command_in_chief）。 */
         id: "calm", text: "只说一句：要求恢复正常运转，反对一切暴力",
         base: 0.62, mods: [{ src: "attr", key: "INTG", w: 0.3 }],
         outcomes: {
