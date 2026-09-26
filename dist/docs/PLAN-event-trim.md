@@ -67,7 +67,10 @@ weight / unique / pace / chore / flags / tracks / parties / req / cost / effects
 
 ## 六、完成记录（2026-09-26 交付）
 
-**结论：六个里程碑全部落地，八道门禁全绿，dist + itch zip 已重出。改动仍未提交**（按纪律：提交/合并/push 等用户明确开口）。基线 = `dev/reckoning-be` @ `abfa740`。
+**结论：六个里程碑全部落地，八道门禁全绿，dist + itch zip 已重出。**
+基线 = `dev/reckoning-be` @ `abfa740`。
+**发布去向**：提交 `1381f0b`（含 dist 镜像共 242 文件 +4030 / −25166）→ 并入 main = 合并提交 `2cf2d7b`（**零冲突**，
+且合并后 `package.sh --fast` 零差异，说明 dev 的 dist 镜像本就同步）→ 两个分支均 fast-forward push 到 origin。
 
 ### 1. 体量
 
