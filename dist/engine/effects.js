@@ -50,14 +50,20 @@
     /* 投资回报按【投入的本金】算，不是总余额（用户实测纠错）：
        funMul: 1.0 = 本金翻倍赚 100%；funMul: -1.0 = 本金全亏。
        本金 = 选项 cost.fun（或入场费 req.fun）+ 投注的 stake 资金 —— 结算前由 stage.js
-       resolveChoice 写进 G.__stakeBase。v0.12 收紧旧兜底：没有本金声明时【不再】
-       按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。
+       resolveChoice 写进 G.__stakeBase；其中**真正从账上扣走的那一截**（cost + 投注，
+       不含只做资格用的 req.fun）另记在 G.__stakePaid。v0.12 收紧旧兜底：没有本金声明时
+       【不再】按总余额乘倍数（那是"点一下家底翻 2.2 倍"的漏洞），空转 + 告警让内容现形。
        #28②：倍率吃 INT —— 同一条生意，聪明人赚得多、翻车时亏得少（见 funMulIntMul）。 */
     funMul: function (v, G) {
       const base = (G.__stakeBase != null && G.__stakeBase > 0) ? G.__stakeBase : 0;
       if (!base) { console.warn("[POTUS] funMul 没有本金声明（cost.fun / req.fun / 投注都为空），本笔收益空转"); return; }
       const k = funMulIntMul(G);
-      G.fun += Math.round(base * (v >= 0 ? v * k : v / k));
+      /* 本金在 resolveChoice 里已由 payCost 扣走，所以这里给的是【回款】：还本金 + 收益。
+         旧实现漏了"还本金"那一截（只加 base×倍率），于是每张投资卡少还一份本金 ——
+         ok(funMul 0.8) 反而净亏 12%，critfail(-1.0) 净亏 191%，与上面那句
+         “-1.0 = 本金全亏”自相矛盾。夹在 0：最多把本金亏光，不许倒欠。 */
+      const paid = (G.__stakePaid != null && G.__stakePaid > 0) ? G.__stakePaid : 0;
+      G.fun += Math.max(0, Math.round(paid + base * (v >= 0 ? v * k : v / k)));
     },
     rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
     /* v0.9 退役：健康/精力不再是玩家可感资源。事件里残留的 hp/ap 增减一律**空操**（保留 handler 入口
@@ -68,9 +74,21 @@
     fav: function (v, G) { G.fav = P.clamp(G.fav + v, 0, 20); },
     /* 把柄：只能靠"让某人不敢开口"得到，不能靠钱买。下限 0，无上限 */
     lev: function (v, G) { G.lev = Math.max(0, (G.lev || 0) + v); },
-    tier: function (v, G) {
+    tier: function (v, G, ctx) {
       const b = P.balance();
       const before = G.tier;
+      /* 白宫的椅子是数票数出来的，不是刷事件刷出来的：跨进 tierMax（总统）这一步只认
+         【投票日来源】—— ballot 选项（view/stage.js 按 ch.ballot 传 ctx.election）与竞选链
+         的 onWin（campaign.js）。玩家实测：9·11「定调」这类大事件的大成功写着 tier:1，
+         在 tier 8 熬满资历闸就能一步踏进总统级，等于绕开整条选举链（而且 isPresident()
+         只看层级、不看轨道）。拦下时与下面的资历闸同一表达：位子不动、折成声望。
+         破格直提（v>=2）也照样拦 —— 越级直登白宫更不可能不经选举。 */
+      const TOP = b.tierMax == null ? 9 : b.tierMax;
+      if (v > 0 && before < TOP && before + v >= TOP && !(ctx && ctx.election)) {
+        G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
+        if (P.pushLog) P.pushLog(P.t("ui.effects.tierNoBallot", "最高的那把椅子要数票才坐得上：这一步没有把你送进总统级（声望+3）。"));
+        return;
+      }
       /* 全局年限闸：正常晋升（一步一级）要在当前层级熬够月数（不满足 → tier 不动，
          折成一点声望——"资历还不够"的引擎级表达）。门槛表写在 balance.tierGates（10 级）。
          破格直提：tier:+2/+3 视为非常规提拔，**绕过资历闸**；代价是被跳过的中间级
@@ -224,12 +242,14 @@
   /* 若内容在 effects.js 之前就声明了效果键，这里补登记 */
   if (P._pendingEffects) { for (const k in P._pendingEffects) P.effectHandlers[k] = P._pendingEffects[k]; }
 
-  P.applyEffects = function (eff) {
+  /* ctx（可选）：{ election: true } = 这一笔来自投票日的结算（ballot 选项 / 竞选链 onWin）。
+     目前只有一个消费者：tier 处理器的「最高的椅子要数票」硬闸，见 effectHandlers.tier。 */
+  P.applyEffects = function (eff, ctx) {
     if (!eff) return;
     const G = P.G;
     for (const k in eff) {
       const h = P.effectHandlers[k];
-      if (h) h(eff[k], G);
+      if (h) h(eff[k], G, ctx);
       else console.warn("[POTUS] 未知效果键: " + k + "（可用 POTUS.effect() 注册）");
     }
   };

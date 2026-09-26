@@ -33,6 +33,8 @@
   };
 
   function econ() { return P.balance().econ || {}; }
+  /* 声望门槛的天花板：声望是有界量（0—100，effects.js 硬夹），门槛必须留在人够得到的地方 */
+  function repGateMax() { const v = Number(econ().repGateMax); return v > 0 ? v : 80; }
 
   /* 独立掷一个 valence：基础权重 × 时代压力微调（越动荡，威胁越多、机遇越少）。 */
   P.pickValence = function (pressure) {
@@ -90,6 +92,8 @@
     return {
       fun: salary * (gm[g] || 3) * attrF,
       rep: rb[g] * tierF * attrF,
+      /* 入场券专用口径：只按量级与身位展开，**不吃 attrF**（见下面 realize 里的说明） */
+      repGate: rb[g] * tierF,
       hp: hb[g] * hpF,
       small: sb[g] || 1,
       attrKey: lean.key, attr: lean.v, tierF: tierF, attrF: attrF
@@ -155,10 +159,19 @@
     out.__ruler = r;
     out.choices = (ev.choices || []).map(function (ch) {
       const c = Object.assign({}, ch);
-      /* req 里的资源门槛（fun/rep/lev）同样是“份量”语义，随标尺展开 */
+      /* req 里的资金 / 把柄门槛是“份量”语义，随标尺展开；rep 单独一条路：
+         声望是 0—100 的**有界**量（effects.js 硬夹），门槛要表达的只是“坐上这把椅子
+         该有多大名头”，所以只按量级×身位（ruler.repGate）展开，不再吃 attrF ——
+         吃了 attrF 就成了“魅力越高、自己的入场券越难拿”的反向闸门，且 major×T8 会
+         把 6 倍系数推到 148，超过上限 100，那张卡唯一的升位选项就永久锁死了。
+         展开后再夹一层 repGateMax，作为“内容手写过大系数”的护栏。 */
       if (ch.req) {
         const req = Object.assign({}, ch.req);
-        for (const k in req) if (SCALE_KEYS[k] && typeof req[k] === "number") req[k] = matVal(k, req[k], r);
+        for (const k in req) {
+          if (typeof req[k] !== "number") continue;
+          if (k === "rep") req[k] = Math.min(repGateMax(), Math.round(req[k] * r.repGate));
+          else if (SCALE_KEYS[k]) req[k] = matVal(k, req[k], r);
+        }
         c.req = req;
       }
       /* mods 里的资金门槛（src:"res"）同上：min 按系数写入，展开成绝对值 */

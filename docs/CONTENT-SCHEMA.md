@@ -316,7 +316,7 @@ POTUS.define("event", [{
 
 ```js
 req: { fun: 50000 }                    // 资金门槛
-req: { rep: 25 }                       // 声望门槛
+req: { rep: 25 }                       // 声望门槛（口径 ruler.repGate：量级×职级系数，不吃属性系数，硬顶 repGateMax）
 req: { tier: 3 }                       // 层级门槛
 req: { track: "operative" }            // 指定轨道
 req: { party: "D" }                    // 指定党派
@@ -1361,7 +1361,7 @@ POTUS.define("blackswan", {
 | `valenceWeights` | `{boon:0.40,risk:0.33,bane:0.27}` | 每个档期独立掷三值性的基线权重（见 §4.16.1；由 validate 网格搜索反推写回） |
 | `valencePressure` | `{boonPerPressure:-0.05,banePerPressure:0.10}` | 每点时代压力对 boon/bane 权重的乘性微调（越动荡威胁越密、机遇越稀） |
 | `valenceDefault` | `"risk"` | 漏标 `valence` 的旧内容兜底类 |
-| `econ` | 见 §4.16.2 | **动态经济标尺参数**：`funMonths {1.5,6,20}`/`repBase {2.5,5,9}`/`hpBase {2,4,7}`/`smallBase`/`tierLean .30`/`hpTierLean .12`/`attrLean .40`/`coefMin -8`/`coefMax 8`/`coefMaxFun 150` |
+| `econ` | 见 §4.16.2 | **动态经济标尺参数**：`funMonths {1.5,6,20}`/`repBase {2.5,5,9}`/`hpBase {2,4,7}`/`smallBase`/`tierLean .30`/`hpTierLean .12`/`attrLean .40`/`coefMin -8`/`coefMax 8`/`coefMaxFun 150`/`repGateMax 80`（`req.rep` 门槛的硬顶，见 §4.2 与 `ruler.repGate`：门槛口径不吃属性系数，且不得顶破声望上限 100） |
 | `identityBias` / `resourceBias` | 见 `01-config.js` | **权重管线两张表**：身份（轨道/党派/姿态/出身/起点/州/路线旗/浪潮旗）与资源（缺钱/有钱/有名/把柄/病重/人脉/蹲太久）→ 哪类事件更容易找上他。规则形状 `{when, ids/cats/tags, mul}`；单因子夹 ±3、整条 tilt 封顶 ±8（`weightFactorMin/Max`、`weightTiltCap`）。事件也可自带 `ev.bias` |
 | `eraWeightMul` | 3 | 分期专属事件的权重倍数（防通用内容淹没时代内容；`scoped:true` 同样吃，见 §4.8） |
 | `chainWeightMul` | 9 | **已解锁续集**的权重倍数（让一条故事线在几百个档期里连得起来，见 §4.11） |
