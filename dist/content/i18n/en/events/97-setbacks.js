@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 里带 id 的按 id 对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，必须整条给全 —— 不合并。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / flags / req / cost …）
  *     由引擎保护，写了不会生效，validate 直接报错。
  *   · 缺译的字段自动留中文，所以可以一张一张补。
@@ -22,23 +21,8 @@ POTUS.define("l10n", {
       {
         id: "setback_loss",
         title: "You lose on election night, and your backers are still waiting for you on stage",
-        body: "The count closes and you are four points short. In the ballroom your supporters are still standing, waiting for the stage.\nWhat you say tonight decides whether this loss is a period or a comma.",
-        brief: {
-          lede: "With 87% reporting, your name reads 47.2%. The math has already called it.",
-          known: [
-            "Four points short — the loss people say two more weeks would have flipped. That stings worse.",
-            "The campaign account still owes the printer, the ad buys, and the money you fronted yourself.",
-            "Your backers are packed in the ballroom waiting for you to say something. The speech only has the winning version."
-          ],
-          rumor: [
-            "Party insiders are already talking about running someone younger next time — and they mean you.",
-            "Someone saw your campaign manager taking a call from the other side in the parking lot."
-          ],
-          unknown: [
-            "Whether losing leaves you sharper or more careful — check back in two years.",
-            "Who in tonight's ballroom comes back first next time."
-          ]
-        },
+        body: "The count closes and you are four points short — the kind of loss people swear two more weeks would have flipped, which stings worse than a rout. In the ballroom your supporters are still standing, waiting for the stage; the speech on the podium exists only in its winning version.\n" +
+          "What you say tonight decides whether this loss is a period or a comma. Unmentioned but waiting: the campaign account still owes the printer, the ad buys, and the money you fronted yourself. Some say the party is already talking about running someone younger next time — and they mean you. Who in tonight's ballroom comes back first next time: two years will tell.",
         choices: [
           {
             id: "gracious",
@@ -83,23 +67,9 @@ POTUS.define("l10n", {
       {
         id: "setback_primary_upset",
         title: "An unknown high-school teacher challenges you in your party's primary",
-        body: "A primary opponent appears: a teacher, one issue, zero name recognition. Your polls lead by thirty points.\nThe real question isn't whether you win — it's how, and how not to lose.",
-        brief: {
-          lede: "Three days before the primary filing deadline, someone nobody has heard of turns in signatures.",
-          known: [
-            "He teaches at a local high school with less than a tenth of your war chest.",
-            "He has one issue, and you just voted with party leadership — the base despises that vote.",
-            "You still lead by thirty in the polls. Your advisers say: don't engage."
-          ],
-          rumor: [
-            "A deep-pocketed donor with a grudge is bankrolling him — provable, if you pay to dig.",
-            "Two more votes in your record touch his issue. He hasn't found them yet."
-          ],
-          unknown: [
-            "How fragile a thirty-point lead is in a single-issue primary.",
-            "Whether he even wants to win — or just the fame of daring to run at you."
-          ]
-        },
+        body: "A primary opponent appears: a local high-school teacher, one issue, zero name recognition, raising less than a tenth of your war chest. Your polls lead by thirty points. The advisers say: don't engage.\n" +
+          "His whole campaign is the vote you cast with party leadership — the base despises it. The real question isn't whether you win — it's how, and how not to lose.\n" +
+          "And they say two more votes in your record touch his issue; he hasn't found them yet. Nobody has ever measured how fragile a thirty-point lead is in a single-issue primary.",
         choices: [
           {
             id: "ignore",
@@ -144,24 +114,9 @@ POTUS.define("l10n", {
       {
         id: "setback_party_purge",
         title: "The party wants to replace you, and summons you to a talk at nine tomorrow",
-        body: "The vote you cast against the party now has a price: funding cut, your name off the gala list, your district committee hunting a replacement.\nThe 9 a.m. meeting decides whether you bow, walk, or go to war.",
-        brief: {
-          lede: "The party chair's text is six words: My office, nine tomorrow.",
-          known: [
-            "You voted against leadership. You thought it right then; the party thinks you're wrong now.",
-            "The state party stopped your funding, and your name vanished from the joint gala.",
-            "Your district chair says out loud: we'll run our own person next primary.",
-            "National media call you a man with backbone — worth nothing inside the party."
-          ],
-          rumor: [
-            "Leadership is already interviewing your successor. Three names on the list.",
-            "Toe the line on the next vote and all of this can be forgotten."
-          ],
-          unknown: [
-            "The party can strip your post, not your name in your voters' minds.",
-            "Whether this purge is your epitaph or your declaration of independence."
-          ]
-        },
+        body: "The vote you cast against the party now has a price: state funding cut, your name off the joint gala list, and your district chair saying out loud that the next primary gets one of theirs.\n" +
+          "National media call you a person of backbone — worth nothing inside the party. The 9 a.m. meeting decides whether you bow, walk, or go to war.\n" +
+          "Word arrived: toe the line on the next vote and all of this can be forgotten. But the party can strip your post — it cannot strip what your voters know about you. Think that through before you walk in.",
         choices: [
           {
             id: "bow",
@@ -206,24 +161,9 @@ POTUS.define("l10n", {
       {
         id: "setback_press_pile",
         title: "Three reporters call at once",
-        body: "An old story resurfaces; forty-eight hours, three outlets. Day after tomorrow there's a public appearance you can't dodge.\nYour first sentence becomes the headline for the whole thing.",
-        brief: {
-          lede: "Three reporters ask to chat at once — all about the same thing.",
-          known: [
-            "Something you thought was buried surfaces; two others are chasing it.",
-            "Less than forty-eight hours from the first story to today.",
-            "Your next public appearance is the day after tomorrow — canceling draws more eyes than showing up.",
-            "Your team wrote three response plans overnight, and they contradict each other."
-          ],
-          rumor: [
-            "Your rival bought the timing — the story is real, the release was engineered.",
-            "A harder second piece sits with an editor, waiting on your first move."
-          ],
-          unknown: [
-            "Your first reaction sets the tone for every story after.",
-            "Whether ignoring it once worked or now kills — it depends on the media era."
-          ]
-        },
+        body: "Something you thought was buried surfaces — and two more outlets are chasing it. Forty-eight hours, three outlets. Your next public appearance is the day after tomorrow, and canceling draws more eyes than showing up.\n" +
+          "The team wrote three response plans overnight, and they contradict each other. Your first sentence becomes the headline for the whole thing.\n" +
+          "They say your rival bought the timing — the story is real, the release engineered — and that a harder second piece sits with an editor, waiting on your first move. Whether ignoring it once worked or now kills depends on your era's media memory.",
         choices: [
           {
             id: "front",
@@ -280,24 +220,9 @@ POTUS.define("l10n", {
       {
         id: "setback_health",
         title: "Your physical comes back a red flag, and the doctor tells you to slow down",
-        body: "The doctor speaks softly and means heavily: at this pace your body won't hold.\nBefore the follow-up in four months, you have to decide how you'll treat yourself.",
-        brief: {
-          lede: "The arrow on your physical report is more blunt than any poll.",
-          known: [
-            "The doctor's wording is professional but clear: keep this up and your body resigns before your career does.",
-            "The problem is the calendar itself: six events a week, cross-country redeyes, meals eaten in the car.",
-            "The follow-up is four months away. No rule says you must disclose anything now.",
-            "What you fear isn't the illness — it's how they look at you once they know."
-          ],
-          rumor: [
-            "The capital's habit: treat small ills like emergencies, vote through big ones. The reverse happens too.",
-            "A former member served while hiding his illness, collapsed in office, got a state funeral."
-          ],
-          unknown: [
-            "Rest six months — is the seat still there? Politics has no pause button.",
-            "Whether disclosure earns more sympathy or costs more chances."
-          ]
-        },
+        body: "The doctor speaks softly and means heavily: keep this up and your body resigns before your career does. The problem is the calendar itself — six events a week, cross-country redeye flights, meals eaten in the car.\n" +
+          "The follow-up is four months away, and no rule says you must disclose anything now. What you fear isn't the illness; it is how they look at you once they know. Washington's habit, they say, is to treat small ills like emergencies and vote through big ones — and the reverse happens too.\n" +
+          "But nobody can tell you: rest six months — is the seat still there? Politics has no pause button.",
         choices: [
           {
             id: "rest",
@@ -342,24 +267,9 @@ POTUS.define("l10n", {
       {
         id: "setback_family",
         title: "On your wedding anniversary you skip your kid's game for the campaign",
-        body: "The kid's game, the anniversary, a three-county itinerary — you can be present at one.\nThis question has been on the table since you announced. Today it comes due.",
-        brief: {
-          lede: "You'll be in three counties on your anniversary. Not the first time.",
-          known: [
-            "Your spouse has called off seven family plans. This is the kid's game.",
-            "The household runs on your spouse's income — a public salary won't fill the gap your absence leaves.",
-            "The last family dinner was your re-election night — and that was a working meal.",
-            "No fight. Worse than a fight: I just want to know how much longer."
-          ],
-          rumor: [
-            "The half-life of a D.C. marriage is two terms — you've beaten average.",
-            "Someone in your spouse's circle has used the phrase single-parent marriage."
-          ],
-          unknown: [
-            "This question only has a cost: family on one side, calendar on the other.",
-            "How your kid tells this part in ten years — that's the final grade."
-          ]
-        },
+        body: "The kid's game, the anniversary, a three-county itinerary — you can be present at one. This is the seventh family plan your spouse has called off; the last real family dinner was your re-election night, and that was a working meal.\n" +
+          "There has been no fight — worse than a fight: \"I just want to know how much longer.\" The household runs on your spouse's income; a public salary cannot cover the gap your absence leaves.\n" +
+          "This question has been on the table since you announced. Today it comes due. In ten years, how your kid tells this part is the final grade.",
         choices: [
           {
             id: "family",

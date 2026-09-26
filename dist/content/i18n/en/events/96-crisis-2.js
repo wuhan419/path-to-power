@@ -4,8 +4,7 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件/选项按 id 定位；brief.terms 不带 id，按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）整体替换，条数与中文逐字一致。
+ *   · 事件/选项按 id 定位。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / flags /
  *     req / cost / stake …）受引擎保护，本文件一律不写。
  *
@@ -24,23 +23,8 @@ POTUS.define("l10n", {
         id: "cri2_flood",
         title: "The day the river crossed the rail culvert",
         body: "At three in the morning the river swallowed the old rail culvert. Three low blocks of your district are underwater; the church steeple is now the command post.\n" +
-          "You stand on dry ground with three roads ahead of you: into the water, into the office, in front of the camera.",
-        brief: {
-          lede: "The flood cuts the district in two: the half underwater, and the half watching.",
-          known: [
-            "Three low blocks are flooded. Rescue says noon at the latest — it is six in the morning.",
-            "The pastor's message: your people are watching to see if you show up. Those three blocks are yours either way.",
-            "Pumps, sandbags and Guard trucks are all being pulled toward the city. Loudest voice gets them first."
-          ],
-          rumor: [
-            "The county emergency director hunts with your rival — the queue order is negotiable.",
-            "An out-of-state contractor's advance truck already crossed the county line. Cleanup contract unsigned, crew on site."
-          ],
-          unknown: [
-            "When the water drops, the district remembers who was in it — and who was on camera.",
-            "Rebuild contracts go out within two weeks. That is where the next round starts."
-          ]
-        },
+          "It is six a.m.; rescue promises noon at the earliest. Every pump, sandbag truck and Guard convoy is being pulled toward the city — the loudest voice gets them first. The pastor's message is plain: your people in those blocks are watching to see whether you show up.\n" +
+          "You stand on dry ground with three roads ahead of you: into the water, into the office, in front of the camera. When the water drops, the district remembers who was in it and who was on camera. The rebuild contracts go out within two weeks — someone's advance truck has already crossed the county line.",
         choices: [
           {
             id: "wade_in",
@@ -111,25 +95,9 @@ POTUS.define("l10n", {
       {
         id: "cri2_plant_closure",
         title: "The big employer's notice fits on one page",
-        body: "This morning the district's biggest plant taped a notice to the gate: closing in eighteen months, 2,300 jobs.\n" +
+        body: "This morning the district's biggest plant taped a notice to the gate: closing in eighteen months, 2,300 jobs. The plant has fed two generations here — nearly half the district's votes sit on that payroll.\n" +
           "The union chair phoned your office by noon: \"We need to know whose side you are on.\"\n" +
-          "Headquarters is a thousand miles away, and no chair in that boardroom is yours — but your district will watch how you move those chairs.",
-        brief: {
-          lede: "One page of notice, twenty-three hundred lives, and your entire afternoon.",
-          known: [
-            "The plant has fed two generations here. Behind its 2,300 jobs sits nearly half the district's votes.",
-            "The union chair was blunt: eight hundred members, and right now they need to know what you are doing.",
-            "The county's chips are thin: tax breaks, infrastructure, retraining — each one needs someone to carry the expectations."
-          ],
-          rumor: [
-            "Headquarters is still shopping bids from two states. The word \"rescue\" has a price tag.",
-            "The plant site was appraised long ago: the waterfront is worth more empty."
-          ],
-          unknown: [
-            "Whether the plant lives or dies, you can nudge but not decide.",
-            "In one year the unemployment rate will audit every boast made today."
-          ]
-        },
+          "Headquarters is a thousand miles away, and no chair in that boardroom is yours — but your district will watch how you move those chairs. Your chips are thin: tax breaks, infrastructure, retraining — each one needs someone to carry the expectations. Some say the waterfront site was appraised long ago: worth more empty than open. In one year, the unemployment rate will audit every boast made today.",
         choices: [
           {
             id: "save",
@@ -176,24 +144,9 @@ POTUS.define("l10n", {
       {
         id: "cri2_plant_after",
         title: "A year after the closure, district unemployment doubles — front page",
-        body: "The state labor department's quarterly numbers landed, and the local paper put them on page one: district unemployment at 11 percent, double the pre-closure rate.\n" +
-          "Beside the figures sit your own words from these eighteen months — sentence by sentence, like a bank statement.",
-        brief: {
-          lede: "Numbers take no sides, hear no excuses, read only results.",
-          known: [
-            "Unemployment 11 percent — double the pre-closure level. Your opponent has already checked.",
-            "Every word you said at the plant gate, the hearing, the radio is on file.",
-            "And twenty-three hundred household mailboxes — some still on the training waitlist."
-          ],
-          rumor: [
-            "The opponent's next ad is already cut: your own promises scored to the rising unemployment line.",
-            "The new employer's phase two is genuinely in talks — but the announcement waits until after the election."
-          ],
-          unknown: [
-            "Whether what you planted has sprouted: see next quarter's report.",
-            "How the front page answers back — are you defendant or witness?"
-          ]
-        },
+        body: "The state labor department's quarterly numbers landed, and the local paper put them on page one: district unemployment at 11 percent, double the pre-closure rate. Your opponent has already checked.\n" +
+          "Beside the figures sit your own words from these eighteen months — sentence by sentence, like a bank statement. Some households are still on the training waitlist, waiting on applications you signed.\n" +
+          "Some say the new employer's phase two is genuinely in talks — to be announced only after the election. Answer the front page, and pick your ground: defendant, or witness.",
         choices: [
           {
             id: "own_it",
@@ -240,24 +193,9 @@ POTUS.define("l10n", {
       {
         id: "cri2_epidemic",
         title: "The county hospital turned its hallways into isolation wards",
-        body: "It crossed over from the next county; now it is yours. The hospital lined its halls with quarantine beds, and half the school-closure notices are already printed.\n" +
-          "Clinics post queue rules at the door; pharmacy shelves strip bare by afternoon. Everyone is waiting for someone to speak — and, out of habit, looks toward City Hall. Even the lowest office in it.",
-        brief: {
-          lede: "The disease is invisible; the panic is not — and panic travels faster.",
-          known: [
-            "A county hospital doctor is an old friend: wants cooperation on isolation, supplies, someone willing to appear.",
-            "Pharmacies ration, churches cancel services, schools meet on emergency tonight. Less information, more rumors.",
-            "Panic needs a keeper, order needs a maker, blame needs a carrier — the same deal in every era."
-          ],
-          rumor: [
-            "Some say the outbreak is blown out of proportion — they stock two full medicine cabinets.",
-            "County supplies got redirected to the rich county; the manifest sits in some drawer."
-          ],
-          unknown: [
-            "The doctor gives ranges; the number you say is the one people remember.",
-            "They will forget the virus. They will not forget what you said."
-          ]
-        },
+        body: "It crossed over from the next county; now it is yours. The hospital lined its halls with quarantine beds, and half the school-closure notices are already printed. The doctor on duty is an old friend, and he wants three things: cooperation on isolation, supplies, and one official willing to stand up and speak.\n" +
+          "Clinics post queue rules at the door; pharmacy shelves strip bare by afternoon. Some say the outbreak is blown out of proportion — the people saying it stock two full medicine cabinets. Everyone is waiting for someone to speak — and, out of habit, looks toward City Hall. Even the lowest office in it.\n" +
+          "The doctor gives only ranges; the number you say out loud is the one the county keeps. They will forget the virus. They will not forget what you said.",
         choices: [
           {
             id: "front",
@@ -316,25 +254,9 @@ POTUS.define("l10n", {
       {
         id: "cri2_grid_failure",
         title: "Four minutes after the whole city went dark",
-        body: "Rush hour, and the city goes black. Traffic lights die, elevators stop, the water plant's backup pumps fail to switch over.\n" +
+        body: "Rush hour, and the city goes black. Traffic lights die, elevators stop, and the backup power at two water-plant pump stations never switched over — the maintenance budget you signed off just last week.\n" +
           "The utility's phone lines are jammed; emergency management waits on you: when will it be fixed, who pays, whose fault is it?\n" +
-          "Three questions — get any one wrong and it is a political wreck. And all three are due tonight.",
-        brief: {
-          lede: "Fix it slow and they curse you; fix it fast and the auditors come. This is City Hall's Passion day.",
-          known: [
-            "Two pump stations' backups failed to start — and you signed off their maintenance budget last week.",
-            "The utility quotes five days plus emergency funding, at 1.8 times its standard rate.",
-            "There is already a crowd outside City Hall, phones aimed at the lit window of your office."
-          ],
-          rumor: [
-            "Last year's maintenance budget got siphoned into road repair; your countersignature is on the authorization.",
-            "The firm filed a risk report years ago; two administrations shelved it in a row."
-          ],
-          unknown: [
-            "The number you say tonight becomes the official deadline.",
-            "The emergency contracts land on the audit table in six months."
-          ]
-        },
+          "Three questions — get any one wrong and it is a political wreck, and all three are due tonight. The utility quotes five days plus emergency funding at 1.8 times its standard rate. Somebody mutters that last year's maintenance money went to road repair, your countersignature on the order. The number you say tonight becomes the official deadline.",
         choices: [
           {
             id: "fast",
@@ -393,27 +315,9 @@ POTUS.define("l10n", {
       {
         id: "cri2_bank_run",
         title: "By Friday dawn the line at the bank had begun",
-        body: "First the business-page rumors, then the parking-lot whispers. At seven Friday morning, two hundred people stand outside the district's bank.\n" +
-          "The cash behind the counters will not last past noon. Panic needs no proof — only a starting point, and one morning when nobody in charge shows up.",
-        brief: {
-          lede: "Banks do not die of insolvency. They die of rumors outrunning their reserves.",
-          known: [
-            "This bank holds half the district's money: payrolls, the church's books, shop float.",
-            "The branch manager is not asking you to save the bank — only for one trusted face to come say \"I keep my money here too.\"",
-            "There is a regulatory channel, but it runs slow. Monday is payday, and if the money is not safe by then, panic doubles."
-          ],
-          rumor: [
-            "The bank bet deposits on plunging assets — the story mutates three times a day.",
-            "Someone in line swears the manager's wife withdrew money yesterday. That one hurts the most."
-          ],
-          unknown: [
-            "Even the manager is waiting for the books. Panic does not wait for numbers.",
-            "Every word you say either thins the line or sets a tombstone."
-          ],
-          terms: [
-            { k: "The Bank Run", v: "When depositors all want their money at once, fear alone can topple a solvent bank." }
-          ]
-        },
+        body: "First the business-page rumors, then the parking-lot whispers. At seven Friday morning, two hundred people stand outside the district's bank — the bank holding half the district's money: payrolls, the church's books, shop float.\n" +
+          "The cash behind the counters will not last past noon. A run needs no insolvent bank — depositors all wanting their money at once is enough; panic outruns reserves. The regulatory channel exists, but it runs slow, and Monday is payday. Panic needs no proof — only a starting point, and one morning when nobody in charge shows up.\n" +
+          "The branch manager is not asking you to save the bank — only for one trusted face to say \"I keep my money here too.\" Some say the deposits were bet on plunging assets, and the story mutates three times a day. Every word you say now either thins the line or sets a tombstone.",
         choices: [
           {
             id: "public_deposit",

@@ -6,7 +6,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件/选项按 id 对齐；纯字符串数组（known / unknown）整体替换，条数给全。
  *   · 结构性键（id / base / mods / effects / cost …）由引擎保护，一律不写。
  * ==========================================================================*/
 
@@ -35,18 +34,7 @@ POTUS.define("l10n", {
       {
         id: "camp_federal_money",
         title: "Donors open their vaults, and their conditions",
-        body: "A congressional campaign burns cash like fuel. The donors will open their vaults — but their terms are never free.",
-        brief: {
-          lede: "Congress is bought, not wooed. Donor money never comes free.",
-          known: [
-            "A big check refills the war chest — and puts you in someone's debt.",
-            "Small-dollar fundraising is slow, clean, and hard.",
-            "Staying as you are offends no donor and excites no voter."
-          ],
-          unknown: [
-            "Take a man's money today, and someday you speak for him."
-          ]
-        },
+        body: "A congressional campaign burns cash like fuel. The donors will open their vaults — but their terms are never free. Take a man's money today, and someday you speak for him.",
         choices: [
           {
             id: "take_money",
@@ -88,18 +76,7 @@ POTUS.define("l10n", {
       {
         id: "camp_federal_swing",
         title: "The last week in the swing district",
-        body: "The polls are a dead heat, and the race will turn on a handful of suburbs. This week you wager everything.",
-        brief: {
-          lede: "Dead-even polls. A few suburbs decide it all.",
-          known: [
-            "You are spending everything you have on one week.",
-            "Door-knocking tests stamina; turnout drives the result.",
-            "Swing voters hold no firm view. One pitch can tip them."
-          ],
-          unknown: [
-            "Bet on the wrong ground, and the whole race slips away."
-          ]
-        },
+        body: "The polls are a dead heat, and the race will turn on a handful of suburbs. This week you wager everything. Swing voters hold no firm view — one pitch can tip them — and betting on the wrong ground lets the whole race slip away.",
         choices: [
           {
             id: "floor_push",
@@ -130,18 +107,7 @@ POTUS.define("l10n", {
       {
         id: "camp_senate_announce",
         title: "Statewide: a national figure or a nobody",
-        body: "This race covers the whole state. At this level, you are a national name now — or you are nothing.",
-        brief: {
-          lede: "Statewide race: national figure, or nobody at all.",
-          known: [
-            "Your rivals are already names voters can say out loud.",
-            "A blockbuster ad buys reach; a policy paper buys depth.",
-            "A steady entry makes no mistakes — and no headlines."
-          ],
-          unknown: [
-            "Fizzle at kickoff and the state files you under small."
-          ]
-        },
+        body: "This race covers the whole state. At this level you are a national name now, or you are nothing — and your rivals are already names voters can say out loud. Fizzle at kickoff and the state files you under small.",
         choices: [
           {
             id: "pro_clip",
@@ -183,18 +149,7 @@ POTUS.define("l10n", {
       {
         id: "camp_senate_primary",
         title: "A primary where rivals circle",
-        body: "Strong rivals inside your own party. The primary is not only about who gets more votes — it is about who finds a weakness first, yours or theirs.",
-        brief: {
-          lede: "Rivals inside the party. Whoever cracks first loses.",
-          known: [
-            "The primary counts votes — and exposed soft spots.",
-            "The middle path seeks the widest slice; the base seeks passion.",
-            "Your own side audits your record first."
-          ],
-          unknown: [
-            "A weakness caught on tape may end you before the general."
-          ]
-        },
+        body: "Strong rivals inside your own party. The primary counts votes — and exposed soft spots, and your own side audits your record first. A weakness caught on tape may end you before the general.",
         choices: [
           {
             id: "win_over",
@@ -225,18 +180,7 @@ POTUS.define("l10n", {
       {
         id: "camp_senate_debate",
         title: "Live on air before a million eyes",
-        body: "One live broadcast, a million watching eyes. On this stage, a single line is worth two weeks of ads.",
-        brief: {
-          lede: "Live TV, a million eyes: one line beats two weeks of ads.",
-          known: [
-            "Whatever you do onstage loops all week.",
-            "Hold your ground for poise; strike at cracks for damage.",
-            "Neither swing nor stumble — safe, but seldom memorable."
-          ],
-          unknown: [
-            "One stumble becomes your rival's ad for the whole season."
-          ]
-        },
+        body: "One live broadcast, a million watching eyes. On this stage a single line is worth two weeks of ads, and whatever you do onstage loops all week. One stumble becomes your rival's ad for the whole season.",
         choices: [
           {
             id: "command",
@@ -278,18 +222,7 @@ POTUS.define("l10n", {
       {
         id: "camp_senate_swing",
         title: "The state comes down to a few counties",
-        body: "The statewide decision has shrunk to a handful of swing counties. All the money and all the people go there.",
-        brief: {
-          lede: "The whole state hangs on a few swing counties.",
-          known: [
-            "The swing counties pick up the entire state.",
-            "Surround them with ads and allies, or send surrogates to carry fire.",
-            "Holding ground you have is safe — but adds nothing new."
-          ],
-          unknown: [
-            "Spread too thin, and you break through nowhere."
-          ]
-        },
+        body: "The statewide decision has shrunk to a handful of swing counties — and those counties pick up the entire state. All the money comes out of the war chest and goes there. Spread too thin, and you break through nowhere.",
         choices: [
           {
             id: "blanket",
@@ -331,18 +264,7 @@ POTUS.define("l10n", {
       {
         id: "camp_vp_announce",
         title: "The party's leaders start saying your name",
-        body: "You are no longer campaigning only for yourself. The party's leaders are weighing whether to put you on the national ticket.",
-        brief: {
-          lede: "It stops being about you. The party weighs your name.",
-          known: [
-            "Party leaders are deciding if you belong on that poster.",
-            "Speak on national issues for visibility; show loyalty for trust.",
-            "Your name must start to match the national stage."
-          ],
-          unknown: [
-            "Chase the camera without taking a stand, and you stay an outsider."
-          ]
-        },
+        body: "You are no longer campaigning only for yourself. The party's leaders are weighing whether to put you on the national ticket, and your name must start to match that stage. Chase the camera without taking a stand, and you stay an outsider.",
         choices: [
           {
             id: "make_name",
@@ -373,18 +295,7 @@ POTUS.define("l10n", {
       {
         id: "camp_vp_vetting",
         title: "They turn over your entire life",
-        body: "The vetting team turns your past inside out. They are not asking how good you are — only where you might blow up.",
-        brief: {
-          lede: "The screening team audits your whole life.",
-          known: [
-            "They want no résumé of wins — only a map of landmines.",
-            "Full disclosure bets on a clean record; packaging bets on control.",
-            "Any concealment, once found, is fatal."
-          ],
-          unknown: [
-            "If a buried scandal surfaces, the nomination vanishes overnight."
-          ]
-        },
+        body: "The vetting team turns your past inside out. They are not asking how good you are — only where you might blow up. Any concealment, once found, is fatal: dig up a buried scandal and the nomination vanishes overnight.",
         choices: [
           {
             id: "open_book",
@@ -426,18 +337,7 @@ POTUS.define("l10n", {
       {
         id: "camp_vp_convention",
         title: "The nomination is decided on the floor",
-        body: "The nomination is announced this hour. Whether you stand at that podium depends on every trust you banked these past months.",
-        brief: {
-          lede: "The moment of decision: months of deals, one roll call.",
-          known: [
-            "Standing at that podium means honoring every deal you made.",
-            "Lock delegates with arithmetic, or heal the party's rift first.",
-            "Waiting is easy — and hands the outcome to someone else."
-          ],
-          unknown: [
-            "Miscount the votes and the stage is not yours."
-          ]
-        },
+        body: "The nomination is announced this hour. Whether you stand at that podium depends on every trust you banked these past months. Miscount the votes, and the stage is not yours.",
         choices: [
           {
             id: "seal_it",
@@ -479,18 +379,7 @@ POTUS.define("l10n", {
       {
         id: "camp_vp_campaign",
         title: "Barnstorming for the ticket",
-        body: "You campaign across the country for your party's ticket — banking national contacts, and dreading one more gaffe.",
-        brief: {
-          lede: "You stump for the party: networking, with a live wire in hand.",
-          known: [
-            "Stumping builds a national network — and amplifies every word.",
-            "Sweep every state on stamina, or strike only key races for effect.",
-            "The more you say, the more can slip; the silent get no coverage."
-          ],
-          unknown: [
-            "One bad line turns your hard work into your rival's ammo."
-          ]
-        },
+        body: "You campaign across the country for your party's ticket — banking a national network, and amplifying every word you say. The more you talk, the more can slip; the silent get no coverage. One bad line turns your hard work into your rival's ammo.",
         choices: [
           {
             id: "tireless",
@@ -521,18 +410,7 @@ POTUS.define("l10n", {
       {
         id: "camp_pres_announce",
         title: "Declaring your candidacy for president",
-        body: "The longest, most expensive campaign on earth begins. From this step on, the whole country examines every move you make.",
-        brief: {
-          lede: "The longest, costliest race on earth starts here.",
-          known: [
-            "Every step is magnified and examined nationwide.",
-            "A hometown address sells stature; an online storm sells heat.",
-            "A solid organization wins no headlines — and survives the worst ones."
-          ],
-          unknown: [
-            "Miss the tone at kickoff and you chase the story all year."
-          ]
-        },
+        body: "The longest, most expensive campaign on earth begins. From this step on, the whole country magnifies and examines every move you make. Miss the tone at kickoff and you chase the story all year.",
         choices: [
           {
             id: "grand",
@@ -574,18 +452,7 @@ POTUS.define("l10n", {
       {
         id: "camp_pres_primary",
         title: "The grind of state-by-state primaries",
-        body: "One primary after another. Win the early states and build momentum — or get ground down in the mud.",
-        brief: {
-          lede: "State after state. The early contests write the story.",
-          known: [
-            "Early-state wins can snowball past the point of return.",
-            "All-in early bets on a breakout; the delegate count bets on distance.",
-            "A state-by-state war of attrition drains the wallet first."
-          ],
-          unknown: [
-            "Fail to break through, and calls for you to quit start in your own party."
-          ]
-        },
+        body: "One primary after another. Early-state wins can snowball past the point of return, while a state-by-state war of attrition drains the wallet first. Fail to break through, and calls for you to quit start inside your own party.",
         choices: [
           {
             id: "early_wins",
@@ -616,18 +483,7 @@ POTUS.define("l10n", {
       {
         id: "camp_pres_nomination",
         title: "The convention: a majority of delegates",
-        body: "The national convention. You need a majority of delegates, and the last uncommitted ones are deciding whether you are worth their vote.",
-        brief: {
-          lede: "The nomination takes a majority. Holdouts decide.",
-          known: [
-            "The last uncommitted delegates are sizing up your worth.",
-            "Deal faction by faction, or ride a grassroots wave.",
-            "Counting quietly is safe — unless you end up a few short."
-          ],
-          unknown: [
-            "One vote shy of a majority, and the nomination goes elsewhere."
-          ]
-        },
+        body: "The national convention. You need a majority of delegates, and the last uncommitted ones are deciding whether you are worth their vote. Counting quietly is safe — unless you end up short. One vote shy of a majority, and the nomination goes elsewhere.",
         choices: [
           {
             id: "deal_make",
@@ -669,18 +525,7 @@ POTUS.define("l10n", {
       {
         id: "camp_pres_debate",
         title: "Millions are watching for one mistake",
-        body: "Hundreds of millions are watching. One slip here could hand away the presidency itself.",
-        brief: {
-          lede: "Hundreds of millions watching. One slip can be fatal.",
-          known: [
-            "This is a head-to-head at the national level.",
-            "Show stature for steadiness; nail your rival for damage.",
-            "Neither stumble nor swing — solid, but not blinding."
-          ],
-          unknown: [
-            "One false line, looped on every channel until election day."
-          ]
-        },
+        body: "Hundreds of millions are watching a head-to-head at the national level. One slip here could hand away the presidency itself — and any false line loops on every channel until election day.",
         choices: [
           {
             id: "presidential",
@@ -711,18 +556,7 @@ POTUS.define("l10n", {
       {
         id: "camp_pres_swing",
         title: "The final seven days in swing states",
-        body: "The Electoral College shrinks the race to a few swing states. Seven days left. You wager everything.",
-        brief: {
-          lede: "The map shrinks to a few states. Seven days left.",
-          known: [
-            "Win the swing states and you win the presidency.",
-            "Empty the war chest for firepower, or fly rally to rally for hearts.",
-            "Run the key states on pace — steady, never desperate."
-          ],
-          unknown: [
-            "Bet on the wrong states, win the popular vote anyway — and still lose."
-          ]
-        },
+        body: "The Electoral College shrinks the race to a few swing states, and only winning them wins the presidency. Seven days left: opening the war chest is on the table, and you wager everything. Bet on the wrong states, win the popular vote anyway — and still lose.",
         choices: [
           {
             id: "swing_blanket",

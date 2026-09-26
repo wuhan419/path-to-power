@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件 / choice 按 id 定位；terms 不带 id，按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）整体替换，条数与中文完全一致。
  *   · 结构性键（id / era / tierMin / weight / base / mods / cost / req / effects /
  *     flags …）由引擎保护，本文件一律不写。
  *   · 金融术语用真实英文（windfall, estate, audit, Leadership PAC, bridge loan,
@@ -21,27 +20,10 @@ POTUS.define("l10n", {
         id: "fin2_windfall",
         title: "A distant great-aunt leaves you money you cannot ask about",
         body: "The law-firm envelope is thick. Inside, one page:\n" +
-          "a distant great-aunt you barely remember has left you a sum — big enough to plug every hole you have, modest enough not to make the news.\n" +
-          "The executor adds one line: \"The client wishes you not to inquire how this money is invested.\"",
-        brief: {
-          lede: "Money out of the sky always lands with someone else's fingerprints on it.",
-          known: [
-            "You are the only one in the family in politics — the name is usable.",
-            "The inheritance is legal. What is missing is the history of the assets before they turn into cash.",
-            "Your account is short exactly this kind of sum to get through the second half of the year."
-          ],
-          rumor: [
-            "Some say the great-aunt's money ties back to a trading firm that closed years ago.",
-            "Some say a second letter, with different terms, went to another relative."
-          ],
-          unknown: [
-            "Once you spend it, does anyone still remember where it came from?",
-            "Is \"do not ask\" a condition — or some living person's habit?"
-          ],
-          terms: [
-            { k: "Asset composition", v: "What the money was before it turned into cash: stock, property, or old debt." }
-          ]
-        },
+          "a great-aunt you barely remember has left you a sum — big enough to plug every hole you have, with a little left over.\n" +
+          "You are the only one in the family in politics; the name is usable, and someone spent years making sure it stayed that way.\n" +
+          "The executor adds one line: \"The client wishes you not to inquire how this money is invested\" — what it was before it turned into cash: stock, property, old debt.\n" +
+          "Is \"do not ask\" a condition of the will, or some living person's habit?",
         choices: [
           {
             id: "take_all",
@@ -86,28 +68,10 @@ POTUS.define("l10n", {
       {
         id: "fin2_windfall_collect",
         title: "A man comes to collect on the inheritance from two years ago",
-        body: "A man who calls himself an \"asset manager\" picks a quiet restaurant.\n" +
-          "He slides a copy across the table — the last page of your estate closing, with one annotation you have never seen.\n" +
-          "\"The client had a side arrangement back then,\" he says. \"It comes due now.\"",
-        brief: {
-          lede: "The question you never asked has come to your door, two years late.",
-          known: [
-            "He dares to come because you never asked about the asset mix the day you took the money.",
-            "He wants two things: a \"management fee\", and you keeping things exactly as they are in committee.",
-            "The closing papers and the annotation are both genuine. That is the dangerous part."
-          ],
-          rumor: [
-            "He holds annotated copies for more than you — he \"manages\" the whole block.",
-            "The client behind him died years ago; he is only collecting ownerless bills."
-          ],
-          unknown: [
-            "Does the annotation even stand in law? He bets you dare not check.",
-            "If this page goes to the right office, who burns first?"
-          ],
-          terms: [
-            { k: "Side arrangement", v: "A private note kept beside the will. Its legal force is fuzzy." }
-          ]
-        },
+        body: "A man who calls himself an \"asset manager\" picks a quiet restaurant and slides a copy across the table:\n" +
+          "the last page of your estate closing, bearing one annotation you have never seen — a side arrangement, a private note kept beside the will, its legal force fuzzy.\n" +
+          "\"The client had an arrangement back then,\" he says. \"It comes due now.\" He wants a management fee — and your silence in committee.\n" +
+          "The papers are genuine; the annotation may be too, and he bets you dare not check. If this page goes to the right office, who burns first?",
         choices: [
           {
             id: "pay",
@@ -153,27 +117,9 @@ POTUS.define("l10n", {
         id: "fin2_taxreturn",
         title: "Tax auditors ask to see your filings for the last three years",
         body: "The notice is two paragraphs: the tax office, \"acting under law\", pulls your returns for three years.\n" +
-          "In the reason box: \"Significant variance between lifestyle reported and income declared.\"\n" +
-          "Your accountant is silent for a long time on the phone. Then: \"Sir, we need to talk about the expenses that never went on the books.\"",
-        brief: {
-          lede: "What a politician fears is not a bribery charge. It is one line of numbers that does not match.",
-          known: [
-            "You were picked because your public calendar holds too many scenes your declared income cannot afford.",
-            "Eleven expenses ran in cash over three years. You cannot explain three of them.",
-            "An audit is not a charge. It can end in back taxes — or a file forwarded to prosecutors."
-          ],
-          rumor: [
-            "Two more names sit on the audit list, both more famous than yours.",
-            "Your accountant keeps a \"real ledger\" somewhere, purely for self-defense."
-          ],
-          unknown: [
-            "Which wakes first over those three cash payments: the tax office, or the press?",
-            "Whose drawer are the accountant's workpapers in right now?"
-          ],
-          terms: [
-            { k: "Lifestyle audit", v: "They read your life, not your books: car, house and trips out-honest the filings." }
-          ]
-        },
+          "In the reason box: \"Significant variance between lifestyle reported and income declared.\" A lifestyle audit reads your life, not your books — car, house, trips out-honest the filings.\n" +
+          "Your accountant is silent for a long time on the phone. Eleven expenses ran in cash over three years; you cannot explain three of them.\n" +
+          "An audit is not a charge: it can end in back taxes — or in a file forwarded to prosecutors. Which those three cash payments wake first, the tax office or the press, is no longer your call.",
         choices: [
           {
             id: "full_coop",
@@ -231,27 +177,9 @@ POTUS.define("l10n", {
         id: "fin2_realestate",
         title: "Insiders want you to buy the far bank before the bridge is announced",
         body: "The broker who introduced you is blunt: once the cross-river bridge clears approval, the warehouse district becomes the next downtown.\n" +
-          "\"The announcement is closer than you think,\" he lowers his voice. \"Buy or pass — it must be settled this week.\"\n" +
-          "You know the game: a politician flipping land earns on information gaps — and the gap is exactly where they watch you.",
-        brief: {
-          lede: "Insiders do not profit on luck. They profit on knowing a bridge's location three weeks early.",
-          known: [
-            "The developer needs early buyers with weight — like you — to hold the book up.",
-            "The planning map is still a draft, but the draft carries signatures you have met in your own committee.",
-            "Land now costs a third of the post-approval estimate. That spread is the whole temptation."
-          ],
-          rumor: [
-            "There is a second route for the bridge. On that one, the warehouse district is marsh.",
-            "The broker told this exact story about another parcel last year. That parcel still sits empty."
-          ],
-          unknown: [
-            "Will the signatures on the draft survive the final round of changes?",
-            "If it leaks, does your money fall first, or your seat?"
-          ],
-          terms: [
-            { k: "Information gap", v: "The three weeks you know before the public does." }
-          ]
-        },
+          "Land now costs a third of the post-approval estimate — and the developer needs early buyers with weight, like you, to hold the book up.\n" +
+          "The planning map is still a draft, but the draft carries signatures you have met in your own committee. \"Buy or pass — it must be settled this week.\"\n" +
+          "Some say there is a second route for the bridge, and on that one the warehouses stay warehouses. A politician flips land on an information gap — and the gap is exactly where they watch you.",
         choices: [
           {
             id: "big_buy",
@@ -296,28 +224,10 @@ POTUS.define("l10n", {
       {
         id: "fin2_pac_game",
         title: "Lobbyists pitch you your own leadership PAC",
-        body: "Two lobbyists spread the plan across your desk: a Leadership PAC operating in your name.\n" +
+        body: "Two lobbyists spread the plan across your desk: a Leadership PAC — a fundraising arm in your name, legally separate from your campaign.\n" +
           "\"Contribution limits cover money given to candidates,\" one of them smiles. \"Not money given to committees.\"\n" +
-          "\"From today, you stop asking for money. You start deciding other people's races.\"",
-        brief: {
-          lede: "When others give you money, it is an investment. When you give it, it is power.",
-          known: [
-            "Your name already carries weight inside the belt — nobody without weight stands up a committee.",
-            "The committee raises without limits, but it cannot give directly to your own campaign.",
-            "Filings, bylaws, a compliance officer — all off the shelf. The lobbyists even have the first donor picked out."
-          ],
-          rumor: [
-            "The real hand behind the first donation wants to launder an old relationship through your book.",
-            "The party bosses are already watching this committee."
-          ],
-          unknown: [
-            "Will the winners you fund still take your call four years from now?",
-            "Once the machine is big — do you use it, or does it use you?"
-          ],
-          terms: [
-            { k: "Leadership PAC", v: "A fundraising arm in a politician's name, legally separate from any campaign." }
-          ]
-        },
+          "\"But the committee's money cannot go straight into your own race — and we have laid that line for you.\" Filings, bylaws, a compliance officer, all off the shelf; even the first donor is picked out.\n" +
+          "\"From today, you decide other people's races.\" Once the machine is big — do you use it, or does it use you?",
         choices: [
           {
             id: "go_big",
@@ -375,24 +285,9 @@ POTUS.define("l10n", {
         id: "fin2_bankruptcy",
         title: "The campaign account runs dry and payroll is next",
         body: "The finance director pushes over the last page of the report. One boxed number — two digits below what you thought you could stretch to.\n" +
-          "\"Rent is due next week. The print shop wants cash on delivery. And two payrolls,\" she reads, line by line.\n" +
-          "\"Sir, this is not bad management. We simply have no money. Those are two different things.\"",
-        brief: {
-          lede: "Bankruptcy is not doing something wrong. It is money that should have arrived, not arriving.",
-          known: [
-            "Three promised donations fell through at once. The creditors do not know the number yet.",
-            "Missed payrolls make the news — and the news makes donations even harder to raise.",
-            "By next Friday the staff needs one number from you. Any number."
-          ],
-          rumor: [
-            "The opposition is feeding out \"he is about to fold\". Donors are only waiting to be frightened.",
-            "A lender specializes in exactly this moment. His price is more than interest."
-          ],
-          unknown: [
-            "How many on the staff already updated their résumés?",
-            "After you lay the numbers on the table: shared hardship, or a group exit?"
-          ]
-        },
+          "\"Three promised donations fell through in the same week. The creditors do not know that yet,\" she reads, line by line.\n" +
+          "\"Rent is due next week. The print shop wants cash on delivery. And two payrolls. Sir, this is not bad management — we simply have no money. By Friday the staff needs one number from you.\"\n" +
+          "Missed payrolls make the news, and the news makes donations harder. Across town a lender specializes in exactly this moment, and his price is more than interest. In your own office, a few résumés have quietly been updated this week.",
         choices: [
           {
             id: "confess",
@@ -451,23 +346,8 @@ POTUS.define("l10n", {
         title: "A student loan you never paid off is dug back up",
         body: "A local outlet calls. Polite voice, impolite question: a candidate who \"speaks for ordinary people\" still carries a student loan years overdue, now in collections.\n" +
           "\"Did you forget it — or do you simply not care?\"\n" +
-          "You stare at the number on the screen. The interest compounds harder than any speech you give.",
-        brief: {
-          lede: "This is not about having no money. It is about failing to pay what is owed — and now everyone can see it.",
-          known: [
-            "The delinquency has reached credit-report level. There is no hiding it.",
-            "The reporter holds public records. Your only choice is how the story gets told.",
-            "One large payment stops collections — but that money has to be dug out of another hole."
-          ],
-          rumor: [
-            "The opposition team has pasted this onto their issues list, waiting to see whether you cry first or swing first.",
-            "Some say a delinquent loan is not even a blip in campaign season."
-          ],
-          unknown: [
-            "Tell it as your voters' own story — does it gather people or backfire?",
-            "Silence may ride out this news cycle, but the interest keeps compounding."
-          ]
-        },
+          "The reporter holds public records. There is no hiding this; your only choice is how the story gets told. One large payment stops collections the same day — but that money has to be dug out of another hole.\n" +
+          "You stare at the number on the screen. The interest compounds harder than any speech you give. The opposition has already pasted this onto their issues list, waiting to see whether you cry first or swing first.",
         choices: [
           {
             id: "own_it",

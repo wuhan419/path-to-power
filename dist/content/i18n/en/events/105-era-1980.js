@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动；本文件只放要覆盖的字段，结构键由引擎保护、不写。
- *   · 事件/选项按 id 定位；known / rumor / unknown 是纯字符串数组，整体替换、整条给全
- *     （本文件每张卡均为 known×3 / rumor×2 / unknown×2 / terms×1，与原文一一对应）。
  *   · 英文按语重写：第二人称、现在时、短句；「」化进引号或句子；
  *     1980 年代实物保持时代正确（television、radio、poll、strike），不掺互联网词。
  *   · 长度按 §11.7 同尺复核（拉丁词 ×0.5）：全部字段在预算内。
@@ -20,29 +18,11 @@ POTUS.define("l10n", {
       {
         id: "rg80_wave",
         title: "Whole states change color in a single night",
-        body: "On television, the former actor sweeps the country in a landslide. Stagflation, the hostages, and one line —\n" +
-          "government is not the solution — seat him in the White House and push a whole new vocabulary into the\n" +
-          "mainstream. For the first time, a crack opens in your district. The old establishment is still chewing on\n" +
-          "the loss while a new label — Reagan Democrat — is already printed on every poll.",
-        brief: {
-          lede: "A wind has shifted. Stand against it, or borrow its clothes — just do not be seen changing.",
-          known: [
-            "Your district went for the other team; the party wants an explanation — and is watching whether you change your tune.",
-            "Tax cuts, a stronger military, lighter regulation: once the other side's lines, now your own party must handle them carefully.",
-            "You hold old-establishment appointments and a restless base. Both sides read your face."
-          ],
-          rumor: [
-            "Word is the bosses want a convert first — and are picking the man who flips early as the sample.",
-            "Some say the wave cannot outlast two terms; the economy will swing it back."
-          ],
-          unknown: [
-            "Remembered as a pragmatist or a man without spine — depends who is next in charge.",
-            "Whether you are the new court's early friend, or the first one it sells."
-          ],
-          terms: [
-            { k: "Reagan Democrat", v: "Blue-collar Democrats who swung Republican in 1980." }
-          ]
-        },
+        body: "On television, the former actor sweeps the country in a landslide: stagflation, the hostages, and one line —\n" +
+          "government is not the solution. Your district went for the other team, and the state committee has already\n" +
+          "called: it wants an explanation, and it is watching whether you change your tune. \"Reagan Democrat\" — the\n" +
+          "blue-collar Democrat who put him in the White House — is printed on every poll now. Word is the bosses are\n" +
+          "picking the first man who flips as the showpiece. Whether you read the wind or sold it out depends on who is next in charge.",
         choices: [
           {
             id: "ride",
@@ -86,29 +66,11 @@ POTUS.define("l10n", {
       {
         id: "rg81_patco",
         title: "A million booked flights, up in the air by morning",
-        body: "The air traffic controllers walk off the job. The White House mails every man one line: return by a set hour or\n" +
-          "be fired, under the law that bars government employees from striking. Most do not return. Within weeks over\n" +
-          "ten thousand are formally dismissed and their union fined into bankruptcy. For the first time the whole\n" +
-          "country sees it: the wind has really changed.",
-        brief: {
-          lede: "A strike picked to make an example of. Stand with the iron fist of the law, or with the workers' paychecks?",
-          known: [
-            "You handle the local airport's budget; the fired men's families sit on your voter rolls.",
-            "The White House means this knife to tell labor nationwide: the good years are over.",
-            "Among the fired are ordinary wage earners you once shook hands with, door to door."
-          ],
-          rumor: [
-            "Some say the replacement crews stood ready long ago, come airport chaos.",
-            "Some say the strike was goaded on purpose, so the beating would frighten the rest."
-          ],
-          unknown: [
-            "Whether this axe takes down your entire union bloc.",
-            "In ten years: the man who read the wind, or one of its helpers."
-          ],
-          terms: [
-            { k: "Strike-Ban Law", v: "The statute barring government employees from striking." }
-          ]
-        },
+        body: "The air traffic controllers walk off the job. The White House mails every man one line: return by a set hour\n" +
+          "or be fired, under the law that bars government employees from striking. Most do not return; within weeks\n" +
+          "over ten thousand are formally dismissed and their union fined into bankruptcy. The local airport's budget\n" +
+          "runs through your desk, and the families of the fired men sit on your voter rolls. Some say the strike was\n" +
+          "goaded on purpose, so that the beating would frighten the rest. How much of your labor bloc does this axe take down?",
         choices: [
           {
             id: "labor",
@@ -153,27 +115,10 @@ POTUS.define("l10n", {
         id: "rg82_snl",
         title: "A thrift that lends on anything comes knocking",
         body: "After the rules loosen, a brood of fresh savings-and-loans starts flinging money everywhere: real estate, oil\n" +
-          "fields, anything at all. What they want is a politically savvy name on the board. The offer is civil: put money\n" +
-          "in, take the director's chair, collect dividends at year end — assuming the thing does not fold before the dividends do.",
-        brief: {
-          lede: "After deregulation, fast money covers the floor. It leaves as fast as it came — but a name on the door is slower to come off.",
-          known: [
-            "They want your seat to clear their licensing path; you want the payout.",
-            "At this level money is not the question — whether it is clean, and whether it stands, is.",
-            "Thrifts run on depositors' savings under federal insurance. When they break, someone carries."
-          ],
-          rumor: [
-            "Word: their books are a facade — two more years, then the money walks.",
-            "A mirror-image thrift next state did exactly that. Its owner is sunning himself in Miami now."
-          ],
-          unknown: [
-            "When the party ends: podium or defendant's bench — where your name stands.",
-            "Whether you can leave now whole, or lose your name along with the money."
-          ],
-          terms: [
-            { k: "Savings & Loan", v: "Deposit-taking lender; loose 1980s rules bred its crisis." }
-          ]
-        },
+          "fields, anything at all. They want your name on their board to clear their licensing path, and the offer is\n" +
+          "civil: put money in, take the director's chair, collect dividends at year end — assuming the thing does not\n" +
+          "fold before the dividends do. A thrift runs on depositors' savings under federal insurance, so when it breaks,\n" +
+          "someone carries the bill. Word is these books are a facade: two more years, then the money walks. When the party ends, is your name on the podium or at the defendant's bench?",
         choices: [
           {
             id: "invest",
@@ -220,25 +165,6 @@ POTUS.define("l10n", {
         body: "The arms race heats up; television loops simulations of how few minutes a missile needs. The university town\n" +
           "starts a petition: Washington and Moscow halt new nuclear weapons at the same moment. They gathered several\n" +
           "thousand signatures in your district — and want you on the record. For: naive. Against: warmonger.",
-        brief: {
-          lede: "A petition about human survival, compressed into a politics question you must answer yes or no.",
-          known: [
-            "They came to you because you are the local face likeliest to get dragged national by this.",
-            "Freeze the arms race sounds harmless — and cuts against this era's whole key.",
-            "Among the signers: students, and mothers with sons on aircraft carriers."
-          ],
-          rumor: [
-            "Some say foreign money stands behind the movement, waiting for politicians to bite.",
-            "Others say the defense lobby is the one actually spending in local races."
-          ],
-          unknown: [
-            "Whether real arms cuts get signed within a few years.",
-            "Which camp holds grudges longer — students or contractors."
-          ],
-          terms: [
-            { k: "Nuclear Freeze", v: "The movement for matching US-Soviet caps on new warheads." }
-          ]
-        },
         choices: [
           {
             id: "support",

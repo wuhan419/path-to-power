@@ -5,8 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown / texts）是**整体替换**，必须整条给全，
- *     少给一条就少一条 —— 不合并。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，写了也不会生效，validate 会直接报错。
  *   · 缺译的字段自动留中文，所以可以一张一张补。
@@ -24,28 +22,9 @@ POTUS.define("l10n", {
         id: "shady_oneshot",
         title: "You find a fast score that only ever works once",
         body: "Two afternoons of asking around tells you everything: every kid in this town who wants out is missing the same thing, and nobody sells it. You found a source.\n" +
-          "The catch: a run like this works once. Do it twice and you stop being the guy who happened to know a guy — you become the guy who does this.",
-        brief: {
-          lede: "There is a road only one person can walk, and only once. After that, you take a different street.",
-          known: [
-            "You know which schools have kids whose parents pay without asking — and who holds the product.",
-            "You have one afternoon, a borrowed car, and stake money that isn't really yours.",
-            "The middleman will move product for you, cash first. He doesn't trust new faces.",
-            "Around here, few people recognize your face yet. That is your only edge."
-          ],
-          rumor: [
-            "Some say a kid ran this exact play last month. The school kept his name.",
-            "Some say the money isn't in the product. It's in knowing who needs it."
-          ],
-          unknown: [
-            "The day somebody starts asking how you pull this off.",
-            "Whether the road ends at a drink or a subpoena."
-          ],
-          terms: [
-            { k: "One-time score", v: "Once, clean, no traces. Twice, it stops working." },
-            { k: "Stake", v: "You front the cash. Gray business has no invoices, no terms." }
-          ]
-        },
+          "The catch: a run like this works once. Do it twice and you stop being the guy who happened to know a guy — you become the guy who does this.\n" +
+          "The middleman wants cash up front and doesn't trust new faces; gray business issues no invoice and no terms. Your only edge is that hardly anyone here knows your face yet. " +
+          "Word is a kid ran this play last month and the school kept his name. Sooner or later somebody starts asking how you pull it off.",
         choices: [
           {
             id: "push",
@@ -88,28 +67,9 @@ POTUS.define("l10n", {
         id: "shady_shark",
         title: "You borrow from the money man in the neighborhood",
         body: "There's a guy on your block who deals in leather goods and, quietly, in loans. No contracts — around here a man's name and his face are the paperwork, and fewer men run than sign.\n" +
-          "You need cash, so you go to him. He doesn't look up. Two questions: how much, when do I see it back. There is no third question, and nothing polite fits between the first two.",
-        brief: {
-          lede: "The interest is spoken, not written. That's why the moment you say yes is the expensive part.",
-          known: [
-            "He only lends inside the neighborhood, and he never hustles a friend of the family.",
-            "His rate crushes the bank's — but he's faster, and far quieter.",
-            "His memory is terrifying. He can tell you who paid what, on which afternoon, ten years back.",
-            "He also knows people you don't. That's the other, more useful service."
-          ],
-          rumor: [
-            "Some say the money isn't his. A layer above him is the one actually lending.",
-            "Borrowing from him is bowing your head in front of a man who never forgets."
-          ],
-          unknown: [
-            "Who he really holds this book for.",
-            "If you can't pay — does he come for you first, or for your brother?"
-          ],
-          terms: [
-            { k: "Short money", v: "Weeks, not months. The shorter the run, the higher the take." },
-            { k: "Face collateral", v: "No property. One person willing to vouch for your name." }
-          ]
-        },
+          "You need cash, so you go to him. He doesn't look up. Two questions: how much, when do I see it back. There is no third question, and nothing polite fits between the first two.\n" +
+          "He crushes the bank on speed and on quiet, and he beats it on price: weeks, not months, interest counted per loan. No property as collateral — one man willing to vouch for your name. " +
+          "They say the money isn't his; a layer above him is the one actually lending. He never said whether he comes for you first if you can't pay, or for your brother.",
         choices: [
           {
             id: "borrow_big",
@@ -153,28 +113,9 @@ POTUS.define("l10n", {
         title: "Somebody presses a file into your hands that could end a man",
         body: "A man presses a manila envelope into your hands and walks. No name. Inside: a photocopied personnel record. An official now in office signed one document, three years ago,\n" +
           "that would keep him, his family, and the two men who bankrolled him awake at night.\n" +
-          "You are holding the thing that makes one man do what you say.",
-        brief: {
-          lede: "Leverage isn't a weapon. It's a loan — you're holding his safety now, and interest comes due later.",
-          known: [
-            "The record is real. You can read the file numbers and the signature block. It was never meant to leave that vault.",
-            "The man in it still holds office — and he sits exactly on the door you need opened.",
-            "The courier left no name. He wants this used, not filed.",
-            "Holding it isn't the crime. Using it is. Whether you get caught depends on how you spend it."
-          ],
-          rumor: [
-            "Some say a second copy exists, in a drawer at a newspaper.",
-            "Some say he didn't sign for himself — he took the fall for someone else."
-          ],
-          unknown: [
-            "What the courier expects to get out of this.",
-            "If you do nothing: whether the paper is worth anything in five years."
-          ],
-          terms: [
-            { k: "Leverage", v: "What keeps a man off balance. Cashable only for silence." },
-            { k: "Shelf life", v: "Leverage rides on the man. He loses office, or dies, and the paper goes blank." }
-          ]
-        },
+          "You are holding the thing that makes one man do what you say.\n" +
+          "He still holds office, and he sits exactly on the door you need opened. Holding it isn't the crime; spending it is. Paper like this rides on the man — he loses office and it goes blank. " +
+          "They say a second copy is already in a drawer at a newspaper. What you'd really like to know is what the courier expects to get out of this.",
         choices: [
           {
             id: "keep",
@@ -217,28 +158,9 @@ POTUS.define("l10n", {
         id: "shady_doctor",
         title: "You get the clinic doctor in the old neighborhood to sign a lie",
         body: "There's a clinic in the old neighborhood with a sign in two languages. Before you sit down, you make clear you're not here to bring trouble.\n" +
-          "What you need is a signature — a doctor's note that lets you disappear, legally, for a few days. The doctor is careful. One thing matters to him: after you walk out, does the sign over his door still hold up?",
-        brief: {
-          lede: "You need a few days off the map. The man who signs the date away stakes his license on your word.",
-          known: [
-            "The clinic's best earner isn't medicine. It's time.",
-            "What the doctor dreads isn't the fine. It's becoming the man who rattled on his own people.",
-            "One signature costs him nothing in money. The risk is the entire bill.",
-            "He has a daughter still in school. That makes him easy to convince — and cornered, dangerous."
-          ],
-          rumor: [
-            "Some say health inspectors came through the door last month and asked questions.",
-            "Some say he keeps a ledger of everyone who has ever made him sign."
-          ],
-          unknown: [
-            "Where he writes this one down, and for how long.",
-            "Whether his daughter ever learns what paid her tuition."
-          ],
-          terms: [
-            { k: "The note", v: "A doctor's slip that buys you a few days, legal on paper." },
-            { k: "The ledger", v: "The copy the signer keeps. Leverage on you — and a noose on him." }
-          ]
-        },
+          "What you need is a signature — a doctor's note that lets you disappear, legally, for a few days. The doctor is careful. One thing matters to him: after you walk out, does the sign over his door still hold up?\n" +
+          "The clinic's best earner isn't medicine, it's time. The paper costs him nothing; the license costs him everything. He has a daughter still in school. " +
+          "They say he keeps a ledger of everyone who ever made him sign — you don't know whether he is writing your name into it tonight.",
         choices: [
           {
             id: "press",
@@ -281,28 +203,9 @@ POTUS.define("l10n", {
         id: "shady_union",
         title: "You ask the union boss to stump for you",
         body: "The meeting room in the union hall smells like burnt coffee and old carpet. The boss hears you out for ten minutes, then asks one question: \"What do you want my people to do?\"\n" +
-          "Get that answer wrong, and for the rest of your life you never walk back into this building.",
-        brief: {
-          lede: "His own vote is worthless. He decides where everyone else's go. Those two things cost very different money.",
-          known: [
-            "During the strike vote you held the registration table for three straight nights. The members know who you are.",
-            "Eight thousand members. On primary day, they watch which way he walks first.",
-            "He doesn't want money. He wants: don't sell us down the river in the next contract.",
-            "Bargaining with the company broke down last month. He's holding fire, and he's cutting everything short."
-          ],
-          rumor: [
-            "Some say there's a layer above him — and that man is paid in a different currency.",
-            "Some say he's planning to step down and is picking his successor. That matters more than any contract."
-          ],
-          unknown: [
-            "Whether you'd actually keep the promise he's asking for.",
-            "If he cuts a deal with your rival first, whether you have a second road."
-          ],
-          terms: [
-            { k: "Endorsement", v: "A one-page statement. The value isn't the words — it's who said them." },
-            { k: "Get-out", v: "Turning a mailing list into bodies on Election Day." }
-          ]
-        },
+          "Get that answer wrong, and for the rest of your life you never walk back into this building.\n" +
+          "Eight thousand members — and on primary day they watch which way he walks first. You held the registration table three straight nights through the strike vote; they know your face. " +
+          "He isn't asking for money. He's asking not to be sold down the river in the next contract. They say he is picking his successor, and that matters more than any contract.",
         choices: [
           {
             id: "promise",
@@ -346,26 +249,9 @@ POTUS.define("l10n", {
         title: "The union comes to collect the promise you made two years ago",
         body: "The council votes next week on an outsourcing contract. The phone rings — it's the boss himself.\n" +
           "\"Two years ago you said the hand that signs is one of ours,\" he says. \"Next week, let's see how that hand votes.\"\n" +
-          "This time he doesn't want a promise. He wants your actual vote — and your favor is coming due.",
-        brief: {
-          lede: "An endorsement isn't a gift. It's a loan. Two years, no interest. It matures today.",
-          known: [
-            "Next week: the city's outsourcing vote. Eight thousand union jobs ride on it.",
-            "You're the man in the frame now. How this one vote goes is what the whole building will watch.",
-            "That line — the hand that signs is ours — neither side forgot. Nor did the papers."
-          ],
-          rumor: [
-            "They say he recorded your conversation and keeps it in the second desk drawer.",
-            "They say your rival has upped the ante: a no-layoff guarantee, in writing."
-          ],
-          unknown: [
-            "After this vote, how many allies and how many enemies the union counts. They remember.",
-            "Whether that tape exists, nobody knows. But you start choosing your words."
-          ],
-          terms: [
-            { k: "City outsourcing", v: "Public work handed to private firms. Cheaper on paper; the jobs walk out with it." }
-          ]
-        },
+          "This time he doesn't want a promise. He wants your actual vote — and your favor is coming due.\n" +
+          "Outsourcing means public work handed to private firms: cheaper on paper, and the jobs walk out with it. Eight thousand jobs ride on this one vote, and the whole building will watch how it goes. " +
+          "That line about the hand that signs — you remember it. So do the papers.",
         choices: [
           {
             id: "deliver",
@@ -411,28 +297,10 @@ POTUS.define("l10n", {
         id: "shady_launder",
         title: "Someone wants to hand you a pile of money that can never be seen",
         body: "Someone is offering money too big to refuse, with one condition: don't ask where it came from.\n" +
-          "The accountant sits across from you and draws, in pencil, three routes for washing it. Under each route he writes the same line: once it's in, there is no clean way out.",
-        brief: {
-          lede: "Some money, once you take it, is your name signed on someone else's books.",
-          known: [
-            "Through legal channels, four people would know where this came from inside three days.",
-            "Through other channels, it becomes small donations, consulting fees, speech honoraria.",
-            "The accountant isn't afraid of the job. He's afraid that some afternoon you'll hand him over.",
-            "The regulators are busy this year. Their eyes are on money much bigger than yours."
-          ],
-          rumor: [
-            "They say whoever this money really belongs to has also met with your rival.",
-            "They say the same structure ran last year. It became an indictment."
-          ],
-          unknown: [
-            "What the man behind this money means to buy, in the end.",
-            "If one day they ask you to cough it up — whether you can."
-          ],
-          terms: [
-            { k: "Laundering", v: "Cleaning dirty money is the easy half. Keeping its secret is forever." },
-            { k: "Disclosure", v: "Report the source to the regulators. Put it on paper, hand over leverage." }
-          ]
-        },
+          "The accountant sits across from you and draws, in pencil, three routes for washing it. Under each route he writes the same line: once it's in, there is no clean way out.\n" +
+          "Through legal channels four people would know where it came from inside three days. Through other channels it becomes small donations, consulting fees, speech honoraria. " +
+          "Disclosure means writing the source into the public record — and paper like that is leverage handed over.\n" +
+          "The accountant isn't afraid of the job. He's afraid that some afternoon you'll hand him over. They say a shipment with this exact structure last year came back as an indictment.",
         choices: [
           {
             id: "wash",

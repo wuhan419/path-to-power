@@ -110,12 +110,12 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.setMonth({ month: 3, day: 12 });
   check(P.G.month === 9, "更早的月份不应让时间回退（当前月仍为 9）");
 
-  /* 媒介徽章：短视频事件在 2025 年可发生，在 1960 年不可 */
+  /* 媒介门控照旧生效，但 #41 起档案行不再挂媒介徽章（chip 压到三枚以内） */
   const clip = P.events.find(e => e.id === "media_viral_clip");
   P.G.year = 2025;
   check(P.mediumOK(clip), "2025 年短视频事件可发生");
   P.presentEvent(clip, { grade: "major" });
-  check(/短视频/.test((w.document.querySelector(".dmeta") || {}).textContent || ""), "媒介徽章显示「短视频」");
+  check(!w.document.querySelector(".cchip.medium"), "#41 起档案行不再渲染媒介徽章");
   P.G.year = 1960;
   check(!P.mediumOK(clip), "1960 年短视频事件不可发生（媒介门控生效）");
   P.G.year = 2008;
@@ -159,27 +159,30 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   }
   P.G.year = 2008;
 
-  /* ---------- 背景卡（折叠 / 展开） ---------- */
-  console.log("\n== 背景卡 ==");
+  /* ---------- #41 卡面只剩「标题 + 正文 + 头条图」 ---------- */
+  console.log("\n== 事件卡结构（#41 瘦身）==");
   P.G.month = 9;
   P.presentEvent(crash, { grade: "major" });
-  const brief = w.document.getElementById("brief");
-  check(!!brief, "渲染出背景卡 #brief");
-  check(!brief.classList.contains("collapsed"), "背景卡默认展开");
-  const body0 = brief.querySelector(".brief-body").textContent;
-  check(body0.indexOf("你确知的") >= 0, "含「你确知的」一段");
-  check(body0.indexOf("你听到的") >= 0, "含「你听到的 · 真假不明」一段");
-  check(body0.indexOf("你尚不知道的") >= 0, "含「你尚不知道的」一段（认知边界提示）");
-  check(body0.indexOf("雷曼") >= 0, "背景里交代了正在发生的事（雷曼）");
-  check(body0.indexOf("救市") >= 0 && body0.indexOf("TARP") >= 0, "名词表解释了「救市 / TARP」");
-  check(w.document.querySelector(".brief-head").textContent.indexOf("财政部深夜来电") >= 0, "折叠标题行带一句话 lede");
-
-  w.document.querySelector(".brief-head").click();
-  check(w.document.getElementById("brief").classList.contains("collapsed"), "点击后背景卡收起");
-  check(w.localStorage.getItem("potus_brief_collapsed") === "1", "折叠状态被记住（localStorage）");
-  w.document.querySelector(".brief-head").click();
-  check(!w.document.getElementById("brief").classList.contains("collapsed"), "再点一次展开");
-  check(w.localStorage.getItem("potus_brief_collapsed") === "0", "展开状态同样被记住");
+  const art = w.document.querySelector("article.news.editorial");
+  check(!!art, "事件卡根节点是 article.news.editorial");
+  check(!w.document.getElementById("brief") && !w.document.querySelector(".brief-slot"),
+    "背景卡不再渲染（#brief / .brief-slot 都不存在）");
+  check(!art.querySelector(".standfirst"), "斜体导语行不再渲染");
+  check(!!art.querySelector("h1.headline"), "有标题");
+  check(!!art.querySelector(".art-slot"), "有头条图位");
+  const cardBody = art.querySelector(".body");
+  const cardText = (cardBody && cardBody.textContent) || "";
+  check(cardText.length > 0, "正文非空");
+  /* 原来由背景卡承担的三件事，现在必须由正文自己交代：
+     局势事实、必须解释的时代名词、压在末尾的信息差钩子。 */
+  check(/雷曼/.test(cardText), "正文交代了正在发生的事（雷曼刚倒）");
+  check(/救市/.test(cardText) && /TARP/.test(cardText), "正文就地解释了时代名词（救市 / TARP）");
+  check(/授权条款/.test(cardText), "正文末尾留了信息差钩子（无法复核的授权条款）");
+  const chips = art.querySelectorAll(".dmeta .gchip, .dmeta .cchip");
+  check(chips.length <= 2, "档案行 chip 压到量级 + 类型两枚（实测 " + chips.length + " 枚）");
+  const dnumTxt = (art.querySelector(".dnum") || {}).textContent || "";
+  check(/NO\.\s*\d{3}/.test(dnumTxt) && /2008 年 9 月 24 日/.test(dnumTxt),
+    "档案行只剩卷宗号与日期：" + dnumTxt.trim());
 
   /* ---------- 代价标签 + 资源不足变灰 ---------- */
   console.log("\n== 选项代价（cost）==");

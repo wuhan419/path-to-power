@@ -5,7 +5,6 @@
  * 契约（与样板分片 i18n/en/lines/126-line-2015-18.js 一致，详见 docs/I18N.md §3/§4）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 按 id 对齐，terms 不带 id 按下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，元素个数与中文严格一致。
  *   · 结构性键（id / minYear / maxYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost / month / grade …）由引擎保护，这里一个都不写。
  *   · 英文标题 sentence case（Senate 等专名保留大写）；正文不点真人姓名，
@@ -27,26 +26,8 @@ POTUS.define("l10n", {
         body: "On count night the agricultural states and the South flip block by block: nine net seats gone in the Senate, " +
           "the majority gavel crosses the aisle, and the House gap widens on the same night. Reporters already call the president's " +
           "remaining two years the veto era — nominees frozen, appropriations rewritten, every cabinet secretary starting a sentence with the word bipartisan.\n" +
-          "Your phone answers on two lines: one wing wants your verdict on the course, the other wants your silence.",
-        brief: {
-          lede: "The majority is gone, the course is up for auction, and everyone waits for you to speak first.",
-          known: [
-            "Senate control is lost; the president's back half now runs in veto mode.",
-            "Personnel and appropriations are being rebuilt; committee chairs are up for grabs.",
-            "Local donors are calling to ask which line you back."
-          ],
-          rumor: [
-            "Some say the White House already chose which losses to hang on local politicians.",
-            "Some say the new majority caucus is keeping a list of who spoke when."
-          ],
-          unknown: [
-            "Whose name sits at the top of the ticket in two years.",
-            "The price of silence this week."
-          ],
-          terms: [
-            { k: "Midterm election", v: "A full House and one-third Senate contest in the president's middle year." }
-          ]
-        },
+          "Your phone answers on two lines: one wing wants your verdict on the course, the other wants your silence. Committee chairs are up for grabs in the reshuffle.\n" +
+          "Some say the new majority caucus is keeping a list of who said what, when. Silence has a price this week too.",
         choices: [
           {
             id: "hold_local",
@@ -105,29 +86,11 @@ POTUS.define("l10n", {
         id: "ln14_panic",
         title: "An execution video and the first imported case land in one panic season",
         body: "In mid-August a foreign militia puts a video of our own journalist's execution online, and within forty-eight hours it loops " +
-          "on every screen in the country. The first imported infectious case reaches a southern hospital in late September; by early October " +
+          "on every screen in the country. The first imported case — infected abroad, diagnosed after arrival — reaches a southern hospital in late September; by early October " +
           "the patient is dead and two local nurses have tested positive, and emergency screening, ban petitions and safety bills fill the calendar at once. " +
           "Congress wants a vote before the midterms; everyone has to look tough.\n" +
-          "You hold one card: inside this week you owe one sentence about each of two things nobody understands yet.",
-        brief: {
-          lede: "Panic arrived twice in one month, both times before an election.",
-          known: [
-            "Neither story is settled; both await a local figure to speak first.",
-            "The pre-election window is weeks; every statement prints into an ad.",
-            "Local emergency rooms are thin, and the shortfall list sits on your desk."
-          ],
-          rumor: [
-            "Some say the bill was drafted first and needs a local case.",
-            "Some say the case origin is buried to protect the election."
-          ],
-          unknown: [
-            "After the ebb, who looks like he used the dead.",
-            "What your sentence costs in an emergency room."
-          ],
-          terms: [
-            { k: "Imported case", v: "An infection caught abroad and diagnosed after arrival." }
-          ]
-        },
+          "You hold one card: inside this week you owe one sentence about each of two things nobody understands yet. Neither story is settled; both wait on a local figure to speak first, and your emergency room's screening shortfall sits on your desk as a list.\n" +
+          "After the ebb, who will look like he used the dead — nobody warns you in advance.",
         choices: [
           {
             id: "run_drill",
@@ -189,26 +152,8 @@ POTUS.define("l10n", {
           "with technical annexes thicker than a phone book. The opposition leader and several senior colleagues write directly " +
           "to the other side's supreme leader and call a treaty ally of this country evil out loud. Primary season opens, " +
           "and tearing up the deal becomes the standard clause in every speech.\n" +
-          "Lobby budgets and donations split into two poles overnight, and both sides are booking your calendar.",
-        brief: {
-          lede: "The ink is two weeks old and the deal is already a loyalty test.",
-          known: [
-            "Every primary will ask about the deal; you cannot dodge it for a year.",
-            "Donations and lobbying on both sides are booking your time.",
-            "Nobody has read the annexes; what is left is mood."
-          ],
-          rumor: [
-            "Some say the letter was written for cameras; the terms were accepted upstairs.",
-            "Some say allied capitals privately asked for quiet."
-          ],
-          unknown: [
-            "Who plays back your sentence in two years.",
-            "Which account this year's donations reroute to."
-          ],
-          terms: [
-            { k: "Verification for relief", v: "Open nuclear inspections traded against phased sanctions removal." }
-          ]
-        },
+          "Lobby budgets and donations split into two poles overnight, and both sides are booking your calendar. Every primary debate will ask about the deal; you cannot dodge the question for a year.\n" +
+          "Almost nobody has read the annexes, so what is left is mood — some say the letter itself was written for cameras. Which of your sentences gets played back against you two years from now?",
         choices: [
           {
             id: "ask_brief",
@@ -270,26 +215,8 @@ POTUS.define("l10n", {
           "and the name stops outside the Senate judiciary committee door: the majority leader announces that an election year brings " +
           "no hearings, no vote, and the seat belongs to the next president. The chair sits empty for a year, and a generation's " +
           "direction of the court becomes campaign material.\n" +
-          "Phones come in from both sides at once, and both want your verdict this week.",
-        brief: {
-          lede: "One empty chair has become the most expensive issue in the campaign.",
-          known: [
-            "The nominee never reached the committee; the vacancy may outlast the election.",
-            "Both camps want your statement within forty-eight hours.",
-            "The local bar and the churches each have an open letter drafted."
-          ],
-          rumor: [
-            "Some say the stall is decided and waits for someone to say it aloud.",
-            "Some say the nominee's file is already mined for old scores."
-          ],
-          unknown: [
-            "This year's ballot decides who fills the chair.",
-            "Your sentence becomes next fall's ad script."
-          ],
-          terms: [
-            { k: "Election-year custom", v: "The precedent of holding no high-court vote in an election year." }
-          ]
-        },
+          "Phones come in from both sides at once, and both want your verdict this week. The local bar association and the churches each have an open letter drafted, waiting for the first name under yours.\n" +
+          "Whether the election-year custom — no high-court vote in an election year — holds, nobody guarantees. But this year's ballot decides who fills the chair.",
         choices: [
           {
             id: "stay_quiet",

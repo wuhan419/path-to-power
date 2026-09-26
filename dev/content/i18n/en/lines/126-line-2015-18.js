@@ -5,7 +5,6 @@
  * 契约（与样板分片 i18n/en/events/106-era-1990.js 一致，详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 按 id 对齐，terms 不带 id 按下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，必须整条给全。
  *   · 结构性键（id / minYear / maxYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost / month / grade …）由引擎保护，这里一个都不写。
  *   · worldline 的 brief / outlets 不在保护名单里，可以在英文层整体改写。
@@ -27,27 +26,6 @@ POTUS.define("l10n", {
         title: "A satirical newsroom in Paris is stormed; four days later the city marches",
         body: "One midday in January, two armed men walk into the offices of a satirical weekly in Paris. Twelve people are killed, among them several cartoonists, a columnist and two police officers. The reason is a strip of drawings published years ago.\n" +
           "Four days later the city fills up: a column of people over a kilometre long, heads of state walking in the front rank. The same afternoon, newsrooms here close their doors to argue one question — do we reprint those drawings. Your phone starts ringing then.",
-        brief: {
-          lede: "The attack happened in another country. The exam is set on your side: reprint it, march in it, put your name on it.",
-          known: [
-            "The weekly had been sued over those drawings, and its office had asked for protection.",
-            "The march is set for four days out; several governments confirm their principals will walk front.",
-            "Half a dozen papers here are meeting behind closed doors about reprinting.",
-            "Your district has halal grocers, and a returned foreign-correspondent you once drank with."
-          ],
-          rumor: [
-            "Some say an earlier security memo never reached the newsroom.",
-            "Some say the march is a stage being set for next week's bill."
-          ],
-          unknown: [
-            "Whether the line around speech gets redrawn from this week on.",
-            "What your wording this January gets used for, five years from now."
-          ],
-          terms: [
-            { k: "Satirical weekly", v: "A paper whose standing content is political cartoon and mockery." },
-            { k: "Reprinting", v: "A foreign paper republishing the drawings that brought the attack — itself a position." }
-          ]
-        },
         choices: [
           {
             id: "window_sign",
@@ -132,27 +110,8 @@ POTUS.define("l10n", {
         title: "The Supreme Court legalizes same-sex marriage; state bans die overnight",
         body: "One morning in late June, five of nine justices write it down: marriage cannot turn on sex. By noon two lines stand outside courthouses in the South —\n" +
           "couples waiting to file papers, and protesters waiting to be seen.\n" +
-          "A couple you have known for twenty years is on one side of your phone. The deacons of the church that funds you are on the other. Both call before dinner.",
-        brief: {
-          lede: "The ruling is finished. All that is left is a local voice to say what it means.",
-          known: [
-            "The decision already binds every county. Both camps want your verdict within forty-eight hours.",
-            "Young voters in your district are waiting on your first sentence.",
-            "The church deacons are already sitting in your conference room.",
-            "You can edit the wording. You cannot edit the ruling."
-          ],
-          rumor: [
-            "Some say the churches have their own political slate, and the money is already wired.",
-            "Some say your opponent wants a moral brawl to cover a story of his own."
-          ],
-          unknown: [
-            "How many times a primary debate will ask you this question.",
-            "Which donor checks reroute because of one phrase you chose."
-          ],
-          terms: [
-            { k: "Religious exemption", v: "A claim to skip equal-treatment rules on grounds of faith." }
-          ]
-        },
+          "A couple you have known for twenty years is on one side of your phone. The deacons of the church that funds you are on the other. Both call before dinner.\n" +
+          "The ruling already binds every county, and both camps want your verdict within forty-eight hours. You can edit the wording; you cannot edit the conclusion. The religious exemption the deacons want — a claim to skip equal-treatment rules on grounds of faith — will be put back to you in every primary debate.",
         choices: [
           {
             id: "register",
@@ -211,26 +170,8 @@ POTUS.define("l10n", {
         id: "ln15_charleston",
         title: "After the church shooting, the battle flag comes down from the statehouse",
         body: "A prayer meeting is interrupted, and parishioners die inside their own church. The gunman loved that flag, and the photograph is all over the internet by morning.\n" +
-          "The mourners are barely buried when the state starts shouting about whether the banner should come off the roof. The first second after you open your mouth, both sides are recording.",
-        brief: {
-          lede: "The dead are barely buried when the living start tallying a piece of cloth.",
-          known: [
-            "Taking the flag down takes procedure — and procedure can be stalled. You hold the process.",
-            "Leaders of both parties in the state are waiting for a local figure to speak first.",
-            "Veteran families and newer voters in your district each hold votes."
-          ],
-          rumor: [
-            "Some say the removal is already decided and they only need someone to blame.",
-            "Some say the flag defenders were pushed onto the stage by donated money."
-          ],
-          unknown: [
-            "How many times this cloth will be waved at you in a primary.",
-            "Who will cut your wording into an ad two years from now."
-          ],
-          terms: [
-            { k: "Confederate battle flag", v: "The Southern army's war banner, widely read as a racial symbol." }
-          ]
-        },
+          "The mourners are barely buried when the state starts shouting about whether the banner should come off the roof. The first second after you open your mouth, both sides are recording.\n" +
+          "The banner is the Confederate battle flag — a Southern army's war banner, now widely read as a racial symbol. Taking it down takes procedure, the procedure sits in your hands, and a procedure can be stalled. Leaders of both parties in the state are waiting for one local figure to speak first. Some say the removal is already decided and they only need someone to blame.",
         choices: [
           {
             id: "mourn",
@@ -289,27 +230,8 @@ POTUS.define("l10n", {
         id: "ln16_flint",
         title: "The water turns brown after the city switches sources; lab results climb",
         body: "To save money the city starts drawing from the river, nobody keeps up the corrosion treatment, and lead leaves the pipe scale and comes out of kitchen taps.\n" +
-          "The state's line is that the water meets standard. The county hospital's numbers keep climbing. Half your calls are furious parents; the other half are officials afraid for the plants.",
-        brief: {
-          lede: "The data is in your hands, the explanation belongs to the state, the anger is in the street.",
-          known: [
-            "State lab reports show elevated lead.",
-            "The federal line is vague; a declared emergency takes political nerve.",
-            "The treatment plant and two factories are the town's payroll.",
-            "Which numbers you publish is, right now, your call."
-          ],
-          rumor: [
-            "Some say leadership knew early and simply never signed anything.",
-            "Some say the source switch was made to clear room for a contract."
-          ],
-          unknown: [
-            "How long this tap water will chase you.",
-            "Whoever speaks first sets the tone for everyone else."
-          ],
-          terms: [
-            { k: "State of emergency", v: "A declaration that unlocks federal resources and money." }
-          ]
-        },
+          "The state's line is that the water meets standard. The county hospital's numbers keep climbing. Half your calls are furious parents; the other half are officials afraid for the plants.\n" +
+          "The state's own lab reports show elevated lead. A state of emergency — a declaration that unlocks federal resources and money — takes political nerve, and which numbers you publish is, right now, your call. Some say leadership knew early and simply never signed anything.",
         choices: [
           {
             id: "bottle",
@@ -368,26 +290,8 @@ POTUS.define("l10n", {
         id: "ln16_orlando",
         title: "A mass shooting at a night club; the vigil and the gun march come the same week",
         body: "One night the city's club becomes the place where the whole country keeps vigil, and the room that treated a lot of people as family never reopens. The same week, the state's gun march goes out as scheduled.\n" +
-          "Counterterrorism, hate, gun rules, a community's safety — four questions ask you in one week: how are you going to say it.",
-        brief: {
-          lede: "One night of dead, claimed by three camps as evidence for their own case.",
-          known: [
-            "Motive and any extremist link are still open; the wording is unsettled.",
-            "Your party wants you to speak of hate; another camp wants you to speak of safety.",
-            "Local clubs and community organizations are waiting for your call."
-          ],
-          rumor: [
-            "Some say your opponent has a draft ready and is waiting for you to step on the line.",
-            "Some say the state intends to pass a powers bill in this week's mood."
-          ],
-          unknown: [
-            "Which version of your statement lands in autumn's mobilization ads.",
-            "Which nerve is actually this district's."
-          ],
-          terms: [
-            { k: "Half-staff", v: "The official flag lowered in mourning after a mass death." }
-          ]
-        },
+          "Counterterrorism, hate, gun rules, a community's safety — four questions ask you in one week: how are you going to say it.\n" +
+          "Motive and any link to extremist networks are still open, so nobody dares set the wording first. The local clubs and the community organizations are waiting for your call. Some say your opponent has a draft ready and is only waiting for you to step on the line.",
         choices: [
           {
             id: "aftercare",
@@ -446,26 +350,8 @@ POTUS.define("l10n", {
         id: "ln17_comey",
         title: "The FBI director is dismissed without warning; a buried case hits the street",
         body: "One letter, less than half a day, and the director loses his job while his plane is still overseas. The investigation nobody would discuss is now a chant in squares and a cable argument.\n" +
-          "Your party says stop feeding the fire. Your base says stop holding your tongue. The cameras are waiting for one word from you: transition, interference, or purge.",
-        brief: {
-          lede: "A chair is emptied, and everyone asks who should be sitting in it.",
-          known: [
-            "The stated reasons keep changing; the documents have not been released.",
-            "A committee is already preparing to summon sitting officials.",
-            "Both parties' ground floors are waiting on the word you use tonight."
-          ],
-          rumor: [
-            "Some say the replacement is meant to let the investigation cool by itself.",
-            "Some say the findings already exist and were simply never written down."
-          ],
-          unknown: [
-            "Whether this hole grows into an independent counsel.",
-            "Whether your one sentence becomes a subpoena or an endorsement."
-          ],
-          terms: [
-            { k: "Special counsel", v: "A prosecutor independent of the Justice Department, assigned to one case." }
-          ]
-        },
+          "Your party says stop feeding the fire. Your base says stop holding your tongue. The cameras are waiting for one word from you: transition, interference, or purge.\n" +
+          "The stated reasons keep changing and not one document has been released; a committee is already preparing to summon sitting officials. Some say the replacement is meant to let the case cool by itself — whether the hole grows into a special counsel, a prosecutor independent of the Justice Department, starts with the word you use tonight.",
         choices: [
           {
             id: "paper",
@@ -524,26 +410,8 @@ POTUS.define("l10n", {
         id: "ln17_charlottesville",
         title: "Torch marchers cross a college town; the wording does not change",
         body: "A unity rally brings torches and shouting into a college town's night, and the next day a car drives into a crowd. The country waits for one sentence naming it, and gets both sides instead.\n" +
-          "Your donors push you to talk about where the violence comes from. Your party pushes you not to. Halls and churches in your district write to you the same day.",
-        brief: {
-          lede: "How wide you draw one sentence matters tonight more than how many police you send.",
-          known: [
-            "Rallies need permits, and keeping the peace in this town runs through you.",
-            "The national line is already set; locally you can follow it or get ahead of it.",
-            "Two donors ask on the same morning whether you will do television."
-          ],
-          rumor: [
-            "Some say your opponent has old photographs ready, waiting for you to lose your head.",
-            "Some say the state is already drafting a plan to cancel the next permit."
-          ],
-          unknown: [
-            "Which version of your wording gets printed on next autumn's ballot.",
-            "Which side's money reroutes because of how you phrased it."
-          ],
-          terms: [
-            { k: "Torch march", v: "A night parade used by white supremacist groups as theater." }
-          ]
-        },
+          "Your donors push you to talk about where the violence comes from. Your party pushes you not to. Halls and churches in your district write to you the same day.\n" +
+          "A rally needs a permit, and keeping the peace in this town runs through you. The national line is already set; locally you can follow it or get ahead of it. Some say your opponent keeps old photographs ready, waiting for you to lose your head.",
         choices: [
           {
             id: "protect",
@@ -602,26 +470,8 @@ POTUS.define("l10n", {
         id: "ln17_harvey",
         title: "Two hurricanes land weeks apart, and the relief chain breaks at both ends",
         body: "One storm drops a week of rain and puts water over rooftops; two weeks later a second one sends an island back to the age of diesel generators.\n" +
-          "Rescue calls queue in the hundreds, shelters run short of beds, and pallets sit on an airport apron waiting for a signature. Upstairs says the process is running. Survivors ask where you were yesterday.",
-        brief: {
-          lede: "After the wind stops, what decides who lives is the dispatch, the signature and the camera.",
-          known: [
-            "Supplies have arrived; release and distribution are stuck in someone else's process.",
-            "The National Guard can move, but only if a local government asks.",
-            "Shelters in your district are over capacity and churches are taking people in."
-          ],
-          rumor: [
-            "Some say the rebuilding contracts already went to an out-of-state firm.",
-            "Some say the line from above is: keep the bad news off television."
-          ],
-          unknown: [
-            "Whether voters remember the rebuilding money in two years.",
-            "Whoever says the relief failed first owns the argument."
-          ],
-          terms: [
-            { k: "Major disaster declaration", v: "The state asks, Washington approves, and only then do money and logistics unlock." }
-          ]
-        },
+          "Rescue calls queue in the hundreds, shelters run short of beds, and pallets sit on an airport apron waiting for a signature. Upstairs says the process is running. Survivors ask where you were yesterday.\n" +
+          "A major disaster declaration means the state asks, Washington approves, and only then do money and logistics unlock; the National Guard can move, but only if a local government asks for it. Shelters in your district are over capacity and churches are taking people in. Some say the rebuilding contracts already went to an out-of-state firm.",
         choices: [
           {
             id: "shelter",
@@ -680,26 +530,8 @@ POTUS.define("l10n", {
         id: "ln18_parkland",
         title: "Students carry signs to the statehouse; in March they walk nationally",
         body: "A high school whose staff and sheriff spent a night blaming each other becomes the starting point of a national student march; in March dozens of cities empty their classrooms.\n" +
-          "The legislative window is weeks. Gun counties, donors ready to leave, and a video on your phone telling you to do something — all three are pushing.",
-        brief: {
-          lede: "A group of young people who cannot vote have just become the people setting the agenda.",
-          known: [
-            "Six weeks left in session, and nobody has counted the votes.",
-            "Your district is half gun-owning families and half furious parents.",
-            "The student organizers have already agreed on a time to meet you."
-          ],
-          rumor: [
-            "Some say your opponent is paying for their buses and their signs.",
-            "Some say the party has already decided that nothing will move."
-          ],
-          unknown: [
-            "Which way these newly registered voters lean.",
-            "Whether the hearing you hold today is an endorsement or an ad next year."
-          ],
-          terms: [
-            { k: "Raise the age", v: "A proposal to lift the legal gun-purchase age from 18 to 21." }
-          ]
-        },
+          "The legislative window is weeks. Gun counties, donors ready to leave, and a video on your phone telling you to do something — all three are pushing.\n" +
+          "Six weeks are left in session, nobody has counted the votes, and the student organizers have already agreed on a time to meet you. Raise the age — lifting the legal gun-purchase age from 18 to 21 — is the line nobody in the party will touch first.",
         choices: [
           {
             id: "schoolfirst",
@@ -758,26 +590,8 @@ POTUS.define("l10n", {
         id: "ln18_midterm",
         title: "Midterms: a record number of women run, and a pink wave redraws the slate",
         body: "The filing numbers this year are the largest in decades, and a large share belong to teachers, nurses and minority women running for the first time. One ballot is redrawing both parties' faces.\n" +
-          "The state party wants you on stage with the new faces. Old colleagues want you to hold the line. Your donors only want to know where your money and your weekends are going.",
-        brief: {
-          lede: "A wave that is not yours is rewriting your party's slate.",
-          known: [
-            "Your party's local slate gained a dozen new faces overnight.",
-            "Field staff and money get allocated per person, and whoever declares first picks.",
-            "Your own seat is safe; your rank inside the party is not."
-          ],
-          rumor: [
-            "Some say leadership wants to swap a few senior names for new ones.",
-            "Some say this wind will not survive one primary."
-          ],
-          unknown: [
-            "Whether these two years' faces decide your seniority next term.",
-            "Whether the people you lift will lift you back."
-          ],
-          terms: [
-            { k: "Pink wave", v: "A candidate surge marked by record numbers of women running for office." }
-          ]
-        },
+          "The state party wants you on stage with the new faces. Old colleagues want you to hold the line. Your donors only want to know where your money and your weekends are going.\n" +
+          "Your party's local slate picked up a dozen new faces overnight, and field staff and money get allocated person by person — whoever declares first gets to pick. Your own seat is safe; your rank inside the party is not.",
         choices: [
           {
             id: "ownrace",
@@ -830,7 +644,7 @@ POTUS.define("l10n", {
       }
     ],
 
-    /* 世界线英文层：brief / outlets 不在保护名单，可整体改写（pressure 是数字，不动）。 */
+    /* 世界线英文层：outlets 全部为当年真实存在的美国媒体（pressure 是数字，不动）。 */
     worldline: {
       brief: {
         "2015": "In one year the court, the church and the statehouse roof each lose a piece of agreed truth, and people start watching their own country on a phone.",

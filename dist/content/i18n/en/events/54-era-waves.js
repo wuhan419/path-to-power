@@ -1,8 +1,7 @@
 /* ============================================================================
  * CONTENT · i18n/en/events/54-era-waves.js
  * 中文文件 content/events/54-era-waves.js 的英文覆盖层（时代浪潮：2008 时代）。
- * 契约见 docs/I18N.md：原文件不动，只放要覆盖的字段；事件/选项按 id 定位，
- * known/rumor/unknown 纯串数组整体替换、条数与中文一致，terms 按下标对齐；
+ * 契约见 docs/I18N.md：原文件不动，只放要覆盖的字段；事件/选项按 id 定位；
  * 结构性键（id/era/tierMin/weight/base/mods/effects/flags/cost/photo…）受保护，一律不写。
  * 浪潮题材：机构/专有名词用真实英文（Zuccotti Park, the 99%, Occupy Wall Street,
  * Tea Party, Koch brothers, Big Three, Wall Street Journal, City Hall）。
@@ -15,26 +14,9 @@ POTUS.define("l10n", {
       {
         id: "wave_occupy_low",
         title: "Occupy Wall Street's tent city asks you to handle its messaging",
-        body: "The tents in the park show no sign of thinning. You brought coffee once; now they ask if you'll stay on to handle their messaging — you've got a way with words.",
-        brief: {
-          lede: "A tent city in the park. A library, a kitchen, and a tweet everyone's waiting on.",
-          known: [
-            "Zuccotti Park is full of tents; \u201Cthe 99%\u201D has led every news cycle for two weeks.",
-            "No leaders, no platform, anyone can speak: that's the magnetism and the sickness.",
-            "People you know are inside, along with career activists and a few nobody-sourced ones."
-          ],
-          rumor: [
-            "They say City Hall has set a sweep date and is only waiting for the cold.",
-            "They say both parties track where this energy flows — and there are plainclothes cops inside."
-          ],
-          unknown: [
-            "This phrase will reshape political language for a decade.",
-            "Someone you meet in a tent may be on Capitol Hill in ten years."
-          ],
-          terms: [
-            { k: "Occupy Wall Street", v: "The 2011 New York encampment protest over inequality." }
-          ]
-        },
+        body: "In 2011 Zuccotti Park is full of tents, and this encampment about the widening gap between rich and poor has led every news cycle for two weeks with one line: we are the 99 percent.\n" +
+          "No leaders, no platform, anyone may speak — that is the magnetism and the sickness. People you know are inside, along with career activists and a few nobody-sourced ones.\n" +
+          "You brought coffee once; now they ask if you'll stay on to handle their messaging — you've got a way with words. They say City Hall has set a sweep date and is only waiting for the cold.",
         choices: [
           {
             id: "join",
@@ -78,26 +60,10 @@ POTUS.define("l10n", {
       {
         id: "wave_tea_rally",
         title: "The Tea Party wants to pack a town hall — and force you to pick a side",
-        body: "A town hall in your district will debate a federal program, and organizers call for a full room. You hold two invitations: one from an angry crowd, one from a chamber of commerce scared enough to want you there to put out the fire.",
-        brief: {
-          lede: "The Koch brothers' money, two founder tweets, and a rainy-night town hall.",
-          known: [
-            "After the bailouts a cable host's on-air rage lights the other side's fury; town halls run packed.",
-            "Your district's town hall meets next week; organizers tout it on radio: fill the room.",
-            "The anger is real — bills, mortgages, our money bailed them out. The money behind it is real too."
-          ],
-          rumor: [
-            "They say a funding network stands behind the rallies: think tanks, radio, family foundations.",
-            "They say the establishment is running the math: co-opt this force or crush it."
-          ],
-          unknown: [
-            "Within a year the Tea Party will rewrite one of the two parties.",
-            "Waves recede too. At low tide, whoever rode the crest is left stranded on the sand."
-          ],
-          terms: [
-            { k: "Tea Party", v: "Right-wing populist movement: anti-tax, anti-bailout, anti-big-government." }
-          ]
-        },
+        body: "After the bailouts another fury catches fire on the right: the Tea Party — populists against taxes, against the bailout, against big government — packs town halls.\n" +
+          "Your district's town hall meets next week on a federal program, and organizers tout it on radio: fill the room. You hold two invitations — one from an angry crowd, one from a chamber of commerce scared enough to want you there to put out the fire.\n" +
+          "The anger is real: bills, mortgages, our money bailed them out. The money behind it is real too, they say — think tanks, radio, family foundations.\n" +
+          "Waves recede, though. At low tide, whoever rode the crest is left stranded on the sand.",
         choices: [
           {
             id: "ride",
@@ -141,26 +107,9 @@ POTUS.define("l10n", {
       {
         id: "wave_detroit_high",
         title: "Congress votes on a tens-of-billions auto bailout",
-        body: "The hearings ran two days and all of America watched the executives who flew in on corporate jets to ask for money. Now it's your turn to say: tens of billions, save them or not. Both Christmas-headline versions are already written.",
-        brief: {
-          lede: "The Big Three's bosses fly in on company jets to beg for cash — the papers will write their own headlines.",
-          known: [
-            "Detroit's Big Three plead poverty on Capitol Hill, asking billions in rescue loans. Wall Street's turn last time.",
-            "On the way to the hearing you pass a parts plant; the lot grass is knee-high.",
-            "The arithmetic is cold: a bailout costs billions, no bailout zeroes hundreds of thousands of jobs before Christmas."
-          ],
-          rumor: [
-            "Some say one of the three can be saved and the other two just rode along.",
-            "They say the White House leans toward a conditional rescue — with riders tucked into the conditions."
-          ],
-          unknown: [
-            "The bailout passes — but the jobs and pensions never come back.",
-            "This vote will footnote Michigan's map for twenty years."
-          ],
-          terms: [
-            { k: "Auto bailout", v: "The 2008 rescue of the three automakers, tied to restructuring terms." }
-          ]
-        },
+        body: "The hearings ran two days, and all of America watched the executives fly in on corporate jets to ask for money: Detroit's Big Three — GM, Ford, Chrysler — pleading poverty on Capitol Hill, asking for tens of billions in rescue loans. Wall Street's turn last time.\n" +
+          "On the way to the hearing you pass a parts plant; the lot grass is knee-high. The arithmetic is cold: a rescue costs billions, no rescue zeroes hundreds of thousands of jobs before Christmas.\n" +
+          "Now it's your turn to say it, and both Christmas-headline versions are already written. Some say only one of the three can be saved and the other two just rode along — and the conditions offered come with riders tucked inside.",
         choices: [
           {
             id: "save",

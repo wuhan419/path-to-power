@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，必须整条给全。
  *   · 结构性键（id / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，写了 validate 直接报错。
  *
@@ -21,26 +20,8 @@ POTUS.define("l10n", {
         id: "ln99_columbine",
         title: "Two students walk into the cafeteria with guns",
         body: "At a Colorado high school, two students kill twelve classmates and one teacher with handguns and homemade bombs, then shoot themselves in the library. The country can not accept it: the killers were not street toughs. They were local kids with clean records.\n" +
-          "Candles burn in front of your district's high school. Parents block the school board's door with signs. The local station wants your line on live TV: do you control the guns?",
-        brief: {
-          lede: "Twelve kids are dead. The town waits for you to say whose fault it is and what the guns should answer to.",
-          known: [
-            "Both shooters were local students; the purchase channel is still under investigation.",
-            "Parents' grief drowns every other issue here; school board meetings look like rallies.",
-            "Pro-gun and gun-control camps both await your stance: one has money, the other has votes."
-          ],
-          rumor: [
-            "Some say the boys planned for years and a teacher had seen it coming.",
-            "Some say a county over is prepping an identical attack."
-          ],
-          unknown: [
-            "Your gun stance will run in every election you fight from here on.",
-            "Terms passed today may be reversed within a few years."
-          ],
-          terms: [
-            { k: "school shooting", v: "Columbine — the name every later gun fight is argued under." }
-          ]
-        },
+          "Candles burn in front of your district's high school. Parents block the school board's door with signs. The local station wants your line on live TV: do you control the guns?\n" +
+          "Pro-gun and gun-control camps both await your stance: one has money, the other has votes. That stance will run in every election you fight from here on.",
         choices: [
           {
             id: "control",
@@ -84,26 +65,8 @@ POTUS.define("l10n", {
         id: "ln99_balkans",
         title: "Seventy-eight days over Belgrade — and a wrong bomb falls on the Chinese embassy",
         body: "To stop the expulsion of Kosovo's Albanians, NATO goes around the UN Security Council and bombs Yugoslavia for seventy-eight days. In early May missiles land on the Chinese embassy in Belgrade; three journalists die. Accident or intent — CNN feeds both answers into every living room at once.\n" +
-          "Two camps in your district are waiting for you to pick: descendants of Balkan immigrants, and Chinese families who just lit candles outside the consulate.",
-        brief: {
-          lede: "A war without a UN mandate, a bombing nobody can fully explain — every local politician is being pushed to choose a side.",
-          known: [
-            "The bombing continues; three embassy staff are dead; the White House has apologized verbally.",
-            "In the local Serbian community, relatives are still in Belgrade.",
-            "Chinese residents hold rallies by the consulate; police are watching how you act."
-          ],
-          rumor: [
-            "Some say the target coordinates came from an old map — a true accident.",
-            "Some say two more weeks of bombing and Belgrade will fold."
-          ],
-          unknown: [
-            "Ground troops will drag this air war into mud.",
-            "What you say today can burn in directions you did not expect."
-          ],
-          terms: [
-            { k: "NATO bombing of Yugoslavia", v: "Seventy-eight days of airstrikes without Security Council approval." }
-          ]
-        },
+          "Two camps in your district are waiting for you to pick: descendants of Balkan immigrants, and Chinese families who just lit candles outside the consulate.\n" +
+          "The missiles are still falling and the White House has offered only a verbal apology. What you say today can burn in directions you did not expect.",
         choices: [
           {
             id: "support",
@@ -147,26 +110,8 @@ POTUS.define("l10n", {
         id: "ln99_wto",
         title: "A trade summit turns the whole city into a tear-gas battlefield",
         body: "Ministers from over a hundred countries arrive to loosen global trade; tens of thousands of protesters follow: unions, environmentalists, students, and a bloc of masked anarchists. Tear gas all week, the National Guard on the streets, the city under de facto lockdown.\n" +
-          "The labor council president and the chamber of commerce chair call you the same evening. Both want you to pick a side on camera first.",
-        brief: {
-          lede: "Tear gas teaches every politician the same question: did globalization's gains reach the people on this street?",
-          known: [
-            "The talks have been stormed out of the building; the next round hangs.",
-            "The union march was legal; the property damage gave police their excuse.",
-            "Local merchants are screaming about losses and care which side is right."
-          ],
-          rumor: [
-            "Some say federal agents are walking inside the protest lines.",
-            "Some say the White House welcomes the chaos to move the story."
-          ],
-          unknown: [
-            "This round scatters; the next one comes back in another form.",
-            "The side you pick today will be pinned to you later."
-          ],
-          terms: [
-            { k: "WTO ministerial", v: "The trade summit the streets shut down, talks unfinished." }
-          ]
-        },
+          "The labor council president and the chamber of commerce chair call you the same evening. Both want you to pick a side on camera first.\n" +
+          "The union march was legal; the destruction gave police their excuse. The side you pick today will be pinned to you later, word for word.",
         choices: [
           {
             id: "labor",
@@ -210,26 +155,8 @@ POTUS.define("l10n", {
         id: "ln00_cole",
         title: "A small boat rams a destroyer in Aden harbor; seventeen sailors die",
         body: "While taking on fuel, a Navy destroyer is struck by a skiff packed with explosives. A hole opens in the hull; seventeen sailors die on the spot. The attack lands a week before the election, and who is answerable for our ships becomes debate-season fodder.\n" +
-          "Your district hosts a Navy recruiting station. Two families just received telegram. The station wants your verdict: is this an act of war — and why are you the one talking tough?",
-        brief: {
-          lede: "Seventeen names run in every evening newscast's opener; the campaign season turns into a safety exam.",
-          known: [
-            "Two attackers, the ship refueling; the day's alert level is under review.",
-            "Two federal intelligence agencies disagree about the leads.",
-            "The local Navy association wants a memorial day — with you on the stage."
-          ],
-          rumor: [
-            "Some say the warning came days earlier and nobody read it.",
-            "Some say this was only the opening act; a bigger one follows."
-          ],
-          unknown: [
-            "The response to this ship is already brewing somewhere else.",
-            "Your tough words: courage, or funeral profiteering."
-          ],
-          terms: [
-            { k: "USS Cole", v: "Suicide boat attack on a US destroyer in Aden." }
-          ]
-        },
+          "Your district hosts a Navy recruiting station. Two families just received telegram. The station wants your verdict: is this an act of war — and why are you the one talking tough?\n" +
+          "Two federal intelligence agencies still disagree about the leads, and the day's alert level is under review. Some say the warning came days earlier and nobody read it.",
         choices: [
           {
             id: "retaliate",
@@ -273,26 +200,8 @@ POTUS.define("l10n", {
         id: "ln00_hang",
         title: "Three days after the vote, the country still does not know its president",
         body: "Election night called too close to call — then it comes down to a few hundred votes. One state begins a manual recount, lawyers swarm overnight, and the nation stares at punch cards and butterfly ballots waiting for the Supreme Court's gavel.\n" +
-          "Your party's headquarters wants you roaring for our side. The local editorial page asks whether you still trust the counting machines. Same price for both questions — if the other side wins, you live with the answer for four years.",
-        brief: {
-          lede: "The presidency is undetermined, but your side-taking is already written in both camps' ledgers.",
-          known: [
-            "The recount lawsuits are running; both sides have already declared victory.",
-            "The party machine wants you onstage at the count-every-vote rally.",
-            "The neighborhood has split: some already hold the other guy's win as illegitimate."
-          ],
-          rumor: [
-            "Some say one county's ballot boxes will go missing before dawn.",
-            "Some say whoever loses will not concede for long."
-          ],
-          unknown: [
-            "The court will settle a president; it can not settle the arguing.",
-            "You will spend four years defending the side you bet on."
-          ],
-          terms: [
-            { k: "hanging chad", v: "The manual-recount dispute that climbed to the final court." }
-          ]
-        },
+          "Your party's headquarters wants you roaring for our side. The local editorial page asks whether you still trust the counting machines. Same price for both questions — if the other side wins, you live with the answer for four years.\n" +
+          "Both camps have already declared victory, and the neighborhood has split: some hold the other guy's win as illegitimate. The court will settle a president; it can not settle the arguing.",
         choices: [
           {
             id: "partisan",
@@ -336,26 +245,8 @@ POTUS.define("l10n", {
         id: "ln01_anthrax",
         title: "Letters laced with anthrax spores reach newsrooms and the Senate",
         body: "Before the dust at the towers settles, envelopes carrying anthrax spores move through the mails to media offices and two senators: five dead, seventeen infected. The country learns to open every letter with shaking hands; sorting plants close; the Guard is called up.\n" +
-          "Your district holds one mail hub, one hospital whose emergency plan is still held together with string, and residents asking whether packages are still safe to receive.",
-        brief: {
-          lede: "September's fear has not faded; October brings an enemy no eye can see.",
-          known: [
-            "Spores travel by letter; a senator is among the dead; the source is unknown.",
-            "Hub workers are out sick en masse; the county hospital has no detector.",
-            "Tonight the federal government may announce something scarier than the bacteria."
-          ],
-          rumor: [
-            "Some say the strain came from a domestic military stockpile.",
-            "Some say this theater is too well timed — ours was staged."
-          ],
-          unknown: [
-            "The source hunt will run for years and never close.",
-            "The emergency powers you back today become precedent."
-          ],
-          terms: [
-            { k: "anthrax letters", v: "Spore-laced mail to media and senators; five dead." }
-          ]
-        },
+          "Your district holds one mail hub, one hospital whose emergency plan is still held together with string, and residents asking whether packages are still safe to receive.\n" +
+          "Workers at your mail hub are out en masse, and the county hospital has no detector. The emergency powers you back today become precedent.",
         choices: [
           {
             id: "hardline",
@@ -412,26 +303,8 @@ POTUS.define("l10n", {
         id: "ln02_enron",
         title: "The energy giant files the biggest bankruptcy — and drags the pensions in",
         body: "Voted America's most innovative company six years running, the energy trader files for the largest bankruptcy in history; its century-old auditor collapses with it. Thousands of employees could not sell their own stock — their retirement accounts locked until the day before.\n" +
-          "The same California-style power deregulation runs in your sister states; the company's lobbyist testified in your committee last quarter. Retirees stop by weekly with one question: who reads our accounts?",
-        brief: {
-          lede: "When a giant's ledger opens, the dinner-guest list gets opened too.",
-          known: [
-            "Pensions sit inside the lockup window; nobody could sell at the top.",
-            "Local retirees show up at your office weekly demanding an answer.",
-            "Its traded power model still runs in three states."
-          ],
-          rumor: [
-            "Some say the auditor burned a whole file cabinet overnight.",
-            "Some say Congress had the numbers early and only waited for the settlement."
-          ],
-          unknown: [
-            "The new disclosure rules written after this will define corporate accounts for a decade.",
-            "Cutting, chasing or closing quiet — all of it gets logged."
-          ],
-          terms: [
-            { k: "401(k)", v: "Employer retirement account, often loaded with the employer's own stock." }
-          ]
-        },
+          "The same California-style power deregulation runs in your sister states; the company's lobbyist testified in your committee last quarter. Retirees stop by weekly with one question: who reads our accounts?\n" +
+          "Some say the auditor burned a whole file cabinet overnight. Cutting, chasing or closing quiet — all of it gets logged.",
         choices: [
           {
             id: "hearings",
@@ -475,26 +348,8 @@ POTUS.define("l10n", {
         id: "ln02_midterms",
         title: "The first midterms after the war — everyone wants to borrow the flag",
         body: "Two things remade this midterm: the rubble and the war. The sitting president rides historic approval; a say-yes-to-the-troops wave runs into every local race, and challengers rehearse before daring one contrary sentence. The economy, meanwhile, is quietly going soft.\n" +
-          "A party envelope arrives in your name: take the national machine's help. This year the flag works; almost no one dares call it in the way.",
-        brief: {
-          lede: "A tailwind year: nearly everyone wins a little. The question is how much you borrow.",
-          known: [
-            "Wartime midterms have always leaned to the president's party.",
-            "The local support-the-troops committee invites you on its stage.",
-            "Your opponent has pinned the flag on first."
-          ],
-          rumor: [
-            "Some say the tide turns the day casualty lists run long.",
-            "Some say money is flowing to the other side; nobody dares admit it."
-          ],
-          unknown: [
-            "Borrowed halos get paid back, usually with interest.",
-            "The seat you take on this wave may not be yours next time."
-          ],
-          terms: [
-            { k: "midterms", v: "Congress up for election in year two of a president's term." }
-          ]
-        },
+          "A party envelope arrives in your name: take the national machine's help. This year the flag works; almost no one dares call it in the way.\n" +
+          "Wartime midterms have always leaned to the president's party — and your opponent pinned the flag on first. Borrowed halos get paid back, usually with interest.",
         choices: [
           {
             id: "wave",

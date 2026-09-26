@@ -1,6 +1,6 @@
 /* ============================================================================
  * POTUS ENGINE · view/stage.js
- * 主循环与中/右栏呈现：年 → 月 → 档期；背景卡、月历卡、平静月、事件出题、
+ * 主循环与中/右栏呈现：年 → 月 → 档期；月历卡、平静月、事件出题、
  * 选项代价与保底、收益结算、掷骰结算、下野、年终结算。
  * 本区内私有辅助（reqBlock/costBlock/payCost/resText、pickTale、gainBoxHTML、
  * actClear/actAppend/actInsert/mainInsert 等）只在文件内部使用，不外泄。
@@ -8,41 +8,6 @@
 "use strict";
 (function () {
   const P = window.POTUS;
-
-  /* ---------------- 背景卡（折叠 / 展开） ---------------- */
-  /* 主角视角的认知边界：他确知什么、他听到什么（真假不明）、他不可能知道什么。
-     第三块是留给"懂历史的玩家"的钩子——知道那里有信息差，才能做出更有利的选择。 */
-  P.briefCollapsed = function () {
-    try { return localStorage.getItem("potus_brief_collapsed") === "1"; } catch (e) { return false; }
-  };
-  P.toggleBrief = function () {
-    const el = P.$("#brief"); if (!el) return;
-    const now = el.classList.toggle("collapsed");
-    try { localStorage.setItem("potus_brief_collapsed", now ? "1" : "0"); } catch (e) { }
-  };
-  P.briefHTML = function (ev) {
-    const b = ev.brief;
-    if (!b) return "";
-    const sec = function (cls, title, arr) {
-      if (!arr || !arr.length) return "";
-      return '<div class="brief-sec ' + cls + '"><h4>' + title + "</h4><ul>" +
-        arr.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul></div>";
-    };
-    const terms = (b.terms && b.terms.length)
-      ? '<div class="brief-sec terms"><h4>' + P.t("ui.stage.briefTerms", "名词") + '</h4>' + b.terms.map(function (t) {
-        return '<div class="term"><b>' + t.k + "</b>" + t.v + "</div>";
-      }).join("") + "</div>"
-      : "";
-    return '<div class="brief' + (P.briefCollapsed() ? " collapsed" : "") + '" id="brief">' +
-      '<button class="brief-head" onclick="POTUS.toggleBrief()">' +
-      '<span class="caret"></span><span class="brief-title">' + P.t("ui.stage.briefTitle", "背景 · 你此刻知道多少") + '</span>' +
-      (b.lede ? '<span class="brief-lede">' + b.lede + "</span>" : "") + "</button>" +
-      '<div class="brief-body">' +
-      sec("known", P.t("ui.stage.briefKnown", "你确知的"), b.known) +
-      sec("rumor", P.t("ui.stage.briefRumor", "你听到的 · 真假不明"), b.rumor) +
-      sec("unknown", P.t("ui.stage.briefUnknown", "你尚不知道的"), b.unknown) +
-      terms + "</div></div>";
-  };
 
   /* ---------------- 主循环：年 → 月 → 档期 ----------------
    * 一个月 = 一个回合。一个「档期」= 一次需要玩家决策的事件。
@@ -689,17 +654,6 @@
      所以平民月份连字符串都不变——抽卡热路径不额外开销。 */
   P.ovalCls = function (ev) { return ev && ev.wh ? " oval" : ""; };
 
-  /* 头版导语（standfirst）：有 ev.standfirst 直接用；否则从正文第一句提炼一句斜体引文。
-     不写回事件文件——只做界面层的呈现提炼。 */
-  function standfirstOf(ev) {
-    if (ev && ev.standfirst) return ev.standfirst;
-    const b = (ev && ev.body) || "";
-    const parts = b.split(/[。！？\n]/);
-    let first = (parts[0] || "").trim();
-    if (first.length > 64) first = first.slice(0, 64) + "…";
-    return first || (ev && ev.title) || "";
-  }
-
   /* ---------- 成功把握的「文字档位」 ----------
    * 只给一句话的手感，不报百分比（保留不确定性，也避免玩家拿数字当精确预期）。
    * 六档由红到绿递进：机会渺茫 → 凶多吉少 → 胜负难料 → 略占上风 → 胜券在握 → 十拿九稳。
@@ -729,7 +683,6 @@
     P.G.__curGrade = grade;
     const gdef = P.reg.grade[grade] || {};
     const catName = ev.category ? P.categoryName(ev.category) : "";
-    const medName = ev.medium ? [].concat(ev.medium).map(P.mediumName).join(" / ") : "";
     /* 事件链的「前情」：让玩家知道自己接的是哪条线、上一幕是多久以前 */
     let chainHTML = "";
     if (ev.after && ev.after.id) {
@@ -746,8 +699,9 @@
     const vchip = '<span class="vchip ' + val + '" title="' +
       (val === "boon" ? P.t("ui.stage.valBoon", "机会：再糟的处理也不会亏") : val === "bane" ? P.t("ui.stage.valBane", "威胁：不处理必有代价，处理得好能翻盘") : P.t("ui.stage.valRisk", "风险：搏与不搏都是路")) + '">'
       + P.t("ui.stage.valLabel." + val, P.VAL_LABEL[val] || val) + "</span>";
-    /* 主次顺序：标题 → 承前 → 正文（主角视角发生了什么）→ 插画 → 背景卡（折叠）→ 选项 */
-    const standfirst = standfirstOf(ev);
+    /* 主次顺序：标题 → 承前 → 正文（主角视角发生了什么）→ 插画 → 选项。
+       #41 起卡片只有「标题 + 正文 + 头条图」：背景卡整块下线，斜体导语行也删了
+       （它只是把正文第一句复述一遍，白占一行高度）。 */
     /* 档案编号：本局走到第几件事（不足三位补零），配合等宽字做档案标签 */
     const dno = String(((P.G.history || []).length) + 1).padStart(3, "0");
     /* v0.9：有事发生的月份也把"本月上班的账"（工资/开销/学贷/选民）露在事件卡顶部。
@@ -759,26 +713,21 @@
     box.innerHTML =
       '<article class="news editorial fade' + P.ovalCls(ev) + '">' +
       '<div class="dossier-head">' +
-        '<span class="dnum">DOSSIER // EVENT NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
+        '<span class="dnum">DOSSIER // NO. ' + dno + ' — ' + P.dateText(ev) + '</span>' +
         '<span class="dmeta">' + vchip +
           (gdef.name ? '<span class="gchip ' + (gdef.cls || "") + '">' + gdef.name + "</span>" : "") +
           (catName ? '<span class="cchip">' + catName + "</span>" : "") +
-          (medName ? '<span class="cchip medium">' + medName + "</span>" : "") +
-          (ev.type ? '<span class="cchip">' + ev.type + "</span>" : "") +
         '</span>' +
       '</div>' +
       settleHTML +
       chainHTML +
       '<h1 class="headline">' + (ev.title || "") + '</h1>' +
-      (standfirst ? '<p class="standfirst">' + standfirst + "</p>" : "") +
       /* 红色橡皮章：盖在头条图右上角（用户设计）。artSVG 恒有返回（兜底垫片），
          包一层 .art-slot 作定位容器，章子从图上沿斜压下来。 */
       '<div class="art-slot">' + P.artSVG(ev) +
         '<div class="stamp">' + P.t("ui.stage.stamp", "档案") + "</div></div>" +
       '<div class="body">' + (ev.body || "") + "</div>" +
-      '</article>' +
-      /* 背景卡在事件框下面（中栏底部）：想细看的人展开，不挡任何东西 */
-      '<div class="brief-slot">' + P.briefHTML(ev) + "</div>";
+      '</article>';
     /* v0.5.3 三栏布局：选项进右栏（#actbar），与掷骰/结算/继续按钮同栏 */
     const cbox = document.getElementById("actbody");
     let choicesHost = null;

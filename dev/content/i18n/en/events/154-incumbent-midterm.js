@@ -14,18 +14,7 @@ POTUS.define("l10n", {
       {
         id: "camp_mt_agenda",
         title: "The caucus wants an accounting",
-        body: "The party's annual caucus meeting lays two years of books on the table. Onstage, people smile and ask when you will visit. Offstage, they are working out what your name is still worth in votes.",
-        brief: {
-          lede: "Two years in, your caucus wants the books: do the candidates want your name on their ballots, or want you to stay away.",
-          known: [
-            "Local candidates want money and turnout, not a photo op with you.",
-            "Tying yourself to the whole party ticket gains the most, and falls the hardest.",
-            "Stumping only in your home state draws no criticism, but it carries no one else."
-          ],
-          unknown: [
-            "Skip one appearance and you have conceded the last two years were not worth defending."
-          ]
-        },
+        body: "The party's annual caucus meeting lays two years of books on the table. Onstage, people smile and ask when you will visit. Offstage, they are working out what your name is still worth in votes. Local candidates want money and turnout, not a photo op with you. And skip one appearance, and you have conceded the last two years were not worth defending.",
         choices: [
           {
             id: "all_in",
@@ -66,18 +55,7 @@ POTUS.define("l10n", {
       {
         id: "camp_mt_rally",
         title: "A national campaign tour",
-        body: "The plane takes off and lands in six states in seventy-two hours. You are onstage endorsing someone else; the cameras are waiting on how you will answer the old story that has not gone away.",
-        brief: {
-          lede: "Six states in seventy-two hours, and local stations want only your answer on the old story that will not die.",
-          known: [
-            "Local stations never ask about national issues; they ask about your own old ledger.",
-            "Release the opposition's scandal at the same time, and the splash washes back the other way.",
-            "Stumping only safe states protects the base, and nothing but the base."
-          ],
-          unknown: [
-            "Whose head the splash lands on depends on whose you aim at first."
-          ]
-        },
+        body: "The plane takes off and lands in six states in seventy-two hours. You are onstage endorsing someone else; the cameras are waiting on how you will answer the old story that has not gone away - local stations never ask about national issues, they ask about your own old ledger. And whose head the splash lands on depends on whose you aim at first.",
         choices: [
           {
             id: "head_on",
@@ -118,18 +96,7 @@ POTUS.define("l10n", {
       {
         id: "prog_midterm",
         title: "Election day: the midterms",
-        body: "The count. Every question of your two years gets graded by someone else's ballot. Whether Congress holds comes down to how far you will stake yourself tonight.",
-        brief: {
-          lede: "Election day: voters do not ask what you will do next; they ask what you did with these two years.",
-          known: [
-            "Seats in both chambers of Congress report together tonight, with your name at the top.",
-            "The whole party bets on holding the majority, riding how many people will still vote for you.",
-            "Retreat to the White House now and the agenda is safe; the caucus keeps that bill until you leave office."
-          ],
-          unknown: [
-            "Lose a chamber, and the reckoning inside the party starts with that phone call on counting night."
-          ]
-        },
+        body: "The count. Seats in both chambers of Congress report together tonight, and your name sits at the top of the ballot. Every question of your two years gets graded by someone else's vote. The whole party bets on holding the majority, riding on how many people will still turn out for you; and retreat to the White House now, and the agenda is safe - only the caucus keeps that bill until you leave office.",
         choices: [
           {
             id: "hold",

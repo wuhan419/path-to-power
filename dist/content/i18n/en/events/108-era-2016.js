@@ -6,8 +6,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown / texts）是**整体替换**，必须整条给全，
- *     少给一条就少一条 —— 不合并。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，写了也不会生效，validate 会直接报错。
  *   · 缺译的字段自动留中文，所以可以一张一张补。
@@ -25,29 +23,13 @@ POTUS.define("l10n", {
       {
         id: "soc16_election",
         title: "Every poll says it's in the bag. Nobody measured the fire in the phones",
-        body: "Every respectable forecast points the same way; not one model breaks rank. But the rage on Twitter,\n" +
-          "the shares on Facebook, and the roar at the rallies never entered a single poll. On count night, the\n" +
-          "red states turn red early, one after another, and the anchors' voices go tight. For the first time\n" +
-          "the old machine finds itself out of order.",
-        brief: {
-          lede: "Attention has replaced organization. Whether this new current sweeps you away or lifts you up depends on what you believe tonight.",
-          known: [
-            "It comes to you because both camps can reach you locally; each has come asking for a statement.",
-            "The party bosses still wait for the sure win, reading the old script. The populism in the phones no longer cares what the sign says.",
-            "Whoever wins, most voters on the other side will feel those people are unfit to govern."
-          ],
-          rumor: [
-            "The opponent's viral posts came from a foreign farm — or, about our own hits, from the other side.",
-            "Some say the old papers and TV networks picked a winner early. They just won't admit it."
-          ],
-          unknown: [
-            "Whether tonight's failure was an accident or the new normal for every election from here.",
-            "The side you back tonight may be the table you want flipped in four years."
-          ],
-          terms: [
-            { k: "Attention politics", v: "Winning by seizing public attention and going around the party machine." }
-          ]
-        },
+        body: "Every respectable forecast points the same way; not one model breaks rank. But the rage on Twitter, the shares on\n" +
+          "Facebook, and the roar at the rallies never entered a single poll. On count night the red states turn red early,\n" +
+          "one after another, and the anchors' voices go tight. This is attention politics — seizing the public's eye and\n" +
+          "going around the party machine — beating organization for the first time, and both camps come to you because\n" +
+          "each wants your local face. Some say the opponent's viral posts came from a foreign farm. Whichever side wins,\n" +
+          "most of the other side will call those people unfit to govern — and the side you back tonight may not be the one\n" +
+          "you want to defend in four years.",
         choices: [
           {
             id: "ride",
@@ -90,29 +72,12 @@ POTUS.define("l10n", {
       {
         id: "soc17_fakenews",
         title: "A fabricated story about you tops 100,000 shares in three hours",
-        body: "Someone manufactures an insider scoop about you: plausible details, strong emotion, sources close to\n" +
-          "the matter. By the time your team checks it out, half the internet has shared it. A rebuttal takes\n" +
-          "three days to write, and in three days nobody remembers what was rebutted. The platform answers: this\n" +
-          "does not violate our community guidelines.",
-        brief: {
-          lede: "While the truth is putting on its shoes, the lie has already crossed the town. Your opponent no longer needs to prove you wrong — only to make enough people not bother checking.",
-          known: [
-            "The fake aims at the nerve your swing voters feel most. You are on a target list.",
-            "A point-by-point rebuttal amplifies the lie; a shrug reads as agreement.",
-            "Platforms have no editor and no accountable party. Finding who to even complain to is your first problem."
-          ],
-          rumor: [
-            "Was this your rival's op, or just a content farm chasing traffic?",
-            "Some say the platform knew it was spreading. Anger is what keeps users."
-          ],
-          unknown: [
-            "Whether poison-first-clean-up-later becomes standard equipment for every election.",
-            "Whether the money you spend debunking will be squeezed by the same machine tomorrow."
-          ],
-          terms: [
-            { k: "Content farm", v: "Sites that mass-produce sensational posts for traffic, true and false mixed." }
-          ]
-        },
+        body: "Someone manufactures an insider scoop about you: plausible details, sources close to the matter, aimed straight\n" +
+          "at the nerve your swing voters feel most. By the time your team checks it out, half the internet has shared it. A\n" +
+          "rebuttal takes three days to write, and in three days nobody remembers what was rebutted; answer point by point\n" +
+          "and you amplify the lie, shrug and it reads as agreement. The platform answers only that this does not violate\n" +
+          "our community guidelines — there is no editor there, and finding who to even complain to is your first problem.\n" +
+          "Some say this is your rival's op; some say it is only a content farm, mass-producing sensation for traffic.",
         choices: [
           {
             id: "fight",
@@ -154,29 +119,12 @@ POTUS.define("l10n", {
       {
         id: "soc18_data",
         title: "We can target the mood of every swing household",
-        body: "A data firm comes calling. It claims a psychographic profile on every voter in your district — from\n" +
-          "shopping habits to what they scroll at midnight. It quotes a consulting fee and promises ads for every\n" +
-          "pair of eyes: fear to the frightened, anger to the angry. And it wants part of your voter file to\n" +
-          "calibrate the model.",
-        brief: {
-          lede: "Attention can be bought; emotion can be modeled. Spend it right and it is a masterstroke; spend past the line and it is your next scandal.",
-          known: [
-            "It comes to you because you sign the campaign budget. Word inside the party: next door's results were frightening.",
-            "Micro-targeting works — but the calibration asks for personal voter data.",
-            "If a privacy-for-victories operation ever surfaces, the backlash will be worse than never buying."
-          ],
-          rumor: [
-            "Some say the data was siphoned off the social platforms through a gray API.",
-            "Some say your campaign is not the only buyer of your voters' profiles."
-          ],
-          unknown: [
-            "Whether these manipulation tools will one day turn and aim at you.",
-            "Whether it gets exposed comes down to who tells the story first."
-          ],
-          terms: [
-            { k: "Psychographic targeting", v: "Ads aimed at emotional weak points inferred from personal data." }
-          ]
-        },
+        body: "A data firm comes calling. It claims a psychographic profile on every voter in your district — shopping\n" +
+          "habits, what they scroll at midnight, right down to the emotional weak point. It quotes a consulting fee and\n" +
+          "promises ads for every pair of eyes: fear to the frightened, anger to the angry. And it wants part of your voter\n" +
+          "file to calibrate the model. You are the one who signs this campaign budget, and word inside the party is that\n" +
+          "next state's results were frightening. Some say the data was siphoned off the platforms through a gray API;\n" +
+          "some say your campaign is not the only buyer of your voters' profiles.",
         choices: [
           {
             id: "allin",
@@ -223,23 +171,6 @@ POTUS.define("l10n", {
           "counted, and counting takes days. So the picture arrives before the whole country: the map turns red,\n" +
           "then blue, and your district posts a strange overnight flip. Someone is already shouting fraud. In\n" +
           "your hands: a few cases of unopened envelopes, and a crowd one match from igniting.",
-        brief: {
-          lede: "Nothing broke. It is only slow. But to a machine fed by anger, slow is the same as guilty.",
-          known: [
-            "You coordinate the local count, and both camps are watching the unopened cases on your table.",
-            "Delayed mail-in tallies are routine, spelled out in the rules — and they run tonight's result backwards.",
-            "One wrong word now becomes proof of what they were doing in secret."
-          ],
-          rumor: [
-            "Some say these late-arriving cases were tampered with — or the claim is only an excuse."
-          ],
-          unknown: [
-            "Don't trust the results is a seed; planted once, it sprouts every year after."
-          ],
-          terms: [
-            { k: "Blue shift", v: "As delayed mail ballots are counted, the early leader is overtaken — by design, not by fraud." }
-          ]
-        },
         choices: [
           {
             id: "explain",

@@ -1,8 +1,7 @@
 /* ============================================================================
  * CONTENT · i18n/en/events/94-foreign-2.js
  * 中文文件 content/events/94-foreign-2.js 的英文覆盖层（外交线二）。
- * 契约见 docs/I18N.md：原文件不动，只放要覆盖的字段；事件/选项按 id 定位，
- * known/rumor/unknown 纯串数组整体替换、条数与中文一致，terms 按下标对齐；
+ * 契约见 docs/I18N.md：原文件不动，只放要覆盖的字段；事件/选项按 id 定位；
  * 结构性键（id/era/base/mods/effects/flags/cost…）受保护，一律不写。
  * 英文按外交题材重写：第二人称、现在时、短句；机构/头衔用真实英文
  * （State Department、Federal Election Commission、counterintelligence）。
@@ -15,27 +14,7 @@ POTUS.define("l10n", {
       {
         id: "for2_trade_trip",
         title: "You're on the state trade mission's roster — dead last",
-        body: "The trade mission leaves next week and your name is on it — last. Bags, sign-ins, and errands fall to you. But every business card in the hotel lobby can turn into a seat at the table ten years on.",
-        brief: {
-          lede: "Your name is on the delegation list. Last place — but it's there.",
-          known: [
-            "The state trade mission leaves next week: farming, machinery, firms hunting overseas buyers.",
-            "You got tagged on after running errands for one firm — bags, sign-ins, gap-fill translating.",
-            "Seated dinners have a pecking order. The lobby, the sign-in line, the late bus — that's where cards change hands."
-          ],
-          rumor: [
-            "They say the ambassador works the opening reception and remembers every name — even the bag carrier's.",
-            "They say the commercial attaché holds a goodwill budget, handed out on a whim."
-          ],
-          unknown: [
-            "A nobody on this flight may be a minister there in ten years.",
-            "Small talk you think is nothing may already sit filed in another briefing."
-          ],
-          terms: [
-            { k: "Trade mission", v: "A government or semi-official trip that opens doors for home-country firms." },
-            { k: "Commercial attaché", v: "The embassy officer who handles trade and investment." }
-          ]
-        },
+        body: "The state trade mission — a government-backed trip that opens doors for home-country firms — leaves next week, and your name is on it: last, tagged on after you ran errands for one company. Bags, sign-ins and errands fall to you. Seated dinners have a pecking order; the lobby and the late bus are where cards change hands. They say the embassy's commercial attaché keeps a goodwill purchasing budget he hands out on a whim. The small talk you think is nothing may already sit filed in another briefing.",
         choices: [
           {
             id: "work_room",
@@ -79,28 +58,7 @@ POTUS.define("l10n", {
       {
         id: "for2_lobbyist_foreign",
         title: "Someone offers to route foreign money into your campaign — through legal channels",
-        body: "Your campaign is under two months from broke, and a fixer brings a totally legal gift. It's drawn by a local company, for double what's on your books now. The red line is solid on paper. Along the money's path, it's dashed.",
-        brief: {
-          lede: "The check is drawn by a domestic company you've never heard of — the introducer carries a foreign-ministry accent.",
-          known: [
-            "Your account is tight; an old acquaintance brings a fixer offering money.",
-            "Foreign governments may not fund U.S. campaigns — but \u201Cindirectly\u201D leaves gaps.",
-            "Their methods vary: a U.S. subsidiary, a local partner, green-card holders in concert.",
-            "Their ask is vague: just learn more about the issue. They leave a number."
-          ],
-          rumor: [
-            "They say the company registered last year, at a coworking-suite address.",
-            "They say the money's real country of origin isn't the one on paper."
-          ],
-          unknown: [
-            "What this money carries isn't interest — it's a ledger.",
-            "The fine print will read, one day: you took our money."
-          ],
-          terms: [
-            { k: "Foreign-contribution ban", v: "Foreign governments and citizens cannot donate to or route U.S. campaign money." },
-            { k: "Straw donor", v: "A front who signs and moves money for the real backer." }
-          ]
-        },
+        body: "Your campaign is under two months from broke, and a fixer brought by an old acquaintance offers a totally legal gift: drawn by a local company you've never heard of, for double what's on your books. U.S. law bars foreign governments from funding campaigns — but a U.S. subsidiary or a 'local partner' keeps the paper clean. They say the company registered last year, at a coworking-suite address. What this money carries isn't interest — it's a ledger.",
         choices: [
           {
             id: "take_money",
@@ -144,27 +102,7 @@ POTUS.define("l10n", {
       {
         id: "for2_spy_contact",
         title: "A foreign embassy's cultural attaché takes an unusual interest in you",
-        body: "The cultural attaché \u201Chappens\u201D to sit beside you again — this time with the one book you needed and an invite to dinner. He asks nothing and talks about everything. The question isn't what he is. It's who sees you sitting together.",
-        brief: {
-          lede: "He remembers your daughter's piano-contest placing — you mentioned it to your wife once, by phone.",
-          known: [
-            "An embassy's cultural attaché \u201Cbumps into\u201D you four times in three months: talks, dinners, a restaurant.",
-            "He never asks for secrets — only people and schedules — and always leaves a small gift.",
-            "Old diplomatic joke: nine and a half in ten cultural attachés are intelligence."
-          ],
-          rumor: [
-            "They say counterintelligence flagged him long ago and watches who he dines with.",
-            "They say two senators belong to the club where he plays tennis."
-          ],
-          unknown: [
-            "Whoever watches him now sees you at his table too.",
-            "The small talk he files gets pieced into a picture you can't see."
-          ],
-          terms: [
-            { k: "Cultural attaché", v: "An embassy officer for cultural exchange, with diplomatic immunity." },
-            { k: "Counterintelligence", v: "Spy-catching: watching a foreign officer's contact network." }
-          ]
-        },
+        body: "The cultural attaché — an embassy officer for cultural exchange, under diplomatic immunity — has bumped into you four times in three months, and today he sits beside you again: the one book you needed in hand, a dinner invite to follow. He never asks for secrets; he talks people and schedules and always leaves a small gift. Old diplomatic joke: nine and a half in ten cultural attachés are intelligence. He remembers your daughter's piano-contest placing — you mentioned it to your wife once, by phone. And whoever watches him for counterintelligence now sees you at his table too.",
         choices: [
           {
             id: "keep_dining",
@@ -208,26 +146,7 @@ POTUS.define("l10n", {
       {
         id: "for2_refugee_vote",
         title: "A refugee resettlement lands in your district",
-        body: "A refugee site is set in your district: two or three generations, dozens of kids, and a whole winter of problems. Welcome emails and angry calls arrive in the same hour. Both clipboards are waiting for your next sentence.",
-        brief: {
-          lede: "The lights come on in the old schoolhouse, the message boards erupt, and both sides are dialing.",
-          known: [
-            "The feds assign the next refugee wave to your district: eighty to one hundred fifty people.",
-            "The resettlement agency wants you at the welcome — one sentence can fill a winter's coat drive.",
-            "Your voters are already split: half welcome, half who asked us."
-          ],
-          rumor: [
-            "They say the number isn't fixed — signal a hardship to the county and some get moved.",
-            "They say half the angry posts come from the same three accounts."
-          ],
-          unknown: [
-            "Those who stay become voters; those who leave become a story.",
-            "The issue decides the votes, not the real headcount."
-          ],
-          terms: [
-            { k: "Resettlement program", v: "A federal-voluntary agency system for placing refugees." }
-          ]
-        },
+        body: "The feds have assigned the next refugee wave to your district: eighty to one hundred fifty people, placed through the federal-and-voluntary-agency resettlement system. The agency wants you at the welcome — one sentence from you fills a winter's coat drive. Your voters are already split: half welcome, half who asked us. The number isn't fixed, they say — signal a hardship to the county and some get moved. What decides the votes is the issue, not the real headcount.",
         choices: [
           {
             id: "welcome_loud",
@@ -271,28 +190,7 @@ POTUS.define("l10n", {
       {
         id: "for2_summit_invite",
         title: "An international forum invites you to speak",
-        body: "The forum's invitation arrives: a page of eminent names, an open mic, a room of stenographers. Your remarks have two versions, and picking either is no small thing — here, one wrong sentence becomes an international incident.",
-        brief: {
-          lede: "The invitation is gold-embossed, the mic is live — at this point even diplomats read from notes.",
-          known: [
-            "A prestigious international forum asks you to speak, your name between senators and governors.",
-            "\u201CSay a few words on any topic\u201D means anything can get on the record.",
-            "Below the stage: press, ambassadors, and people from several think tanks.",
-            "Your comms lead prepped two drafts: one all praise, one with sharp opinions."
-          ],
-          rumor: [
-            "They say one or two of the funders once made the State Department frown.",
-            "One delegation wants an informal contact in the margin — and you're on the list."
-          ],
-          unknown: [
-            "In the audience, some wait for you to slip; some wait to hand over a partnership.",
-            "Each thing you say gets rendered three ways, one per room, as needed."
-          ],
-          terms: [
-            { k: "International forum", v: "A recurring multilateral meeting where remarks are public by default." },
-            { k: "Informal contact", v: "Diplomat's code for a meeting that's off the schedule." }
-          ]
-        },
+        body: "A prestigious international forum asks you to speak — remarks there are public by default, and 'say a few words on any topic' means anything can get on the record. Your name sits between senators and governors; below the stage are press, ambassadors and people from several think tanks. Your comms lead prepped two drafts: all praise, or sharp. Word is a certain delegation plans an informal contact — diplomat's code for a meeting off the schedule — and you're on the list. In the audience, some wait for you to slip; some wait to hand over a partnership.",
         choices: [
           {
             id: "safe_speech",

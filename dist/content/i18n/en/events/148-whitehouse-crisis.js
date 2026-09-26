@@ -5,7 +5,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件按 id 定位；choices 按 id 对齐；纯标量数组（known）整体替换，条数与中文一致。
  *   · 结构性键（grade / category / weight / tierMin / base / mods / cost / effects /
  *     flags / wh / whFamily / dyn / unique / valence …）受引擎保护，一律不写。
  *   · 模板占位符原样保留（本片无占位符）。
@@ -20,15 +19,7 @@ POTUS.define("l10n", {
       {
         id: "wh_fuel",
         title: "Pipeline breaks at noon, and three states start rationing gas",
-        body: "The Army Corps has found the break; reopening it takes ten days at best, and refined-fuel stocks in three inland states cover two weeks. This morning the three governors held a call where each opened by weighing how much fuel their state sends and how much it takes. The energy secretary wants your tone set before tonight's press conference. Two front pages already ask whether the White House still means to say the market will fix itself.",
-        brief: {
-          lede: "A multinational pipeline ruptures, refined fuel runs short, three states ration at the pump, and governors trade blame on the phone.",
-          known: [
-            "Drawing the reserve and declaring rationing admits the supply chain broke — prices jump first, opinion first, and this card plays only once.",
-            "Federal transport priority alone steadies the markets; someone still has to watch the fuel queues in three states every day.",
-            "Saying nothing spends no political capital, but the governors' blame game will not stay inside a phone call."
-          ]
-        },
+        body: "The Army Corps has found the break; reopening it takes ten days at best, and refined-fuel stocks in three inland states cover two weeks. This morning the three governors held a call where each opened by weighing how much fuel their state sends and how much it takes. The energy secretary wants your tone set before tonight's press conference. Two front pages already ask whether the White House still means to say the market will fix itself. The strategic reserve is a card that plays only once: opening it admits the supply chain broke.",
         choices: [
           {
             id: "reserve",
@@ -68,15 +59,7 @@ POTUS.define("l10n", {
       {
         id: "wh_shooting",
         title: "Day three, and the nation waits for your second sentence",
-        body: "Ten days of half-staff already sit on the ceremony calendar. The Senate majority leader says the votes are not there and will not be inside three weeks. The mayor of that city tells anyone who will listen that federal action cannot be another condolence letter in a different format. Two survivors' representatives come to the White House this afternoon, and someone downstairs has already handed reporters the notes from their meeting with your chief of staff.",
-        brief: {
-          lede: "Three days after a mass shooting, the nation waits for something past a second eulogy.",
-          known: [
-            "Pushing a federal bill overnight takes votes and luck; families counting from the gallery can be your witnesses or your jury.",
-            "Half-staff plus a commissioned committee is by the book, and by the book alone reads as ceremony with no action.",
-            "Going to that city's memorial yourself is the fastest road to forgiveness, and the fastest road to being booed off it."
-          ]
-        },
+        body: "Ten days of half-staff already sit on the ceremony calendar. The Senate majority leader says the votes are not there and will not be inside three weeks. The mayor of that city tells anyone who will listen that federal action cannot be another condolence letter in a different format. Two survivors' representatives come to the White House this afternoon, and someone downstairs has already handed reporters the notes from their meeting with your chief of staff. Families counting the votes from the gallery can be your witnesses, or your jury.",
         choices: [
           {
             id: "bill",
@@ -116,15 +99,7 @@ POTUS.define("l10n", {
       {
         id: "wh_blackout",
         title: "Blackout week three, and the hospital diesel gauges are falling",
-        body: "The intelligence agencies and the energy department point the same way, but the full read is not yet something you can carry out and confront anyone with. A utility president in the dark zone asks for authority to shed nonessential load at night; health officials warn that three hospitals hold ten days of generator diesel. The treasury secretary has asked twice what the phrase foreign intrusion does to the tape. An opposition senator is rehearsing for Sunday's program with one question: when did the president find out.",
-        brief: {
-          lede: "A foreign power probes the grid; three metro areas enter week three of blackout, and hospitals burn diesel.",
-          known: [
-            "Naming the country and recalling the ambassador puts confrontation on the table — markets fall first, and no one guarantees when the power returns.",
-            "Quiet channels plus diesel moved in secret save lives and warmth; if the channel sees daylight, every word you said publicly becomes a debt.",
-            "Keeping the cyberattack down steadies the tape, but utility technicians are talking, and so are the gauges on hospital tanks."
-          ]
-        },
+        body: "The intelligence agencies and the energy department point the same way, but the full read is not yet something you can carry out and confront anyone with. A utility president in the dark zone asks for authority to shed nonessential load at night; health officials warn that three hospitals hold ten days of generator diesel. The treasury secretary has asked twice what the phrase foreign intrusion does to the tape. An opposition senator is rehearsing for Sunday's program with one question: when did the president find out. And if the quiet channel ever sees daylight, every word you said publicly becomes a debt.",
         choices: [
           {
             id: "expose",
@@ -164,15 +139,7 @@ POTUS.define("l10n", {
       {
         id: "wh_pardon",
         title: "His file has pages with your signature on them",
-        body: "Sentencing could come by month end, and his lawyer says he will not cooperate with prosecutors to his dying day. The White House counsel's office has built a list: of the nineteen documents in the case, three carry your signature from your state house days. The party chairman came by last week and said, smiling, that you are not running again, so think about what you still want. His wife sent a handwritten letter through the old doorman who served your first office; the envelope says only, to the president himself.",
-        brief: {
-          lede: "Early in your second term, a loyalist from the governor's days nears conviction — and the file holds pages you signed.",
-          known: [
-            "Signing a pardon admits you knew at the time; the special prosecutor gains a whole chapter by tomorrow, and the press desk one degree less manners.",
-            "Refusing and cutting him loose publicly stops the bleeding, but every old colleague in the gallery is counting how many you have pushed out now.",
-            "Waiting it out costs you nothing today; the price is handing the decision, the file and the story to your successor."
-          ]
-        },
+        body: "Sentencing could come by month end, and his lawyer says he will not cooperate with prosecutors to his dying day. The White House counsel's office has built a list: of the nineteen documents in the case, three carry your signature from your state house days. Signing a pardon admits you knew at the time, and the special prosecutor gains a whole chapter by tomorrow. The party chairman came by last week and said, smiling, that you are not running again, so think about what you still want. His wife sent a handwritten letter through the old doorman who served your first office; the envelope says only, to the president himself.",
         choices: [
           {
             id: "pardon",

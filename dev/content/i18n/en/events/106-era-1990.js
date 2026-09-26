@@ -5,10 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown / texts）是**整体替换**，必须整条给全，
- *     少给一条就少一条 —— 不合并。本文件四张卡均为
- *     gulf91_storm / gulf91_peace / gulf93_talkradio：known×3 rumor×2 unknown×2 terms×1；
- *     gulf92_economy：known×4 rumor×2 unknown×2 terms×1。与原文逐条一一对应。
  *   · 选项 note 只在原文有 note 的地方给（gulf91_peace 的 trim、gulf92_economy 的 watch、
  *     gulf93_talkradio 的 pivot 原文无 note，英文也不补）。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
@@ -28,28 +24,12 @@ POTUS.define("l10n", {
       {
         id: "gulf91_storm",
         title: "Missiles streak the night sky, and the whole world is watching",
-        body: "Months after Iraq swallowed Kuwait, the coalition starts firing. Cable crews set their cameras on hotel windows,\n" +
-          "and for the first time an airstrike plays live in every living room. For or against — overnight that became\n" +
-          "a question pressed onto every elected official in the country. Your Arab shopkeepers are waiting to hear how you open your mouth.",
-        brief: {
-          lede: "A war that is short, and filmed. Ride the patriotic wave, or say something for the few.",
-          known: [
-            "The local council wants your resolution to state whether you back the troops; against the war means un-American.",
-            "The UN set a deadline. Most Americans approve of force, and approval is at a record high.",
-            "Arab families in your district became suspects overnight; your shopkeepers' phones will not stop ringing."
-          ],
-          rumor: [
-            "Some say this is about oil, not liberation — said quietly, and never to a reporter.",
-            "Some say the decision was made long ago and the UN deadline was only procedure."
-          ],
-          unknown: [
-            "Whether this quick victory hardens into an overseas burden nobody can put down.",
-            "Whether the words you spend on a minority become your protection or your noose."
-          ],
-          terms: [
-            { k: "Desert Storm", v: "The coalition's war on Iraq — the first war televised live." }
-          ]
-        },
+        body: "Months after Iraq swallowed Kuwait, the coalition starts firing — the code name is Desert Storm. The UN has set a\n" +
+          "deadline, most Americans back the use of force, and approval sits at a record high. Cable crews set their cameras\n" +
+          "on hotel windows, and for the first time an airstrike plays live in every living room. The local council wants your\n" +
+          "resolution to state whether you back the troops: against this war is un-American. The Arab shopkeepers in your\n" +
+          "district became suspects overnight, and they are waiting to hear how you open your mouth. Some say this is about\n" +
+          "oil, not liberation. The words you spend on them — protection, or noose?",
         choices: [
           {
             id: "patriot",
@@ -93,30 +73,12 @@ POTUS.define("l10n", {
       {
         id: "gulf92_economy",
         title: "The war is won. The line at the gas station is not",
-        body: "The war ends and oil comes back down, but the economy at home goes limp: plants moving off, layoffs\n" +
-          "climbing, and a no-new-taxes promise broken by the man who made it. A loud billionaire starts a real\n" +
-          "third-party run and curses both fields at once. The polls say he can take a big chunk of the vote.\n" +
-          "The state committee calls: keep our people from going to watch that rich man.",
-        brief: {
-          lede: "Victory does not fix a wallet. When a wealthy spoiler shows up, a party's first instinct is to plug the hole, not examine itself.",
-          known: [
-            "The committee calls you because you can talk locally, and you know how to talk a swing voter out of a third-party run.",
-            "The weak economy is sinking incumbents everywhere, and the third party fits exactly into that gap.",
-            "The joke of the year: nobody votes the third-place man out. He cannot win, but he can muddy the water.",
-            "Hit him head-on, or pull the talk back to your own district. The two bills come due differently."
-          ],
-          rumor: [
-            "Some say the billionaire only wants a bigger table, and he folds once he is bought.",
-            "Some say the danger is not him winning — it is him dragging the whole agenda sideways."
-          ],
-          unknown: [
-            "Whether a third party pries a lasting crack into the two-party structure.",
-            "Whether the machine remembers the man who plugged its leak, or forgets by fall."
-          ],
-          terms: [
-            { k: "Third Party", v: "An opportunistic run outside the two parties, fed by economic anger." }
-          ]
-        },
+        body: "The war ends and oil comes back down, but the economy at home goes limp: plants moving off, layoffs climbing,\n" +
+          "and a no-new-taxes promise broken by the man who made it. A loud billionaire starts a real third-party run — a\n" +
+          "spoiler outside the two parties, fed by economic anger — and curses both fields at once. The polls say he cannot\n" +
+          "win, but he can take a big chunk of the vote. The state committee calls you, because you can talk a swing voter\n" +
+          "out of it locally: keep our people from going to watch that rich man. Hit him head-on, or pull the talk back to\n" +
+          "your own district? Some say he only wants a bigger table, and folds once he is bought.",
         choices: [
           {
             id: "attack",
@@ -160,28 +122,12 @@ POTUS.define("l10n", {
       {
         id: "gulf91_peace",
         title: "The wall came down, the budget did not",
-        body: "The Soviet Union breaks up and the Cold War is over. People start saying peace dividend: take the military\n" +
-          "money and rebuild the bridges, the schools, the national debt. Others warn against getting soft — a power\n" +
-          "with no rival left needs its muscles more than ever. A cut-or-keep vote is sitting on your desk, stuck.",
-        brief: {
-          lede: "An era ends, and with it the paychecks of one crowd and the destination of a very large pile of money.",
-          known: [
-            "The vote lands on you: your district holds defense plants, and voters waiting on a road to be fixed.",
-            "Defense contractors are lobbying hard on one line — do not disarm yourself.",
-            "Fiscal hawks are watching the deficit and want the savings put on debt or spent at home."
-          ],
-          rumor: [
-            "Some say the real threat is gone and the rest of the budget is only contractors splitting a haul.",
-            "Some say the old rival is gone but new trouble is rising in the Gulf — do not cut yet."
-          ],
-          unknown: [
-            "If a new enemy appears, every cut you voted for becomes the record against you.",
-            "Whether a built-at-home record lasts until your next election."
-          ],
-          terms: [
-            { k: "Peace Dividend", v: "Spending Cold War military money on domestic needs and the debt." }
-          ]
-        },
+        body: "The Soviet Union breaks up and the Cold War is over. People start saying peace dividend: take the military money\n" +
+          "and rebuild the bridges, the schools, the national debt. Others warn that a power with no rival left needs its\n" +
+          "muscles more than ever. The cut-or-keep vote lands on your desk, stuck — and your district holds both the defense\n" +
+          "plants and the voters waiting on a road to be fixed, while the contractors lobby hard all week. Some say the real\n" +
+          "threat is gone and the rest of the budget is only contractors splitting a haul. If a new enemy does surface, every\n" +
+          "dollar you cut tonight shows up later in the record against you.",
         choices: [
           {
             id: "dividend",
@@ -225,28 +171,11 @@ POTUS.define("l10n", {
       {
         id: "gulf93_talkradio",
         title: "A combative talk-radio host wants you on air",
-        body: "A host who built his ratings on rage calls you out for a showdown. His show does not trade in arguments, only\n" +
-          "in feeling, and he hunts the soft spot under every politician's collar. Picking up the line is fun — but on\n" +
-          "the other end of it, the editing scissors have been sharpened for a while.",
-        brief: {
-          lede: "This kind of show is not afraid you will attack it, only that you will stay away. Once you are in, what you say stops deciding who wins.",
-          known: [
-            "You refused an interview once and he ran it as guilt. This time he calls you out by name.",
-            "His audience is fanatically loyal. One caught slip of yours can play all year.",
-            "Your opponent is listening in, waiting for you to say the wrong thing out loud."
-          ],
-          rumor: [
-            "Some say the host has a private arrangement with a campaign and digs holes for the opponent.",
-            "Some say no show makes fans faster: go on, push back, gain a following by morning."
-          ],
-          unknown: [
-            "Whether tonight you are the joke or the man who would take the hit.",
-            "How long the tape of you keeps circulating."
-          ],
-          terms: [
-            { k: "Talk Radio", v: "Call-in radio where the host's heat outruns the facts." }
-          ]
-        },
+        body: "A host who built his ratings on rage calls you out for a showdown — call-in radio where the host's heat outruns\n" +
+          "the facts. You refused an interview once and he ran it as guilt for a whole week; now he names you himself. This\n" +
+          "show trades in feeling, not argument, it hunts the soft spot under every politician's collar, and one caught slip\n" +
+          "of yours can play all year. Your opponent is listening in tonight. Picking up the line is fun — but on the other\n" +
+          "end of it, the editing scissors have been sharpened for a while. Word is he has an arrangement with a campaign, and this hour is a hole dug for the other side.",
         choices: [
           {
             id: "go",

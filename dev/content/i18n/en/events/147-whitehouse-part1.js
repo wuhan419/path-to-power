@@ -5,8 +5,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件按 id 定位；choices 里带 id 的按 id 对齐；纯标量数组（known）整体替换，
- *     必须整条给全，条数与中文逐字一致。
  *   · 结构性键（id / grade / category / weight / minYear / tierMin / base / mods / cost /
  *     effects / flags …）受引擎保护，写了会记 protectedHits，故一律不写。
  *   · 模板占位符原样保留（本片无占位符）。
@@ -21,15 +19,7 @@ POTUS.define("l10n", {
       {
         id: "wh_crisis_desk",
         title: "A hurricane, a stalled warning net, and eighteen hours",
-        body: "The national security advisor stands at your bedside, talking fast: the hurricane has outrun the forecast, three East Coast states have declared emergencies, and the federal warning network's automatic dialing system failed during an overnight upgrade. The governors are on television saying they need the White House. Landfall is eighteen hours away, and your first sentence will be on every feed within half an hour.",
-        brief: {
-          lede: "An emergency call wakes you before dawn: a major hurricane hits in eighteen hours, and the federal warning system has just jammed.",
-          known: [
-            "The governors are already waiting on camera for your first sentence, not your first briefing book.",
-            "The federal emergency machinery has many buttons; only two or three combinations work on the first try.",
-            "Any hesitation now gets cut into the thirty-second clip: the president not up to the job."
-          ]
-        },
+        body: "The national security advisor stands at your bedside, talking fast: the hurricane has outrun the forecast, three East Coast states have declared emergencies, and the federal warning network's automatic dialing system failed during an overnight upgrade. The governors are on television saying they need the White House. Landfall is eighteen hours away, and your first sentence will be on every feed within half an hour. The emergency machinery has many buttons, and only two or three combinations work on the first try; any hesitation now gets cut into the thirty-second clip of a president not up to the job.",
         choices: [
           {
             id: "allin",
@@ -70,15 +60,7 @@ POTUS.define("l10n", {
       {
         id: "wh_recall",
         title: "Shelves in nineteen states, and a lab result still unconfirmed",
-        body: "The food-safety administrator lays two drafts on your desk: recall nationwide, or confine it to the four states where people have fallen ill. Three distributors have already retained lawyers and promise to litigate to the end; two papers smell something and are asking why no one said anything sooner. The lab's final confirmation takes three days.",
-        brief: {
-          lede: "A frozen-food lot tests positive for pathogens, and two plants stock shelves in nineteen states.",
-          known: [
-            "A full recall costs the White House real money to steady the market, and the price is visible the same day.",
-            "Limiting it to the affected states pays out less - until it spreads, and then the record says you knew.",
-            "One confirmatory test at the lab is still outstanding. Waiting three days is the cheapest road and the most dangerous."
-          ]
-        },
+        body: "The food-safety administrator lays two drafts on your desk: recall nationwide, or confine it to the four states where people have fallen ill. A nationwide recall bills the White House the same day; a four-state limit holds until the lot spreads - and then the record says you knew. Three distributors have already retained lawyers and promise to litigate to the end; two papers smell something and are asking why no one said anything sooner. The lab's final confirmation takes three days.",
         choices: [
           {
             id: "full",
@@ -120,15 +102,7 @@ POTUS.define("l10n", {
       {
         id: "wh_bill",
         title: "Seven votes short: a month of dinners, or a compromise someone else drafts",
-        body: "The bill cleared committee and sits seven votes short on the Senate floor. The majority leader lays out three paths: you take those seven senators to dinner in the Rose Garden, one by one; he negotiates for you and keeps the pen; or you sign an executive order and start now, letting Congress catch up later. Reporters are already betting on whether you will walk the first road.",
-        brief: {
-          lede: "Your signature bill sits stuck in the Senate, seven votes short. The majority leader says only you can close it in person.",
-          known: [
-            "Vote-by-vote bargaining needs the president in the room: two hours a senator, a whole month for seven.",
-            "Letting the leader negotiate is faster, but the terms come back in his handwriting.",
-            "An executive order bypasses Congress and works at once, at the price of every later president being measured against it."
-          ]
-        },
+        body: "The bill cleared committee and sits seven votes short on the Senate floor. The majority leader lays out three paths: you take those seven senators to dinner in the Rose Garden, one by one - two hours apiece, a month of your calendar; he negotiates for you and keeps the pen; or you sign an executive order and start now, letting Congress catch up later, at the price of every later administration being measured against your precedent. Reporters are already betting on whether you will walk the first road.",
         choices: [
           {
             id: "handshake",
@@ -169,15 +143,7 @@ POTUS.define("l10n", {
       {
         id: "wh_shutdown",
         title: "Budget night: thirty-six hours and three drafts",
-        body: "The appropriations bill passed the House; the Senate returned its own version, and the two differ only on that one rider. Funding lapses in thirty-six hours. Keepers at the national zoo are already asking where next month's paychecks come from, and the whips of both parties say the same thing: the first to blink is you.",
-        brief: {
-          lede: "Appropriations lapse in thirty-six hours, and both parties are sure the other will blink first.",
-          known: [
-            "Accept the other side's rider and the government stays open, but that money gets repaid every year after.",
-            "Ride out a shutdown and you save the money; the national parks and federal workers pay your bill.",
-            "Sending the chief of staff to negotiate through the night is the only path that might lose nothing - and the easiest one to blow up."
-          ]
-        },
+        body: "The appropriations bill passed the House; the Senate returned its own version, and the two differ only on that one rider. Accept it and the doors stay open, but that money gets repaid every year after; ride out a shutdown and the parks and federal workers pay your bill. Funding lapses in thirty-six hours. Keepers at the national zoo are already asking where next month's paychecks come from, and the whips of both parties say the same thing: the first to blink is you.",
         choices: [
           {
             id: "sign",

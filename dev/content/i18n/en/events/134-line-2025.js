@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3/§4）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段；事件按 id 定位。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，元素个数必须与中文严格一致
- *     （两卡均 3/2/2）；terms 为 {k,v} 数组，按下标对齐（两卡均 2 条）。
  *   · 结构性键（id / base / mods / cost / stake / effects / flags …）由引擎保护，本文件不写。
  *   · 英文按第二人称、现在时、短句重写；「」不直译，改英文引号或句式。
  *   · 标题一律 sentence case：只首词与专有名词（House / Supreme Court）大写。
@@ -21,28 +19,8 @@ POTUS.define("l10n", {
       {
         id: "ln25_inaugural",
         title: "A new administration signs a wall of executive orders in two weeks",
-        body: "The inaugural address has barely faded when the orders start landing one after another: a federal hiring freeze, agencies renamed and merged, foreign aid halted, border and tariff directives reissued. They bypass Congress and drop straight into the forms on a clerk's desk.\n" +
-          "The calls reach your level the same day: one voice demands you endorse it at once, another demands you denounce an overreach. In your office, the inbox of things needing an answer is longer than a normal year.",
-        brief: {
-          lede: "The opening fortnight sets the price: every word said now gets quoted for four years.",
-          known: [
-            "An executive order needs no legislative route — and lands far faster than a bill.",
-            "The freeze and the mergers hit federal jobs in your own district directly.",
-            "The party caucus has a script ready; you may also write your own."
-          ],
-          rumor: [
-            "Some say several of these orders will be blocked by a federal court within days.",
-            "Some say the real design sits in departmental memos, off the printed page."
-          ],
-          unknown: [
-            "How you name this tonight gets quoted back at your next hearing.",
-            "Whether anyone you know is on the freeze list — that is published tomorrow."
-          ],
-          terms: [
-            { k: "Executive order", v: "A presidential directive to the agencies; no vote needed, and a court may void it." },
-            { k: "Hiring freeze", v: "An order pausing outside recruitment and backfilling." }
-          ]
-        },
+        body: "The inaugural address has barely faded when the orders start landing one after another: a federal hiring freeze — no outside recruitment, no backfilling — agencies renamed and merged, foreign aid halted, border and tariff directives reissued. An executive order needs no congressional vote and lands far faster than a bill; a court may void it later, but the signatures keep coming.\n" +
+          "The calls reach your level the same day: one voice demands you endorse it at once, another demands you denounce an overreach. The freeze and the mergers hit federal jobs in your own district first. In your office, the inbox of things needing an answer is longer than a normal year.\nWhether anyone you know is on the freeze list — that gets published tomorrow.",
         choices: [
           {
             id: "ride",
@@ -86,28 +64,8 @@ POTUS.define("l10n", {
       {
         id: "ln25_tariff",
         title: "'Reciprocal' tariffs land, and fourteen days later the markets roll half of them back",
-        body: "On a Thursday evening a comprehensive reciprocal tariff schedule, tiered by country, is announced in the rose garden — even the duty-free de minimis parcel is folded in. Over the sessions that follow: markets fall like clockwork, Treasuries are dumped, the currency index sinks to a six-month low, and importers treat 'effective in April' as a death sentence on the phone.\n" +
-          "Two weeks later, all but a few counterparties get a ninety-day pause. Markets give back most of the drop — but the supply chains, warehouse receipts and deposits have already burned a row of firms, and nobody is going to reprint the quotations for the companies in your district that priced them in.",
-        brief: {
-          lede: "Policy can be paused; the book cannot. Whoever sees that first inside ninety days owns this year's pricing.",
-          known: [
-            "The tiers are published by country, took effect, then were paused ninety days by one announcement.",
-            "Equities, bonds and the currency falling in the same direction usually means confidence broke.",
-            "Importers, retailers and farm operations have already paid on this month's inventory."
-          ],
-          rumor: [
-            "Some say the pause was dragged out of the bond market and the plan was always divided labour.",
-            "Some say ninety days is a negotiating window and the rates that actually land get recomputed."
-          ],
-          unknown: [
-            "Which plant in your district cannot survive to autumn on these warehouse receipts.",
-            "Whether the next tier falls straight on your largest employer."
-          ],
-          terms: [
-            { k: "Reciprocal tariff", v: "A blanket schedule whose rates are back-solved from the trade deficit, tiered by country." },
-            { k: "Ninety-day pause", v: "A period after announcement in which enforcement is suspended, leaving room to negotiate." }
-          ]
-        },
+        body: "On a Thursday evening a comprehensive reciprocal tariff schedule — rates back-solved from the trade deficit, tiered by country — is announced in the rose garden, and even the duty-free de minimis parcel is folded in. Over the sessions that follow: markets fall like clockwork, Treasuries are dumped, and importers treat 'effective in April' as a death sentence on the phone.\n" +
+          "Two weeks later, all but a few counterparties get a ninety-day pause — a negotiation window. Markets give back most of the drop, but the supply chains, warehouse receipts and deposits have already burned a row of firms, and nobody is going to reprint the quotations for the companies in your district that priced them in. Some say the pause was dragged out of the bond market, and the rates that actually land will be computed all over again.",
         choices: [
           {
             id: "defend",

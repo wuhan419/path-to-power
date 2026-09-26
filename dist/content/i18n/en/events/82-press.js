@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动；事件按 id 定位，choices 按 id 对齐。
- *   · 纯标量数组（known/rumor/unknown）整体替换，条数与中文逐字一致；
- *     brief.terms 的 {k,v} 对象无 id，按下标对齐（顺序不许动）。
  *   · 结构性/引用键（id/era/tierMin/weight/base/mods/cost/req/stake/effects/flags …）受保护，
  *     写了会记 protectedHits，故一律不写；pOut 里的 body 才是要覆盖的正文。
  *   · 「」在英文里化进句子；媒体/机构用真实英文泛称。
@@ -20,28 +18,9 @@ POTUS.define("l10n", {
         id: "press_columnist",
         title: "At dinner you are introduced to the city paper's column editor",
         body: "The city paper's seventh page runs a column three times a week, six hundred words a turn. The man who writes it is fifty-one and has spent twenty-two years on that page. The same pen that lifts someone up buries them, and he has never seen the difference.\n" +
-          "At dinner someone introduces you. He is sizing you up as he shakes your hand, like he is gauging a story's length.",
-        brief: {
-          lede: "He does not need your money. He needs your story. The question is which part you let him see.",
-          known: [
-            "His column is the one thing in this town people still read word for word.",
-            "He takes no money - he can spot anyone who has, and then he writes it.",
-            "What he really lacks is a scoop. Three months now he has rewritten other people's stories.",
-            "He has an excellent memory. Something you say offhand may surface in a column eight years on."
-          ],
-          rumor: [
-            "Some say he ran for office once, long ago, and lost badly.",
-            "Some say he and the current mayor were friends once, and then were not."
-          ],
-          unknown: [
-            "Is he here tonight to write about you, or just to eat.",
-            "What he wants from you - a story, or a position."
-          ],
-          terms: [
-            { k: "Column", v: "A fixed page. It grants the right to be taken seriously." },
-            { k: "Exclusive", v: "His and no one else's. In this trade an exclusive beats the truth." }
-          ]
-        },
+          "At dinner someone introduces you. He is sizing you up as he shakes your hand, like he is gauging a story's length.\n" +
+          "He takes no money - he can spot a man who has, and then he writes it. What he lacks is a scoop; three months now he has been rewriting other people's stories. " +
+          "That column is the one thing in this town people still read word for word, and his memory is long: something you say tonight may surface in print eight years on.",
         choices: [
           {
             id: "feed",
@@ -85,28 +64,9 @@ POTUS.define("l10n", {
         title: "A story exposing you runs next Thursday",
         body: "You learn what the story will say three days before readers do.\n" +
           "A reporter who has covered City Hall for seventeen years stitched three things together: money you took last March, something you said in a council corridor, and a person you have never explained.\n" +
-          "The story is with the editor now. It prints Thursday. You have three days.",
-        brief: {
-          lede: "You cannot stop the truth. But you can decide when, in what shape, and on which page it appears.",
-          known: [
-            "The reporter has never retracted a story in twenty years. He is the hardest bone in this section.",
-            "The kill-or-print call sits with the editor-in-chief, not the reporter.",
-            "The editor-in-chief has a son in private school, sixty thousand a year in tuition.",
-            "What the editor fears is not you. It is the other paper running something bigger the same day."
-          ],
-          rumor: [
-            "Some say the third of the three items was fed to the reporter by someone.",
-            "Some say the editor-in-chief and your opponent had dinner three years ago."
-          ],
-          unknown: [
-            "How many lines in the story can actually be proven.",
-            "If it prints, how many cards you still have left to play."
-          ],
-          terms: [
-            { k: "Kill the story", v: "The desk quietly pulls a piece. No trace on paper." },
-            { k: "Preempt", v: "Expose a small thing first, to trade against the big thing coming." }
-          ]
-        },
+          "The story is with the editor now. It prints Thursday. You have three days.\n" +
+          "The reporter has never retracted a line in twenty years, but the kill-or-print call is the editor-in-chief's, not his. That same editor has a son in private school at sixty thousand a year. " +
+          "They say the third of the three items was handed to the reporter by someone. A killed story leaves no mark on paper.",
         choices: [
           {
             id: "preempt",
@@ -161,28 +121,9 @@ POTUS.define("l10n", {
         title: "Someone begs you to kill a true story about your ally",
         body: "This time someone comes to you.\n" +
           "The story is not about you, it is about a man who promised you his votes. Every line is true, every line checks out. And once it prints, the strongest beam you have in this district snaps.\n" +
-          "The other side does not want money. He wants one sentence, a word from you that means let it go, from inside his own trade.",
-        brief: {
-          lede: "Now you understand why a man spends twenty years befriending people who write and people who speak.",
-          known: [
-            "The story is real. In it you are a friend of the councilman.",
-            "The one moving is not the opponent, it is a paper that only thinks this is a good story.",
-            "The managing editor is worried: the reporting desk cuts two people next month.",
-            "You have three things to trade. The story gets one chance."
-          ],
-          rumor: [
-            "Some say the reporter wants to move to the Washington bureau in two years.",
-            "They say the writer and your opponent share a college alumni list."
-          ],
-          unknown: [
-            "After it is buried, will the reporter write it again.",
-            "Does the man who gave you his votes know he is about to be written."
-          ],
-          terms: [
-            { k: "Bury it", v: "Stop a true story from printing. Many ways; the cost all lands on you." },
-            { k: "Spike a swap", v: "Fill the slot with bigger news. The space is finite." }
-          ]
-        },
+          "The other side does not want money. He wants one sentence, a word from you that means let it go, from inside his own trade.\n" +
+          "The one moving is not your rival; it is a paper that simply thinks this is a good story, and in it you are listed as a friend of the councilman. " +
+          "Burying a true story costs nothing up front and everything later; swapping means feeding them bigger news, because the space is finite. The managing editor is already cutting two people off the desk next month.",
         choices: [
           {
             id: "swap",
@@ -237,28 +178,9 @@ POTUS.define("l10n", {
         title: "You consider buying the whole local paper",
         body: "The outlet is for sale.\n" +
           "Not closing - the owner is old, neither son wants it, and the asking price is a third under real value.\n" +
-          "Your accountant lays three pages in front of you. The last line on the third reads: at the current price you will lose two hundred thousand a year after you buy it, and what you get cannot be entered on the books.",
-        brief: {
-          lede: "The accounting for buying a rifle is the same as for buying an umbrella. What they mean to you is nothing alike.",
-          known: [
-            "Second in local circulation; first in the reputation that no one dares lie on its pages.",
-            "The owner's two sons just want their money fast; they do not care who buys.",
-            "Buy it and you become a media proprietor; the party turns wary at once.",
-            "You could skip owning it and just be the man whose call the editor answers. Far cheaper."
-          ],
-          rumor: [
-            "Some say it is being squeezed into selling: its biggest local advertiser just pulled out.",
-            "They say the real buyer is your opponent, paying more, but planning to cut reporters first."
-          ],
-          unknown: [
-            "After you own it, can it still write the things it used to.",
-            "If someone uses your own paper to dig at you, what do you do."
-          ],
-          terms: [
-            { k: "Editorial independence", v: "How much you keep: more makes it useful, less makes it obey." },
-            { k: "Sunk cost", v: "The money you feed it yearly buys that no one dares answer back." }
-          ]
-        },
+          "Your accountant lays three pages in front of you. The last line on the third reads: at the current price you will lose two hundred thousand a year after you buy it, and what you get cannot be entered on the books.\n" +
+          "Second in local circulation, first in the reputation that no one dares lie on its pages. Put the deed in your name and you are a media proprietor, and the party turns wary the same week. " +
+          "Editorial independence is the lever: keep more of it and the paper stays useful, keep less and it obeys. They say it is being squeezed into selling - its biggest local advertiser just pulled out.",
         choices: [
           {
             id: "buy",

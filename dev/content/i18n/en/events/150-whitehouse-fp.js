@@ -6,7 +6,6 @@
  *   - Source file untouched; this file carries only overwritable leaves.
  *   - Protected/structural keys (grade, category, weight, tierMin, base, mods,
  *     cost, req, effects, flags, wh, whFamily, dyn, unique, valence, ...) omitted.
- *   - brief.known replaces the whole scalar array, item count matched 3/3.
  *   - No placeholders in this file. Titles in AP sentence case.
  * ==========================================================================*/
 
@@ -18,15 +17,7 @@ POTUS.define("l10n", {
       {
         id: "wh_strait",
         title: "A mined strait, and a fleet with two ships in port",
-        body: "The blockade began last night: two patrol lines, a communique warning that unauthorized ships proceed at their own risk, and forty tankers stalled on both sides of the water. Three allied ambassadors wait at the State Department for one sentence from you. The chief of naval operations keeps it short: two ships can sail; the rest are in dry dock. A third file comes from the energy agency. Crude is up forty percent in seven days, and the lines at the pumps already reach the corner.",
-        brief: {
-          lede: "Mines in the strait overnight. Tankers sit stalled on both sides, and crude has climbed forty percent in a week.",
-          known: [
-            "Send the fleet to escort: only two ships can sail today; the rest are in dry dock for inspection.",
-            "A statement at the microphones steadies the allies most and boxes you in hardest; the other side is waiting for exactly that sentence.",
-            "Releasing the strategic reserve moves prices fastest, but across the strait your silence reads as permission."
-          ]
-        },
+        body: "The blockade began last night: two patrol lines, a communique warning that unauthorized ships proceed at their own risk, and forty tankers stalled on both sides of the water. Three allied ambassadors wait at the State Department for one sentence from you. The chief of naval operations keeps it short: two ships can sail; the rest are in dry dock. A third file comes from the energy agency. Crude is up forty percent in seven days, and the lines at the pumps already reach the corner. And across the strait, a release from the reserve that steadies your pumps will read as permission.",
         choices: [
           {
             id: "escort",
@@ -66,15 +57,7 @@ POTUS.define("l10n", {
       {
         id: "wh_hostage",
         title: "Day forty-four: eight helicopters in the desert and a transfer nobody may name",
-        body: "Forty-four days ago armed men stormed the embassy, and its eleven diplomats are still alive; each morning the captors mail a recording, the only proof you have. The Joint Chiefs put a rescue plan on your desk: eight helicopters, a desert crossing, one chance. In the same drawer lies a second file, the receipt for a transfer moving through a secret channel, and the papers are asking whether the White House has paid.",
-        brief: {
-          lede: "The embassy has been seized for forty-four days, eleven people are still inside, and money on the negotiating table is already on its way.",
-          known: [
-            "The helicopters must cross eight hundred kilometers of desert; getting in is one thing, and no one promises the return carries everyone back.",
-            "Exposing the secret transfer as news undercuts the other side's demand, but it also tells the world you paid.",
-            "Keeping the talks quiet costs least, but at home people count the days every evening, and the days are not on your side."
-          ]
-        },
+        body: "Forty-four days ago armed men stormed the embassy, and its eleven diplomats are still alive; each morning the captors mail a recording, the only proof you have. The Joint Chiefs put a rescue plan on your desk: eight helicopters, an eight-hundred-kilometer desert crossing, one chance - no one promises the return trip carries everyone back. In the same drawer lies a second file, the receipt for a transfer moving through a secret channel, and the papers are asking whether the White House has paid. Telling the transfer story yourself also tells the world you paid.",
         choices: [
           {
             id: "rescue",
@@ -114,15 +97,7 @@ POTUS.define("l10n", {
       {
         id: "wh_treaty",
         title: "Three days before expiry, and a verification clause drafted by the other side",
-        body: "The treaty lapses in seventy-two hours, and one verification phrase is still unsigned; the version they sent back contains half a sentence we never wrote. State says sign it. Two senior senators say that clause means closing your eyes. The chairman of the Joint Chiefs wants to testify first and say plainly that we are not naive. Inside your three hours, two drafts arrive at once, both with a line left for your signature.",
-        brief: {
-          lede: "An arms-control treaty expires in seventy-two hours, and the rewritten verification text holds a phrase the other side drafted for us.",
-          known: [
-            "Accept their wording and the treaty survives, but we open half as many doors.",
-            "Force it back to our wording and seventy-two hours may leave nothing at all; then both sides point at the other.",
-            "Letting the generals testify first proves you are not naive, and that testimony also ties the hand that signs."
-          ]
-        },
+        body: "The treaty lapses in seventy-two hours, and one verification phrase is still unsigned; the version they sent back contains half a sentence we never wrote. State says sign it. Two senior senators say that clause means closing your eyes. The chairman of the Joint Chiefs wants to testify first and say plainly that we are not naive - only, once that testimony is given, it ties the hand that signs. Inside your three hours, two drafts arrive at once, both with a line left for your signature.",
         choices: [
           {
             id: "accept",
@@ -162,15 +137,7 @@ POTUS.define("l10n", {
       {
         id: "wh_appease",
         title: "The city you ordered bombed, and the blank word in your speech",
-        body: "Now it is a square, a school, and a stone carved with more than three thousand names. A second term has no next election; all you have left is your name. Your host asks for three minutes of remarks. The two senators traveling with you insist the word must not appear in the script. And the children in the square have already rehearsed one question: Mr. President, did you come to apologize?",
-        brief: {
-          lede: "First foreign trip of the second term: you return to the city you once ordered bombed, and one word in the speech is still blank.",
-          known: [
-            "Say the word, and the veterans' groups at home print traitor on their banners the same day.",
-            "Do not say it, and the children in the square have their question ready; it will carry your silence onto evening news worldwide.",
-            "Announcing only the rebuilding account is the steadiest road, and the easiest to read as: the White House said nothing."
-          ]
-        },
+        body: "Now it is a square, a school, and a stone carved with more than three thousand names. A second term has no next election; all you have left is your name. Your host asks for three minutes of remarks. The two senators traveling with you insist the word must not appear in the script - say it, and the veterans' groups at home print traitor on their banners the same day. And the children in the square have already rehearsed one question: Mr. President, did you come to apologize?",
         choices: [
           {
             id: "word",
@@ -211,15 +178,7 @@ POTUS.define("l10n", {
       {
         id: "wh_justice",
         title: "Thirty days, two lists, and one empty seat",
-        body: "A justice announces his retirement in October, and the Senate says you get thirty days for the whole process. The party's base names the candidate it wants on the conference call: someone who can stand on the two issues. Your two largest donors deliver the same three-name list on the same day, with four pages of reasons. The Justice Department's own list has seniority and no position. For every point your approval slips, both sides talk a little louder.",
-        brief: {
-          lede: "A Supreme Court seat opens in October and must be filled in thirty days; the party and the donors each send a list.",
-          known: [
-            "Nominate the party's pick: the base is satisfied, and the donors pull their hands back this quarter.",
-            "Nominate the donors' pick: the hearing clears in two days, and after that someone reminds you whose person he is at every step.",
-            "Letting the Justice Department draft on seniority alone is the most decent road, at the price of both sides feeling walked around."
-          ]
-        },
+        body: "A justice announces his retirement in October, and the Senate says you get thirty days for the whole process. The party's base names the candidate it wants on the conference call: someone who can stand on the two issues. Your two largest donors deliver the same three-name list on the same day, with four pages of reasons. The Justice Department's own list has seniority and no position. Name the base's pick and the donors pull their hands back this quarter; name the donors' pick and someone reminds you whose person he is at every step after. For every point your approval slips, both sides talk a little louder.",
         choices: [
           {
             id: "party",
@@ -259,15 +218,7 @@ POTUS.define("l10n", {
       {
         id: "wh_chief",
         title: "One list, two sets of three crossed-out names",
-        body: "The personnel sheet covers seven posts. The chief of staff crosses off three, with reasons scribbled fast on the back. That evening the first lady's assistant brings a note: three people she believes should go, and two of them are the very two the chief of staff just saved. Both of those staffers have appeared at your kitchen table in the past eight months. This time, only one person signs the list.",
-        brief: {
-          lede: "On a list for seven posts, the chief of staff and the first lady each strike three names, and two of them are the same people.",
-          known: [
-            "Sign the chief of staff's version: the West Wing keeps one voice, and someone at the dinner table will remember this.",
-            "Adopt the note: the house is quiet that night, and senior staff start calling reporters the next day.",
-            "Keep all seven and send the list back to be redrawn: you pay nothing today and double next month."
-          ]
-        },
+        body: "The personnel sheet covers seven posts. The chief of staff crosses off three, with reasons scribbled fast on the back. That evening the first lady's assistant brings a note: three people she believes should go, and two of them are the very two the chief of staff just saved. Both of those staffers have appeared at your kitchen table in the past eight months. This time, only one person signs the list. And if you send the whole thing back to be redrawn, you pay nothing today and double next month.",
         choices: [
           {
             id: "chief",
@@ -307,15 +258,7 @@ POTUS.define("l10n", {
       {
         id: "wh_veep",
         title: "He carried a primary loss for you. Now he wants thirty seconds",
-        body: "In the primary year you sent him into two states to carry the blame for the budget bill, and his name hung in the local papers beside those numbers for six weeks. Now he says: I will campaign for you, twenty rallies, not one skipped. All I want is thirty seconds, not about your policy, about the one thing that is mine. The chief of staff says those thirty seconds become a weekly headline, and you are slipping in three Midwest states.",
-        brief: {
-          lede: "The vice president will campaign twenty rallies for you, on one condition: he gets thirty seconds of his own.",
-          known: [
-            "Give him the thirty seconds: votes will come, and every one of them gets clipped and commented on separately.",
-            "Vet the remarks word by word: you keep the message, and he keeps the line that even his words are written for him.",
-            "Run it without him saves the explaining and costs the most: the president's calendar yields only ten stops a year."
-          ]
-        },
+        body: "In the primary year you sent him into two states to carry the blame for the budget bill, and his name hung in the local papers beside those numbers for six weeks. Now he says: I will campaign for you, twenty rallies, not one skipped. All I want is thirty seconds, not about your policy, about the one thing that is mine. The chief of staff says those thirty seconds become a weekly headline, and you are slipping in three Midwest states. Give them fully and every rally gets clipped and commented on separately; run it without him costs the most, because the president's calendar yields only ten stops a year.",
         choices: [
           {
             id: "free",
@@ -355,15 +298,7 @@ POTUS.define("l10n", {
       {
         id: "wh_shadow",
         title: "Eleven resignations, each with the date left blank",
-        body: "Eleven resignations printed in one format, the signatures all real, the dates blank. They say this is no putsch, only that a new term deserves a new team. Your bill has one procedural step left to walk, and a second term has no next election; these people know that the one they face next is your successor. The chief of staff asks from the doorway: how many do we answer this morning?",
-        brief: {
-          lede: "Week one of the second term: the whole cabinet hands in resignations, dates blank, waiting to see whose you touch first.",
-          known: [
-            "Reject all eleven, and you tell every one of them their gesture weighed nothing.",
-            "Replace the weakest member first, and the other ten know by that afternoon that their turn is coming.",
-            "In the three days of an answer deferred, the papers will pick that person for you."
-          ]
-        },
+        body: "Eleven resignations printed in one format, the signatures all real, the dates blank. They say this is no putsch, only that a new term deserves a new team. Your bill has one procedural step left to walk, and a second term has no next election; these people know that the one they face next is your successor. The chief of staff asks from the doorway: how many do we answer this morning? Just know that through the three days of any deferred answer, the papers will pick that person for you.",
         choices: [
           {
             id: "reject",
