@@ -142,6 +142,7 @@ POTUS.define("era", {
 
 > **定点事件仍要过一遍普通事件的触发条件**（tier / flag / era / 媒介年份 …），不满足就跳过。
 > 所以「写给高层级玩家的定点事件」不会硬塞给还没爬到那个位置的人。
+> 层级闸的另一半在 §1.6：**钉卡在总统级默认封顶 `tierMax-1`**，只有备好了总统那一档决策选项的卡才放行。
 
 > ⚠ **迁移已收尾**：`era.scheduled` 是**旧机制**，引擎仍支持（`time.js scheduledHits` 照旧合并），但现役树只剩 5 个时代（1980_REAGAN / 1990_GULF / 2001_WARONTERROR / 2008_CRASH / 2016_SOCIAL），且仅 2008_CRASH 还留着 3 条兜底 scheduled；1980 前的 1912…1970s 时代已整体冻结进 `deprecated/snapshots/20-eras.js`，不再挂在加载清单上。新铺的年代一律用**全局 `fixed` 表**（§1.6）+ **绝对年窗 `minYear`/`maxYear`**，不再往 era 里写 `scheduled`、事件也不再钉 `era`。
 
@@ -177,6 +178,16 @@ POTUS.define("fixed", [
 
 - **固定事件串**不复活已停用的 `arc.js`，而是用现有机制拼：把 2~3 幕（前奏→爆发→余波）各自钉进 `fixed`，后幕靠事件自带的 `after:{id,minMonthsAfter}` / `flags` 续接。**前幕若因层级/机缘没演，后幕的 `after` 不成立即静默跳过**——是一条"可断裂"的串，符合"历史 catch-up 但不强灌"。
 - 串里的每一幕事件本身仍写 `minYear`/`maxYear` + `scoped:true`（见 §4 / §4.2.1），`fixed` 只负责"到点必发"，事件自己负责"够不够格发"。
+
+#### 总统在位期不演"旁观者口径"的历史钉卡（#42）
+
+钉卡写的是**这件事找上你的政治身份**——你的县、你的辖区、你要不要替厂方去华盛顿说句好话。已经在白宫里的人没有"你的县"：`ln00_hang`（开票三天，全国还不知道总统是谁）演给在任总统看，等于让玩家替自己主持选举。所以 `time.js` 的 `normalizePins()` 不再一刀把钉卡 `tierMax` 抬到顶，而是**默认压到 `balance.tierMax - 1`（即 T8）**，只有一类卡例外：
+
+- **放行判据 = 这张卡自己备好了总统那一档的决策选项**：某个 `ch.when` 同时满足 `tierRaw:true` **且 `tierMin` 压在 `tierMax`（现 9）上**（也就是 #21 M4 / §4.22 的写法）。判据是**选项级**、由引擎真读门槛得出，不是卡上某个注释或标记——`P.pinPresidentView(ev)` 就是这条判据的探针，`trigger-scan.js` 复用它。
+- 现况：**146 张钉卡里 5 张**放行到总统级（`ln01_anthrax` / `ln03_war` / `ln08_auto` / `ln20_covid` / `ln21_capitol`），其余在 T9 全部以 `why:"president"` 挡下，逐条可在 `G.pinMiss` 里查（validate 有回归断言钉住"2000-11 的 `ln00_hang` 在 T8 演、在 T9 不演"）。
+- **不会饿死总统的档期**：白宫每月恰 1 条强制档期走的是另一条通道（`P.whiteHouseSlot`，§4.22），与钉卡无关；`trigger-scan` 的"≥2 钉卡/年 + T8 结构可发率 ≥80%"仍是**按能爬到 T8 的玩家**验收的，总统期另看白宫池。
+- **写新钉卡想让它演到白宫**：在卡里补一支 `when:{tierRaw:true, tierMin:9}` 的决策选项，并按 §4.21 的纪律**在总统那一档留住一个无 `cost` 无 `req` 的保底**。手写卡级 `tierMax:9` 没用——`normalizePins` 会照判据把它压回 T8。
+- **反向纪律**：放行到总统级的卡上，地方口吻的选项（"替厂方去华盛顿游说"这类）要用 `when:{tierRaw:true, tierMax:8}` 挡在总统档之外；挡之前逐张核该档还剩不花钱、无门槛的一条路，**不满足就别挡**。
 
 ## 2. origin / talent / entry
 
@@ -1037,7 +1048,7 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 | 类 | 派生规则（按顺序命中即止） | 节奏由谁负责 |
 |---|---|---|
 | `campaign` 竞选 | `category:"campaign"`，或 `P.isCampaignActEvent(id)`（竞选幕） | `campaign.js` 逐幕推进，**计进四桶账但从不被额度拦**（链要一幕幕演完），只受"每月一幕"约束 |
-| `fixed` 固定历史 | 在钉卡表里（`P.pinIds()` = `reg.fixed` ∪ 各 era 的 `scheduled`），**或** `minYear === maxYear` | 到点必演（`planMonth` 以 eventId 定点排期），**不计入也不吃额度** |
+| `fixed` 固定历史 | 在钉卡表里（`P.pinIds()` = `reg.fixed` ∪ 各 era 的 `scheduled`），**或** `minYear === maxYear` | 到点必演（`planMonth` 以 eventId 定点排期），**不计入也不吃额度**；总统级默认封顶 `tierMax-1`，见 §1.6「#42」 |
 | `career` 职业/公务 | `chore:true`，或 `category:"career"` / `"govt"` | `time.js` 的 `choresSlot` 注入（§4.17），**吃 `careerMax` 年额度**（#38 起） |
 | `random` 随机 | 其余全部（含 `shady` 灰产、`civil` 民权、`media`、`scandal`…） | **吃年度额度**，见下 |
 
@@ -1119,7 +1130,7 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 - 中 `when: { tierRaw: true, tierMin: 4, tierMax: 6 }` —— 表态与办事：州一级的人物，公开定性、开听证、争条款。
 - 高 `when: { tierRaw: true, tierMin: 7 }` —— 决策与担当：你自己那一票/那道命令就是历史的一部分。
 
-硬规矩三条：① 三档必须铺满 0—9（`tierRaw` 别忘，否则档位被旧 `tierBand` 重映射）；② **每一档内部**至少留一条既无 `cost` 又无 `req` 的选项——全局保底检查只看"整卡存在保底"，档位一切走后穷人档里没路可点，玩家就被自己的身份卡死；③ 量级随档位递增，高档的 critfail 要真的能毁掉一条仕途。
+硬规矩四条：① 三档必须铺满 0—9（`tierRaw` 别忘，否则档位被旧 `tierBand` 重映射）；② **每一档内部**至少留一条既无 `cost` 又无 `req` 的选项——全局保底检查只看"整卡存在保底"，档位一切走后穷人档里没路可点，玩家就被自己的身份卡死；③ 量级随档位递增，高档的 critfail 要真的能毁掉一条仕途；④ **"高"档不等于"总统"档**——`tierMin:7` 那条口吻是"你自己那一票/那道命令"，写给国会议员与州长也成立；真的要让在任总统撞上同一件事，得单写一支 `tierMin` 压在 `tierMax`（现 9）上的决策选项，钉卡才会被 §1.6 的判据放行到总统级。反过来，一支地方口吻的选项挂 `tierMax:8` 挡掉总统之前，先确认总统那一档还剩免费的一条路，**不满足就别挡**。
 引擎的兜底顺序（`visibleChoices`）：命中 `when` 的选项 > 全部不带 `when` 的选项 > 原样全给——任何情况下都不会渲染出零按钮的卡，但那是保险丝，不是设计。
 
 #### 连锁后幕：可以断，不可以硬灌
@@ -1165,7 +1176,7 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 - **败选与定罪都只落 `fall:1`**，不用 `hardEnd`：与 #35「竞选不再由引擎掷赌骰判死」同一条纪律。`fall` 把 tier 摔下 `tierMax`，白宫通道随 `isPresident()` 转 false 自动关账，离任结算在 `presidencyTick` 的离场分支里幂等地做一次（`presExitSettle`：低支持率/长期危险线 → `wrath_establishment`，丑闻 → `wrath_press`，调查或弹劾 → `wrath_agency`，并插 `president_left`）。**这正是 §4.18 清算池的入口**，卸任后真的会演清算，不需要新数值系统。
 - **弹劾卡**（`balance.presidency.impeach.card`）：白宫殿把它排在四族轮转**之前**、且不推游标（它占的还是"每月恰 1 条"那个名额，弹完照原节奏继续轮），卡自带 `cond: P.impeachmentDue()`，于是被当普通卡抽也只有该演的那个月抽得到。演过插 `impeached`，`retryMonths` 内不再敲同一扇门。
 - **遗产三档**（`content/40-endings.js`）：`career_president_great/adequate/flawed` = S/A/B，判据一律走 `when` 的 `cond` 逃生口读 `G.pres`（**快照里没有 `pres`，第一个参数才是真 `G`**），外加 `impeached`/`scandal_4·5` 两道上限闸。没有白宫账本的旧档才落到通用 `career_president`。
-- **总统视角历史锚点**：给 1xx 年代线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（§4.21 的选项级分层），不动既有选项 id。`tierRaw` 不可省；这一档**必须**至少有一个档位吃 `appr`、且胜算挂 `approval`（validate 逐条查），否则"总统的桌子"和普通表态没有区别。
+- **总统视角历史锚点**：给 1xx 年代线卡补 `when:{tierRaw:true,tierMin:9}` 的**决策档选项**（§4.21 的选项级分层），不动既有选项 id。`tierRaw` 不可省；这一档**必须**至少有一个档位吃 `appr`、且胜算挂 `approval`（validate 逐条查），否则"总统的桌子"和普通表态没有区别。**这张卡若是钉卡（在 `fixed` 表里），这一支 `tierMin:9` 的选项同时就是它进总统级的放行钥匙**——`normalizePins()` 只把"备好了总统档决策选项"的钉卡 `tierMax` 抬到 9，其余一律封顶 `tierMax-1`（见 §1.6「#42」）。
 
 ---
 
@@ -1380,7 +1391,7 @@ POTUS.define("blackswan", {
 | `vignette` | 见 §4.13 | **静好岁月**成长曲线（`attrChance .08`（#37③，原 .20→.14→.08）/ `attrKeys [CHA,INT,CUN]`（**不含 INTG**：诚信只能由选择涨）/ `attrCap 88`（< 自由点硬顶 100）/ `hpChance 0` / `repChance .06` / `contactChance .20` / `trackBonus` 按轨道分化（**不许写 `fun`**）/ ~~`funChance .30`~~ **整条删除**：平静月不再产生资金，见 §4.13 / `attrDeclineAge 65` 起 CHA/INT 月 6% 掉点、下限 30…） |
 | `quietWorks` | 见配置 | 平静月"这个月做了什么"的日常颗粒素材（按轨道/层级筛选，动词开头不抒情） |
 | `quietAccount` | `{salaryBase:2000, salaryPerTier:2.2, livingMin:500, livingMax:1400, livingTierCoef:0.6}` | 平静月工资与开销（v0.11 曲线重配：基层不再无声长期倒亏） |
-| `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:42000, brutal:28000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
+| `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:90000, brutal:115000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
 | `debtFloor` | `{depth:6000, perTier:1.2, restore:2500, repCost:4}` | **负债谷底**：钱掉到 `-depth×(1+perTier×tier)` 以下 → 家人凑钱托底（资金回正、声望 -4），把静默死亡螺旋变成有代价的戏剧点（`core.js enforceDebtFloor`） |
 | `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比）、`nationalTier 9`（从这一级起选区就是整个国家：状态面板的基本盘卡不再挂家乡州名，改口「美利坚 · 全国选民 …」，见 `view/topbar.js`） |
 | `voterDynamic` | 见配置 | **选民会呼吸**（v0.6）：平静月自然收敛（`monthly 0.05` 朝 `targetShare/diehardTargetShare/opposeTargetShare` 三档目标）、事件成败自动增减（`eventBase × byOutcome × categoryMul`，显式 `effects.voters` 优先）、底气反噬判定（`voterEdge()×contestW 0.08`，中心 `edgeCenter 27`、跨度 `edgeSpan 35`） |
@@ -1893,9 +1904,11 @@ POTUS.define("balance", { campaign: {
 | 难度 | 起步债务 |
 |---|---|
 | normal | $65,000 |
-| hard | $42,000 |
-| brutal | $28,000 |
+| hard | $90,000 |
+| brutal | $115,000 |
 | easy / legendary | 无贷（世家不背学贷） |
+
+> **#42 修正方向**：旧口径是 `normal 65k > hard 42k > brutal 28k`——越难的档位负债越轻，与本节末句"难度差异只体现在负债起点"自相矛盾（玩家在建角向导里一眼看出顺序倒了）。现在改成**越难背得越多**，且只抬高不降低：**normal 钉在 $65k 不动**，因为 #19 那轮"前期约一半局不该死于学贷"的定标就是量在 normal 这一档的；hard/brutal 分别抬到 $90k / $115k。三档宽限期仍同为 20 个月，难度差异只走负债一条轴（#19②的纪律不变）。
 
 **月计规则**（loanStep 逐步语义）：
 - 月息 = `debt × interestAnnual(0.045) / 12`，进欠息桶 `G.debtAccr`——**单利**：桶内欠息当月起不再生息；每年 1 月桶资本化一次（计入本金）。
@@ -1915,7 +1928,7 @@ POTUS.define("balance", { campaign: {
 即原 6/4/3 会让八成局在前期死于学贷（且越穷宽限期越短，方向反了），故改为 **20/20/20**：
 定稿后实测 `--games=100`（normal）**信用破产 41/100 局**、每局最长连续断供中位 14 / p90 20（撞闸即停）——
 即约六成活过学贷关，落在「前期有一半局不该因学贷出局」这条口径内。
-难度差异只体现在**负债起点**（65k/42k/28k）而不体现在宽限期上，断供 12 月起先由催收/征信事件报警。
+难度差异只体现在**负债起点**（65k/90k/115k）而不体现在宽限期上，断供 12 月起先由催收/征信事件报警。
 50% 存活率是按「前期不该有一半局因学贷出局」这条产品口径取的，不是几何最优——
 调整前先跑一次 `--late-cap=99` 重取换算表。
 
@@ -1941,6 +1954,6 @@ POTUS.define("balance", { campaign: {
   **卡池有自己的一把尺（#40 重标）：卡面 1 属性点 = $1k**，档位单位 **白 1 / 蓝 3 / 紫 6 / 金 15**，形态：白 = 单系 +1 或「+2 并别维 −1」或 $1k；蓝 = 单系 +3 或三围各 +1 或 $3k；紫 = 三围各 +2（或单系 +6）或 $6k；金 = 三围各 +5（或单系 +15）或 $15k，外加**特效**（`spare` 免死一类）。
   它**故意比自由点尺（1 点 = +10 属性 = $2k）小一个数量级**：一张金卡的属性面只有建角 12 点池（120 属性点）的 13%，卡池于是从"成长预算的一大块"退回成**风味倾斜 + 只有池子给得出的被动**（免死 / 大成功翻倍 / 健康衰减 / 派系 / 人情）。
   三条纪律由 validate 的「卡池标尺」节钉住：**净值 ≤ 档位单位**、**正项 ≤ 单位 + 负项**（只许用"还给池子的点"换超额单项，于是 +2/−1 合法而 +6/−1 的白卡判红）、**钱卡 = 单位 × $1k**；白/蓝另要求净值**恰好等于**档位（紫/金只要求不超，多维合计）。派系点 / 声望 / 人情 / `mods / crit / luck / hpDecay / voterDrift / spare` 不占这把尺。
-- normal/hard/brutal 开局挂学贷（§15，`startDebt 65k/42k/28k`）；easy/legendary 无贷。断供闸三档同宽（`lateLimit 20/20/20`），不"越穷宽限期越短"。
+- normal/hard/brutal 开局挂学贷（§15，`startDebt 65k/90k/115k`）；easy/legendary 无贷。断供闸三档同宽（`lateLimit 20/20/20`），不"越穷宽限期越短"。
 - **作弊码**在建角页（第 2 步天赋墙旁，`#cheatcode` 输入框 + 键盘连打两条路）：`woshishabiN` 把本局当"第 N+1 周目"开——自由点额度与高稀有卡概率一起抬（夹到 `cheatMax: 10`，可累加，只影响本次建角、不写 localStorage）。已掷过的牌面不变脸，要看橙卡得「换一批」。
 - 「定命一掷」（掷骰/重掷/VIP 码加点）已在 #20 **整条删除**，`balance` 里不再有 `rollAttrs`；写内容契约与文案时按上面的三步向导口径说话。

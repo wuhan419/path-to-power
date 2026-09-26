@@ -99,15 +99,51 @@
    */
   /* ---------- #33 钉卡规范化（一次性）----------
    * 凡出现在 reg.fixed / 任一 era.scheduled 里的卡 = 世界事实，到点必发：
-   * tierMax 一律抬到 9（当年写死的顶层闸会把爬到中高层的玩家整年挡在史实之外——
-   * 1990 后「事件荒」六成根因）。tierMin 保留：底层玩家还没资格卷入高层专属卡。 */
+   * tierMax 抬到「总统以下」（TOP-1 = 8）。当年写死的顶层闸会把爬到中高层的玩家整年
+   * 挡在史实之外（1990 后「事件荒」六成根因），所以抬；tierMin 保留：底层玩家还没
+   * 资格卷入高层专属卡。
+   *
+   * 但不抬进总统级本身。钉卡是以**旁观者/地方官员**视角写的世界事实——「开票三天，
+   * 全国还不知道总统是谁」「联邦来人在你辖区调阅记录」——主角自己坐在椭圆办公室里
+   * 时这些话就不成立了（玩家实测：已经是总统还在替他党呐喊）。唯一的放行口由内容自己
+   * 声明：卡上写了 tierRaw + tierMin:TOP 的**总统视角选项**（#21 M4 的决策档，
+   * validate 逐条查它必吃 appr、胜算必挂 approval），才说明这张卡真备好了"在位时
+   * 看到什么"，于是照旧放到顶层。没写的一律停在 8 级以下。
+   * 总统月不会因此空掉：白宫月决策（presidency.js 的 whiteHouseSlot）本来就是
+   * 每月必排的另一条"到点必演"通道。 */
+  function pinCeil(ev) {
+    const TOP = P.tierTop();
+    return P.pinPresidentView(ev) ? TOP : TOP - 1;
+  }
+  /* 这张卡是否备好了「总统本人那一档」：某个选项的层级门槛**下沿就压在总统级**
+   * （#21 M4 / §1174 的决策档写法：tierRaw + tierMin:TOP）。只写 T7+ 的不算 ——
+   * 那是国家级决策担当，不是椭圆办公室。判据取自内容已有的声明，不新增字段：
+   * 补上决策档就自动放行，撤掉就自动收回。 */
+  P.pinPresidentView = function (ev) {
+    const TOP = P.tierTop();
+    const chs = (ev && ev.choices) || [];
+    for (let i = 0; i < chs.length; i++) {
+      const w = chs[i] && chs[i].when;
+      if (!w || !w.tierRaw || w.tierMin == null || w.tierMin < TOP) continue;
+      if (w.tierMax != null && w.tierMax < TOP) continue;
+      return true;
+    }
+    return false;
+  };
   function normalizePins() {
     if (P._pinsNormalized) return;
     P._pinsNormalized = 1;
     const ids = P.pinIds();
     let n = 0;
+    P.pinPresidentOpen = 0;
     P.events.forEach(function (ev) {
-      if (ids[ev.id] && ev.tierMax != null && ev.tierMax < 9) { ev.tierMax = 9; n++; }
+      if (!ids[ev.id]) return;
+      const cap = pinCeil(ev);
+      if (cap === P.tierTop()) P.pinPresidentOpen++;
+      /* 没写 tierMax = 本来全层通行：只有封顶正好落在顶层时才可以不写 */
+      if (ev.tierMax == null && cap === P.tierTop()) return;
+      if (ev.tierMax === cap) return;
+      ev.tierMax = cap; n++;
     });
     P.pinCount = n;
   }
@@ -139,7 +175,11 @@
           /* #33：静默丢弃变响——记下为什么没发出去，供 trigger-scan / 完成记录诊断 */
           let why = "gate";
           if (ev.tierMin != null && G.tier < ev.tierMin) why = "tierMin";
-          else if (ev.tierMax != null && G.tier > ev.tierMax) why = "tierMax";
+          else if (ev.tierMax != null && G.tier > ev.tierMax) {
+            /* 总统级被挡下必然是"这条史实没写总统视角"（钉卡封顶就是 TOP-1），
+               单独一个原因：它是设计，不是 #33 那种触发荒。 */
+            why = G.tier >= P.tierTop() ? "president" : "tierMax";
+          }
           (G.pinMiss = G.pinMiss || []).push({ y: G.year, id: s.event, why: why });
           if (G.pinMiss.length > 500) G.pinMiss.shift();
           return;
