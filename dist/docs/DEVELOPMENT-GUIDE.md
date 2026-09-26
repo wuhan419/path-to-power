@@ -70,7 +70,8 @@
 ```
 
 - **语义锚**：系数 `1.0` = T2 基准人物（主属性 50）在该量级的标准份量。
-- **标尺参数**在 `content/01-config.js` 的 `balance.econ`（`funMonths / repBase / tierLean / attrLean / coefMin / coefMax / coefMaxFun`；`hpBase` 只是退役键的遗留项）。改这些会平移全局经济曲线，**改完必须重跑 `validate.js`**。
+- **标尺参数**在 `content/01-config.js` 的 `balance.econ`（`funMonths / repBase / tierLean / attrLean / coefMin / coefMax / coefMaxFun / repGateMax`；`hpBase` 只是退役键的遗留项）。改这些会平移全局经济曲线，**改完必须重跑 `validate.js`**。
+- **门槛不是收益**：`req.rep` 走 `P.ruler.repGate = repBase[量级] × 职级系数`，**不吃属性系数**，再夹在 `repGateMax`（现 80）以内。别把它当成上面那条声望公式的捷径——加了 attrF 的门槛会随魅力反向收紧（越会来事越进不了那道门），顶破声望上限 100 就等于把这张卡唯一的升位选项永久锁死；validate 的 ④b 逐卡盯这件事。
 - 系数合法区间由 `validate.js` 逐卡核对（`fun` 因天然上百份而单独放宽到 `coefMaxFun`）。
 - 健康(`hp`)与精力(`ap`)已于 v0.9 退役，不再是经济字段；残留写法是空操作（见 §5.3）。
 
@@ -106,8 +107,8 @@
 │   │   ├── vignette.js       ★ 静好岁月：平静月随笔拼装 + "按部就班"的成长结算
 │   │   ├── progression.js    终局判定（声明式规则）+ 生涯结算（career_end / president_done）
 │   │   ├── art.js            三级降级的程序化 SVG 插画（事件专属 → 类型默认 → 引擎兜底）
-│   │   └── view/             ★ 界面层：原 render.js 按职责拆分为 7 片（shell/title/create/
-│   │                            topbar/leftbar/stage/actions.js；shell.js 最先加载，定义 P.boot）
+│   │   └── view/             ★ 界面层：原 render.js 按职责拆分为 8 片（shell/title/create/
+│   │                            topbar/leftbar/stage/actions/fanfare.js；shell.js 最先加载，定义 P.boot）
 │   ├── content/              ☆ 内容：随便加，引擎自动适配
 │   │   ├── 01-config.js      平衡参数 / 投注级别价 / 派系 / 仇家(wrath) / 学贷(studentLoan) / 轨道 / 党派 / 姿态 / 词条名 / 静好成长曲线
 │   │   ├── 05-categories.js  ★ 事件类型 13 个（每个自带默认配图与配色）+ 量级定义
@@ -731,12 +732,13 @@ POTUS.define("vignette", {
    - `tier` = 目标级（= 起跳级 + 1）；`gate` 与对应末幕 `prog_*` 的 `tierRaw/tierMin/tierMax/minTenure` **完全对齐**。
    - `stages[]` 一幕一幕，**末幕一律复用 `60-progression.js` 的 `prog_*` 并标 `final: true`**（投票日，只有它授 tier）。
    - 每幕给 `maxMonths`（窗口内演不出来 = 竞选拖垮崩盘）；需要张力就给 `abortBelow`（选情跌破即当场败选）。
-2. **写各幕事件**（`content/events/65-campaign-acts.js`）：除末幕外的每一幕一张卡（现行 9 条链 / 30 张幕事件）。
-   - 一律 `valence:"risk"`（有输有赢）、`category:"career"`、`tierRaw:true`、`tierMin/tierMax` 钉在本场起跳级；**不锁 track**。
+2. **写各幕事件**（`content/events/65-campaign-acts.js`）：除末幕外的每一幕一张卡（现行 9 条晋升链 + 2 条在任链 / 31 张幕事件）。
+   - 一律 `valence:"risk"`（有输有赢）、`category:"campaign"`、`tierRaw:true`、`tierMin/tierMax` 钉在本场起跳级；**不锁 track**。
    - 选情靠事件自己的 `effects.camp:{ momentum:±x, warchest:±y }` 撬动（`camp` 键见 `CONTENT-SCHEMA.md` §6）。
    - 遵守三值性 risk 契约：**既要有一个无风险保底选项，又要有一个高波动"博一下"选项**（`validate.js` 会逐条核这两点）。
+   - **#39 资源入场券**：语义上就是"砸钱换声势 / 借人脉办事"的选项才接 `stake: CAMP_FUN`（6%/档、+42% 封顶）或 `CAMP_FAV`（1 点人情换重投取优）；广告类选项另接 `req:{ camp:N }` 金库闸。三条红线由 `validate.js` 盯住：基层两链整体不接、每张带加码的卡必须留一条零资源通路、`ballot:true` 的投票日选项一概不接。
 
-规模随职级缩放：基层 3 幕、州级 4 幕、联邦/大位 5 幕、总统 6 幕。非民选轨道（任命/操盘手/巨富/名人）**不套竞选链**——它们有自己的 `prog_*` 里程碑。
+规模随职级缩放：基层 3 幕、州级 5 幕（#39 起多一幕筹款 `camp_raise_state`，三链共用）、联邦/大位 5 幕、总统 6 幕。非民选轨道（任命/操盘手/巨富/名人）**不套竞选链**——它们有自己的 `prog_*` 里程碑。
 
 改完照例 `node tools/validate.js`——它会跑竞选链的推进、崩盘、末幕授级与整局曲线。
 
@@ -755,7 +757,7 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 
 ### 6.1 可以改
 - 新增机制字段（如"清算计数""学贷步骤"）——**先改契约，再改实现**
-- 修复 bug、优化性能、改进界面（`engine/view/` 七片 + `style.css`）
+- 修复 bug、优化性能、改进界面（`engine/view/` 八片 + `style.css`）
 - 调整 `tools/validate.js` 的校验覆盖
 
 ### 6.2 不可破坏的契约（破坏 = 所有内容失效）
@@ -933,9 +935,12 @@ choices: [
 | 背景卡 / 时间 | 统计 `brief` 与带日期覆盖率（快照口径）；低压力年份能抽到平静月 |
 | 月度回合 / 量级 / 媒介 | 压力→档期数与量级分布的单调性；`fixed`（含兼容的 `era.scheduled`）定点必发且约束生效；媒介时间轴门控；每年档期数统计 |
 | 掷骰分布 | 1 万次投掷，验证 crit≈15%、critfail≈3% |
-| 资源经济 | 投注加值/花费计算、余额夹取、95% 封顶、advantage 分布优于单次；**投注级别价（单价随身位·不随钱包）**（`stakeFunPer` 随层级单调升、同一身位下余额 2 万/200 万与"事件写没写钱"都不改单价、`stakeMax = min(ceil(cap÷w)=8 档, floor(余额÷per))`、major 一档贵过 minor、T0 家底 $10k 投得起第一档、写死 `per` 原样保留且 `source==="content"`、per 是 500 的整数倍且落在 `[perMin,perMax]`、`stakeRateNote` 文案交代「按身位定价 + 家底只决定档数」）；**#28② 的 `funMul` 吃 INT**（收益随 INT 递增、INT50 不缩放、翻车时高 INT 亏得少、无本金声明不许凭空生钱）与事件经济闸（`funMul ∈ [-1,+3]`、每个 `funMul` 选项必须有 `cost.fun`/`req.fun` 本金） |
-| 把柄 / 人脉 / 事件链 / 在位时长 | `lev` 可加/可花/不为负、`bonusPressure.leverage`（≥3 份顶活跃度）与年度衰减；人脉引用完整性；`after` 链闭合与窗口门控、续集加权实测 ≈90%；`minTenure` 合法性与 `monthsAtTier` 门控；`count/countMin/countMax/countEq` 仇恨计数闭环（wrath 登记 ↔ 事件引用）；**单卡节奏三道闸**（`idRepeatMul` 终身衰减、`idRepelMonths` 硬冷却、`prog_*` 与定点档期豁免）与 **#28② `pace:"exempt"` 豁免通道**（衰减恒 1、不吃硬冷却、仍被 `pace.grayMax` 拦下；内容纪律：exempt 必须显式 `unique:false`） |
+| 资源经济 | 投注加值/花费计算、余额夹取、95% 封顶、advantage 分布优于单次；**投注级别价（单价随身位·不随钱包）**（`stakeFunPer` 随层级单调升、同一身位下余额 2 万/200 万与"事件写没写钱"都不改单价、`stakeMax = min(ceil(cap÷w)=8 档, floor(余额÷per))`、major 一档贵过 minor、T0 家底 $10k 投得起第一档、写死 `per` 原样保留且 `source==="content"`、per 是 500 的整数倍且落在 `[perMin,perMax]`、`stakeRateNote` 文案交代「按身位定价 + 家底只决定档数」）；**#28② 的 `funMul` 吃 INT**（收益随 INT 递增、INT50 不缩放、翻车时高 INT 亏得少、无本金声明不许凭空生钱）与事件经济闸（`funMul ∈ [-1,+3]`、每个 `funMul` 选项必须有 `cost.fun`/`req.fun` 本金）；**回款必须先归还本金**（⑨ 重写：非负倍率**绝不许净亏**，`0.2/0.6/0.8/1.5/2` 五档逐个断言净赚 = 本金×倍率；`-1.0` 正好亏光、不许倒欠；只当资格闸的 `req.fun` 计进参照本金但不扣款） |
+| 把柄 / 人脉 / 事件链 / 在位时长 | `lev` 可加/可花/不为负、`bonusPressure.leverage`（≥3 份顶活跃度）与年度衰减；人脉引用完整性；`after` 链闭合与窗口门控、续集加权实测 ≈90%；`minTenure` 合法性与 `monthsAtTier` 门控；`count/countMin/countMax/countEq` 仇恨计数闭环（wrath 登记 ↔ 事件引用）；**单卡节奏三道闸**（`idRepeatMul` 终身衰减、`idRepelMonths` 硬冷却、`prog_*` 与定点档期豁免）与 **#28② `pace:"exempt"` 豁免通道**（衰减恒 1、不吃硬冷却、仍被 `pace.grayMax` 拦下；内容纪律：exempt 必须显式 `unique:false`）。**④b 声望门槛必须够得着**：逐张 dyn 卡在最坏情况（三围顶格 100、`tier = ev.tierMax`）展开 `req.rep`，任何门槛顶破声望上限 100 即判红（那等于把这张卡唯一的升位选项永久锁死），晋升脊柱 `prog_*` 的门槛还要全部落在 `balance.econ.repGateMax` 之内；展开口径是 `ruler.repGate`（量级×身位，**不吃 attrF**），面板打印 ladder 供标定 |
 | 学贷 / 生涯结算 | `studentLoan` 各难度开局本金、单利计息/1 月资本化/月供/断供判定、缓交与 PSLF 全生命周期、连续断供超 `lateLimit` → `bankrupt`；存档版本门禁（`saveVer` < `SAVE_FORMAT_MIN` 判旧）；`endYear 2025` → `career_end` 七条 `career_*` 结局与 `president_done` 分支可达 |
+| 竞选：判负口径与资源入场券 | `abortBelow` **只允许 momentum**（#35⑤：钱退出胜负手）+ 各链起步天花板不得低于播种下限；投票日 `ballot` 选项与 `tier` 授予一一对应；**#39 八条硬断言**：州级以上每条链既要有的砸钱幕也要有欠人情幕、带加码的幕必须留一条零资源通路、`req.camp` 只能挂在有 `meters.warchest` 的链上、带金库闸的卡不许整卡都要金库、竞选幕资金加成 ≤ `+42%`、`ballot:true` 的选项**不得**声明 `stake`，外加**金库闸的两端**——闸值必须**高过**该链起步金库（否则一开场就白送，是第二张只写不读的表）、也必须**挣得回来**（≤ 起步 + 前置各幕最好进项，否则那是永远打不开的死锁）；外加**软门槛读数**（同一人 家底 0 / 8 档 / 80 档 / 8000 档 → 种子选情，对称于 `seed.funRef` 且上下各封 `±perFun`，再多钱也不白送第 6 点）。逐链覆盖率面板（非投票日幕数 / 可砸钱 / 可欠人情）与**金库闸面板**（每条闸：要多少 ｜ 起步多少 ｜ 走到那一幕最多攒到多少）随节打印 |
+| 总统授予硬闸与全国选区 | 跨进 `balance.tierMax` 的那一步**只认投票日来源**：非投票日 `tier:+1` 与破格 `tier:+2` 都进不了总统级、`isPresident()` 仍为假，拦下时**折 +3 声望**（与资历闸同表达），而 `tierMax` 以下的晋升**不受误伤**；喂满资历闸再测，确保拦下的一定是总统闸。总统级的基本盘卡面**不得**出现家乡州名、必须改口「美利坚」（`voterBase.nationalTier`）；生涯模拟与 `stage.js` 同一口径（`applyEffects(eff, {election:!!ch.ballot})`），否则模拟会替内容绕过这道闸 |
+| 升职庆典（`view/fanfare.js`） | **入队判定**：`tier:+1` 入队一条、资历闸拦住的**不**入队、`tier:+3` 跳级只入队一条（span=3）且 `served_*` 只记起点级（跳过的中间级留白＝资历债）、`fall` 不入队；**载荷口径**：`size0 < size1`、`die1 > 0`、`promoteCount` 同步 +1；**纯函数 `fanfareHTML`**：10 格阶梯 + `now`/`past`/`skip`、三行对比、非顶点出「下一级」而顶点出专属措辞；**环境容错**：`popFanfare` 在没有 `appendChild` 的 DOM 桩上安静跳过并把队列清空（不抛、不谎报弹成）；**旧档兼容**：`fanfareQ`/`promoteCount` 字段缺失时 `applyEffects` 就地建队、`migrate()` 清空 `fanfareQ` 但保住 `promoteCount` |
 | 静好岁月 / 每月的账 | 片段注册完整性、时令 12 月覆盖、槽位兜底、极端处境都拼得出文字；`settleQuietMonth` 幂等、成长不越界且随年龄衰减；**#37③ 成长预算**（`attrChance ≤ 0.10`、`attrCap < 100` 自由点硬顶、`attrKeys` 不含 INTG、`funChance/funRate/trackBonus.*.fun` 必须**不存在**＝资金暗账已删）；`monthlyLedger` 入账与幂等（工资/开销/学贷/选民单点结算） |
 | 事件配图（照片层） | 登记类型 key 在 `reg.category` 内；**`fs.existsSync` 逐文件检查照片在磁盘上**；缺图退 SVG；`ev.photo` 覆盖与关闭 |
 | i18n | 多语言覆盖层自检：`--lang=en` 下至少有一张卡变英文（覆盖层没生效会响）；l10n 定义形状合法 |
@@ -944,13 +949,15 @@ choices: [
 
 ### 9.2 `tools/smoke-ui.js`（jsdom，改 UI/机制时跑）
 
-真的起一个 DOM，把「标题 → **建角三步向导（难度+姓名 → 天赋抽卡 → 自由点）** → 年卡 → 事件/平静 → 日期/量级/类型/媒介 → 事件配图（照片 + 缺图退 SVG）→ 背景卡折叠 → 代价标签 → 缺资源变灰 → D&D 投注面板 → 投注上限护栏 → **投注级别价（单价随身位·不随钱包）** → 死局保护 → 确认判定 → 掷骰结算 → 收益面板/职位卡 → 把柄 / 人脉 / 「承前」条 → **上班的账 + 静好岁月合并卡** → 悬浮说明气泡 → 选民动态 → 跨年直进（无年终屏）」整套点击一遍。
+真的起一个 DOM，把「标题 → **建角三步向导（难度+姓名 → 天赋抽卡 → 自由点）** → 年卡 → 事件/平静 → 日期/量级/类型/媒介 → 事件配图（照片 + 缺图退 SVG）→ 背景卡折叠 → 代价标签 → 缺资源变灰 → D&D 投注面板 → 投注上限护栏 → **投注级别价（单价随身位·不随钱包）** → 死局保护 → 确认判定 → 掷骰结算 → **升职庆典弹窗** → 收益面板/职位卡 → 把柄 / 人脉 / 「承前」条 → **上班的账 + 静好岁月合并卡** → 悬浮说明气泡 → 选民动态 → 跨年直进（无年终屏）」整套点击一遍。
 （历史上"AI 设置面板/润色按钮"的断言已随 llm.js 下架全部移除；不要把它们加回来。）
 
 其中容易被改坏的断言（节选）：
 - **投注级别价**：同一选项 T5 一档贵过 T0、同层级财富轨道不便宜于选举轨道；**余额从 5 万翻到 5000 万，`per` 一分不动**，只体现为档数变多；面板必须渲染出 `.stake-rate` 说明条并写明「按身位定价 / 月薪 / 家底只决定押得起几档」；T0 家底 $10k 至少投得起 1 档（旧版写死 $250k 时恒为 0）。
 - **把柄 / 人脉 / 链**：人脉显示姓名不是 id；`cost:{lev}` 不足置灰；`req.contact` 写明要先认识谁；「承前」条写出上一幕标题与间隔。
+- **竞选幕的加码与金库闸（#39）**：金库 3 时「买广告、打空中战」必须置灰且按钮文案里写明「竞选金库…现在 3」，而草根那一面仍可点；金库 20 解除；基层链（`meters` 没有 `warchest`）自动放行；点可砸钱的选项真的弹出 `#stake` 面板，`stakeCapPct("fun")===42`、7 档押满后加号禁用、加成从 50% 顶到 92%；`prog_council`（投票日）面板上**不许**出现「可投入资源」，其所有选项 `stakeSpec()` 必须为 `null`。⚠️ 这里必须用 `P.realize(...)` 拿卡——直接 `presentEvent` 原始事件会让 `cost.funLevel` 永远实现不了、选项恒灰、面板根本不开（曾被误判成"加码坏了"）。
 - **静好 / 每月的账**：合并卡真的报出工资/开销/结余与选民变化；静好成长**不再重复结选民**（voterDrift 已归 monthlyLedger 单点）。
+- **升职庆典**：走**真实的 `resolveChoice`**（不是手搓 DOM）——结算页必须仍在庆典窗底下（庆祝不吃叙事）、阶梯画满 10 格且 `now`/`past` 各就各位、大标题是真头衔而不是「等级 N」、三行对比里必须有 `$`、非顶点要预告下一级；**点背景 + 等 1.2 秒都不许关**（唯一出口是「就任 →」）；`afterEvent` 的兜底 flush 要能把漏网的晋升弹出来，而 `fall` 之后队列必须还是空的。
 - **版式**：v0.10 头版社论顺序——配图在正文之前（标题→导语→图→正文）；晋升类选项自动吃「选民底气」修正。
 - **遗留路径**：旧全量建角（掷骰/VIP/选州）的引擎函数仍须可调用（回退保险），但现行入口是三步向导（`view/create.js`）。
 - **建角预览**：第 3 步属性行必须等于 `startAttr + 自由点×10 + 已选卡`，且**零白送**——难度/出身/起点/州都不加三围（#37②，`balance.startAttr` 0/0/0、诚信 50）。
@@ -963,6 +970,11 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 ```
 
 > 引擎本身零依赖；jsdom 只有 UI 冒烟用到，装在隔离工作区，不进游戏目录。
+
+> **要看真像素（截图复核新界面时踩过）**：jsdom 没有布局，量不出宽度。用 headless Chrome 截静态页——
+> `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --user-data-dir=$(mktemp -d) --window-size=1440,1100 --virtual-time-budget=4000 --screenshot=shot.png file://<abs>/preview.html`，
+> 配 `--dump-dom` 可以在脚本里读 `getBoundingClientRect()` 量出真实盒模型。
+> **坑：`--window-size` 的宽度有 500px 下限**（`innerWidth` 会被抬到 500），所以"390px 截图被裁掉"多半是工具的锅而不是 CSS 的锅——先量 `innerWidth` 再下结论。
 
 **接入 CI 建议**：pre-commit 或 CI 里跑 `node tools/validate.js`（退出码非 0 即拒绝）；涉及 UI 的 PR 再加跑 `smoke-ui.js`；并行内容作业的门禁组合（validate + density-scan + i18n-coverage + gen-manifest --check）挂在 `tools/merge-worker.sh` 里。
 
@@ -989,10 +1001,10 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 
 ## 10. 已知限制与路线图
 
-**规模快照（2026-09-24，易漂移计数一律以 validate/density-scan 输出为准）**：事件约 306 张（events/ 共 42 个文件）、结局规则约 25 条、时代仅 5 个（pre-1980 已冻结进 `deprecated/`）、`fixed` 定点 27 处 define / 约 142 条、带日期事件约 131/306、平均约 9 档期/年、静好素材约 58 条、照片 13 张（13 类全覆盖）、州 10 个、竞选链 9 条 / 幕事件 30 张、事件类型 13 个。
+**规模快照（2026-09-26，易漂移计数一律以 validate/density-scan 输出为准）**：事件 **360** 张（其中带背景卡 360/360、带日期 136/360）、结局规则 27 条、时代仅 5 个（pre-1980 已冻结进 `deprecated/`）、`fixed` 定点 147 条（1991—2024 触发率 100%）、事件类型 13 ｜ 量级 3 ｜ 时代媒介 8、填充包 2、出身 4 / 天赋 6 / 起点 6 / 轨道 5 / 党派 3 / 派系 11、**竞选链 11 条（9 条晋升 + 2 条在任）/ 幕事件 31 张**、白宫月决策卡 24 张、静好素材 58 条、照片 13 张（13 类全覆盖）、州 10 个。年均档期：demo 6.8 / 全生涯 5.4。
 
 **当前真实限制（v0.12）**
-- **内容量已不是主要瓶颈**（306 张卡 + 全年代线），质量瓶颈换成了**选项权衡**与**文字打磨**：`tools/choice-audit.js` 报出的"占优/过平"选项仍是逐卡回炉清单，`tools/text-audit.js` 的长 body 同理。
+- **内容量已不是主要瓶颈**（360 张卡 + 全年代线），质量瓶颈换成了**选项权衡**与**文字打磨**：`tools/choice-audit.js` 报出的"占优/过平"选项仍是逐卡回炉清单，`tools/text-audit.js` 的长 body 同理。
 - **清算线是刻意的roguelike式劝退设计**：仇恨永不衰减、前哨战(≥25)与清算(≥55)两拍、fail/critfail **即死无保底**（assassinated/framed/ruined/purged 四条 BE + 学贷 bankrupt）。新内容引用 `countMin/countMax/countEq` 时要想清楚这条线要不要留活口——目前的答案是"不留，但每条都有泄压阀（低头/交钱/示好可削恨）"。
 - **学贷螺旋只有三档难度生效**（normal 65k / hard 42k / brutal 28k；easy/legendary 开局无贷）。v0.12 #25 起为**单利+年度资本化**：月息进欠息桶 `debtAccr`（桶内不再生息）、每年 1 月资本化进本金；断供口径（当月还款 < 当月新息）与 `lateLimit`（#19 定稿：**三档同宽 20/20/20**，旧 6/4/3 会让八成局前期死于学贷）靠 `validate.js --diff=X --games=100` 的校准面板盯着，改曲线必须重新校准。玩家侧有两扇正当门：缓交（`forbear`，声望换月数）与 PSLF（`pslf`，低层公职 120 月豁免）。
 - **多支路主线已砍掉**：`engine/arc.js` 与 `content/11-arcs.js` 保留在仓库但**不加载**；要复活需要重新过设计评审。
@@ -1013,6 +1025,9 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.11 | **经济重配**（工资曲线/负债谷底）；**i18n 双语地基**；**1980→2025 生涯线 + `career_end` 结算 7 条成就结局** | `en/` 覆盖层全量落树；1991—2024 密度达标 | ✅ |
 | v0.12 | **清算线**（wrath 登记 / `count` 效果 / `count*` 门槛 / fail 即死）；**学贷螺旋**（断供→bankrupt）；~~**投注三锚立方根 + 资金闸**~~（已划到 **#28① 级别价**：单价只看身位、`potShare`/`cashStakeShare`/`stakePot()` 全删）；**#28②** `pace:"exempt"` 豁免通道 + `funMul` 的 INT 修正；单卡终身衰减 + `rereq`；**竖屏/移动适配** | `140-reckoning.js` 清算包（前哨 25/清算 55 两拍、黑色幽默成就文案）；**#28③ `138-speculation.js` 投机包**（6 张 `shady`+`exempt` 的庄家生意） | ✅ 当前 |
 | v0.12 #21 | **总统任期逐月化 M1—M4**：`engine/presidency.js`（白宫月决策槽四族轮转 + 支持率 `appr` 与水位 + 届内日历 `raceDue` + `leaveOffice`/`presExitSettle` + `impeachmentDue`）；`campaign.js` 的 `incumbent`/`winKind:"retain"`/`winFlag` 三字段豁免；`dice.js` 的 `src:"approval"`（50% 零点对称）；`stage.js`+`style.css` 的椭圆办公室皮（`P.ovalCls`） | `147—151` 白宫池 24 张轮转（四族各 6，每族 1 张次任专属）+ 弹劾卡；`153/154` 连任与中期两条在任链（7 幕）；`40-endings.js` 遗产三档 S/A/B；5 张 1xx 线卡的总统视角选项；validate 六节断言 + 96 月探针 | ✅ |
+| v0.12 升职庆典 | **`engine/view/fanfare.js`**：层级只要往上走就盖一层典礼窗。触发缝在 `effects.js` 的 `tier` handler（唯一写 `G.tier` 处）——晋升/跳级/当选/转轨全自动吃到，资历闸拦住的与 `fall` 下跌不弹；`core.js` 抽出 `salaryAt(tier)`/`electorateAt(tier)` 两个纯查表版本供窗子复用；`G.fanfareQ` 是**一次性 UI 交接件**（`migrate()` 一律清空），`G.promoteCount` 才是账本；两个字段纯 additive，**不升 SAVE_FORMAT** | 新增 `ui.fanfare.*` 13 键 + `ui.effects.promoted`（EN 覆盖同步）；validate 庆典节 + smoke-ui 真点击一屏 | ✅ |
+| v0.12 #39 | **竞选：资源是入场券**——把"钱/人情/把柄"真接进竞选幕。三条病因：① 全库 130+ 处 `stake` 里竞选幕 30 张 **0 处**（面板永不弹出）② 内容侧 64 处 `camp.warchest` 而引擎侧**零读者**（只写不读的表是装饰）③ 越往高越好赢（种子选情 tier≥3 顶格）。落点：`req.camp` 新 req 词汇给金库第一个读者（`view/stage.js`）+ 州级三链补 `meters.warchest` 与共用筹款幕 `camp_raise_state`（幕数 4→5）+ 26 个选项接加码（15 投钱 `CAMP_FUN` 6%/档 · +42% 封顶，11 欠人情 `CAMP_FAV`）+ `seedMomentum` 第五项「家底」软门槛（对数、对称于 `funRef=8` 档、±`perFun=5`）。**金库要咬得住**：初版四道闸（6/10/14/18）全低于各链起步金库 → 探针读出 17 次出场 **0 次拦截**，等于又造了一张只写不读的表；重调为**起步金库下调**（10/12/14/16/18/24）+ **每幕定额拨款 `metersDelta:{warchest:3}`** + 6 道闸位（20/20/22/24/26/34）+ 三处新增进项（初选宣传片、辩论、党代会交易），实测 40 局拦 20%（不是墙、也不是空气）；`camp_vp`/`camp_reelect`/`camp_midterm` 干脆**删掉 warchest**（没有需要金库的一幕就不写这张表）。**红线**：基层两链整体不接、每张带加码卡留一条零资源通路、`ballot` 选项永不接 stake（并剥掉 `prog_city.run` 那处遗留） | `65-campaign-acts.js`（+1 卡、26 个 stake、6 处 `req.camp`）、`61-campaigns.js`（六链 meters 重排 + 新幕 + 19 幕拨款 + `balance.campaign.seed.perFun/funRef`）、`i18n/en/reg/61-campaigns.js` 幕名 + `en/events/65-campaign-acts-b.js` 正文；validate 新增「资源是入场券」节 8 断言（含闸值两端）+ 软门槛读数 + 金库闸面板、smoke-ui 14 断言（闸值从内容读、不写死）；探针 `tools/out/campres-probe.js`（30—40 局入场家底 / 押得起档数分布 / 闸拦截率 / 面板弹出次数 / 投票日胜率带）与 `campmap-probe.js`（逐卡 stake 清单） | ✅ |
+| v0.12 总统门槛与平衡两修（分支 `dev/presidency-guard`，已并入本支） | **白宫只认票数**：`P.applyEffects(eff, ctx)` 多一个上下文参，`tier` 处理器在「跨过 `balance.tierMax` 且缺 `ctx.election`」时拦下（与资历闸同表达：位子不动、折 +3 声望）；放行口只有两处 —— `view/stage.js` 按 `ch.ballot` 传、`campaign.js` 的链 `onWin` 打 `{election:true}`（副总统继任**仍未实现**，将来要开得用显式继任卡）。**声望门槛**：`scale.js` 新增 `ruler.repGate = repBase[量级] × tierF`（**不吃 attrF** —— 旧口径把 6 倍系数在 T8 展成 148，超过声望上限 100 等于把那张卡唯一的升位选项永久锁死，还造成"魅力越高入场券越难拿"的反向闸门），再夹 `balance.econ.repGateMax = 80`；内容侧系数回落（`prog_senate` 4.5→2.8 等）。**投资回款先还本金**：`effects.js` 的 `funMul` 用新增 `G.__stakePaid` 区分「参照本金」（cost + 只当资格闸的 req.fun + 投注，收益按它乘倍率）与「真扣走的那截」（cost + 投注），结果夹 0（`funMul:-1` 的语义是本金全亏，不许倒欠）。**总统级选区地名**：`voterBase.nationalTier: 9` → `topbar.js` 改口「美利坚 · 全国选民」，不再挂家乡州 | `60-progression.js` 8 张 `prog_*` 末幕按**开票夜**口径重写（中英含 known/rumor/unknown 条数对齐，`base/mods/req/outcomes` 数值一字未改；`prog_senate` 的"参议员/州长二选一"留给链侧一起改）；validate 新增 ④b 声望门槛守卫 + 重写 ⑨ 投资结算回归闸 + 总统闸五条 + 全国选区卡面断言。**与本支改动的接缝**：`effects.js` 的总统闸排在资历闸之前 `return`，所以被拦下的那一步**不进升职庆典队列**（`58c4a49`）；两侧共用 `ballot` 词汇但各查各的（#39 查它不许接 `stake`，总统闸查它给不给授级），合并零文本冲突、以上八道门禁在合并后的树上全绿 | ✅ |
 | 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
@@ -1038,6 +1053,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 事件节奏与成长预算（v0.12 #37 → #38） | 无需配置：`balance.pace`（`{yearRandomMax 1, grayMax 1, careerMax 2, eventMax 6}`，**非固定四桶年总闸 = 玩家口径「一年 2—6 件事」**）+ `balance.earlyCalm`（开局 24 月轻闸：`activeMul .8`／`choreMul .6`／`quotaMul .5`／`slotsCap 1`）+ `slotsMax 2`；**属性只有两条门**（自由点 + 卡池），可重复卡的 attr 只首次生效；**钱也只有两条门**（月账 + 事件卡），静好月不再产生资金 | core.js `P.earlyCalm/monthsInRun`、events.js `paceQuota/calmQuota/nonFixedRoom`、time.js `planMonth`、effects.js `filterOnceAttr`、vignette.js；调参口径见 §7.4 |
 | 出生州 | `content/12-states.js`：`{name, lean: D/R/S, strength:1-3, entryEffects}`；事件门槛写 `states:[...]`；倾向表 `when.states` | core.js `reg.state`、when.js `states` |
 | 下野（软 BE） | 效果键 `fall: 1或2`（降级+声望重挫+fallen 标记+12 月保护期）；tier≥3 退休 → `retire_comeback` | effects.js `fall`、view/stage.js 交代卡 |
+| 升职庆典弹窗 | **内容侧零配置**：任何让 `G.tier` 变大的效果都会自动盖一层典礼窗（`tier:+1` 晋升、`tier:+2/+3` 破格跳级、竞选当选、`setTrack` 转轨里程碑）；被 `tierGates` 资历闸拦住的和 `fall` 下跌不弹。要加读数就改 `fanfareHTML`，数据全查既有口径（`salaryAt`/`electorateAt`/`tierGates`） | effects.js `tier`（唯一入队点）、view/fanfare.js（`fanfareHTML`/`popFanfare`）、stage.js 两处 flush、core.js `migrate` 清队列 |
 | 硬结局 | 效果键 `hardEnd: "prison"\|"disgrace"\|清算四条\|"bankrupt"` → 终局直接收口 | effects.js `hardEnd`、40-endings.js |
 | 路线转向 | 效果键 `setTrack:"operative"` / `setStance:"outsider"` | effects.js |
 | 收益面板 / 选项说明 | `resolveChoice` 自动翻译收益（tagNames 登记过的 flag 才翻译）；选项可写 `note:"这条路意味着什么…"` | view/stage.js、view/actions.js |

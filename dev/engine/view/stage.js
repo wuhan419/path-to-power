@@ -181,6 +181,9 @@
       P.ending(why);
       return;
     }
+    /* 当选发生在月度推进里（campaignTick 于 time.js 收官），后面没有 resolveChoice 也没有 afterEvent
+       可等 —— 不在这儿 flush，计票夜的庆典就要压到下一个事件结算时才弹。排在终局判定之后。 */
+    if (P.popFanfare) P.popFanfare();
     if (run.length) {
       const nextCall = ok ? "POTUS.nextSlot()" : "POTUS.endYear()";
       /* #34：年终结算屏下线后，年末按钮直接写「进入下一年」—— endYear 结完账自己翻年 */
@@ -311,6 +314,15 @@
     if (!r) return null;
     if (r.fun != null && G.fun < r.fun) return P.t("ui.stage.reqFun", "需要资金 ≥ ${v}", { v: r.fun.toLocaleString() });
     if (r.lev != null && (G.lev || 0) < r.lev) return P.t("ui.stage.reqLev", "需要把柄 ≥ {v}", { v: r.lev });
+    /* #39：竞选金库门槛 —— "买不买得起广告"由这一场筹到的钱决定，不是私人余额。
+       金库从此有了读者（它过去只写不读）。这一场根本没有金库这张表时不拦：
+       基层链没这张表、校验器也会直掷幕卡，那时维度不存在 ≠ 玩家不够格。 */
+    if (r.camp != null) {
+      const cur = P.campaignCurrent ? P.campaignCurrent() : null;
+      const w = cur && cur.meters ? cur.meters.warchest : null;
+      if (w != null && w < r.camp)
+        return P.t("ui.stage.reqCamp", "需要竞选金库 ≥ {v}（现在 {now}）", { v: r.camp, now: Math.round(w) });
+    }
     if (r.rep != null && G.rep < r.rep) return P.t("ui.stage.reqRep", "需要声望 ≥ {v}", { v: r.rep });
     /* #35④：投票日的门槛只看人头，不看钱包 —— 基本盘（好感+死忠）占注册选民的比例 */
     if (r.voterShare != null && (P.baseShare ? P.baseShare() : 0) < r.voterShare)
@@ -406,14 +418,20 @@
       const pct = Math.round(eff.funMul * 100);
       if (pct) {
         const base = (P.G.__stakeBase != null && P.G.__stakeBase > 0) ? P.G.__stakeBase : null;
-        /* 口径说清楚：本金在选下这项时已扣，这里给的是"这一单回款到账多少"。
-           赚 80% = 投 5k 回 9k（5×1.8）；亏 60% = 投 5k 只回 2k。 */
+        /* 口径说清楚：本金在选下这项时已扣，这里给的是"这一单回款到账多少"（**含归还本金**）。
+           赚 80% = 投 5k 回 9k（5×1.8）；亏 60% = 投 5k 只回 2k。
+           金额与 effects.js 的 funMul 同一个式子（含 #28② 的 INT 修正、夹 0），
+           显示的百分数按实际到账反推，账面与结算不再两张皮。 */
         const fmtK = n => (Math.abs(n) >= 100 ? Math.round(n / 1000) : Math.round(n / 100) / 10) + "k";
         let v;
-        if (base != null && pct >= 0) {
-          v = P.t("ui.stage.funMulGain", "回款 ${v}（本金 ${b} 赚 {p}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), p: pct });
-        } else if (base != null) {
-          v = P.t("ui.stage.funMulLoss", "回款 ${v}（本金 ${b} 已亏 {l}%）", { v: fmtK(base * (100 + pct) / 100), b: fmtK(base), l: -pct });
+        if (base != null) {
+          const k = P.funMulIntMul ? P.funMulIntMul(P.G) : 1;
+          const paid = (P.G.__stakePaid != null && P.G.__stakePaid > 0) ? P.G.__stakePaid : 0;
+          const back = Math.max(0, Math.round(paid + base * (pct >= 0 ? pct / 100 * k : pct / 100 / k)));
+          const net = Math.round((back - paid) / base * 100);
+          v = net >= 0
+            ? P.t("ui.stage.funMulGain", "回款 ${v}（本金 ${b} 赚 {p}%）", { v: fmtK(back), b: fmtK(base), p: net })
+            : P.t("ui.stage.funMulLoss", "回款 ${v}（本金 ${b} 已亏 {l}%）", { v: fmtK(back), b: fmtK(base), l: -net });
         } else {
           /* 没有本金声明（req/cost/投注全空）：引擎侧这笔会空转（effects.js），显示同样不给金额 */
           v = P.t("ui.stage.funMulPct", "{pct}%（本金）", { pct: (pct >= 0 ? "+" : "") + pct });
@@ -826,9 +844,11 @@
     P.refreshPanel();
   };
 
-  /* funMul 的本金基数（investment base）：
-     结算前写入，applyEffects 用，结算完清零。 */
-  function G_stakeBase(v) { P.G.__stakeBase = v; }
+  /* funMul 的两个本金量，结算前写入、applyEffects 与结算条共用、结算完清零：
+       __stakeBase —— 本金【参照】（cost.fun + 入场费 req.fun + 投注）：收益按它乘倍率；
+       __stakePaid —— 其中【真扣走】的那截（cost.fun + 投注，不含只当资格闸的 req.fun）：
+                     payCost 已把它从账上拿走，所以回款必须先把它还回来。 */
+  function G_stakeBase(v, paid) { P.G.__stakeBase = v; P.G.__stakePaid = paid || 0; }
 
   /* 右栏（#actbar）的两个 HTML 快捷操作 */
   function actClear() { const bar = document.getElementById("actbody"); if (bar) bar.innerHTML = ""; }
@@ -858,10 +878,12 @@
     const effFinal = P.withEventVoters
       ? P.withEventVoters(out.effects, ev, ch, out, res.tier)
       : (out.effects || {});
-    /* 投资本金基数：选项 cost + 入场费门槛 req.fun + 投注的资金 —— funMul 按它算回报（不是总余额）。
-       v0.12：req.fun 也计入（"账上要有 60 万才吃得下这单"= 60 万压进这单）；
+    /* 投资本金：收益按【参照本金】乘倍率（cost + 入场费 req.fun + 投注），
+       而 payCost 只真扣掉 cost + 投注 —— 后者单独记一份，funMul 结算时按它【归还本金】。
+       v0.12：req.fun 也计入参照（"账上要有 60 万才吃得下这单"= 60 万的生意），
        三者全空的 funMul 在 effects.js 空转告警，绝不再拿总余额乘倍数。 */
-    G_stakeBase((ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (ch.req && ch.req.fun ? ch.req.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0));
+    const stPaid = (ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0);
+    G_stakeBase(stPaid + (ch.req && ch.req.fun ? ch.req.fun : 0), stPaid);
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、
@@ -869,8 +891,8 @@
        ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
     /* #37②：可重复卡的属性只发第一次（账面与实际同步，故在显示与结算之前过滤） */
     const effApply = P.filterOnceAttr(effFinal, ev.id);
-    P.applyEffects(effApply);
-    P.G.__stakeBase = 0;                       // 用完即清：后续事件不再吃旧本金
+    /* ctx.election：这一笔是投票日的结算 —— 只有它能跨过 effects.js 的「总统只能数票进」硬闸 */
+    P.applyEffects(effApply, { election: !!(ch && ch.ballot) });
     /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
     const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
     const div = document.createElement("div");
@@ -886,6 +908,11 @@
       gb.innerHTML = gainHTML;
       mainInsert(gb);
     }
+    /* 结算条要按本金算出"回款 $X"，所以清本金必须排在它之后 ——
+       原先清在 applyEffects 与渲染之间，渲染时 __stakeBase 已经是 0，
+       "回款 $X"那一档分支永远走不到（只剩"80%（本金）"这种没金额的说法）。
+       用完即清的语义不变：这里仍是本次结算的最后一站。 */
+    G_stakeBase(0, 0);
     const eff = effFinal || {};
     const newScandal = (eff.flags || []).some(function (f) { return f.indexOf("scandal_") === 0; });
     if (newScandal || out.news) {
@@ -905,6 +932,9 @@
     P.refreshPanel();
     if (P.flashStatusDiffs) P.flashStatusDiffs(prevVals);   // 状态栏标出这一手改变了什么
     P.autosave();
+    /* 升职了就在结果页上盖一层典礼窗（口径见 view/fanfare.js）：结算叙事照常渲染在底层，
+       玩家点「就任 →」关掉后回到这一页继续读收益和头条 —— 庆祝排在读结果之前，但不吃掉结果。 */
+    if (P.popFanfare) P.popFanfare();
   };
 
   P.afterEvent = function () {
@@ -924,6 +954,9 @@
     /* v0.11 P1：入主白宫不再是终局。达成最高层级时只记「曾任总统」状态，游戏继续打到 2025。
        完整任期/连任/表现分机制见 P2；此处先让「总统成为一种可继续任职的状态」。 */
     if (G.tier >= b.tierMax && !P.hasFlag("president_done")) { P.addFlag("president_done"); }
+    /* 兜底 flush：覆盖既不走 resolveChoice、也不走 nextMonth 的层级变化（开局卡效果、主线 onEnd）。
+       排在终局判定之后 —— 人已经死了就不该再放礼花。 */
+    if (P.popFanfare) P.popFanfare();
     /* 软 BE「下野」：fall 效果已把层级/声望/标记处理完。这里单独出一页交代卡，
        玩家点「继续」才推进 —— 不然 nextSlot 会立刻把这一页冲掉。游戏继续，东山再起留给后面。 */
     if (G.fallenThisTurn) {

@@ -298,6 +298,60 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
   check(P.stakeMax("fun", allIn) >= 1, "T0 家底 $10k 至少投得起 1 档（旧版固定 $250k 时恒为 0）");
 
+  /* ---------- #39 竞选幕：资源真能投进去，金库真有人读 ----------
+     用户原话："我已经是等级 5 了，也没有在竞选动用这些资源的选项。"
+     根因：竞选幕 0 个选项声明 stake（面板永不弹）+ warchest 只写不读。 */
+  console.log("\n== #39 竞选幕的加码与金库闸 ==");
+  /* 真实路径是 drawEvent → realize 后才 presentEvent（cost.funLevel 在那一步换成美元），
+     这里同调：不展开的卡会把 funLevel 当成一个不存在的资源键，整条选项误判"缺少"。 */
+  const rally = P.realize(P.events.find(e => e.id === "camp_state_rally"));
+  const air = rally.choices.find(c => c.id === "air_war");     /* stake.fun + cost + req.camp 三合一 */
+  const rallyIdx = P.campaignDef("camp_state").stages.findIndex(s => s.event === "camp_state_rally");
+  P.G.track = "electoral"; P.G.tier = 3; P.G.fun = 3000000; P.G.fav = 3; P.G.ap = 8; P.G.rep = 20;
+  P.G.campaign = {
+    id: "camp_state", stageIdx: rallyIdx, since: P.monthSeq(), since0: P.monthSeq(),
+    played: rallyIdx, status: "active", meters: { momentum: 24, warchest: 3 }
+  };
+  check(!!P.campaignCurrent() && P.campaignCurrent().meters.warchest === 3, "引擎读得到当前竞选的金库（warchest 3）");
+  P.presentEvent(rally, { grade: "mid" });
+  let rbtns = [...w.document.querySelectorAll(".choice")];
+  check(rbtns[0].disabled, "金库只有 3 点时，「买广告、打空中战」点不动（req.camp " + air.req.camp + "）");
+  check(/竞选金库/.test(rbtns[0].textContent) && /现在\s*3/.test(rbtns[0].textContent),
+    "禁用的理由写在选项上：" + rbtns[0].textContent.replace(/\s+/g, " ").trim().slice(0, 46));
+  check(!rbtns[1].disabled, "同卡的地面拜票不吃金库，照样能点（每幕留一条不投资源的路）");
+  P.G.campaign.meters.warchest = air.req.camp;
+  P.presentEvent(rally, { grade: "mid" });
+  check(![...w.document.querySelectorAll(".choice")][0].disabled,
+    "金库涨到闸值 " + air.req.camp + " 点，同一条广告立刻解禁");
+  delete P.G.campaign.meters.warchest;                          /* 模拟基层链：整条链没有金库表 */
+  P.presentEvent(rally, { grade: "mid" });
+  check(![...w.document.querySelectorAll(".choice")][0].disabled, "链上没有金库表时这道闸自动放行（不会把广告永久锁死）");
+  P.G.campaign.meters.warchest = 20;
+
+  /* 点一下就是要开面板 —— 这是整件事的症状 */
+  P.presentEvent(rally, { grade: "mid" });
+  w.document.querySelectorAll(".choice")[0].click();
+  check(!!w.document.getElementById("stake"), "点击竞选幕的加码选项真的弹出投注面板（旧版永不弹）");
+  const airPer = P.stakeSpec(air).fun.per;
+  check(P.stakeCapPct("fun", air) === 42, "竞选幕资金加成封顶 +42%（日常事件 +30%）");
+  check(P.stakeMax("fun", air) === 7, "…即 7 档（0.42 ÷ 0.06），$3M 的家底押得满（每档 " + P.fmtUsd(airPer) + "）");
+  for (let i = 0; i < 12; i++) { const b = w.document.getElementById("stFunPlus"); if (b && !b.disabled) b.click(); }
+  check(w.document.getElementById("stFunPlus").disabled, "资金 ＋ 加到 7 档后自己置灰");
+  const airP0 = P.computeP(air).P, airP1 = P.computeP(air, P.stakeInfo(air, { fun: 7 })).P;
+  check(airP1 > airP0 + 0.3, "把金库押满确实抬高胜算：" + (airP0 * 100).toFixed(0) + "% → " + (airP1 * 100).toFixed(0) + "%");
+  check(P.stakeSpec(rally.choices.find(c => c.id === "boots")) === null, "「不投任何资源」的选项仍然留在同一张卡上");
+  w.document.getElementById("stBack").click();
+
+  /* 但投票日那一掷绝不卖：钱只买声势 */
+  const council = P.events.find(e => e.id === "prog_council");
+  P.presentEvent(council, { grade: "mid" });
+  const cbtns = [...w.document.querySelectorAll(".choice")];
+  check(cbtns.every(b => b.textContent.indexOf("可投入资源") < 0), "投票日卡上没有任何「可投入资源」的入口");
+  check((council.choices || []).every(c => P.stakeSpec(c) === null), "投票日选项的 stakeSpec 恒为 null（点不开面板）");
+  P.G.campaign = null;
+  w.document.getElementById("stake") && w.document.getElementById("stake").remove();
+  P.G.tier = 0; P.G.track = "electoral"; P.G.fun = 10000;
+
   /* ---------- 死局保护：所有选项都点不动时，必须留一条路 ---------- */
   console.log("\n== 死局保护 ==");
   const deadEv = {
@@ -595,6 +649,58 @@ const btn = (prefix) => [...w.document.querySelectorAll("button")].find(b => b.t
   check(!!w.document.querySelector(".news .result") || !!w.document.querySelector(".news"), "事件卡区在场（.news）");
   check(!!w.document.querySelector('.kicker-band button[data-lang="en"]'),
     "事件屏（事件卡渲染期间）顶栏中/EN 切换仍可见");
+
+  /* ---------- 升职庆典：层级 +1 就在结果页上盖一层典礼窗 ---------- */
+  console.log("\n== 升职庆典弹窗（view/fanfare.js） ==");
+  P.G.tier = 2; P.G.rep = 50; P.G.flags = []; P.G.tierSince = P.monthSeq() - 99;
+  P.G.fanfareQ = []; P.G.promoteCount = 0;
+  /* 真走一遍结算：验证「结果一出立刻自动弹」这个口径挂在 resolveChoice 尾部 */
+  P.resolveChoice(
+    { id: "smoke_fanfare", title: "补选提名", grade: "major", category: "career", choices: [] },
+    { id: "go", text: "接受提名", outcomes: { ok: { body: "你第一次有了自己的头衔。", effects: { tier: 1 } } } },
+    null);
+  check(P.G.tier === 3, "结算用例：层级 +1 生效");
+  check(!!w.document.querySelector(".result"), "结果页照常渲染在底层（庆祝不吃掉叙事）");
+  const ff = w.document.querySelector(".modal.fanfare");
+  check(!!ff, "升职当场盖出庆典窗（.modal.fanfare）");
+  check(P.G.fanfareQ.length === 0, "弹窗即出队，不留残留");
+  if (ff) {
+    check(ff.querySelectorAll(".ff-ladder .step").length === P.balance().tierMax + 1, "阶梯条画满 10 格");
+    check(!!ff.querySelector(".step.now") && !!ff.querySelector(".step.past"), "正站上的格高亮、走过的格留色");
+    const nmTxt = (ff.querySelector(".ff-name") || {}).textContent || "";
+    check(nmTxt.length > 0 && nmTxt.indexOf("等级") < 0, "大标题是真头衔而不是「等级 N」：" + nmTxt);
+    check(ff.querySelectorAll(".ff-row").length === 3, "三行新旧对比（月薪 / 选区 / 死忠）");
+    check((ff.querySelector(".ff-rows") || {}).textContent && /\$/.test(ff.querySelector(".ff-rows").textContent), "月薪行给了金额");
+    check((ff.textContent || "").indexOf("下一级") >= 0, "非顶点要预告下一级");
+    /* 唯一出口：点背景不关、不自动消失 */
+    ff.dispatchEvent(new w.MouseEvent("click", { bubbles: true }));
+    await sleep(1200);
+    check(!!w.document.querySelector(".modal.fanfare"), "点背景与等一段时间都不关闭（仪式没有逃生口）");
+    ff.querySelector(".ff-go").click();
+    check(!w.document.querySelector(".modal.fanfare"), "点「就任 →」才关窗");
+  }
+  /* 不经事件结算的晋升（开局卡 / 主线 onEnd）由 afterEvent 兜底 flush */
+  P.G.fanfareQ = [{ from: 3, to: 4, n: 2, size0: P.electorateAt(3), size1: P.electorateAt(4), die0: 300, die1: 900 }];
+  P.G.hp = 100; P.G.pendingHardEnd = null;
+  P.afterEvent();
+  const ff2 = w.document.querySelector(".modal.fanfare");
+  check(!!ff2, "afterEvent 兜底把漏网的晋升也弹出（不吞掉庆典）");
+  if (ff2) {
+    check((ff2.textContent || "").indexOf("第 2 次") >= 0, "生涯统计行报出本局第几次晋升");
+    ff2.querySelector(".ff-go").click();
+  }
+  /* 当选在月度推进里收官（campaignTick），后面没有结算页可等 → nextMonth 必须当场弹 */
+  P.G.fanfareQ = [{ from: 4, to: 5, n: 3, size0: P.electorateAt(4), size1: P.electorateAt(5), die0: 900, die1: 1500 }];
+  P.G.pendingHardEnd = null;
+  P.nextMonth();
+  const ff3 = w.document.querySelector(".modal.fanfare");
+  check(!!ff3, "nextMonth 把当选的庆典当场弹出（不压到下一个事件）");
+  if (ff3) ff3.querySelector(".ff-go").click();
+  /* 下野不配庆典：往下摔只走原来的交代页 */
+  P.G.fanfareQ = []; P.G.fallenShieldUntil = 0; P.G.fallenThisTurn = false;
+  P.applyEffects({ fall: 1 });
+  check(P.G.fanfareQ.length === 0, "降级/下野不入庆典队列");
+  P.SCREEN = "game";
 
   /* ---------- 下野（软 BE）：afterEvent 补交代，游戏继续 ---------- */
   console.log("\n== 下野（软 BE）与硬结局 ==");

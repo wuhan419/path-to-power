@@ -1,7 +1,7 @@
 /* ============================================================================
  * CONTENT · i18n/en/events/65-campaign-acts-a.js
  * 中文文件 content/events/65-campaign-acts.js 的英文覆盖层（前半 · w22）。
- * 范围：按 id: 出现顺序的前 55 个 id —— camp_council_announce 至 camp_federal_primary
+ * 范围：按 id: 出现顺序的前 56 个 id（#39 起含共用筹款幕 camp_raise_state） —— camp_council_announce 至 camp_federal_primary
  * （含该卡 title/body/brief 与 defend / ideology 两个选项；steady_defend 及之后
  * 归 65-campaign-acts-b 分片）。
  *
@@ -352,6 +352,70 @@ POTUS.define("l10n", {
               meh: { body: "Neither hot nor cold. A safe close." },
               fail: { body: "Your volume is modest. The opponent's is louder." },
               critfail: { body: "So cautious that the final sprint barely makes a sound." }
+            }
+          }
+        ]
+      },
+
+      /* ================= 州级三链共用的筹款幕（state / upper / stwide）================= */
+      {
+        id: "camp_raise_state",
+        title: "Fundraising: fill the war chest",
+        body: "Ad slots, buses, the print shop — all of it wants cash. You have several ways to fill the chest, and each one bleeds somewhere different.",
+        brief: {
+          lede: "A campaign machine needs fuel, and the tank is this war chest.",
+          known: [
+            "Ad slots, buses and volunteer kits all come out of the same account.",
+            "A donor dinner raises money fast; small-dollar money comes in clean.",
+            "Putting up your own savings is the surest route — and the most painful."
+          ],
+          unknown: [
+            "Raise nothing, and in the next act you cannot afford a single ad."
+          ]
+        },
+        choices: [
+          {
+            id: "donor_dinner",
+            text: "Host a donor dinner",
+            outcomes: {
+              crit: { body: "The whole table writes checks on the spot. The chest swells overnight, and someone offers to campaign for you in the counties." },
+              ok: { body: "A handsome evening. The pledges arrive as promised." },
+              meh: { body: "Same faces as always. Little money, but the room warms up." },
+              fail: { body: "The donors listen politely. Nobody signs anything." },
+              critfail: { body: "Someone films the dinner and cuts it into an ad: \"he runs for the moneyed ones.\" No money, and now a label." }
+            }
+          },
+          {
+            id: "small_dollar",
+            text: "Run a small-dollar drive, dollar by dollar",
+            outcomes: {
+              crit: { body: "One appeal catches fire and gets forwarded. Hundreds of small checks become a real cash flow." },
+              ok: { body: "Supporters spare pocket change — and count themselves part of this campaign." },
+              meh: { body: "Enough raised to pay for the next batch of flyers." },
+              fail: { body: "Nobody answers the appeal. The tank is still empty." },
+              critfail: { body: "You pitch \"grassroots money\" everywhere; someone does the arithmetic — a few hundred dollars — and laughs." }
+            }
+          },
+          {
+            id: "self_fund",
+            text: "Put your own savings on the table",
+            outcomes: {
+              crit: { body: "You slam your nest egg on the desk and the machine starts turning that month — and no one can call you half-in." },
+              ok: { body: "Savings move into the chest. Your account thins; your volume thickens." },
+              meh: { body: "The money arrives. Watching your own balance drain makes you nervous." },
+              fail: { body: "Your own advance burns for a while. The shortfall is still a shortfall." },
+              critfail: { body: "The opponent repackages \"spending his own money for show\" — you burn it anyway and owe an explanation on top." }
+            }
+          },
+          {
+            id: "machine_credit",
+            text: "Let the party machine front the money",
+            outcomes: {
+              crit: { body: "The party sends cash and a veteran consultant. By next week you look like a serious campaign." },
+              ok: { body: "The advance lands. The price: you speak for them at next week's caucus." },
+              meh: { body: "The machine pays — and makes a note of your name." },
+              fail: { body: "The party takes two weeks and halves the number." },
+              critfail: { body: "The machine pulls the advance to back someone else. Your books show nothing but red." }
             }
           }
         ]

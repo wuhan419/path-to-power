@@ -50,6 +50,9 @@ POTUS.define("l10n", {
     "ui.topbar.tenureYearsRest": "(in office {n}+ yr)",
     "ui.topbar.tenureMonths": "(in office {n} mo)",
     "ui.topbar.district": "Electorate {n}",
+    /* 总统级：选区就是整个国家（balance.voterBase.nationalTier） */
+    "ui.topbar.districtNation": "United States",
+    "ui.topbar.districtNat": "National electorate {n}",
     /* 中文的 亿/万/千 换算成英文量级（与 view/stage.js 的 numWan/numKilo 同一口径） */
     "ui.topbar.numYi": "{n} ×100M",
     "ui.topbar.numWan": "{n} ×10K",
@@ -63,6 +66,7 @@ POTUS.define("l10n", {
     "ui.topbar.voterTip": "Loyal = votes you almost always get; Warm = winnable votes that track your performance; Opposed = the rival's votes. Election checks lean mostly on Loyal, then Warm. Strength runs 0-100.",
     "ui.topbar.baseTip": "Base mix (loyal / warm / opposed share of the electorate): {pct} — {d} / {w} / {o} ({t} total).",
     "ui.topbar.baseTitle": "Voter Base",
+    "ui.topbar.baseTitleNat": "National Voter Base",
 
     /* 日期 chip 与资源瓷贴 */
     "ui.topbar.dateLab": "Date",

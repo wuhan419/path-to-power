@@ -62,6 +62,7 @@ POTUS.define("l10n", {
     /* ---------------- 选项门槛与代价（reqBlock / costBlock / resText） ---------------- */
     "ui.stage.reqFun": "Needs cash ≥ ${v}",
     "ui.stage.reqLev": "Needs blackmail ≥ {v}",
+    "ui.stage.reqCamp": "Needs a campaign war chest ≥ {v} (now {now})",
     "ui.stage.reqRep": "Needs reputation ≥ {v}",
     "ui.stage.reqShare": "Needs a base of ≥ {v}% of registered voters",
     "ui.stage.reqTier": "Needs {t} or higher",

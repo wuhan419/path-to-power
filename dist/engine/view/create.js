@@ -528,7 +528,10 @@
       /* 竞选链：当前竞选 + 本局打过的竞选 + 败选重开冷却。*/
       campaign: null, campaignLog: [], campaignCool: 0,
       /* v0.5：下野记录 + 年初快照（年终叙事对比用） */
-      fallenCount: 0, fallenShieldUntil: 0, yearStartSnap: null
+      fallenCount: 0, fallenShieldUntil: 0, yearStartSnap: null,
+      /* 升职庆典：promoteCount = 本局第几次晋升（弹窗生涯统计行）；
+         fanfareQ = 待弹队列，一次性 UI 交接件（载入时一律清空，见 core.js 的 migrate） */
+      promoteCount: 0, fanfareQ: []
     };
     P.G.tierSince = P.monthSeq();
     for (const k in P.reg.faction) P.G.faction[k] = 0;

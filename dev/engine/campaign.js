@@ -40,17 +40,32 @@
    * 旧口径：每条竞选链的 def.meters.momentum 一律写死 45 —— 一个刚替人跑腿的志愿者
    * 第一场比赛就"选情过半"，投票日那 0.5 的胜率是白送的。
    * 新口径：选情由这个人的**身位 + 声望 + 基本盘 + 派系好感**推出来，起手 12—35，
-   * 差额必须一幕一幕自己去挣。系数全在 balance.campaign.seed 里，内容侧可标定。 */
+   * 差额必须一幕一幕自己去挣。系数全在 balance.campaign.seed 里，内容侧可标定。
+   *
+   * #39 补上第五项：**家底**。这条不是"钱买选票"（投票日那一掷仍然不看钱，见 ballotBase），
+   * 而是"没有也能选，机会渺茫"的字面实现。度量用「弹药档数」= 家底 ÷ 级别价 ——
+   * 与加码面板同一把尺子，于是它自动随身位缩放：同样 $50k，在等级 4（$4k/档）是 12 档弹药，
+   * 在等级 9（$25k/档）只够 2 档 —— 有钱不等于打得起这一场。
+   * 关键是它**对称**：以 funRef 档为零点，低于它扣分、高于它加分，两边都夹在 ±perFun。
+   * 于是"有钱的候选人"拿到的还是 #35 标定过的那一分（不动既有的晋升漏斗），
+   * 只有"押不出一档广告钱的人"起手往下掉 —— 软门槛只咬人，不赏钱。
+   * （曾试过收 perTier/perRep 斜率来治"tier≥3 自动顶格"，实测把整条高层漏斗压垮：
+   *   30 局里唯一跑到等级10 的那局被压到等级7。要压某场竞选的开局声势，
+   *   正确的旋钮是 61-campaigns.js 里那条链自己的 def.meters.momentum 天花板。） */
   P.seedMomentum = function () {
     const G = P.G;
     if (!G) return 12;
-    const s = Object.assign({ floor: 12, ceil: 35, perTier: 2, perRep: 0.4, perShare: 15, perFac: 0.1 }, cbal().seed || {});
+    const s = Object.assign({ floor: 12, ceil: 35, perTier: 2, perRep: 0.4, perShare: 15, perFac: 0.1, perFun: 5, funRef: 8 }, cbal().seed || {});
     const share = P.baseShare ? P.baseShare() : 0;
     let sum = 0, n = 0;
     const fac = G.faction || {};
     for (const k in fac) { sum += Number(fac[k]) || 0; n++; }
+    const notches = Math.max(0, (G.fun || 0) / Math.max(1, P.stakeFunPer("mid").per));
+    const lg = function (x) { return Math.log(1 + x); };
+    const funBonus = s.perFun > 0 && s.funRef > 0
+      ? P.clamp(s.perFun * (lg(notches) - lg(s.funRef)) / lg(s.funRef), -s.perFun, s.perFun) : 0;
     const raw = 10 + (G.tier || 0) * s.perTier + (G.rep || 0) * s.perRep +
-      share * s.perShare + (n ? sum / n : 0) * s.perFac;
+      share * s.perShare + (n ? sum / n : 0) * s.perFac + funBonus;
     return Math.round(P.clamp(raw, s.floor, s.ceil));
   };
 
@@ -160,7 +175,8 @@
         log[i].to = P.monthSeq(); log[i].status = status; break;
       }
     }
-    if (status === STATUS.WON && def && def.onWin) P.applyEffects(def.onWin);
+    /* onWin 走投票日来源：竞选链打赢 = 数票数到的位子，effects.js 的总统硬闸对它放行 */
+    if (status === STATUS.WON && def && def.onWin) P.applyEffects(def.onWin, { election: true });
     if (status === STATUS.LOST && def && def.onFail) P.applyEffects(def.onFail);
     if (note) P.pushLog(note);
     // 败选后设一段冷却，免得当月就重开同一场（重开要靠下次候选匹配）。

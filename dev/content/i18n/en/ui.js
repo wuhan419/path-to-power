@@ -60,6 +60,22 @@ POTUS.define("l10n", {
     "ui.leftbar.row.contacts": "Contacts",
     "ui.leftbar.row.cards": "Talents",
     "ui.leftbar.cardSpent": "(blocked one fatal ending already, then burned up)",
-    "ui.core.spareLog": "\u300c{card}\u300d took the bullet for you — Reputation −{rep}, and this card is gone."
+    "ui.core.spareLog": "\u300c{card}\u300d took the bullet for you — Reputation −{rep}, and this card is gone.",
+
+    /* 升职庆典弹窗（engine/view/fanfare.js）。占位符名（{n}/{need}/{have}…）不许改。 */
+    "ui.effects.promoted": "★ Promoted: {from} → {to} (Level {n})",
+    "ui.fanfare.kicker": "PATH TO POWER · INAUGURATION",
+    "ui.fanfare.kickerMax": "PATH TO POWER · INTO THE WHITE HOUSE",
+    "ui.fanfare.was": "You stepped up from “{n}”.",
+    "ui.fanfare.rowSalary": "Monthly pay",
+    "ui.fanfare.rowElectorate": "Electorate",
+    "ui.fanfare.rowDiehard": "Diehard backers",
+    "ui.fanfare.dieDiluted": "bigger district, thinner density",
+    "ui.fanfare.next": "Next rung: {n} · needs {need} months in office (at {have})",
+    "ui.fanfare.atMax": "That is the top of the ladder. All that's left is the term — and how the history books write you.",
+    "ui.fanfare.skip": "A rocket promotion — {k} levels at once. The ranks you skipped never logged any seniority; someone will bring that up later.",
+    "ui.fanfare.stat": "Promotion no. {n} this run · {y} · career peak Level {p}",
+    "ui.fanfare.go": "TAKE OFFICE →",
+    "ui.fanfare.goMax": "TAKE THE OATH →"
   }
 });

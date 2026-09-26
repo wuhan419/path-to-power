@@ -659,12 +659,16 @@ POTUS.voterPools = function () {
   if (!G) return { warm: 0, diehard: 0, oppose: 0 };
   return G.voters || { warm: 0, diehard: 0, oppose: 0 };
 };
-/* 当前选区的注册选民规模（按层级取表） */
-POTUS.electorateSize = function () {
+/* 注册选民规模按层级取表（抽成 electorateAt 供升职庆典做新旧并排对比） */
+POTUS.electorateAt = function (tier) {
   const b = POTUS.balance();
   const table = (b.voterBase && b.voterBase.electorate) || [5000, 18000, 70000, 180000, 450000, 1200000, 3000000, 8000000, 20000000, 240000000];
+  return table[tier] || table[0];
+};
+/* 当前选区的注册选民规模（按层级取表） */
+POTUS.electorateSize = function () {
   const G = POTUS.G;
-  return table[G ? G.tier : 0] || table[0];
+  return POTUS.electorateAt(G ? G.tier : 0);
 };
 /* 选民效果键：effects.voters = { warm: 500, diehard: 100, oppose: -200 }。
    负数=流失（oppose 的负数是拉走了反对者）。人数夹在 [0, 选区规模]。 */
@@ -684,8 +688,7 @@ POTUS.rescaleVoters = function (fromTier, toTier) {
   if (!G || !G.voters || fromTier === toTier) return;
   const b = POTUS.balance();
   const vb = b.voterBase || {};
-  const table = vb.electorate || [5000, 18000, 70000, 180000, 450000, 1200000, 3000000, 8000000, 20000000, 240000000];
-  const ratio = table[toTier] / (table[fromTier] || 1);
+  const ratio = POTUS.electorateAt(toTier) / (POTUS.electorateAt(fromTier) || 1);
   /* 升位=换选区：旧地盘的人只能带走一小部分。carryKeep 是"升一级"的锚，
      跨得越多带得越少（每多跳一级再乘一次 carryStepDecay）—— 跳级=破格直提，根基更薄。 */
   let keep = 1;
@@ -827,17 +830,24 @@ POTUS.withEventVoters = function (effects, ev, choice, outcome, tierName) {
  *   reg.officeSalary["track_tier"] → miss 退 "*_tier" → 再退公式 salaryBase×(1+tier×salaryPerTier)。
  * 内容（content/14-offices.js）可以按轨道给不同薪级 —— 财富轨道 T5 就是比选举轨道 T5 有钱。
  * 改工资表 = 同时改了日常收入与投注价码，这**是有意的**：两者本来就该同源。 */
+POTUS.salaryAt = function (tier) {
+  const G = POTUS.G;
+  const table = POTUS.reg.officeSalary || {};
+  const track = G ? G.track : "*";
+  let v = table[track + "_" + tier];
+  if (v == null) v = table["*_" + tier];
+  if (v == null) {
+    const q = POTUS.balance().quietAccount || {};
+    v = Math.round((q.salaryBase == null ? 2000 : q.salaryBase) * (1 + tier * (q.salaryPerTier == null ? 2.2 : q.salaryPerTier)));
+  }
+  return Number(v) || 0;
+};
+/* 升职庆典弹窗要拿「上一级 vs 这一级」两个价码并排显示，所以查询按层级参数化；
+   日常工资仍走 officeSalary()，同一个口径不分叉。 */
 POTUS.officeSalary = function () {
   const G = POTUS.G;
   if (!G) return 0;
-  const table = POTUS.reg.officeSalary || {};
-  let v = table[G.track + "_" + G.tier];
-  if (v == null) v = table["*_" + G.tier];
-  if (v == null) {
-    const q = POTUS.balance().quietAccount || {};
-    v = Math.round((q.salaryBase == null ? 2000 : q.salaryBase) * (1 + G.tier * (q.salaryPerTier == null ? 2.2 : q.salaryPerTier)));
-  }
-  return Number(v) || 0;
+  return POTUS.salaryAt(G.tier);
 };
 
 /* ---------- 学生贷款：一个月的计息 + 还款（v0.12 改制：单利 + 年度资本化） ----------
@@ -1316,6 +1326,11 @@ POTUS.migrate = function (G) {
   }
   /* #37② 「这张卡的属性发过了」账本：可重复卡第二次结算时不再发属性。 */
   if (G.attrGiven == null) G.attrGiven = {};
+  /* 升职庆典队列：**一次性 UI 交接件，不是账本**，所以一律清空而不是补默认。
+     autosave 发生在 flush 之前，不清的话重载存档会在标题屏后面顶出一层庆典窗。
+     promoteCount（本局第几次晋升）才是持久账本，缺省 0。 */
+  G.fanfareQ = [];
+  if (G.promoteCount == null) G.promoteCount = 0;
   /* v0.5 主线之后的机制：出生州 / 下野 / 年初快照（年终叙事要对比"今年与去年"） */
   if (G.voters == null) G.voters = { warm: 0, diehard: 0, oppose: 0 };   /* v0.5.2 选民池 */
   if (G.state == null) G.state = "";

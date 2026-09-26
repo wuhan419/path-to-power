@@ -316,13 +316,14 @@ POTUS.define("event", [{
 
 ```js
 req: { fun: 50000 }                    // 资金门槛
-req: { rep: 25 }                       // 声望门槛
+req: { rep: 25 }                       // 声望门槛（口径 ruler.repGate：量级×职级系数，不吃属性系数，硬顶 repGateMax）
 req: { tier: 3 }                       // 层级门槛
 req: { track: "operative" }            // 指定轨道
 req: { party: "D" }                    // 指定党派
 req: { fac: "base", min: 20 }          // 派系好感门槛
 req: { flag: "president" }             // 指定状态标记
 req: { lev: 1 }                        // 把柄门槛：手上至少 1 份把柄
+req: { camp: 20 }                      // #39 竞选金库门槛：这一场筹到的钱（无活跃竞选/无这张表时不拦）
 req: { contact: "fixer" }              // 人脉门槛：必须已经认识「掮客」（见 §4.10）
 ```
 
@@ -424,6 +425,8 @@ stake: { fun: { per: 500000, w: 0.06, cap: 0.3 } }  // 单项自定义：写死 
 - 这一注该由玩家自己决定押多大（赌一把 vs 稳着来）→ 加 `stake`。
 - 这个选项就是固定代价、无可选择 → 只用 `cost`，不要加 `stake`。
 - 想让"人情"这个资源有独特的战术价值 → 在关键判定上给 `fav: true`。
+
+> **竞选幕有一档更陡的价目表**（#39）：`stake: { fun: { w: 0.06, cap: 0.42 } }` —— 6%/档、7 档封顶 +42%（日常事件 4%/30% → 8 档）。理由：宣布、初选、买量、最后冲刺这几场本来就是要花钱办事的，+30% 配不上"入场券"。**单价口径不变**（仍走 §4.16.3 级别价，禁止钱包锚），**投票日（`ballot`）一概不许接**（validate 判红）。详见 §14.3。
 
 ### 4.5 三者的分工（别混用）
 
@@ -1218,7 +1221,7 @@ effects: { attr:{CHA:5}, fac:{base:10,press:-8}, fun:400000, rep:6, fav:-1, lev:
 | `ap` | **已退役（v0.9）**：精力彻底退出玩法，事件写了也无效。老卡残留的 `cost:{ap:2}` 等同样不扣（休眠） | — |
 | `fav` | 人情点增减 | 0-20 |
 | `lev` | **把柄份数增减** | 下限 0（可为负 = 花掉一份，但不会变成负数） |
-| `tier` | 层级升降（变动重置"在位时长"、重算选民池）。正常晋升一步一级要吃 `balance.tierGates` 资历闸（熬不够折 +3 声望）；`tier:+2/+3` 破格直提**绕过闸**，代价是被跳过的级不记 `counters.served_N`，"德不配位"类事件会找上门。每次升层级同步记**生涯峰值 `G.peakTier`**（2025 成就结算用，见 §4.19） | `balance.tierMin~tierMax` |
+| `tier` | 层级升降（变动重置"在位时长"、重算选民池）。正常晋升一步一级要吃 `balance.tierGates` 资历闸（熬不够折 +3 声望）；`tier:+2/+3` 破格直提**绕过闸**，代价是被跳过的级不记 `counters.served_N`，"德不配位"类事件会找上门。**跨进 `tierMax`（总统）那一步另有一道硬闸**：只认投票日来源（`ballot: true` 的选项 / 竞选链 `onWin`，由 `P.applyEffects(eff, { election: true })` 传入），普通事件卡再大的成功也进不了白宫，拦下时与资历闸同样折 +3 声望。每次升层级同步记**生涯峰值 `G.peakTier`**（2025 成就结算用，见 §4.19） | `balance.tierMin~tierMax` |
 | `voters` | **选民池增减**（v0.5.2）：`{ warm: 人数, diehard: 人数, oppose: 人数 }`——有好感/死忠/反对。见 §10 `voterBase`/`voterDynamic` | 人数 |
 | `count` | **隐藏计数器**：`{ wrath_press: 8, cap_legal: 1 }` → 累加，**下限 0**（`effects.js`）。与 flags 分工：flags 记"有没有"，counters 记"攒了多少"。刻意不上状态面板——后续事件用 `countMin/countMax/countEq` 读它（见 §4.18） | — |
 | `fall` | 软 BE「下野」：`v` = 下野深度 1~2，降层级、按比例摔声望、丑闻降级、清 `investigation_open`、挂 `fallen` 标记。**12 个月保护期**内不叠加；之后仍有东山再起（`fallen_return` 结局认账） | — |
@@ -1358,7 +1361,7 @@ POTUS.define("blackswan", {
 | `valenceWeights` | `{boon:0.40,risk:0.33,bane:0.27}` | 每个档期独立掷三值性的基线权重（见 §4.16.1；由 validate 网格搜索反推写回） |
 | `valencePressure` | `{boonPerPressure:-0.05,banePerPressure:0.10}` | 每点时代压力对 boon/bane 权重的乘性微调（越动荡威胁越密、机遇越稀） |
 | `valenceDefault` | `"risk"` | 漏标 `valence` 的旧内容兜底类 |
-| `econ` | 见 §4.16.2 | **动态经济标尺参数**：`funMonths {1.5,6,20}`/`repBase {2.5,5,9}`/`hpBase {2,4,7}`/`smallBase`/`tierLean .30`/`hpTierLean .12`/`attrLean .40`/`coefMin -8`/`coefMax 8`/`coefMaxFun 150` |
+| `econ` | 见 §4.16.2 | **动态经济标尺参数**：`funMonths {1.5,6,20}`/`repBase {2.5,5,9}`/`hpBase {2,4,7}`/`smallBase`/`tierLean .30`/`hpTierLean .12`/`attrLean .40`/`coefMin -8`/`coefMax 8`/`coefMaxFun 150`/`repGateMax 80`（`req.rep` 门槛的硬顶，见 §4.2 与 `ruler.repGate`：门槛口径不吃属性系数，且不得顶破声望上限 100） |
 | `identityBias` / `resourceBias` | 见 `01-config.js` | **权重管线两张表**：身份（轨道/党派/姿态/出身/起点/州/路线旗/浪潮旗）与资源（缺钱/有钱/有名/把柄/病重/人脉/蹲太久）→ 哪类事件更容易找上他。规则形状 `{when, ids/cats/tags, mul}`；单因子夹 ±3、整条 tilt 封顶 ±8（`weightFactorMin/Max`、`weightTiltCap`）。事件也可自带 `ev.bias` |
 | `eraWeightMul` | 3 | 分期专属事件的权重倍数（防通用内容淹没时代内容；`scoped:true` 同样吃，见 §4.8） |
 | `chainWeightMul` | 9 | **已解锁续集**的权重倍数（让一条故事线在几百个档期里连得起来，见 §4.11） |
@@ -1385,7 +1388,7 @@ POTUS.define("blackswan", {
 | `quietAccount` | `{salaryBase:2000, salaryPerTier:2.2, livingMin:500, livingMax:1400, livingTierCoef:0.6}` | 平静月工资与开销（v0.11 曲线重配：基层不再无声长期倒亏） |
 | `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:42000, brutal:28000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
 | `debtFloor` | `{depth:6000, perTier:1.2, restore:2500, repCost:4}` | **负债谷底**：钱掉到 `-depth×(1+perTier×tier)` 以下 → 家人凑钱托底（资金回正、声望 -4），把静默死亡螺旋变成有代价的戏剧点（`core.js enforceDebtFloor`） |
-| `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比） |
+| `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比）、`nationalTier 9`（从这一级起选区就是整个国家：状态面板的基本盘卡不再挂家乡州名，改口「美利坚 · 全国选民 …」，见 `view/topbar.js`） |
 | `voterDynamic` | 见配置 | **选民会呼吸**（v0.6）：平静月自然收敛（`monthly 0.05` 朝 `targetShare/diehardTargetShare/opposeTargetShare` 三档目标）、事件成败自动增减（`eventBase × byOutcome × categoryMul`，显式 `effects.voters` 优先）、底气反噬判定（`voterEdge()×contestW 0.08`，中心 `edgeCenter 27`、跨度 `edgeSpan 35`） |
 | `stakeRates` | `{fun:{w:0.04,cap:0.30,perSalaryMonths:1,gradeMul:{minor:0.6,mid:1.0,major:1.8},perMin:500,perMax:500000}, ap:{w:0.03,cap:0.09}（退役残留）, fav:{reroll:true}}` | 投注默认汇率。**fun 每档金额 = 级别价**（月薪 × 月数 × 量级系数，余额不参与，见 §4.16.3）。v0.12 的 `potShare`/`cashStakeShare` 两键**已随 #28① 删除** |
 | `aiCallCap` | 80 | **死参数**：大模型层已下架（§4.14），键仍在但无人读，别依赖 |
@@ -1819,7 +1822,7 @@ camp_federal: {
 | `tier` | ✔ | 目标级（0..9）。引擎在链走完后看 `G.tier >= tier` 判 WON/LOST |
 | `retryable` |  | 基层链标 `true`（配 `prog_*` 的 `unique:false`），败选可过 `retryCooldown` 再战 |
 | `gate` | ✔ | 开启条件。用统一的 `P.when` 词汇（与事件门槛同一套），**与对应 `prog_*` 的 `tierRaw/tierMin/tierMax/minTenure` 完全对齐** |
-| `meters` | ✔ | 选情表。**#35 起 `momentum` 的语义是「起步天花板」**：真正的起手值由 `P.seedMomentum()` 按人物状态播种（层级/声望/基本盘/组织关系，夹在 `balance.campaign.seed` 的 `[12,35]`），再与本字段取小 —— 这里写的数只是"这张脸最多能起手多高"。`warchest` 仍是字面初值。validate 会钉住 `momentum ≥ seed.ceil`，别把它改回起手值 |
+| `meters` | ✔ | 选情表。**#35 起 `momentum` 的语义是「起步天花板」**：真正的起手值由 `P.seedMomentum()` 按人物状态播种（层级/声望/基本盘/组织关系/**家底**，夹在 `balance.campaign.seed` 的 `[12,35]`），再与本字段取小 —— 这里写的数只是"这张脸最多能起手多高"。**#39 起州级三链刻意把它压到 30（低于播种上限 35）**：少掉的那一截要靠筹款幕与加码一幕一幕挣，这正是"软门槛"的落点。validate 只钉 `momentum ≥ seed.floor`（低于 floor 等于新人一开局就顶格、播种白算），**不再要求顶到 ceil**。`warchest` 仍是字面初值，且 #39 起它有读者了（见 §14.3 与 §4.2） |
 | `stages[]` | ✔ | 分幕数组，按下面子字段 |
 
 #### stage 子字段
@@ -1841,6 +1844,17 @@ camp_federal: {
 - **钱退到门票之外**：当选类选项不再写 `req.fun`（validate 判红）；钱的作用改写成成功加成 `mods:[{src:"res",key:"fun",min:…,w:…}]`，而总统的资格闸改由基本盘 `req.voterShare` 把守。幕事件里的大钱手段一律写 `cost: { funLevel: N }`（N 档**级别价**，由 §15 的月薪表推导，`P.realize` 展开成 `cost.fun`），不再写绝对美元。
 - **各幕事件都是 `risk`**（有输有赢、可搭砸），量级 `mid`（总统幕 `major`），带 `tierRaw:true` 与 `tierMin/tierMax` 钉在本场起跳级。它们**不锁 track**——各级民选台阶是所有轨道共用的晋升阶梯。
 - **这些幕事件不会被随机抽到**：campaign.js 把它们锁定，只在它们正是“当前幕”时强制演出（借 `drawEvent` 对带 `eventId` 的定点档期直接返回、不查 `eligible` 的既有通道）。
+- **资源是入场券（#39）**：语义上就是"砸钱换声势 / 借人脉办事"的幕选项要接 `stake`（`const CAMP_FUN = { fun: { w: 0.06, cap: 0.42 } }` / `const CAMP_FAV = { fav: true }` 两个常量在 `65-campaign-acts.js` 顶部），于是投注面板在竞选幕真的会弹。竞选幕的资金档**比日常陡**（6%/档、7 档封顶 +42%，日常 4%/30%），单价仍走 §4.16.3 的级别价，不另开口径。三条契约由 validate 钉住：
+  1. **投票日（`ballot:true`）绝不接 `stake`** —— 钱只买声势，买不到开盘夜那张票；
+  2. **每一幕至少留一个不带 `stake`、不带 `cost`、不吃 `req.camp` 的选项** —— 投不投是真选择，不是默认最优；
+  3. **`req.camp`（金库闸，见 §4.2）只能挂在 `meters.warchest != null` 的链上**，且同一张卡不许整卡都上闸；
+  4. **闸要两头都钉住**（validate）：`闸值 > 这条链的起步金库`（否则它永远不咬人，等于又一张只写不读的表）、
+     且 `闸值 ≤ 起步金库 + 前面每一幕的最好进项`（否则这条广告永久买不动，把玩家逼进死局）。
+     现行标定：起步金库只给"半波广告"（州级 10/12/14 · 联邦 16 · 参州 18 · 总统 24），闸值 20—34 随职级递增；
+     中间那截靠**每幕定额拨款 `stages.metersDelta:{warchest:3}`**（19 个投票日之前的幕）+ 三处事件进项挣回来。
+     **一条链没有需要金库的一幕，就整张表都别写**（`camp_vp`/`camp_reelect`/`camp_midterm` 因此不设 `warchest`）。
+  覆盖面按裁定收紧：基层两链（council/city）整体不接（入场家底 $0—1k，给了只是一排按不动的按钮）；辩论/审查类幕不接（砸钱不改台上表现）；在任两条链（`camp_reelect`/`camp_midterm`）本轮未接，属**已知缺口**。
+- **州级三链共用一张筹款幕**（#39）：`camp_raise_state`（`tierMin 2 / tierMax 4`）插在初选之后、造势之前，四手棋分别把 派系好感 / 魅力 / **私人积蓄（`cost:{funLevel:3}`）** / 党机器好感 换成 `camp.warchest`。它是"押上积蓄换取打得起广告的一战"的字面机制。金库的正现金流只此三处（另有 `camp_federal_money`、`camp_senate_announce`/`camp_senate_debate` 的声量带动捐款、`camp_pres_nomination` 的代表大会），写新幕时照这个清单加，别把金库写成只进不出的装饰。
 
 ### 14.4 引擎参数（`balance.campaign`）
 
@@ -1859,7 +1873,7 @@ POTUS.define("balance", { campaign: {
 | 链 | 幕数 | 台阶 |
 |---|---|---|
 | `camp_council` / `camp_city` | 3 | 宣布 → 基层动员/辩论 → 投票日 |
-| `camp_state` / `camp_upper` / `camp_stwide` | 4 | 宣布 → 初选 → 造势 → 投票日 |
+| `camp_state` / `camp_upper` / `camp_stwide` | 5 | 宣布 → 初选 → **筹款（#39，三链共用 `camp_raise_state`）** → 造势 → 投票日 |
 | `camp_federal` / `camp_senate` / `camp_vp` | 5 | 宣布 → 初选 → 筹款/辩论 → 摇摆 → 投票日 |
 | `camp_president` | 6 | 宣布 → 初选 → 提名 → 辩论 → 摇摆州 → 投票日 |
 
