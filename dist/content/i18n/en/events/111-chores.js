@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件按 id 定位；choices 里带 id 的按 id 对齐；纯标量数组（known/rumor/unknown）整体替换，
- *     必须整条给全，条数与中文逐字一致。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects / flags / req / cost …）
  *     受引擎保护，写了会记 protectedHits，故一律不写。
  *   · 模板占位符（{CITY} / {PLACE} / {PUB} / {DISTRICT}）原样保留，英文语序自行调顺。
@@ -21,14 +19,6 @@ POTUS.define("l10n", {
         id: "chore_eulogy",
         title: "An old neighbor dies and his family asks you to speak",
         body: "The funeral home in {CITY} is packed with the faces you shook on election night. The family tells you that as the town's public servant you should say a few words. You have no script.",
-        brief: {
-          lede: "An old neighbor dies; the family wants the public servant in you to say a word.",
-          known: [
-            "You have nothing written - you will improvise.",
-            "One true story moves a room the most, and tests your touch the most.",
-            "A stock condolence is safe, but reads as a brush-off."
-          ]
-        },
         choices: [
           {
             id: "heart",
@@ -59,15 +49,6 @@ POTUS.define("l10n", {
         id: "chore_ribbon",
         title: "A community-center ribbon-cutting is short one pair of hands",
         body: "At {PLACE} a renovated library wing is ready to open. Volunteers hold the scissors and wait for you. They do not want a speech - they want proof the work counts.",
-        brief: {
-          lede: "A renovated library wing opens, and the volunteers just need someone to cut the ribbon.",
-          known: [
-            "They want you there, not on the microphone.",
-            "Lending a hand at fundraising makes the thing real.",
-            "A flower basket and an empty chair save time but chill the room."
-          ],
-          unknown: ["Showing up adds points; being caught phoning it in takes them back."]
-        },
         choices: [
           {
             id: "show",
@@ -98,15 +79,6 @@ POTUS.define("l10n", {
         id: "chore_beat",
         title: "Riding the night shift with a patrol officer",
         body: "The police union in {CITY} invites elected officials, as it does every year, to ride a night shift. The stated reason is to see the front line. The real reason: the union hands out awards to those who work it.",
-        brief: {
-          lede: "The police union invites you to try a night on patrol.",
-          known: [
-            "It is framed as learning the beat; really it is a medal for the compliant.",
-            "Walking one block lets you hear what the alleys actually say.",
-            "Declining offends no colleague and forfeits the spotlight."
-          ],
-          unknown: ["If the stunt reads as a stunt, you lose the dignity you came for."]
-        },
         choices: [
           {
             id: "walk",
@@ -137,15 +109,6 @@ POTUS.define("l10n", {
         id: "chore_dispute",
         title: "Two neighbors drag a fence dispute into your office",
         body: "In {PLACE}, one side is an old hand who turned out votes for you; the other is a young family that just moved in. Both are red-faced over a few inches of ground, and both want you to settle it.",
-        brief: {
-          lede: "Two neighbors bring a fence dispute all the way to your office.",
-          known: [
-            "One is a longtime voter; the other a new arrival.",
-            "Coffee and a nudge to each side bets on goodwill.",
-            "Reading the deed and ruling on the letter bets on law but stings feelings."
-          ],
-          unknown: ["Take one side and the other keeps a tab on you."]
-        },
         choices: [
           {
             id: "mediate",
@@ -177,15 +140,6 @@ POTUS.define("l10n", {
         id: "chore_clinic",
         title: "Constituent clinic day: a room full of people seeking justice",
         body: "Every weekly clinic day the line in {CITY} runs out the door: a lost benefit, a tax notice, a child stuck outside a school zone. Not all of them want it solved. They want proof someone will listen.",
-        brief: {
-          lede: "It is open-office hour, and the room is full of people demanding answers.",
-          known: [
-            "Many are not looking for a fix, only for someone to hear them out.",
-            "Sitting with each case can close a few, though it wears you out.",
-            "Turning them into a how-to guide for staff saves time but cuts you off."
-          ],
-          unknown: ["Get caught brushing them off and even a good deed sours."]
-        },
         choices: [
           {
             id: "case",
@@ -216,15 +170,6 @@ POTUS.define("l10n", {
         id: "chore_budget",
         title: "A budget hearing on whether to repair the west bridge",
         body: "The town's old bridge leaks every year and gets patched every year. This year it needs real money. Testifying: a trucking union, the riverfront shopkeepers, and one resident holding a sign reading the bridge is my home.",
-        brief: {
-          lede: "Should the town spend to fix the west bridge? The hearing has every take but yours.",
-          known: [
-            "In the room: the trucking union, riverfront businesses, families under the span.",
-            "Letting every side finish, then answering point by point is safe but slow.",
-            "Unveiling a plan and forcing it feels good and annoys the patient."
-          ],
-          unknown: ["If you cannot hold the room, one hearing can split into camps."]
-        },
         choices: [
           {
             id: "listen",
@@ -255,15 +200,6 @@ POTUS.define("l10n", {
         id: "chore_school",
         title: "A school newspaper day asks you to teach a civics lesson",
         body: "At a student-newspaper event in {CITY}, a teacher steers you into a room and lets a class of ten-year-olds ask everything they have about being an official. No risk here - and one good photo hiding in it.",
-        brief: {
-          lede: "A school paper-day event asks you to teach a lesson on civics.",
-          known: [
-            "A room of ten-year-olds will ask you anything.",
-            "Explaining what government is for is where you shine.",
-            "Just reading a story and signing books is easy and makes good photos."
-          ],
-          unknown: ["Children ask plain questions; one mushy answer gets repeated at home."]
-        },
         choices: [
           {
             id: "teach",
@@ -295,15 +231,6 @@ POTUS.define("l10n", {
         id: "chore_state_tour",
         title: "A one-week local tour after the State of the State",
         body: "Your speech has to land in the counties: three a day, a ribbon, a lunch, a roundtable. {PUB} wants a headline, the county chairs want warm bodies, and you just hope no one photographs how tired you look.",
-        brief: {
-          lede: "A week of local stops after the State of the State: three counties a day.",
-          known: [
-            "Press wants a headline, party wants bodies, you want to not collapse.",
-            "Grinning through every stop spreads your name but drains you.",
-            "Cutting two stops to dig into one yields substance but loses exposure."
-          ],
-          unknown: ["Get caught yawning and the tour turns into bad press."]
-        },
         choices: [
           {
             id: "grin",
@@ -334,15 +261,6 @@ POTUS.define("l10n", {
         id: "chore_flood",
         title: "Upstream releases late and several towns go under",
         body: "It rained three days straight, and the water authority's notice to release the gates came too late. Several towns flood. Everyone got out, but the losses need someone to look and someone to speak. The state cameras are already rolling.",
-        brief: {
-          lede: "An upstream water release comes too late; several towns are under water.",
-          known: [
-            "People are safe; the damage needs an eye and a voice.",
-            "Rushing to the scene bets on execution and on fumbling on camera.",
-            "Holding the rear and pushing aid delivers money but skips the human touch."
-          ],
-          unknown: ["Go or stay, you can be wrong: a show, or absent."]
-        },
         choices: [
           {
             id: "response",
@@ -374,15 +292,6 @@ POTUS.define("l10n", {
         id: "chore_casework",
         title: "The federal casework mailbag piles up",
         body: "A lapsed social-security check, a visa stuck, a veteran's benefit unpaid - Washington's bureaucracy grinds ordinary people to dust, and folks in {CITY} write to you, the one who can be heard in the capital.",
-        brief: {
-          lede: "The federal office's help-line mail has piled into a mountain.",
-          known: [
-            "Your district sees you as the one with an ear in the capital.",
-            "Hand-picking the hardest letters often closes them, and often over-promises.",
-            "Standing up a task force to fix root causes is slow but can look for show."
-          ],
-          unknown: ["Blow big and whiff, and you feed the other side's ammo."]
-        },
         choices: [
           {
             id: "fix",
@@ -413,15 +322,6 @@ POTUS.define("l10n", {
         id: "chore_townhall",
         title: "Back home for a town hall in your district",
         body: "Five hundred people fill the gym in {DISTRICT}. The microphone passes hand to hand: someone challenges you, someone vents, someone simply came to hear whether you, the one who went to Washington, still talk like home.",
-        brief: {
-          lede: "A town hall back in the district: five hundred people in a gymnasium.",
-          known: [
-            "Some come to challenge you; some to hear if you still talk like a local.",
-            "Taking every question one by one shows candor and invites stumps.",
-            "Sticking to your three prepared points is safe but reads as scripted."
-          ],
-          unknown: ["Blank on a local number, and your silence loops in replay."]
-        },
         choices: [
           {
             id: "engage",
@@ -452,15 +352,6 @@ POTUS.define("l10n", {
         id: "chore_vetvisit",
         title: "A routine visit to the veterans' hospital",
         body: "The veterans' hospital invites you to appear on Heroes Day. They want a federal pair of ears; you want the photo of a handshake, of you listening to them.",
-        brief: {
-          lede: "A veterans' hospital asks you to make an appearance on Heroes Day.",
-          known: [
-            "They want a federal ear; you want a handshake photo.",
-            "Really listening and carrying back a benefits case wins steady.",
-            "A decorous salute is safe but feels like a drive-by."
-          ],
-          unknown: ["Caught using them as a backdrop, a veteran calls it out - the worst kind."]
-        },
         choices: [
           {
             id: "honor",
@@ -492,15 +383,6 @@ POTUS.define("l10n", {
         id: "chore_patrol",
         title: "Walking the block with a neighborhood night watch",
         body: "In {PLACE} the neighbors started their own night watch, pairing off to walk the streets on weekends. The captain asks you, the public servant, to come along for one night. Not for the title - so people can see someone standing with them.",
-        brief: {
-          lede: "Neighbors run a community night watch and ask you to walk one shift with them.",
-          known: [
-            "The watch is volunteer neighbors, not police - just people watching out for each other.",
-            "Walk the round and you hear complaints no one voices in daylight.",
-            "A quick appearance is easy, but the block can tell whether you really walked it."
-          ],
-          unknown: ["Whether you steady the neighborhood or only pass through shows itself by the end of the night."]
-        },
         choices: [
           {
             id: "walk",
@@ -531,15 +413,6 @@ POTUS.define("l10n", {
         id: "chore_schbudget",
         title: "The district will cut after-school programs; you host a budget meeting",
         body: "The {CITY} school district is short again and is eyeing a cut to after-school care and the music program. Parents are alarmed, and the board asks you, the one who holds the purse, to lay the numbers out in front of everyone.",
-        brief: {
-          lede: "The school district wants to cut after-school programs; parents want you to explain the money face to face.",
-          known: [
-            "The shortfall is real; whatever you cut and whatever you keep offends someone.",
-            "Spreading the numbers out and taking questions lands better than reading a script.",
-            "Letting the principal take the fire keeps you clean, but parents remember that you hid."
-          ],
-          unknown: ["One meeting can aim the anger at the ledger, or at you."]
-        },
         choices: [
           {
             id: "open",
@@ -570,15 +443,6 @@ POTUS.define("l10n", {
         id: "chore_portvisit",
         title: "The harbor is banked with containers, and local goods are stuck",
         body: "In {CITY} the port stacks containers mountain-high, and goods waiting to clear sit for weeks. Local businesses press you and gripe at once; the city asks you to walk the terminals and, when you are back, say a word for this street.",
-        brief: {
-          lede: "The harbor is jammed; local merchants wait for you to see the docks and speak up.",
-          known: [
-            "What sits in the harbor is not only boxes but shops and plants that need to eat.",
-            "A walk on the ground finds the choke point no federal form shows.",
-            "A press release is easy, but merchants want you to say out loud that this is a local problem."
-          ],
-          unknown: ["Whichever line you speak at the dock, the chamber of commerce and the port authority will quote it tomorrow."]
-        },
         choices: [
           {
             id: "visit",
@@ -609,15 +473,6 @@ POTUS.define("l10n", {
         id: "chore_harbor",
         title: "After the hurricane, you visit the coastal shelters",
         body: "A hurricane tore through, cutting power and pushing water into the towns along {CITY}'s coast. People are sheltering in gymnasiums. The state sends you to walk the shelters and see what is missing; the state cameras are already behind you.",
-        brief: {
-          lede: "After a hurricane, the state sends you to check what the coastal shelters lack.",
-          known: [
-            "Getting people into a shelter is only the first step; the days after rest on it.",
-            "Walk it yourself and you can call in the missing power and medicine on the spot.",
-            "Holding the rear and phoning is easier, but victims never see your face."
-          ],
-          unknown: ["To victims you are a steady hand and to the camera a candidate; one slip becomes tomorrow's headline."]
-        },
         choices: [
           {
             id: "inspect",
@@ -648,15 +503,6 @@ POTUS.define("l10n", {
         id: "chore_dataleak",
         title: "A big company leaks data, and people in your district are in it",
         body: "A company everyone uses is exposed for leaking a flood of personal records, and voters in {CITY} are on the list. Complaint calls and waiting reporters fill your office overnight: does the government do anything about this?",
-        brief: {
-          lede: "A big company leaked your constituents' personal data; the angry crowd wants you to speak.",
-          known: [
-            "Most cannot say exactly what they lost; they only want someone to own it.",
-            "Calling in the company and the regulator to answer in public puts the focus on you.",
-            "Waiting to verify before you speak is safe, but the crowd wants a voice right now."
-          ],
-          unknown: ["Whether you run this as accountability or as theater, the internet decides by tomorrow."]
-        },
         choices: [
           {
             id: "confront",
@@ -687,15 +533,6 @@ POTUS.define("l10n", {
         id: "chore_tour2",
         title: "The national tour after the State of the Union, cameras from dawn to dark",
         body: "Your speech has to land nationwide: several cities a day, live TV hits, local roundtables, and a short-video clip to record after midnight. {PUB} wants a headline, the party wants bodies, and you only hope the camera does not catch how tired you look.",
-        brief: {
-          lede: "A grind of a national tour after the State of the Union, serving both the old networks and the new platforms.",
-          known: [
-            "Cable, the news sites, and social feeds each want a different line from you.",
-            "Keeping every stop bright tests your stamina and your delivery most.",
-            "Cutting stops to dig into one yields substance but drops the exposure you were owed."
-          ],
-          unknown: ["A fifteen-second clip of you collapsing on the plane may travel farther than any speech."]
-        },
         choices: [
           {
             id: "grin",
@@ -727,15 +564,6 @@ POTUS.define("l10n", {
         id: "chore_fair",
         title: "The county fair opens, and the main stage needs a local official",
         body: "The {CITY} county fair runs once a year: fried cider, pottery stalls, kids leading livestock around. The committee asks you, the local public servant, to cut a ribbon and say a word - really they want to see whether you still know these old stands.",
-        brief: {
-          lede: "The county fair opens; the main stage is just short one local official to appear.",
-          known: [
-            "Every family wandering the midway votes here.",
-            "Walking the stands and trading a line with vendors is the most down-to-earth thing you can do.",
-            "Reading an opening speech on stage is safe, but no one cares for official tone."
-          ],
-          unknown: ["One thing you say at the fair travels faster than any TV ad."]
-        },
         choices: [
           {
             id: "stroll",

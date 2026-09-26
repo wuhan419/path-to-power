@@ -13,13 +13,6 @@
 POTUS.define("l10n", {
   lang: "en",
   ui: {
-    /* ---------------- 背景卡（briefHTML） ---------------- */
-    "ui.stage.briefTitle": "Background · What you know right now",
-    "ui.stage.briefTerms": "Terms",
-    "ui.stage.briefKnown": "What you know for sure",
-    "ui.stage.briefRumor": "What you've heard · unverified",
-    "ui.stage.briefUnknown": "What you don't know yet",
-
     /* ---------------- 年度后台结算（#34 后只剩日志，结算屏已下线） ---------------- */
     "ui.stage.yourState": "your state",
     "ui.stage.yearSettleLog": "Year in review: age {age}, reputation {rep}, cash ${fun}k.",

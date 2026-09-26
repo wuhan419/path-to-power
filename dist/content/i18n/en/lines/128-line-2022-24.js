@@ -5,7 +5,6 @@
  * Contract (docs/I18N.md, sample: en/events/106-era-1990.js):
  *   · The zh source file is untouched; this file carries only text fields.
  *   · Events and choices align by id; terms align by index.
- *   · known / rumor / unknown are WHOLE-ARRAY replacements — give every entry.
  *   · Structural keys (id/era/minYear/tierMin/weight/base/mods/effects/flags/
  *     req/cost …) are engine-protected; writing them fails validate.
  *   · worldline brief / outlets are overlaid here too, one key per year that the
@@ -22,25 +21,8 @@ POTUS.define("l10n", {
       {
         id: "ln22_robles",
         title: "Gunfire at a Texas elementary school; nineteen children never come home",
-        body: "Uvalde, Texas, a Wednesday morning: a man with a rifle walks into a third-grade classroom. Nineteen children and two teachers never leave the building — while heavily armed officers wait outside the corridor for more than an hour before breaching.\n" +
-          "Tonight your district holds a candlelight vigil. Local TV wants your first sentence; your party says: don't talk politics yet. Candles burn out in a week. The question won't.",
-        brief: {
-          lede: "Every word you say after the guns will be weighed against the faces of the dead.",
-          known: [
-            "Twenty-one dead: nineteen children, two teachers. The shooter was killed inside.",
-            "Armed officers held in the corridor over seventy minutes; the chain of command collapsed on the spot.",
-            "Gun rights run deep in this state; the lobby's office is next door to the legislature."
-          ],
-          rumor: [
-            "Some say response bills are already drafted at the capitol, waiting for someone to clap first.",
-            "Some say this week's statements from Washington are being written straight into the donor ledger."
-          ],
-          unknown: [
-            "The inquiry will drag the chain of command into daylight.",
-            "Which bill you back is the first mark the whip keeps on you."
-          ],
-          terms: [{ k: "The gun lobby", v: "The most powerful gun-rights lobbying group in the country." }]
-        },
+        body: "Uvalde, Texas, a Wednesday morning: a man with a rifle walks into a third-grade classroom. Nineteen children and two teachers never leave the building — while heavily armed officers wait outside the corridor for more than seventy minutes before breaching; the chain of command collapses on the spot.\n" +
+          "Tonight your district holds a candlelight vigil. Local TV wants your first sentence; your party says: don't talk politics yet. Gun rights run deep in this state — the lobby, the most powerful gun lobby in the country, keeps its office next door to the legislature. Which bill you back is the first mark the party whip keeps on you.",
         choices: [
           {
             id: "hold",
@@ -82,26 +64,9 @@ POTUS.define("l10n", {
       },
       {
         id: "ln22_dobbs",
-        title: "The Supreme Court overturns a fifty-year precedent",
-        body: "A leaked draft in May exposed the balance among the nine; in late June the ruling lands: nearly fifty years of federal constitutional protection ends, and trigger bans in a dozen southern states snap into effect the same day.\n" +
-          "Your district has a women's clinic decades old. Both camps' cameras are set and waiting: celebrate life or defend choice — one sentence prices your whole ballot.",
-        brief: {
-          lede: "One ruling splits the country into two sets of rules; one half never plans to concede.",
-          known: [
-            "Federal constitutional protection is over; each state now decides by its own laws.",
-            "Trigger bans are live in a dozen-plus states; clinics begin transferring patients overnight.",
-            "The party calls twice a day: the midterms will be mobilized on this question."
-          ],
-          rumor: [
-            "Some say the White House is prepping executive orders to route around state bans.",
-            "Some say the chief justice wanted a narrower ruling; the leak wrecked it."
-          ],
-          unknown: [
-            "How long the gray channel of mail-order pills and telehealth will hold.",
-            "November's turnout will be dragged upward a full notch by this issue."
-          ],
-          terms: [{ k: "Roe v. Wade", v: "The 1973 ruling that created federal abortion-rights protection." }]
-        },
+        title: "The Supreme Court overturns Roe: fifty years of abortion-rights protection end overnight",
+        body: "A leaked draft in May exposed the balance among the nine; in late June the ruling lands: the 1973 Roe v. Wade decision that created federal abortion-rights protection is reversed, trigger bans in a dozen southern states snap into effect the same day, and clinics begin transferring patients overnight.\n" +
+          "Your district has a women's clinic decades old. Both camps' cameras are set and waiting: celebrate life or defend choice — one sentence prices your whole ballot, and November's turnout on this question will run high.",
         choices: [
           {
             id: "narrow",
@@ -144,25 +109,8 @@ POTUS.define("l10n", {
       {
         id: "ln22_cpi",
         title: "Inflation hits a forty-year high; the Fed slams the brakes",
-        body: "June CPI, released July 13: up 9.1 percent year over year, the highest in four decades. Gas breaks five dollars; mortgage rates jump with every hammer blow from the Fed. The White House says the peak has passed. The pump on Main Street has not heard that.\n" +
-          "The town hall is packed with people doing arithmetic until they are angry. They don't ask you what inflation is. They ask whose fault it is, and what you intend to do.",
-        brief: {
-          lede: "For every family the price is the election; whoever defines the pain first wins it.",
-          known: [
-            "June CPI rose 9.1 percent, a forty-year record; wages never caught up.",
-            "The Fed has hiked again and again; mortgage rates roughly doubled inside a year.",
-            "The White House signals the peak is past; gasoline and rent keep climbing."
-          ],
-          rumor: [
-            "Some say the Fed chair has privately softened, easing gears by fall.",
-            "Some say reserve oil will be released before November to push the pumps down."
-          ],
-          unknown: [
-            "The cost of hiking arrives when the job market pays, early next year.",
-            "Whichever side you take becomes a comparison ad."
-          ],
-          terms: [{ k: "Basis point", v: "One hundredth of a percent; 75 bps means a 0.75-point hike." }]
-        },
+        body: "June CPI, released July 13: up 9.1 percent year over year, the highest in four decades — the consumer price index, inflation's headline gauge. Gas breaks five dollars; mortgage rates, roughly doubled inside a year, jump with every hammer blow from the Fed, which hikes in basis points — 75 of them, a 0.75-point step, at a time. The White House says the peak has passed. The pump on Main Street has not heard that.\n" +
+          "The town hall is packed with people doing arithmetic until they are angry. They don't ask you what inflation is. They ask whose fault it is, and what you intend to do. The cost of the hikes arrives when the job market pays, early next year; whichever side you take becomes a comparison ad.",
         choices: [
           {
             id: "listen",
@@ -206,24 +154,7 @@ POTUS.define("l10n", {
         id: "ln22_midterm",
         title: "Midterms: the expected red wave stops at the ankles",
         body: "November 8. The exit polls were supposed to tell a wave story. Instead: the president's party adds Senate seats, the House changes hands by a whisper, and Georgia waits for a December runoff to decide the chamber.\n" +
-          "Everyone who bet on the tide is re-reading the charts tonight: a loss that didn't lose, a win that didn't win. The rest of the bill belongs to you.",
-        brief: {
-          lede: "On a night the wave fails, the purge is harsher than a plain defeat.",
-          known: [
-            "No wave. The Senate splits fifty-fifty and hangs on Georgia's December runoff.",
-            "Committee chairs are not dealt until the new Congress sits in January.",
-            "Both parties' data teams re-live the night; whoever finds the lesion first steers."
-          ],
-          rumor: [
-            "Some say the youth vote rose two full points on one court ruling.",
-            "Some say counting rules shifted again; the winner waits on a state court."
-          ],
-          unknown: [
-            "This reading will define both 2024 primary paths.",
-            "Your position tonight is next round's opening bid."
-          ],
-          terms: [{ k: "Midterm election", v: "The congressional vote at the president's halfway mark." }]
-        },
+          "Everyone who bet on the tide is re-reading the charts tonight: a loss that didn't lose, a win that didn't win. Committee chairs are not dealt until the new Congress sits in January. The rest of the bill belongs to you. This reading will define both 2024 primary paths; your position tonight is next round's opening bid.",
         choices: [
           {
             id: "ownlane",
@@ -266,25 +197,8 @@ POTUS.define("l10n", {
       {
         id: "ln23_svbu",
         title: "A tech industry's house bank collapses in forty-eight hours",
-        body: "Wednesday the parent company announces an asset sale; Thursday customers withdraw some one hundred billion dollars in a single day; Friday the state regulator and the FDIC walk in and take the sixteenth-largest bank in America. Another bank falls the following weekend; a day later the Treasury and the Fed declare a systemic risk exception — every deposit backstopped.\n" +
-          "A founder in your district's tech town calls: which account should payroll sit in? The deposits moved to five-percent money funds months ago. This time nobody keeps pretending.",
-        brief: {
-          lede: "When the bank that cannot fail fails, the smart money leaves first.",
-          known: [
-            "It ranks sixteenth in America; over ninety percent of its deposits are uninsured.",
-            "Some one hundred billion withdrawn in a day; regulators seize it the next.",
-            "All deposits are backstopped; a second bank closes the same weekend."
-          ],
-          rumor: [
-            "Some say two or three more names sit on a watchlist; each night the list differs.",
-            "Some say the backstop authority will be unwound by a congressional audit."
-          ],
-          unknown: [
-            "Credit tightening pushes the layoffs one quarter out.",
-            "Whose deposits you steadied will be remembered a long time."
-          ],
-          terms: [{ k: "Systemic risk exception", v: "The emergency justification for insuring every deposit, insured or not." }]
-        },
+        body: "Wednesday the parent company announces an asset sale; Thursday customers withdraw some one hundred billion dollars in a single day; Friday the state regulator and the FDIC walk in and take the sixteenth-largest bank in America — whose deposits, ninety percent of them, sat above the insured line. Another bank falls the following weekend; a day later the Treasury and the Fed declare a systemic risk exception — the emergency justification for insuring every deposit, insured or not.\n" +
+          "A founder in your district's tech town calls: which account should payroll sit in? The deposits moved to five-percent money funds months ago. This time nobody keeps pretending. Whose money you steady now will be remembered a long time.",
         choices: [
           {
             id: "steady",
@@ -327,25 +241,8 @@ POTUS.define("l10n", {
       {
         id: "ln23_debt",
         title: "The Treasury counts the days: June runs out of money",
-        body: "The ceiling is already hit; the extraordinary measures enter countdown, and a rating agency has warned of a downgrade. The House speaker chains the increase to two years of spending caps; the White House says no negotiations on conditions, and the government's civil war broadcasts itself.\n" +
+        body: "The debt ceiling — the borrowing limit Congress sets; hitting it risks a national default — is already breached; the Treasury's extraordinary measures enter countdown, and its first hard warning puts early June as the earliest default date. A rating agency has warned of a downgrade. The House speaker chains the increase to two years of spending caps; the White House says no negotiations on conditions, and the government's civil war broadcasts itself.\n" +
           "Your district eats federal: the base, clinic reimbursements, farm loans. If the country actually defaults, their cash stops first. Washington watches who blinks; your county watches whether you speak.",
-        brief: {
-          lede: "The national ledger is taken hostage; every bettor waits for the first blink.",
-          known: [
-            "The Treasury warns: the first possible default date is early June.",
-            "The speaker, pushed by the hardliners, ties the ceiling to a two-year spending cap.",
-            "The White House refuses to negotiate on terms, but the late-night calls keep ringing."
-          ],
-          rumor: [
-            "Some say the Treasury is quietly testing the legality of a one-trillion-dollar coin.",
-            "Some say the speaker has already counted a majority; he is only waiting for the pen."
-          ],
-          unknown: [
-            "Default risk wounds the rating; the markets flinch first.",
-            "Whoever loses, the middlemen detour next time."
-          ],
-          terms: [{ k: "Debt ceiling", v: "The borrowing limit Congress sets; hitting it risks a national default." }]
-        },
         choices: [
           {
             id: "prep",
@@ -388,25 +285,8 @@ POTUS.define("l10n", {
       {
         id: "ln23_oct7",
         title: "A cross-border massacre; the argument reaches campus within the month",
-        body: "On October 7 Hamas fighters cross the border and kill some twelve hundred people in southern Israel, taking more than two hundred hostages; Israel answers with air power over Gaza, and the humanitarian toll worsens by the day. Within the month the faraway war climbs the walls of your local campuses and synagogues.\n" +
-          "Your donor ledger and your block's prayers both reach for you. Both sides use one word against each other: hate. The university is scheduling hearings, and you know names on the board of trustees.",
-        brief: {
-          lede: "Someone else's war, your town's exam: one sentence and you stand in one camp.",
-          known: [
-            "The death and hostage counts are verified; the captives' families are on camera.",
-            "Gaza's dead and displaced numbers refresh daily; both local communities heat up with them.",
-            "Blood drives, vigils and protests share one calendar in one city."
-          ],
-          rumor: [
-            "Some say the northern front may light next, and the war spills over.",
-            "Some say the White House is privately pressing for an aid corridor."
-          ],
-          unknown: [
-            "Testimony at the campus hearing will detonate the national donor boards.",
-            "Tonight's wording gets cut into two versions, one per side."
-          ],
-          terms: [{ k: "Flash protest", v: "An unpermitted rally summoned overnight on social media." }]
-        },
+        body: "On October 7 Hamas fighters cross the border and kill some twelve hundred people in southern Israel, taking more than two hundred hostages — their families are already on camera; Israel answers with air power over Gaza, and the humanitarian toll worsens by the day. Within the month the faraway war climbs the walls of your local campuses and synagogues.\n" +
+          "Your donor ledger and your block's prayers both reach for you. Both sides use one word against each other: hate. Blood drives, vigils and flash protests — unpermitted gatherings summoned overnight on social media — share one city calendar. The university is scheduling hearings, and you know names on the board of trustees. Tonight's wording gets cut into two versions, one per side.",
         choices: [
           {
             id: "heal",
@@ -449,25 +329,8 @@ POTUS.define("l10n", {
       {
         id: "ln24_shooting",
         title: "Gunfire at a rally; the former president raises a bloodied fist",
-        body: "A steel town in Pennsylvania, an open-air rally for the former president who leads his party's ticket: shots, the Secret Service surges the stage — he stands with blood on his ear and fist raised; in the bleachers one man never rises again; a sharpshooter kills the gunman on the spot.\n" +
-          "The nation completes its camp assignment within hours: some shout unity, some audit security, some first count how this blood rewrites the polls. Your phone is ringing too.",
-        brief: {
-          lede: "After one shot, the country has hours to decide again whether it is one people.",
-          known: [
-            "One spectator dead, two critically wounded; the shooter was killed off the grounds.",
-            "Why the Secret Service was late becomes an issue both parties want to own.",
-            "The event puts strongman and stability on the table at once."
-          ],
-          rumor: [
-            "Some say a lone wolf; the shopping list and old posts will surface fast.",
-            "Some say the rival camp's rallies drew threats too; nobody aired them."
-          ],
-          unknown: [
-            "A rally-around-the-flag lift in the polls starts immediately.",
-            "In two weeks your side replaces its candidate; tonight's words get recut."
-          ],
-          terms: [{ k: "Rally-around-the-flag", v: "The short-term approval spike after a shock attack." }]
-        },
+        body: "A steel town in Pennsylvania, an open-air rally for the former president who leads his party's ticket: shots, the Secret Service surges the stage — he stands with blood on his ear and fist raised; in the bleachers one man never rises again, two more lie critically wounded; a sharpshooter kills the gunman on the spot. Some say a lone wolf; the shopping list and old posts will surface fast.\n" +
+          "The nation completes its camp assignment within hours: some shout unity, some audit security — why the Secret Service was late is an issue both parties want to own — some first count how this blood rewrites the polls. Your phone is ringing too. The rally-around-the-flag lift, the short-term approval spike after a shock attack, is already running.",
         choices: [
           {
             id: "mourn",
@@ -511,24 +374,7 @@ POTUS.define("l10n", {
         id: "ln24_election",
         title: "November 5: a return, a flip, and an orderly handover",
         body: "A summer withdrawal, the vice president taking the baton, a debate, AI-faked audio — and finally the count: the former president returns; the Senate flips; the House counts until dawn. The losing party's autopsy is not yet scheduled; the winning party's feast has started seating.\n" +
-          "Everything depends on which table you sit at tonight — and whether there is still a table.",
-        brief: {
-          lede: "Election night, two parallel realities collide on the tally screen — and the procedure still runs.",
-          known: [
-            "The White House changes hands; the Senate flips; House counts drag past midnight.",
-            "On the losing side someone says respect the result before sunrise.",
-            "The transition begins with phone calls, then committees, then personnel lists."
-          ],
-          rumor: [
-            "Some say the incoming roster is already vetted; only the signatures are missing.",
-            "Some say a primary coup is brewing inside the losing party."
-          ],
-          unknown: [
-            "The midterms two years out become the new government's report card.",
-            "Every side you chose tonight is itemized and audited years later."
-          ],
-          terms: [{ k: "Transition of power", v: "The procedural handover of security briefings and federal resources." }]
-        },
+          "Everything depends on which table you sit at tonight — and whether there is still a table. The handover runs on procedure — first the calls, then the committees, then the personnel lists — and every side you chose tonight gets itemized and audited years later.",
         choices: [
           {
             id: "unity",

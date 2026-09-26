@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3/§4 与 engine/i18n.js）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文本字段；事件按 id 定位，选项按 id 定位。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，元素个数与中文严格一致
- *     （两幕均为 3/2/2；terms 按下的 {k,v} 与中文对齐：两幕各 2 条）。
  *   · 结构性键（id / after / base / mods / cost / stake / effects / flags / when …）
  *     由引擎保护，本文件一概不写。
  *   · 英文按第二人称、现在时、短句重写；「」不直译，改英文引号或句式；全文件零汉字（注释除外，从 133 覆盖层先例）。
@@ -23,27 +21,8 @@ POTUS.define("l10n", {
         id: "ch08_short",
         title: "The people who shorted housing made their money, and now someone is calling to bring you along",
         body: "What those two funds tripped over last August now has a national name: subprime. In your county, foreclosure notices paper a block a week, and a folding legal-aid table has appeared on the courthouse steps.\n" +
-          "The name on last night's caller ID belongs to the branch president, and it is one you cannot forget: two of his clients called the direction right early, and their book multiplied several times over. The warmth on the line carries another layer — he does not only want to congratulate you. He wants to know where your county's money is headed, and which names you can still move.",
-        brief: {
-          lede: "That call is not a favor; it is leverage: he values your access, you value his foresight.",
-          known: [
-            "Where the county pension money goes — you stated your position at the board last year.",
-            "The short fund's book is printing money, and seats are still open.",
-            "Foreclosure and repossession numbers in your district keep climbing this quarter."
-          ],
-          rumor: [
-            "Some say that number has already been dialed for three other people.",
-            "Some say headquarters is leaning on him too: bring you in as a wall."
-          ],
-          unknown: [
-            "The seat you take today goes into tomorrow's disclosure form.",
-            "Where the bottom is — he does not know either."
-          ],
-          terms: [
-            { k: "Short-selling", v: "Betting that an asset's price falls; you only win if it does." },
-            { k: "Insider", v: "Someone who holds news ahead of the public because of the chair they sit in." }
-          ]
-        },
+          "The name on last night's caller ID belongs to the branch president, and it is one you cannot forget: two of his clients bet against housing early — shorting wins only when the price falls — their book multiplied several times over, and the fund still has seats open. The warmth on the line carries another layer. Where the county pension goes is a position you took at the board last year; that is the answer he wants, along with the names you can still move.\n" +
+          "Some say that number has already been dialed for three other people. The seat you take today goes into tomorrow's disclosure form.",
         choices: [
           {
             id: "ride",
@@ -88,28 +67,8 @@ POTUS.define("l10n", {
         id: "ch10_blame",
         title: "Congress hunts for a scapegoat while the new financial rules get written",
         body: "In Washington this year, bank bosses are called to the witness seat one by one, answering the same question on camera: did you know at the time.\n" +
-          "The reform bill trades clause for clause between the parties; the new regulator already has a name, and only lacks the vote to exist. The street's anger burns in from both ends at once: one end asks who should go to jail, the other asks who is paying for big government.\n" +
-          "There is a folder with your name in it too: the 2008 phone call, the money, the things you said — it is all in the record. You are not in the front row of the accused. But the seat diagonally across from the spotlight happens to be empty.",
-        brief: {
-          lede: "Writing the new rules and picking the scapegoat come from one file: whose words enter the bill, whose get read to cameras.",
-          known: [
-            "Two committees have sent invitations at different temperatures.",
-            "The bill text goes up for review this week; you have not seen the final draft either.",
-            "Your 2008 record sits in the file; whoever speaks first gets quoted."
-          ],
-          rumor: [
-            "Some say the leadership has settled the outcome quietly: nobody gets investigated for real.",
-            "Some say most of the new regulator's real power has already been hollowed out."
-          ],
-          unknown: [
-            "Who wrote the exemption clause in the end — nobody has read the full text.",
-            "The midterms this fall will settle the bill for today's cameras."
-          ],
-          terms: [
-            { k: "Scapegoat hearing", v: "One or two people publicly held to account while the system trades concessions." },
-            { k: "New regulator", v: "The financial oversight agency created in the crisis's wake." }
-          ]
-        },
+          "The reform bill trades clause for clause between the parties; the new regulator already has a name, and only lacks the vote to exist. Invitations from two committees reach your desk at plainly different temperatures. The street's anger burns in from both ends at once: one end asks who should go to jail, the other asks who is paying for big government.\n" +
+          "There is a folder with your name in it too: the 2008 phone call, the money, the things you said — it is all in the record. You are not in the front row of the accused. But the seat diagonally across from the spotlight happens to be empty. Who wrote the exemption clause in the end? Nobody has read the whole text.",
         choices: [
           {
             id: "gavel",

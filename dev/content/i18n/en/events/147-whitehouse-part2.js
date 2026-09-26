@@ -8,7 +8,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 里带 id 的按 id 对齐；outcomes 按五档名对齐。
- *   · 纯标量数组（known）整体替换，条数与中文逐字一致（每卡 3 条）。
  *   · 结构性键（id / grade / category / valence / wh / whFamily / dyn / tierMin /
  *     tierMax / weight / minYear / maxYear / medium / base / mods / cost / effects /
  *     flags）受引擎保护，写了会记 protectedHits，故一律不写。
@@ -23,15 +22,7 @@ POTUS.define("l10n", {
       {
         id: "wh_hotline",
         title: "Submarines that never reported in, and one hotline",
-        body: "At 2:40 in the morning the secretary of defense briefs you: a hostile nation's ballistic-missile submarine squadron has sailed without using the notification channel. The satellite imagery takes two readings - routine rotation, or a move forward. The Joint Chiefs want alert one level higher; the intelligence director wants six more hours. The red line to Moscow sits on your desk. It takes three minutes to get through.",
-        brief: {
-          lede: "Adversary nuclear submarines have left port without the customary notice, and the hotline is yours.",
-          known: [
-            "A direct call is fastest; a call built on a misreading costs more than silence.",
-            "Waiting to verify the imagery buys six hours and may cost you those six hours.",
-            "A public rebuke settles your allies and forces the other side to answer in public."
-          ]
-        },
+        body: "At 2:40 in the morning the secretary of defense briefs you: a hostile nation's ballistic-missile submarine squadron has sailed without using the notification channel. The satellite imagery takes two readings - routine rotation, or a move forward. The Joint Chiefs want alert one level higher; the intelligence director wants six more hours, and waiting may cost you those six. The red line to Moscow sits on your desk. It takes three minutes to get through - but a call built on a misreading costs more than silence.",
         choices: [
           {
             id: "call",
@@ -72,15 +63,7 @@ POTUS.define("l10n", {
       {
         id: "wh_summit",
         title: "Past the red carpet, a fisheries deal nobody finished",
-        body: "The honor guard is formed before your wheels stop rolling. The host foreign minister warns you privately: two hard clauses are still open on the table, and your host would like you at the announced ceremony first. Your itinerary has three blank slots, and the press back home is waiting for a single word: results.",
-        brief: {
-          lede: "Your first foreign trip: the red carpet is laid, and the real business is still unsigned.",
-          known: [
-            "A symbolic joint statement buys the photographs at once and leaves substance to next time.",
-            "Pushing the ceremony aside for the clauses may leave you with nothing to bring home that day.",
-            "A stop at a local school or hospital plays fastest with voters, and is easiest to call a stunt."
-          ]
-        },
+        body: "The honor guard is formed before your wheels stop rolling. The host foreign minister warns you privately: two hard clauses are still open on the table, and your host would like you at the announced ceremony first. Pushing the ceremony aside for substance may leave you nothing to bring home that day. Your itinerary has three blank slots - a stop at a local school or hospital plays fastest with voters and is easiest to call a stunt - and the press back home is waiting for a single word: results.",
         choices: [
           {
             id: "substance",
@@ -122,15 +105,7 @@ POTUS.define("l10n", {
       {
         id: "wh_cabinet",
         title: "Forty-eight hours and one name",
-        body: "The resignation runs to one line and cites personal reasons, and the press has already guessed it was last week's budget fight. The chair of the Senate Armed Services Committee calls to ask whether a name might reach him by tomorrow morning. Two candidates sit on your desk: a campaign chief of staff of eight years who has never set foot in the Pentagon, and a retired four-star general whom everyone in the party respects.",
-        brief: {
-          lede: "The defense secretary quits without warning, and you owe a name inside forty-eight hours.",
-          known: [
-            "Nominate one of your own: he hears you out, but every stumble at the hearing is billed to you.",
-            "Nominate an old soldier: the establishment approves, and afterward he answers to his own base.",
-            "Let your chief of staff stall - it saves you one decision and not the empty chair."
-          ]
-        },
+        body: "The resignation runs to one line and cites personal reasons, and the press has already guessed it was last week's budget fight. The chair of the Senate Armed Services Committee calls to ask whether a name might reach him by tomorrow morning. Two candidates sit on your desk: a campaign chief of staff of eight years who has never set foot in the Pentagon - he hears you out, but every stumble at the hearing is billed to you - and a retired four-star general whom everyone in the party respects, which means the establishment approves and afterward he answers to his own base.",
         choices: [
           {
             id: "loyal",
@@ -171,15 +146,7 @@ POTUS.define("l10n", {
       {
         id: "wh_scoop",
         title: "The editor wants tea, and there is a list you recognize on the table",
-        body: "He pushes the cup toward you and then says it plainly: the paper has a name, and the man has admitted using his White House connection on two deals. The story runs Wednesday. What he wants is not permission but a line from you - you can say you have never known the man, or you can say something else. Outside, two photographers are waiting for your car to come out.",
-        brief: {
-          lede: "A big-paper editor takes tea in a club at midnight: he wants a scoop about your staff.",
-          known: [
-            "Cutting off contact is safest, but the president declines to comment is itself an answer.",
-            "Laying it out on your own program takes back the tempo, and puts the household business in public.",
-            "Feeding them a scapegoat draft kills the story for a week, at a charge against your credibility."
-          ]
-        },
+        body: "He pushes the cup toward you and then says it plainly: the paper has a name, and the man has admitted using his White House connection on two deals. The story runs Wednesday. What he wants is not permission but a line from you - you can say you have never known the man, or you can say something else. And remember, the president declines to comment is itself a sentence they can print. Outside, two photographers are waiting for your car to come out.",
         choices: [
           {
             id: "deny",

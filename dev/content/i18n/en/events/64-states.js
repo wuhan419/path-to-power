@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件、选项按 id 对齐；terms 不带 id，按数组下标对齐，条数与中文一致。
- *   · known / rumor / unknown 是纯字符串数组，整体替换，条数与中文完全一致。
  *   · 结构性键（id / era / states / parties / tierMin / weight / base / mods /
  *     effects / flags / cost / electionNote / fromYear / toYear …）受引擎保护，一律不写。
  *
@@ -23,26 +22,13 @@ POTUS.define("l10n", {
       {
         id: "state_red_minority",
         title: "You call a meeting in a deep-red state. Seventeen come.",
-        body: "Yours is a deep-red state, and your party has been the permanent minority here for a generation. Seventeen people attend the back-room meeting, while the merchants' chamber across the street holds a list that grows longer every year. How does a minority fight?",
-        brief: {
-          lede: "In this state, your party pin is an open wound.",
-          known: [
-            "The last statewide your party won, newspapers had no color pages. Registration runs under forty percent.",
-            "The county party meets in a restaurant back room. Attendance: seventeen.",
-            "The state's largest Latino chamber of commerce has money and a list — it only lacks a face to speak for it."
-          ],
-          rumor: [
-            "They say the national committee once sent money to this state. It was spent somewhere else.",
-            "They say the chamber's own chair has ambitions, and lifting you up may be a rung on his ladder."
-          ],
-          unknown: [
-            "By the demographic curve, this minority is a majority in twenty years.",
-            "In a deep state, a national convention seat is cheap for the minority party."
-          ],
-          terms: [
-            { k: "Deep-red state", v: "A state reliably Republican. Local offices are still there to be worked." }
-          ]
-        },
+        body: "Yours is a deep-red state — reliably Republican, though the local offices are still there to be " +
+          "worked — and your party has been its permanent minority for a generation. The last statewide your party " +
+          "won, newspapers had no color pages, and registration still runs under forty percent. Seventeen people " +
+          "attend the county meeting in a restaurant back room, while across the street the state's largest Latino " +
+          "chamber of commerce holds money and a list that grows longer every year, lacking only a face to speak " +
+          "for it. They say the chamber's chair has ambitions of his own. The demographic curve runs your way. " +
+          "How does a minority fight?",
         choices: [
           {
             id: "coalition",
@@ -87,27 +73,12 @@ POTUS.define("l10n", {
       {
         id: "state_swing_final",
         title: "The swing-state race enters its final week",
-        body: "All of America's money, planes, and cameras are pointed at your state. Polls inside the margin, a seven-day window, and ammunition for only two of the three wars. How many memoirs this week feeds will depend on how you fight it.",
-        brief: {
-          lede: "Seven days out, every plane in national politics lands in your state.",
-          known: [
-            "Your swing state is the national battlefield again: money, surrogates, and ads arriving by the hour.",
-            "The poll gap sits inside the margin. How the last seven days spend decides everything.",
-            "Three cards on the table: television ads, knockers at the door, and dirt on your opponent."
-          ],
-          rumor: [
-            "They say the national committee's final transfer lands tonight — enough to fund two plays, not three.",
-            "They say the other side has studied your record all the way back to your dorm days."
-          ],
-          unknown: [
-            "For these seven days, every small choice of yours magnifies ten thousand times.",
-            "Win, and your state banks a four-year premium; lose, and the money moves on to another state."
-          ],
-          terms: [
-            { k: "Swing state", v: "A battleground where both bases are near-equal and every vote has a posted price." },
-            { k: "Ground game", v: "Door-knocking turnout work: tedious, and what actually decides states." }
-          ]
-        },
+        body: "Your swing state — the battleground where both bases sit near-equal and every vote has a posted " +
+          "price — is the national battlefield again: money, surrogates, and ads arriving by the hour. The poll gap " +
+          "sits inside the margin, and the last seven days settle it. Three cards on the table: television, the " +
+          "ground game of door-knocking turnout work, and dirt on your opponent. The national committee's final " +
+          "transfer lands tonight, and it funds two plays, not three. They say the other side has studied your " +
+          "record back to your dorm days. For one week, every small choice of yours magnifies ten thousand times.",
         choices: [
           {
             id: "air",
@@ -164,26 +135,14 @@ POTUS.define("l10n", {
       {
         id: "state_blue_minority",
         title: "You campaign in a deep-blue state, pin hidden in the inside pocket",
-        body: "The minority politics of a deep-blue state: on your own campaign mail, your party's name sits a third smaller than your opponent's. You have to decide what you are — the national version, or this state's exception.",
-        brief: {
-          lede: "In this state, your party pin gets pressed into the jacket lining.",
-          known: [
-            "Your party is the minority's minority here: no statewide win in twenty years.",
-            "Local races are a different world: voters here choose people, not parties.",
-            "The consultants offer two roads: the national line in local dress, or the native moderate."
-          ],
-          rumor: [
-            "They say the national party keeps a list for blue-state moderates — it comes with resources, and with strings.",
-            "They say the state's money prefers a conservative who loses cleanly."
-          ],
-          unknown: [
-            "A moderate Republican in a deep-blue state is a scarce asset for the national party.",
-            "Scarcity cuts both ways: when the wind turns, scarce assets get spent first."
-          ],
-          terms: [
-            { k: "Deep-blue state", v: "A state reliably Democratic. A Republican can still work the local ground." }
-          ]
-        },
+        body: "The minority politics of a deep-blue state — reliably Democratic, where a Republican can still work " +
+          "the local ground: your party is the minority's minority here, with no statewide win in twenty years. " +
+          "Local races are a different world; voters here choose people, not parties. So on your own campaign mail " +
+          "your party's name sits a third smaller than your opponent's. The consultants offer two roads, the " +
+          "national line in local dress or the native moderate — and a third exists, the prosecutor's or the " +
+          "judge's office, where the ballot prints no party letter at all. They say headquarters keeps a list of " +
+          "blue-state moderates: resources attached, strings included. Scarcity cuts both ways — when the wind " +
+          "turns, scarce assets get spent first.",
         choices: [
           {
             id: "moderate",

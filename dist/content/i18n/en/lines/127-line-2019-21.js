@@ -4,7 +4,6 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段；事件按 id 定位。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，必须整条给全。
  *   · 结构性键（id / base / mods / cost / stake / effects / flags …）由引擎保护。
  *   · 英文按第二人称、现在时、短句重写；「」不直译，改英文引号或句式。
  *   · worldline 的 brief / outlets 同步覆盖（outlets 用真实英文媒体名）。
@@ -19,25 +18,8 @@ POTUS.define("l10n", {
       {
         id: "ln19_impeach",
         title: "The House impeaches, and the country splits along party lines",
-        body: "A phone call demanding Ukraine 'look into' the rival party's likely front-runner, plus a frozen military aid package: the House opened its inquiry in September. On December 18, two articles of impeachment passed straight down party lines — the third president in history impeached by the House.\n" +
-          "The White House calls it a coup. The opposition calls it constitutional self-defense. The trial moves to the Senate. The local paper wants your position tonight; both party hotlines are ringing. You know this stop is not a legal question — it is the dress rehearsal for 2020.",
-        brief: {
-          lede: "Impeachment has no middle ground: one sentence is one side chosen, and it follows you through the whole election year.",
-          known: [
-            "Two articles — abuse of power and obstruction of Congress — voted almost entirely along party lines.",
-            "The Senate trial is run by the majority leader; most observers think the ending is already written.",
-            "Your December posture will be reweighed on the primary-season scale."
-          ],
-          rumor: [
-            "Some say the real target is this fall's Senate races and the trial is just scenery.",
-            "Some say by spring nobody will be talking about anything but another virus."
-          ],
-          unknown: [
-            "Every word you say tonight will be replayed next year.",
-            "This page will be flipped fast by a bigger storm."
-          ],
-          terms: [{ k: "House impeachment", v: "The House charges, the Senate tries; impeachment is not removal." }]
-        },
+        body: "A phone call demanding Ukraine 'look into' the rival party's likely front-runner, plus a frozen military aid package: the House opened its inquiry in September. On December 18, two articles — abuse of power and obstruction of Congress — passed straight down party lines. Impeachment means charged by the House, tried by the Senate, not yet removal: the third president in history so charged.\n" +
+          "The White House calls it a coup. The opposition calls it constitutional self-defense. The trial moves to a Senate whose rules belong to its majority leader; most think the ending is already written. The local paper wants your position tonight; both party hotlines are ringing. You know this stop is not a legal question — it is the dress rehearsal for 2020, and every word you say tonight plays on loop all year.",
         choices: [
           {
             id: "back_proc",
@@ -82,23 +64,7 @@ POTUS.define("l10n", {
         id: "ln20_acquit",
         title: "Acquitted: the impeachment page turns, the election machine starts",
         body: "The articles reached the Senate in December; on February 5 they bounce back unchanged — both short of two-thirds, no witness called. The White House throws a party; the House speaker says history will remember this cover-up.\n" +
-          "The country did not turn the page; it slipped the page into the ballot box. The primaries are already in the ledger, and everyone is recalculating: what was your posture last winter worth this spring?",
-        brief: {
-          lede: "The verdict is in; the bill is not. How you speak now is how you bet.",
-          known: [
-            "Acquittal was in the script: the rules belong to the Senate majority leader.",
-            "One senator from the president's own party crossed for a single moment; pundits are still hunting his clones.",
-            "The primaries open this month — you must set your tone before the base does."
-          ],
-          rumor: [
-            "Some say quiet deals over the next nomination are already running, and someone filed your name."
-          ],
-          unknown: [
-            "Everyone you offend tonight is on the ballot a year and a half from now.",
-            "The procedural workaround is precedent now. Who uses it next, nobody says."
-          ],
-          terms: [{ k: "Party-line vote", v: "Roll call splits almost perfectly by party." }]
-        },
+          "The country did not turn the page; it slipped the page into the ballot box. The primaries are already in the ledger, and everyone is recalculating: what was your posture last winter worth this spring? Some say the deals over the next nomination are already running, and someone has filed your name; everyone you offend tonight is on the ballot a year and a half from now.",
         choices: [
           {
             id: "move_on",
@@ -142,24 +108,7 @@ POTUS.define("l10n", {
         id: "ln19_shooting",
         title: "Twenty-four hours, two cities: blood at the superstore and on the bar street",
         body: "Saturday: 23 dead at a border-city Walmart, an online 'invader' manifesto left behind, the shooter driving hundreds of miles just to pick that store. Sunday: gunfire on a bar street in Dayton, Ohio — 10 dead, the killer down within 30 seconds.\n" +
-          "The nation lights candles for the same thing a third time. The vigil wax is not cold before two camps in your district line up: one says words carry blood, one says guns keep you alive. Town hall is tomorrow and the agenda has blown up.",
-        brief: {
-          lede: "The whole country is shouting 'enough' — and both sides are fighting over what the word means.",
-          known: [
-            "23 dead in El Paso, 10 in Dayton, less than a day apart.",
-            "The manifesto's vocabulary rhymes with Washington's daily speech; both parties quote it.",
-            "Gun owners and survivors' families both demand you at tomorrow's meeting — each side holding half the room."
-          ],
-          rumor: [
-            "Some say the hosting platform saw the manifesto early and sat on it.",
-            "Some say this state's gun shows go on as scheduled, August full of signups."
-          ],
-          unknown: [
-            "Federal bills will lie shelved for years.",
-            "Tomorrow's words of yours will be quoted verbatim under 'when speech becomes a bullet'."
-          ],
-          terms: [{ k: "Red-flag law", v: "A court process that temporarily removes a high-risk person's guns." }]
-        },
+          "The nation lights candles for the same thing a third time. The vigil wax is not cold before the gun owners and the survivors' families each claim half the room at tomorrow's town hall: one says words carry blood, one says guns keep you alive. A red-flag law — a court order briefly taking a dangerous person's guns — and background checks are the flashpoint. Every word you choose tomorrow gets quoted verbatim by both sides.",
         choices: [
           {
             id: "words",
@@ -203,28 +152,8 @@ POTUS.define("l10n", {
       {
         id: "ln20_covid",
         title: "The pandemic lands on America, and every government passes the buck",
-        body: "March 11: the WHO declares a pandemic. The White House still says 'low risk' that night; two days later a federal emergency, and the index halts trading for the fourth time in two weeks. Tests are scarce, hospitals sew their own masks, and hardly any Easter parade has been called off.\n" +
-          "Your district's hospital is counting ventilators one machine at a time. The state says 'every locality for itself'. You have a little over a week — before the wave reaches your door, decide who gets scared first: the economy or the living.",
-        brief: {
-          lede: "The decision window is measured in weeks: speak early and spook the till, speak late and miscount the dead.",
-          known: [
-            "Testing is far behind; nobody knows the real case count, officials included.",
-            "Local beds and ventilators fall short of even the predicted peak.",
-            "Federal says states handle it, states say locals handle it — nobody owns the bill."
-          ],
-          rumor: [
-            "Some say the next state bought out a whole city's mask stock.",
-            "Some say the daily numbers get 'coordinated' before release."
-          ],
-          unknown: [
-            "Speak now: in a month you are either the prophet or a panic peddler.",
-            "There is no right answer — only whoever pays."
-          ],
-          terms: [
-            { k: "Circuit breaker", v: "Trading halts automatically once a drop crosses the threshold." },
-            { k: "Federal emergency", v: "Unlocks federal disaster funds and allocation powers." }
-          ]
-        },
+        body: "March 11: the WHO declares a pandemic. The White House still says 'low risk' that night; two days later a federal emergency — which unlocks federal disaster funds and allocation powers — and the index halts trading for the fourth time in two weeks, the automatic circuit-breaker doing its grim work. Testing lags badly; nobody knows the real case count, officials included; hospitals sew their own masks, and hardly any Easter parade has been called off.\n" +
+          "Your district's hospital is counting ventilators one machine at a time. The state says 'every locality for itself'. You have a little over a week — before the wave reaches your door, decide who gets scared first: the economy or the living. Speak now: in a month you are either the prophet or a panic peddler.",
         choices: [
           {
             id: "act_first",
@@ -329,25 +258,8 @@ POTUS.define("l10n", {
       {
         id: "ln20_summer",
         title: "A knee, a nation on fire: the whole summer stands on one question",
-        body: "Late May, Minneapolis: a Black man pinned under an officer's knee for nearly nine minutes and never up again. The tape reached the whole country in three days; all four officers fired that same day. Hundreds of cities took to the streets — most peaceful, a few blocks burning. The Guard rolls in; curfew after curfew.\n" +
-          "Your own city's streets are just as taut: the young want you to kneel with them, shopkeepers want 'order by Friday'. Every choice this summer goes into next year's campaign file.",
-        brief: {
-          lede: "This summer asks two questions only: do you see the rage — and what is order, exactly.",
-          known: [
-            "The video is public nationwide; four officers dismissed; a federal civil-rights probe is open.",
-            "Most protests are peaceful, but a few burning blocks own every night's front page.",
-            "Council sign-ups are jammed; both camps want only one thing from you — on our side."
-          ],
-          rumor: [
-            "Some say outside 'agitators' have joined the marches.",
-            "Some say the police union is coordinating a slow-down."
-          ],
-          unknown: [
-            "Either this fire burns into the agenda or it burns your campaign.",
-            "Whichever end you stand on, the other end remembers."
-          ],
-          terms: [{ k: "Taking a knee", v: "The silent protest pose started by an NFL player." }]
-        },
+        body: "Late May, Minneapolis: a Black man pinned under an officer's knee for nearly nine minutes and never up again. The tape reached the whole country in three days; all four officers fired that same day; a federal civil-rights probe is open. Hundreds of cities took to the streets — most peaceful, a few blocks burning. The Guard rolls in; curfew after curfew.\n" +
+          "Your own city's streets are just as taut: the young want you to kneel with them — the silent protest pose an NFL player started — shopkeepers want 'order by Friday'. Every choice this summer goes into next year's campaign file: whichever end you stand on, the other end remembers.",
         choices: [
           {
             id: "march",
@@ -403,28 +315,8 @@ POTUS.define("l10n", {
       {
         id: "ln20_election",
         title: "The votes are still in the box when victory is claimed",
-        body: "Turnout in a plague year hits its highest in more than a century, and tens of millions of mailed ballots will take days to count. Polls leaned almost one way, yet election-night 'leads' flip with each tranche opened; before most outlets call it, the incumbent declares himself the winner and cries fraud. Dozens of suits queue in the courts; election clerks get threats.\n" +
-          "Both parties are ringing you at once. This year the question is no longer only who wins — it is whether the loser admits it.",
-        brief: {
-          lede: "The count is unfinished when the words are already out. Everything you say these days becomes evidence later.",
-          known: [
-            "Mail ballots counted late are state law as written — routine, not anomaly.",
-            "Several key states lead by under a point; recounts are live options.",
-            "Both sides are mobilizing; an election official who misspeaks gets doxxed at his door."
-          ],
-          rumor: [
-            "Some say a county's counting server 'happened' to crash that night.",
-            "Some say the lawsuit team had its numbers written days earlier."
-          ],
-          unknown: [
-            "These suits will be cleared out of state courts one by one.",
-            "Whichever line you take tonight, in January you take the knives for them."
-          ],
-          terms: [
-            { k: "Swing state", v: "Unpredictable outcome; winner takes all its electoral votes." },
-            { k: "Recount", v: "Re-tallying ballots as state law provides." }
-          ]
-        },
+        body: "Turnout in a plague year hits its highest in more than a century, and tens of millions of mailed ballots will take days to count — counted late by state law as written, routine, not anomaly. Polls leaned almost one way, yet election-night 'leads' flip with each tranche opened; before most outlets call it, the incumbent declares himself the winner and cries fraud. The swing states — unpredictable, winner takes all their electoral votes — sit under a point, and a recount stays live; dozens of suits queue in the courts; election clerks get threats.\n" +
+          "Both parties are ringing you at once. This year the question is no longer only who wins — it is whether the loser admits it. Whichever line you take tonight, in January you take the knives for them.",
         choices: [
           {
             id: "rules_first",
@@ -468,25 +360,8 @@ POTUS.define("l10n", {
       {
         id: "ln21_capitol",
         title: "A mob on the Capitol steps; the count stops mid-sentence",
-        body: "January 6: both chambers assemble to count the electoral votes, the sitting vice president presiding. By afternoon the president's rally becomes a breach — fencing climbed, the Rotunda entered, the session cut off, both chambers evacuated. Four people die that day; an officer dies of wounds the next. Late that night both chambers reconvene and finish the count before dawn.\n" +
-          "Live cameras thread the Capitol corridors and your living room at the same time. Your phone lines melt: half the callers say this is patriotism, half say insurrection — both demand one word from you.",
-        brief: {
-          lede: "Cameras logged every word you chose; those words get read back in the trials to come.",
-          known: [
-            "The electoral count was interrupted, not stopped; both houses sat again that night.",
-            "Reinforcements staged less than a kilometer from the Capitol waited two hours for approval.",
-            "The president's 'we love you' that day was shared by both camps, each reading it its own way."
-          ],
-          rumor: [
-            "Some say 'the other side's people' were inside the crowd.",
-            "Some say a list of friendly lawmakers already circulates privately."
-          ],
-          unknown: [
-            "Investigations of the breach will run for years.",
-            "Whoever you name tonight, at the next convention it is your turn to be named."
-          ],
-          terms: [{ k: "Electoral count", v: "The joint-session tally is a ceremonial duty." }]
-        },
+        body: "January 6: both chambers assemble for the ceremonial duty of counting the electoral votes, the sitting vice president presiding. By afternoon the president's rally becomes a breach — fencing climbed, the Rotunda entered, the session cut off, both chambers evacuated. Reinforcements staged less than a kilometer away waited two hours for approval. Four people die that day; an officer dies of wounds the next. Late that night both chambers reconvene and finish the count before dawn.\n" +
+          "Live cameras thread the Capitol corridors and your living room at the same time. Your phone lines melt: half the callers say this is patriotism, half say insurrection — both demand one word from you. Whoever you name tonight, at the next convention it is your turn to be named.",
         choices: [
           {
             id: "name_it",
@@ -544,24 +419,7 @@ POTUS.define("l10n", {
         id: "ln21_atlanta",
         title: "Three spas, one night: eight dead",
         body: "Night of March 16, outside Atlanta: gunfire through three spas — 8 dead, 6 of them Asian women. The shooter was taken the next day, telling officers 'I have a sex addiction, I was eliminating temptation'. The local sheriff ruled it early: 'a mental-health issue, not a hate crime'. Federal investigators move in on the hate-crime track.\n" +
-          "Asian shopkeepers, stigmatized for a full pandemic year, hand the petition to your desk directly. The same week, a donor's memo warns you: do not 'politicize' this.",
-        brief: {
-          lede: "The fight over the label decides one community's safety — and which side you owe.",
-          known: [
-            "Police confirm six of the dead were Asian women, most of them immigrants.",
-            "The sheriff holds the non-hate line; the federal civil-rights arm is in.",
-            "Local Asian storefronts lost three in ten to the pandemic year alone."
-          ],
-          rumor: [
-            "Some say the shooter circled all three blocks for a long time beforehand.",
-            "Some say the sheriff's office and spa owners had a standing 'courtesy fee'."
-          ],
-          unknown: [
-            "Hate-crime counting rules will be wrangled for years.",
-            "Whichever vigil you keep, that side remembers you long."
-          ],
-          terms: [{ k: "Hate crime", v: "Bias-motivated violence; separately sentenced and separately tallied." }]
-        },
+          "Asian shopkeepers, stigmatized for a full pandemic year — three in ten of their storefronts closed within it — hand the petition to your desk directly. The same week, a donor's memo warns you: do not 'politicize' this. Whichever vigil you keep, that side remembers you long.",
         choices: [
           {
             id: "hate_crime",
@@ -606,24 +464,7 @@ POTUS.define("l10n", {
         id: "ln21_afghan",
         title: "Twenty years of war end in a day: Kabul falls",
         body: "The pullout deadline was nailed to August 31. The allied government collapsed inside ten days; the president fled with the money. On August 15 Kabul changed hands with almost no street fighting. Thousands chased the gate at the airport; on the 26th a suicide blast outside it killed 13 Americans and more than a hundred Afghans; on the 30th the last transport lifted.\n" +
-          "In your state sit refugee families who translated for the U.S. military — their visas stuck on the far side of a checkpoint. The veterans split when they come to you: one camp wants you to get the people out; the other wants Washington made to answer for it.",
-        brief: {
-          lede: "Evacuation is counted in hours; whether the translator family you vouched for makes the flight is counted in favors.",
-          known: [
-            "The military runs the airport; the embassy has paused local-employee escorts.",
-            "A dozen-plus translator family members are on your district's list, papers stuck at screening.",
-            "Your state has its dead; the veterans' association splits into two camps."
-          ],
-          rumor: [
-            "Some say the intelligence community wrote 'the government will fall' a week early.",
-            "Some say the number of waiting local staff was reported many times short."
-          ],
-          unknown: [
-            "These images will be quoted in every future pullout debate.",
-            "Who you saved and who you missed — their children will tell it."
-          ],
-          terms: [{ k: "Local hires", v: "Afghans who worked for U.S. forces and the embassy; settlement awaits them." }]
-        },
+          "In your state sit refugee families who translated for the U.S. military — 'local hires', people who worked with the forces and the embassy and now wait to be settled with. Their papers are stuck at the checkpoint; the embassy has paused their escorts. The veterans split when they come to you: one camp wants you to get the people out; the other wants Washington made to answer for it. Some say the intelligence community wrote 'the government will fall' a week early. Evacuation is counted in hours; the list, in favors.",
         choices: [
           {
             id: "rescue",
@@ -679,25 +520,8 @@ POTUS.define("l10n", {
       {
         id: "ln21_inflation",
         title: "The shelves thin out; prices move every morning",
-        body: "Container ships anchor for two weeks offshore; Los Angeles and Long Beach run around the clock for the first time ever, and cargo still crawls. September CPI ran 5.4 percent on the year, the highest in thirteen; truckers and warehouse hands are the scarcest hires in town. Christmas toys, Thanksgiving birds — the news calls it 'supply chains'; the shop ledger calls it 'out of stock'.\n" +
-          "District bosses press you for a line. The opposition has already honed one phrase: your people did this.",
-        brief: {
-          lede: "Every month prices keep climbing, your 'temporary' reads more like a joke — or more like foresight.",
-          known: [
-            "Port congestion, labor gaps, pent-up demand snapping back — all three at once.",
-            "The Fed still says transitory; the Treasury repeats it verbatim.",
-            "The county's biggest warehouse is cutting hours; small retail stocks out first."
-          ],
-          rumor: [
-            "Some say the shipping giants idle ships on purpose to lift freight rates.",
-            "Some say one giant bought out half the Christmas stock already."
-          ],
-          unknown: [
-            "Which loop of the wage-price spiral you are standing in.",
-            "Whoever names this thing right first owns the 2022 story."
-          ],
-          terms: [{ k: "CPI", v: "The consumer price index; the headline inflation gauge." }]
-        },
+        body: "Container ships anchor for two weeks offshore; Los Angeles and Long Beach run around the clock for the first time ever, and cargo still crawls. September CPI — the consumer price index, inflation's headline gauge — ran 5.4 percent on the year, the highest in thirteen; truckers and warehouse hands are the scarcest hires in town. Christmas toys, Thanksgiving birds — the news calls it 'supply chains'; the shop ledger calls it 'out of stock'.\n" +
+          "District bosses press you for a line. The opposition has already honed one phrase: your people did this. Whoever names this thing right first owns the 2022 story.",
         choices: [
           {
             id: "accuse",

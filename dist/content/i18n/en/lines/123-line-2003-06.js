@@ -4,8 +4,8 @@
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段。
- *   · 事件按 id 定位；choices 按 id 对齐，terms 按下标对齐。
- *   · known / rumor / unknown 是纯字符串数组，整体替换 —— 必须整条给全。
+ *   · 事件按 id 定位；choices 按 id 对齐。
+ *   · #41 瘦身：背景卡（brief）已整块删除，决策必需的事实折进 body，本层只覆盖 title/body。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，写了 validate 直接报错，故一律不写。
  *
@@ -22,32 +22,13 @@ POTUS.define("l10n", {
       {
         id: "ln03_war",
         title: "The president lands on the carrier and declares the mission accomplished",
-        body: "Baghdad fell in three weeks. The statue coming down played on loop for a whole week. On May 1 the president " +
-          "landed on the carrier deck in flight gear, a MISSION ACCOMPLISHED banner strung behind him. Approval spiked; " +
-          "\"the coalition of the willing\" was the respectable phrase of the season.\n" +
-          "The party machine wants you at the victory rallies. Local TV is hunting for a winner's face. As for the " +
-          "looting and the waterless occupation — those stories cannot yet make the evening news.",
-        brief: {
-          lede: "Everyone is celebrating; nobody wants to be first to ask \"what next.\" Asking now hurts you and the room.",
-          known: [
-            "The party wants you on the victory stage, because you helped sell the war early.",
-            "Baghdad is occupied with no interim authority in place, and the looting is on TV.",
-            "Approval is at its peak. Playing it low tonight is self-harm.",
-            "Donors are whispering: the occupation is turning into a budget problem."
-          ],
-          rumor: [
-            "Some say the Pentagon never finished a plan for after the war.",
-            "Some say this wind of victory will blow straight into next year's election."
-          ],
-          unknown: [
-            "The insurgency and the bill are waiting down the road, unmentioned.",
-            "Whatever posture you strike tonight will follow you for years."
-          ],
-          terms: [
-            { k: "Mission Accomplished", v: "The 2003 declaration that major combat in Iraq had ended." },
-            { k: "Coalition of the willing", v: "The multi-country bloc behind the invasion, UN authorization aside." }
-          ]
-        },
+        body: "The war is three weeks old. Baghdad fell, and the statue coming down played on loop for a week after. On May 1 the " +
+          "president came down onto the carrier deck in a flight suit, a MISSION ACCOMPLISHED banner behind him: major combat " +
+          "in Iraq is over. \"Coalition of the willing\" — the countries that followed the invasion without a UN mandate — was the " +
+          "respectable phrase of the season.\n" +
+          "The machine wants you on the victory stage, because you helped sell this war early. Local TV is shopping for a winner's " +
+          "face. Waterless streets and looting still cannot make the evening news. Some say the Pentagon never wrote a plan for " +
+          "after the war — and the pose you strike tonight will stand behind you for years.",
         choices: [
           {
             id: "ride_victory",
@@ -139,29 +120,13 @@ POTUS.define("l10n", {
       {
         id: "ln03_blackout",
         title: "Nine seconds of cascade: the grid fails and 50 million go dark",
-        body: "On the afternoon of August 14, from Ontario to New York, the grid tripped its way down in nine seconds. " +
-          "Fifty million people lost power: signals dead, elevators stopped between floors, trains stalled in tunnels, airports shut. " +
-          "After nightfall people spilled into the streets — some seeing stars for the first time in a city that never had dark.\n" +
-          "A federal inquiry will take months to name a culprit. Voters tonight need one phone number that answers. That call is coming to you.",
-        brief: {
-          lede: "Thirty-eight hours without power is long enough to prove you run things — or to show nobody does.",
-          known: [
-            "The failure began in a cross-state monitoring system; nobody owns the fault.",
-            "Hotline demand at your shelters and water points has already crashed the lines.",
-            "Federal and state officials are trading blame; the press is hunting a scapegoat."
-          ],
-          rumor: [
-            "Some say it was a new kind of cyberattack and the feds are sitting on it.",
-            "Some say power back in a day, and no one held to account."
-          ],
-          unknown: [
-            "This blackout will force an entire energy bill through Congress.",
-            "The one who overstepped tonight — is he credited or censured later?"
-          ],
-          terms: [
-            { k: "Cascade failure", v: "One trip dragging neighboring regions dark, one after another." }
-          ]
-        },
+        body: "On the afternoon of August 14, from Ontario to New York, the grid tripped itself down in nine seconds — one failure " +
+          "pulling its neighbors dark after it. Fifty million people lost power: signals dead, elevators stopped between floors, " +
+          "trains stalled in tunnels, airports shut. The fault began in a monitoring system that crossed state lines, and nobody " +
+          "owns it yet. The hotlines at your shelters and water points are already jammed.\n" +
+          "Federal and state officials are pushing the blame downhill, and the press is hunting a scapegoat. An inquiry will take " +
+          "months; voters tonight need one local number that answers, and that call is coming to you. Some say it was a cyberattack " +
+          "the feds are sitting on — and nobody says in advance whether the man who overstepped gets the credit or the blame.",
         choices: [
           {
             id: "command",
@@ -205,29 +170,13 @@ POTUS.define("l10n", {
       {
         id: "ln03_recall",
         title: "California recalls its governor — and picks an action star",
-        body: "On October 7, California ran only its second gubernatorial recall ever. One hundred thirty-five names on one ballot, " +
-          "and the winner had never held any office — he had only said on television, \"take the government off our backs.\"\n" +
-          "The evening editorial asked: farce, or omen? The party's line is \"a one-off.\" But you lay awake half the night: " +
-          "if this is a signal, who exactly is it being sent to?",
-        brief: {
-          lede: "Someone else's circus just pitched its tent at your profession's door. Laugh, or take notes?",
-          known: [
-            "The recall passed because the budget hole and the power crisis backed people into a corner.",
-            "The new governor has zero governing record but a built-in fanbase.",
-            "The party has ruled this \"a fluke.\" Openly disagreeing is off-limits."
-          ],
-          rumor: [
-            "Some say radio shock jocks and reality TV built this win.",
-            "Some say if a face like his can win a state, so can one like yours."
-          ],
-          unknown: [
-            "Whether celebrity politics is about to invade your lane.",
-            "Whether you bank the lesson now, or watch it become common sense in five years."
-          ],
-          terms: [
-            { k: "Recall election", v: "A procedure letting voters remove an elected official before the term ends." }
-          ]
-        },
+        body: "On October 7 California ran only its second gubernatorial recall ever — voters removing an elected official before the " +
+          "term is finished. One hundred thirty-five names on one ballot, and the winner had never held any office: he had only said " +
+          "on television, take the government off our backs. The budget hole and the power crisis backed people into a corner, and " +
+          "some say shock-jock radio and reality TV is what actually won it.\n" +
+          "The evening editorial asked: farce, or omen? Your party has already ruled this a one-off, so openly disagreeing is " +
+          "off-limits. Still, you lay awake half the night. Whether celebrity politics is about to enter your lane, nobody in the " +
+          "room can answer tonight.",
         choices: [
           {
             id: "study_style",
@@ -271,30 +220,13 @@ POTUS.define("l10n", {
       {
         id: "ln03_saddam",
         title: "Saddam is dragged out of a hole, and the capture sweeps the nation",
-        body: "Late on December 13, the occupation authority confirmed it: captured near his hometown, in a dirt hole, " +
-          "unshaven, without a fight. The bunker video circled the globe by morning. Pro-war capitals popped champagne; " +
-          "the opposition had no words at all.\n" +
-          "It is the biggest candy of this war so far. Local stations tonight are collecting \"local voices react\" — " +
-          "you fit the slot, and the window is exactly this evening.",
-        brief: {
-          lede: "A whole country is looking for someone to applaud the win. Reach out tonight and you catch applause — catch it wrong and you catch the cringe.",
-          known: [
-            "The capture was US military work; the credit spills downhill to everyone who comments.",
-            "Media need a \"local reaction\" tonight; footage for anyone who will grab it.",
-            "A slice of voters is still asking: no weapons found, so what was this war for?"
-          ],
-          rumor: [
-            "Some say he'll stand open trial, broadcast worldwide.",
-            "Some say catching him was easy; the insurgency starts now."
-          ],
-          unknown: [
-            "Whether this victory card is a step up or an IOU.",
-            "How tonight's smile gets re-cut later."
-          ],
-          terms: [
-            { k: "Coalition Provisional Authority", v: "The US-British military administration set up after the invasion." }
-          ]
-        },
+        body: "Late on December 13 the Coalition Provisional Authority — the US-British military administration set up after the " +
+          "invasion — confirmed it: Saddam taken out of a dirt hole near his hometown, unshaven, without a fight. The bunker video " +
+          "circled the globe by morning. Pro-war capitals popped champagne; the opposition had no words.\n" +
+          "It is the biggest candy of this war, and the credit spills downhill to everyone willing to say something about it. " +
+          "Local stations are collecting \"local voices react\" shots tonight — you fit the slot, and the window is exactly this evening. " +
+          "Some say an open trial will follow, broadcast worldwide. Some voters are still asking what the war was for, since no " +
+          "weapons were found, and however you smile tonight somebody will re-cut it.",
         choices: [
           {
             id: "claim_credit",
@@ -339,29 +271,13 @@ POTUS.define("l10n", {
       {
         id: "ln04_abu",
         title: "Abu Ghraib abuse photos hit print, and the country gags",
-        body: "The human pyramid, the hood, the naked prisoner wired to a post, the grinning military dog — " +
-          "the caption under the photos read: Iraq, Abu Ghraib prison, run by the US military.\n" +
-          "The White House called it \"a few bad apples.\" But the whole country can do arithmetic: a few apples " +
-          "don't produce hundreds of photos. The only question reporters leave at your door: are you shocked, or unsurprised.",
-        brief: {
-          lede: "Photos that make the country sick are forcing the one question you have dodged for a year.",
-          known: [
-            "The photos are authentic; investigations already point at the prison's command.",
-            "\"Bad apples\" is the official line: repeating it is safe, questioning it is exposure.",
-            "Both your military families and your suspect minority community are waiting on your mouth."
-          ],
-          rumor: [
-            "Some testimony claims certain interrogation methods came from higher up.",
-            "Some say this story gets buried inside a week."
-          ],
-          unknown: [
-            "Whether this fire reaches the people who decided.",
-            "Tonight's sentence becomes your label."
-          ],
-          terms: [
-            { k: "Abu Ghraib", v: "The prison west of Baghdad, site of the 2004 abuse scandal." }
-          ]
-        },
+        body: "The human pyramid, the hood, the naked prisoner wired to a post, the grinning military dog — the caption under the " +
+          "photos read: Iraq, Abu Ghraib, the prison west of Baghdad run by the US military.\n" +
+          "The photographs are authentic, and the investigation already points at the prison's own command. The White House calls " +
+          "it \"a few bad apples,\" which is the safe line to repeat and the risky one to doubt. But the whole country can do " +
+          "arithmetic: a few apples do not produce hundreds of photos. Reporters leave one question at your door — shocked, or " +
+          "unsurprised — while your military families and the minority community that got suspected both wait on your mouth. Some " +
+          "testimony claims the interrogation methods came from higher up. What you say tonight becomes your label.",
         choices: [
           {
             id: "name_it",
@@ -405,31 +321,13 @@ POTUS.define("l10n", {
       {
         id: "ln04_election",
         title: "Returns past midnight: one country, folded along a red-blue crease",
-        body: "War, jobs, values, who looks more presidential — two campaigns plowed the country into two furrows. " +
-          "The count ran past midnight; Ohio's county totals came down to a hair. The exit-poll map came up a red-blue " +
-          "collage, and both sides declared these four years theirs.\n" +
-          "National handlers have arrived in your district. For people at your level the question is never whether to enter " +
-          "the ring — refuse, and someone will still carry you in as a prop.",
-        brief: {
-          lede: "When the country leans, people at your level are the cheapest chips on the table.",
-          known: [
-            "Both machines have quoted a price: speak for whom, stand for whom.",
-            "Iraq is the fault line. Pick a side, eat that side's food.",
-            "One thing is clear: you cannot collect both sides' payout."
-          ],
-          rumor: [
-            "Some say a big city's counting dispute decides Ohio.",
-            "Some say pick the winning side now and your name surfaces at redistricting."
-          ],
-          unknown: [
-            "A razor-thin win curdles fast into a lame term.",
-            "The handlers who bet for you wrote your name in their ledger."
-          ],
-          terms: [
-            { k: "Swing state", v: "A state neither party holds safely, contested vote by vote." },
-            { k: "Red state, blue state", v: "States color-coded by Republican or Democratic lean." }
-          ]
-        },
+        body: "War, jobs, values, who looks more presidential — two campaigns plowed the country into two furrows. The count ran " +
+          "past midnight, Ohio — a swing state neither party holds safely, contested vote by vote — came down to a hair, and the exit-poll map came up a red-blue collage, states " +
+          "color-coded by which party holds them. Both sides declared these four years theirs.\n" +
+          "National handlers have arrived in your district, and for people at your level the question is never whether to enter the " +
+          "ring. Both machines have quoted a price: speak for whom, stand for whom. Iraq is the fault line — pick a side and eat " +
+          "that side's food, and you cannot collect both payouts. Some say guess right now and your name surfaces at redistricting. " +
+          "Whoever bet for you wrote your name in the ledger.",
         choices: [
           {
             id: "all_in",
@@ -474,32 +372,14 @@ POTUS.define("l10n", {
       {
         id: "ln05_katrina",
         title: "Katrina breaks the levees, and New Orleans goes under",
-        body: "The eye came ashore before dawn on August 29. By afternoon the levees gave way in sequence and four-fifths " +
-          "of the city went underwater. The Superdome and the convention center became the last islands: elders without " +
-          "insulin, mothers queueing with infants, residents waiting out rescue buses that did not come, bodies waiting out ice.\n" +
-          "The head of FEMA told cameras the system was \"ready,\" then days later admitted \"we got hoisted with our own petard.\" " +
-          "Federal, state and city spent a week pushing the blame downhill. Before the water dropped, every network in " +
-          "America was waiting for someone in charge — any level will do.",
-        brief: {
-          lede: "When water reaches the second floor, the only phone number that matters is the one that answers.",
-          known: [
-            "The levees were the federally promised shield. They failed.",
-            "FEMA is moving slow, and local officials are complaining in public.",
-            "Thousands of your registered voters are still in shelters or on the road."
-          ],
-          rumor: [
-            "Some say relief supplies sit locked in a warehouse guarded by the National Guard.",
-            "Some say engineers warned years ago the levees couldn't hold this storm."
-          ],
-          unknown: [
-            "This failure will become a case study in governance.",
-            "Who was managing these days, and who was hiding."
-          ],
-          terms: [
-            { k: "FEMA", v: "The federal agency coordinating disaster relief." },
-            { k: "Levees", v: "The engineered embankments holding the river off the city; their breach did the flooding." }
-          ]
-        },
+        body: "The eye came ashore before dawn on August 29. By afternoon the levees gave way one after another and four-fifths of " +
+          "the city went underwater — the levees being the shield Washington had promised this city. The Superdome and the convention " +
+          "center became the last islands: elders without insulin, mothers queueing with infants, residents waiting out rescue buses " +
+          "that did not come, bodies waiting out ice.\n" +
+          "FEMA, the federal disaster agency, told cameras the system was ready, then walked that back days later. Federal, state and city have spent the week " +
+          "pushing blame downhill. Thousands of your registered voters are still in shelters or on the road, and some say the relief " +
+          "supplies sit locked in a warehouse the National Guard is guarding. Before the water dropped, every network was waiting for " +
+          "someone in charge. Who ran those days, and who stayed out of it, will be remembered.",
         choices: [
           {
             id: "confront",
@@ -580,31 +460,13 @@ POTUS.define("l10n", {
       {
         id: "ln06_wave",
         title: "2006 midterms: the president's party is buried, and Congress changes hands overnight",
-        body: "The war that was promised \"will end\" did not end. Lobbying scandals arrived one busload a week. " +
-          "On count night the opposition took the House and netted the Senate; every victory speech carried the same word: change.\n" +
-          "The losing side started horse-trading before the confetti settled. Two sets of calls came to you: one counting " +
-          "who had warned early, the other offering to present \"speakers who still work\" at the new majority's door — " +
-          "the incoming Speaker's office is compiling an outreach list.",
-        brief: {
-          lede: "The wave came through. The question isn't which side you're on — it's how fast you can flip without looking like a traitor.",
-          known: [
-            "War and corruption buried the president's party's approval.",
-            "The new majority's caucus is taking names; early gets listed first.",
-            "Your old camp is still angry, and remembers every word you said."
-          ],
-          rumor: [
-            "Some say the new slate is seated before the first gavel.",
-            "Some say this wave is mood only; midterms always swing."
-          ],
-          unknown: [
-            "Whether flipping early reads as vision or as luck.",
-            "Both ledgers just added a line with your name in it."
-          ],
-          terms: [
-            { k: "Midterm election", v: "The congressional race at the halfway point of a president's term." },
-            { k: "Wave election", v: "A one-direction tide sweeping dozens of seats at once." }
-          ]
-        },
+        body: "The war that was promised \"will end\" did not end, and the lobbying scandals arrived one busload a week. On count " +
+          "night of the midterms — the congressional race at the halfway point of a presidency — the opposition took the House and " +
+          "netted seats in the Senate, and every victory speech carried the same word: change.\n" +
+          "The losing side started horse-trading before the confetti settled. Two sets of calls came to you: one counting who had " +
+          "warned early, the other offering to present a speaker who still works at the new majority's door. The incoming Speaker's " +
+          "office is compiling an outreach list, and early gets listed first. Some say the chairs are seated before the first gavel. " +
+          "Both ledgers just added a line with your name in it.",
         choices: [
           {
             id: "early_turn",
@@ -646,7 +508,7 @@ POTUS.define("l10n", {
       }
     ],
 
-    /* 世界线英文层：只覆盖 brief / outlets（pressure 是数值平衡，不碰）。
+    /* 世界线英文层：只覆盖 outlets（pressure 是数值平衡，不碰）。
        outlets 逐年回译成当年真实存在的美国媒体，条数与中文侧严格一致。 */
     worldline: {
       brief: {

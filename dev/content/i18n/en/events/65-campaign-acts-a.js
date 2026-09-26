@@ -2,13 +2,12 @@
  * CONTENT · i18n/en/events/65-campaign-acts-a.js
  * 中文文件 content/events/65-campaign-acts.js 的英文覆盖层（前半 · w22）。
  * 范围：按 id: 出现顺序的前 56 个 id（#39 起含共用筹款幕 camp_raise_state） —— camp_council_announce 至 camp_federal_primary
- * （含该卡 title/body/brief 与 defend / ideology 两个选项；steady_defend 及之后
+ * （含该卡 title/body 与 defend / ideology 两个选项；steady_defend 及之后
  * 归 65-campaign-acts-b 分片）。
  *
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 里带 id 的按 id 对齐。
- *   · 纯字符串数组（known / unknown）是**整体替换**，条数与中文逐字一致（known 3 / unknown 1）。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / cost …）不写。
  *   · 英文按英语重写：第二人称、现在时、短句；「」融进句子。
  * ==========================================================================*/
@@ -20,18 +19,7 @@ POTUS.define("l10n", {
       {
         id: "camp_council_announce",
         title: "The announcement: put your name on the ballot",
-        body: "Filing to run means a deposit, valid signatures, and a public financial disclosure. Either take the step officially, or size up the water before you jump.",
-        brief: {
-          lede: "Your first race ever: pay the filing fee, gather signatures, disclose your finances.",
-          known: [
-            "Nobody knows your name yet. In a district this small, being recognized wins ground.",
-            "Miss the signature quota and your name never reaches the ballot.",
-            "A loud launch bets on popularity; a quiet canvass bets on groundwork."
-          ],
-          unknown: [
-            "A sloppy start brands you a filler candidate."
-          ]
-        },
+        body: "Filing to run means a deposit, valid signatures, and a public financial disclosure. Nobody knows your name yet — in a district this small, being recognized wins ground. Take the step officially, or size up the water first. A sloppy start brands you a filler candidate.",
         choices: [
           {
             id: "go_public",
@@ -60,18 +48,7 @@ POTUS.define("l10n", {
       {
         id: "camp_council_grassroots",
         title: "Door to door",
-        body: "Turnout in local elections is shockingly low. A small, motivated crowd decides the result. Right now your campaign runs on foot.",
-        brief: {
-          lede: "Local turnout is tiny. Elbow grease alone can decide this race.",
-          known: [
-            "A few thousand mobilized voters settle the outcome.",
-            "You have time and strong legs. What you lack is exposure and money.",
-            "Churches and civic clubs put a roomful of voters in front of you at once."
-          ],
-          unknown: [
-            "Play only defense and momentum quietly drains away."
-          ]
-        },
+        body: "Turnout in local elections is shockingly low. A few thousand mobilized voters decide the result. You have time and strong legs; what you lack is exposure and money — though churches and civic clubs put a roomful of voters in front of you at once. Play only defense, and momentum quietly drains away.",
         choices: [
           {
             id: "doorknock",
@@ -113,18 +90,7 @@ POTUS.define("l10n", {
       {
         id: "camp_city_announce",
         title: "Signing the papers",
-        body: "This time you are not helping out. You are contesting a real seat — against a fixture whose name everyone already knows.",
-        brief: {
-          lede: "You are running for a real seat now. The rival is a familiar face.",
-          known: [
-            "The incumbent has served for years. Everyone knows the name.",
-            "A head-on challenge bets on reputation; a coalition first bets on roots.",
-            "Waiting dodges the blades — and may surrender the initiative."
-          ],
-          unknown: [
-            "Show your hand too early and a veteran opponent reads it."
-          ]
-        },
+        body: "This time you are not helping out. You are contesting a real seat — against a fixture whose name everyone already knows. Show your hand too early, and the veteran opponent reads you first.",
         choices: [
           {
             id: "challenge",
@@ -164,18 +130,7 @@ POTUS.define("l10n", {
       {
         id: "camp_city_townhall",
         title: "Town hall debate",
-        body: "Your first time under one roof with the opponent, facing the same voters. Question and answer — nowhere to hide, nothing to duck.",
-        brief: {
-          lede: "First stage with your opponent. Question and answer, with nothing to hide behind.",
-          known: [
-            "The room is full of the people who can actually vote.",
-            "Policy is the safe ground, attacks the risky one, silence the even keel.",
-            "You are greener than the opponent — and fresher."
-          ],
-          unknown: [
-            "One slip will be quoted back at you all campaign."
-          ]
-        },
+        body: "Your first time under one roof with the opponent, facing the very voters who can cast ballots. Question and answer — nowhere to hide, nothing to duck. You are greener than the rival, and fresher. One slip will be quoted back at you all campaign.",
         choices: [
           {
             id: "substance",
@@ -217,18 +172,7 @@ POTUS.define("l10n", {
       {
         id: "camp_state_announce",
         title: "Announcing for the State House",
-        body: "Your district just grew from one street to a whole county. For the first time you need a real campaign machine — and a decent sum to start it.",
-        brief: {
-          lede: "The district grows from one street to an entire county.",
-          known: [
-            "You need a real campaign machine and seed money.",
-            "A loud kickoff grabs the story; banking cash first steadies the floor.",
-            "At this level, name recognition and money become hard requirements."
-          ],
-          unknown: [
-            "A big machine with an empty account just idles."
-          ]
-        },
+        body: "Your district just grew from one street to a whole county. For the first time you need a real campaign machine and seed money — name recognition and cash have become hard requirements. A big machine with an empty account just idles.",
         choices: [
           {
             id: "big_bang",
@@ -257,18 +201,7 @@ POTUS.define("l10n", {
       {
         id: "camp_state_primary",
         title: "The party primary",
-        body: "The first real fight is inside your own party. Win the nomination, or your name never reaches the general-election ballot.",
-        brief: {
-          lede: "The first hard fight is intra-party. Win the nomination or there is no general election.",
-          known: [
-            "Without your party's nomination, you cannot appear on the ballot at all.",
-            "Mobilizing the base bets on fervor; courting the establishment bets on resources.",
-            "Staying unaligned offends no one — and may please no one either."
-          ],
-          unknown: [
-            "Back the wrong faction and you owe the party a debt after the vote."
-          ]
-        },
+        body: "The first real fight is inside your own party. Without the nomination, your name never reaches the general-election ballot. Back the wrong faction, and you owe the party a debt after the vote.",
         choices: [
           {
             id: "base_vote",
@@ -308,18 +241,7 @@ POTUS.define("l10n", {
       {
         id: "camp_state_rally",
         title: "The final campaign push",
-        body: "The last sprint before the general election. Ads, rallies, handshakes — every scrap of attention has to be seized.",
-        brief: {
-          lede: "The last sprint before the election. Fight for every ounce of attention.",
-          known: [
-            "Ads burn money for exposure; canvassing burns shoe leather for hearts.",
-            "The war chest is finite. Dividing it is a math problem of its own.",
-            "A measured push neither overdraws the account nor breaks through."
-          ],
-          unknown: [
-            "Overspend or pinch too hard, and momentum leaks out of the race."
-          ]
-        },
+        body: "The last sprint before the general election. Ads, rallies, handshakes — every scrap of attention has to be seized. The war chest is finite, and the ad buy is paid straight from it; dividing it is a math problem of its own. Overspend or pinch too hard, and momentum leaks out of the race.",
         choices: [
           {
             id: "air_war",
@@ -361,18 +283,7 @@ POTUS.define("l10n", {
       {
         id: "camp_raise_state",
         title: "Fundraising: fill the war chest",
-        body: "Ad slots, buses, the print shop — all of it wants cash. You have several ways to fill the chest, and each one bleeds somewhere different.",
-        brief: {
-          lede: "A campaign machine needs fuel, and the tank is this war chest.",
-          known: [
-            "Ad slots, buses and volunteer kits all come out of the same account.",
-            "A donor dinner raises money fast; small-dollar money comes in clean.",
-            "Putting up your own savings is the surest route — and the most painful."
-          ],
-          unknown: [
-            "Raise nothing, and in the next act you cannot afford a single ad."
-          ]
-        },
+        body: "Ad slots, buses, volunteer kits — all of it comes out of one account: the war chest. You have several ways to fill it, and each one bleeds somewhere different. Raise nothing here, and in the next act you cannot afford a single ad.",
         choices: [
           {
             id: "donor_dinner",
@@ -425,18 +336,7 @@ POTUS.define("l10n", {
       {
         id: "camp_upper_announce",
         title: "Eyeing the State Senate seat",
-        body: "The upper chamber: fewer seats, bigger stakes. An incumbent is leaving, and you are not the only one circling the opening.",
-        brief: {
-          lede: "The upper chamber has fewer seats and bigger stakes. One is opening.",
-          known: [
-            "An outgoing incumbent — and every ambitious name watching the seat.",
-            "Declaring first seizes the narrative; waiting bets on stamina.",
-            "Rivals at this level all carry more weight."
-          ],
-          unknown: [
-            "Move too slowly and someone else claims the lane first."
-          ]
-        },
+        body: "The upper chamber: fewer seats, bigger stakes. An incumbent is leaving, and every rival circling the opening carries more weight than you do. Move too slowly and someone else claims the lane first.",
         choices: [
           {
             id: "early_mover",
@@ -465,18 +365,7 @@ POTUS.define("l10n", {
       {
         id: "camp_upper_primary",
         title: "Primary showdown",
-        body: "A same-party rival with deeper tenure wants this seat too. The primary will be a fistfight.",
-        brief: {
-          lede: "A senior party rival wants the same seat you do.",
-          known: [
-            "A primary is brute force inside your own party.",
-            "The new-generation card bets on change; the résumé card bets on steadiness.",
-            "A direct clash wounds the party; evasion decides nothing."
-          ],
-          unknown: [
-            "A sibling fight inside the party — hard to end after election night."
-          ]
-        },
+        body: "A same-party rival with deeper tenure wants this seat too. The primary will be a fistfight — and a sibling fight inside the party is hard to end after election night.",
         choices: [
           {
             id: "contrast",
@@ -516,18 +405,7 @@ POTUS.define("l10n", {
       {
         id: "camp_upper_rally",
         title: "The stump tour",
-        body: "One loop of the whole state — eastern factory towns to western suburbs. Your stamina and your message both get tested.",
-        brief: {
-          lede: "A full loop of the state: factory towns in the east, suburbs in the west.",
-          known: [
-            "A packed tour bets on stamina and volume; target counties bet on efficiency.",
-            "Both your body and your news cycle are under strain.",
-            "You cannot visit everywhere. Choosing where is the whole choice."
-          ],
-          unknown: [
-            "Split your focus and the regions you skip notice the cold."
-          ]
-        },
+        body: "One loop of the whole state — eastern factory towns to western suburbs. Your stamina and your news cycle both get tested. You cannot visit everywhere; choosing where is the whole choice, and the regions you skip notice the cold.",
         choices: [
           {
             id: "grind",
@@ -558,18 +436,7 @@ POTUS.define("l10n", {
       {
         id: "camp_stwide_announce",
         title: "Introducing yourself to the whole state",
-        body: "Your first self-introduction to an entire state. Most voters have never heard of you. By November, your name has to ring like a household word.",
-        brief: {
-          lede: "Your first introduction to a whole state. Most voters do not know you.",
-          known: [
-            "Most voters have never heard your name.",
-            "A tour declares loudly; an endorsement chain builds quietly.",
-            "A slow build saves resources — and may start too late."
-          ],
-          unknown: [
-            "If the name does not carry, the race has not started."
-          ]
-        },
+        body: "Your first self-introduction to an entire state. Most voters have never heard your name — and a name that carries nothing means the race has not started. A slow build saves resources, but may start too late.",
         choices: [
           {
             id: "state_tour",
@@ -609,18 +476,7 @@ POTUS.define("l10n", {
       {
         id: "camp_stwide_convention",
         title: "The state party convention",
-        body: "The party decides its nomination inside this hall. Every vote here rests on trust you brokered days ago.",
-        brief: {
-          lede: "At the convention, the party hands out its nomination.",
-          known: [
-            "Every vote in the hall rests on trust struck days earlier.",
-            "Working delegates one by one bets on arithmetic; a floor surge bets on noise.",
-            "Waiting is cheap — and hands the outcome to someone else."
-          ],
-          unknown: [
-            "Delegates unworked before the gavel mean a cold podium after."
-          ]
-        },
+        body: "The party decides its nomination inside this hall. Every vote here rests on trust you brokered days ago. Delegates unworked before the gavel mean a cold podium after.",
         choices: [
           {
             id: "work_room",
@@ -660,18 +516,7 @@ POTUS.define("l10n", {
       {
         id: "camp_stwide_media",
         title: "Becoming a household name",
-        body: "A statewide race is a war for attention. If you are not on local TV and the front page, you might as well not be running.",
-        brief: {
-          lede: "A statewide race is an attention war. No coverage, no candidate.",
-          known: [
-            "State TV and the front page are battlegrounds you must occupy.",
-            "Buying ads bets on money; making news bets on free coverage.",
-            "Bare-minimum exposure gets you slowly forgotten."
-          ],
-          unknown: [
-            "An invisible name carries no votes."
-          ]
-        },
+        body: "A statewide race is a war for attention. If you are not on local TV and the front page, you might as well not be running. Bare-minimum exposure gets you slowly forgotten — an invisible name carries no votes.",
         choices: [
           {
             id: "media_buy",
@@ -713,18 +558,7 @@ POTUS.define("l10n", {
       {
         id: "camp_federal_announce",
         title: "Announcing for Congress",
-        body: "From the statehouse to Congress is a real leap. You need a national fundraising network — and a story Washington wants to hear.",
-        brief: {
-          lede: "Statehouse to Capitol: the leap that changes what you are.",
-          known: [
-            "You need a national fundraising network and a Washington-scale story.",
-            "A high-production launch bets on reach; hometown groundwork bets on hearts.",
-            "Congressional issues are heavier. A state résumé may not carry."
-          ],
-          unknown: [
-            "If the story fails, the congressional dream stalls halfway."
-          ]
-        },
+        body: "From the statehouse to Congress is a real leap. You need a national fundraising network and a story Washington wants to hear. Congressional issues are heavier — a state résumé may not carry — and if the story fails, the dream stalls halfway.",
         choices: [
           {
             id: "national_launch",
@@ -764,18 +598,7 @@ POTUS.define("l10n", {
       {
         id: "camp_federal_primary",
         title: "The congressional primary",
-        body: "A challenger from your own party — one who never flinches at spending — has targeted your seat. Lose the primary, and Congress stops existing.",
-        brief: {
-          lede: "A same-party challenger who burns money without blinking wants your seat.",
-          known: [
-            "Lose the primary and the Congress talk is moot.",
-            "Hold with the incumbent's advantages, or play the ideology card to the base.",
-            "Not attacking saves effort — and cedes the rival free terrain."
-          ],
-          unknown: [
-            "Underestimate a rival from inside your party and they end you there."
-          ]
-        },
+        body: "A challenger from your own party — one who never flinches at spending — has targeted your seat. Lose the primary, and Congress stops existing. Underestimate a rival from inside your party, and they end you there.",
         choices: [
           {
             id: "defend",

@@ -8,15 +8,7 @@ POTUS.define("l10n", {
       {
         id: "wh_medicine",
         title: "Day eleven outside the police line, and the four votes the Senate still needs",
-        body: "The party whip sets the tally board in front of you: four votes short, stuck on one vulnerable freshman. Drug-industry lobbyists wait outside with substitute language for voluntary price cuts. The mother's sit-in photo has looped on television for seven days, and reporters ask at every motorcade entrance whether you will spare her one look. Your chief of staff murmurs a reminder: the forced vote the caucus locked in is seventy-two hours away.",
-        brief: {
-          lede: "The drug-price bill cleared the House and needs four Senate votes; a dying patient's mother is on day eleven of a sit-in outside your motorcade.",
-          known: [
-            "Publishing her record sells the bill, but puts one family's pain on display.",
-            "Take the industry's voluntary-cut text and the votes come fast; the loopholes grow later.",
-            "Skip the bill, issue executive guidance: cheapest politically, closest to doing nothing."
-          ]
-        },
+        body: "The party whip sets the tally board in front of you: four votes short, stuck on one vulnerable freshman. Drug-industry lobbyists wait outside with substitute language for voluntary price cuts - the votes for that version come fast, and its loopholes grow later. The mother's sit-in photo has looped on television for seven days, and reporters ask at every motorcade entrance whether you will spare her one look. Your chief of staff murmurs a reminder: the forced vote the caucus locked in is seventy-two hours away.",
         choices: [
           {
             id: "push",
@@ -57,14 +49,6 @@ POTUS.define("l10n", {
         id: "wh_tax",
         title: "A visible win before the election, and a ten-year deficit curve",
         body: "The caucus chair says it flatly: deliver a visible win before the election, or the midterms will scatter their money and their people. The middle-class tax cut in your draft is what the base named by hand, and it is the exact line that drags the deficit curve ten more years down. Treasury passes over a warily worded unofficial score. Two moderate senators announce that cutting this line has their votes. The signing date the caucus locked in is six weeks away.",
-        brief: {
-          lede: "Your party wants a visible win before the election; your middle-class tax cut stretches the deficit curve ten years.",
-          known: [
-            "Sign the party's version and the base is glad; the deficit score becomes the opposition's ammunition.",
-            "Cut the promise you campaigned on and bipartisan votes come, along with a broken-oath scar.",
-            "Order a Treasury review and stall past the election: no enemies, no prizes."
-          ]
-        },
         choices: [
           {
             id: "party",
@@ -105,14 +89,6 @@ POTUS.define("l10n", {
         id: "wh_water",
         title: "Year four of the drought, and two governors sue a third state",
         body: "The hydrology map of the Colorado River basin lies spread across your desk: a fourth drought year. Two upstream states grip the old compacts and will not loosen them, and a downstream state's water rights are already in a Supreme Court suit filed jointly by two governors. Farm power subsidy requests and a federal quota draft arrive in the same hour. Midwest farm lobbyists and West Coast environmental groups face off in one corridor. The governors' lawyers have said it out loud: any executive order favoring the other side gets sued the same day.",
-        brief: {
-          lede: "Fourth drought year in the West; the Colorado basin must re-divide its water, and two governors are suing a third state.",
-          known: [
-            "A federal quota settles it fast and offends the voters of two states at once.",
-            "Subsidize farm power without touching water rights: relief today, the same shortage after.",
-            "Leave it to the courts: the most neutral look, with judges and weather deciding flood and drought."
-          ]
-        },
         choices: [
           {
             id: "quota",
@@ -152,15 +128,7 @@ POTUS.define("l10n", {
       {
         id: "wh_vote",
         title: "A last term, and the rule that stops at sixty votes",
-        body: "This is your second term, and the last stretch when voters can still talk to you with a ballot. The voting rights and redistricting bill is trapped in the Senate filibuster, the sixty-vote threshold a gate nobody can lift. The party's young members have started counting who comes next. A senior senator warns you: changing this rule either ruins the institution's dignity or loses you the next election and the Senate with it. You are not running again. All you can still burn is the capital left in your hands, and what you choose to leave behind.",
-        brief: {
-          lede: "Second term: the voting rights bill is stuck in the Senate filibuster, and rewriting the rule risks the chamber or the next election.",
-          known: [
-            "Demand the filibuster's end publicly: the doors force open, and history keeps your wrecking name.",
-            "Lean privately on two retiring senators to abstain: it works quietly, if no one tapes the talks.",
-            "Hand it to the Justice Department to litigate: you exit clean, and the bill drifts past your term."
-          ]
-        },
+        body: "This is your second term, and the last stretch when voters can still talk to you with a ballot. The voting rights and redistricting bill is trapped in the Senate filibuster - the minority's tool for holding the floor - the sixty-vote threshold a gate nobody can lift. The party's young members have started counting who comes next. A senior senator warns you: changing this rule either ruins the institution's dignity or loses you the next election and the Senate with it. You are not running again. All you can still burn is the capital left in your hands, and what you choose to leave behind. Just know that whatever is agreed in quiet rooms comes out eventually.",
         choices: [
           {
             id: "abrogate",

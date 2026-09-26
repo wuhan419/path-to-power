@@ -615,38 +615,6 @@
   .officecard .vt-power{display:inline-flex;align-items:baseline;gap:2px;font-size:11px;color:var(--muted)}
   .officecard .vt-power b{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:15px;font-weight:800;color:var(--tier,var(--ink))}
   .officecard .vt-power em{font-style:normal;font-size:10px}
-  /* 背景卡的位置容器：放在选项下面，独立成框（v0.5.2 应用户要求） */
-  .brief-slot{margin-top:14px}
-  .brief-slot .brief{margin:0}
-  /* 背景卡（折叠 / 展开）—— 主角视角的认知边界 */
-  .brief{border:1px dashed var(--line);background:#f7f3e8;margin:8px 0}
-  .brief-head{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
-    font-family:inherit;font-size:13px;color:var(--ink);background:none;border:0;padding:8px 12px}
-  .brief-head:hover{background:#efe8d6}
-  .brief-head .caret{flex:none;width:0;height:0;border-left:5px solid var(--muted);
-    border-top:4px solid transparent;border-bottom:4px solid transparent;transition:.15s;
-    transform:rotate(90deg)}
-  .brief.collapsed .brief-head .caret{transform:rotate(0)}
-  .brief-head .brief-title{font-weight:700;flex:none}
-  .brief-head .brief-lede{color:var(--muted);font-size:12.5px;overflow:hidden;
-    text-overflow:ellipsis;white-space:nowrap}
-  .brief.collapsed .brief-head .brief-lede{flex:1}
-  .brief-body{padding:0 12px 10px;border-top:1px dotted var(--line)}
-  .brief.collapsed .brief-body{display:none}
-  .brief-sec{padding:8px 0 0}
-  .brief-sec h4{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:1px}
-  .brief-sec ul{margin:0;padding-left:18px}
-  .brief-sec li{font-size:13px;line-height:1.6;margin:2px 0}
-  .brief-sec.known h4{color:#0f5132}
-  .brief-sec.rumor h4{color:#854f0b}
-  .brief-sec.rumor{border-left:2px solid #e3cfa0;padding-left:10px;margin-left:2px;
-    background:#fdf9ef}
-  .brief-sec.unknown h4{color:#7a1f1f}
-  .brief-sec.unknown li{color:#5a4340;font-style:italic}
-  .brief-sec.terms{border-top:1px dotted #cfc6ad;margin-top:8px}
-  .brief-sec.terms h4{color:var(--muted)}
-  .brief-sec .term{font-size:12.5px;line-height:1.55;margin:3px 0;color:#4a4437}
-  .brief-sec .term b{color:var(--ink);margin-right:6px}
   /* ==========================================================================
      月度回合 / 事件量级 / 事件类型 —— 这一块由 content/05-categories.js 与
      content/06-media.js 驱动，配色可随内容调整
@@ -657,10 +625,9 @@
   .gchip.g-major{background:#7a1f1f;color:#fff;border-color:#7a1f1f;font-weight:700}
   .gchip.g-mid{background:#c9a227;color:#231c07;border-color:#a9871c;font-weight:700}
   .gchip.g-minor{background:#e9dfc7;color:#4a4437}
-  /* 类型徽章（综合 / 舆论 / 丑闻 …）与媒介徽章 */
+  /* 类型徽章（综合 / 舆论 / 丑闻 …） */
   .cchip{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;
     border:1px dotted var(--muted);color:var(--muted);margin:0 4px 0 0;vertical-align:1px}
-  .cchip.medium{border-style:solid;color:#3a4a63;border-color:#9aa6bd;background:#eef1f7}
   /* 时代压力配色 */
   .calm{color:#2f6b3a}.uneasy{color:#6b6b1f}.tense{color:#9a6412}
   .storm{color:#a3371f}.abyss{color:#000;text-shadow:0 0 6px rgba(0,0,0,.25)}
@@ -905,11 +872,7 @@
     padding:4px 10px;font-size:19px;font-weight:800;letter-spacing:4px;
     font-family:var(--serif);opacity:.85;pointer-events:none;z-index:5;
     box-shadow:inset 0 0 0 1px rgba(158,42,42,.35)}
-  .news.editorial .standfirst{margin:0 0 14px;font-size:15.5px;line-height:1.65;font-style:italic;
-    color:#4b4134;max-width:62ch;padding-bottom:12px;border-bottom:3px double var(--rule)}
   .news.editorial .body{font-size:15.5px;line-height:1.95;white-space:pre-wrap;color:#2a251c}
-  /* 导语为空时不要让双层下边框悬空 */
-  .news.editorial .standfirst:empty{display:none}
 
   /* #21 M4：椭圆办公室皮肤。白宫月（ev.wh）的卡片换一张皮 —— 判据只有 .oval 一个类，
      平民月份那条字符串根本不生成，所以抽卡热路径与既有版面零影响。
@@ -919,11 +882,9 @@
         rgba(154,124,58,.17), rgba(154,124,58,.05) 55%, rgba(154,124,58,0) 70%) #f8f5ec}
   .news.editorial.oval h1.headline{color:#16233d}
   .news.editorial.oval .dnum{color:#8a6d2f}
-  .news.editorial.oval .standfirst{color:#3b4560;border-bottom-color:#1d2f52}
   .news.editorial.oval .body{color:#242a36}
-  /* 选项瓷贴从报纸灰换成总统藏青 */
+  /* 类型瓷贴从报纸灰换成总统藏青 */
   .news.editorial.oval .cchip{color:#ece5d2;border-color:#2c4470;background:#22345a}
-  .news.editorial.oval .cchip.medium{color:#ece5d2;border-color:#16233d;background:#2f4779}
 
   /* 建角：难度卡带 25 岁头像 */
   .create .opt-diff{display:flex;align-items:center;gap:12px}
@@ -1016,15 +977,13 @@
       cursor:pointer;-webkit-tap-highlight-color:transparent}
     .news.editorial h1.headline::after{content:" ▾";font-family:inherit;font-weight:700;
       font-size:13px;letter-spacing:0;color:var(--muted)}
-    .news.editorial .standfirst,.news.editorial .body,.news.editorial .chain{display:none}
-    .news.editorial.expanded .standfirst,.news.editorial.expanded .body,.news.editorial.expanded .chain{display:block}
+    .news.editorial .body,.news.editorial .chain{display:none}
+    .news.editorial.expanded .body,.news.editorial.expanded .chain{display:block}
     .news.editorial.expanded h1.headline::after{content:" ▴"}
     .news.editorial.expanded h1.headline{margin-bottom:8px}
     .news.editorial .body{font-size:13.5px;line-height:1.8}
-    .news.editorial .standfirst{font-size:13px;margin-bottom:10px}
     .art-press{margin:10px 0}
     .art-press img{height:auto;max-height:24vh;object-fit:contain;width:100%}
-    .brief-slot{display:none}           /* 背景折叠：竖屏不进卡片流 */
     .ledgerbox,.ledger{font-size:11px}
 
     /* ---- 平静月卡（monthcard/quietcard）：与事件卡同一套折叠 ——

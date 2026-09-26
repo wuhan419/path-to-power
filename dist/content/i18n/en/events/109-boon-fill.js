@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动；本文件只放要覆盖的字段，结构键由引擎保护、不写。
- *   · 事件/选项按 id 定位；known 是纯字符串数组，整体替换、整条给全
- *     （本包每卡 known×2，无 rumor/unknown/terms，与原文一致）。
  *   · 占位符 {CITY} {ORG} {MEET} {PUB} {PLACE} 由 engine/flavor.js 在运行时按
  *     当前语言填词，覆盖层里原样保留、不翻译。
  *   · 1980/1990/2001 三张卡的实物保持时代正确；2016 张才允许社交网络词
@@ -22,14 +20,7 @@ POTUS.define("l10n", {
       {
         id: "boon1980_grassroots",
         title: "A rising grassroots group wants you to lead the {CITY} movement",
-        body: "The organizer pushes a stack of blank signup forms across the table: \"We want one of our own. Want in — let's turn {CITY} upside down together?\"",
-        brief: {
-          lede: "A new wind is blowing across the country. {CITY} is scrambling for a young face to stand for it — and they found you.",
-          known: [
-            "The new outfit {ORG} has money and ideas; what it lacks is a trusted local to head things.",
-            "They picked you because you \"don't run like the old machine.\" Board the vehicle: take off, or get thrown off."
-          ]
-        },
+        body: "A new wind is blowing across the country, and this town is scrambling for a young face to stand for it. The organizer pushes a stack of blank signup forms across the table: \"We want one of our own. Want in — let's turn {CITY} upside down together?\" The new outfit has money and ideas; what it lacks is a trusted local to head things, and they picked you because you \"don't run like the old machine.\" Board the vehicle: take off, or get thrown off.",
         choices: [
           {
             id: "ride_wave",
@@ -74,14 +65,7 @@ POTUS.define("l10n", {
       {
         id: "boon1990_homecoming",
         title: "The veterans' association asks you to host a homecoming ceremony",
-        body: "An association veteran claps your shoulder at {PLACE}: \"We don't want a politician. We want someone who still believes in all this. You'll do.\"",
-        brief: {
-          lede: "The whole country is lighting candles for the kids in the desert. The local veterans' association wants a welcome-home ceremony — it needs someone to lead it.",
-          known: [
-            "An event nobody opposes: decent, and it gets television. The association wants a host.",
-            "Their one condition: keep it nonpartisan. Take it, and you borrow the nation's cameras for your own town."
-          ]
-        },
+        body: "The whole country is lighting candles for the kids in the desert. An association veteran claps your shoulder at {PLACE}: \"We don't want a politician. We want someone who still believes in all this. You'll do.\" It is an event nobody opposes — decent, and it gets television. Their one condition: keep it nonpartisan. Take it, and you borrow the nation's cameras for your own town.",
         choices: [
           {
             id: "host_rally",
@@ -114,14 +98,7 @@ POTUS.define("l10n", {
       {
         id: "boon2001_firstresponder",
         title: "In the crisis days, the community pushes you to lead relief",
-        body: "The firehouse union, the churches and the school principals sit down together: \"We don't know the big shots. We know you get things done. Start this one for us.\"",
-        brief: {
-          lede: "In the days the sky came down, everyone asked \"what can I do.\" Someone answered: \"Go find him — he's already organizing.\"",
-          known: [
-            "Local response is a tangle: blood lines, supply drives, missing-persons calls. Someone must sort it.",
-            "This is not campaigning; it is rescue. Lift this weight now, and your name bonds to \"reliable.\""
-          ]
-        },
+        body: "In the days the sky came down, everyone asked what they could do. The firehouse union, the churches and the school principals sit down together: \"We don't know the big shots. We know you get things done. Start this one for us.\" Local response is a tangle — blood lines, supply drives, missing-persons calls. This is not campaigning, it is rescue. Lift this weight now, and your name bonds to \"reliable.\"",
         choices: [
           {
             id: "coordinate_relief",
@@ -154,14 +131,7 @@ POTUS.define("l10n", {
       {
         id: "boon2016_goviral",
         title: "Your unscripted clip explodes overnight",
-        body: "The phone does not stop all day. Strangers pour into the messages: \"Finally, someone not reading from the teleprompter.\" The cynics chime in: \"Just wait for the fall.\"",
-        brief: {
-          lede: "You looked into a camera and said plain things; you woke to it shared hundreds of thousands of times. The algorithm likes you today.",
-          known: [
-            "In an age of rehearsed lines, plain talk is the scarce thing. That is why it is being shared this hard.",
-            "The following is real — so is the scrutiny. Fireworks or seed capital: your call."
-          ]
-        },
+        body: "You looked into a camera and said plain things; you woke to it shared hundreds of thousands of times. The phone does not stop all day. Strangers pour into the messages: \"Finally, someone not reading from the teleprompter.\" The cynics chime in: \"Just wait for the fall.\" In an age of rehearsed lines, plain talk is the scarce thing. The following is real — so is the scrutiny. Fireworks or seed capital: your call.",
         choices: [
           {
             id: "keep_authentic",

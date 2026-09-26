@@ -5,8 +5,7 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件按 id 定位，choices 按 id 对齐，brief.terms 不带 id → 按下标对齐（顺序不动）。
- *   · 纯标量数组（known / rumor / unknown）整体替换，条数与中文严格一致。
+ *   · 事件按 id 定位，choices 按 id 对齐。
  *   · 结构性与引用性键（grade / category / unique / valence / dyn / tierRaw / tierMin /
  *     tierMax / minTenure / weight / tracks / stake / req / base / mods / effects / flags /
  *     id）由引擎保护，这里一个都不写。
@@ -26,23 +25,7 @@ POTUS.define("l10n", {
       {
         id: "prog_council",
         title: "The first count: your name is on the ballot",
-        body: "The polls close tonight. Every door you knocked and every person you talked to now turns into a number. Either you gain ground you own, or you go back to square one.",
-        brief: {
-          lede: "The knocking is done and the talking is done. Tonight you only wait for the count.",
-          known: [
-            "Turnout is low tonight; a few hundred votes decide the seat.",
-            "Every door you knocked now converts into a number.",
-            "The incumbent's name sits on the ballot too, and that favors him."
-          ],
-          rumor: [
-            "They say two precincts will be slow to report tonight.",
-            "They say your opponent has already drafted a concession speech."
-          ],
-          unknown: [
-            "How people treat you once tonight is over.",
-            "What the next step upward will cost you."
-          ]
-        },
+        body: "The polls close tonight. A local election turns on a few hundred votes. Every door you knocked and every person you talked to now becomes a number. The incumbent's name sits on the ballot too, and that favors him. Either you gain ground you own, or you go back to square one. They say your opponent has already drafted a concession speech; what the next step upward will cost, tonight nobody tells you.",
         choices: [
           {
             id: "doorknock",
@@ -75,26 +58,7 @@ POTUS.define("l10n", {
       {
         id: "prog_state",
         title: "The statehouse seat is counted tonight",
-        body: "The rally money is spent and the primary rival is behind you. Tonight the ballots get counted: a chair in the statehouse, or the same seat you already hold.",
-        brief: {
-          lede: "The primary is over and the rallies are spent. Tonight there is only the count.",
-          known: [
-            "You cleared the primary; tonight only the opponent is left.",
-            "The legislature writes the state budget and draws the district lines.",
-            "This seat is the standard springboard to Washington."
-          ],
-          rumor: [
-            "They say a few suburban precincts are still uncommitted tonight.",
-            "They say the party is watching whether you can actually win."
-          ],
-          unknown: [
-            "What you become once you sit in that chair.",
-            "Who you owed tonight, and how much."
-          ],
-          terms: [
-            { k: "Redistricting", v: "Redrawing district lines after each census." }
-          ]
-        },
+        body: "The rally money is spent and the primary rival is behind you. Tonight the ballots get counted: a chair in the statehouse, or the same seat you hold. The legislature writes the state budget and redraws the district lines after each census, and this seat is the standard springboard to Washington. Vacancies wait for no one, and neither do ballots. They say a few suburban precincts are still uncommitted tonight; who you owed this night, only you will know once you sit down.",
         choices: [
           {
             id: "run",
@@ -127,26 +91,7 @@ POTUS.define("l10n", {
       {
         id: "prog_federal",
         title: "The votes for the House are counted tonight",
-        body: "The primary is behind you, the donors' checks are spent, and you barely slept through the last week in the suburbs. Tonight the road to Washington runs only through this district.",
-        brief: {
-          lede: "The primary, the money, the last week in the suburbs: all behind you. Tonight only the count.",
-          known: [
-            "You won the primary; tonight only the opponent is left.",
-            "The donors' money is already spent. Winning starts the repayment.",
-            "House terms run two years. Win, and the next race begins."
-          ],
-          rumor: [
-            "They say the donors are already reserving your voting record.",
-            "They say the last suburban counties will not report for hours."
-          ],
-          unknown: [
-            "What Washington will make you into.",
-            "Whether a two-year campaign cycle drains you dry."
-          ],
-          terms: [
-            { k: "Swing district", v: "Suburban ground either party can flip." }
-          ]
-        },
+        body: "The primary is behind you, the donors' checks are spent, and winning starts the repayment. You barely slept through the last week in the suburbs — swing district ground, the kind either party can flip. Tonight the road to Washington runs only through this district: a seat in the House, or home with a national name. Once inside, remember House terms run two years; win, and the next race begins. They say the donors are already reserving your voting record.",
         choices: [
           {
             id: "run",
@@ -179,26 +124,7 @@ POTUS.define("l10n", {
       {
         id: "prog_senate",
         title: "Senate or governor: pick one",
-        body: "Two roads, both to the center of national power, at different prices.",
-        brief: {
-          lede: "The Senate and the governorship both lie open in front of you.",
-          known: [
-            "Six-year Senate terms with a national platform; a four-year governorship whose signature changes lives the same week.",
-            "Both are standard roads to the top office, and neither one walks like the other.",
-            "A senator swims in national money; a governor bargains with local interests."
-          ],
-          rumor: [
-            "They say the national committee wants you in the Senate race, though no Senate seat is actually coming open.",
-            "They say the governor's road is safer, because your rivals will cut each other first."
-          ],
-          unknown: [
-            "Which road makes an enemy of the people who actually hold the resources.",
-            "Whether you end up a legislator or an executive."
-          ],
-          terms: [
-            { k: "Governor", v: "A state's chief executive, holding the budget's pen and the appointments." }
-          ]
-        },
+        body: "Two roads, both to the center of national power, at different prices. The Senate gives a six-year term and a national platform, and you swim in national money. The governorship — a state's chief executive, holding the budget's pen and the appointments — runs four years, and its signature changes lives the same week; you bargain with local interests instead. Both are standard roads to the top office. The national committee wants you in the Senate race, but no Senate seat is coming open soon; the governor's road is safer, because your rivals will cut each other first. Which road makes an enemy of the people who actually hold the resources, tonight will not say.",
         choices: [
           {
             id: "senate",
@@ -242,26 +168,7 @@ POTUS.define("l10n", {
       {
         id: "prog_president",
         title: "Counting night: the White House is decided tonight",
-        body: "The state primaries, the nomination, the debates and the last sprint through the swing states are all behind you. Tonight the map tightens state by state. Very few in history reach this night, and one person sits on the top line.",
-        brief: {
-          lede: "The polls close state by state tonight, and each one turns a color.",
-          known: [
-            "What counts is not the popular vote but each state's electors.",
-            "The first small states to close set the night's momentum.",
-            "If it is close, the count can run into tomorrow."
-          ],
-          rumor: [
-            "They say two big states will be within a hair tonight.",
-            "They say your opponent has already scouted a victory venue."
-          ],
-          unknown: [
-            "How much of you this road spends before the end.",
-            "What is left standing after a loss."
-          ],
-          terms: [
-            { k: "Electoral College", v: "Voters choose electors; the electors choose the president." }
-          ]
-        },
+        body: "The state primaries, the nomination, the debates and the last sprint through the swing states are all behind you. What counts tonight is not the popular vote but each state's electors — voters choose electors, the electors choose the president. The first small states to close set the night's momentum, and a close count can run into tomorrow. Very few in history reach this night, and one person sits on the top line. They say two big states will be within a hair tonight; how much this road changes you, only those who finish it will know.",
         choices: [
           {
             id: "run",
@@ -294,23 +201,7 @@ POTUS.define("l10n", {
       {
         id: "prog_appoint",
         title: "An appointed seat is being offered to you",
-        body: "The president — or a governor — has a chair to fill: a judgeship, a regulatory board, a deputy secretary. They want someone reliable who will not create work.",
-        brief: {
-          lede: "A job with no election in it. It needs one person to nod.",
-          known: [
-            "Appointments need no money and no votes, but they do clear background checks.",
-            "It gives you real power and no popular base. When your patron leaves, you are left hanging.",
-            "Whoever recommended you stays in your file forever."
-          ],
-          rumor: [
-            "They say the pick is already made and you are running for show.",
-            "They say the person backing you is trading you for something."
-          ],
-          unknown: [
-            "Whether you get pulled into business that was never yours.",
-            "What your patron will eventually ask for."
-          ]
-        },
+        body: "The president — or a governor — has a chair to fill: a judgeship, a regulatory board, a deputy secretary. They want someone reliable who will not create work. An appointment needs no fundraising and no votes, but it must clear a background check. It gives you real power and no popular base: when the person who recommended you leaves, you are left hanging. They say the pick is already made and you are running for show. Whoever put your name forward stays in your file, and will come collecting.",
         choices: [
           {
             id: "accept",
@@ -343,23 +234,7 @@ POTUS.define("l10n", {
       {
         id: "prog_kingmaker",
         title: "You do not run. You decide who gets nominated.",
-        body: "You are not going to run. You are going to decide whether other people get to.",
-        brief: {
-          lede: "You have a man. He does not yet know he is a card.",
-          known: [
-            "An operator's power comes from information, money and timing, never from votes.",
-            "The candidate you pick is not brilliant. That is precisely why the job fell to you.",
-            "The stake is judgment. Get it wrong and what you lose is everyone's trust in you."
-          ],
-          rumor: [
-            "Another operator is watching the same man, with more money in hand.",
-            "They say the real result is settled by whatever breaks in the final week."
-          ],
-          unknown: [
-            "Whether the person you built will cut you loose.",
-            "Whether you will want to stand there yourself."
-          ]
-        },
+        body: "You are not going to run. You are going to decide whether other people get to. An operator's power comes from information, money and timing, never from votes. The candidate you picked is not brilliant; that is precisely why the job fell to you. The stake is judgment — get it wrong and you lose everyone's trust in you. They say another operator is watching the same man, with more money in hand. Whether the person you built will cut you loose is still something you do not know.",
         choices: [
           {
             id: "run_it",
@@ -392,26 +267,7 @@ POTUS.define("l10n", {
       {
         id: "prog_magnate",
         title: "The super PAC play",
-        body: "You do not need votes. You need a checkbook. Ten million dollars is enough to make any local race follow your script.",
-        brief: {
-          lede: "Someone arrives with a sheet of paper: here is how the money could be spent.",
-          known: [
-            "A super PAC may take nearly unlimited money, so long as it stays independent of the campaign.",
-            "It may not coordinate. It may advertise, organize, and say anything it likes.",
-            "Donor names are public. Many of them do not mind."
-          ],
-          rumor: [
-            "They say several firms have money parked and are only waiting for someone worth spending on.",
-            "They say that once you take this money you stop being one man's candidate."
-          ],
-          unknown: [
-            "What the people behind the money will want later.",
-            "Whether new rules close this road behind you."
-          ],
-          terms: [
-            { k: "Super PAC", v: "An independent expenditure committee that may take unlimited donations." }
-          ]
-        },
+        body: "You do not need votes. You need a checkbook. Ten million dollars is enough to make any local race follow your script. The mechanism: a super PAC — an independent expenditure committee — may take nearly unlimited donations, but it may not coordinate with a campaign; it advertises, organizes, and says anything it likes. Donor names are public, and many do not mind. They say once you take this money you stop being one man's candidate. What the people behind the money will want later, no ledger shows.",
         choices: [
           {
             id: "spend",
@@ -455,28 +311,7 @@ POTUS.define("l10n", {
       {
         id: "prog_star",
         title: "Your name is bigger than your office",
-        body: "Television appearances, a bestselling book, a speaking tour. You hold no real power yet, but you already have a crowd.",
-        brief: {
-          lede: "Your name now carries further than your title. That is an asset and a trouble at once.",
-          known: [
-            "Strangers recognize you more often than your office deserves.",
-            "Fame converts into votes or into money. The two roads end in different places.",
-            "Fame depreciates fastest of all. Stop feeding it and it thins out.",
-            "The people around you are splitting into two kinds: those protecting you, those using you."
-          ],
-          rumor: [
-            "They say a bigger arena has noticed you.",
-            "They say last month's attention made powerful people uncomfortable."
-          ],
-          unknown: [
-            "Whether the fame is still there when you actually need it.",
-            "Whether there comes a day when you do something unlike yourself to keep it."
-          ],
-          terms: [
-            { k: "Celebrity track", v: "Influence that comes from name recognition rather than the party machine." },
-            { k: "Brand", v: "The fixed public image of you. Once set, it is hard to move." }
-          ]
-        },
+        body: "Television appearances, a bestselling book, a speaking tour. You hold no real power yet, but you already have a crowd. This kind of fame — a brand, a public image once fixed and hard to move — converts into votes or into money, and the two roads end in different places. And fame depreciates fastest of all: stop feeding it new material and it thins out. Whether it is still there when you actually need it, you cannot know in advance.",
         choices: [
           {
             id: "ride",
@@ -509,27 +344,7 @@ POTUS.define("l10n", {
       {
         id: "prog_city",
         title: "The council seat is counted tonight",
-        body: "From party cadre to elected official is one night. You signed the papers and stood in the debate; tonight voters turn all of it into a seat, or into a decent defeat.",
-        brief: {
-          lede: "You signed the papers and stood in the debate. Tonight the voters settle the account.",
-          known: [
-            "City business is concrete: police, fire, zoning, garbage.",
-            "The party wanted someone who knows the ground; tonight you run for them.",
-            "Council pay is small, but it is the first real office."
-          ],
-          rumor: [
-            "They say the mayor is close to developers and his votes are not all in.",
-            "They say party donors are waiting on tonight's number."
-          ],
-          unknown: [
-            "Whether your first grip on real power makes you careful or reckless.",
-            "How the favors owed tonight get repaid later."
-          ],
-          terms: [
-            { k: "City council", v: "A city's legislature, holding the budget and the local ordinances." },
-            { k: "Part-time councilman", v: "A member with a day job, serving on a small stipend and the title." }
-          ]
-        },
+        body: "From party cadre to elected official is one night. The party wanted someone who knows the ground; tonight you run for them. City business is concrete — police, fire, zoning, garbage — and a part-time council seat pays little, but it is the first real office. You signed the papers and stood in the debate; tonight voters turn all of it into a seat, or into a decent defeat. They say the incumbent is close to developers and his votes are not all in.",
         choices: [
           {
             id: "run",
@@ -562,26 +377,7 @@ POTUS.define("l10n", {
       {
         id: "prog_upper",
         title: "Your district's senate votes are counted tonight",
-        body: "The district is a full turn bigger than the assembly one, and you spent the whole season on it. Tonight the count: senator for your district, or the same assembly member you were this morning.",
-        brief: {
-          lede: "You won the primary and finished the circuit. Tonight there is only the count.",
-          known: [
-            "The senate has fewer seats, and it confirms appointments and money.",
-            "The boss spoke for you. Tonight the favor starts coming due.",
-            "What you promised to get here counts from this night."
-          ],
-          rumor: [
-            "They say this chair was promised long ago to a man who gives more.",
-            "They say two counties will report late tonight."
-          ],
-          unknown: [
-            "How people look at you once you stop being a minor figure.",
-            "Whether this chair costs favors you can never repay."
-          ],
-          terms: [
-            { k: "State senate", v: "The legislature's upper chamber: fewer seats, longer terms, confirmations and budget." }
-          ]
-        },
+        body: "The district is a full turn bigger than the assembly one, and you spent the whole season on it. The state senate is the upper chamber: fewer seats, longer terms, confirmations and the budget — which is why tonight's count is worth it. The boss spoke for you; once the votes are in, that favor starts coming due. Senator for your district, or the same assembly member you were this morning, with a larger name. They say this chair was promised long ago to a man who gives more. Whether the debts you owe this table can ever be repaid, nobody guarantees.",
         choices: [
           {
             id: "run",
@@ -614,26 +410,7 @@ POTUS.define("l10n", {
       {
         id: "prog_stwide",
         title: "The whole state counts its votes tonight",
-        body: "The state convention put you out front, and your name was bought with ads and airfare. Tonight every county counts at once: take it, and you stop belonging to one district.",
-        brief: {
-          lede: "The convention is over, the statewide ads have run. Tonight is the count.",
-          known: [
-            "Your name is on every ballot in the state, and they are counted tonight.",
-            "The ads and the travel are already spent; that money does not come back.",
-            "After tonight you are either a statewide figure or a man who lost one."
-          ],
-          rumor: [
-            "They say the other side has already raised twice what you have.",
-            "They say a few suburban counties will not call until the small hours."
-          ],
-          unknown: [
-            "Whether statewide attention is an opening or a target.",
-            "Who you borrowed from to run this race."
-          ],
-          terms: [
-            { k: "Statewide office", v: "A post elected by the entire state: the step toward national things." }
-          ]
-        },
+        body: "The state convention put you out front, and your name was bought with ads and airfare; that money does not come back. Tonight every county counts at once: take it, and you stop belonging to one district. A statewide office is a post elected by the whole state — the standard step toward national things. They say the other side has already raised twice what you have. Who you borrowed from to run this race is not on the filings.",
         choices: [
           {
             id: "run",
@@ -666,26 +443,7 @@ POTUS.define("l10n", {
       {
         id: "prog_vp",
         title: "Roll call: they read your name on the platform",
-        body: "The vetting cleared, the convention met, and you spent the season speaking for this ticket. Tonight the chair asks whether you accept. Answer, and you are the other half of the poster; say nothing, and a live audience watches you do it.",
-        brief: {
-          lede: "The convention floor rolls call tonight, and you have to be standing for it.",
-          known: [
-            "Vetting and the stump speeches are finished; all that is left is the roll call.",
-            "Say yes and you underwrite his platform until election night.",
-            "Say nothing on a live feed and the country keeps the clip."
-          ],
-          rumor: [
-            "They say the list is already written, and you are only there to balance one faction.",
-            "They say the opposition has a folder of research on you, already printed."
-          ],
-          unknown: [
-            "Whether this stage turns out to be the highest point of your life.",
-            "If you decline, whether anyone calls for the next round."
-          ],
-          terms: [
-            { k: "Running mate", v: "The nominee a candidate chooses to balance the ticket and its factions." }
-          ]
-        },
+        body: "The vetting cleared, the convention met, and you spent the season speaking for this ticket. Tonight the chair asks whether you accept. Answer, and you are the other half of the poster — a running mate, the nominee chosen to balance the ticket and its factions — and you underwrite his platform until election night. Say nothing, and a live audience watches you do it. They say the list was written long ago and you are only there to balance one faction. If you decline, whether anyone calls for the next round, the gavel will not answer.",
         choices: [
           {
             id: "accept",

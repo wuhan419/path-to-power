@@ -4,7 +4,6 @@
  *
  * 契约（同 i18n/en/lines/120-line-1991-94.js）：
  *   · 事件按 id 定位；choices / terms 按 id 对齐。
- *   · 纯字符串数组（known / rumor / unknown / terms）为整体替换，必须整条给全。
  *   · 结构性键由引擎保护，本文件一个不写。
  *   · 英文按习语重写：第二人称、现在时、短句；机构名用真实英文。
  * ==========================================================================*/
@@ -20,27 +19,8 @@ POTUS.define("l10n", {
           "she says he pestered her, again and again; he calls the proceeding a high-tech lynching. The committee sends the " +
           "nomination to the floor, seven to five. Fifty-two to forty-eight: confirmed.\n" +
           "Two voting blocs — women and Black voters — split down the middle in front of you. The churches, unions, and women's " +
-          "groups in your state are all waiting for your first sentence. None of them can be unsaid.",
-        brief: {
-          lede: "The hearing plays live in every living room. Two blocs crack open on the spot, and each half waits to see which side you take.",
-          known: [
-            "The committee advanced the nomination seven to five; the full Senate confirmed it fifty-two to forty-eight.",
-            "The accuser is a law professor at a prestigious university, and she testified in full on live television.",
-            "The nominee denied everything on camera, and the hearings moved forward anyway.",
-            "The state's women's groups and its Black churches each filed their own open letter."
-          ],
-          rumor: [
-            "Some say two more former aides have testimony ready.",
-            "Some say the caucus counted its votes before the cameras arrived. The broadcast was theater."
-          ],
-          unknown: [
-            "How the cracked blocs get glued back together next year.",
-            "When today's statement comes due."
-          ],
-          terms: [
-            { k: "Confirmation hearing", v: "The Senate Judiciary Committee votes first; the full Senate confirms after." }
-          ]
-        },
+          "groups in your state are all waiting for your first sentence. None of them can be unsaid.\n" +
+          "Some say two more former aides have testimony ready. Nobody confirms it, and nobody denies it.",
         choices: [
           {
             id: "reopen",
@@ -87,27 +67,9 @@ POTUS.define("l10n", {
           "of one party holding the presidency, settled in one evening. A third-party candidate scoops nearly a fifth of the " +
           "popular vote and pushes the incumbent out of states decided by one or two points.\n" +
           "The same night, the new president's party takes the Senate and the House together — a one-party sweep this country " +
-          "has not seen in forty years. The wave is already rolling. If you are not on the crest, the wave will eat you.",
-        brief: {
-          lede: "The wave is underway: whoever climbs on first gets a seat. But waves turn around, and they knock people off the deck.",
-          known: [
-            "The president-elect's party now holds majorities in both chambers of Congress.",
-            "The third-party candidate took nearly twenty percent of the popular vote and not a single electoral vote.",
-            "In several states the final margin came down to one or two points.",
-            "In the new administration's first hundred days, every local appointment list gets reshuffled."
-          ],
-          rumor: [
-            "Some say the third party fell apart in September and will set up a new shop next year.",
-            "Some say the transition team is already ranking seats and leaving no door for outsiders."
-          ],
-          unknown: [
-            "How long a body can stand on the crest.",
-            "Whether today's winners list carries your name."
-          ],
-          terms: [
-            { k: "Electoral College", v: "State-by-state balloting in which the winner takes the state's votes." }
-          ]
-        },
+          "has not seen in forty years. In the new administration's first hundred days, every local appointment list gets reshuffled.\n" +
+          "The wave is already rolling. If you are not on the crest, the wave will eat you — and whether tonight's winners list " +
+          "carries your name, nobody on the transition team will say.",
         choices: [
           {
             id: "bandwagon",
@@ -154,26 +116,8 @@ POTUS.define("l10n", {
           "spring, and every gun-store counter now carries a form no one can skip. The gun-rights camp calls this day the end " +
           "of law enforcement — tens of thousands marched on the capital with their rifles this past spring, and the permit for " +
           "next spring's lawn rally is already filed.\n" +
-          "In your office, the retailers' petition and the sheriffs' joint letter sit in one stack. Both are waiting for your first sentence.",
-        brief: {
-          lede: "One signature writes the waiting period into law. An elected official's first statement gets recorded in both camps' ledgers.",
-          known: [
-            "The interim provisions take effect next spring: check first, wait, then buy.",
-            "The gun-rights groups have already applied for next year's Capitol lawn rally permit.",
-            "Both the local retailers' association and the sheriffs' association have asked for a meeting."
-          ],
-          rumor: [
-            "Some say an autumn memorial march on the scale of tens of thousands is being planned.",
-            "Some say the waiting period is unenforceable and the stores will close row by row."
-          ],
-          unknown: [
-            "Whether the enforcement money or the blame reaches you first.",
-            "What this issue is worth in votes next autumn."
-          ],
-          terms: [
-            { k: "Background check", v: "Licensed dealers must verify a buyer's eligibility before the sale." }
-          ]
-        },
+          "In your office, the retailers' petition and the sheriffs' joint letter sit in one stack. Both are waiting for your first sentence. The rule is narrow: a licensed dealer must verify a buyer's eligibility before the sale.\n" +
+          "Some say the waiting period cannot be enforced and the stores will close row by row. Whether the enforcement money or the blame reaches you first, nobody has ranked it for you.",
         choices: [
           {
             id: "campaign",
@@ -220,26 +164,10 @@ POTUS.define("l10n", {
           "community-policing grants pushed down to the precincts, federal appeals tightened. For the first time an assault " +
           "weapons ban enters federal law — with a ten-year sunset clause attached to its tail.\n" +
           "The homicide curve is still riding high, the midterms are two months out, and tough on crime has become the sharpest " +
-          "microphone in the country. Everyone is scrambling to claim the phrase; everyone fears the soft label.",
-        brief: {
-          lede: "A hundred thousand officers and a ten-year ban. The microphone goes to whoever grabs it — and so does the blame.",
-          known: [
-            "The bill has passed both chambers; the signature makes it law, and the money phases in year by year.",
-            "The weapons ban lapses automatically after ten years — a first in federal law.",
-            "Your local sheriff is already asking you for a community-policing allotment."
-          ],
-          rumor: [
-            "Some say the homicide numbers will drop sharply by next year.",
-            "Some say the grant slots were reserved for insiders months ago."
-          ],
-          unknown: [
-            "Which way the November wave rolls.",
-            "Whose face today's label gets stuck back on in four years."
-          ],
-          terms: [
-            { k: "Sunset clause", v: "A legislative provision that expires automatically on schedule." }
-          ]
-        },
+          "microphone in the country. Everyone is scrambling to claim the phrase; everyone fears the soft label. Your local " +
+          "sheriff is already asking you for a community-policing allotment.\n" +
+          "Some say the grant slots were reserved for insiders months ago. A sunset clause expires on schedule — and today's " +
+          "label gets stuck back on somebody's face in four years.",
         choices: [
           {
             id: "call",

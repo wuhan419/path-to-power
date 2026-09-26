@@ -4,13 +4,12 @@
  *
  * 契约同 i18n/en/events/106-era-1990.js（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文案字段。
- *   · 事件按 id 定位；choices 按 id 对齐；terms 无 id，按下标对齐。
- *   · known / rumor / unknown 是纯字符串数组 → 整体替换，必须整条给全。
+ *   · 事件按 id 定位；choices 按 id 对齐。
+ *   · #41 瘦身：背景卡（brief）已整块删除，决策必需的事实折进 body，本层只覆盖 title/body。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，这里一条都不写。
  *   · 经济字段是系数，不涉及文案，不用管。
- *   · worldline 的 brief / outlets 同样在英文层整体改写（年份键与中文一一对应）；
- *     pressure 是数值，不写。
+ *   · worldline 只覆盖 outlets（年份键与中文一一对应）；pressure 是数值，不写。
  *
  * 英文写法：重写而非直译。第二人称、现在时、短句；引语用破折号而不是引号；
  * 机构名用真实英文（CNN、Fox News、Wall Street Journal、Lehman Brothers、AIG）。
@@ -25,28 +24,9 @@ POTUS.define("l10n", {
         id: "ln07_vt",
         title: "Thirty-two names need somebody to read them out loud",
         body: "Gunfire in a dormitory and in an engineering building before eight in the morning. By noon the names are posted\n" +
-          "online — thirty-two of them, the youngest nineteen. By two o'clock the memorial has a seat chart, and the local\n" +
-          "station points a mic at every elected official who walks in. The community mental health clinic in your county lost half its staff in last year's state budget.",
-        brief: {
-          lede: "A room full of dead students and one camera that stays on. Too much feeling looks like selling them; too little looks like nothing.",
-          known: [
-            "The university seated local officials to speak. It does not want the word legislation in the room.",
-            "The county mental health clinic lost half its staff in last year's cuts.",
-            "You voted for that cut. The roll call is public.",
-            "The governor's office already said no: the mental health law does not reopen this year."
-          ],
-          rumor: [
-            "Some say the shooter's old outpatient file is still sitting in a school district drawer.",
-            "Some say your party wants you to cry and say nothing. No guns, no money."
-          ],
-          unknown: [
-            "What kind of law, if any, comes out of this.",
-            "Which file today's sentence ends up in."
-          ],
-          terms: [
-            { k: "Civil commitment", v: "A court orders a seriously ill person into treatment." }
-          ]
-        },
+          "online — thirty-two of them, the youngest nineteen. By two o'clock the memorial has a seat chart with local officials on\n" +
+          "the speaking list, and the university does not want the word legislation in that room. The local station points a mic at everyone who walks in. The community mental health clinic in your county lost half its staff in last year's state budget.\n" +
+          "You voted for that cut, and the roll call is public. The governor's office has already said the mental health law does not reopen this year. Some say the shooter's old outpatient file is still in a school district drawer — and the sentence you allow yourself today goes into somebody's file.",
         choices: [
           {
             id: "memorial",
@@ -92,27 +72,8 @@ POTUS.define("l10n", {
         id: "ln07_subprime",
         title: "Two funds freeze shut, and the county pension still sits in that bank",
         body: "In one week of August, two hedge funds that lived on mortgage bonds stop honoring redemptions, and subprime lending\n" +
-          "reaches network television for the first time.\nThe news that lands closer is yours: the bank holding the county teachers' pension is the bank that wrote those loans. Your finance director knocks with a spreadsheet — pull it or leave it. The branch president says run first, and you are the one who stamps it flat.",
-        brief: {
-          lede: "Nobody knows yet whether this is a crack or a collapse. All you can decide is when other people's money moves.",
-          known: [
-            "The bank holding the county pension also originated the loans that are defaulting.",
-            "Moving the money takes a board vote, and the only reason you may state is prudence.",
-            "Stay and the branch promises not to recall local construction loans. Leave and the builders bleed first.",
-            "Last year you took campaign money from this bank's branch office."
-          ],
-          rumor: [
-            "Some say the state already arranged a rescue and is not saying so.",
-            "Some say headquarters already drained this branch. The balance is a photograph."
-          ],
-          unknown: [
-            "Whether it falls far enough to touch deposit insurance.",
-            "Whether the first one out the door was smart or a traitor."
-          ],
-          terms: [
-            { k: "Subprime mortgage", v: "A home loan made to a borrower who cannot really qualify. Defaults run high." }
-          ]
-        },
+          "— home loans to borrowers who cannot really qualify — reaches network television for the first time.\n" +
+          "The news that lands closer is yours: the bank holding the county teachers' pension is the bank that wrote those loans. Moving the money takes a board vote, and the only reason you may state out loud is prudence. Stay, and the branch promises not to recall a local construction loan; leave, and the builders bleed first. Your finance director knocks with a spreadsheet, and last year your campaign took money from this branch. The branch president says run first, and you are the one who stamps it flat. Some say headquarters already drained this branch, and the balance is a photograph.",
         choices: [
           {
             id: "pull",
@@ -193,27 +154,8 @@ POTUS.define("l10n", {
         id: "ln08_election",
         title: "Election night: the first Black candidate walks into the White House",
         body: "Every poll points one way. If he wins tonight he is the first Black man to sit in that chair. The line outside the school\n" +
-          "gym turns the corner; somebody is crying in a parked car.\nTwo local camps come to you the same day. One wants your campaign machine folded into his tonight. The other reminds you that the tide goes out faster than it comes in, and you still have to shake hands on these streets next year.",
-        brief: {
-          lede: "An election that ties your name to a banner. Tie it early or tie it wrong — both are hard to untie.",
-          known: [
-            "On the last night both parties are grabbing polling places, and there are never enough volunteers.",
-            "Your party's state establishment has not picked a side. The money is waiting for a signal.",
-            "Your opponent already hung the national ticket's banner on his photo wall.",
-            "Party data: this county lost by two thousand votes last time."
-          ],
-          rumor: [
-            "Some say this wave runs eight years. Do not stand on the wrong bank.",
-            "Some say the establishment is ready to sell its own people and keep only the new winner."
-          ],
-          unknown: [
-            "Whether this wind brings local jobs or carries them away.",
-            "How many years your stance tonight gets remembered for."
-          ],
-          terms: [
-            { k: "Precinct", v: "Where a neighborhood votes and counts. The local party chair runs it." }
-          ]
-        },
+          "gym turns the corner; somebody is crying in a parked car. On the last night both parties are grabbing polling places, and\n" +
+          "there are never enough volunteers.\nTwo local camps come to you the same day. One wants your campaign machine folded into his tonight. The other reminds you that the tide goes out faster than it comes in, and you still have to shake hands on these streets next year. Your opponent has already hung the national ticket's banner on his photo wall, and your party's state establishment has not picked a side — the money is waiting for a signal. The party's own file sits on your desk: this county lost by two thousand votes last time. How many years tonight's stance gets remembered for, nobody is saying.",
         choices: [
           {
             id: "ride",
@@ -259,27 +201,8 @@ POTUS.define("l10n", {
         id: "ln08_auto",
         title: "Washington moves to save the Big Three, and the bill lands in your county",
         body: "In December Washington argues over an emergency loan: drag General Motors and Chrysler back from the bankruptcy\n" +
-          "line, on the condition that they cut jobs and shutter plants.\nYour county has one parts plant and one finished-car rail line. Five thousand paychecks hang on that order book. The plant hands you a joint letter and asks you to say a good word in Washington; the union is already waiting at the party door for you to speak.",
-        brief: {
-          lede: "A rescue the whole country curses. Landed here it is five thousand paychecks: take it or not.",
-          known: [
-            "Five thousand plant jobs ride on the automakers' orders. The company wants you to speak for it.",
-            "The union is waiting at the door for you to denounce capital.",
-            "The federal terms are fixed: loans in exchange for closures and wage cuts.",
-            "You took a contribution from that parts plant last year."
-          ],
-          rumor: [
-            "Some say the plant already moved its orders to the next state.",
-            "Some say this deal collapses before summer."
-          ],
-          unknown: [
-            "Whether what gets saved is the car company or the debt.",
-            "How many years this vote follows you."
-          ],
-          terms: [
-            { k: "Rescue loan", v: "Public money in, equity and terms out. Washington used it to save the automakers." }
-          ]
-        },
+          "line. The terms are fixed — loans in exchange for closures and wage cuts, with equity and a federal say attached.\n" +
+          "Your county has one parts plant and one finished-car rail line. Five thousand paychecks hang on that order book. The plant hands you a joint letter and asks you to say a good word in Washington; the union is already waiting at the party door for you to denounce capital. You took a contribution from that parts plant last year. Some say the plant quietly moved its orders to the next state — and more than one person is counting how many years this vote follows you.",
         choices: [
           {
             id: "local",
@@ -338,27 +261,11 @@ POTUS.define("l10n", {
         id: "ln09_stimulus",
         title: "Washington signs a seven-hundred-billion check, and it must pass through your county",
         body: "The day the bill is signed, commentators nationwide argue whether it amounts to anything. What is on your desk is more\n" +
-          "concrete: a bridge drawing twenty years old, a leaking school gym, a queue of projects waiting to be built.\nThe state's allocation formula arrives two weeks later. That same day two contractors each slide you a letter of interest. Both of them say we have done this before.",
-        brief: {
-          lede: "Opportunity does not wait. Somebody gets this money. The only question is whose name goes on the project first.",
-          known: [
-            "Projects file with the state; locally you need a matching share and an environmental review first.",
-            "Your county's bridge and school buildings are both on the list. They have been queuing ten years.",
-            "Both camps are filing now: one knows how to build, the other knows how to deliver.",
-            "The award list is public. Whoever takes the first dollar is remembered for four years."
-          ],
-          rumor: [
-            "Some say the state already reserved the work for its own county.",
-            "Some say the real door is held by whoever carries the envelope in."
-          ],
-          unknown: [
-            "Whether this money turns into next year's employment number.",
-            "Whether what you grab is a project or a debt."
-          ],
-          terms: [
-            { k: "Shovel-ready", v: "Plans and permits complete. Break ground the day the money lands." }
-          ]
-        },
+          "concrete: a bridge drawing twenty years old, a leaking school gym, and a shovel-ready queue - plans and permits complete,\n" +
+          "break ground the day the money lands. Your project has waited ten years on that list.\nThe state's allocation formula arrives two weeks later: work files with the state, and locally you owe a matching share and an\n" +
+          "environmental review first. That same day two contractors each slide you a letter of interest. Both of them say we have\n" +
+          "done this before. The award list is public, and whoever takes the first dollar is remembered for four years. Some say the\n" +
+          "state already reserved the work for its own county - and whether you grab a project or a debt, you learn in four years too.",
         choices: [
           {
             id: "apply",
@@ -403,29 +310,11 @@ POTUS.define("l10n", {
         /* 2009-03 · AIG 奖金风波 */
         id: "ln09_aig",
         title: "The rescue money arrives. The bonus list reaches TV first",
-        body: "To keep the system from folding, Washington pumps hundreds of billions into that insurance giant. One week in March the\n" +
-          "Wall Street Journal prints its list of executive bonuses — one hundred sixty-five million dollars — and cable television\n" +
-          "reads it aloud for six days straight.\nThe country is furious. So is your party, because your campaign account took three contributions from this company's local office last year. The call comes in: before tonight, are you going to say something or not?",
-        brief: {
-          lede: "Anger is a ready-made weapon and a ready-made trap. Whoever lifts it first is the one people study.",
-          known: [
-            "You took three contributions from this company's local office last year.",
-            "The bonuses are legal. The contracts were signed before the rescue.",
-            "Your party wants you to denounce them; your money wants you to say nothing.",
-            "The local office still employs eleven hundred people in this county."
-          ],
-          rumor: [
-            "Some say headquarters leaked the list to reporters to force the resignations.",
-            "Some say giving the money back is theatre. Not a dollar returns."
-          ],
-          unknown: [
-            "Whom this anger is still burning when it finishes.",
-            "How far the one sentence you say will travel."
-          ],
-          terms: [
-            { k: "Bailout", v: "Public money in, equity out. Washington did it to stop the chain of failures." }
-          ]
-        },
+        body: "To keep the system from folding, Washington pumps hundreds of billions into that insurance giant. One week in March cable\n" +
+          "television reads out the bonus list it paid its executives — one hundred sixty-five million dollars.\nThe bonuses are legal, and the contracts were signed before the rescue. The country is furious. So is your party, because your\n" +
+          "campaign account took three contributions from this company's local office last year — and that office still employs\n" +
+          "eleven hundred people in this county. The call comes in: before tonight, are you going to say something or not? Some say\n" +
+          "headquarters leaked the list to reporters in order to force the resignations. The one sentence you allow yourself travels.",
         choices: [
           {
             id: "jobs",
@@ -471,27 +360,11 @@ POTUS.define("l10n", {
         id: "ln09_h1n1",
         title: "A new flu walks into the schools, and somebody has to sign the closure",
         body: "In late April a small town far away shuts its classrooms after a few children run high fevers. Days later your state reports\n" +
-          "its first case, and the test kits are made to confirm the sick, not to find them.\nThe superintendent of schools calls: two weeks closed — whose signature goes on the order. The county hospital says eight observation beds remain. May brings the state exam, graduation, and two weeks of utility temp workers who do not get paid.",
-        brief: {
-          lede: "Deciding is not the hard part. Paying is: the children, the wages, or your name.",
-          known: [
-            "Not enough test kits. Most local cases will never be counted as ones.",
-            "Closing schools takes both the district and the county, and names go on the order.",
-            "Eight observation beds left at the county hospital. Intensive care goes to the city.",
-            "The state exam is in May, and two-income families have nobody with the children."
-          ],
-          rumor: [
-            "Some say the state is sitting on numbers to protect the tourist season.",
-            "Some say this comes back in September, and harder."
-          ],
-          unknown: [
-            "How heavy this illness turns out to be. In late April nobody knows.",
-            "Whether the word closed saves you or ends you."
-          ],
-          terms: [
-            { k: "Novel influenza A", v: "A new flu strain that began spreading worldwide that spring." }
-          ]
-        },
+          "its first case of a new flu strain, and the test kits are made to confirm the sick, not to find them: most local cases will\n" +
+          "never be counted as ones. How heavy this illness turns out to be, nobody knows yet.\nThe superintendent of schools calls: two weeks closed takes both the district and the county, and the responsibility goes on the\n" +
+          "names. The county hospital says eight observation beds remain and intensive care goes to the city. May brings the state\n" +
+          "exam, graduation, two-income families with nobody watching the children, and two weeks of utility temp workers who do not\n" +
+          "get paid. Some say the state is sitting on numbers to protect the tourist season. Which word you sign, nobody judges for you.",
         choices: [
           {
             id: "defer",
@@ -537,27 +410,12 @@ POTUS.define("l10n", {
         id: "ln09_forthood",
         title: "Thirteen dead at the Army post. Now the fight is what to call it",
         body: "On a morning in November a gun speaks in a clinic at a large Army post in Texas. Thirteen people do not walk out. The\n" +
-          "shooter is an Army psychiatrist, and someone in the room heard Arabic.\nBy that evening the national argument has moved from why to what do we call it: terrorism, or something else. Your county has families from that post. It also has a mosque a newspaper just named in print.",
-        brief: {
-          lede: "Two words of framing decide whether your neighbors get a knock on the door tomorrow.",
-          known: [
-            "The post's recruiting office sits inside a local high school. Families will come to you and ask.",
-            "The military inquiry has issued no finding. Your party wants a statement first.",
-            "There is a mosque in this county. A paper named it last week.",
-            "Your subcommittee holds the budget for the state counter-terrorism liaison office."
-          ],
-          rumor: [
-            "Some say colleagues reported this shooter more than once and nothing came of it.",
-            "Some say the label exists so nobody has to investigate the Army's own side."
-          ],
-          unknown: [
-            "Whether this gets written into the history of the wars.",
-            "Whom your choice of words protects, and whom it breaks."
-          ],
-          terms: [
-            { k: "Insider threat", v: "An attack carried out by someone inside the organization. The military's term." }
-          ]
-        },
+          "shooter is an Army psychiatrist, and someone in the room heard Arabic.\nBy that evening the national argument has moved from why to what do we call it: terrorism, or the military's own phrase,\n" +
+          "insider threat - an attack carried out by someone inside the organization. The inquiry has issued no finding and your party\n" +
+          "already wants a statement. The post's recruiting office sits inside a local high school, and families will ask you to your\n" +
+          "face. This county also has a mosque a newspaper named last week, and your subcommittee holds the budget for the state\n" +
+          "counter-terrorism liaison office. Some say colleagues reported this shooter more than once and nothing came of it. Whom your\n" +
+          "two words protect, and whom they break.",
         choices: [
           {
             id: "families",
@@ -603,27 +461,12 @@ POTUS.define("l10n", {
         id: "ln10_oil",
         title: "The rig blows up. Nobody says whose shore the oil reaches",
         body: "One night in April a drilling platform in the Gulf of Mexico catches fire and comes apart. Eleven men do not come back.\n" +
-          "Two days later oil shows on the water, and the company's first release says responsibility does not stop with us.\nYou run three coastal counties: thirty-three hundred fishing licenses, two vacation motels, one summer. The state wants to sue Washington; the counties want bodies on the beach first. The fishing association asks you one question: who keeps our books.",
-        brief: {
-          lede: "Nothing shows on the surface yet and the bill is already walking. Somebody has to take the signing seat first.",
-          known: [
-            "Claims run through the company's own claims window, and you file the paperwork yourself.",
-            "The state attorney general has a class action drafted. It lacks local endorsements.",
-            "Both local motels lost every season deposit this month.",
-            "The platform's onshore contractor gave you money last year."
-          ],
-          rumor: [
-            "Some say the company is quietly buying settlement papers, one household at a time.",
-            "Some say nobody has actually tried a fix. They are buying time."
-          ],
-          unknown: [
-            "When the oil makes land. The current decides, not you.",
-            "This seat you take gets settled in four years."
-          ],
-          terms: [
-            { k: "Claims window", v: "The desk a company opens for mass claims. Sign first, get paid first." }
-          ]
-        },
+          "Two days later oil shows on the water, and the company's first release says responsibility does not stop with us.\nYou run three coastal counties: thirty-three hundred fishing licenses, two vacation motels, one summer. The state wants to sue\n" +
+          "Washington; the counties want somebody on the beach first. Claims run through the company's own claims window - sign first,\n" +
+          "get paid first - and every household files its own paperwork. The state attorney general has a class action drafted; it only\n" +
+          "lacks local endorsements. The platform's onshore contractor works in your county and gave you money last year. The fishing\n" +
+          "association asks you one question: who keeps our books. Some say the company is buying settlement papers one household at a\n" +
+          "time. When the oil makes land, the current decides, not you.",
         choices: [
           {
             id: "watch",
@@ -668,28 +511,13 @@ POTUS.define("l10n", {
         /* 2010-07 · 维基解密 */
         id: "ln10_wikileaks",
         title: "Tens of thousands of war logs online overnight, and a local name is in them",
-        body: "In late July a website spreads the raw Afghan war logs out all at once: casualty lists, agent code names, and one entry\n" +
-          "naming your state. In August a far larger batch is on its way.\nThe State Department calls it a security problem. Two people you know telephone you the same day: the editor of the county weekly, who says he intends to print it, and a man in the National Guard, who says somebody has already been asking about your name.",
-        brief: {
-          lede: "For the first time, publishing the truth and somebody dying for it are two ends of one sentence.",
-          known: [
-            "The county weekly is waiting on one sentence from you: print it or not.",
-            "An old acquaintance of yours is in the Guard, and the leaked list carries place names.",
-            "Your party wants you to demand accountability; the newspaper business wants you to defend the pressroom.",
-            "The line on leaks is set by the Justice Department. Locally nobody gets a vote."
-          ],
-          rumor: [
-            "Some say the people named on that list were moved out long ago.",
-            "Some say these files were screened before anyone published them."
-          ],
-          unknown: [
-            "Whether this ends as a press-freedom case or a spy case.",
-            "Which of your sentences gets quoted for two years."
-          ],
-          terms: [
-            { k: "War logs", v: "Raw field reports from the front, published without authorization." }
-          ]
-        },
+        body: "In late July a website spreads tens of thousands of raw Afghan war logs - front-line field reports, never meant to be\n" +
+          "published - all at once: casualty lists, agent code names, and one entry naming your state. In August a far larger batch is\n" +
+          "on its way.\nThe State Department calls it a security problem, but the counter-intelligence line is set by the Justice Department, and\n" +
+          "locally nobody gets a vote. Two people you know telephone you the same day: the editor of the county weekly, who says he\n" +
+          "intends to print it, and a man in the National Guard, who says somebody has already been asking about your name. Your party\n" +
+          "wants you to demand accountability; the newspaper business wants you to defend the print room. Some say the people named on\n" +
+          "that list were moved out long ago. Whichever sentence you say first is the one quoted for two years.",
         choices: [
           {
             id: "ask",

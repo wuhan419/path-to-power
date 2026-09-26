@@ -5,8 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，必须整条给全：
- *     本文件每张卡均为 known×3 / rumor×2 / unknown×2 / terms×1，与原文一一对应。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost / after …）由引擎保护，写了也不会生效，validate 会直接报错。
  *     只有 id 作为定位符出现。
@@ -28,27 +26,12 @@ POTUS.define("l10n", {
       {
         id: "rg81_shooting",
         title: "Gunshots on live TV: President Reagan goes down",
-        body: "The motorcade has barely stopped when six shots crack out of the crowd. The signal cuts into regular\n" +
-          "programming — the nation watches an assassination attempt live for the first time.\n" +
-          "Hinckley is pinned under police. Reagan is hit and rushed to hospital. And your phone starts ringing:\n" +
-          "the local station wants your first words.",
-        brief: {
-          lede: "In the shocked hours while the whole country waits, every word you say is taped — and replayed for decades.",
-          known: [
-            "Reagan's condition is unclear, the White House briefing is a mess, and succession talk has already started.",
-            "The live hookup is right in front of you: they want an instant reaction from a local official.",
-            "You know this camera can be a stepping stone — or the end of your political career."
-          ],
-          rumor: [
-            "Some say the gunman was chasing actress Jodie Foster, with no political motive at all.",
-            "Some say this is a slap at spineless Washington. In private, some are applauding."
-          ],
-          unknown: [
-            "No one expects Reagan to survive — or that his prestige will rise.",
-            "Your words tonight will be replayed verbatim twenty years from now."
-          ],
-          terms: [{ k: "Live Hit", v: "TV cutting a local politician into a breaking story in real time." }]
-        },
+        body: "The motorcade has barely stopped when six shots crack out of the crowd. Regular programming is cut into:\n" +
+          "the nation watches an assassination attempt live for the first time.\n" +
+          "Hinckley is pinned under police. Reagan is hit and his condition is unclear; the White House briefing is a\n" +
+          "mess and succession talk has already started. The live hookup is right in front of you — the station wants\n" +
+          "the local voice's first words. Some say the gunman was chasing actress Jodie Foster, and politics had\n" +
+          "nothing to do with it. What you say tonight is replayed word for word twenty years from now.",
         choices: [
           {
             id: "unity",
@@ -94,25 +77,10 @@ POTUS.define("l10n", {
         title: "The biggest plant in your district slaps seals on its doors",
         body: "Interest rates are pinned to the sky; orders evaporate at once. The oldest plant in the district closes. Hundreds\n" +
           "of people you shook hands with on election night stand in the unemployment line in the cold wind overnight.\n" +
-          "National joblessness hits its postwar peak. The local paper wants someone to speak for them; City Hall wants\n" +
-          "someone who will not make a scene.",
-        brief: {
-          lede: "When hunger knocks, moderate words sound like buck-passing — and bold action may smash the rice bowls.",
-          known: [
-            "The plant says it could not survive and left; the bank says it was just the market. Only the few hundred workers get no explanation.",
-            "Unemployment checks take weeks to approve. In between, these families eat empty tables.",
-            "The party fears a riot on the evening news; your voters just want to see you stand in that line."
-          ],
-          rumor: [
-            "Some say the plant was drained on purpose — the owner moved the equipment out first.",
-            "Some say a quiet bailout already exists. The only condition: no scene."
-          ],
-          unknown: [
-            "How long this recession runs, and whether it forces the rates loose.",
-            "Whether you cry on camera or kick in a plant door — ten years from now you will know which was right."
-          ],
-          terms: [{ k: "The Unemployment Line", v: "Where you file for benefits; the checks crawl." }]
-        },
+          "National joblessness hits its postwar peak. Filing is only the front of it: the checks take weeks to clear, and\n" +
+          "those weeks leave the table bare. The local paper wants a voice for the hungry; City Hall wants a man who\n" +
+          "will not make a scene. Some say the owner moved the equipment out before the gates ever shut.\n" + +
+          "Whether you cry on camera or kick in a plant door — ten years from now you will know which was right.",
         choices: [
           {
             id: "rally",
@@ -156,27 +124,12 @@ POTUS.define("l10n", {
       {
         id: "rg83_beirut",
         title: "Before dawn, a truck drives into the barracks",
-        body: "A truck stuffed with explosives caves in the multinational barracks in Beirut. Hundreds of young soldiers lie\n" +
-          "under the rubble. Coffins come home one by one on television, crawling endlessly across the screen.\n" +
-          "One name on the list is a child of this state. His mother speaks to reporters at the church door: what did he\n" +
-          "die for? Then the camera turns to you.",
-        brief: {
-          lede: "Deaths no one can explain are turning into an exam question: what do you support?",
-          known: [
-            "The peacekeeping mission has become a target; the Pentagon cannot state the troops' orders.",
-            "One of the dead is from your district — an ordinary working family; he enlisted for the tuition.",
-            "Both the anti-war camp and the pro-war camp want one sentence from you."
-          ],
-          rumor: [
-            "Some say the White House knew the barracks could not be held; no one dared order the pullout.",
-            "Some say this is the first of a string of blasts, and worse is coming."
-          ],
-          unknown: [
-            "This bombing will drive the Americans out of Lebanon.",
-            "How you answer that mother — both sides will keep the transcript."
-          ],
-          terms: [{ k: "Multinational Force", v: "The peacekeeping contingent in Lebanon, pulled out after the blast." }]
-        },
+        body: "A truck stuffed with explosives caves in the multinational barracks — the peacekeeping contingent in Beirut.\n" +
+          "Hundreds of young soldiers lie under the rubble. Coffins come home one by one, crawling endlessly across the screen.\n" +
+          "One name on the list is a child of this state, from an ordinary working family; he enlisted for the tuition. The\n" +
+          "mission has turned from peacekeeper to target, and the Pentagon still cannot state these troops' orders. His\n" +
+          "mother speaks to reporters at the church door: what did he die for? Then the camera turns to you. Some say the\n" +
+          "White House knew that barracks could not be held and no one dared order the pullout.",
         choices: [
           {
             id: "withdraw",
@@ -220,28 +173,13 @@ POTUS.define("l10n", {
       {
         id: "rg85_plaza",
         title: "Five finance ministers shut the door and push the dollar down",
-        body: "At the Plaza Hotel, the major industrial nations agree in secret to joint intervention: the dollar will fall hard\n" +
-          "against the yen and the mark, to plug America's trade hole. The moment the news breaks, currency and export\n" +
-          "boards flip upside down.\n" +
-          "Local manufacturers and farmers each run their own arithmetic: some pray a weak dollar revives exports,\n" +
-          "some fear imports will sweep their storefronts clean. They are all coming to knock on your door.",
-        brief: {
-          lede: "An exchange-rate pivot decided behind a door in a foreign hotel — the bill and the bonus both land in your district's shops and fields.",
-          known: [
-            "The dollar falls. Exports should gain — but the imported inputs on hand get dearer too.",
-            "The big local exporters want you on their platform; the small import shops fear being squeezed out.",
-            "Washington calls this \"orderly adjustment.\" The street calls it \"America no longer calls the shots.\""
-          ],
-          rumor: [
-            "This is only the first check written to Japan — next it must buy the Treasury bonds.",
-            "Currency traders smelled it months ago; the money was made before the word \"Plaza\" reached town."
-          ],
-          unknown: [
-            "This pivot will inflate Japan's asset bubble.",
-            "Whose proxy you carry today — the exchange rate comes collecting in three years."
-          ],
-          terms: [{ k: "Plaza Accord", v: "Five nations push the dollar down; Japan's bubble follows." }]
-        },
+        body: "At the Plaza Hotel the major industrial nations agree in secret to joint intervention: the dollar will fall hard\n" +
+          "against the yen and the mark, to plug America's trade hole. Washington calls it orderly adjustment; the street\n" +
+          "calls it America no longer calling the shots.\n" +
+          "Currency and export boards flip upside down. A weaker dollar should help exports — but the imported inputs\n" +
+          "already on the floor get dearer. The big local exporters want you on their platform, the small import shops fear\n" +
+          "being squeezed out, and both are coming to knock. Some traders smelled it months ago and took the money early.\n" +
+          "Whose proxy you carry today, the exchange rate comes collecting in three years.",
         choices: [
           {
             id: "export",
@@ -285,27 +223,12 @@ POTUS.define("l10n", {
         id: "rg86_challenger",
         title: "Every schoolchild in America watches it lift off",
         body: "Weather delayed the launch once; finally it climbs on a clear morning. Seventy-three seconds later the sky\n" +
-          "splits into a streak of white smoke. Aboard is Christa McAuliffe, the schoolteacher — every child in America\n" +
-          "was watching her give a live lesson from orbit.\n" +
-          "Schools shut down. Parents have no words. Your community's school board wants someone to say something.\n" +
-          "They thought of you.",
-        brief: {
-          lede: "A death staged in front of every child asks every adult the same question: how do you explain it?",
-          known: [
-            "The cause is unconfirmed, NASA's account is muddled, and talk of an O-ring is already circulating.",
-            "Relatives of McAuliffe live in this community; classmates refuse to go back inside.",
-            "The school board wants a voice with weight and no mistakes. They thought of you."
-          ],
-          rumor: [
-            "Some say bureaucratic rush caused this — someone had warned, in an email.",
-            "Some say the space program gets grounded for years, and the local contractors will bleed."
-          ],
-          unknown: [
-            "The inquiry's findings will shake public trust in government itself.",
-            "How you speak to the children now — they carry it for life."
-          ],
-          terms: [{ k: "Challenger", v: "The shuttle that broke apart 73 seconds after launch, killing all seven aboard." }]
-        },
+          "splits into a streak of white smoke: Challenger broke apart and all seven aboard died. One of them was Christa\n" +
+          "McAuliffe, the schoolteacher — every child in America was watching her give a live lesson from orbit.\n" +
+          "Schools shut down, parents have no words, and your school board wants a voice with weight that makes no\n" +
+          "mistakes. They thought of you. The cause is unconfirmed, NASA's account changes by the hour, and talk of the\n" +
+          "O-ring — the seal in the rocket joint — is already going around. Some say a warning email went out long ago and\n" +
+          "the schedule buried it. How you speak to those children now, they carry for life.",
         choices: [
           {
             id: "comfort",
@@ -349,27 +272,12 @@ POTUS.define("l10n", {
       {
         id: "rg86_iran_open",
         title: "A channel that should not exist lands on your desk",
-        body: "Someone is selling weapons in secret to the enemy, to free hostages; the proceeds detour to fund a militia that\n" +
-          "Congress never paid for. Every link in this chain is carefully trace-free.\n" +
-          "An old colleague sounds you out: is there a route through your territory that does not have to go through the\n" +
-          "books? Make it work and you are a founding retainer of the new order; blow it and you are a federal defendant.",
-        brief: {
-          lede: "An order from above that no one will put in writing. Saying yes signs your name to an unexploded shell.",
-          known: [
-            "If true, this bypasses Congress's funding ban — it hangs over the edge of illegality on its face.",
-            "The colleague gives you a spoken message only. No documents. No signatures.",
-            "Take the job, and when it unravels the first man they question is the middleman — you."
-          ],
-          rumor: [
-            "Some say the hostage channel really is moving; it works, quietly.",
-            "Some say none of that money ever reached its destination — brokers fattened on it first."
-          ],
-          unknown: [
-            "This grows into an inquiry that shakes the whole West Wing.",
-            "The credit is dark. The liability sits in bright light, waiting for auditors."
-          ],
-          terms: [{ k: "Iran-Contra", v: "The scandal: arms sold secretly to Iran, the proceeds routed to the Nicaraguan Contras." }]
-        },
+        body: "Someone is selling weapons in secret to the enemy to free hostages; the proceeds detour to fund a militia the\n" +
+          "law forbids Congress to pay for. Every link in this chain is carefully trace-free.\n" +
+          "An old colleague brings you a spoken message only: is there a route through your territory that does not have\n" +
+          "to go through the books? No documents, no signatures. Make it work and you are a retainer of the new order;\n" +
+          "when it unravels, the first man they question is the middleman — you. Some say none of that money ever reached\n" +
+          "its destination, and the brokers fattened on it first.",
         choices: [
           {
             id: "join",
@@ -414,26 +322,12 @@ POTUS.define("l10n", {
         id: "rg87_iran_hearings",
         title: "On the witness panel, live nationwide: your turn to explain",
         body: "The scandal bursts fully open: the secret arms sales, Congress bypassed, money flowing to a war no one\n" +
-          "authorized — each link dragged into the sunlight. The hearings run live on television; the ratings beat football.\n" +
-          "Wherever you stood on that chain, however marginal, lawyers and reporters now read it back word by word.\n" +
-          "This time you answer in person, on camera.",
-        brief: {
-          lede: "The ledger that left no trace — now you fill it in, link by link, in front of the cameras.",
-          known: [
-            "Your name is on the witness list. The press is betting on whether you will come clean or clamp down.",
-            "Whatever papers you hold from those days are now either a shield or a noose.",
-            "The whole country is watching how a local figure stands under a national scandal."
-          ],
-          rumor: [
-            "Some say the central figures are already pointing at each other; whoever talks first gets the light sentence.",
-            "Some say this fizzles out. Survive the cameras and you won."
-          ],
-          unknown: [
-            "The independent counsel will trace the line to the top floors of the West Wing.",
-            "One word from you can save a political life, or end one."
-          ],
-          terms: [{ k: "Televised Hearing", v: "A congressional evidentiary hearing, carried live to the whole country." }]
-        },
+          "authorized — each link dragged into the sunlight. The congressional hearings run live as evidence-taking\n" +
+          "television; the ratings beat football.\n" +
+          "Your name is already on the witness list. Lawyers and reporters read back wherever you stood on that chain,\n" +
+          "however marginal, and the few papers you still hold are now either a shield or a noose. Some say the central\n" +
+          "figures have started pointing at each other, and whoever talks first gets the light sentence. This time you\n" +
+          "answer on camera — and one word from you saves a political life or ends one.",
         choices: [
           {
             id: "fess",
@@ -477,26 +371,12 @@ POTUS.define("l10n", {
       {
         id: "rg89_iran_after",
         title: "After the storm, the town takes stock of a man who sat before the cameras",
-        body: "The hearings closed; convictions and pardons took turns; the scandal is folding into \"one episode of that\n" +
-          "era.\" But the local reckoning with you is not over: the town must decide again whether to work with a man\n" +
-          "\"who sat before the cameras.\"",
-        brief: {
-          lede: "The country has moved on; your district has not. This time you knock on the door yourself: is there still a chair for me?",
-          known: [
-            "The scandal's central figures drew light sentences or mercy; right and wrong have gone blurry in public.",
-            "Your marginal role on the chain is an open secret locally — no one will say it first.",
-            "The party machine is reshuffling the deck; where you stood then is being spent as price today."
-          ],
-          rumor: [
-            "Some say pardons are queued up; the implicated will be out in public soon.",
-            "Some say a marginal man like you has no protector — first one pushed when things break."
-          ],
-          unknown: [
-            "History softens; the local ledger settles now.",
-            "You are betting on how fast human memory fails. When it fails, you are clean."
-          ],
-          terms: [{ k: "Pardon", v: "Presidential forgiveness, before or after conviction." }]
-        },
+        body: "The hearings closed; convictions and pardons — presidential forgiveness, before or after a conviction — took\n" +
+          "turns; the scandal is folding into one episode of that era. But the local reckoning with you is not over: the\n" +
+          "town must decide again whether to work with a man who sat before the cameras.\n" +
+          "The central figures drew light sentences or mercy, so right and wrong have gone blurry in public. Your marginal\n" +
+          "role is an open secret here, only no one will say it first — and the party machine is reshuffling the deck,\n" +
+          "spending where you stood then as a price today. You are betting on how fast people forget.",
         choices: [
           {
             id: "return",
@@ -551,27 +431,14 @@ POTUS.define("l10n", {
       {
         id: "rg87_monday",
         title: "The Dow loses a fifth in a day — and no one picks up the phone",
-        body: "The opening bell starts an avalanche. Trillions in global wealth vanish before lunch; on the floor men break\n" +
-          "down outright. Panic crawls the telephone lines into every district's pension and mutual-fund account.\n" +
-          "Your phone will not stop. Voters who have lost half a lifetime of savings ask: you are the one who \"handles\n" +
-          "money\" — do you actually know what is happening?",
-        brief: {
-          lede: "Markets show no mercy and read no résumés. On crash day the public just wants someone who keeps them from storming the counters.",
-          known: [
-            "The collapse came without warning; the regulators cannot explain the cause themselves.",
-            "Half your voters' retirement hopes sit in these funds. This drop beheaded them.",
-            "A local brokerage and a bank are both waiting for someone senior to say something that steadies the market."
-          ],
-          rumor: [
-            "Some say this is just a technical correction; it recovers next week.",
-            "Some say program trading and the yen did it. The beginning of a second Depression."
-          ],
-          unknown: [
-            "The central bank will flood the market with cash; it firms within days.",
-            "Whether you keep your nerve today or lose it — people remember for a long time."
-          ],
-          terms: [{ k: "Black Monday", v: "The day the world's markets fell a fifth in a single session." }]
-        },
+        body: "The opening bell starts an avalanche — Black Monday. Trillions in global wealth vanish before lunch; on the\n" +
+          "floor men break down outright. Panic crawls the telephone lines into every district's pension and mutual-fund\n" +
+          "account, and half your voters' retirement hopes sit in those funds.\n" +
+          "Your phone will not stop. Voters who have lost half a lifetime of savings ask: you are the one who handles\n" +
+          "money — do you actually know what is happening? The regulators cannot explain the cause themselves. The local\n" +
+          "brokerage and the local bank are both waiting for someone senior to steady things, and both bankroll you.\n" +
+          "Some call it a technical correction that recovers next week. Whether you keep your nerve today or lose it,\n" +
+          "people remember for a long time.",
         choices: [
           {
             id: "steady",
@@ -616,27 +483,12 @@ POTUS.define("l10n", {
         id: "rg89_berlin",
         title: "A wall, chipped through by ordinary people in a single night",
         body: "One misannounced regulation packs the crossing with a human tide; the guards have no orders; in the\n" +
-          "cheering the wall cracks open. A forty-year division starts to loosen in a single night. Live around the world:\n" +
-          "champagne, hammers, strangers embracing.\n" +
-          "Suddenly \"how long can the Cold War last\" is the question everyone scrambles to answer. In your community\n" +
-          "live the children of Eastern European immigrants — and they are knocking on each other's doors until dawn.",
-        brief: {
-          lede: "A stage handed down by heaven: one of the rare moments when merely standing there and talking like a human gets you lit by history.",
-          known: [
-            "The wall is coming down; unification looks irreversible — pace and European reaction are not.",
-            "The local Eastern European community is electric; you are the ready-made face of \"the one who gets us.\"",
-            "TV stations are hunting reaction shots from everywhere. The opening is laid out in plain sight."
-          ],
-          rumor: [
-            "Some say the Soviets will roll the tanks out like always, and the party turns to blood.",
-            "Some say it is all theater; the same men still rule behind the iron curtain."
-          ],
-          unknown: [
-            "The Soviet Union dissolves within two years; the victory story defines a generation.",
-            "Whoever says the right thing at this hinge gets welded into the history."
-          ],
-          terms: [{ k: "Berlin Wall", v: "The barrier between East and West Berlin, opened in 1989." }]
-        },
+          "cheering the wall cracks open. Live around the world: champagne, hammers, strangers embracing.\n" +
+          "Suddenly how long the Cold War lasts is the question everyone scrambles to answer. Stations are hunting\n" +
+          "reaction shots from everywhere, and in your community the children of Eastern European immigrants knock on\n" +
+          "each other's doors until dawn, holding you out as the ready-made face that gets them. Some say the Soviets\n" +
+          "will roll the tanks back into the streets like always. Whoever says the right thing at this hinge gets welded\n" +
+          "into the history.",
         choices: [
           {
             id: "historic",
@@ -679,27 +531,12 @@ POTUS.define("l10n", {
         id: "rg90_gulf",
         title: "Tanks cross the border; oil prices jump overnight",
         body: "Iraq's war machine swallows Kuwait in a single night; Saddam now holds one of the world's biggest oil\n" +
-          "reserves in his fist. Carriers steam into the Persian Gulf; gas-station boards get rewritten three times a day;\n" +
-          "every channel runs tanks massing in the sand.\n" +
-          "\"Fight or not — and can we afford it\" lands on the whole country. Your district has a recruiting office,\n" +
-          "oil-linked jobs, and families just flown back from the Gulf.",
-        brief: {
-          lede: "A war that may be short — or may drag — waits at the door. Oil, manpower, conscience: all twisted into one question, handed to you.",
-          known: [
-            "The UN is running a countdown for withdrawal; the White House leans to force; Congress has not voted authorization.",
-            "Gas lines form at home; oil panic arrives before the war does.",
-            "The anti-war camp and the no-reward-for-aggression camp each hold half the country. Both want to borrow your mouth."
-          ],
-          rumor: [
-            "Some say this one will be quick — in, done, out.",
-            "Some say it is the start of another bog that will bleed us."
-          ],
-          unknown: [
-            "The fight itself will be fast; the aftermath bog is only beginning.",
-            "Which side you back now — vision, or the crowd?"
-          ],
-          terms: [{ k: "Gulf Crisis", v: "The crisis after Iraq's 1990 annexation of Kuwait." }]
-        },
+          "reserves in his fist. Carriers steam into the Persian Gulf; gas-station boards get rewritten three times a day\n" +
+          "and the queues already run around the corner.\n" +
+          "The UN is running a countdown for withdrawal, the White House leans to force, and Congress has not voted\n" +
+          "authorization. Fight or not — and can we afford it — lands on the whole country. Your district has a recruiting\n" +
+          "office, oil-linked jobs, and families just flown back from the Gulf. Some say this one will be quick: in, done,\n" +
+          "out. Which side you back now — vision, or the crowd?",
         choices: [
           {
             id: "authorize",
@@ -744,27 +581,12 @@ POTUS.define("l10n", {
         id: "rg84_landslide",
         title: "The coattail election: everyone wants to borrow the moon's light",
         body: "The economy warmed, the hostages came home, the opponent keeps tripping over himself. Reagan is headed\n" +
-          "for forty-something states, and Republicans are sweeping down-ballot seats behind him — the press calls it an\n" +
-          "election that borrows all its light from the moon.\n" +
-          "In that tailwind the party drags you onstage to campaign, donors seat you at the table for the spoils, even\n" +
-          "opponents are taking inventory. A wave can lift you — or bury you in the sand with everyone who bet wrong.",
-        brief: {
-          lede: "In a tsunami that is not about you, when and where you stand matters more than who wins.",
-          known: [
-            "The polls are lopsided; the result is decided. The open count is how many \"on his coattails\" winners the wave drags in.",
-            "The party wants you on a rally circuit; upstairs they are already pricing which posts go to the workers.",
-            "You know borrowed light is not your own — when the tide goes out, you can see who is swimming naked."
-          ],
-          rumor: [
-            "Some say this wind has two years in it, at most; second-term trouble is already under way.",
-            "Some say stake your sign on it now and there will be cake to cut next round."
-          ],
-          unknown: [
-            "In two years this sweep becomes a vacuum.",
-            "Your name may end up as the exhibit for winning nothing on your own."
-          ],
-          terms: [{ k: "Coattails", v: "Riding a national wave into local office — the first washed away when it recedes." }]
-        },
+          "for forty-something states, and Republicans are sweeping down-ballot seats behind him — the press calls it a\n" +
+          "coattail election: a national wave carries you into local office, and it takes you first when it recedes.\n" +
+          "The result is decided; the open count is how many posts the wind carries off. The party drags you onto a rally\n" +
+          "circuit, upstairs is already pricing which seats go to the workers, donors set a place for you. Some say this\n" +
+          "wind has two years in it at most, and second-term trouble is under way already. Borrowed light is not your own:\n" +
+          "your name may end up as the exhibit for winning nothing on your own.",
         choices: [
           {
             id: "bandwagon",
@@ -808,27 +630,13 @@ POTUS.define("l10n", {
       {
         id: "rg88_election",
         title: "Two terms run out; the succession race splits the party in half",
-        body: "The president's time is up, and the race to succeed him tears the party in two: Vice President Bush carries\n" +
-          "Reagan's banner and promises continuity, against a challenger promising renewal. On the other side,\n" +
-          "Massachusetts governor Michael Dukakis speaks soft and steady.\n" +
-          "Your level is forced to choose a side. No Reagan halo shines on this one. Bet wrong and nobody covers you.",
-        brief: {
-          lede: "The first election after the tide goes out rewards not the loudest voice, but whoever bets right while the wind is still undecided.",
-          known: [
-            "Reagan remains popular, but who inherits — and whether the line changes — is already a brawl inside the party.",
-            "The opposition chants \"peace and prosperity,\" trying to claim eight years of credit wholesale.",
-            "At local level nobody rides free anymore. Every vote must be earned by hand."
-          ],
-          rumor: [
-            "Some say this is a generational handoff — hitch on and eat eight more years of wind.",
-            "Some say the wind shifts overnight; what you back now is a liability in two years."
-          ],
-          unknown: [
-            "The handoff will leave the country with nothing changed.",
-            "Your camp this round — conviction, or copying the crowd?"
-          ],
-          terms: [{ k: "Succession Struggle", v: "When the incumbent cannot run: the party's fight over who inherits which line." }]
-        },
+        body: "The president's two terms run out, and the succession struggle — the party's fight over who inherits which\n" +
+          "line when the incumbent cannot run — tears it in two: Vice President Bush carries Reagan's banner and promises\n" +
+          "continuity, against a challenger promising renewal. On the other side, Massachusetts governor Michael Dukakis\n" +
+          "chants peace and prosperity, trying to claim eight years of credit wholesale.\n" +
+          "Your level is forced to choose a side. No Reagan halo shines on this one, and at local level nobody rides free\n" +
+          "anymore — every vote must be earned by hand. Bet wrong and nobody covers you; they will only ask whether your\n" +
+          "stand was conviction or copying the crowd.",
         choices: [
           {
             id: "attack",
@@ -872,27 +680,12 @@ POTUS.define("l10n", {
       {
         id: "rg90_snl_wreck",
         title: "The thrift that lent on anything finally collapsed",
-        body: "The deregulation party is over: thrift after thrift goes under; Washington wants the taxpayer to plug the\n" +
-          "hole; prosecutors start asking, one by one, who paved the road for this thing back when.\n" +
-          "The board seat you lent your name to, that \"professional opinion\" you signed — they sit now in a kraft-paper\n" +
-          "file folder with your name on the tab.",
-        brief: {
-          lede: "The quick money and the loose signature of those years — now you pay back principal and interest, in person.",
-          known: [
-            "The federal thrift insurance fund is gutted; liquidation and accountability run in full swing.",
-            "Your name-lending or advisory paper from those years survives intact — in their files.",
-            "Colleagues have already been subpoenaed. Nobody says who is next on the list."
-          ],
-          rumor: [
-            "Some say the powers will knife a few marginal name-lenders to spare the big fish.",
-            "Some say pay back the money and it ends there. Nobody actually goes to prison."
-          ],
-          unknown: [
-            "Taxpayers bury the bill; accountability finds whoever gets pushed out first.",
-            "Cut loose, stonewall, or pay first — the folder either closes or opens."
-          ],
-          terms: [{ k: "S&L Crisis", v: "Thrift speculation collapses, with the taxpayer holding the bag." }]
-        },
+        body: "The deregulation party is over: thrift after thrift — small banks built on savings deposits and home loans —\n" +
+          "goes under, and Washington wants the taxpayer to plug the hole. Prosecutors start asking, one by one, who paved\n" +
+          "the road for this thing back when; colleagues have already been subpoenaed, and nobody says who is next.\n" +
+          "The board seat you lent your name to, that professional opinion you signed, survives intact in their files. It\n" +
+          "sits now in a kraft-paper folder with your name on the tab. Some say the powers will knife a few marginal\n" +
+          "name-lenders to spare the big fish. Whether that folder closes or opens depends on which step you take first.",
         choices: [
           {
             id: "refund",
@@ -936,28 +729,12 @@ POTUS.define("l10n", {
       {
         id: "rg80_eagleclaw",
         title: "The rescue burns in the desert; eight did not come back",
-        body: "Six months past the day Tehran started holding Americans. A helicopter and a transport collide and catch\n" +
-          "fire at the night staging point in the desert; eight servicemen go into foreign sand — the mission dead before\n" +
-          "it ever touched a hostage.\n" +
-          "Television loops the burning wreckage. Overnight the country's six-month humiliation catches fire. One\n" +
-          "family here has just received a death notice — you can knock on their door, or pretend none of this is happening.",
-        brief: {
-          lede: "A rescue botched in public puts \"have we lost it all?\" on every living-room coffee table.",
-          known: [
-            "Fifty-plus Americans are still held in Tehran; after this failure, even negotiating sounds like surrender.",
-            "Among the eight dead is a local son; the media is hunting for a voice that \"represents the town.\"",
-            "The White House blames dust and machinery. Few swallow it."
-          ],
-          rumor: [
-            "Some say the raid was reckless — jammed in to suit the political calendar.",
-            "Some say the weather and coordination flaws were spotted early and hidden for the glory."
-          ],
-          unknown: [
-            "The hostage question will hang over the whole election.",
-            "How you posture toward that family — the block remembers for years."
-          ],
-          terms: [{ k: "Hostage Crisis", v: "Iranian students seize the US embassy; the rescue ends in disaster." }]
-        },
+        body: "Iranian students seized the US embassy, and fifty-plus Americans have been held in Tehran for six months.\n" +
+          "A helicopter and a transport collide and catch fire at the night staging point in the desert; eight servicemen\n" +
+          "go into foreign sand — the mission dead before it ever touched a hostage.\n" +
+          "Television loops the burning wreckage; overnight the country's six-month humiliation catches fire. The White\n" +
+          "House blames dust and machinery, and few swallow it. One family here has just received a death notice — how you\n" +
+          "knock on that door, the block remembers for years.",
         choices: [
           {
             id: "condole",
@@ -1002,26 +779,12 @@ POTUS.define("l10n", {
         id: "rg80_election",
         title: "\"Are you better off than you were four years ago?\" — one line redraws the map",
         body: "One plain question walks into living rooms across the country, sweeps forty-some states, hands the\n" +
-          "Republicans their first Senate in decades — and \"the silent majority\" is named as a force for the first time.\n" +
-          "On the night the tide turns, both camps at home wait on your word: one eager to speak with the new wave, one\n" +
-          "demanding you stay in your old formation. Whichever side you stand, the next ten years' resources flow from there to you.",
-        brief: {
-          lede: "An election about mood, not policy. Read the wave right and you rise with it.",
-          known: [
-            "Inflation, hostages, a failed rescue — Carter's approval bottomed out long ago.",
-            "Reagan sweeps television with an actor's warmth; the conservatives are assembling a new force.",
-            "The local machine is split: the establishment wants a hedge, the grassroots want to follow."
-          ],
-          rumor: [
-            "Some say it is just one generation's boredom — four years and it swings back.",
-            "Some say the map is truly redrawn now, for twenty years."
-          ],
-          unknown: [
-            "This coalition sets the country's agenda for the next decade.",
-            "Your side on this turning night will be the most conspicuous line in your record."
-          ],
-          terms: [{ k: "Realignment", v: "Reagan's victory fuses conservatives and the religious right into a new coalition." }]
-        },
+          "Republicans their first Senate in decades — and the silent majority is named as a force for the first time.\n" +
+          "Reagan has fused conservatives and the religious right into one new coalition; some say the map is redrawn\n" +
+          "here for twenty years.\n" +
+          "On the night the tide turns, both camps at home wait on your word: the establishment wants a hedge, the\n" +
+          "grassroots want to follow. Whichever side you stand, the next ten years' resources flow from there to you —\n" +
+          "and the side you choose tonight is the most conspicuous line in your file.",
         choices: [
           {
             id: "bandwagon",
@@ -1077,27 +840,12 @@ POTUS.define("l10n", {
         id: "rg86_libya",
         title: "Planes cross the Atlantic; bombs land on Tripoli",
         body: "A bombed Berlin disco, dead American soldiers — Washington points at Gaddafi, then strikes Tripoli and\n" +
-          "Benghazi overnight. Gaddafi's adopted daughter dies in the blast. On live television, for the first time,\n" +
-          "someone says the word retaliation without flinching.\n" +
-          "Congress is in an uproar: can a president fight without declaring war? Local boys are flying from overseas\n" +
-          "bases right now. Reporters camp your doorstep for one sentence.",
-        brief: {
-          lede: "A popular airstrike and a constitutional question — who gets to start a war — land on you in the same hour.",
-          known: [
-            "Most of the country applauded that night: someone finally stood up.",
-            "Critics say it bypasses Congress, sets a dangerous precedent, and puts Americans held abroad at retaliatory risk.",
-            "Local kids serve in the units that flew. Their families only want them home."
-          ],
-          rumor: [
-            "Some say the real target was Gaddafi himself — an assassination that came up short.",
-            "Some say the flex was for the home audience; domestic politics is the real theater."
-          ],
-          unknown: [
-            "Whether retaliation draws a string of attacks aimed at Americans.",
-            "Whichever side you take tonight will be quoted back at you for years."
-          ],
-          terms: [{ k: "War Powers", v: "The quarrel over who may start a war: Congress declares, the president commands." }]
-        },
+          "Benghazi overnight. His adopted daughter dies in the blast. On live television, for the first time, someone\n" +
+          "says the word retaliation without flinching, and most of the country applauds: someone finally stood up.\n" +
+          "Congress is in an uproar. War powers — Congress declares war, the president commands the force — so can a\n" +
+          "president fight without declaring it? Critics add that Americans held abroad now sit in line for revenge.\n" +
+          "Local boys are flying from overseas bases right now. Reporters camp your doorstep for one sentence, and\n" +
+          "whichever side you take tonight gets quoted back at you for years.",
         choices: [
           {
             id: "back",
@@ -1139,28 +887,12 @@ POTUS.define("l10n", {
       {
         id: "rg87_wall",
         title: "Across a wall, the president dares him: tear it down",
-        body: "At the Brandenburg Gate the American president names his counterpart on the far side and tells him to\n" +
-          "tear down this wall. The world's cameras point at the Cold War's hardest scar; anti-nuclear chants at one\n" +
-          "point drown the speech itself.\n" +
-          "Arms-control talks are quietly accelerating even now, while the hawks burn at the line. Your local station\n" +
-          "wants your sentence: is this courage, or vanity that gambles with peace?",
-        brief: {
-          lede: "One line puts the Cold War's direction on the table — you may be cheering the endgame, or endorsing a misjudgment.",
-          known: [
-            "Across the wall a young reformer just took over, and he talks differently from his predecessors.",
-            "In the same year, secret talks on cutting Europe's intermediate-range missiles are moving.",
-            "The antinuclear movement still floods the streets of whole cities."
-          ],
-          rumor: [
-            "Some say the line was for the home audience — its foreign payoff is doubtful.",
-            "Some say if the other side does not yield, the speech becomes the propaganda of a provocation."
-          ],
-          unknown: [
-            "The wall falls by itself in two years. No one believes that now.",
-            "Your words today get graded only where history turns."
-          ],
-          terms: [{ k: "Brandenburg Gate", v: "The Cold War landmark by the Berlin Wall; Reagan's dare was spoken here." }]
-        },
+        body: "At the Brandenburg Gate — the Cold War landmark beside the Berlin Wall — the American president names his\n" +
+          "counterpart on the far side and tells him to tear down this wall. The world's cameras point at one spot.\n" +
+          "Across the wall a young reformer has just taken over, and he talks differently from his predecessors; in the\n" +
+          "same year, secret talks on cutting Europe's intermediate-range missiles are quietly moving, while the hawks\n" +
+          "burn at the line. Your local station wants your sentence: is this courage, or vanity that gambles with peace?\n" +
+          "Your words tonight get graded only where history turns.",
         choices: [
           {
             id: "echo",
@@ -1202,28 +934,9 @@ POTUS.define("l10n", {
       {
         id: "rg84_farm",
         title: "An auction notice goes up at the county bank: three generations of land, sold by the acre",
-        body: "Grain collapsed, land went with it, and the interest rate is still sitting on your chest. In August another auction notice appears in the county: three generations of ground, worth less than what the family owes the bank and the federal farm lender.\n" +
-          "A few Midwest states just won a foreclosure moratorium, while the federal lender preaches forbearance and takes the land in the same week. In the crowd at the block somebody is crying, somebody is cursing, somebody holds a card reading 'the bankers are the real losers'. Everyone beside you is watching where you stand, and what you do while standing there.",
-        brief: {
-          lede: "One auction sheet tears a hole in the national story of farm recovery — and the hole is on your street.",
-          known: [
-            "Land and grain fell together; the debt is owed twice, to the local bank and to federal farm credit.",
-            "Some states have granted a foreclosure moratorium — a moratorium is not forgiveness, only late.",
-            "The federal farm secretary just announced a one-year grace; nobody says whether it reaches this county."
-          ],
-          rumor: [
-            "Some say the bank took this land cheap into its own book long ago and the auction is only paperwork.",
-            "Some say the state will send men to 'keep order', and the picketers will be treated as the troublemakers."
-          ],
-          unknown: [
-            "The real reckoning for this crisis waits for the farm-bank bad loans to surface years later.",
-            "Which sentence you say today gets printed on your opponent's next leaflet."
-          ],
-          terms: [
-            { k: "Mortgage moratorium", v: "State law letting a farmer push a due farm loan back, so the land is not taken yet." },
-            { k: "Farm programme", v: "Federal supply control bought with fallowing and price support; the money follows acres, not heads." }
-          ]
-        },
+        body: "Grain collapsed, land went with it, and the interest rate is still sitting on your chest. In August another auction notice goes up at the county bank: three generations of ground, worth less than what the family owes the bank and the federal farm credit office — two debts, not one.\n" +
+          "A few Midwest states just won a mortgage moratorium: state law lets a farmer push a due farm loan back so the land is not taken yet. Late is not forgiven. The federal farm secretary has announced a one-year grace, and nobody says whether it reaches this county.\n" +
+          "In the crowd at the block somebody is crying, somebody holds a card reading 'the bankers are the real losers'. Where you stand, and which sentence you say today, gets printed on your opponent's next leaflet.",
         choices: [
           {
             id: "help_neighbor",
@@ -1301,28 +1014,8 @@ POTUS.define("l10n", {
       {
         id: "rg85_geneva",
         title: "Geneva: no agreement, but the two men say they will meet again",
-        body: "A summit frozen for ten years suddenly happened. The two leaders shut the door in Geneva and talked five and a half hours, from nuclear weapons to 'star wars', and signed nothing — yet agreed to meet again.\n" +
-          "Television looped the two of them walking side by side all day. Back home some people exhaled; some called it another trade of hot air for time. The people around you have started asking which side you are on.",
-        brief: {
-          lede: "A summit with no outcome is a big event because it turned 'never fightable' into something you may now negotiate.",
-          known: [
-            "The talks stuck on strategic defence: one side must keep it, the other would cut it.",
-            "No treaty was signed; both sides only said the next round should be faster and firmer.",
-            "Two nerves are pulled at once in this town's ordnance plant and university: one fears disarmament will take the jobs, one fears nuclear war takes everything."
-          ],
-          rumor: [
-            "Some inside the White House treat the trip as a campaign asset — get the 'atmosphere' first, the rest later.",
-            "Some say what Moscow really wants is to stall its own defence budget, not to concede."
-          ],
-          unknown: [
-            "At Reykjavik the next time they very nearly agree, and then it collapses in public.",
-            "Whatever you vouch for today, you will be explaining in four years."
-          ],
-          terms: [
-            { k: "Strategic defence programme", v: "A space-based interception shield against nuclear attack — the knot the talks caught on." },
-            { k: "Summit diplomacy", v: "The meeting itself counted as the result: build the relationship first, argue numbers later." }
-          ]
-        },
+        body: "A summit frozen for ten years suddenly happened. The two leaders shut the door in Geneva and talked five and a half hours, from nuclear weapons to 'star wars' — the proposed space-based shield against nuclear attack, and exactly where the talks caught. They signed nothing, agreeing only that the next round should be faster and firmer.\n" +
+          "Television looped the two of them walking side by side all day. Two nerves get pulled at once in this town's ordnance plant and its university: one fears disarmament will take the jobs, one fears nuclear war takes everything. The people around you have started asking which side you are on — and whatever you vouch for today, you will be explaining in four years.",
         choices: [
           {
             id: "watch_local",

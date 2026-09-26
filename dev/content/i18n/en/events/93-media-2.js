@@ -5,8 +5,7 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，必须整条给全。
- *   · 结构性键由引擎保护，本文件只写 title / body / brief / text / note / outcome body。
+ *   · 结构性键由引擎保护，本文件只写 title / body / text / note / outcome body。
  *
  * 媒体题材写法：用真实英文媒体语汇（profile piece、fact-check desk、above the fold、
  * junk mail、press corps、the tape），不直译中文报刊俚语。
@@ -21,29 +20,12 @@ POTUS.define("l10n", {
       {
         id: "med2_profile",
         title: "A national magazine wants an 8,000-word profile of you",
-        body: "A reporter from a national magazine has come to write the full-length profile.\n" +
-          "He shadows you for three days: two events, one dinner, one car ride. Every question politely asked —\n" +
-          "polite enough that you almost forget: not one of those eight thousand words will need your approval.",
-        brief: {
-          lede: "Everything you say is material. So is every pause you did not fill.",
-          known: [
-            "The magazine profiles people on the rise. Lately you have been getting attention.",
-            "His last subject gave no other interview for three months.",
-            "He does not do Q-and-A. He reconstructs: the way you came in late, the look in your aide's eye.",
-            "House style: no dirty words. Lay the details side by side and let the reader do the killing."
-          ],
-          rumor: [
-            "Before talking to you, he already talked to three people in your circle.",
-            "He has a recording of you off duty. He has not decided whether to use it."
-          ],
-          unknown: [
-            "Whether he has settled on a headline. You learn on publication day.",
-            "Whether your clever lines are still your lines once they are in print."
-          ],
-          terms: [
-            { k: "The Profile", v: "About what kind of person you are. Positions can be clarified; a persona cannot." }
-          ]
-        },
+        body: "A reporter from a national magazine has come to write the full-length profile —\n" +
+          "not what you stand for but what you are: positions can be clarified, a persona cannot.\n" +
+          "He shadows you for three days: two events, one dinner, one car ride. He does not do Q-and-A; he reconstructs —\n" +
+          "the way you came in late, the look in your aide's eye. Every question politely asked —\n" +
+          "polite enough that you almost forget: not one of those eight thousand words will need your approval.\n" +
+          "Whether he has settled on his headline, you learn on publication day.",
         choices: [
           {
             id: "open",
@@ -88,25 +70,13 @@ POTUS.define("l10n", {
       {
         id: "med2_profile_after",
         title: "Opponents keep quoting your profile out of context",
-        body: "The piece hit newsstands a while ago, and it has not gone quietly into the file.\n" +
-          "Strangers introduce you with its sentences. Your opponents loop its paragraphs out of context.\n" +
-          "And one complication: a rival magazine wants to run a response piece. It is asking your staff for access.",
-        brief: {
-          lede: "After print, the byline is yours. The article belongs to the magazine.",
-          known: [
-            "The profile is the first search result under your name.",
-            "The opposition has cut three of its sentences into a clip they keep running.",
-            "The rival magazine is seeking interviews for its response piece."
-          ],
-          rumor: [
-            "The writer on the response is an ex-colleague of the original. They have history.",
-            "Your opponent has been feeding that magazine old dirt on you."
-          ],
-          unknown: [
-            "Say nothing — do those three clipped sentences become your label?",
-            "Answer — do you just turn one article into two?"
-          ]
-        },
+        body: "The piece hit newsstands a while ago, and it has not gone quietly into the file —\n" +
+          "search your name and the profile is the first thing anyone finds.\n" +
+          "Strangers introduce you with its sentences. Your opponents loop three of its paragraphs out of context.\n" +
+          "And one complication: a rival magazine wants a response piece, and it is asking your staff for access.\n" +
+          "Word is your opponent has been feeding that magazine old dirt on you.\n" +
+          "After print, the byline is yours; the article belongs to the magazine.\n" +
+          "Say nothing — do those three clipped sentences become your label?",
         choices: [
           {
             id: "own_it",
@@ -153,25 +123,10 @@ POTUS.define("l10n", {
         title: "A number you have used for two years just failed a fact-check",
         body: "The number you lean on in every speech — the one that draws applause —\n" +
           "got checked by a fact-check desk. Their verdict is blunt: it traces to a three-year-old estimate,\n" +
-          "and even the estimate's author says it was misused.\n" +
-          "The rating publishes tomorrow. Your staff is waiting for your call.",
-        brief: {
-          lede: "The number was never fake. It stopped being true. That is what the checkers are for.",
-          known: [
-            "You have quoted it for two years, in over a dozen settings. The tape exists.",
-            "The check publishes tomorrow. The headline is set. The tone is hard.",
-            "The source is a three-year-old estimate that even its author calls misused.",
-            "An admission must be paid in full. Half-admitting gets you hit from both sides."
-          ],
-          rumor: [
-            "Someone from your opponent's staff tipped off the desk.",
-            "The estimate's author will speak for you — once you admit the error publicly."
-          ],
-          unknown: [
-            "How many of your own supporters will ever see the check.",
-            "In two years: will people remember the bad number, or the correction?"
-          ]
-        },
+          "and even the estimate's author says it was misused. You quoted it in over a dozen settings; the tapes exist.\n" +
+          "The rating publishes tomorrow. The headline is set. The tone is hard. Your staff is waiting for your call.\n" +
+          "An admission must be paid in full — half-admitting gets you hit from both sides.\n" +
+          "In two years, will people remember the bad number, or the correction?",
         choices: [
           {
             id: "deny",
@@ -228,26 +183,13 @@ POTUS.define("l10n", {
       {
         id: "med2_debate_prep",
         title: "Three weeks to the debate. Your team needs your style",
-        body: "Election year. The debate is three weeks out.\n" +
+        body: "Election year. The debate is three weeks out — likely your largest single audience of the year.\n" +
           "Opponent, moderator's habits, the rumored question range — your team has taped it all to the wall.\n" +
-          "One thing is missing from the board: which version of you walks on stage. The rehearsal room is booked.",
-        brief: {
-          lede: "A debate is not where you answer questions. It is where you become a type.",
-          known: [
-            "This is likely your largest single audience of the year.",
-            "Your opponent has one famous weakness — and a rehearsed counter-punch.",
-            "Six past debates: every winner made one point. Every loser tried to make all of them.",
-            "The moderator punishes dodgers. The third follow-up is the one the audience remembers."
-          ],
-          rumor: [
-            "The opposition has the outline and is writing lines against three of your old votes.",
-            "The moderator that night is an old friend of one of your donors."
-          ],
-          unknown: [
-            "Which style wins — only the winner gets to explain it afterward.",
-            "Whether the line you rehearse for weeks survives first contact with the stage."
-          ]
-        },
+          "One thing is missing from the board: which version of you walks on stage.\n" +
+          "The opponent has one famous weakness and a rehearsed counter-punch.\n" +
+          "The moderator punishes dodgers, and the third follow-up is the one the audience remembers.\n" +
+          "Six past debates: every winner made one point; every loser tried to make all of them.\n" +
+          "The rehearsal room is booked.",
         choices: [
           {
             id: "attack",
@@ -306,23 +248,10 @@ POTUS.define("l10n", {
         title: "Anonymous attack flyers about you go up overnight",
         body: "Someone papered the town between midnight and dawn. All about you: three half-true facts,\n" +
           "one number inflated four times, and a handwritten hint, cold as a draft under a door.\n" +
-          "Your staff peeled one off a polling-place door, one off a grocery bulletin board, one from under a wiper blade.",
-        brief: {
-          lede: "Anonymous paper has one job: make people get a feeling about you.",
-          known: [
-            "You have been rising. Nobody wastes glue and ink on a nobody.",
-            "Each half-truth sits on a real shell: slow to verify, and denials sound like excuses.",
-            "Print can be traced — paper stock, ink, the shop. Online tips usually dead-end at a deleted account."
-          ],
-          rumor: [
-            "The wording matches the habits of a writer on your opponent's payroll.",
-            "This was a professional paste-up. A few angry citizens do not work this clean."
-          ],
-          unknown: [
-            "Who paid and who pasted — often not the same hand.",
-            "Whether a second wave lands before Election Day."
-          ]
-        },
+          "Each half-truth sits on a real shell: slow to verify, and a denial sounds like an excuse.\n" +
+          "Your staff peeled one off a polling-place door, one off a grocery bulletin board, one from under a wiper blade.\n" +
+          "Print can be traced — paper stock, ink, the shop. And you have been rising; nobody wastes glue on a nobody.\n" +
+          "Who paid and who pasted are often not the same hand.",
         choices: [
           {
             id: "trace",
@@ -370,24 +299,10 @@ POTUS.define("l10n", {
         body: "The reporter asks you to a coffee shop and starts without preamble.\n" +
           "'I plan to follow your story for the next two years. Not on orders. On my own.'\n" +
           "He pushes his card across the table: 'I am telling you first because a man I warned\n" +
-          "cannot later call me unfair.' Your recent trouble gave him the reason. He knows it. So do you.",
-        brief: {
-          lede: "He did not come for an interview. He came to give you notice.",
-          known: [
-            "You carry a scandal right now. That is where he started watching.",
-            "He can run one story for five years. Few pieces. Every one lands.",
-            "He has taken on three big names. One fell. The other two return his calls first.",
-            "He cannot be bought and will not be snubbed: feed him and he writes softer; block him and he writes more."
-          ],
-          rumor: [
-            "A powerful man ruined his early career. He has been watching power ever since.",
-            "His editor set a quota: your name above the fold three times a year."
-          ],
-          unknown: [
-            "Where he starts digging — you keep a do-not-dig list too.",
-            "In year three, whose patience ends first: his column space or yours."
-          ]
-        },
+          "cannot later call me unfair.' Your recent trouble gave him the reason. He knows it. So do you.\n" +
+          "He can run one story for five years — few pieces, every one lands.\n" +
+          "He cannot be bought and will not be snubbed. Where he starts digging, you cannot say —\n" +
+          "you keep a do-not-dig list too.",
         choices: [
           {
             id: "open_door",
@@ -446,24 +361,10 @@ POTUS.define("l10n", {
         title: "The reporter who shadowed you for two years is writing a book",
         body: "Two years on, the reporter following you is part of your life.\n" +
           "Your staff reads his byline before anyone else's; your lawyer weighs every sentence you say;\n" +
-          "last month he ran a timeline of everything you did in three years — every entry true.\n" +
-          "Now the invitation: he is writing a book, and he wants one final interview with you.",
-        brief: {
-          lede: "Two years of fighting, and you shaped each other. Is the book the period — or the last bullet?",
-          known: [
-            "You will be one of the book's main characters. Even a bad version lasts.",
-            "Every line of his timeline is true — and you cannot sue the facts.",
-            "Some on staff say refuse: the book is coming regardless. Do not lend it your name on the cover."
-          ],
-          rumor: [
-            "The advance is big. Deadline pressure makes books more dramatic.",
-            "He is already talking to the one person from your past you never wanted in this story."
-          ],
-          unknown: [
-            "Whether the chapter on you is titled with a noun or a verb.",
-            "In ten years, the book may be the first way anyone comes to know you."
-          ]
-        },
+          "last month he ran a timeline of everything you did in three years — every entry true,\n" +
+          "and you cannot sue the facts. Now the invitation: he is writing a book, and he wants one final interview with you.\n" +
+          "Whatever the book says about you will outlast the book.\n" +
+          "Whether the chapter on you is titled with a noun or a verb — publication day will tell.",
         choices: [
           {
             id: "sit",

@@ -7,18 +7,7 @@ POTUS.define("l10n", {
       {
         id: "wh_impeachment",
         title: "The articles arrive: a third are ready to vote, including your own",
-        body: "At midnight the House passes two articles of impeachment, worded more gently than the draft, which makes them cut deeper. The Senate majority leader leaves you one line: he can still count fifty-one votes, but he is not sure how many of the fifty-one will sit beside you on camera. Your approval has sat under the warning line for four straight months, and the investigation is still open. The White House counsel is at your left, the chief of staff at your right, and each is urging the opposite of the other.",
-        brief: {
-          lede: "The House Judiciary Committee passed the articles before dawn. Your approval has lain under the danger line for four straight months.",
-          known: [
-            "The Senate needs two-thirds to convict, and four senators of your own party have stopped speaking for you.",
-            "Blaming a subordinate buys a few votes, but that man leaves carrying everything he knows.",
-            "Resigning is the only path with no vote to humiliate you, and the only one you cannot walk back."
-          ],
-          unknown: [
-            "In the deposition transcripts you never finished reading, whose name is on the last three pages."
-          ]
-        },
+        body: "At midnight the House passes two articles of impeachment, worded more gently than the draft, which makes them cut deeper. The Senate majority leader leaves you one line: he can still count fifty-one votes, but he is not sure how many of the fifty-one will sit beside you on camera. Your approval has sat under the warning line for four straight months, and the investigation is still open. In the files there is also a subordinate who once signed documents in your name; handing him over buys a few swing votes, but he leaves carrying everything he knows. The deposition transcripts you never finished reading - the last three pages name someone.",
         choices: [
           {
             id: "fight",

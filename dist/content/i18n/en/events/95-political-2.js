@@ -7,7 +7,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 按 id 对齐；terms 不带 id，按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，条数与中文一致。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / flags /
  *     cost …）受保护，本文件一个都不写。
  *
@@ -27,27 +26,11 @@ POTUS.define("l10n", {
       {
         id: "pol2_primary_fight",
         title: "You and a fellow party member fight for the nomination in your own primary",
-        body: "The seat is open, but the machine leans toward your rival. Everyone can recite the rules of a " +
-          "primary; the parts outside the rules decide it. Choose how you fight this civil war.",
-        brief: {
-          lede: "Your real opponent isn't across the aisle. He's on your own party's primary ballot.",
-          known: [
-            "The party's open seat has two chairs: yours, and one taken by a fellow member who got there first.",
-            "The primary truce says no attacks. It dissolves the moment both names print on the ballot.",
-            "Every call this week is a probe: fight, wait, or step aside."
-          ],
-          rumor: [
-            "Word is your rival briefed the county party on his run six months ago.",
-            "Word is the national committee hates a bleeding primary. Whoever strikes first gets blacklisted."
-          ],
-          unknown: [
-            "Every word said in a primary is kept by the loser's precinct captains.",
-            "A loser's network doesn't vanish. It waits two years, or four."
-          ],
-          terms: [
-            { k: "Caucus", v: "Local party meeting where members vote on nominees." }
-          ]
-        },
+        body: "The seat is open, and the party left two chairs by it: yours, and one taken by a fellow member who " +
+          "got there first. The machine leans his way. The primary truce — no attacks — dissolves the moment both " +
+          "names print on the same ballot. Fight, wait, or step aside: every call this week is a probe. Word is he " +
+          "briefed the county party about this run six months ago. Every word said in a primary is kept by the " +
+          "loser's precinct captains — their network doesn't vanish, it waits two years, or four.",
         choices: [
           {
             id: "grassroots",
@@ -112,29 +95,11 @@ POTUS.define("l10n", {
       {
         id: "pol2_whip_count",
         title: "The bill is two votes short, and your name sits in the 'unsure' column",
-        body: "Seventy-two hours before the vote, the floor leader is counting you, the other side is fishing " +
-          "for you, and your district is flooding your lines. How you vote decides how your name gets written " +
-          "inside this party from now on.",
-        brief: {
-          lede: "On a vote decided by two seats, both your vote and your eyes have a price.",
-          known: [
-            "The must-pass bill is two votes short. Your name is in the 'unsure' column.",
-            "The leader's deputy whip has walked past your office door three times this afternoon.",
-            "Your district is split fifty-fifty on the bill. That's why you haven't decided."
-          ],
-          rumor: [
-            "Word is the other side has bid too: a project your district badly wants.",
-            "Word is the leader's 'unsure' list holds four names. Yours is first."
-          ],
-          unknown: [
-            "There's no 'abstain' column. Not answering the phone counts as a vote.",
-            "The list that really decides your future gets cashed in years from now."
-          ],
-          terms: [
-            { k: "Whip", v: "Party officer who counts votes and leans on members." },
-            { k: "Party line", v: "The position the party takes on a given vote." }
-          ]
-        },
+        body: "The must-pass bill is two votes short and your name sits in the leader's 'unsure' column. Your " +
+          "district splits fifty-fifty on it — that's why you haven't decided. The deputy whip, the officer who " +
+          "counts party votes and leans on members, has walked past your door three times this afternoon. And word " +
+          "is the other side has bid too: a project your district badly wants. There is no 'abstain' on that list. " +
+          "Not answering the phone counts as a vote.",
         choices: [
           {
             id: "count_for_them",
@@ -217,28 +182,11 @@ POTUS.define("l10n", {
       {
         id: "pol2_party_convention",
         title: "You seek a grassroots seat on your state's delegation to the national convention",
-        body: "Applications are open for grassroots delegate slots. No pay, no cameras — only a ticket good once " +
-          "every four years and a narrow door that widens the more you push. Decide what you'll trade for it.",
-        brief: {
-          lede: "A seat at the national convention isn't elected. You endure your way into it.",
-          known: [
-            "State convention delegate slots are open: unpaid, unseen, once every four years.",
-            "The list is built on loyalty, attendance, and grunt work — not seniority.",
-            "The county chair says it plainly: five years on a cold bench before you get a chair."
-          ],
-          rumor: [
-            "Word is two slots are set aside for 'the new generation,' and everyone is grabbing.",
-            "Word is one old delegate's seat is negotiable — if you finish his chess game first."
-          ],
-          unknown: [
-            "The real dividend of a grassroots delegate pays out four years late.",
-            "The hallways matter more than the floor; your card decides who takes your calls."
-          ],
-          terms: [
-            { k: "National convention", v: "The party's four-year meeting that picks the presidential nominee." },
-            { k: "Grassroots delegate", v: "An unpaid delegate chosen by county party committees." }
-          ]
-        },
+        body: "Slots are open for grassroots delegates to the national convention — the party's four-year meeting " +
+          "that picks the presidential nominee. No pay, no cameras; the list is built on loyalty, attendance and " +
+          "grunt work, not seniority. The county chair says it plainly: five years on a cold bench before you get a " +
+          "chair. And word is one old delegate's seat is negotiable — if you finish his chess game first. The real " +
+          "dividend pays out four years late, in hallways that matter more than the floor.",
         choices: [
           {
             id: "grind_seats",
@@ -300,28 +248,11 @@ POTUS.define("l10n", {
       {
         id: "pol2_endorsement_tree",
         title: "Your senior and your protégé both ask for your endorsement, and you can only back one",
-        body: "Two endorsement requests, one up and one down, from opposite wings of the party. Your name is " +
-          "currency — once printed, it never comes back. How the chain gets built is how the network grows.",
-        brief: {
-          lede: "Endorsements are politics' barter: your name traded for someone else's.",
-          known: [
-            "Two requests land the same day: a superior two rungs up wants your signature; someone you raised " +
-              "waits on your name.",
-            "The catch: they stand on opposite wings of the party, and you can only honestly back one."
-          ],
-          rumor: [
-            "Word is what the senior one wants isn't your support. It's your silence.",
-            "Word is the junior camp is talking: sold out by his own mentor — that story runs ten years."
-          ],
-          unknown: [
-            "Whoever you lift today may sit where your nomination gets decided tomorrow.",
-            "'No endorsement' has a price too: both sides note your silence."
-          ],
-          terms: [
-            { k: "Endorsement", v: "A public pledge of support for a candidate." },
-            { k: "Circular endorsement", v: "A backs B up; when B rises, B returns the favor to A." }
-          ]
-        },
+        body: "Two endorsement requests land the same day: a superior two rungs up wants your signature, and " +
+          "someone you raised is waiting on your name. An endorsement is a public pledge of support — and these " +
+          "two stand on opposite wings of the party; you can honestly back only one. Your name is currency, once " +
+          "printed it never comes back. Whoever you lift today may sit tomorrow where your own nomination gets " +
+          "decided.",
         choices: [
           {
             id: "endorse_up",
@@ -386,29 +317,12 @@ POTUS.define("l10n", {
       {
         id: "pol2_purge",
         title: "Your faction falls from power, and your name is on the purge list",
-        body: "Your allies fall overnight, and the purge list has reached page three — yours is on it. The " +
-          "new guard wants a declaration, the old allies want a hand, and you must decide whose man you are.",
-        brief: {
-          lede: "Overnight, your faction becomes a dirty word inside the party.",
-          known: [
-            "The faction that raised you loses the reorganization. The new guard starts clearing names.",
-            "Half your network, two endorsements, and your first promotion all carry the old faction's signature.",
-            "The new guard invites you for 'coffee.' They want a declaration, not an apology.",
-            "Your oldest ally calls tonight: 'I saw page three. Your name is on it.'"
-          ],
-          rumor: [
-            "Word is the new guard holds years of the old faction's correspondence.",
-            "Word is the blade only falls on pages one and two. Page three is for scares."
-          ],
-          unknown: [
-            "There's no spectator seat in a purge: silence gets entered on both ledgers.",
-            "Whoever you shield today is your comeback in four years."
-          ],
-          terms: [
-            { k: "Party purge", v: "The winners' systematic clearing of the losers' network." },
-            { k: "Proof of loyalty", v: "Handing the new guard your old circle's secrets to buy in." }
-          ]
-        },
+        body: "The faction that raised you lost the reorganization overnight, and the new guard is clearing " +
+          "names — a purge: the winners working systematically through the losers' network. Half your contacts, " +
+          "two endorsements and your first promotion all carry the old faction's signature. Your oldest ally " +
+          "called tonight: 'I saw page three. Your name is on it.' The new guard invites you for coffee — they " +
+          "want a declaration, proof of loyalty, not an apology. Word is they hold years of the old faction's " +
+          "correspondence. There is no spectator seat in a purge: your silence gets entered on both ledgers.",
         choices: [
           {
             id: "stand_with_them",

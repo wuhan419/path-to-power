@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3/§4 与 engine/i18n.js）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文本字段；事件按 id 定位，选项按 id 定位。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，元素个数与中文严格一致
- *     （两幕均为 3/2/2；terms 按下的 {k,v} 与中文对齐：ch911_watch 2 条、ch911_blame 1 条）。
  *   · 结构性键（id / after / base / mods / cost / stake / effects / flags / when …）
  *     由引擎保护，本文件一概不写。
  *   · 英文按第二人称、现在时、短句重写；「」不直译，改英文引号或句式；全文件零汉字。
@@ -22,27 +20,7 @@ POTUS.define("l10n", {
       {
         id: "ch911_watch",
         title: "The federal watchlist reaches your county's airport and police station",
-        body: "A little over a year after the new law passed, the records-power has grown into a machine: no-fly and extra-screening lists now flow from Washington down to the check-in counter, terror-grant riders sit inside the sheriff's budget sheet, and local police collect case numbers from the feds as 'liaison duty.' In the community people have started talking quietly: who got pulled aside at the gate for half an hour, whose license came back after one extra round of review. How you stood on this line in the last act — the feds kept a ledger, and so did the locals. Tonight both ledgers knock on your door.",
-        brief: {
-          lede: "The law is no longer paper. It is the person held at the gate, and the clause waiting for your signature.",
-          known: [
-            "The terror grant carries riders; the money needs your signature.",
-            "The list lives with the feds; locals only see the results.",
-            "On the federal-records line, both sides remember how you acted."
-          ],
-          rumor: [
-            "Some say the list passed a hundred thousand names, most of them wrong.",
-            "Some say the sheriff volunteered for the cases to chase the money."
-          ],
-          unknown: [
-            "The access you approve today will read someone's file one day.",
-            "Who gets the extra look: the block remembers, the record does not."
-          ],
-          terms: [
-            { k: "No-fly list", v: "Federal aviation watch list; criteria undisclosed." },
-            { k: "Terror grant", v: "Federal money conditioned on law-enforcement cooperation." }
-          ]
-        },
+        body: "A little over a year after the new law passed, the records-power has grown into a machine: no-fly and extra-screening lists now flow from Washington down to the check-in counter, terror-grant riders sit inside the sheriff's budget sheet — and that money needs your signature to land — and local police collect case numbers from the feds as 'liaison duty.' In the community people have started talking quietly: who got pulled aside at the gate for half an hour, whose license came back after one extra round of review. Some say the list passed a hundred thousand names, most of them wrong ones. How you stood when the feds came for the records — they kept a ledger, and so did the locals. Tonight both ledgers knock on your door. The access you nod to today will be reading someone's file one day.",
         choices: [
           {
             id: "push",
@@ -86,26 +64,7 @@ POTUS.define("l10n", {
       {
         id: "ch911_blame",
         title: "The weapons were never found, and your old statement becomes a bill",
-        body: "The 'hard evidence' that opened the war never landed; review report after review report prints the same sentence: it rested on flawed material. This campaign season, both parties attack from the same podium with the same line: 'Who lied to Congress back then.' The producers found your file — the endorsement you signed, or the hearing record where you asked for proof — and the anchor reads it aloud word for word, the date pinned under the chyron. This time the applause is on the other side. The only choice left is whether you take the light.",
-        brief: {
-          lede: "The war is in its audit period. The first line of the ledger: what each person said back then.",
-          known: [
-            "The review is public: the key rationale did not hold.",
-            "Your position then has a transcript, a date, your signature.",
-            "Your party's staff prepped you: do not explain, do not bite."
-          ],
-          rumor: [
-            "Some say a whole tranche of raw intelligence stays classified.",
-            "Some say both attack ads were written by the same hands."
-          ],
-          unknown: [
-            "Whose name lands on the subpoena is still being negotiated.",
-            "What you say tonight, next year's hearing reads verbatim."
-          ],
-          terms: [
-            { k: "Review report", v: "Official postwar probe; admits the case for war was flawed." }
-          ]
-        },
+        body: "The 'hard evidence' that opened the war never landed; review report after review report prints the same sentence: it rested on flawed material. This campaign season, both parties attack from the same podium with the same line: 'Who lied to Congress back then.' The producers found your file — the endorsement you signed, or the hearing record where you asked for proof — and the anchor reads it aloud word for word, the date pinned under the chyron. Your party's staffers have already passed the word: do not explain, do not bite. Some say a whole tranche of raw intelligence is still classified. This time the applause is on the other side. The only choice left is whether you take the light — and what you say tonight, next year's hearing will read back verbatim.",
         choices: [
           {
             id: "shift",

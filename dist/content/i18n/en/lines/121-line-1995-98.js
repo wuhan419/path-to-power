@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文案字段。
  *   · 事件按 id 定位；choices / terms 按 id 对齐。
- *   · 纯字符串数组（known / rumor / unknown）是整体替换，必须整条给全。
  *   · 结构性键（id 之外的 era / minYear / tierMin / weight / base / mods /
  *     effects / flags / req / cost …）由引擎保护，写了会报 validate 错。
  *   · 英文按英语重写，不逐字翻：第二人称、现在时、短句；「」改英文引号；
@@ -20,24 +19,8 @@ POTUS.define("l10n", {
         id: "ln95_okc",
         title: "A truck bomb tears the federal building — and half the block — apart",
         body: "9:02 a.m. A rental truck detonates outside a federal building. Half a city block collapses into a chalk-white crater.\n" +
-          "By noon, school-bus seats that should be full sit empty on live TV. Within the hour, investigators name a suspect: an angry Gulf War vet who hated his own government. You are local, and the microphones are already in your face.",
-        brief: {
-          lede: "In the first days after the worst homegrown bombing in the country's history, rage and fear are both hunting for an exit.",
-          known: [
-            "The toll is still climbing; federal agents already control the scene.",
-            "The local station wants your on-camera answer right now.",
-            "Your town has families who resent federal law enforcement anyway."
-          ],
-          rumor: [
-            "Some say foreign hands were in it and that line is being buried.",
-            "Some say a local militia group knew the suspect."
-          ],
-          unknown: [
-            "Whether he gets death or dies of old age in prison.",
-            "Which side of tonight you will be remembered for — for years."
-          ],
-          terms: [{ k: "federal building", v: "Local offices of federal agencies; a natural target." }]
-        },
+          "By noon, school-bus seats that should be full sit empty on live TV. Within the hour, investigators name a suspect: an angry Gulf War vet who hated his own government. You are local, and the microphones are already in your face.\n" +
+          "Your town has families who resent federal law enforcement anyway — and some say a local militia group knew the suspect. Which side of tonight you will be remembered for: that runs for years.",
         choices: [
           {
             id: "harden",
@@ -81,24 +64,8 @@ POTUS.define("l10n", {
         id: "ln95_verdict",
         title: "The verdict of the century: acquitted, and the country splits into two angers",
         body: "After most of a year on live television, the football star is acquitted of murdering his ex-wife. In one second the screen splits the nation: one half sees justice fail, the other sees two standards of law.\n" +
-          "Your town has both halves, on opposite sides of the tracks. The daily wants your column by tomorrow morning: how does an elected person read this verdict?",
-        brief: {
-          lede: "One verdict becomes a loyalty test: how you answer says more than the case ever did.",
-          known: [
-            "A civil trial is still ahead; this will not fade for months.",
-            "The Black churches and the suburban blocks are furious in opposite directions.",
-            "Whatever you say will be filed as taking sides."
-          ],
-          rumor: [
-            "Some say the jury was convinced by something other than evidence.",
-            "Some say the live broadcast itself hijacked the verdict."
-          ],
-          unknown: [
-            "Whether the anger subsides or detonates.",
-            "Whether the issue you pick ends up picking you."
-          ],
-          terms: [{ k: "trial of the century", v: "The fully televised murder case; not guilty." }]
-        },
+          "Your town has both halves, on opposite sides of the tracks. The daily wants your column by tomorrow morning: how does an elected person read this verdict?\n" +
+          "A civil trial still waits in the wings; this will not fade for months. And the issue you pick tonight may end up picking you.",
         choices: [
           {
             id: "bridge",
@@ -143,24 +110,8 @@ POTUS.define("l10n", {
         title: "A jet falls into the sea; three weeks later a bomb hits the Olympic park",
         body: "Off Long Island, a 747 breaks apart minutes after takeoff. 230 dead. While the nation still watches the recovery boats,\n" +
           "a pipe bomb rips through Centennial Olympic park at night: 4 dead, over a hundred injured. A summer of mourning turns into a summer of suspicion —\n" +
-          "malfunction or bomb, accident or attack; every day the story changes, and people start demanding a name to hold accountable.",
-        brief: {
-          lede: "Two national wounds in one month, and the anxiety is hunting for a thread to pull.",
-          known: [
-            "The crash and the park bomb are probed by two separate systems.",
-            "Local families with someone on the flight manifest are countable.",
-            "The mood is sliding from grief toward blame."
-          ],
-          rumor: [
-            "Some say the crash was an attack and proof lands any day.",
-            "Some say airport security contracts are the real story Congress will never open."
-          ],
-          unknown: [
-            "Whether either case gets a real culprit.",
-            "Whether your head-of-charge lands on the right line — or any line."
-          ],
-          terms: [{ k: "dual probes", v: "A criminal and an accident investigation running in public conflict." }]
-        },
+          "malfunction or bomb, accident or attack; every day the story changes, and people start demanding a name to hold accountable.\n" +
+          "The crash and the park bombing are probed by two separate systems whose accounts keep colliding. Head for accountability at your own risk: you may chase the wrong line all summer.",
         choices: [
           {
             id: "probe",
@@ -205,24 +156,8 @@ POTUS.define("l10n", {
         title: "The president will sign the welfare law — and both parties demand your position",
         body: "The Republican Congress pushes decades of welfare talk to the signing desk, and the president — the one who vowed to end welfare\n" +
           "as we know it — decides to sign. Both wings of your own coalition call at once: one wants a public endorsement,\n" +
-          "the other calls this sixty years of betrayal. You have one page of paper and one week.",
-        brief: {
-          lede: "A law signed across party lines: every side is right, and every side bleeds on you.",
-          known: [
-            "The law sets time limits and hands enforcement to the states.",
-            "Hundreds of local agencies feed on welfare contracts.",
-            "The president signs; dissent now looks like firing at your own party's door."
-          ],
-          rumor: [
-            "Some say the state already drafted a waiver list to dodge the limits.",
-            "Some say a transition spending bill hides in the fine print."
-          ],
-          unknown: [
-            "Whether this law reads as triumph or as debt in five years.",
-            "Whether your seat survives a bet on the losing side."
-          ],
-          terms: [{ k: "welfare reform", v: "Time limits and state-run administration, replacing the old system." }]
-        },
+          "the other calls this sixty years of betrayal. You have one page of paper and one week.\n" +
+          "The law sets time limits on benefits and hands administration to the states; hundreds of local agencies feed on welfare contracts. Whether it reads as triumph or as debt in five years, nobody can certify for you today.",
         choices: [
           {
             id: "backbill",
@@ -267,24 +202,8 @@ POTUS.define("l10n", {
         title: "Election night: the challenger loses again, and your party hands out the credit",
         body: "Clinton holds the White House and nudges both chambers his way. The Republican challenger loses the second race he should have lost four years ago,\n" +
           "and his radical contract gets quietly returned by the voters. The national wave rolls all the way down to the local flatland:\n" +
-          "before the networks call it, you already hold three invitations to celebrate, and one memo urging you to cut ties with last year.",
-        brief: {
-          lede: "A tailwind year: nearly every choice goes up. The only question is whose wind you borrow.",
-          known: [
-            "The president outran your district's own race; coattails are legal tender.",
-            "The machine is naming its lists: who helped in the wave.",
-            "For the first time, campaign websites claim part of the credit."
-          ],
-          rumor: [
-            "Some say the second term opens a bidding war for the center lane.",
-            "Some say your local rival plans to climb back over the ashes of the loss."
-          ],
-          unknown: [
-            "How long this tailwind blows on your particular back.",
-            "The price tag of each photo op you take tonight."
-          ],
-          terms: [{ k: "coattails", v: "Winners at the top of the ticket lifting your side's local race." }]
-        },
+          "before the networks call it, you already hold three invitations to celebrate, and one memo urging you to cut ties with last year.\n" +
+          "The machine is drawing up its list: who helped in the wave. Every camera you hug tonight has its own price tag, posted later.",
         choices: [
           {
             id: "wave",
@@ -329,24 +248,8 @@ POTUS.define("l10n", {
         title: "Asian currencies fall like dominoes; one jolt shakes Wall Street",
         body: "After the baht goes down, the currencies pile into the dirt one after another. The index drops overnight, the hedge funds\n" +
           "say the word 'contagion,' and every front page asks out loud: is this the end of the boom? Your district sits in the middle:\n" +
-          "export orders and pension statements jumped on the same morning edition. The merchants want calm. The unions want a villain.",
-        brief: {
-          lede: "Panic now crosses borders before breakfast; 'emerging markets' just entered local conversation.",
-          known: [
-            "One day of historic swings — but no local layoff wave yet.",
-            "Two factories already hold cancelled Asian orders.",
-            "Pension accounts twitch with every index tick."
-          ],
-          rumor: [
-            "Some say one big fund already dumped out at the top.",
-            "Some say the central banks are drafting something unprecedented."
-          ],
-          unknown: [
-            "A fire in Asia, or the first domino heading your way.",
-            "What blaming Wall Street is worth — and what defending it is worth."
-          ],
-          terms: [{ k: "contagion", v: "One currency's fall triggering sell-offs across neighbors." }]
-        },
+          "export orders and pension statements jumped on the same morning edition. The merchants want calm. The unions want a villain.\n" +
+          "The employment data has not cracked, but two local factories already hold cancelled Asian orders. A fire in one corner of Asia, or the first domino heading your way — nobody can say.",
         choices: [
           {
             id: "blame",
@@ -391,24 +294,8 @@ POTUS.define("l10n", {
         title: "Two American embassies blow up within minutes of each other",
         body: "10 a.m.: truck bombs gut the U.S. embassies in Nairobi and Dar es Salaam minutes apart. Over 200 dead, twelve of them Americans.\n" +
           "Kenyan mothers carry burned children through the mud on every channel. By nightfall the United States offers twenty million dollars\n" +
-          "for one exiled financier's name. The military waits for orders. The intelligence agencies start rereading their own files. And locally, a microphone finds you again.",
-        brief: {
-          lede: "For one morning, an overseas war walks straight into the family living room.",
-          known: [
-            "Simultaneous hits on two embassies: an organized overseas network.",
-            "Retaliation options are on the table; a target list is drafted.",
-            "Locally there is an East African community — and families of dead staffers."
-          ],
-          rumor: [
-            "Some say the warnings existed and were buried in layers.",
-            "Some say the strike plan was traced on outdated maps."
-          ],
-          unknown: [
-            "Whether your punch ends it or starts the next round.",
-            "Whether your framing survives tomorrow's evidence."
-          ],
-          terms: [{ k: "embassy bombings", v: "Suicide truck bombs on U.S. diplomatic posts in East Africa." }]
-        },
+          "for one exiled financier's name. The military waits for orders. The intelligence agencies start rereading their own files. And locally, a microphone finds you again.\n" +
+          "A retaliation target list is being drafted; your town holds an East African community and families of dead staffers. Some say the warnings existed and were buried layer by layer — and where the next blow lands, nobody will tell you in advance.",
         choices: [
           {
             id: "retaliate",
@@ -453,24 +340,8 @@ POTUS.define("l10n", {
         title: "The House passes impeachment articles over a private affair",
         body: "The sex-and-perjury scandal dragged through the whole autumn; now the House votes on articles: perjury, obstruction.\n" +
           "The Senate trial waits in January — and the president's approval rating sits pinned near record highs, unmoved.\n" +
-          "For the first time your party faces a question with no model answer: remove our own president, or defend the seat while defending him. Two phone banks. One holiday.",
-        brief: {
-          lede: "Constitutional machinery collides with live polling. The procedure people and the votes people both want your memo.",
-          known: [
-            "The articles passed the House; conviction needs a Senate majority.",
-            "The president's public support has refused to crack.",
-            "Your local churches and the party's moral wing are calling first."
-          ],
-          rumor: [
-            "Some say the Senate whip count was done privately and conviction is dead.",
-            "Some say the machine wants to use this case to replace the whole leadership."
-          ],
-          unknown: [
-            "What a guilty or not-guited outcome is even worth, and who collects.",
-            "How stale your position will look by spring."
-          ],
-          terms: [{ k: "articles of impeachment", v: "The House's charge sheet; the Senate is the jury." }]
-        },
+          "For the first time your party faces a question with no model answer: remove our own president, or defend the seat while defending him. Two phone banks. One holiday.\n" +
+          "The articles crossed the House; conviction takes a Senate majority, and the local churches and the party's moral wing are pushing hardest. Some say the whip count was done privately and conviction is dead — what the right bettors collect, nobody will say aloud.",
         choices: [
           {
             id: "defend",

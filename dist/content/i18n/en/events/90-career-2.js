@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段。
  *   · 事件/选项按 id 对齐；terms 按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）整体替换，条数与中文一致。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / flags …）受保护，不写。
  *   · 英文按重写处理：第二人称、现在时、短句；「」化进引号或句子；机构用真实英文名。
  *   · 占位符 {PUB} / {CITY} / {MEET} / {ORG} 保留原样，由引擎 flavor 池替换。
@@ -21,27 +20,7 @@ POTUS.define("l10n", {
       {
         id: "car2_mentor_offer",
         title: "The boss wants to take you on",
-        body: "He says he is old now and needs a young man who still remembers why he entered politics. Translated: he needs new legs. You need an umbrella that has survived thirty years of rain.",
-        brief: {
-          lede: "A man who has run this state's conversations for thirty years buys you the most important coffee of your life.",
-          known: [
-            "His nickname is the Boss. When he falls, not one of his people talks back.",
-            "He picked you because you owe no one yet. His own men are too old, too expensive.",
-            "Take his protection and you are one of his: votes, alliances, nominations — you ask him first.",
-            "He gives you two weeks, with one warning: tell no one about this meeting."
-          ],
-          rumor: [
-            "His last protégé did not say one sentence of his own in public for five years.",
-            "The prosecutor's office keeps a box of files labeled with the name of his club."
-          ],
-          unknown: [
-            "How much rain he can hold off for you — and when he folds the umbrella back up.",
-            "How much skin comes off when you peel the label one of his off your back."
-          ],
-          terms: [
-            { k: "Patron", v: "A senior politician who shields you and feeds you resources. The price is loyalty." }
-          ]
-        },
+        body: "He says he is old now and needs a young man who still remembers why he entered politics. Translated: he needs new legs, you need an umbrella that has survived thirty years of rain. A patron's protection means he shields you and feeds you resources — the price is loyalty. Say yes, and votes, alliances and nominations all ask him first. He gives you two weeks, and warns: tell no one about this meeting. No one can say how much rain he holds off for you, or what day he folds the umbrella back up.",
         choices: [
           {
             id: "accept",
@@ -88,23 +67,7 @@ POTUS.define("l10n", {
       {
         id: "car2_committee_seat",
         title: "The committee list goes final next week, and your name is still in pencil",
-        body: "First lesson of a governing chamber: your name is worth whatever someone else is willing to erase. Assignment season has begun.",
-        brief: {
-          lede: "The committee list goes final next week. Your name is still written in pencil.",
-          known: [
-            "Bills are born in committee and die in committee. The full chamber only stamps.",
-            "In your first year you offended no one. That means anyone may offend you first.",
-            "The caucus leader writes the list in pencil. Everyone in the chamber knows who holds the eraser."
-          ],
-          rumor: [
-            "A finance committee seat is opening — the first pick is caught in a recall petition.",
-            "The leader wants to reserve an exile seat for a trading partner."
-          ],
-          unknown: [
-            "What you say in the corridor already reached the leader's desk.",
-            "How many years it takes to warm a cold seat — and what rivals do in that time."
-          ]
-        },
+        body: "First lesson of a governing chamber: bills are born in committee and die in committee — the full chamber only stamps. The caucus leader writes the list in pencil, and it goes final next week. Everyone knows who holds the eraser. In your first year you offended no one, which means anyone may offend you first. Some say a finance committee seat is opening — its first pick is caught in a recall petition. And what you say in the corridor has probably already reached the leader's desk.",
         choices: [
           {
             id: "lobby_hard",
@@ -151,24 +114,7 @@ POTUS.define("l10n", {
       {
         id: "car2_redistrict",
         title: "They redrew your district out of existence",
-        body: "The new map is public now. The ten-year voting base you wove together is cut down the middle by one curved line. The voter pool will be recalculated on its own — until then, you have a window. Use it.",
-        brief: {
-          lede: "The moment the new map goes up, one third of your ten-year territory is cut away by a single curve.",
-          known: [
-            "Redistricting is not cartography. It is war: whoever holds the pen owns the next decade.",
-            "Your three truest counties land in three different districts. They call that crab slicing.",
-            "Your own party sits on the map commission. They know exactly whose district this knife cuts.",
-            "Two paths to fight back: appeal to the state supreme court, or a citizen referendum to void the map. Both cost money and time."
-          ],
-          rumor: [
-            "This map clears the road for some political family's heir. You are just in the way.",
-            "A rising rival was about to hit you head-on. His team is celebrating tonight."
-          ],
-          unknown: [
-            "Whether the voters sliced away still know your name.",
-            "Whose table the new neighbors once ate at."
-          ]
-        },
+        body: "The new map is public now. The ten-year voting base you wove together is cut down the middle by one curved line — your three truest counties land in three different districts. They call that crab slicing. Your own party sits on the map commission, and they know exactly whose district this knife cuts. Two paths to fight back: appeal to the state supreme court, or a citizen referendum to void the map. Both cost money and time. The voter pool will be recalculated on its own — until then, you have one window. Whether the voters sliced away still know your name, no one can tell you early.",
         choices: [
           {
             id: "fight",
@@ -215,27 +161,7 @@ POTUS.define("l10n", {
       {
         id: "car2_succession",
         title: "The boss is retiring, and you are one of the two heirs",
-        body: "He is stepping down, and you are one of his two answers. How you carry yourself this week decides whether you inherit the machine, run underneath the machine, or watch it dismantle the ladder you stand on.",
-        brief: {
-          lede: "The Boss is retiring, and you are one of the two heirs. He called you in to watch how you behave.",
-          known: [
-            "His machine has one breath left: the network, the lists, the seats — all handed over in the same week.",
-            "Two candidates: you, and an older, more obedient man. He has not chosen.",
-            "Every call you took in the last three days was a probe: will you fight, wait, or yield?",
-            "He is still in office. Push too hard and he can deny the seat to both of you."
-          ],
-          rumor: [
-            "His medical report is worse than the released one. Retirement may be the polite word.",
-            "The other man holds a list — everyone and everything that passed through the Boss's door these years."
-          ],
-          unknown: [
-            "Whether he wants the machine continued or honorably dissolved.",
-            "What version of your phone calls reaches his ears tomorrow."
-          ],
-          terms: [
-            { k: "The Machine", v: "A boss-centered network of favors and lists. It can be inherited — or dismantled." }
-          ]
-        },
+        body: "The Boss's machine — the network, the lists, the seats built around one man — has one breath left, and he means to hand it all over within the same week. Two candidates: you, and an older, more obedient man. He has not chosen. Every call you took in three days was a probe: fight, wait, or yield. And he is still in office — push too hard and he can deny the seat to both of you. Some say the other man holds a list: everyone and everything that passed through the Boss's door these years. Every call you make comes back to his ears tomorrow in another version.",
         choices: [
           {
             id: "claim",
@@ -282,27 +208,7 @@ POTUS.define("l10n", {
       {
         id: "car2_cabinet_call",
         title: "They are shopping for a department head, and your phone rang",
-        body: "The incoming administration's transition team is screening names. Two departments are on the table: one burns in the hand, one gathers dust. The highlight of the appointment track — or the moment you get politely placed in a display case.",
-        brief: {
-          lede: "A call from the transition team: the president-elect wants to talk to you about a department.",
-          known: [
-            "An interview is not an appointment — they are talking to four people at once.",
-            "Two departments on the table: one holds the money and the cameras, one holds the archives and the cemeteries.",
-            "Nobody watches a cold desk's budget. Which is exactly how you get things done quietly.",
-            "The day your name enters the list, your party, your district and your donors all call."
-          ],
-          rumor: [
-            "The hot desk already has a chosen name. You are there for the record.",
-            "The last cold-desk secretary used the archives to become majority leader."
-          ],
-          unknown: [
-            "Whether in six months the appointment reads as an achievement or a nobody-remembers.",
-            "Accepting means leaving the district — handed to a stranger."
-          ],
-          terms: [
-            { k: "Cold Desk", v: "A department with almost no press attention or budget power." }
-          ]
-        },
+        body: "The incoming administration's transition team is screening names — they are talking to four people at once, and an interview is not an appointment. Two departments on the table: one hot, holding the money and the cameras; one holding the archives and the cemeteries, so far below press attention and budget power that the belt calls it a cold desk. Nobody watching is exactly how you get things done quietly. The day your name enters the list, your party, your district and your donors all call — and accepting means handing the district to a stranger. The highlight of the appointment track, or the moment you are politely placed in a display case.",
         choices: [
           {
             id: "hot_seat",
@@ -349,23 +255,7 @@ POTUS.define("l10n", {
       {
         id: "car2_cabinet_after",
         title: "Six months in, the appointment comes up for reckoning",
-        body: "That phone call half a year ago put you here. Now the accounts settle: is this job better than you thought, or colder?",
-        brief: {
-          lede: "The honeymoon of an appointment lasts six months. Today is the first day of month seven.",
-          known: [
-            "The novelty is over. Produce results, or your name moves into the to-be-optimized column.",
-            "The job as it actually airs: calendars, staffers, and how the president-elect chooses to remember you.",
-            "District business keeps piling up. Your precinct captains stopped by exactly once — to talk about the weather."
-          ],
-          rumor: [
-            "Your department appears on a reorganization list — slated for a merger.",
-            "The president-elect has asked twice, privately: what is that person actually doing?"
-          ],
-          unknown: [
-            "Whether this appointment ends up a verb or a footnote.",
-            "How wide the road home through your district still is."
-          ]
-        },
+        body: "That phone call half a year ago put you here. The honeymoon of an appointment lasts six months; today is the first day of month seven. The novelty is over — produce results, or your name moves into the to-be-optimized column. Your department appears on a reorganization list, slated for a merger, and the president-elect has asked twice, privately: what is that person actually doing? Your precinct captains stopped by exactly once, to talk about the weather. Now the accounts settle: is this job better than you thought, or colder?",
         choices: [
           {
             id: "double_down",
@@ -400,24 +290,7 @@ POTUS.define("l10n", {
       {
         id: "car2_burnout",
         title: "You sat in the parking lot forty minutes, unable to make yourself get out",
-        body: "Your body has filed a motion ahead of your calendar. Push through, step back for half a pace, or hand it to one person you trust. You have to pick one.",
-        brief: {
-          lede: "Today you sat in the parking lot for forty minutes because you could not remember why to get out of the car.",
-          known: [
-            "Four hours of sleep a night, months running. The engine is coffee and momentum.",
-            "The body now decides things: the hand shakes, the mind slips, you call a donor by the wrong name.",
-            "The next thirty days of calendar hold no open slot for anyone with no one else in the room.",
-            "Nobody pities tired in this circle. A hundred people line up to be tired for you."
-          ],
-          rumor: [
-            "Some former office-holder checked into a sanitarium twice. Kept secret as state business.",
-            "A rival watched you breathing hard outside a venue. No sympathy in the note — just a calendar."
-          ],
-          unknown: [
-            "The day your body presses stop for you, and what shape it takes.",
-            "Whether what you set down is stored for you or divided up."
-          ]
-        },
+        body: "Your body has filed a motion ahead of your calendar. Four hours of sleep a night, months running — now the hand shakes, the mind slips, and yesterday you called a donor by the wrong name. The next thirty days of calendar hold no open slot for a moment with nobody else in the room. This circle pities no one who is tired; a hundred people line up to be tired for you. Push through, step back half a pace, or hand it to one person you trust — you have to pick one. There is no preview for the day your body presses stop for you, or in what shape.",
         choices: [
           {
             id: "push",
@@ -464,25 +337,7 @@ POTUS.define("l10n", {
       {
         id: "car3_first_hearing",
         title: "You preside over your first real hearing",
-        body: "The party hands you the chair for a small hearing: whether the local plant keeps its license. {PUB} sends one reporter. The room is not full, and every person in it is carrying a livelihood or a wallet.",
-        brief: {
-          lede: "Your first time in the chair teaches you how hard it is to get a room to shut up and listen.",
-          known: [
-            "The plant employs dozens of local families who eat from that license; the shops across the street want it revoked.",
-            "You memorized roughly half the procedure. When to bang the gavel, who speaks first — improvise.",
-            "Someone behind you wants to see if you can land the plane. Someone else is waiting for the crash."
-          ],
-          rumor: [
-            "Word is the plant should have closed for pollution long ago — the owner is just tight with the town.",
-            "Word is the far end of that license connects to next cycle's donations."
-          ],
-          unknown: [
-            "Whether this is your first signpost or your first scar."
-          ],
-          terms: [
-            { k: "Local Hearing", v: "A public session where an agency takes comment. The grassroots training ring." }
-          ]
-        },
+        body: "The party hands you the chair for a small local hearing — the public session where an agency takes comment, your first training ring: whether the plant keeps its license. Dozens of town families eat from that license; the shops across the street want it revoked, and both sides will fill the room. {PUB} sends one reporter. You memorized roughly half the procedure — when to bang the gavel, who speaks first is all improvisation. Someone behind you wants to see if you can land the plane. Someone else is waiting for the crash.",
         choices: [
           {
             id: "fair",
@@ -527,25 +382,7 @@ POTUS.define("l10n", {
       {
         id: "car3_party_errand",
         title: "The machine hands you an errand that leaves no name",
-        body: "A party elder ({ORG}) asks you to say the word — or kill one bill — in a room the establishment cannot be seen in. Land it and your coordinates inside the machine move one notch. Botch it and your hands take the dirt while the credit goes elsewhere.",
-        brief: {
-          lede: "The way machines hand out candy is often to hand you an errand first — awkward to do, awkward to refuse.",
-          known: [
-            "No paperwork, no authorization. Just one phrase: you know how it is.",
-            "Take it and you enter yourself into a ledger nothing is ever written in.",
-            "Refuse, and next time the party weighs pushing you up, it remembers today's no."
-          ],
-          rumor: [
-            "Word is the bill was floated to test the water and was always meant to die.",
-            "Word is whoever blocks it has a private reason — just counting who obeys."
-          ],
-          unknown: [
-            "Whether the machine files you as dependable or as useful."
-          ],
-          terms: [
-            { k: "Inside Sponsor", v: "Hidden capital: someone who speaks for you in the rooms that count." }
-          ]
-        },
+        body: "A party elder ({ORG}) asks you to say the word — or kill one bill — in a room the establishment cannot be seen in. No paperwork, no authorization. Just one phrase: you know how it is. Take it and you enter yourself into a ledger nothing is ever written in; refuse, and next time the party weighs pushing you up, it remembers today's no. Land it and your coordinates inside the machine move one notch. Botch it and your hands take the dirt while the credit goes elsewhere. The machine will file you somewhere — as dependable, or merely useful.",
         choices: [
           {
             id: "run_it",
@@ -590,25 +427,7 @@ POTUS.define("l10n", {
       {
         id: "car3_profile",
         title: "The local paper runs a rising-star profile of you",
-        body: "A reporter from {PUB} rides with you all day — from a {MEET} to cold coffee at a diner in the evening — to write one story: a new local face. Half of how it reads is in his pen. The other half was your day.",
-        brief: {
-          lede: "For the first time someone seriously wants to write you up as a character. A step up — and a target painted.",
-          known: [
-            "The same local pen can lift you into a tomorrow star or write you as a rookie in over his head.",
-            "A ride-along means every sentence you say is a sentence they can quote.",
-            "Some in the party like this. Some mutter the word showing off."
-          ],
-          rumor: [
-            "Word is the reporter walks close with your rival too.",
-            "Word is he needs one piece that can travel to the state capital. You walked into it."
-          ],
-          unknown: [
-            "Whether this is the start of your name or future opposition research."
-          ],
-          terms: [
-            { k: "Profile Piece", v: "Ride-along reportage: an impression built from details and quotes." }
-          ]
-        },
+        body: "A reporter from {PUB} rides with you all day — from a {MEET} to cold coffee at a diner in the evening — to write a profile piece: one new local face, built from ride-along details and quotes. For the first time someone seriously wants to write you up as a character. It is a step up and a target painted at once: every sentence you say is a sentence he can quote. Half of how the story reads is in his pen. The other half was your day.",
         choices: [
           {
             id: "open",

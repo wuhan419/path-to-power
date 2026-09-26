@@ -11,7 +11,7 @@
  *          event: [ { id: "gulf91_storm", title: "…",
  *                     choices: [ { id: "patriot", text: "…" } ] } ] } });
  *      按 id 定位、按字段名合并；无 id 的对象数组按下标对齐；
- *      纯标量数组（known / rumor / unknown / texts）整体替换 —— 必须整条给全。
+ *      纯标量数组（如静好/幕的 texts）整体替换 —— 必须整条给全。
  *
  * 切语言 = 写 localStorage 后整页重载：boot 时把覆盖层一次性并进注册表，
  * 不做"还原"，因此不需要快照，也不会踩到引擎各处缓存的 reg 子对象引用。
@@ -175,8 +175,9 @@ var POTUS = window.POTUS = window.POTUS || {};
       try { return fn(); } finally { P.locale.ui = prevUi; P.locale.lang = prevLang; }
     },
     applyLang,
-    /* 覆盖层里可安全改写的文本键（校验与派活时按这个白名单卡） */
-    textKeys: "title body lede known rumor unknown terms name desc text texts bodyTpl " +
+    /* 覆盖层里可安全改写的文本键（校验与派活时按这个白名单卡）
+       #41 起事件背景卡下线：known/rumor/unknown/terms 全库零出现，就此摘出白名单（lede 仍归幕/静好/弧） */
+    textKeys: "title body lede name desc text texts bodyTpl " +
       "headline intro note textOk textBad crit ok meh fail critfail tag label hint".split(" ")
   };
 

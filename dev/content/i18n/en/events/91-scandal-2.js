@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md §1–§5、§7）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段。
  *   · 事件按 id 定位；choices 按 id 对齐；terms 无 id，按下标对齐，顺序/条数与中文一致。
- *   · 纯字符串数组（known / rumor / unknown）整体替换，必须整条给全。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / cost / stake /
  *     req / flags / notFlags / after / outcomes 里的引用键 …）由引擎保护，一律不写。
  *
@@ -24,27 +23,10 @@ POTUS.define("l10n", {
         id: "sca2_opposition_research",
         title: "Someone is digging through your college yearbook",
         body: "An intern on staff finds out someone pulled your file at the alumni office.\n" +
-          "Not a reporter — reporters call first. A research firm.\n" +
-          "And your college years have a few pages you would rather not reread.",
-        brief: {
-          lede: "The other side is digging through your college file, and you know first. They don't.",
-          known: [
-            "You did a few things in college that play badly in a headline. Not crimes — just quotable.",
-            "The digging firm bills by the page, yearbook to class list. They already have some leads.",
-            "Even if they strike gold they won't spend it now. They will wait for your weakest week."
-          ],
-          rumor: [
-            "Word is this firm once forced a congressman to quit two weeks before a primary.",
-            "Word is denying early just tells them which page is real."
-          ],
-          unknown: [
-            "Whether they hold a rumor or a photocopy.",
-            "Whether going first reads as candor, or as 'there's more.'"
-          ],
-          terms: [
-            { k: "Dig team", v: "A firm the other side hires to rake up a candidate's past." }
-          ]
-        },
+          "Not a reporter — reporters call first. A dig team: a firm the other side pays by the page,\n" +
+          "yearbook to class list. Your college years have a few pages that play badly in a headline —\n" +
+          "not crimes, just quotable. Even if they strike gold, they will wait for your weakest week.\n" +
+          "Whether they hold a rumor or a photocopy — only they know.",
         choices: [
           {
             id: "confess",
@@ -90,29 +72,12 @@ POTUS.define("l10n", {
         id: "sca2_leak_pod",
         title: "Someone recorded what you said in private and is selling it back",
         body: "It was a study in a friend's house. Everyone there you knew.\n" +
-          "You said a thing — about voters, about money, about how you really saw it.\n" +
-          "It felt good to say. Now someone has packed that feeling into an object and mailed it to you:\n" +
-          "no signature, one line — 'What do you think it's worth?'",
-        brief: {
-          lede: "Whoever taped you is not asking for justice. They are asking for every point of your cooperation, starting now.",
-          known: [
-            "Alone, the clip is a fragment. With the lines before and after, it is fatal.",
-            "Only three others were in that room. One of them taped it.",
-            "Once a tape circulates you cannot recall it. Buying one copy buys only that copy."
-          ],
-          rumor: [
-            "Word is the same tape showed up with two brokers last week.",
-            "Word is the last man who paid got a second letter three months on."
-          ],
-          unknown: [
-            "Whether whoever taped you wants money, leverage, or a long leash.",
-            "Which of three pockets the recorder came from — you won't say for sure."
-          ],
-          terms: [
-            { k: "Out of context", v: "A cut clip, stripped of what came before." },
-            { k: "Buy it back", v: "Pay for the master tape. Cannot buy the dubs." }
-          ]
-        },
+          "You said a thing — about voters, about money, about how you really saw it. It felt good to say.\n" +
+          "Now someone has packed that feeling into an object and mailed it to you:\n" +
+          "no signature, one line — 'What do you think it's worth?'\n" +
+          "Alone, the clip is a fragment, stripped of its context. With the lines before and after, it is fatal.\n" +
+          "Only three others were in that room, and one of them taped it.\n" +
+          "Money, leverage, or a long leash — you will not know which before you pay the first dollar.",
         choices: [
           {
             id: "ownit",
@@ -157,30 +122,13 @@ POTUS.define("l10n", {
       {
         id: "sca2_family_member",
         title: "A bail bond call at two in the morning",
-        body: "Your brother got pulled over out in the suburbs. Drunk driving, and a donor's son rode with him.\n" +
+        body: "Your brother got pulled over out in the suburbs. Drunk driving, and a donor's son rode with him —\n" +
+          "a donor whose checks are reaching you right now.\n" +
           "By the book he'll be out on bail before dawn. By the book this is in tomorrow's local paper too.\n" +
           "On the phone he said one line: 'Please don't tell Mom.'\n" +
-          "You hold the receiver and remember every rally he worked for you, every sign he held.",
-        brief: {
-          lede: "You can save him, cut him loose, or take the hit beside him. All three roads lead to tomorrow's paper.",
-          known: [
-            "They came to you for the name. Right now he is 'a candidate's relative.'",
-            "Not his first time. Last time a county record was paid quiet.",
-            "The kid in the car — his father is writing you checks."
-          ],
-          rumor: [
-            "Word is the other county's record never got sealed. Look it up and it's there.",
-            "Word is he recently borrowed a real sum from one of your staff."
-          ],
-          unknown: [
-            "Once a cut-loose notice runs, Thanksgiving dinner never goes back.",
-            "Whether he'll be grateful, or decide you owe him."
-          ],
-          terms: [
-            { k: "Family scandal", v: "Your kin misbehave; the faster you answer, the less it bites." },
-            { k: "Distancing statement", v: "A public notice drawing a line between you and a relative." }
-          ]
-        },
+          "You hold the receiver and remember every rally he worked for you, every sign he held.\n" +
+          "This is not the first time. Save him, cut him loose, or stand beside him —\n" +
+          "whether he thanks you or decides you owe him, that is the part nobody can tell you.",
         choices: [
           {
             id: "fix",
@@ -226,30 +174,12 @@ POTUS.define("l10n", {
         id: "sca2_old_receipt",
         title: "Someone is blackmailing you over your dirty start-up money",
         body: "In the envelope a photocopy: a ten-year-old check stub, an account you had nearly forgotten,\n" +
-          "and one number circled in red — the sum you took back then.\n" +
-          "The sender is no reporter, no prosecutor. It's a name you only now remember is still alive.\n" +
-          "He adds one line: 'What we agreed to then — that wasn't this price.'",
-        brief: {
-          lede: "Every dollar you took at the start is written on this page. Now it comes due.",
-          known: [
-            "You started on dirty seed money. Whoever bankrolled it kept a copy.",
-            "The sender was the middleman then. The money man is dead; the ledger sits with him.",
-            "He wants two layers: a 'storage fee,' and a promise to keep the old story straight.",
-            "Once the stub reaches a reporter, this won't be the only thing that surfaces."
-          ],
-          rumor: [
-            "Word is the ledger sat in his hands seven years, waiting for the richest moment.",
-            "Word is the man who kept the old story now holds office in another state."
-          ],
-          unknown: [
-            "How many copies of the photocopy are already in play.",
-            "Say his story and you become the second rope tied around you."
-          ],
-          terms: [
-            { k: "The old cover story", v: "The version everyone agreed to once. Also the crack." },
-            { k: "Judgment day", v: "The due date on dirty gains. The interest is obedience." }
-          ]
-        },
+          "and one number circled in red — the dirty start-up money you took back then.\n" +
+          "The sender is no reporter, no prosecutor. He is the middleman from that deal —\n" +
+          "the money man is dead; the ledger sits with him.\n" +
+          "He adds one line: 'What we agreed to then — that wasn't this price.' Two things he wants:\n" +
+          "a storage fee, and you still telling the old cover story — the agreed line, now the crack in it.\n" +
+          "How many other copies are already in play, you cannot ask.",
         choices: [
           {
             id: "pay",
@@ -309,28 +239,10 @@ POTUS.define("l10n", {
         body: "It won't stay buried. The editor has already set the page, your lawyer's phone buzzes on the desk,\n" +
           "your campaign manager stands at the window, back to you, and asks the question you must now answer:\n" +
           "'Which road do we actually take?'\n" +
-          "The window to deny is open — but you don't know until what hour.",
-        brief: {
-          lede: "Deny, cut someone loose, or countersue. Three roads; some have walked all three, some died on them.",
-          known: [
-            "You hold a thing you can't suppress. It didn't happen today; it comes due today.",
-            "Denial has a window: until the evidence chain closes. Maybe forty-eight hours.",
-            "The cutting math is honest: the head you throw must be big, or it only buys time.",
-            "Countersuing alone can flip it — and alone can double it. You hand over your own file too."
-          ],
-          rumor: [
-            "Word is the editor holds only half the material, betting you supply the rest.",
-            "Word is someone on the other side is dirty in this too."
-          ],
-          unknown: [
-            "Whose hands hold the missing link in their chain, right now.",
-            "Which bill, two years on, comes back for the road you pick today."
-          ],
-          terms: [
-            { k: "Denial window", v: "The time from an accusation going public to hard proof landing." },
-            { k: "Cut loose", v: "Throw the blame to a staffer or a relative." }
-          ]
-        },
+          "The thing did not happen today; it came due today. The denial window runs until the evidence chain closes.\n" +
+          "The cutting math is honest: the head you throw must be big, or you only bought time.\n" +
+          "Countersuing can flip it and can double it — your own file enters the same judge's drawer first.\n" +
+          "Word is the editor holds half the material, betting you supply the rest. The missing link — whose hands, right now?",
         choices: [
           {
             id: "hold",
@@ -375,29 +287,12 @@ POTUS.define("l10n", {
       {
         id: "sca2_coverup_after",
         title: "The road you chose has mailed you the bill",
-        body: "The old thing got an ending — or rather a first draft of one.\n" +
-          "You thought the account was settled. Today's mail is the interest.\n" +
+        body: "The old thing got an ending — or rather a first draft of one. A first draft is never the final one.\n" +
+          "You thought the account was settled. Today's mail is the interest — a buried story charges upkeep, every few years.\n" +
           "The senders differ, but every bill is addressed to the same line:\n" +
-          "the road you chose in those forty-eight hours.",
-        brief: {
-          lede: "Every road has an aftermath. The aftermath isn't punishment. It's the renewal fee on that road.",
-          known: [
-            "The road you chose decides who is at your door today.",
-            "A first-draft ending is never the final one.",
-            "What you decide isn't the old thing. It's which version you tell from now on."
-          ],
-          rumor: [
-            "Someone is collecting every version of the story, purpose unclear.",
-            "Word is both sides once held copies neither wanted in daylight."
-          ],
-          unknown: [
-            "Whether the definitive version holds a line you didn't expect.",
-            "The cost of which version you tell only shows years later."
-          ],
-          terms: [
-            { k: "Renewal fee", v: "The upkeep on a buried story, paid every few years." }
-          ]
-        },
+          "the road you chose in those forty-eight hours.\n" +
+          "What you decide now is not the old thing. It is which version you tell from here on —\n" +
+          "and whether that version holds one line you did not expect.",
         choices: [
           {
             id: "after_hold",
