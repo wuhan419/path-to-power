@@ -2026,7 +2026,7 @@ for (let r = 0; r < games; r++) {
             if (vz === "bane") { baneNetSum += net; baneNetN++; }
             if (net <= -0.25) { runCur++; if (runCur > runWorst) runWorst = runCur; } else runCur = 0;
           }
-          P.applyEffects(out.effects);
+          P.applyEffects(out.effects, { election: !!ch.ballot });   // 与 stage.js resolveChoice 同一口径
           if (G.pendingHardEnd) {
             const rule = P.evaluateEnding(G.pendingHardEnd);
             endings[rule.id] = (endings[rule.id] || 0) + 1;
@@ -2711,6 +2711,49 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   P.applyEffects({ tier: 1 });
   check(P.monthsAtTier() === 0 && P.G.tier >= 1, "年限闸：没熬够时不应再次升级（还在本级）");
   check(P.G.rep >= repBeforeGate, "年限闸：被拦下的晋升折成声望（" + repBeforeGate + "→" + P.G.rep + "）");
+
+  /* ---------- 总统授予硬闸：最高的那把椅子只认投票日 ----------
+   * 玩家实测：9·11「定调」这类大事件的大成功写着 tier:1，于是在 tier 8 熬满资历闸就能
+   * 一步踏进总统级（presidency.js 的 isPresident() 只看层级、连轨道都不看）—— 整条选举链
+   * 被绕开。effects.js 现在只给 ctx.election（ballot 选项 / 竞选链 onWin）放行。 */
+  {
+    const TOP = P.balance().tierMax;
+    const snapTier = P.G.tier, snapRep = P.G.rep;
+    const atTop = function (v, election) {
+      P.G.tier = TOP - 1; P.G.rep = 50;
+      P.G.tierSince = P.monthSeq() - 120;              // 资历闸喂满：拦下的一定是总统闸，不是年限
+      P.applyEffects({ tier: v }, election ? { election: true } : null);
+      return P.G.tier;
+    };
+    check(atTop(1, false) === TOP - 1, "非投票日的 tier:+1 不得把人送进总统级（实际 " + atTop(1, false) + "）");
+    check(atTop(2, false) === TOP - 1, "破格直提（tier:+2）同样不许绕开投票日（实际 " + atTop(2, false) + "）");
+    check(atTop(1, true) === TOP && P.isPresident() === true,
+      "投票日来源仍应能把人送进总统级（实际 " + atTop(1, true) + "）");
+    /* 拦下时与资历闸同一表达：位子不动、折 +3 声望 */
+    atTop(1, false);
+    check(P.G.rep === 53, "被总统闸拦下时应折 +3 声望（实际 " + P.G.rep + "）");
+    /* 下面各级不受影响：跨进 tierMax 以下的一级照旧只吃资历闸 */
+    P.G.tier = TOP - 2; P.G.rep = 0; P.G.tierSince = P.monthSeq() - 120;
+    P.applyEffects({ tier: 1 });
+    check(P.G.tier === TOP - 1, "总统闸不该误伤 tierMax 以下的晋升（实际 " + P.G.tier + "）");
+    /* 总统级的基本盘卡：选区就是整个国家，不该再挂家乡州名（"俄亥俄 · 选区 2.4 亿"） */
+    const snapState = P.G.state;
+    const anyState = Object.keys(P.reg.state || {})[0];
+    P.G.state = anyState;
+    const stateName = P.stateName(anyState);
+    P.G.tier = TOP;
+    const natCard = P.officeCard();
+    P.G.tier = TOP - 2;
+    const subCard = P.officeCard();
+    check(natCard.indexOf(stateName) < 0, "总统级的基本盘不该再出现家乡州名：" + stateName);
+    check(natCard.indexOf(P.t("ui.topbar.districtNation", "美利坚")) >= 0, "总统级应改口「美利坚」");
+    check(natCard.indexOf(P.t("ui.topbar.districtNat", "全国选民 {n}", { n: 0 }).replace("0", "")) >= 0,
+      "总统级的规模读数应改口「全国选民 …」");
+    check(subCard.indexOf(stateName) >= 0, "低于 nationalTier 仍按州显示（" + stateName + "）");
+    P.G.tier = snapTier; P.G.rep = snapRep; P.G.state = snapState;
+    console.log("  总统授予硬闸：非投票日的 tier 到不了等级 " + (TOP + 1) + "；总统级基本盘改口「美利坚 · 全国选民」");
+  }
+
   /* 旧存档迁移：v0.4 新增字段必须被补齐 */
   const old = { year: 2008, month: 3, era: firstEra, flags: [], doneIds: [], attr: {}, faction: {}, log: [] };
   const mig = P.migrate(old);

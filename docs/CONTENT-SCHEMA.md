@@ -1218,7 +1218,7 @@ effects: { attr:{CHA:5}, fac:{base:10,press:-8}, fun:400000, rep:6, fav:-1, lev:
 | `ap` | **已退役（v0.9）**：精力彻底退出玩法，事件写了也无效。老卡残留的 `cost:{ap:2}` 等同样不扣（休眠） | — |
 | `fav` | 人情点增减 | 0-20 |
 | `lev` | **把柄份数增减** | 下限 0（可为负 = 花掉一份，但不会变成负数） |
-| `tier` | 层级升降（变动重置"在位时长"、重算选民池）。正常晋升一步一级要吃 `balance.tierGates` 资历闸（熬不够折 +3 声望）；`tier:+2/+3` 破格直提**绕过闸**，代价是被跳过的级不记 `counters.served_N`，"德不配位"类事件会找上门。每次升层级同步记**生涯峰值 `G.peakTier`**（2025 成就结算用，见 §4.19） | `balance.tierMin~tierMax` |
+| `tier` | 层级升降（变动重置"在位时长"、重算选民池）。正常晋升一步一级要吃 `balance.tierGates` 资历闸（熬不够折 +3 声望）；`tier:+2/+3` 破格直提**绕过闸**，代价是被跳过的级不记 `counters.served_N`，"德不配位"类事件会找上门。**跨进 `tierMax`（总统）那一步另有一道硬闸**：只认投票日来源（`ballot: true` 的选项 / 竞选链 `onWin`，由 `P.applyEffects(eff, { election: true })` 传入），普通事件卡再大的成功也进不了白宫，拦下时与资历闸同样折 +3 声望。每次升层级同步记**生涯峰值 `G.peakTier`**（2025 成就结算用，见 §4.19） | `balance.tierMin~tierMax` |
 | `voters` | **选民池增减**（v0.5.2）：`{ warm: 人数, diehard: 人数, oppose: 人数 }`——有好感/死忠/反对。见 §10 `voterBase`/`voterDynamic` | 人数 |
 | `count` | **隐藏计数器**：`{ wrath_press: 8, cap_legal: 1 }` → 累加，**下限 0**（`effects.js`）。与 flags 分工：flags 记"有没有"，counters 记"攒了多少"。刻意不上状态面板——后续事件用 `countMin/countMax/countEq` 读它（见 §4.18） | — |
 | `fall` | 软 BE「下野」：`v` = 下野深度 1~2，降层级、按比例摔声望、丑闻降级、清 `investigation_open`、挂 `fallen` 标记。**12 个月保护期**内不叠加；之后仍有东山再起（`fallen_return` 结局认账） | — |
@@ -1385,7 +1385,7 @@ POTUS.define("blackswan", {
 | `quietAccount` | `{salaryBase:2000, salaryPerTier:2.2, livingMin:500, livingMax:1400, livingTierCoef:0.6}` | 平静月工资与开销（v0.11 曲线重配：基层不再无声长期倒亏） |
 | `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:42000, brutal:28000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
 | `debtFloor` | `{depth:6000, perTier:1.2, restore:2500, repCost:4}` | **负债谷底**：钱掉到 `-depth×(1+perTier×tier)` 以下 → 家人凑钱托底（资金回正、声望 -4），把静默死亡螺旋变成有代价的戏剧点（`core.js enforceDebtFloor`） |
-| `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比） |
+| `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比）、`nationalTier 9`（从这一级起选区就是整个国家：状态面板的基本盘卡不再挂家乡州名，改口「美利坚 · 全国选民 …」，见 `view/topbar.js`） |
 | `voterDynamic` | 见配置 | **选民会呼吸**（v0.6）：平静月自然收敛（`monthly 0.05` 朝 `targetShare/diehardTargetShare/opposeTargetShare` 三档目标）、事件成败自动增减（`eventBase × byOutcome × categoryMul`，显式 `effects.voters` 优先）、底气反噬判定（`voterEdge()×contestW 0.08`，中心 `edgeCenter 27`、跨度 `edgeSpan 35`） |
 | `stakeRates` | `{fun:{w:0.04,cap:0.30,perSalaryMonths:1,gradeMul:{minor:0.6,mid:1.0,major:1.8},perMin:500,perMax:500000}, ap:{w:0.03,cap:0.09}（退役残留）, fav:{reroll:true}}` | 投注默认汇率。**fun 每档金额 = 级别价**（月薪 × 月数 × 量级系数，余额不参与，见 §4.16.3）。v0.12 的 `potShare`/`cashStakeShare` 两键**已随 #28① 删除** |
 | `aiCallCap` | 80 | **死参数**：大模型层已下架（§4.14），键仍在但无人读，别依赖 |

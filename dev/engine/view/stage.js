@@ -879,7 +879,8 @@
        ＋ 叙事正文 ＋ 收益结算。判定过程依旧确定可复算，只是不作为噪声呈现。 */
     /* #37②：可重复卡的属性只发第一次（账面与实际同步，故在显示与结算之前过滤） */
     const effApply = P.filterOnceAttr(effFinal, ev.id);
-    P.applyEffects(effApply);
+    /* ctx.election：这一笔是投票日的结算 —— 只有它能跨过 effects.js 的「总统只能数票进」硬闸 */
+    P.applyEffects(effApply, { election: !!(ch && ch.ballot) });
     /* TIER_LABEL 是 i18n 加载前求值的表（dice.js），中文原文兜底、取用点现翻 */
     const label = P.t("ui.stage.tierBadge." + res.tier, P.TIER_LABEL[res.tier] || res.tier);
     const div = document.createElement("div");

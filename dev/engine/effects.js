@@ -74,9 +74,21 @@
     fav: function (v, G) { G.fav = P.clamp(G.fav + v, 0, 20); },
     /* 把柄：只能靠"让某人不敢开口"得到，不能靠钱买。下限 0，无上限 */
     lev: function (v, G) { G.lev = Math.max(0, (G.lev || 0) + v); },
-    tier: function (v, G) {
+    tier: function (v, G, ctx) {
       const b = P.balance();
       const before = G.tier;
+      /* 白宫的椅子是数票数出来的，不是刷事件刷出来的：跨进 tierMax（总统）这一步只认
+         【投票日来源】—— ballot 选项（view/stage.js 按 ch.ballot 传 ctx.election）与竞选链
+         的 onWin（campaign.js）。玩家实测：9·11「定调」这类大事件的大成功写着 tier:1，
+         在 tier 8 熬满资历闸就能一步踏进总统级，等于绕开整条选举链（而且 isPresident()
+         只看层级、不看轨道）。拦下时与下面的资历闸同一表达：位子不动、折成声望。
+         破格直提（v>=2）也照样拦 —— 越级直登白宫更不可能不经选举。 */
+      const TOP = b.tierMax == null ? 9 : b.tierMax;
+      if (v > 0 && before < TOP && before + v >= TOP && !(ctx && ctx.election)) {
+        G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
+        if (P.pushLog) P.pushLog(P.t("ui.effects.tierNoBallot", "最高的那把椅子要数票才坐得上：这一步没有把你送进总统级（声望+3）。"));
+        return;
+      }
       /* 全局年限闸：正常晋升（一步一级）要在当前层级熬够月数（不满足 → tier 不动，
          折成一点声望——"资历还不够"的引擎级表达）。门槛表写在 balance.tierGates（10 级）。
          破格直提：tier:+2/+3 视为非常规提拔，**绕过资历闸**；代价是被跳过的中间级
@@ -213,12 +225,14 @@
   /* 若内容在 effects.js 之前就声明了效果键，这里补登记 */
   if (P._pendingEffects) { for (const k in P._pendingEffects) P.effectHandlers[k] = P._pendingEffects[k]; }
 
-  P.applyEffects = function (eff) {
+  /* ctx（可选）：{ election: true } = 这一笔来自投票日的结算（ballot 选项 / 竞选链 onWin）。
+     目前只有一个消费者：tier 处理器的「最高的椅子要数票」硬闸，见 effectHandlers.tier。 */
+  P.applyEffects = function (eff, ctx) {
     if (!eff) return;
     const G = P.G;
     for (const k in eff) {
       const h = P.effectHandlers[k];
-      if (h) h(eff[k], G);
+      if (h) h(eff[k], G, ctx);
       else console.warn("[POTUS] 未知效果键: " + k + "（可用 POTUS.effect() 注册）");
     }
   };

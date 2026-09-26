@@ -190,7 +190,14 @@
     if (P.hasFlag("wave_antiwar")) spectrum += P.t("ui.topbar.mAntiwar", "·反战印记");
     if (P.hasFlag("cross_insider")) spectrum += P.t("ui.topbar.mMachine", "·机器的人");
     if (P.hasFlag("fallen")) spectrum += P.t("ui.topbar.mFallen", "·下野待起");
-    const stateTxt = G.state ? P.stateName(G.state) : "";
+    /* 选区地名跟着盘子走：总统级（balance.voterBase.nationalTier）的选区就是整个国家，
+       再挂家乡州名就成了"俄亥俄 · 选区 2.4 亿"这种自相矛盾的说法（玩家实测纠错）。
+       家乡州并没有消失 —— 它仍在存档戳里作为出身出现（core.js 的 stamp line）。 */
+    const vbConf = P.balance().voterBase || {};
+    const natTier = vbConf.nationalTier == null ? P.balance().tierMax : vbConf.nationalTier;
+    const national = G.tier >= natTier;
+    const stateTxt = national ? P.t("ui.topbar.districtNation", "美利坚")
+                              : (G.state ? P.stateName(G.state) : "");
     const tenure = P.monthsAtTier();
     const tenureTxt = tenure >= 12 ? (tenure % 12 ? P.t("ui.topbar.tenureYearsRest", "（在位 {n} 年余）", { n: Math.floor(tenure / 12) }) : P.t("ui.topbar.tenureYears", "（在位 {n} 年）", { n: Math.floor(tenure / 12) })) : (tenure ? P.t("ui.topbar.tenureMonths", "（在位 {n} 个月）", { n: tenure }) : "");
     /* v0.5.6：职位卡从左栏「状态」提到顶部状态条，横向排布。原首行的「职位（在位 N 个月）」
@@ -200,7 +207,9 @@
     let specShort = partyName + (G.stance === "outsider" ? P.t("ui.topbar.wingShort", "·反建制") : "");
     const specMarks = [["wave_tea", P.t("ui.topbar.sTea", "茶党")], ["wave_occupy", P.t("ui.topbar.sOccupy", "占领")], ["wave_antiwar", P.t("ui.topbar.sAntiwar", "反战")], ["cross_insider", P.t("ui.topbar.sMachine", "机器")], ["fallen", P.t("ui.topbar.sFallen", "下野")]];
     specShort += specMarks.filter(function (m) { return P.hasFlag(m[0]); }).map(function (m) { return "·" + m[1]; }).join("");
-    const metaTxt = (stateTxt ? stateTxt + " · " : "") + P.t("ui.topbar.district", "选区 {n}", { n: fmtNum(es.size) }) + " · " + specShort;
+    const metaTxt = (stateTxt ? stateTxt + " · " : "") + (national
+      ? P.t("ui.topbar.districtNat", "全国选民 {n}", { n: fmtNum(es.size) })
+      : P.t("ui.topbar.district", "选区 {n}", { n: fmtNum(es.size) })) + " · " + specShort;
     const spectrumTip = P.t("ui.topbar.spectrumTip", "选区规模：层级越高盘子越大。光谱=党派打底+姿态偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。");
     /* 选民三档是本卡的核心读数 → 数字做大、按语义配色（死忠绿/好感金/反对红），标签小字退到上方 */
     const voterLine = '<span class="vt vt-die"><i>' + P.t("ui.topbar.vtDie", "死忠") + '</i><b>' + fmtNum(vp.diehard) + '</b></span>' +
@@ -225,7 +234,9 @@
         '</div>';
     }
     return '<div class="officecard">' +
-      '<div class="oc-head"><span class="oc-title">' + P.t("ui.topbar.baseTitle", "选区基本盘") + '</span>' +
+      '<div class="oc-head"><span class="oc-title">' + (national
+        ? P.t("ui.topbar.baseTitleNat", "全国基本盘")
+        : P.t("ui.topbar.baseTitle", "选区基本盘")) + '</span>' +
         '<span class="oc-meta hastip" data-tip="' + escAttr(spectrumTip) + '">' + metaTxt + '</span></div>' +
       '<div class="oc-rows"><div class="ocline hastip" data-tip="' + escAttr(voterTip) + '">' + voterLine + "</div>" + voterBar + "</div>" +
       "</div>";
