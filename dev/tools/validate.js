@@ -844,28 +844,36 @@ console.log("\n== 投注级别价（单价随身位·不随钱包）==");
   check(P.fmtUsd(400) === "$400" && P.fmtUsd(250000) === "$250k" && P.fmtUsd(1500000) === "$1.5M",
     "金额格式化：$400 / $250k / $1.5M，实际 " + [400, 250000, 1500000].map(P.fmtUsd).join(" / "));
 
-  /* ⑨ #28② 投机收益吃 INT：同一条生意，聪明人赚得多、翻车亏得少 */
+  /* ⑨ 投资结算：回款【含归还本金】，倍率吃 INT（#28②：聪明人赚得多、翻车亏得少） */
   {
     const lev = P.balance().funMulIntLev;
     check(lev > 0, "funMulIntLev 应默认开启（#28②），实际 " + lev);
-    P.G.__stakeBase = 100000;
-    const gain = function (int) {
-      P.G.fun = 0; P.G.attr.INT = int;
-      P.applyEffects({ funMul: 2 });
-      return P.G.fun;
+    /* 复刻 resolveChoice 的账，返回这一手的【净增减】——就是玩家在结算条上看到的那个数：
+       先按 payCost 扣掉真扣得走的那截本金（cost.fun + 投注），再把参照本金
+       （cost + 只当资格闸的 req.fun + 投注）交给 funMul 结算。 */
+    const net = function (int, v, base, paid) {
+      P.G.attr.INT = int; P.G.fun = 1000000 - paid;
+      P.G.__stakeBase = base; P.G.__stakePaid = paid;
+      P.applyEffects({ funMul: v });
+      return P.G.fun - 1000000;                 // 相对"点选项之前"的净增减
     };
-    const dumb = gain(30), mid = gain(50), smart = gain(80);
+    const dumb = net(30, 2, 1e5, 1e5), mid = net(50, 2, 1e5, 1e5), smart = net(80, 2, 1e5, 1e5);
     check(dumb < mid && mid < smart, "同一笔本金，收益应随 INT 递增（" + dumb + " / " + mid + " / " + smart + "）");
-    check(mid === 200000, "INT=50 时倍率不缩放，$100k × 2.0 = $200k，实际 " + mid);
+    check(mid === 200000, "INT=50 倍率不缩放：投 $100k 赚 200% = 净 +$200k（回款 $300k），实际 " + mid);
     check(smart === Math.round(100000 * 2 * (1 + 0.3 * lev)), "INT=80 的收益应正好按公式放大，实际 " + smart);
-    const loss = function (int) {
-      P.G.fun = 1000000; P.G.attr.INT = int;
-      P.applyEffects({ funMul: -1 });
-      return 1000000 - P.G.fun;
-    };
-    check(loss(80) < loss(30), "翻车时高 INT 亏得更少（" + loss(30) + " vs " + loss(80) + "）");
+    /* 守卫（本 bug 的回归闸）：只要倍率非负，结算就【绝不许净亏】——本金必须先还回来。
+       旧实现只加利润不还本金，于是 ok 档 funMul 0.8 净亏 12%：玩家看到"成功"，钱却变少。 */
+    [0.2, 0.6, 0.8, 1.5, 2].forEach(function (v) {
+      check(net(50, v, 1e5, 1e5) === Math.round(1e5 * v), "funMul " + v + " 应净赚本金×" + v + "，实际 " + net(50, v, 1e5, 1e5));
+    });
+    /* 亏到底 = 正好把本金亏光（内容写 funMul:-1.0 的语义就是"本金全亏"），不许倒欠 */
+    check(net(50, -1, 1e5, 1e5) === -100000, "-1.0 应正好亏光本金，实际 " + net(50, -1, 1e5, 1e5));
+    check(net(30, -1, 1e5, 1e5) === -100000, "低 INT 翻车也不许多亏本金以外的钱，实际 " + net(30, -1, 1e5, 1e5));
+    check(net(80, -1, 1e5, 1e5) > -100000, "翻车时高 INT 亏得更少（" + net(30, -1, 1e5, 1e5) + " vs " + net(80, -1, 1e5, 1e5) + "）");
+    /* 只当资格闸的 req.fun 计进参照本金（生意按它开价），但没从账上扣走，所以不许倒扣 */
+    check(net(50, 0.5, 6e5, 0) === 300000, "req.fun 型本金按参照额算收益、不扣款，实际 " + net(50, 0.5, 6e5, 0));
     P.G.attr.INT = 50;
-    P.G.fun = 0; P.G.__stakeBase = 0;
+    P.G.fun = 0; P.G.__stakeBase = 0; P.G.__stakePaid = 0;
     P.applyEffects({ funMul: 2 });
     check(P.G.fun === 0, "没有本金声明时 funMul 不许凭空生钱");
   }
@@ -1129,6 +1137,35 @@ console.log("\n== 竞选：选情主导、钱退门票（#35）==");
     check(run.req && run.req.voterShare != null, "总统资格改由基本盘把关（req.voterShare），实际 " + JSON.stringify(run.req));
     check(run.mods && run.mods.some(m => m.src === "res" && m.key === "fun"), "原来的钱门槛应转成成功加成 mod");
     G.campaign = null;
+  }
+
+  /* ④b 声望门槛必须够得着：dyn 卡的 req.rep 会按标尺展开，而声望是 0—100 的有界量
+     （effects.js 硬夹在 [0,100]），门槛展开过头等于把这张卡唯一的升位选项永久锁死 ——
+     真实存档里 prog_vp 的旧系数 6 在 T8 展成 148，玩家只能眼看着"需要声望 ≥ 148"干瞪眼。
+     现在门槛走 ruler.repGate（只按量级×身位，不吃 attrF）并夹在 balance.econ.repGateMax 下。 */
+  {
+    const REP_CAP = 100;
+    const gateMax = (P.balance().econ || {}).repGateMax;
+    check(gateMax > 0 && gateMax <= REP_CAP, "repGateMax 必须落在 (0, 100] 的可达区内，实际 " + gateMax);
+    const snapTier = P.G.tier, snapAttr = Object.assign({}, P.G.attr);
+    const over = [], ladder = [];
+    for (const ev of P.events) {
+      if (!ev.dyn) continue;
+      P.G.tier = ev.tierMax != null ? ev.tierMax : (ev.tierMin != null ? ev.tierMin : snapTier);
+      ["CHA", "INT", "CUN"].forEach(function (a) { P.G.attr[a] = REP_CAP; });   // 最坏情况：门槛被顶到最高的那种人物
+      const r = P.realize(ev);
+      for (const ch of r.choices || []) {
+        const g = ch.req && ch.req.rep;
+        if (typeof g !== "number") continue;
+        if (String(ev.id).indexOf("prog_") === 0) ladder.push(String(ch.id) + "=" + g);
+        if (g > REP_CAP) over.push(ev.id + "/" + ch.id + "=" + g);
+      }
+    }
+    P.G.tier = snapTier; P.G.attr = snapAttr;
+    check(!over.length, "dyn 卡的声望门槛展开后不得顶破声望上限（该选项会永久锁死）：" + over.join(", "));
+    check(!over.length && ladder.every(s => Number(s.split("=")[1]) <= gateMax),
+      "晋升脊柱的声望门槛应全部落在 repGateMax 之内");
+    console.log("  晋升门槛 ladder（展开后·三围顶格）：" + ladder.join("  "));
   }
 
   /* ⑤ 判负只看选情：任何竞选链都不许再拿金库当死刑 */
@@ -2116,7 +2153,7 @@ for (let r = 0; r < games; r++) {
             if (vz === "bane") { baneNetSum += net; baneNetN++; }
             if (net <= -0.25) { runCur++; if (runCur > runWorst) runWorst = runCur; } else runCur = 0;
           }
-          P.applyEffects(out.effects);
+          P.applyEffects(out.effects, { election: !!ch.ballot });   // 与 stage.js resolveChoice 同一口径
           if (G.pendingHardEnd) {
             const rule = P.evaluateEnding(G.pendingHardEnd);
             endings[rule.id] = (endings[rule.id] || 0) + 1;
@@ -2801,6 +2838,49 @@ console.log("\n== 把柄 / 人脉 / 事件链 / 在位时长 ==");
   P.applyEffects({ tier: 1 });
   check(P.monthsAtTier() === 0 && P.G.tier >= 1, "年限闸：没熬够时不应再次升级（还在本级）");
   check(P.G.rep >= repBeforeGate, "年限闸：被拦下的晋升折成声望（" + repBeforeGate + "→" + P.G.rep + "）");
+
+  /* ---------- 总统授予硬闸：最高的那把椅子只认投票日 ----------
+   * 玩家实测：9·11「定调」这类大事件的大成功写着 tier:1，于是在 tier 8 熬满资历闸就能
+   * 一步踏进总统级（presidency.js 的 isPresident() 只看层级、连轨道都不看）—— 整条选举链
+   * 被绕开。effects.js 现在只给 ctx.election（ballot 选项 / 竞选链 onWin）放行。 */
+  {
+    const TOP = P.balance().tierMax;
+    const snapTier = P.G.tier, snapRep = P.G.rep;
+    const atTop = function (v, election) {
+      P.G.tier = TOP - 1; P.G.rep = 50;
+      P.G.tierSince = P.monthSeq() - 120;              // 资历闸喂满：拦下的一定是总统闸，不是年限
+      P.applyEffects({ tier: v }, election ? { election: true } : null);
+      return P.G.tier;
+    };
+    check(atTop(1, false) === TOP - 1, "非投票日的 tier:+1 不得把人送进总统级（实际 " + atTop(1, false) + "）");
+    check(atTop(2, false) === TOP - 1, "破格直提（tier:+2）同样不许绕开投票日（实际 " + atTop(2, false) + "）");
+    check(atTop(1, true) === TOP && P.isPresident() === true,
+      "投票日来源仍应能把人送进总统级（实际 " + atTop(1, true) + "）");
+    /* 拦下时与资历闸同一表达：位子不动、折 +3 声望 */
+    atTop(1, false);
+    check(P.G.rep === 53, "被总统闸拦下时应折 +3 声望（实际 " + P.G.rep + "）");
+    /* 下面各级不受影响：跨进 tierMax 以下的一级照旧只吃资历闸 */
+    P.G.tier = TOP - 2; P.G.rep = 0; P.G.tierSince = P.monthSeq() - 120;
+    P.applyEffects({ tier: 1 });
+    check(P.G.tier === TOP - 1, "总统闸不该误伤 tierMax 以下的晋升（实际 " + P.G.tier + "）");
+    /* 总统级的基本盘卡：选区就是整个国家，不该再挂家乡州名（"俄亥俄 · 选区 2.4 亿"） */
+    const snapState = P.G.state;
+    const anyState = Object.keys(P.reg.state || {})[0];
+    P.G.state = anyState;
+    const stateName = P.stateName(anyState);
+    P.G.tier = TOP;
+    const natCard = P.officeCard();
+    P.G.tier = TOP - 2;
+    const subCard = P.officeCard();
+    check(natCard.indexOf(stateName) < 0, "总统级的基本盘不该再出现家乡州名：" + stateName);
+    check(natCard.indexOf(P.t("ui.topbar.districtNation", "美利坚")) >= 0, "总统级应改口「美利坚」");
+    check(natCard.indexOf(P.t("ui.topbar.districtNat", "全国选民 {n}", { n: 0 }).replace("0", "")) >= 0,
+      "总统级的规模读数应改口「全国选民 …」");
+    check(subCard.indexOf(stateName) >= 0, "低于 nationalTier 仍按州显示（" + stateName + "）");
+    P.G.tier = snapTier; P.G.rep = snapRep; P.G.state = snapState;
+    console.log("  总统授予硬闸：非投票日的 tier 到不了等级 " + (TOP + 1) + "；总统级基本盘改口「美利坚 · 全国选民」");
+  }
+
   /* 旧存档迁移：v0.4 新增字段必须被补齐 */
   const old = { year: 2008, month: 3, era: firstEra, flags: [], doneIds: [], attr: {}, faction: {}, log: [] };
   const mig = P.migrate(old);

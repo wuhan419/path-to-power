@@ -175,7 +175,8 @@
         log[i].to = P.monthSeq(); log[i].status = status; break;
       }
     }
-    if (status === STATUS.WON && def && def.onWin) P.applyEffects(def.onWin);
+    /* onWin 走投票日来源：竞选链打赢 = 数票数到的位子，effects.js 的总统硬闸对它放行 */
+    if (status === STATUS.WON && def && def.onWin) P.applyEffects(def.onWin, { election: true });
     if (status === STATUS.LOST && def && def.onFail) P.applyEffects(def.onFail);
     if (note) P.pushLog(note);
     // 败选后设一段冷却，免得当月就重开同一场（重开要靠下次候选匹配）。
