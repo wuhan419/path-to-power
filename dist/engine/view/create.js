@@ -30,15 +30,15 @@
    * 注意：label/note 是加载期立即求值的中文原文（此时 boot 还没套用英文覆盖层），
    * 所以取用点一律走 diffLabel()/diffNote() 现取现翻，key = ui.create.diff.<id>.label/note。 */
   const DIFFS = {
-    legendary: { label: "传奇", origin: "dynasty", note: "政治世家 · 可选 5 张天赋卡 · 声望 +12、人情 +4、建制 +20、商业 +10 —— 底子最厚，还能挑最多牌",
+    legendary: { label: "传奇", origin: "dynasty", note: "政治世家 · 可选 5 张天赋卡 · 声望 +12、人情 +4、建制 +20、商业 +10 —— 底子最厚，还能挑最多牌，也不背学贷",
       /* #37②：原本这里挂着一份「全属性 +5」——四项合计 +20，等于白送两个自由点，
          却不在向导第 3 步的预览里（用户把它记成了"四年涨了 35 智力"）。属性一律收回，
          难度的补偿改走非属性门（声望/人情/派系）。 */
       bonus: { rep: 12, fav: 4, fac: { establishment: 20, commercial: 10 } } },
-    easy:   { label: "简单", origin: "dynasty", note: "政治世家 · 可选 4 张天赋卡 · 建制人脉 +30、声望 +8 —— 有人替你开好路" },
-    normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 可选 3 张天赋卡 · 商业 +40、人情 +2，但基层不信任你" },
-    hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 可选 2 张天赋卡 · 基层 +20 但建制 -20，全凭一股韧劲往上爬" },
-    brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 只能选 1 张天赋卡 · 只有工会与基层，起步声望更低、建制更冷 —— 真正的从零开始",
+    easy:   { label: "简单", origin: "dynasty", note: "政治世家 · 可选 4 张天赋卡 · 建制人脉 +30、声望 +8 —— 有人替你开好路，学贷家里也替你交了" },
+    normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 可选 3 张天赋卡 · 商业 +40、人情 +2，但基层不信任你 · 开局背 $65k 学贷" },
+    hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 可选 2 张天赋卡 · 基层 +20 但建制 -20，全凭一股韧劲往上爬 · 开局背 $90k 学贷" },
+    brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 只能选 1 张天赋卡 · 只有工会与基层，起步声望更低、建制更冷 —— 真正的从零开始 · 开局背 $115k 学贷",
       bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
   };
   P.DIFFS = DIFFS;      /* #37②：validate 要逐档扫 bonus 里有没有偷偷发属性 */

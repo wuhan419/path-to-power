@@ -388,6 +388,8 @@ POTUS.recentIds = [];    // 近期事件去重
 POTUS.$ = function (s) { return document.querySelector(s); };
 POTUS.app = function () { return document.getElementById("app"); };
 POTUS.clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+/* 全局层级顶 = 总统级（balance.tierMax 是唯一权威，别处不再各写各的 9） */
+POTUS.tierTop = function () { const n = Number(POTUS.balance().tierMax); return Number.isFinite(n) ? n : 9; };
 POTUS.rint = function (a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; };
 POTUS.pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
 POTUS.chance = function (p) { return Math.random() < p; };

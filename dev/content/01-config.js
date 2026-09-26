@@ -375,7 +375,9 @@ POTUS.define("balance", {
      v0.12 改制：按月复利改「单利 + 年度资本化」—— 每月利息进 G.debtAccr 欠息桶、
      不滚本金，每年 1 月（loanStep 内）才把桶并入本金。利息不再无声利滚利，
      「缓交几个月」和「拖一整年」是两种量级的决定，玩家读得懂、也算得清。
-     · startDebt：按难度给本金，未列出的难度（easy/legendary）= 0（世家替你交了）。
+     · startDebt：按难度给本金，**越难背得越多**（normal 65k → hard 90k → brutal 115k），
+       未列出的难度（easy/legendary）= 0（世家替你交了）。normal 钉在 65k 不动，
+       因为 #19 的「前期约一半局不该死于学贷」是量在这一档上的。
      · interestAnnual：年利率，按单利月度计提（进欠息桶，年内不滚）。
      · payShare：月供目标 ≈ 职位月薪 × payShare —— 收入越高还得越快，联邦高层才还得清。
      · minPayment：每月最低还款额（现金见底则本月少还、绝不扣成负）。
@@ -387,7 +389,7 @@ POTUS.define("balance", {
          并解锁成就；minTier 起才算合格（基层志愿不算数）。 */
   studentLoan: {
     enabled: true,
-    startDebt: { normal: 65000, hard: 42000, brutal: 28000 },
+    startDebt: { normal: 65000, hard: 90000, brutal: 115000 },
     interestAnnual: 0.045, payShare: 0.25, minPayment: 120,
     /* lateMonths：连续逾期多少个月仍还不上，才引来「催收/征信」压力事件。
        长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
@@ -400,7 +402,8 @@ POTUS.define("balance", {
           5→85%、6→80%、10→70%、12→65%、16→60%、20→50%）。定 20 → 破产率 ≈50%，
           而且那是**上界**：模拟器不会主动用缓交（forbear）泄压，真人玩家会。
        ② 旧口径还"越穷宽限期越短"（normal 6 / hard 4 / brutal 3）——难度本该只决定
-          欠多少（startDebt 65k/42k/28k 已经承担了这件事），不该再叠一层"银行给几天脸"。
+          欠多少（学贷本金已承担这件事；#42 起本金也排成越难越重：65k/90k/115k），
+          不该再叠一层"银行给几天脸"。
        12 个月起有「催收/征信」压力事件（lateMonths）先警告，20 个月才判死：放任必死，但不是一脚踩死。 */
     lateLimit: { normal: 20, hard: 20, brutal: 20 },
     forbear: { maxMonths: 24, perMonths: 6, repCost: 3 },

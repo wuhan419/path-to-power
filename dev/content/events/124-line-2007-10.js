@@ -233,6 +233,9 @@ POTUS.define("event", [
       {
         id: "local", text: "不表态全国：只在县里办就业对接，先保住现有岗位",
         note: "赌的是躲过这锅全国骂。风险：岗位照丢，账记你头上。",
+        /* 本卡三支地方口吻的选项一律挡在 8 级以下：在位总统没有「你的县」，
+           也不该去华盛顿替厂方游说。总统那一档只剩下面的 controlled_bust（它无 cost 无 req，点得起）。 */
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.35 }],
         outcomes: {
           crit: { body: "你把就业对接会开成本地唯一还在发薪的场合。车企后来还是倒了，可这五千人在最难的那半年没找错门。", effects: { rep: 0.3, fac: { base: 3 } } },
@@ -245,6 +248,7 @@ POTUS.define("event", [
       {
         id: "back", text: "替厂方去华盛顿游说：把这笔救市贷款接住",
         note: "赌的是本地饭碗比全国舆论硬。风险：金主与工会两头不领情。",
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.46, mods: [{ src: "attr", key: "INT", w: 0.4 }, { src: "fac", key: "establishment", w: 0.2 }],
         cost: { fun: 0.5 },
         outcomes: {
@@ -258,6 +262,7 @@ POTUS.define("event", [
       {
         id: "claw", text: "开记者会：要救就先追高管的钱，别拿纳税人的钱保资本",
         note: "赌的是民愤可借。风险：厂主从此不接你电话。",
+        when: { tierRaw: true, tierMax: 8 },
         base: 0.4, mods: [{ src: "attr", key: "CUN", w: 0.35 }, { src: "fac", key: "base", w: 0.3 }],
         req: { fac: "base", min: 18 }, cost: { fun: 0.4 },
         outcomes: {

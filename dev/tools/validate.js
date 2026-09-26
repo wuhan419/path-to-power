@@ -441,9 +441,11 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   const G = P.G;
   G.flags = []; G.tier = 0;
 
-  /* --- #33：era 按日历解 + 钉卡全层通行（在 __T 测试时代注册前校验真实时代表） ---
+  /* --- #33：era 按日历解 + 钉卡抬闸（在 __T 测试时代注册前校验真实时代表） ---
      G.era 自时代选择器下线后恒为 1980_REAGAN；「这条事件属于哪个时代」一律由
-     P.eraAt(year) 落在哪个 era 区间决定，且凡 fixed/scheduled 钉卡 tierMax 抬到 9。 */
+     P.eraAt(year) 落在哪个 era 区间决定。凡 fixed/scheduled 钉卡都抬 tierMax，
+     但只抬到总统以下（tierTop()−1）：钉卡是以旁观者/地方视角写的世界事实，
+     在任总统不该撞上；只有卡上写了总统决策档（#21 M4）的那几张放到顶层。 */
   check(P.eraAt(1985) === "1980_REAGAN" && P.eraAt(1995) !== "1980_REAGAN" &&
     P.eraAt(2009) === "2008_CRASH" && P.eraAt(2020) === P.eraAt(2016), "eraAt：年份应落进正确的时代区间");
   G.year = 2008;
@@ -456,8 +458,53 @@ console.log("\n== 月度回合 / 事件量级 / 媒介时间轴 ==");
   (P.reg.era["2008_CRASH"].scheduled || []).forEach(s => { if (s.event) pinIds2008.push(s.event); });
   (P.reg.fixed || []).forEach(s => { if (s.event && s.year === 2008) pinIds2008.push(s.event); });
   check(pinIds2008.length > 0, "2008 年应有钉卡（scheduled/fixed 任一源）");
-  check(pinIds2008.every(id => { const e = P.evById(id); return e && (e.tierMax == null || e.tierMax >= 9); }),
-    "钉卡规范化后 tierMax 应全层通行（#33 触发荒主闸）");
+  {
+    const TOPV = P.tierTop();
+    const allPins = Object.keys(P.pinIds());
+    const presOpen = allPins.filter(id => P.pinPresidentView(P.evById(id)));
+    const over = allPins.filter(id => {
+      const e = P.evById(id);
+      if (!e) return false;
+      const ceil = e.tierMax == null ? TOPV : e.tierMax;      // 没写 = 全层通行
+      return ceil > (presOpen.indexOf(id) >= 0 ? TOPV : TOPV - 1);
+    });
+    check(over.length === 0,
+      "钉卡封顶总统以下（越界：" + over.slice(0, 6).join(" ") + "）—— 抬闸越过了在任总统");
+    check(presOpen.length >= 5,
+      "写了总统决策档的钉卡只剩 " + presOpen.length + " 张（<5）—— #21 M4 的总统档被抬闸误伤");
+    console.log("  钉卡 " + allPins.length + " 张 ｜ 默认封顶 T" + (TOPV - 1) +
+      " ｜ 放行到顶层 " + presOpen.length + " 张（" + presOpen.join(" ") + "）");
+  }
+
+  /* --- 在任总统不撞史实：同一张钉卡在 T8 到点必发、在总统级静音 ---
+     玩家实测的两条：已经是总统还在替他党呐喊（ln00_hang）、"联邦来人在你辖区调阅
+     记录"（wt02_patriot）。放行侧同样要钉住：写了决策档的锚点照旧到点必发。 */
+  {
+    const TOPV = P.tierTop();
+    const bak = { tier: G.tier, year: G.year, month: G.month, flags: G.flags.slice() };
+    G.track = "*"; G.party = "*"; G.stance = "*"; G.origin = "*"; G.entry = "*"; G.talent = "*"; G.state = "*";
+    G.rep = 50; G.fav = 10; G.lev = 0; G.hp = 70; G.fun = 500; G.flags = [];
+    const pinnedAt = function (tier, year, month) {
+      G.tier = tier; G.year = year; G.month = month - 1;
+      G.doneIds = []; P.recentIds = []; G.doneSeq = {}; G.pinMiss = [];
+      return P.planMonth(month).filter(s => s.scheduled && s.eventId).map(s => s.eventId);
+    };
+    check(pinnedAt(TOPV - 1, 2000, 11).indexOf("ln00_hang") >= 0, "T8 仍应到点必发 2000 计票僵局（抬闸只收总统那一档）");
+    ["ln00_hang", "wt02_patriot", "ln08_election", "ln24_election", "ln25_inaugural"].forEach(function (id) {
+      const y = { ln00_hang: 2000, wt02_patriot: 2001, ln08_election: 2008, ln24_election: 2024, ln25_inaugural: 2025 }[id];
+      const m = id === "ln25_inaugural" ? 1 : (id === "wt02_patriot" ? 10 : 11);
+      const hits = pinnedAt(TOPV, y, m);
+      check(hits.indexOf(id) < 0, "在任总统不该收到旁观者视角的钉卡：" + id);
+      check((G.pinMiss || []).some(x => x.id === id && x.why === "president"),
+        id + " 被挡下要归因为 president（诊断报告据此区分「设计」与「触发荒」）");
+    });
+    check(pinnedAt(TOPV, 2001, 10).indexOf("ln01_anthrax") >= 0,
+      "写了总统决策档的锚点（炭疽）仍应在总统期到点必发");
+    check(pinnedAt(TOPV, 2020, 3).indexOf("ln20_covid") >= 0,
+      "写了总统决策档的锚点（新冠）仍应在总统期到点必发");
+    Object.assign(G, bak);
+    G.doneIds = []; P.recentIds = []; G.doneSeq = {}; G.pinMiss = [];
+  }
 
   /* --- #33 触发荒回归守卫：钉卡必须真发得出去 ---
      两个历史主闸（钉卡 tierMax 天花板 / G.era 写死的时代白名单）已分别由

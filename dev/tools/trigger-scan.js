@@ -2,7 +2,8 @@
  * tools/trigger-scan.js —— #33/#32 钉卡密度与触发门禁（结构口径）
  * 对开局年—balance.endYear 逐年、取低/中/高三档层级（tier 0/4/8），把每一条钉卡
  * （reg.fixed ∪ 任一 era.scheduled）拿引擎真实的 P.eligible() 过一遍闸：
- *   · 先复现 time.js normalizePins 的效果（钉卡 tierMax 一律抬到 9），
+ *   · 先复现 time.js normalizePins 的效果（钉卡 tierMax 抬到「总统以下」= tierTop()-1；
+ *     卡上写了总统决策档的那几张才放到顶层 —— 所以本扫描的三档最高取 tier 8，正落在放行侧），
  *   · 逐卡分类失败原因：noEvent / tierMin / tierMax / yearWin / era / when / ok。
  * 「tierMin 挡掉」按设计不计入荒（底层玩家还没资格卷入高层专属卡）。
  * 两条验收线：
@@ -61,10 +62,17 @@ function take(list) {
 take(P.reg.fixed);
 for (const id in (P.reg.era || {})) take(P.reg.era[id].scheduled);
 
-/* 2) 复现 normalizePins：钉卡 tierMax 抬到 9（time.js 首跑 scheduledHits 时同效） */
-let raised = 0;
+/* 2) 复现 normalizePins：钉卡 tierMax 抬到「总统以下」；写了总统决策档的才到顶层
+   （判据与 time.js 共用 P.pinPresidentView / P.tierTop，别再各写各的 9） */
+let raised = 0, presOpen = 0;
+const TOP = P.tierTop();
 for (const ev of P.events) {
-  if (allPins.has(ev.id) && ev.tierMax != null && ev.tierMax < 9) { ev.tierMax = 9; raised++; }
+  if (!allPins.has(ev.id)) continue;
+  const cap = P.pinPresidentView(ev) ? TOP : TOP - 1;
+  if (cap === TOP) presOpen++;
+  if (ev.tierMax == null && cap === TOP) continue;
+  if (ev.tierMax === cap) continue;
+  ev.tierMax = cap; raised++;
 }
 
 /* 3) 结构可发性：假 G + 快照走真实 P.when / yearOK / mediumOK。
@@ -154,7 +162,7 @@ let totalPins91 = 0, fireT8_91 = 0, excl91 = 0;
 
 console.log("boot：" + path.relative(path.resolve(__dirname, "..", ".."), ROOT) + "/index.html" +
   " ｜ 钉卡年份条目 " + [...pinsByYear.values()].reduce((s, l) => s + l.length, 0) +
-  " ｜ 规范化抬 tierMax " + raised + " 张 ｜ 年窗 1980—" + END_YEAR +
+  " ｜ 规范化改 tierMax " + raised + " 张（放行到总统级 " + presOpen + " 张）｜ 年窗 1980—" + END_YEAR +
   " ｜ 密度验收线 每年 ≥" + MIN_PER_YEAR + " 条");
 
 for (let y = 1980; y <= END_YEAR; y++) {

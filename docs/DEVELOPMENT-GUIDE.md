@@ -151,6 +151,7 @@
 │       ├── choice-audit.js   选项取舍探测器（占优/过平/同轴单调——"闭眼都会选"检测）
 │       ├── text-audit.js     文字审计（标题通顺度 / 标题+正文 ≤250 字 / 残留 brief 清单）
 │       ├── density-scan.js   年度大事密度（逐年 Σ=fixed+钉年卡，偏薄年份退出码 1）
+│       ├── trigger-scan.js   钉卡触发门禁（逐年 ≥2 条 + tier8 结构可发率 ≥80% + 零死引用；复现 normalizePins 的总统级放行判据）
 │       ├── i18n-coverage.js  逐屏语言探针（英文屏中文占比 >5% 退出码 1，可当门禁）
 │       ├── i18n-events.js    逐卡缺译探针（zh/en 两次 boot 逐叶子比对）
 │       ├── migrate-scale.js  一次性迁移辅助（绝对金额 → dyn 系数草稿）
@@ -985,6 +986,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | `choice-audit.js` | 手感体检 | 找"闭眼都会选"的选项：占优 / 过平 / 同轴单调 |
 | `text-audit.js` | 文字体检 | 默认模式＝融合总表（超尺 / 缺正文 / 残留 brief 三项任一为红即退出码 1）；`--trim --file=X` 是给并行 worker 的单文件自查口；`--titles` / `--tcase` / `--lang=en` |
 | `density-scan.js` | 铺年带后 | 年度大事密度（Σ=fixed+钉年卡 vs 1980—1988 基准），偏薄退出码 1 |
+| `trigger-scan.js` | 动过钉卡 / 层级闸后 | 逐年钉卡 **≥2** + **tier8 结构可发率 ≥80%** + 零死引用（`noEvent`）。它自己复现 `time.js normalizePins()` 的抬闸效果，所以**改总统级放行判据必须同步改这里**（判据已抽成 `P.pinPresidentView`，两边共用）；`--verbose` 逐卡打印挡下的原因（`tierMin` / `president` / `era` / `when`） |
 | `i18n-coverage.js` | 双语门禁 | 逐屏中文占比（英文屏 >5% 中文退出码 1） |
 | `i18n-events.js` | 补翻译 | 逐卡缺译探针（zh/en 双 boot 逐叶子比对） |
 | `migrate-scale.js` | 一次性 | 绝对金额 → dyn 系数草稿 + 三值性预判（产物在 tools/out/，人工审查后落卡） |
@@ -1001,7 +1003,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 **当前真实限制（v0.12）**
 - **内容量已不是主要瓶颈**（360 张卡 + 全年代线），质量瓶颈换成了**选项权衡**与**文字打磨**：`tools/choice-audit.js` 报出的"占优/过平"选项仍是逐卡回炉清单，`tools/text-audit.js` 的长 body 同理。
 - **清算线是刻意的roguelike式劝退设计**：仇恨永不衰减、前哨战(≥25)与清算(≥55)两拍、fail/critfail **即死无保底**（assassinated/framed/ruined/purged 四条 BE + 学贷 bankrupt）。新内容引用 `countMin/countMax/countEq` 时要想清楚这条线要不要留活口——目前的答案是"不留，但每条都有泄压阀（低头/交钱/示好可削恨）"。
-- **学贷螺旋只有三档难度生效**（normal 65k / hard 42k / brutal 28k；easy/legendary 开局无贷）。v0.12 #25 起为**单利+年度资本化**：月息进欠息桶 `debtAccr`（桶内不再生息）、每年 1 月资本化进本金；断供口径（当月还款 < 当月新息）与 `lateLimit`（#19 定稿：**三档同宽 20/20/20**，旧 6/4/3 会让八成局前期死于学贷）靠 `validate.js --diff=X --games=100` 的校准面板盯着，改曲线必须重新校准。玩家侧有两扇正当门：缓交（`forbear`，声望换月数）与 PSLF（`pslf`，低层公职 120 月豁免）。
+- **学贷螺旋只有三档难度生效**（normal 65k / hard 90k / brutal 115k；easy/legendary 开局无贷）。v0.12 #25 起为**单利+年度资本化**：月息进欠息桶 `debtAccr`（桶内不再生息）、每年 1 月资本化进本金；断供口径（当月还款 < 当月新息）与 `lateLimit`（#19 定稿：**三档同宽 20/20/20**，旧 6/4/3 会让八成局前期死于学贷）靠 `validate.js --diff=X --games=100` 的校准面板盯着，改曲线必须重新校准。玩家侧有两扇正当门：缓交（`forbear`，声望换月数）与 PSLF（`pslf`，低层公职 120 月豁免）。
 - **多支路主线已砍掉**：`engine/arc.js` 与 `content/11-arcs.js` 保留在仓库但**不加载**；要复活需要重新过设计评审。
 - **NPC 关系图 / 关系面板还没有**（`reg.npc` 预留未实现），人脉本质仍是"有名字的 NPC + 好感度"。
 - **轨道切换（"变节"）只有设计，未实现**。
@@ -1025,6 +1027,8 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.12 总统门槛与平衡两修（分支 `dev/presidency-guard`，已并入本支） | **白宫只认票数**：`P.applyEffects(eff, ctx)` 多一个上下文参，`tier` 处理器在「跨过 `balance.tierMax` 且缺 `ctx.election`」时拦下（与资历闸同表达：位子不动、折 +3 声望）；放行口只有两处 —— `view/stage.js` 按 `ch.ballot` 传、`campaign.js` 的链 `onWin` 打 `{election:true}`（副总统继任**仍未实现**，将来要开得用显式继任卡）。**声望门槛**：`scale.js` 新增 `ruler.repGate = repBase[量级] × tierF`（**不吃 attrF** —— 旧口径把 6 倍系数在 T8 展成 148，超过声望上限 100 等于把那张卡唯一的升位选项永久锁死，还造成"魅力越高入场券越难拿"的反向闸门），再夹 `balance.econ.repGateMax = 80`；内容侧系数回落（`prog_senate` 4.5→2.8 等）。**投资回款先还本金**：`effects.js` 的 `funMul` 用新增 `G.__stakePaid` 区分「参照本金」（cost + 只当资格闸的 req.fun + 投注，收益按它乘倍率）与「真扣走的那截」（cost + 投注），结果夹 0（`funMul:-1` 的语义是本金全亏，不许倒欠）。**总统级选区地名**：`voterBase.nationalTier: 9` → `topbar.js` 改口「美利坚 · 全国选民」，不再挂家乡州 | `60-progression.js` 8 张 `prog_*` 末幕按**开票夜**口径重写（中英含 known/rumor/unknown 条数对齐，`base/mods/req/outcomes` 数值一字未改；`prog_senate` 的"参议员/州长二选一"留给链侧一起改）；validate 新增 ④b 声望门槛守卫 + 重写 ⑨ 投资结算回归闸 + 总统闸五条 + 全国选区卡面断言。**与本支改动的接缝**：`effects.js` 的总统闸排在资历闸之前 `return`，所以被拦下的那一步**不进升职庆典队列**（`58c4a49`）；两侧共用 `ballot` 词汇但各查各的（#39 查它不许接 `stake`，总统闸查它给不给授级），合并零文本冲突、以上八道门禁在合并后的树上全绿 | ✅ |
 | v0.12 #40 卡池重标（卡面尺） | **把开局天赋卡池从自由点尺上摘下来**：旧口径把两把尺合成一把（1 单位 = +10 属性 = $2k），于是金卡一次送 +40 属性、一次 major 事件才 +10~20 —— 开局几牌顶半打重大事件，卡池变成了成长预算的一大块。现定**卡面尺 = 1 属性点 = $1k**，档位单位 **白 1 / 蓝 3 / 紫 6 / 金 15**：白 = 单系+1（或「+2 并别维 −1」）或 $1k、蓝 = +3 或三围各 +1 或 $3k、紫 = 三围各 +2（= $6k）、金 = 三围各 +5（= $15k）**加特效**。一把金卡的属性面只等于建角 12 点池的 **13%** —— 卡池退回风味倾斜，稀缺的只剩 `spare` 免死 / `critMul` / `hpDecayMul` / 派系人情这些**只有池子给得出**的东西 | `15-cards.js` 21 张里动 13 张的 attr/fun（其余 8 张按裁定「被动原样不动」：`union_kin`/`press_buddy`/`iron_stomach`/`gambler_card`/`koi`/`magnetic`/`immortal`，外加 `old_money` —— 它的 $6k 恰好落在新尺上，一字未改即达标）；`validate.js` 卡池节由「单维 ≤ 稀有度×10」重写为**三条**（净值 ≤ 档位、正项 ≤ 档位+负项、钱 = 单位×$1k）＋逐卡面板与「金卡 ≈ 建角池 13%」对照行；中英文案 13 条 desc 同步（另有两个 EN 卡名 `destiny`/`immortal` 顺手改掉直译） | ✅ |
 | v0.12 #41 卡面瘦身 | **一张卡只剩「标题 + 正文 + 头条图」**：`stage.js` 删掉 `briefHTML/toggleBrief/briefCollapsed` 与机器派生的 `standfirstOf()`，报头 chip 压到「三值性 + 量级 + 类型」三枚（**媒介徽章移除但 `medium` 触发门控照旧**），`events.js` 的 `generateFiller` 不再合成 `brief`，`style.css` 删掉 `.brief-slot/.standfirst/.cchip.medium` 全套规则（桌面 + `.oval` + 竖屏折叠列表）。`SAVE_FORMAT` **仍为 13** —— `brief` 是静态注册表字段、从不进 `G`，无需迁移（`potus_brief_collapsed` 这个 localStorage 键就此废弃） | **全量融合重写 360 张**（中英同步，108 文件 +1695/−12204）：把「你确知的/传闻/尚不知道的/名词」四层压进正文，正文从 ~90 字升到能独立交代局面；卡均文字量 **170.8 字**（旧口径阅读成本 ~278 字/卡，降约 39%），超尺 0、缺正文 0、残留 `known/rumor/unknown` 键 0。**门禁口径反转**：`validate.js` 由"必须有 brief"改为逐卡**禁** `brief`/`standfirst` + 标题+正文 ≤250 字（中文非空白字符 / 英文词×0.5 同一把尺），`text-audit.js` 默认模式变成真闸（超尺/缺正文/残留任一为红退出码 1）、`--trim --file=X` 作并行 worker 的单文件自查口 | ✅ |
+| v0.12 #42 | **历史钉卡不再演给在任总统**：玩家已入主白宫却还撞上「开票三天，全国还不知道总统是谁」（`ln00_hang`）、「联邦来人在你辖区调阅记录」（`wt02_patriot`）——钉卡写的是"这件事找上你的**地方身份**"，而总统没有"你的县"。`time.js normalizePins()` 从"#33 的一刀抬到 9"改成**默认封顶 `tierMax-1`（T8）**；放行判据是**选项级**的：某支 `ch.when` 带 `tierRaw:true` 且 `tierMin` 压在 `balance.tierMax` 上（= #21 M4 那五张的决策档），抽成 `P.pinPresidentView(ev)` 供引擎与探针共用，**不新增字段、不维护清单**。顶上一律走 `P.tierTop()`（`core.js` 新纯函数，读 `balance.tierMax`），`9` 从此不再在各处写死。挡下的逐条记 `G.pinMiss`（`why:"president"`，`scheduledHits` 里新增这一分支）。**总统期不断粮**：白宫每月恰 1 条走独立的 `whiteHouseSlot`，与钉卡无关，所以挡掉 141 张不会造成总统月空档 | `122-line-1999-02.js`（`ln01_anthrax`）/ `123-line-2003-06.js`（`ln03_war`）/ `124-line-2007-10.js`（`ln08_auto`）/ `127-line-2019-21.js`（`ln20_covid` + `ln21_capitol`）：放行卡上地方口吻的选项反手挂 `when:{tierRaw:true,tierMax:8}`（炭疽 2 支、国会山 2 支、救市 3 支、伊拉克的"正式质询"1 支、新冠的"跟联邦口径走"1 支），**每档保住一条无 `cost` 无 `req` 的保底**（炭疽保 `prep`、国会山保 `calm`、救市保 `controlled_bust`、伊拉克保 `ride_victory`、新冠保 `fed_power` —— 再挡就只剩一个按钮，那一支就不挡）；validate 把旧的"钉卡全层通行"断言换成**总统级放行 ratchet**（现 146 张钉卡 / 放行 5 张 / 逐张反查 T9 不越权）+ 行为断言（`ln00_hang` 在 T8 演、在 T9 不演，`ln01_anthrax`/`ln20_covid` 反向）；`trigger-scan.js` 同步复用 `P.pinPresidentView`，读数打印「规范化改 tierMax 144 张（放行到总统级 5 张）」，T8 结构可发率仍 100% | ✅ |
+| v0.12 学贷方向修正（随 #42 同支入库） | **越难的档位不该负债越轻**：`balance.studentLoan.startDebt` 旧值 `normal 65k > hard 42k > brutal 28k` 与 §15 末句「难度差异只体现在负债起点」直接打架（玩家在建角向导一眼看出顺序倒了）。改成**只抬高不降低**：normal 仍 $65k（#19 的「前期约一半局不该死于学贷」就是量在这一档上的，动它等于重做定标），hard → $90k、brutal → $115k，easy/legendary 仍无贷；三档宽限期照旧同为 20 个月（#19②「难度只决定欠多少、不决定银行给几天脸」的纪律不动）。**顺手补了向导的可见性**：五档 `DIFFS.note` 与 EN 覆盖层各写上学贷数额（含「世家替你交了」那句），难度补偿不再只藏在建角之后的日志里 —— 这是 #37②「预览看不见的补偿会被玩家记成 bug」的同一条课 | `01-config.js` 的 startDebt + 两处注释、`view/create.js` 的 5 条 note、`content/i18n/en/view/create.js` 同步；CONTENT-SCHEMA §15 表与四份文档口径随迁；`--diff=hard` / `--diff=brutal` 各 30 局读断供与破产率（定标口径见 CONTENT-SCHEMA §15） | ✅ |
 | 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
@@ -1041,7 +1045,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 周目（loop）成长（v0.12 #31） | 每局结束周目 +1（无条件），额度与高稀有概率随之上涨；`woshishabiN` 作弊码 = 本局按第 N+1 周目口径建角（不落盘） | core.js `currentLoop/readBonusFree/applyCheat`、结算屏保卡 |
 | 生涯线 1980→2025 | 无需配置：`balance.endYear: 2025` 硬墙 → `career_end` 结算 7 条 `career_*`；`president_done` 区分前总统，当总统不再即时结束 | view/stage.js `endYear/nextYear`、progression.js、40-endings.js |
 | 清算线（v0.12） | 效果 `count: { wrath_<组>: +n }` 攒恨；门槛 `countMin/countMax/countEq`；仇家登记 `POTUS.define("wrath")`；死因 `hardEnd: "assassinated"\|"framed"\|"ruined"\|"purged"` | core.js `reg.wrath`、effects.js `count`、when.js、140-reckoning.js |
-| 学贷螺旋（v0.12，#25 新物理） | 无需配置：`balance.studentLoan`（startDebt 按难度 65k/42k/28k；**单利**月息进欠息桶、1 月资本化；断供=当月还款<当月新息；连续断供 ≥lateLimit 20/20/20 → `bankrupt`；`forbear` 缓交额度、`pslf` 公职豁免门槛）；长期违约压力事件走 flag | core.js `P.loanStep/forbearInfo/startForbear`、topbar 贷款面板、validate `--diff` 校准面板 |
+| 学贷螺旋（v0.12，#25 新物理） | 无需配置：`balance.studentLoan`（startDebt 按难度 65k/90k/115k；**单利**月息进欠息桶、1 月资本化；断供=当月还款<当月新息；连续断供 ≥lateLimit 20/20/20 → `bankrupt`；`forbear` 缓交额度、`pslf` 公职豁免门槛）；长期违约压力事件走 flag | core.js `P.loanStep/forbearInfo/startForbear`、topbar 贷款面板、validate `--diff` 校准面板 |
 | 投注级别价（#28①） | 一般不用配：一档 = 你这个位子的月薪 × 量级系数（`perSalaryMonths:1` × `gradeMul{.6/1/1.8}`），**与余额无关**；特例 `{ per, w, cap }` 覆盖（写死 per = 剧情定价） | dice.js `stakeFunPer/stakeMax`、view/actions.js `stakeRateNote` |
 | 投机收益吃 INT（#28②） | 无需配置：`funMul` 的倍率 × `1+(INT-50)/100×balance.funMulIntLev`（默认 0.4；盈按 k、亏按 1/k）。**必须有本金**（`cost.fun` / `req.fun` / 投注），否则空转告警 | effects.js `funMulIntMul` |
 | 投机/灰产豁免通道（#28②） | 卡上写 `pace:"exempt"`（不吃单卡衰减与 24 月硬冷却、走 `pace.grayMax` 额度）**且必须显式 `unique:false`**；范例 `content/events/138-speculation.js` | events.js `paceExempt/paceBucket/idRepeatFactor` |
@@ -1088,6 +1092,8 @@ A：事件池被抽空了。看 `validate.js` 的「填充事件占比」。
 **Q：历史大事件怎么没按年发生？**
 A：大事件不再靠"从池子里碰运气"，而是钉在 `fixed` 定点表上**到点必发**（全库百余条定点，口径以 validate/density-scan 为准；era.scheduled 仅剩 2008 兼容层）。没发生通常是：① 那一局没活到那一年；② **事件自己的**年窗/tier/`flags`/`cond` 不满足——定点只保证"到点尝试发"，不满足会静默跳过；③ `fixed` 引用了不存在的 event id（validate 会报）。密度偏薄另跑 `node tools/density-scan.js` 看哪一年。
 
+**（#42）已经当上总统了，为什么某些历史大事件反而不再演？** 钉卡写的是"这件事找上你的地方身份"（你的县、你的辖区、你要不要去华盛顿说情），而总统没有这些身份——「开票三天，全国还不知道总统是谁」演给在任总统看更是直接自相矛盾。所以 `time.js normalizePins()` 把钉卡默认封顶在 `tierMax-1`（T8），**只有卡里备好了总统档决策选项**（某支 `ch.when` 带 `tierRaw:true` 且 `tierMin` 压在 `tierMax` 上）才放行到顶层，现役 5 张（炭疽 / 伊拉克 / 救市 / 新冠 / 国会山）。被挡下的逐条记在 `G.pinMiss`（`why:"president"`），`node tools/trigger-scan.js --verbose` 也能逐卡看到。总统期的档期不会因此断供——白宫每月恰 1 条走的是独立的 `whiteHouseSlot` 通道。
+
 **Q：写了事件链（`after`），但续集从来没出现过？**
 A：按顺序排查五点：
 ① **前一幕没演过** —— `after.id` 写的是上一幕的 `id` 吗？链条必须真实发生过才会解锁；
@@ -1105,7 +1111,7 @@ A：两件事分开放：
   不是开局就有的。想快点点亮面板，去走 `80-shady.js` / `82-press.js` / `86-enclave.js` 里的接触型事件。
 
 **Q：怎么突然就背上 / 还清了学生贷款？**
-A：normal/hard/brutal 三档开局带贷（65k/42k/28k）。**单利**：月息进欠息桶（桶不再生息），每年 1 月资本化进本金；每月按职位月薪的 25% 设还款目标、月供盖不过当月新息 = 一次"断供"，**连续断供超 lateLimit（#19 定稿 20/20/20：三档同宽，旧口径越穷越短已废弃）直接 `bankrupt` 收线**。喘气有两条正当路：花声望**申请缓交**（一次 6 个月、全局至多 24，冻结期不记断供），或在低层公职连续按时供款满 120 个月吃 **PSLF 豁免**（本金+欠息一笔勾销，结算屏挂成就）。当官仍是还清贷款的正路——职位月薪是月供的锚。设计动机与校准方法见 §10 与 `engine/core.js` 的 `P.loanStep` 顶注。
+A：normal/hard/brutal 三档开局带贷（65k/90k/115k）。**单利**：月息进欠息桶（桶不再生息），每年 1 月资本化进本金；每月按职位月薪的 25% 设还款目标、月供盖不过当月新息 = 一次"断供"，**连续断供超 lateLimit（#19 定稿 20/20/20：三档同宽，旧口径越穷越短已废弃）直接 `bankrupt` 收线**。喘气有两条正当路：花声望**申请缓交**（一次 6 个月、全局至多 24，冻结期不记断供），或在低层公职连续按时供款满 120 个月吃 **PSLF 豁免**（本金+欠息一笔勾销，结算屏挂成就）。当官仍是还清贷款的正路——职位月薪是月供的锚。设计动机与校准方法见 §10 与 `engine/core.js` 的 `P.loanStep` 顶注。
 
 **Q：旧存档点开提示「这份存档属于旧政权」，是不是 bug？**
 A：不是，是刻意门禁（§6.5）：机制大改（如学贷新物理）会让旧档里的字段语义对不上，带病续档比删档更坑。硬零兼容、不写迁移——删档或开新局，二选一。
@@ -1164,7 +1170,7 @@ A：可以（`python3 -m http.server`），但**不必要**。设计目标就是
 | **定点表（fixed）** | 全局定点事件表：`POTUS.define("fixed", [{event, year, month, …}])`，到点必发；`era.scheduled` 是它的兼容前身 |
 | **生涯线 / 2025 硬墙（endYear）** | 一局 = 1980→2025 的一条命。到点触发 `career_end` 成就结算（7 条 `career_*` 结局，`president_done` 区分前总统）；当总统**不再**即时结束游戏 |
 | **仇恨值 / 清算（wrath / reckoning）** | 大收益选项用效果 `count:{wrath_<组>:+n}` 攒恨（五组仇家登记在 `POTUS.define("wrath")`）；`when` 词汇 `countMin/countMax/countEq` 出门槛。恨 ≥25 出前哨战（有泄压阀）、≥55 出清算——**fail/critfail 即死无保底、仇恨永不衰减**，死因 `assassinated/framed/ruined/purged` |
-| **学贷（studentLoan）/ 断供（bankrupt）** | 普通及以下难度的开局背贷（65k/42k/28k）。**单利**月息进欠息桶、每年 1 月资本化进本金；断供 = 当月还款盖不过当月新息；连续断供超 `lateLimit`（#19 定稿 20/20/20）→ 信用破产 BE。缓交（声望换月数）与 PSLF（低层公职 120 月豁免）是两条正当泄压阀。月供锚在职位月薪上——升官是还债的正路 |
+| **学贷（studentLoan）/ 断供（bankrupt）** | 普通及以下难度的开局背贷（65k/90k/115k）。**单利**月息进欠息桶、每年 1 月资本化进本金；断供 = 当月还款盖不过当月新息；连续断供超 `lateLimit`（#19 定稿 20/20/20）→ 信用破产 BE。缓交（声望换月数）与 PSLF（低层公职 120 月豁免）是两条正当泄压阀。月供锚在职位月薪上——升官是还债的正路 |
 | **投注档（stake step）** | 投注面板里按一次 ＋ 的粒度。**每档价码 = 级别价**：`per = clamp(职位月薪 × perSalaryMonths(1) × 量级系数, perMin 500, perMax 500000)` 抹零 —— 只看身位（`dice.js` 的 `stakeFunPer`），历史演进 v0.6 写死 $250k → v0.7 两锚 √ → v0.12 三锚立方根 + 钱袋闸 → **#28① 只留身位锚**（`potShare`、`cashStakeShare`、`stakePot()` 已随之退役）。档数 = `min(ceil(cap÷w)=8, floor(余额÷per))`：家底只决定押得起几档，不改单价；人情 1 点换一次重投取优 |
 | **豁免通道（`pace:"exempt"`）** | 投机/灰产卡的节奏例外（#28②）：不吃单卡终身衰减、不吃 24 个月硬冷却、走 `balance.pace.grayMax` 的灰产年度额度。必须与 `unique:false` 成对声明（major 卡默认一局一次）。见 `CONTENT-SCHEMA.md` §4.21 |
 | **单卡终身衰减（`idRepeatMul`）** | 撞过一次的非 unique 卡权重终身 ×0.15（叠加 `recentCap` 去重窗口）；"会回来的麻烦"要用 `rereq`（when 词汇）显式再解锁；生意类卡走 `pace:"exempt"` 豁免 |
