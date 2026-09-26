@@ -33,7 +33,7 @@ POTUS.define("event", [
 
   /* ================= 基层 T0–2：社区里的人 ================= */
   {
-    id: "chore_eulogy", brief: { lede: "老邻居过世，家属请你这个公职人说两句。", known: ["你手里没有稿子，全靠临场。", "讲一件真事最打动人，也最考验分寸。", "只念标准慰问稳，却显得敷衍。"] }, grade: "minor", category: "govt",
+    id: "chore_eulogy", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
     minYear: 1980, maxYear: 2025, medium: ["print", "radio"],
     title: "一位老邻居过世，家人请你致悼词",
@@ -65,7 +65,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_ribbon", brief: { lede: "翻新图书馆开张，志愿者就差一个剪彩的人。", known: ["他们图的不是你讲话，是你到场。", "顺手帮敲募款的门，能把事办实。", "送花篮缺席省事，却冷了现场的心。"], unknown: ["露面是加分，被拍到敷衍则减分。"] }, grade: "minor", category: "govt",
+    id: "chore_ribbon", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "社区活动中心翻新剪彩，就差一个剪彩的人",
@@ -97,7 +97,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_beat", brief: { lede: "警察工会请你「体验一晚夜班巡逻」。", known: ["名义是了解一线，实为给配合者发奖状。", "真跟一条街能听见巷子里的真话。", "婉谢让给同僚不得罪，也丢了这张脸。"], unknown: ["作秀感若被看穿，反而丢了体面。"] }, grade: "minor", category: "govt",
+    id: "chore_beat", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
     minYear: 1980, maxYear: 2025, medium: ["print"],
     title: "跟着夜班巡警走一条街",
@@ -129,7 +129,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_dispute", brief: { lede: "两家邻居为一堵篱笆吵到你办公室。", known: ["一位是拉过票的老住户，一位是新搬来的。", "泡咖啡劝各退一步赌人情。", "翻地契按规矩断赌法理，却伤情面。"], unknown: ["偏了哪头，那头就记你一账。"] }, grade: "minor", category: "govt",
+    id: "chore_dispute", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
     minYear: 1980, maxYear: 2025,
     title: "两家邻居为一堵篱笆吵到你办公室",
@@ -162,7 +162,7 @@ POTUS.define("event", [
 
   /* ================= 市政 T2–4：坐进市政厅 ================= */
   {
-    id: "chore_clinic", brief: { lede: "每周接待日，一屋子人来讨说法。", known: ["不少人不是要解决，是要有人肯听。", "逐个坐下来能真办成几件，最耗神。", "编成办事指南交助手，省事却远了距离。"], unknown: ["敷衍被看穿，善事也办成怨气。"] }, grade: "minor", category: "govt",
+    id: "chore_clinic", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "选民服务接待日：一屋子人来讨说法",
@@ -194,7 +194,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_budget", brief: { lede: "要不要花钱修西桥，听证会上各有说法。", known: ["到场有货运工会、沿河商户和桥下住户。", "让每方说完再逐条回应稳，却拖。", "亮方案强推痛快，也得罪慢的人。"], unknown: ["压不住场，一场听证能吵成站队。"] }, grade: "minor", category: "govt",
+    id: "chore_budget", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 2025, medium: ["print"],
     title: "一场关于是否修补西桥的预算听证",
@@ -226,7 +226,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_school", brief: { lede: "小学读报活动，请你上一堂「公民课」。", known: ["一屋十岁孩子，问什么都有可能。", "认真讲透「政府干什么」最出彩。", "只念故事签书省力，也能出好照片。"], unknown: ["童言直问，一句含糊会被学回家。"] }, grade: "minor", category: "govt",
+    id: "chore_school", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 1999, medium: ["print", "tv"],
     title: "小学的读报活动，请你来上一堂「公民课」",
@@ -259,7 +259,7 @@ POTUS.define("event", [
 
   /* ================= 州级 T4–6：全州巡回 ================= */
   {
-    id: "chore_state_tour", brief: { lede: "州情咨文后一周地方巡回，一天转三个县。", known: ["媒体要标题，党部要人头，你要别累垮。", "笑走每站铺开声量，最耗体力。", "砍两站深扎一处出内容，却失曝光。"], unknown: ["被拍到呵欠连天，巡回反成负报道。"] }, grade: "minor", category: "govt",
+    id: "chore_state_tour", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv", "radio"],
     title: "州情咨文后的一周地方巡回",
@@ -291,7 +291,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_flood", brief: { lede: "上游泄洪迟了一步，几个镇被泡了。", known: ["人已撤出，损失要有人看、有人表态。", "赶赴现场赌执行力，也赌镜头前失态。", "坐镇后方催补助，钱实却缺了露面人情。"], unknown: ["去不去都可能错：像作秀，或像缺席。"] }, grade: "minor", category: "govt",
+    id: "chore_flood", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "上游泄洪，几个镇被泡了",
@@ -324,7 +324,7 @@ POTUS.define("event", [
 
   /* ================= 联邦 T6+：选区服务的国家机器 ================= */
   {
-    id: "chore_casework", brief: { lede: "联邦办公室的求助信堆成了山。", known: ["选区人把你当「在首都说得上话的人」。", "亲自盯最难的几封易办成，也易打包票。", "成立小组出清单治本，慢却像花架子。"], unknown: ["大话放出去却落空，反成对手弹药。"] }, grade: "minor", category: "govt",
+    id: "chore_casework", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv", "radio"],
     title: "联邦选区办公室的求助信堆成了山",
@@ -356,7 +356,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_townhall", brief: { lede: "回选区开市民大会，五百人坐满体育馆。", known: ["有人质问，有人只看你还认不认乡音。", "来者不拒逐个答最见坦率，也最易被问倒。", "只讲准备好的三件事稳，却被嫌念稿。"], unknown: ["被本区数字问倒，沉默会被循环播。"] }, grade: "minor", category: "govt",
+    id: "chore_townhall", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 2025, medium: ["tv", "radio", "print"],
     title: "回选区开一场市民大会",
@@ -388,7 +388,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_vetvisit", brief: { lede: "退伍军人医院请你「英雄日」露个面。", known: ["他们要联邦的一双耳朵，你要一张握手照。", "真听并带回补助案，赢「靠得住」。", "只讲得体致敬稳，却像走过场。"], unknown: ["当拍照背景被老兵当场说穿，最伤。"] }, grade: "minor", category: "govt",
+    id: "chore_vetvisit", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv"],
     title: "退伍军人医院的一次例行探访",
@@ -424,7 +424,7 @@ POTUS.define("event", [
 
   /* 基层 T0–2：社区自治的现代琐事 */
   {
-    id: "chore_patrol", brief: { lede: "居民办起社区夜巡队，请你陪着在街区走一晚。", known: ["夜巡的是邻居义务排班，不是警力，图个彼此照应。", "跟着走一圈，能听见白天听不到的抱怨。", "露一面就走最省事，可大家一眼看得出你来没来真走。"], unknown: ["你是压惊的定心丸，还是镜头前的过路人，这一晚就见分晓。"] }, grade: "minor", category: "govt",
+    id: "chore_patrol", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 6,
     minYear: 2000, maxYear: 2025, medium: ["print", "tv", "social"],
     title: "社区治安夜巡：和居民一起走一圈街区",
@@ -457,7 +457,7 @@ POTUS.define("event", [
 
   /* 市政 T2–4：学区与码头的现代议题（学区卡为断代 chore_school 的跨代成人版补位） */
   {
-    id: "chore_schbudget", brief: { lede: "学区要砍课后项目，家长要你把这笔账当面讲明白。", known: ["账上的窟窿是真的，砍谁留谁都得罪人。", "把数字摊开、让人提问，比念稿更容易被信。", "让校方独自挨骂你落得清闲，可家长记住的是你躲了。"], unknown: ["一场说明会能把怒气冲着账本，也能把怒气冲着你。"] }, grade: "minor", category: "govt",
+    id: "chore_schbudget", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 1980, maxYear: 2025, medium: ["print", "tv", "internet"],
     title: "学区要砍课后项目，请你来开一场预算说明会",
@@ -489,7 +489,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_portvisit", brief: { lede: "海港堵了货，本地商家等着你去码头看一眼、说句话。", known: ["堵在港口的不只是箱子，是等米下锅的小店和工厂。", "实地走一趟，能摸出联邦文件上看不到的堵点。", "光发个声明省事，可商家要的是你站出来说这是本地的难处。"], unknown: ["你在码头讲的哪句话，明天会被商会和港务各自引用。"] }, grade: "minor", category: "govt",
+    id: "chore_portvisit", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 2, tierMax: 4, weight: 6,
     minYear: 2008, maxYear: 2025, medium: ["print", "tv", "social"],
     title: "海港堆满集装箱，货运卡了本地商家的货",
@@ -522,7 +522,7 @@ POTUS.define("event", [
 
   /* 州 T4–6：灾后与跨界的现代州务 */
   {
-    id: "chore_harbor", brief: { lede: "飓风过后，州里派你去沿海安置点清点缺什么。", known: ["人撤进安置点只是第一步，接下来几天全靠这里撑着。", "亲眼去转一圈，缺的电和药当场就能调。", "坐镇后方打电话省事，可灾民没看见你这个人。"], unknown: ["你是灾民眼里的定心丸，也是镜头里的候选人——失态一下就上了明天的标题。"] }, grade: "minor", category: "govt",
+    id: "chore_harbor", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 4, tierMax: 6, weight: 5,
     minYear: 2008, maxYear: 2025, medium: ["tv", "cable", "social"],
     title: "飓风过后，你去沿海安置点转一圈",
@@ -555,7 +555,7 @@ POTUS.define("event", [
 
   /* 联邦 T6+：数字时代与多媒体时代的国家机器琐事 */
   {
-    id: "chore_dataleak", brief: { lede: "大公司泄露了选民的个人信息，愤怒的群众要你出来说话。", known: ["大多数人说不清丢了什么，只想要一句有人负责。", "把企业与监管方一并召来当面质询，能把焦点立在你身上。", "先查清再表态稳妥，可群众要的是此刻有个肯说的声音。"], unknown: ["这场会你开成问责，还是开成作秀，隔天网上一见分晓。"] }, grade: "minor", category: "govt",
+    id: "chore_dataleak", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 2013, maxYear: 2025, medium: ["internet", "social", "cable"],
     title: "一家大公司泄露数据，卷进了选区居民",
@@ -587,7 +587,7 @@ POTUS.define("event", [
   },
 
   {
-    id: "chore_tour2", brief: { lede: "国情咨文后连轴转的全国巡回，传统台和新平台两头要照顾。", known: ["有线台、门户网站、社交平台，每一家要的口径都不一样。", "一站接一站不冷场，最考验你的状态和口才。", "砍几站深耕一处出内容，却丢了该要的曝光。"], unknown: ["一段你在飞机上累垮的十五秒片段，可能比所有演讲传得更远。"] }, grade: "minor", category: "govt",
+    id: "chore_tour2", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 6, tierMax: 9, weight: 5,
     minYear: 2016, maxYear: 2025, medium: ["tv", "cable", "social", "shortvideo"],
     title: "国情咨文后的全国巡回，镜头从早跟到晚",
@@ -625,7 +625,7 @@ POTUS.define("event", [
    * 再深则琐事反超固定钉卡形成倒挂（fixed>=career 闸），故停在平衡点。 */
 
   {
-    id: "chore_fair", brief: { lede: "县集市开幕，主舞台就差一个本地公职人露个面。", known: ["拖家带口来逛的都是本地选民。", "挨摊走一圈、跟摊主搭两句话最接地气。", "上台念一段开幕词稳当，可没人爱听官腔。"], unknown: ["你在集市上的一句话，比任何电视广告都传得快。"] }, grade: "minor", category: "govt",
+    id: "chore_fair", grade: "minor", category: "govt",
     valence: "boon", dyn: true, chore: true, tierRaw: true, tierMin: 0, tierMax: 2, weight: 7,
     minYear: 1980, maxYear: 2025, medium: ["print", "radio", "tv"],
     title: "县集市开幕，就差你上台露一面",

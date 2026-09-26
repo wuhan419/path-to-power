@@ -27,7 +27,7 @@
   const MAX_DEPTH = 3;
 
   /* 结算逻辑字段：这些键下的子树不参与占位符替换（里面的 {..} 若有也不是文案）。
-     其余字段（title/body/standfirst/brief/choices.text/note/outcomes.body…）才是要"变脸"的文案。 */
+     其余字段（title/body/choices.text/note/outcomes.body…）才是要"变脸"的文案。 */
   const SKIP = {
     effects: 1, req: 1, cost: 1, mods: 1, flags: 1, notFlags: 1,
     contact: 1, contacts: 1, id: 1, attrKey: 1, category: 1, grade: 1,

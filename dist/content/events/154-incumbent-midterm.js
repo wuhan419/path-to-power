@@ -6,11 +6,11 @@
 
 POTUS.define("event", [
   {
-    id: "camp_mt_agenda", brief: { lede: "就职满两年，党团要你对这两年交账：候选人愿意挂你的名字，还是希望你别来。", known: ["地方候选人要的是钱和票，不是你的一张合影。", "把自己绑上整张党票，涨得最猛，摔得也最狠。", "只回自家州站台，谁也挑不出错，可也带不动别人。"], unknown: ["你只要一次不出场，就等于认了这两年不值一提。"] },
+    id: "camp_mt_agenda",
     grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 9, tierMax: 9, weight: 1,
     title: "党团要一个交代",
-    body: "两年一次的党团年会，把这两年的账摊在桌上。台上的人笑着问你几时来，台下的人在心里算你的名字还值几票。",
+    body: "两年一次的党团年会，把这两年的账摊在桌上。台上的人笑着问你几时来，台下的人在心里算你的名字还值几票。地方候选人要的是钱和票，不是你的一张合影。你只要一次不出场，就等于认了这两年不值一提。",
     choices: [
       {
         id: "all_in", text: "把自己绑上整张党票，一场一场去替人站台", base: 0.42,
@@ -47,11 +47,11 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "camp_mt_rally", brief: { lede: "七十二小时跑六个州，地方台只想知道你怎么回应那件还没过去的旧事。", known: ["地方台的问题从来不是全国议题，是你自己那笔旧账。", "把对手阵营那件把柄同时放出去，水花会反着涌回来。", "只去稳的州能保住基本盘，却也只保住基本盘。"], unknown: ["这波水花最后会砸在谁的头上，要看你先把矛头对准谁。"] },
+    id: "camp_mt_rally",
     grade: "major", category: "campaign", unique: false,
     valence: "risk", tierRaw: true, tierMin: 9, tierMax: 9, weight: 1,
     title: "全国助选",
-    body: "专机七十二小时起降六州。你在台上替人背书，镜头却在等那件还没过去的旧事从你嘴里怎么讲出来。",
+    body: "专机七十二小时起降六州。你在台上替人背书，镜头却在等那件还没过去的旧事从你嘴里怎么讲出来——地方台的问题从来不是全国议题，是你自己那笔旧账。这波水花最后砸在谁头上，要看你先把矛头对准谁。",
     choices: [
       {
         id: "head_on", text: "挨场硬碰，替人背书，顺手把对手的旧账也摊开", base: 0.44,
@@ -89,12 +89,12 @@ POTUS.define("event", [
     ]
   },
   {
-    id: "prog_midterm", brief: { lede: "投票日：选民不问你下一任想干什么，只问这两年你干成了什么。", known: ["国会两院的席位今晚一起开出来，你的名字在最上面。", "全党押上来守多数，靠的是你还有多少人愿意替你出门投票。", "现在缩回白宫，议程能保住，党团这本账要记到你卸任那天。"], unknown: ["丢了院，党内的清算就从开票夜那通电话开始。"] },
+    id: "prog_midterm",
     grade: "major", category: "campaign", unique: false,
     minTenure: 12,               // 中期档期开在第 14 月：这条闸只拦"火箭直达总统就要验货"
     valence: "risk", tierRaw: true, tierMin: 9, tierMax: 9, weight: 1,
     title: "投票日 · 中期",
-    body: "计票夜。你这两年的每一道题，都由别人的选票来打分。国会守不守得住，就看今晚你肯把自己押到哪一步。",
+    body: "计票夜。国会两院的席位今晚一起开出来，你的名字印在最上面。你这两年的每一道题，都由别人的选票来打分。全党押上来守多数，靠的是还有多少人愿意替你出门投票；现在缩回白宫，议程保得住，党团这本账要记到你卸任那天。",
     choices: [
       {
         id: "hold", "ballot": true, text: "押上自己的名字，全党压上去守国会", req: { voterShare: 0.10 }, base: 0.42,

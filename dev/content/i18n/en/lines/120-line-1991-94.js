@@ -4,7 +4,6 @@
  *
  * 契约（同 i18n/en/events/106-era-1990.js）：
  *   · 事件按 id 定位；choices / terms 按 id 对齐。
- *   · 纯字符串数组（known / rumor / unknown / terms）为整体替换，必须整条给全。
  *   · 结构性键由引擎保护，本文件一个不写。
  *   · 英文按习语重写：第二人称、现在时、短句；机构名用真实英文。
  * ==========================================================================*/
@@ -19,26 +18,8 @@ POTUS.define("l10n", {
         body: "Gorbachev resigns on television. In one document the Soviet Union stops existing. Forty years of standoff,\n" +
           "closed out overnight — the end of history is on every magazine cover.\n" +
           "But the line at the local gas station has not moved, and the plants keep shipping out. Cable crews are hunting\n" +
-          "across the country for a face to say what victory means. The Eastern European neighborhood wants a thanksgiving rally — they all thought of you.",
-        brief: {
-          lede: "History rarely presses a tailwind like this into your hands. The trick is saying it plainly, and being remembered for it.",
-          known: [
-            "The Soviet Union has formally ceased to exist. The warheads remain, but no government claims them.",
-            "The local Eastern European neighborhood is planning a thanksgiving rally. They need a man with a title on the platform.",
-            "Cable crews are booking local officials everywhere: reaction shots, what does victory mean?"
-          ],
-          rumor: [
-            "Some say the hardliners in Moscow could reverse all of this any day.",
-            "Some say the cut defense budget lands in your district this fiscal year."
-          ],
-          unknown: [
-            "Whether this check still clears in five years.",
-            "The empty seat across from you will not stay empty forever."
-          ],
-          terms: [
-            { k: "USSR dissolved", v: "December 1991: the Soviet Union formally ceases to exist." }
-          ]
-        },
+          "across the country for a face to say what victory means. The Eastern European neighborhood wants a thanksgiving rally — they all thought of you.\n" +
+          "The warheads are still out there with no government to claim them. Some say Moscow's hardliners could reverse all of this any day; nobody guarantees this victory check still clears in five years.",
         choices: [
           {
             id: "victory",
@@ -83,26 +64,8 @@ POTUS.define("l10n", {
         title: "The officers who beat Rodney King walk free. Los Angeles burns for six days",
         body: "Four officers, caught on tape beating a black motorist, are found not guilty. Hours after the verdict Los Angeles erupts.\n" +
           "Six days. More than fifty dead. A billion dollars in flames. National Guard armored vehicles roll down the boulevards.\n" +
-          "Live television feeds a burning city into every living room. Your city is not burning. But on every street people are waiting for a word — yours.",
-        brief: {
-          lede: "Once the fires start, silence is a statement and so is speech. Both get recorded.",
-          known: [
-            "The beating ran nationwide a thousand times. The verdict: not guilty on all counts.",
-            "Looting and arson, day after day. Fire crews now roll with police escorts.",
-            "The black churches and the merchants' association in your district are both waiting for your first sentence."
-          ],
-          rumor: [
-            "Shop owners have already formed their own patrols.",
-            "The fires were set by looters, not by the verdict."
-          ],
-          unknown: [
-            "Whichever way the anger on these streets flows.",
-            "What your statement today is worth in votes."
-          ],
-          terms: [
-            { k: "LA riots", v: "Six days of unrest after the Rodney King acquittals." }
-          ]
-        },
+          "Live television feeds a burning city into every living room. Your city is not burning. But on every street people are waiting for a word — yours.\n" +
+          "Shop owners have already formed their own patrols — so they say. Whichever way the anger on these streets flows, and what your statement is worth in votes, nobody will quote that price to you today.",
         choices: [
           {
             id: "march",
@@ -147,26 +110,8 @@ POTUS.define("l10n", {
         title: "A yellow truck blows a hole in the base of the World Trade Center",
         body: "A rented yellow truck loaded with explosives drives into the World Trade Center's underground garage and detonates on schedule.\n" +
           "Floor slabs punch downward. Six dead, over a thousand in hospitals, Manhattan dust in everyone's throat.\n" +
-          "Terrorism has touched the heart of American commerce for the first time. The country is stunned. And in your town the Arab and South Asian shopkeepers are suddenly the suspects — they want to see whether you will speak.",
-        brief: {
-          lede: "A warning shot nobody treats as one yet. You may say unprecedented. No one dares say there will not be a next time.",
-          known: [
-            "The towers themselves were the target. The plotters wanted collapse; they got a hole in the foundation.",
-            "Suspects are still at large, with a federal bounty. Rental records are being pulled nationwide.",
-            "Middle Eastern shops in your district face a boycott and hard stares. The merchants signed a letter asking you to appear."
-          ],
-          rumor: [
-            "A second van full of explosives is somewhere outside the city.",
-            "The feds actually know nothing."
-          ],
-          unknown: [
-            "Whether this warning shot was the last one.",
-            "The bill for playing the safety card comes later."
-          ],
-          terms: [
-            { k: "WTC bombing", v: "February 1993: a car bomb in the north tower's garage." }
-          ]
-        },
+          "Terrorism has touched the heart of American commerce for the first time. The country is stunned. And in your town the Arab and South Asian shopkeepers are suddenly the suspects — they want to see whether you will speak.\n" +
+          "Suspects are still at large, with a federal bounty out; rental records are being pulled nationwide. Some say a second van full of explosives sits somewhere outside the city — nobody dares promise this warning shot was the last.",
         choices: [
           {
             id: "harden",
@@ -211,26 +156,8 @@ POTUS.define("l10n", {
         title: "The Waco compound burns to white ash before dawn",
         body: "Fifty-one days of standoff between a Texas religious compound and federal agents. A gunfight, tear gas, failed talks —\n" +
           "then before dawn on April 19 the fire takes everything: seventy-plus bodies, more than twenty of them children.\n" +
-          "The talk shows fight about it for two weeks. Justice Department hearings are calendared. Every elected official is asked the same question: a tragedy of law enforcement, or a crime of government?",
-        brief: {
-          lede: "The ash is still warm and the argument is already burning. Who gave the order? Who should have blocked it?",
-          known: [
-            "Agents died and were wounded in the first raid. The final assault came at five in the morning.",
-            "Survivor testimony and the official account do not match. The files are not public.",
-            "The memorial service and the pro-law-enforcement rally are booked in the same week. Both invited you."
-          ],
-          rumor: [
-            "The compound's weapons cache was reported before anyone checked it.",
-            "The sect set the fire itself. Not the government's fault."
-          ],
-          unknown: [
-            "This spark will smolder, to burn somewhere else later.",
-            "The metal of the side you pick today."
-          ],
-          terms: [
-            { k: "Waco siege", v: "The compound burned after a 51-day standoff." }
-          ]
-        },
+          "The talk shows fight about it for two weeks. Justice Department hearings are calendared. Every elected official is asked the same question: a tragedy of law enforcement, or a crime of government?\n" +
+          "Survivor testimony does not match the official account, and the files stay sealed. The memorial and the pro-law-enforcement rally are booked in the same week; both invited you. The side you take today will be graded later, by what it turns out to be made of.",
         choices: [
           {
             id: "probe",
@@ -275,26 +202,8 @@ POTUS.define("l10n", {
         title: "Two Black Hawks go down on the streets of Mogadishu",
         body: "A raid to seize one warlord's aides becomes a night of street battle: two Black Hawks shot down by rocket-propelled grenades,\n" +
           "troops carrying their dead out through gunfire. On television worldwide, an American soldier is dragged through the sand. Eighteen young men did not come home.\n" +
-          "A year ago everyone asked: if we do not act, where is the line? Today everyone asks: why did they die there? These questions are landing on every elected official.",
-        brief: {
-          lede: "A short battle becomes a long film. The public wants someone accountable; the families want someone back.",
-          known: [
-            "The target was a few aides of one warlord. The cost was one night of battle and the footage.",
-            "The White House is already discussing withdrawal. The European peacekeepers waver with it.",
-            "Two military families in your district, and the recruiting office, took calls in the night."
-          ],
-          rumor: [
-            "Some prisoners are still alive, being traded.",
-            "The real target was the money behind the embassy bombings."
-          ],
-          unknown: [
-            "It will be forgotten quickly. Until the next attack.",
-            "What you say today will be quoted tomorrow."
-          ],
-          terms: [
-            { k: "Black Hawk Down", v: "October 1993: the Mogadishu raid goes wrong on camera." }
-          ]
-        },
+          "A year ago everyone asked: if we do not act, where is the line? Today everyone asks: why did they die there? These questions are landing on every elected official.\n" +
+          "The recruiting office in your district took calls in the night; two military families' business now sits on your desk. What you say today will be quoted back at you tomorrow.",
         choices: [
           {
             id: "bring",
@@ -339,26 +248,8 @@ POTUS.define("l10n", {
         title: "At four in the morning, a freeway overpass falls across Los Angeles",
         body: "A 6.7 quake splits the Northridge area on a Monday before dawn: whole spans of overpass on the ground, hospital walls cracked,\n" +
           "fifty-plus dead, damage running toward tens of billions. Afterward the insurance industry simply withdraws earthquake coverage from the state.\n" +
-          "Relief money, the hole insurance left, and the warning that the big one is still coming — all of it lands on the table at once.",
-        brief: {
-          lede: "Quakes do not respect election years. The rebuilding money and the blame, in the end, are settled by the living.",
-          known: [
-            "Federal relief is being approved. The process is long. Your shelters cannot wait.",
-            "Insurers stop selling earthquake policies statewide. Homeowners queue for nothing.",
-            "Under your watch: shelters short of people, of water, of engineering crews."
-          ],
-          rumor: [
-            "The relief money is already allotted. Whoever shouts loudest gets paid first.",
-            "This was only the foreshock. The main one has not come."
-          ],
-          unknown: [
-            "Your relief record cashes in at the next election, with interest.",
-            "Whether the insurance hole bites your funders or you."
-          ],
-          terms: [
-            { k: "Northridge quake", v: "January 1994: a strong quake hits the Los Angeles metro area." }
-          ]
-        },
+          "Relief money, the hole insurance left, and the warning that the big one is still coming — all of it lands on the table at once.\n" +
+          "Federal relief is being approved, but the process is long, and your shelters are short of people, of water, of engineering crews. Some say this was only the foreshock.",
         choices: [
           {
             id: "build",
@@ -403,26 +294,8 @@ POTUS.define("l10n", {
         title: "Rwanda's hundred days: the cables carry lists, the word is never said",
         body: "After one president's plane is shot down, Rwanda kills nearly a million Tutsi and moderate Hutu in a hundred days — mostly with machetes.\n" +
           "The footage sits in every network's edit bay while the White House debates whether it may say the word genocide.\n" +
-          "Under Somalia's shadow nobody will send another soldier. In your town, relief groups and refugee families knock on your door. They want you to say one sentence for people without passports.",
-        brief: {
-          lede: "The horror of this question is its transparency. You know the cost. You can see the lists.",
-          known: [
-            "The television footage and the refugee testimony in your district corroborate each other.",
-            "The United Nations is cutting its force. Nobody utters the word intervention.",
-            "The relief groups bring a petition: sign it, stop the slaughter."
-          ],
-          rumor: [
-            "The killing lists are public. Accounts settled name by name.",
-            "Speaking now changes nothing anyway."
-          ],
-          unknown: [
-            "The word will not be released until the very end.",
-            "History will check your signature later."
-          ],
-          terms: [
-            { k: "Genocide", v: "The deliberate destruction of a people — defined in international law." }
-          ]
-        },
+          "Under Somalia's shadow nobody will send another soldier. In your town, relief groups and refugee families knock on your door. They want you to say one sentence for people without passports.\n" +
+          "The petition is already in your hands, missing only a signature. Some say the killing runs name by name off a public list — and that list, too, will check your name later.",
         choices: [
           {
             id: "word",
@@ -467,26 +340,8 @@ POTUS.define("l10n", {
         title: "Contract with America: the midterms change the House overnight",
         body: "The opposition binds its hundred-day agenda into a booklet called the Contract with America, and rides tax rage and scandal through the midterms:\n" +
           "the party that held the House for decades loses its majority in one night. The Senate flips too.\n" +
-          "The wave either hands you a chair or buries you under a new majority's agenda. Your name is printed on the same ballot.",
-        brief: {
-          lede: "The wave is here. Two choices: get on it, or get out of the way. Neither is free.",
-          known: [
-            "Referendum anger at the White House is at a record high.",
-            "The Contract lists term limits and a rollback agenda, clause by clause.",
-            "Your own race rides in the same ballot box as the wave."
-          ],
-          rumor: [
-            "This wave is one-time only. The new majority will not fit through the door.",
-            "Party elders are already ranking seats. The edges get cut first."
-          ],
-          unknown: [
-            "If the contract men fail, the bill swings back.",
-            "Whether the wave lifts you or buries you."
-          ],
-          terms: [
-            { k: "GOP Revolution", v: "The 1994 midterms: Republicans take both chambers." }
-          ]
-        },
+          "The wave either hands you a chair or buries you under a new majority's agenda. Your name is printed on the same ballot.\n" +
+          "And if the men who signed the contract can not deliver in a hundred days, the bill swings back onto the signers.",
         choices: [
           {
             id: "ride",

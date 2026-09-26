@@ -216,22 +216,11 @@ for (const ev of P.events) {
     if (ev.month != null) check(Number.isInteger(ev.month) && ev.month >= 1 && ev.month <= 12, "month 必须为 1-12：" + ev.id + " = " + ev.month);
     if (ev.day != null) check(Number.isInteger(ev.day) && ev.day >= 1 && ev.day <= 31, "day 必须为 1-31：" + ev.id + " = " + ev.day);
     if (ev.day != null && ev.month == null) check(false, "声明了 day 却没声明 month：" + ev.id);
-    /* 背景卡 brief：主角视角的认知边界 */
-    if (ev.brief) {
-      const b = ev.brief;
-      check(typeof b === "object", "brief 必须是对象：" + ev.id);
-      ["known", "rumor", "unknown"].forEach(k => {
-        if (b[k] == null) return;
-        check(Array.isArray(b[k]), "brief." + k + " 必须是数组：" + ev.id);
-        (b[k] || []).forEach(x => check(typeof x === "string" && x.length > 0, "brief." + k + " 的元素必须是非空字符串：" + ev.id));
-      });
-      check((b.known || []).length + (b.rumor || []).length + (b.unknown || []).length > 0,
-        "brief 至少要有 known/rumor/unknown 之一且非空：" + ev.id);
-      (b.terms || []).forEach(t => {
-        check(t && typeof t.k === "string" && typeof t.v === "string" && t.k && t.v, "brief.terms 需要 {k,v} 两个非空字符串：" + ev.id);
-      });
-      if (b.terms) check(Array.isArray(b.terms), "brief.terms 必须是数组：" + ev.id);
-    }
+    /* #41：一张事件卡只剩「标题 + 正文 + 头条图」。
+       背景卡（brief）与斜体导语（standfirst）连同数据一起下线，这里反向钉死，
+       防止并行写作时又有人把稿子塞回卡对象上。 */
+    check(!ev.brief, "#41 起事件卡不得带 brief（背景卡已下线，信息按 §11.7 折进正文）：" + ev.id);
+    check(!ev.standfirst, "#41 起事件卡不得带 standfirst（斜体导语行已从版式删除）：" + ev.id);
   }
 }
 
@@ -262,20 +251,32 @@ check(P.reg.ending.some(r => !r.when || !Object.keys(r.when).length), "结局规
 const rc = P.balance().recentCap;
 check(rc < P.events.length, "balance.recentCap(" + rc + ") 必须小于事件总数(" + P.events.length + ")，否则事件会退化成填充");
 
-/* ---------- 背景卡 / 时间 ---------- */
-console.log("\n== 背景卡 / 时间 ==");
+/* ---------- 卡面文字（#41）/ 时间 ---------- */
+console.log("\n== 卡面文字（#41：只剩标题 + 正文）/ 时间 ==");
 {
-  const withBrief = P.events.filter(e => e.brief);
-  const withDate = P.events.filter(e => e.month);
-  console.log("  带背景卡 " + withBrief.length + "/" + P.events.length +
-    " ｜ 带日期 " + withDate.length + "/" + P.events.length);
-  check(withBrief.length > 0, "没有任何事件带背景卡（brief）");
-  for (const eraId in P.reg.era) {
-    const evs = P.events.filter(e => (e.era || []).indexOf(eraId) >= 0);
-    if (!evs.length) continue;
-    const n = evs.filter(e => e.brief).length;
-    check(n > 0, "时代 " + eraId + " 的 " + evs.length + " 个事件里，带背景卡的为 0");
-  }
+  /* 一把尺量两种语言：CJK 按去空白的字符数，纯拉丁按词 ×0.5。
+     与 tools/text-audit.js 的 unit() 同参 —— 两处不同尺会让 250 字闸在英文侧假绿。 */
+  const CJK_RE = /[　-〿㐀-䶿一-鿿぀-ヿ＀-￯]/;
+  const unit = (s) => {
+    const t = (s == null ? "" : String(s)).trim();
+    if (!t) return 0;
+    if (CJK_RE.test(t)) return t.replace(/\s+/g, "").length;
+    return t.split(/\s+/).length * 0.5;
+  };
+  const nBrief = P.events.filter(e => e.brief).length;
+  const nDate = P.events.filter(e => e.month).length;
+  const over = P.events.filter(e => unit(e.title) + unit(e.body) > 250);
+  console.log("  残留背景卡 " + nBrief + "/" + P.events.length +
+    " ｜ 带日期 " + nDate + "/" + P.events.length +
+    " ｜ 标题+正文 >250：" + over.length);
+  check(nBrief === 0, "#41 起这些事件仍带 brief（背景卡数据应随展示一起下线）：" +
+    P.events.filter(e => e.brief).map(e => e.id).join(", "));
+  /* 总闸：一张卡的阅读预算。超尺的卡会把中栏顶出首屏，正是本单要治的病。 */
+  check(!over.length, "标题+正文 超 250 字（§11.7 硬闸）：" +
+    over.map(e => e.id + "(" + Math.round(unit(e.title) + unit(e.body)) + ")").join(", "));
+  /* 正文不能空着：砍背景时最容易顺手把正文也清空 */
+  const noBody = P.events.filter(e => !String(e.body || "").trim());
+  check(!noBody.length, "这些事件没有正文：" + noBody.map(e => e.id).join(", "));
 
   P.CSEL = {
     era: Object.keys(P.reg.era)[0], origin: Object.keys(P.reg.origin)[0], talent: Object.keys(P.reg.talent)[0],
@@ -298,11 +299,10 @@ console.log("\n== 背景卡 / 时间 ==");
   P.setMonth(2);
   check(P.G.month === 9, "更早的月份不应让时间回退（当前月仍为 9）");
 
-  const ev = withBrief[0];
-  const h = ZH(() => P.briefHTML(ev));
-  check(h.indexOf("你确知的") >= 0 && h.indexOf("你尚不知道的") >= 0, "briefHTML 应渲染出三段认知边界");
-  check(h.indexOf("brief-head") >= 0 && h.indexOf("toggleBrief") >= 0, "briefHTML 应带可折叠的按钮");
-  check(P.briefHTML({ id: "x" }) === "", "无 brief 的事件不应渲染背景卡");
+  /* 背景卡的三个渲染口必须一起下线：留一个空壳在 POTUS 上，
+     内容侧迟早又有人往卡对象里塞 brief（这次是数据+展示一起砍）。 */
+  check(P.briefHTML == null && P.toggleBrief == null && P.briefCollapsed == null,
+    "stage.js 仍在导出背景卡渲染口（briefHTML / toggleBrief / briefCollapsed）");
 }
 
 /* ---------- 三值性（valence）与动态系数（dyn） ----------
@@ -3462,8 +3462,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(!attrSin.length, "#37② 属性纪律：出身/州不得给属性、起点只许给负诚信 —— 越界：" + attrSin.join("、"));
 
     /* 建角一次性资金也上这把尺：出身/起点/州的 `fun` 是**绝对额**，折成自由点单位
-       不得超过 4 点（= $8k · 一张橙卡的钱）。v0.5.2 遗留在商人起点的 $1.5M（=750 点）
-       能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。 */
+       不得超过 4 点（= $8k，仍高于卡池最贵的那张钱卡「老钱家族」$6k）。v0.5.2 遗留在商人起点的
+       $1.5M（=750 点）能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。
+       注意这条闸走的是**自由点尺**，与 #40 之后卡池自带的卡面尺（1 属性点 = $1k）不同源。 */
     const funUnit = bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint;
     const funSin = [];
     const scanFun = function (src, label) {
@@ -3490,22 +3491,40 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(b5.freeCapPerAttr === Math.floor(100 / b5.freeAttrPerPoint),
     "单维上限 = 点到属性 100 所需点数（" + b5.freeCapPerAttr + " 点）");
 
-  /* 卡池标尺（#20 收尾 · #36 重标）：1 单位 = +10 属性 = $2k，钱卡 = 稀有度 × $2k；
-     白/蓝的属性增益严格 = 稀有度 × 10（紫/橙只要求不超过档位，多维合计另算）。
-     被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
+  /* 卡池标尺（#40 重标 · **卡面尺**，与自由点尺不同源）：1 属性点 = $1k，
+     档位单位 {白1, 蓝3, 紫6, 金15}。三条纪律：
+       ① 净值（Σ正 − Σ负）≤ 单位；
+       ② 正项 ≤ 单位 + Σ负 —— 只许用"还给池子的那点"换超额单项（放行「+2 并 -1」，挡住 +6/-1 的白卡）；
+       ③ 钱卡 peg 恒定：fun = 单位 × $1k。
+     白/蓝另要求净值**恰好等于**档位（单系样板卡不许留空），紫/金只要求不超（多维合计）。
+     派系 / 声望 / 人情与被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
   const CARDS = P.reg.card || {};
+  const CARD_UNITS = { 1: 1, 2: 3, 3: 6, 4: 15 };
+  const cardRows = [];
   Object.keys(CARDS).forEach(function (id) {
-    const c = CARDS[id], r = c.rarity || 1, fx = c.effects || {};
+    const c = CARDS[id], r = c.rarity || 1, u = CARD_UNITS[r], fx = c.effects || {};
     if (typeof fx.fun === "number" && fx.fun > 0) {
-      check(fx.fun === r * 2000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $2k：" + fx.fun);
+      check(fx.fun === u * 1000, "卡 " + id + "（" + r + " 档 " + u + " 单位）钱 = 单位 × $1k = $" + (u * 1000 / 1000) + "k，实为 $" + fx.fun);
     }
     const av = fx.attr || {};
-    const pos = Object.keys(av).map(function (k) { return av[k]; }).filter(function (v) { return v > 0; });
-    if (!pos.length) return;
-    const mx = Math.max.apply(null, pos);
-    check(mx <= r * 10, "卡 " + id + "（" + r + " 档）单维属性增益 ≤ 稀有度 × 10：" + mx);
-    if (r <= 2) check(mx === r * 10, "白/蓝卡属性增益严格对齐标尺（" + r + " 档 = +" + (r * 10) + "）：" + id);
+    const ks = Object.keys(av);
+    if (!ks.length) return;
+    let pos = 0, neg = 0, mx = 0;
+    ks.forEach(function (k) {
+      const v = av[k];
+      if (v > 0) { pos += v; if (v > mx) mx = v; } else neg += -v;
+    });
+    check(pos - neg <= u, "卡 " + id + "（" + r + " 档 " + u + " 单位）净属性 " + (pos - neg) + " 超档");
+    check(pos <= u + neg, "卡 " + id + " 正项 " + pos + " 超过 单位+负项 " + (u + neg) + "（超额单项只能拿还回池子的点换）");
+    if (r <= 2 && pos > 0) check(pos - neg === u, "白/蓝属性卡净属性必须恰好对齐档位（" + r + " 档 = " + u + " 点）：" + id);
+    cardRows.push("  卡 " + id.padEnd(14) + "r" + r + " " + String(u).padStart(2) + "单位" +
+      " 净" + String(pos - neg).padStart(2) + "（正" + pos + (neg ? "/负" + neg : "") + "）最大单维 +" + mx);
   });
+  console.log("== 卡池标尺（#40 · 卡面尺 1 属性点 = $1k · 档位 白1/蓝3/紫6/金15）==");
+  cardRows.forEach(function (s) { console.log(s); });
+  console.log("  对照：自由点尺 1 点 = +" + b5.freeAttrPerPoint + " 属性 = $" + (b5.freeFunPerPoint / 1000) +
+    "k，建角 " + b5.freePoints + " 点 = " + (b5.freePoints * b5.freeAttrPerPoint) + " 属性 —— 一张金卡（15 点）≈ 建角池的 " +
+    Math.round(15 / (b5.freePoints * b5.freeAttrPerPoint) * 100) + "%");
 
   /* 周目 meta（#31：周目数是唯一的成长账本 —— 自由点 = 基础 12 + 已完成周目 × 1） */
   const _loopRaw = (function () { try { const v = localStorage.getItem(P.metaLoopKey); localStorage.removeItem(P.metaLoopKey); return v; } catch (e) { return null; } })();

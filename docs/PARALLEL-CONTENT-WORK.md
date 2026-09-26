@@ -6,7 +6,7 @@
 > 事件卡的**结构/字段**看 CONTENT-SCHEMA，**分工/门禁/提交**看本文。
 
 配套文档：
-- `docs/CONTENT-SCHEMA.md` —— 事件卡字段、三值性、动态经济、brief 篇幅上限（§11.7）
+- `docs/CONTENT-SCHEMA.md` —— 事件卡字段、三值性、动态经济、卡面篇幅上限（§11.7：标题 + 正文 ≤250 字）
 - `docs/I18N.md` —— 中英双语契约（`P.t` + `l10n` 覆盖层）
 - `CONTRIBUTING.md` —— 通用约定
 
@@ -218,7 +218,9 @@ grep -rn 'year: 19' dev/content/21-worldline.js dev/content/events/110-line-1980
 ### 4.3 每张卡的硬性内容要求
 
 1. `minYear/maxYear` + `scoped`（新卡**不写 `era`**）；`grade/category/valence/dyn:true` 必填。
-2. `brief` 五段齐（`lede/known/rumor/unknown/terms`），篇幅守 CONTENT-SCHEMA §11.7。
+2. **卡面只有「标题 + 正文」**（#41）：**事件上的 `brief` 背景卡已整块删除，写了会被 `validate.js` 判红**；
+   原来背景卡承担的局面/名词/信息差要折进正文，篇幅守 CONTENT-SCHEMA §11.7（**标题 + 正文 ≤250 字**）。
+   ⚠️ 只有**事件**的 `brief` 下线了：`worldline.brief`（§4.4）与 `era.brief` 是**另一套按年简报数据，照旧要写**，不许顺手删。
 3. ≥2 个选项，**必有一个「保底」**（§6）。
 4. 五个结局层 `crit/ok/meh/fail/critfail` 全写，不允许只写 `ok/fail`。
 5. 经济数值写**系数**（`dyn:true` + `scale.js` 口径），不写死绝对金额。

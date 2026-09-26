@@ -8,18 +8,7 @@ POTUS.define("l10n", {
       {
         id: "camp_re_announce",
         title: "Announcing a run for reelection",
-        body: "Filing has not even closed and the machine is already running. You step to the microphones and say the line, that you intend to seek reelection. Only after you say it does the real fight begin.",
-        brief: {
-          lede: "You have not said you will run, and inside the party people are already rearranging the seating for after you.",
-          known: [
-            "An incumbent's edge is that the record is already his; so is the baggage.",
-            "An early-state bus tour bets on heat, a second New Deal on a blueprint, a letter to members on not stumbling.",
-            "You have not even said you will run, and someone is already counting names for a second term."
-          ],
-          unknown: [
-            "Set the announcement too high and every move for three months gets measured against it."
-          ]
-        },
+        body: "Filing has not even closed and the machine is already running. You have not said you will run, and inside the party someone is already rearranging the seating for after you. Step to the microphones and say the line, that you intend to seek reelection - only after you say it does the real fight begin. And set the announcement too high, and every move of the next three months gets measured against it.",
         choices: [
           {
             id: "early_tour",
@@ -59,18 +48,7 @@ POTUS.define("l10n", {
       {
         id: "camp_re_primary",
         title: "A challenger inside your own party",
-        body: "A challenger under forty squeezes into the primary. He does not attack your policies; he attacks the clock: that is already a previous generation's business.",
-        brief: {
-          lede: "The sharpest knife in the primary is not across the aisle. It is inside your own party, and it is young.",
-          known: [
-            "The challenger has no record to attack, so his whole campaign rides one line: you are already the past.",
-            "Going at him yourself bets on erasing him, and even a win draws a line; letting the machine move on rules wins but owes the establishment; ignoring it is safest and looks most like fear.",
-            "You have spent these years collecting his weaknesses, and whether to use them depends on what you want to keep."
-          ],
-          unknown: [
-            "Even if you crush him, the first people across the convention floor to shake your hand will be his faction."
-          ]
-        },
+        body: "The sharpest knife in the primary is not across the aisle. A challenger under forty squeezes into the race, and with no record of his own to defend, his whole campaign rides one line: he does not attack your policies, he attacks the clock - that is already a previous generation's business. The weaknesses you have spent these years collecting come down to one question: whether to use them, and what you want to keep in the party. And even if you crush him, the first people to cross the convention floor to shake your hand will still be his faction.",
         choices: [
           {
             id: "crush",
@@ -110,18 +88,7 @@ POTUS.define("l10n", {
       {
         id: "camp_re_debate",
         title: "The second presidential debate",
-        body: "There are still hundreds of millions of eyes on the stage, and the set looks exactly as it did years ago. The new face across from you opens with: Mr. President, let's talk about these past years.",
-        brief: {
-          lede: "You step on stage for the second debate facing a new name, and the first thing he does is put your years on trial.",
-          known: [
-            "The new face did not come to argue policy. He came to collect on your years.",
-            "An incumbent's ease bets on weight, an open record bets on momentum, and reading from a script bets on never stumbling.",
-            "The weaknesses you have stockpiled are enough to blow up half the other side's campaign headquarters, and whether to throw them is the last question."
-          ],
-          unknown: [
-            "What the audience remembers is usually not your record but the follow-up you could not answer."
-          ]
-        },
+        body: "There are still hundreds of millions of eyes on the stage, and the set looks exactly as it did years ago. The new face across from you opens with: Mr. President, let's talk about these past years. He did not come to argue policy; he came to collect on your years. And what the audience remembers is usually not your record, but the follow-up you could not answer.",
         choices: [
           {
             id: "incumbent_calm",
@@ -161,18 +128,7 @@ POTUS.define("l10n", {
       {
         id: "prog_reelect",
         title: "Election day: reelection",
-        body: "The lines at the polls form before dawn. Tonight voters settle the account on your years: either a stamp to renew them, or a reckoning in your face.",
-        brief: {
-          lede: "Your name is on the ballot, and all your years sit on the scale.",
-          known: [
-            "Win and the flag stays planted on the White House lawn for four more years; lose and the reckoning starts today.",
-            "The main fight bets on your years, a local-issues run bets on deflection, and stepping aside bets on legacy and party goodwill.",
-            "Incumbents win reelection not with momentum but with the pages no one dug up."
-          ],
-          unknown: [
-            "When the count ends, the exit-ledger for the reckoning starts its first entry tonight."
-          ]
-        },
+        body: "The lines at the polls form before dawn. Tonight voters settle the account on your years: either a stamp to renew them, or a reckoning in your face. Incumbents win reelection not with momentum, but with the pages no one dug up.",
         choices: [
           {
             id: "run",

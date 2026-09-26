@@ -5,7 +5,6 @@
  * 契约同 i18n/en/lines/124-line-2007-10.js（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文案字段。
  *   · 事件按 id 定位；choices 按 id 对齐；terms 无 id，按下标对齐。
- *   · known / rumor / unknown 是纯字符串数组 → 整体替换，元素个数与中文严格一致。
  *   · 结构性键（id / minYear / tierMin / weight / base / mods / effects / flags /
  *     req / cost …）由引擎保护，这里一条都不写。
  *   · 本文件不含 worldline 覆盖：2003—2010 各年条目由 123/124 带的分片负责。
@@ -23,28 +22,7 @@ POTUS.define("l10n", {
         id: "ln05_lobby",
         title: "The capital's lobbying ring is indicted, and the donation ledger leads back to the contracts",
         body: "In the first week of November federal prosecutors indict a top lobbyist. The same stack of files wires him to the majority\n" +
-          "leadership of Congress — raises, contributions, appropriations, contracts, each one priced against the next.\nThere is money from this line in your own state: the contribution your local party banked last year passed through his firm. Reporters are already asking for interviews, and the opposition says next autumn's midterms will be fought on this ledger.",
-        brief: {
-          lede: "When donations and contracts are tied into one chain, the whole chain is a case. The question is whose name gets read first.",
-          known: [
-            "The lobbyist's client list includes a local contractor.",
-            "Your party committee banked a contribution that ran through his firm last year.",
-            "The Senate has opened ethics probes of several sitting members.",
-            "The opposition says next year's midterms will run on this case."
-          ],
-          rumor: [
-            "Some say a resolution to censure a sitting senator is being drafted in the Senate.",
-            "Some say every donor is in the files, but only a few names will be charged."
-          ],
-          unknown: [
-            "Whether this case washes down to the local level.",
-            "Which list your contributions are on."
-          ],
-          terms: [
-            { k: "Lobbying disclosure", v: "Registered lobbyists must name clients, issues and amounts." },
-            { k: "Earmark", v: "A construction project a member writes into a spending bill." }
-          ]
-        },
+          "leadership of Congress — raises, contributions, appropriations, contracts, each one priced against the next.\nThere is money from this line in your own state: the contribution your local party banked last year passed through his firm. Reporters are already asking for interviews, and the opposition says next autumn's midterms will be fought on this ledger.\nEvery donor name sits in the files; only a handful will ever be charged. Which list your committee's money is on, nobody has told you.",
         choices: [
           {
             id: "keep_dist",
@@ -90,28 +68,7 @@ POTUS.define("l10n", {
         id: "ln06_alito",
         title: "A Supreme Court confirmation slides toward the threshold, and the filibuster threat is real",
         body: "In late January the confirmation fight reaches its last mile. For the first time the opposition lays filibuster threats on the\n" +
-          "table at scale, and the rules themselves become the issue: does the motion to end debate survive? It hangs there for three weeks.\nIt ends 58 to 42, confirmed. The phrase judicial philosophy enters bar talk and kitchen talk for the first time.",
-        brief: {
-          lede: "On trial is not only the nominee but the Senate itself: can the rules be used to win once?",
-          known: [
-            "Your state bar association has already taken a public position.",
-            "Both parties are collecting statements of your judicial philosophy.",
-            "Whether the threshold holds depends on a few moderates.",
-            "The local paper will print your position word for word."
-          ],
-          rumor: [
-            "Some say a dozen moderates already cut a deal to keep the rules fight off the floor.",
-            "Some say the seat that matters is the next one, not this one."
-          ],
-          unknown: [
-            "Whether the threshold gets rewritten this time.",
-            "In whose hearing your sentence gets quoted."
-          ],
-          terms: [
-            { k: "Filibuster", v: "The minority talks a vote down; a supermajority is needed to stop it." },
-            { k: "Cloture motion", v: "The procedural vote that ends a filibuster." }
-          ]
-        },
+          "table at scale — the minority talks a vote down unless a supermajority stops it — and the rules themselves become the issue: does the motion to end debate survive? It hangs there for three weeks.\nIt ends 58 to 42, confirmed. The phrase judicial philosophy enters bar talk and kitchen talk for the first time. Both parties are collecting your position, and the local paper will print it word for word.\nWhich of your sentences gets quoted back at some future hearing, nobody tells you.",
         choices: [
           {
             id: "do_job",
@@ -156,29 +113,8 @@ POTUS.define("l10n", {
         /* 2006-12 · 前政权受审行刑 */
         id: "ln06_saddam",
         title: "The ousted president is hanged, and a phone video of it leaks the same day",
-        body: "In December a special tribunal in the occupied country brings its verdict: crimes against humanity, death by hanging, carried\n" +
-          "out before the new year. On the day itself a shaking phone video from the room is spreading online — the shouting, the bargaining, the last moment.\nThat week sectarian killings there double. On the evening shows at home they loop the clip, and the question is no longer justice. It is: was it worth it.",
-        brief: {
-          lede: "The moment the video enters the living room, the war's arithmetic gets redone by ordinary households.",
-          known: [
-            "A local court ran the trial; federal prosecutors worked behind it.",
-            "The phone came out of the execution site; no inquiry has closed.",
-            "The town's recruiting office already postponed its open house once.",
-            "The veterans' groups want you to speak of the dead, not the video."
-          ],
-          rumor: [
-            "Some say the hanging went wrong and took far too long.",
-            "Some say the occupying side is rushing to hand over the prison, to bury this week."
-          ],
-          unknown: [
-            "Whether that country holds together or comes apart.",
-            "Whether the video adds to your position or takes away."
-          ],
-          terms: [
-            { k: "Crimes against humanity", v: "Systematic killing of civilians; the heaviest count at trial." },
-            { k: "Sectarian cleansing", v: "The two faiths killing each other city by city." }
-          ]
-        },
+        body: "In December a special tribunal in the occupied country brings its verdict on the ousted president: crimes against humanity — the systematic killing of civilians, the court's heaviest count — death by hanging, carried\n" +
+          "out before the new year. On the day itself a shaking phone video from the room is spreading online — the shouting, the bargaining, the last moment.\nThat week the two faiths there kill each other city by city, and the toll doubles. On the evening shows at home they loop the clip, and the question is no longer justice. It is: was it worth it. The veterans' groups have sent word: speak of the dead, not of the video.\nWhether the clip adds to your position or takes away, nobody will run the arithmetic for you.",
         choices: [
           {
             id: "wreaths",
@@ -224,28 +160,7 @@ POTUS.define("l10n", {
         id: "ln07_surge",
         title: "Twenty-one thousand more troops deploy, and the new Senate majority clips a timetable onto the spending bill",
         body: "In early January the commander in chief tells the nation on live television that twenty-one thousand more troops are going to\n" +
-          "Baghdad. The Senate has changed hands: within three weeks the war money comes back with a withdrawal timetable clipped to it, and the White House answers with a veto statement.\nInside the majority caucus, people start re-sitting themselves by this one line. The families of your county's Guard unit, leaving for its second tour, are still waiting for a word from you.",
-        brief: {
-          lede: "The strategy fight has become a procedure fight: whoever holds the Senate can reach the purse.",
-          known: [
-            "The spending bill with the timetable is already scheduled for a vote.",
-            "Your state's munitions plant runs on war orders.",
-            "Colleagues in your caucus have already flipped on the war.",
-            "The local Guard unit is deploying for its second tour."
-          ],
-          rumor: [
-            "Some say the troop number was set weeks ago; the address was paperwork.",
-            "Some say the timetable will be taken down like paper once it passes."
-          ],
-          unknown: [
-            "Whether this turn in strategy works.",
-            "Which row your vote sits you in."
-          ],
-          terms: [
-            { k: "The surge", v: "A deadline-bounded troop increase meant to reverse an occupation." },
-            { k: "Rider", v: "A policy clause clipped to a money bill, hard to strip out." }
-          ]
-        },
+          "Baghdad — a surge, a deadline-bounded troop hike meant to reverse an occupation. The Senate has changed hands: within three weeks the war money comes back with a withdrawal timetable clipped to it — a rider, nearly impossible to strip off a must-pass bill — and the White House answers with a veto statement.\nInside the majority caucus, people start re-sitting themselves by this one line. The families of your county's Guard unit, leaving for its second tour, are still waiting for a word from you; and your state's munitions plant runs on war orders, line by line. Which row this vote sits you in, everyone will see.",
         choices: [
           {
             id: "care_units",
@@ -291,28 +206,7 @@ POTUS.define("l10n", {
         id: "ln10_money",
         title: "The Supreme Court lifts the cap on independent spending, and super PACs open for business",
         body: "In late January the Supreme Court decides the case brought by a nonprofit against the Federal Election Commission: government\n" +
-          "may not limit independent political spending by corporations or unions. One rule is left standing — no coordination with the candidates.\nWithin months an entity called the super political action committee opens for business, with no ceiling on what it may raise. The math of fundraising is rewritten overnight, and, exactly as advertised, the autumn midterms become the most expensive on record.",
-        brief: {
-          lede: "The gate is open. Money is no longer scarce; what is scarce is the list of people willing to spend it on you.",
-          known: [
-            "Independent spending is legal; the only red line is coordination.",
-            "Your committee still has caps. The other side's backers do not.",
-            "Two super PACs are already scouting your state.",
-            "The local paper runs a weekly ad naming who is paying."
-          ],
-          rumor: [
-            "Some say the dark-money routes are mapped; they simply never register.",
-            "Some say both sides will love this ruling until it cuts them."
-          ],
-          unknown: [
-            "Whether this ruling changes your race.",
-            "Whose money arrives at your door first."
-          ],
-          terms: [
-            { k: "Super PAC", v: "Raises without limit; may not coordinate with a candidate." },
-            { k: "Independent expenditure", v: "Ads and mail paid for outside the campaign." }
-          ]
-        },
+          "may not limit independent political spending — ads bought outside any campaign — by corporations or unions. One rule is left standing: no coordination with the candidates.\nWithin months an entity called the super political action committee opens for business, raising without ceiling. The math of fundraising is rewritten overnight: your own committee still lives under the old contribution caps; the people who spend on your behalf do not. The autumn midterms become, exactly as advertised, the most expensive on record.\nWhose money arrives at your door first?",
         choices: [
           {
             id: "keep_books",

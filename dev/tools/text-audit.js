@@ -1,19 +1,23 @@
 /* ============================================================================
  * POTUS · tools/text-audit.js
- * 事件【文字】审计器（终端报告）。落实用户的编辑规范（见 CONTENT-SCHEMA §11.6 原则五）：
+ * 事件【文字】审计器（终端报告）。落实用户的编辑规范（见 CONTENT-SCHEMA §11.6 原则五、§11.7）：
  *   ① 标题（title）必须是一句通顺、完整、一眼看懂「发生了什么」的陈述句；
  *      比喻/留白/意象这类文学性写法应放进 body，不拿它当标题。
- *   ② 正文说明（body）尽量精简，控制在 200 字以内。
- *   ③ 每个事件都要有说明（body）与背景卡（brief）。
+ *   ② #41：一张事件卡只剩「标题 + 正文 + 头条图」—— 背景卡（brief）连同数据一起下线，
+ *      斜体导语行（standfirst）也从版式删了。所以正文要自己交代清楚局面，
+ *      但预算封顶：标题 + 正文 ≤250 字（硬闸，超尺退出码 1）。
+ *   ③ 背景卡不许回来：全库扫 known / rumor / unknown 三个「事件背景卡独有键」的残留。
  *
  * 本工具【不自动改写】，只做量化与列清单，供人工逐条重塑。可测量 → 可追踪进度。
  *
  * 用法：
- *   node tools/text-audit.js                 → 汇总（多少事件、多少超标）
- *   node tools/text-audit.js --long          → 列出 body 超字的事件（按字数降序）
- *   node tools/text-audit.js --nobrief       → 列出缺 body / 缺 brief 的事件
+ *   node tools/text-audit.js                 → 汇总 + 硬闸（超尺 / 缺正文 / 背景卡残留，任一为红退出码 1）
+ *   node tools/text-audit.js --trim          → 同上，逐条列出超尺的卡（并行写作时每路自查用）
+ *   node tools/text-audit.js --trim --file=80-shady
+ *                                            → 只审一个文件：超尺 + 该文件残留键，任一红即退出码 1
  *   node tools/text-audit.js --titles        → 逐条打印「文件 | id | 标题 | 标题字数 | 正文字数」供肉眼审视标题
- *   node tools/text-audit.js --limit=160     → 自定义正文字数上限（默认 200）
+ *   node tools/text-audit.js --tcase         → 英文标题写成 Title Case 的清单（规范是 sentence case）
+ *   node tools/text-audit.js --cap=200       → 临时改卡面预算做实验（默认 250）
  *   node tools/text-audit.js --file=80-shady → 只看某个源文件的事件
  *   node tools/text-audit.js --lang=en       → 按英文覆盖层量篇幅（--file 此时匹配 i18n/en/ 分片）
  * ==========================================================================*/
@@ -47,7 +51,9 @@ global.window = global;
 const argv = process.argv.slice(2);
 const arg = (name, def) => { const m = argv.find(a => a.startsWith("--" + name + "=")); return m ? m.split("=").slice(1).join("=") : def; };
 const has = (name) => argv.includes("--" + name);
-const LIMIT = parseInt(arg("limit", "200"), 10);
+/* #41 的卡面预算：一张卡只有「标题 + 正文 + 头条图」，标题+正文 合起来 ≤CAP 字。
+   正文不再单设上限（旧的 --limit=200 随背景卡一起作废）。--cap= 可临时改尺做实验。 */
+const CAP = parseInt(arg("cap", "250"), 10);
 const ONLY_FILE = arg("file", null);
 const LANG = (arg("lang", "zh") || "zh").trim().toLowerCase();
 
@@ -89,7 +95,7 @@ const fileOfId = {};
 /* ---------- 统计口径 ---------- */
 /* 「字」= 去掉所有空白后的字符数。
    英文不能套这个上限：同一句话英文约 5 个字母 = 1 个汉字，直接按字符计会全线爆表。
-   所以统一折算成"中文等价字"：CJK 串按字符，纯拉丁串按词 ×0.5（≈200 字 ↔ 100 词）。
+   所以统一折算成"中文等价字"：CJK 串按字符，纯拉丁串按词 ×0.5（≈250 字 ↔ 125 词）。
    阈值表本身不用动，只动这一把尺子。见 docs/I18N.md 的长度预算。 */
 const CJK_RE = /[　-〿㐀-䶿一-鿿぀-ヿ＀-￯]/;
 function charCount(s) { return (s || "").replace(/\s+/g, "").length; }
@@ -99,14 +105,27 @@ function unit(s) {
   if (CJK_RE.test(t)) return charCount(t);
   return t.split(/\s+/).length * 0.5;
 }
-function hasBrief(ev) {
-  const b = ev.brief;
-  if (!b) return false;
-  const arrLen = (a) => Array.isArray(a) ? a.length : 0;
-  return !!(b.lede || arrLen(b.known) || arrLen(b.rumor) || arrLen(b.unknown) || arrLen(b.terms));
+/* 背景卡残留扫描：直接扫源文件文本，不读注册表 —— en boot 下未覆盖的字段会回落成中文，
+   注册表读数失真。判据只认 known / rumor / unknown 这三个「只有事件背景卡才有」的键：
+   era / worldline / vignettes / campaigns 各自的 brief 是另一套数据（按年简报，#34 起
+   已无展示），#41 明确不碰 —— 用 "brief|lede" 做正则会把它们误算成残留。 */
+function residualKeys(onlyFile) {
+  const hits = [];
+  (function walk(d) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.js$/.test(e.name) && (!onlyFile || e.name.indexOf(onlyFile) >= 0)) {
+        const n = (fs.readFileSync(p, "utf8").match(/"(?:known|rumor|unknown)"\s*:|(?:known|rumor|unknown)\s*:/g) || []).length;
+        if (n) hits.push([p.replace(ROOT + "/", ""), n]);
+      }
+    }
+  })(path.join(ROOT, "content"));
+  hits.sort((a, b) => b[1] - a[1]);
+  return hits;
 }
 
-/* 把 realized 的 P.events 映射回 authored 文本（title/body/brief 不受 realize 影响）。 */
+/* 把 realized 的 P.events 映射回 authored 文本（title/body 不受 realize 影响）。 */
 const events = (P.events || []).slice();
 function fileFilter(ev) {
   if (!ONLY_FILE) return true;
@@ -122,15 +141,12 @@ const rows = events.filter(fileFilter).map(ev => ({
   titleWords: String(ev.title || "").trim().split(/\s+/).filter(Boolean).length,
   bodyLen: unit(ev.body),
   hasBody: !!(ev.body && String(ev.body).trim()),
-  hasBrief: hasBrief(ev),
-  nChoices: (ev.choices || []).length,
-  longBody: unit(ev.body) > LIMIT
+  cardLen: unit(ev.title) + unit(ev.body),
+  nChoices: (ev.choices || []).length
 }));
 
 const total = rows.length;
-const nLong = rows.filter(r => r.longBody).length;
 const nNoBody = rows.filter(r => !r.hasBody).length;
-const nNoBrief = rows.filter(r => !r.hasBrief).length;
 /* 标题过短：中文看字数，英文看词数（"A Change in the Air" 才 4 个英文词但绝不短） */
 const nShortTitle = rows.filter(r => r.titleLen > 0 && r.titleLen < 8 && r.titleWords < 4).length;
 
@@ -149,60 +165,23 @@ const titleCaseRows = LANG === "en" ? rows.filter(r => isTitleCase(r.title)) : [
 /* ---------- 报告 ---------- */
 function pad(s, n) { s = String(s); return s.length >= n ? s : s + " ".repeat(n - s.length); }
 
-if (has("brief")) {
-  /* ---------- brief 篇幅审计（落实 CONTENT-SCHEMA §11.7 硬上限） ---------- */
-  /* 上限：总字 ≤300；lede ≤50；known ≤4条×≤30；rumor ≤2条×≤25；unknown ≤2条×≤20；terms ≤2个且解释≤20 */
-  const arr = (a) => Array.isArray(a) ? a : [];
-  const detail = has("detail");
-  const findings = [];
-  for (const ev of events.filter(fileFilter)) {
-    const b = ev.brief; if (!b) continue;
-    const lede = unit(b.lede);
-    const known = arr(b.known), rumor = arr(b.rumor), unknown = arr(b.unknown), terms = arr(b.terms);
-    const knownSum = known.reduce((s, x) => s + unit(x), 0);
-    const rumorSum = rumor.reduce((s, x) => s + unit(x), 0);
-    const unkSum = unknown.reduce((s, x) => s + unit(x), 0);
-    const termSum = terms.reduce((s, t) => s + unit(t && t.k) + unit(t && t.v), 0);
-    const totalWords = Math.round(lede + knownSum + rumorSum + unkSum + termSum);
-    const probs = [];
-    if (totalWords > 300) probs.push("总字" + totalWords + ">300");
-    if (lede > 50) probs.push("lede" + lede + ">50");
-    if (known.length > 4) probs.push("known条数" + known.length + ">4");
-    known.forEach((x, i) => { if (unit(x) > 30) probs.push("known#" + (i + 1) + "=" + unit(x) + ">30"); });
-    if (rumor.length > 2) probs.push("rumor条数" + rumor.length + ">2");
-    rumor.forEach((x, i) => { if (unit(x) > 25) probs.push("rumor#" + (i + 1) + "=" + unit(x) + ">25"); });
-    if (unknown.length > 2) probs.push("unknown条数" + unknown.length + ">2");
-    unknown.forEach((x, i) => { if (unit(x) > 20) probs.push("unknown#" + (i + 1) + "=" + unit(x) + ">20"); });
-    if (terms.length > 2) probs.push("terms个" + terms.length + ">2");
-    terms.forEach((t, i) => { if (unit(t && t.v) > 20) probs.push("terms#" + (i + 1) + "解释" + unit(t && t.v) + ">20"); });
-    if (probs.length) findings.push({ file: fileOfId[ev.id] || "(未定位)", id: ev.id, grade: ev.grade || "-", totalWords, probs });
-  }
-  findings.sort((a, b) => b.totalWords - a.totalWords);
-  console.log("== brief 篇幅审计（§11.7 硬上限）：" + findings.length + " 个事件超标 ==");
-  let curFile = "";
-  for (const f of findings) {
-    if (f.file !== curFile) { curFile = f.file; console.log("  ── " + curFile + " ──"); }
-    console.log("  " + pad("T" + f.totalWords, 6) + " " + pad(f.grade, 6) + " " + pad(f.id, 26) + "  " + f.probs.join(", "));
-    if (detail) {
-      const ev = events.find(e => e.id === f.id); const b = ev.brief;
-      console.log("       lede: " + (b.lede || ""));
-      arr(b.known).forEach((x, i) => console.log("       known#" + (i + 1) + " (" + charCount(x) + "): " + x));
-      arr(b.rumor).forEach((x, i) => console.log("       rumor#" + (i + 1) + " (" + charCount(x) + "): " + x));
-      arr(b.unknown).forEach((x, i) => console.log("       unknown#" + (i + 1) + " (" + charCount(x) + "): " + x));
-      arr(b.terms).forEach((t, i) => console.log("       terms#" + (i + 1) + " (" + unit(t && t.v) + "): " + (t && t.k) + "=" + (t && t.v)));
-    }
-  }
-  const byFile = {}; findings.forEach(f => { byFile[f.file] = (byFile[f.file] || 0) + 1; });
-  console.log("  ── 按文件汇总 ──");
-  Object.entries(byFile).sort((a, b) => b[1] - a[1]).forEach(([f, n]) => console.log("  " + pad(n, 4) + "  " + f));
-} else if (has("long")) {
-  console.log("== body 超 " + LIMIT + " 字的事件（降序，共 " + nLong + " 个）==");
-  rows.filter(r => r.longBody).sort((a, b) => b.bodyLen - a.bodyLen)
-    .forEach(r => console.log("  " + pad(r.bodyLen, 5) + " 字  " + pad(r.file, 34) + "  " + r.id));
-} else if (has("nobrief")) {
-  console.log("== 缺 body（" + nNoBody + "）/ 缺 brief（" + nNoBrief + "）==");
-  rows.filter(r => !r.hasBody || !r.hasBrief).forEach(r =>
-    console.log("  " + pad(r.file, 34) + "  " + pad(r.id, 26) + (r.hasBody ? "" : " [无body]") + (r.hasBrief ? "" : " [无brief]")));
+if (has("trim")) {
+  /* ---------- #41 融合自检口：一张卡只剩 标题 + 正文（+头条图），标题+正文 ≤CAP 字 ---------- */
+  /* 并行重写时每个 worker 只动自己那几个文件，所以必须能按文件自查两项：
+     ① 超尺（标题+正文 >CAP）② 本文件还留着 brief 块没删干净。任一为红退出码 1。
+     尺子就是本文件那把 unit()：中文按去空白字符数，英文按词 ×0.5 —— 两种语言同一个预算。 */
+  const over = rows.filter(r => r.titleLen + r.bodyLen > CAP)
+    .sort((a, b) => (b.titleLen + b.bodyLen) - (a.titleLen + a.bodyLen));
+  console.log("== #41 融合自检（" + (ONLY_FILE ? "仅 " + ONLY_FILE : "全库") + " · 语言 " + LANG +
+    " · 尺：标题+正文 ≤" + CAP + "）：卡数 " + rows.length + " ｜ 超尺 " + over.length + " ==");
+  over.forEach(r => console.log("  ✗ 超尺 " + pad(r.titleLen + r.bodyLen, 4) + "（标 " + pad(r.titleLen, 3) + "+正 " +
+    pad(r.bodyLen, 4) + "）" + pad(r.id, 26) + r.title));
+  const hits = residualKeys(ONLY_FILE);
+  console.log("  背景卡残留 known/rumor/unknown 键：" + hits.reduce((s, h) => s + h[1], 0) + " 处 / " + hits.length + " 个文件");
+  hits.forEach(h => console.log("  ✗ 残留 " + pad(h[1], 4) + "  " + h[0]));
+  const red = over.length + hits.length;
+  console.log(red ? "  ✗ " + red + " 项待修" : "  ✓ " + (ONLY_FILE ? "本批全部合规" : "全库合规"));
+  process.exit(red ? 1 : 0);
 } else if (has("titles")) {
   console.log("== 全部标题（" + (ONLY_FILE ? "仅 " + ONLY_FILE : total + " 个事件") + "）供肉眼审视「是否一目了然」==");
   rows.slice().sort((a, b) => a.file.localeCompare(b.file) || a.id.localeCompare(b.id)).forEach(r =>
@@ -212,12 +191,21 @@ if (has("brief")) {
   titleCaseRows.sort((a, b) => a.file.localeCompare(b.file) || a.id.localeCompare(b.id)).forEach(r =>
     console.log("  " + pad(r.file.replace(/^content\//, ""), 32) + "  " + pad(r.id, 24) + "  " + r.title));
 } else {
-  console.log("== POTUS 事件文字审计（语言 " + (P.locale ? P.locale.lang : LANG) + "，上限 " + LIMIT + " 字/正文）==");
-  console.log("  事件总数        : " + total);
-  console.log("  body 超 " + LIMIT + " 字  : " + nLong + "  →  node tools/text-audit.js --long");
-  console.log("  缺 body         : " + nNoBody);
-  console.log("  缺 brief        : " + nNoBrief + "  →  --nobrief");
-  console.log("  标题 <8 字(可疑): " + nShortTitle + "  →  --titles 逐条审视");
-  if (LANG === "en") console.log("  标题 Title Case: " + titleCaseRows.length + "  →  --tcase（规范是 sentence case，见 docs/I18N.md §4）");
-  console.log("  （标题是否一目了然需人工判断；--titles 可加 --file=xx 只看一个文件）");
+  /* ---------- 默认口径（#41）：一张卡只剩 标题 + 正文，标题+正文 ≤CAP ---------- */
+  const over = rows.filter(r => r.cardLen > CAP).sort((a, b) => b.cardLen - a.cardLen);
+  const hits = residualKeys(null);
+  const avg = (xs) => xs.length ? Math.round(xs.reduce((s, x) => s + x, 0) / xs.length * 10) / 10 : 0;
+  console.log("== POTUS 事件文字审计（语言 " + (P.locale ? P.locale.lang : LANG) +
+    " · 尺：标题+正文 ≤" + CAP + "）==");
+  console.log("  事件总数            : " + total);
+  console.log("  标题均 / 正文均 / 卡均: " + avg(rows.map(r => r.titleLen)) + " / " +
+    avg(rows.map(r => r.bodyLen)) + " / " + avg(rows.map(r => r.cardLen)));
+  console.log("  标题+正文 超 " + CAP + "  : " + over.length + (over.length ? "  →  --trim 逐条列（并按文件自查 --file=xx）" : ""));
+  console.log("  缺正文              : " + nNoBody);
+  console.log("  背景卡残留 known/rumor/unknown 键: " + hits.reduce((s, h) => s + h[1], 0) + " 处 / " + hits.length + " 个文件");
+  console.log("  标题 <8 字(可疑)     : " + nShortTitle + "  →  --titles 逐条审视");
+  if (LANG === "en") console.log("  标题 Title Case      : " + titleCaseRows.length + "  →  --tcase（规范是 sentence case，见 docs/I18N.md §4）");
+  const red = over.length + nNoBody + hits.length;
+  console.log(red ? "  ✗ " + red + " 项待修" : "  ✓ 全库合规");
+  process.exit(red ? 1 : 0);
 }

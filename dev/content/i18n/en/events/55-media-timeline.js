@@ -4,7 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件/选项按 id 定位；terms 按下标对齐；known/rumor/unknown 整体替换、条数给全。
  *   · 结构性键（id / era / medium / grade / category / base / mods / cost /
  *     stake / effects …）受引擎保护，本文件一律不写。
  *   · 本包无 choices[].note、无 tag/label 字段，故不覆盖。
@@ -24,24 +23,12 @@ POTUS.define("l10n", {
       {
         id: "media_fireside",
         title: "A radio station offers you a fixed evening talk show",
-        body: "The station wants a weekly evening talk: thirty minutes, one microphone, no pictures.\n" +
-          "Your team calls it wasted time — nobody can see your face, so nobody will remember you.",
-        brief: {
-          lede: "One microphone can carry your voice into hundreds of thousands of living rooms — and carry one slip there forever.",
-          known: [
-            "Listeners are only half-present — dishes washing, cars driving. Sentences must stand alone.",
-            "Your rival has no show yet. It is the one field where he trails you.",
-            "Taped or live? The station says \"it depends.\" You never learned what that means."
-          ],
-          rumor: [
-            "A money group just bought stock in the station. Nobody will say which one.",
-            "Never joke on tape — the edited order will not be the order you spoke."
-          ],
-          unknown: [
-            "How many people truly listened: you will never know.",
-            "What your craft is worth once pictures outrank voices."
-          ]
-        },
+        body: "The station wants a weekly evening talk: thirty minutes, one microphone, no pictures. " +
+          "Your team calls it wasted time — nobody can see your face, so nobody will remember you. " +
+          "Listeners are only half-present, dishes washing, cars driving; a sentence has to stand on its own. " +
+          "Taped or live? The station says \"it depends,\" and you never learned what that means. " +
+          "Your rival has no show yet — the one field where he trails you. Some say a money group just bought " +
+          "stock in the station, and nobody will name it. How many people truly listened, you will never know.",
         choices: [
           {
             id: "fireside",
@@ -72,24 +59,12 @@ POTUS.define("l10n", {
       {
         id: "media_tv_spot",
         title: "You pay a fortune for thirty seconds in prime time",
-        body: "The station's ad department gives you a price: thirty seconds, prime time — enough to turn one man into a face the whole country recognizes.\n" +
-          "The price is nearly all your money. Your opponent bought the same hour yesterday.",
-        brief: {
-          lede: "Nobody has yet priced what \"looking the part\" is worth — but your rival just bought a month of it.",
-          known: [
-            "The ad desk's quote: prime time is brutal; pre-dawn rates are pennies.",
-            "Viewers forget your words. They keep the face on the screen in their living room.",
-            "Your opponent already bought a round — one month ahead of you."
-          ],
-          rumor: [
-            "The crew shooting your spot made detergent ads the week before.",
-            "Still frames get printed in the papers. That face is not yours to control."
-          ],
-          unknown: [
-            "Money and seats: nobody can prove they multiply.",
-            "Whether voters will be sick of all this within ten years."
-          ]
-        },
+        body: "The station's ad department gives you a price: thirty seconds, prime time — enough to turn " +
+          "one man into a face the whole country recognizes. The price is nearly all your money. The pre-dawn " +
+          "bins cost pennies, and almost nobody watches them. Your opponent bought the same hour yesterday, " +
+          "a month ahead of you. Viewers forget your words; they keep the face that showed up in their living " +
+          "room. The crew shooting your spot made detergent ads the week before. Whether money multiplies into " +
+          "seats, nobody has ever been able to prove.",
         choices: [
           {
             id: "prime",
@@ -131,25 +106,13 @@ POTUS.define("l10n", {
       {
         id: "media_cable_show",
         title: "A cable news midnight show makes you its target",
-        body: "The midnight talk show on the 24-hour news channel has used you for target practice three weeks running.\n" +
-          "Its ratings are small. But its audience is exactly the crowd that turns out for party primaries.",
-        brief: {
-          lede: "Public opinion is no longer one river. Stand in any current, and the other bank names you enemy.",
-          known: [
-            "Cable must fill twenty-four hours. Taking sides has become its own program.",
-            "That host's audience is small, votes at a huge rate, and never forgets.",
-            "The producer sends word: one appearance kills the story that you dare not show up.",
-            "You can also ignore him. Ignoring is a strategy — if you can stand it."
-          ],
-          rumor: [
-            "The money behind this channel is already raising funds for a possible rival of yours.",
-            "Appearing admits he gets to judge you."
-          ],
-          unknown: [
-            "Whether tonight's numbers get recut and replayed against you later.",
-            "When every news show runs like this one, what is left for you."
-          ]
-        },
+        body: "The midnight talk show on the 24-hour news channel has used you for target practice three weeks " +
+          "running. Its ratings are small, but its audience is exactly the crowd that turns out for party " +
+          "primaries — and it never forgets. Cable must fill twenty-four hours, so taking sides became a program " +
+          "of its own. The producer sends word: one appearance kills the story that you dare not show up. You can " +
+          "also starve him, and starving is a strategy — if you can stand it. They say the money behind this " +
+          "channel is already raising funds for a possible rival of yours. Whatever you say tonight will be recut " +
+          "and replayed.",
         choices: [
           {
             id: "go_on",
@@ -180,27 +143,12 @@ POTUS.define("l10n", {
       {
         id: "media_blog_drop",
         title: "An anonymous blog posts three of your internal documents",
-        body: "A blog nobody had ever heard of posts scans of three letterhead documents.\n" +
-          "The scans are real — and the content is what you said at a closed meeting three years ago.",
-        brief: {
-          lede: "One anonymous person, at midnight, can make everyone see the same page at once.",
-          known: [
-            "All three scans check out: your signature, and that sentence from three years ago.",
-            "Legacy reporters need a second source before following — or may never follow at all.",
-            "The blog has no byline, no address, and a free mail account."
-          ],
-          rumor: [
-            "The blog registered three months ago. Its first post was exactly these three files.",
-            "No more than seven people alive could reach those documents."
-          ],
-          unknown: [
-            "Who handed them out, why tonight, how much more is queued.",
-            "Whether the context of that sentence will ever be printed in full."
-          ],
-          terms: [
-            { k: "Second source", v: "The press will not reprint a leak without a second independent source." }
-          ]
-        },
+        body: "A blog nobody had ever heard of posts scans of three letterhead documents. The scans are real: " +
+          "your signature is on them, and the words are yours from a closed meeting three years ago. The blog has " +
+          "no byline and no address, only a free mail account — and no more than seven people alive could reach " +
+          "those files. Legacy reporters need a second independent source before they follow a leak, and they may " +
+          "never follow at all. The blog registered three months ago; its first post was exactly these three. " +
+          "Who handed them out, and how many more sit in a queue, you will not learn.",
         choices: [
           {
             id: "own_it",
@@ -242,25 +190,12 @@ POTUS.define("l10n", {
       {
         id: "media_viral_clip",
         title: "A fifteen-second clip of you kneeling to a child goes viral",
-        body: "Fifteen seconds — passed a hundred million times in forty-eight hours.\n" +
-          "In the clip, after one campaign event, you crouch down to a group of kids and say one thing, very slowly.\n" +
-          "The shooter is a volunteer nobody knows. No plan, no malice — he just raised his phone.",
-        brief: {
-          lede: "The feed does not know you. It only asks whether anyone watched fifteen seconds to the end.",
-          known: [
-            "Not your team's footage: no edit, no music. It simply got watched all the way through.",
-            "In two days, people who never follow politics are saying your name.",
-            "The platform's recommendation is a black box. Nobody can explain this clip."
-          ],
-          rumor: [
-            "Someone swears a marketing firm boosted it. There is no proof.",
-            "The algorithm feeds on feeling, not fact. One sentence made you."
-          ],
-          unknown: [
-            "When — and over what — the heat will suddenly turn.",
-            "Whether these new faces remember you come Election Day."
-          ]
-        },
+        body: "Fifteen seconds — passed a hundred million times in forty-eight hours. In the clip, after one " +
+          "campaign event, you crouch down to a group of kids and say one thing, very slowly. The shooter is a " +
+          "volunteer nobody knows: no edit, no music, no plan. In two days, people who never follow politics are " +
+          "saying your name. The platform's recommendation is a black box, and nobody can explain this one clip. " +
+          "Someone swears a marketing firm put their hand on it. When the heat turns, and over what, nobody warns " +
+          "you beforehand.",
         choices: [
           {
             id: "lean_in",
@@ -291,28 +226,12 @@ POTUS.define("l10n", {
       {
         id: "media_deepfake",
         title: "A deepfake impersonating you circulates overnight",
-        body: "A two-minute video moves through the night: you on screen, saying something you never said.\n" +
-          "The lip-sync is close. The voice is close. It takes your team forty minutes to confirm — that is not you.",
-        brief: {
-          lede: "What you must prove is not that you never said it. It is that the footage never happened.",
-          known: [
-            "The synthesis tools are common now. One person, one afternoon, builds this.",
-            "The tells are fine — and nobody inspects frame by frame.",
-            "Your denial has been shared a hundred times more than it was read.",
-            "The platforms say they will \"assess it\" within forty-eight hours."
-          ],
-          rumor: [
-            "The first account to post it registered two weeks ago; this was its only upload.",
-            "Even after the debunk, three in ten still believe the video is real."
-          ],
-          unknown: [
-            "Anyone can run the tool. You will never find who made it.",
-            "In an age that cannot tell real from fake, whether denials still work."
-          ],
-          terms: [
-            { k: "The debunk paradox", v: "Corrections never travel as far as the lie. Denying it re-sells it." }
-          ]
-        },
+        body: "A two-minute video moves through the night: you on screen, saying something you never said. " +
+          "The lip-sync is close. The voice is close. It takes your team forty minutes to confirm — that is not " +
+          "you. One person with one afternoon can build this now; the tells are fine, and nobody inspects frame by " +
+          "frame. The platforms say they will \"assess it\" within forty-eight hours. Your denial has been shared " +
+          "a hundred times more than it was read — which is how a correction sells the lie for the rumor. The first " +
+          "account to post it registered two weeks ago, with this single upload. Whoever made it, you will never find.",
         choices: [
           {
             id: "counter",

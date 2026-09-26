@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动；本文件只放要覆盖的字段，结构键由引擎保护、不写。
- *   · 事件/选项按 id 定位；known / rumor / unknown 是纯字符串数组，整体替换、
- *     整条给全（三张卡均为 known×4 / rumor×2 / unknown×2 / terms×2，与原文一一对应）。
  *   · 术语与引擎 UI 英文对齐：fun = Funds、fav = Favors、rep = Reputation
  *     （见 content/i18n/en/view/ 各片）。三张示范卡不限时代，措辞保持时代中性。
  *   · 长度按 §11.7 同尺复核（拉丁词 ×0.5）：全部字段在预算内。
@@ -22,27 +20,6 @@ POTUS.define("l10n", {
         title: "The hearing: do you put your whole estate on the table?",
         body: "The subpoena has landed. The committee chair is a vindictive old man, and he means to nail you to his desk on camera.\n" +
           "Your staff laid out the routes — but each one asks you to hand something over first: money, or favors.",
-        brief: {
-          lede: "One hearing, several roads — and every one of them charges toll before it opens.",
-          known: [
-            "The subpoena is real: the chair marked you after you embarrassed him on television last month.",
-            "The team wrote every route on one sheet: tough it out, pay up, pull strings, play sick.",
-            "Two things you can spend: funds and favors.",
-            "Toughing it out is cheap but long odds; money buys certainty; some doors money cannot knock."
-          ],
-          rumor: [
-            "Some say the chair never wants a real fight — he just wants the camera.",
-            "Whatever you say today gets cut to ten seconds before you leave the building."
-          ],
-          unknown: [
-            "Which route someone digs up as leverage four years from now.",
-            "Whether what you spend tonight is what you will need most later."
-          ],
-          terms: [
-            { k: "Funds / Favors", v: "The two spendable resources: funds and favors." },
-            { k: "Stakes", v: "Marked options: you set the wager; it is charged only at judgment." }
-          ]
-        },
         choices: [
           {
             id: "all_in",
@@ -108,27 +85,6 @@ POTUS.define("l10n", {
         title: "The donors' dinner",
         body: "Tonight the thirty richest people in the city sit at one table. You are an invited \"prospect\" — you go there to get money, not to spend it.\n" +
           "Of course, holding up the room has its own price.",
-        brief: {
-          lede: "One invitation. You came to raise money — but every point of polish on display costs some.",
-          known: [
-            "The invitation says dinner. You know the trade: they bring the money; you bring the future.",
-            "Thirty people at the head table decide whether your war chest holds for two years.",
-            "The rival outfit across town costs 750k to stage at this grade. You cannot cover it.",
-            "You can also walk in empty-handed with one speech. The speech has to hold you up."
-          ],
-          rumor: [
-            "Two of tonight's guests are said to be poaching each other's people as we speak.",
-            "Someone left a price tag on a gift last year. They never let him forget it."
-          ],
-          unknown: [
-            "What tonight's money will have to be repaid with.",
-            "The day you notice you have been reading someone else's lines."
-          ],
-          terms: [
-            { k: "Insufficient Funds", v: "An unaffordable cost grays out, naming what you lack." },
-            { k: "Stakes", v: "Before judgment, wager resources in — never past your balance." }
-          ]
-        },
         choices: [
           {
             id: "buy_floor",

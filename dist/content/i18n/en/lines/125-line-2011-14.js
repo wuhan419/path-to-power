@@ -5,7 +5,6 @@
  * 契约同 i18n/en/events/106-era-1990.js（见 docs/I18N.md）：
  *   · 中文原文件一个字不动，这里只放要覆盖的文案字段。
  *   · 事件按 id 定位，choices 按 id 对齐，terms 按数组下标对齐。
- *   · known / rumor / unknown 是纯字符串数组 —— 整体替换，必须整条给全。
  *   · 结构性键（era / minYear / tierMin / weight / base / mods / effects / flags /
  *     req / cost …）由引擎保护，写了会触发 validate 报错，所以这里一律不写。
  *   · worldline 的 brief / outlets 同样在这里整体改写，年份键与中文一一对应；
@@ -25,24 +24,9 @@ POTUS.define("l10n", {
         title: "Late at night, the President announces: Bin Laden is dead",
         body: "At 10:34 p.m. the President walks into the Oval Office and says one sentence that closes a decade. Two thousand, nine hundred and seventy-seven deaths,\n" +
           "trillions of dollars, and it all lands in an eleven-minute taped statement. Your town honks through the night.\n" +
-          "By morning the questions are local: the troops are still overseas, the VA caseload is still on your desk, and a cable producer wants two sentences from you.",
-        brief: {
-          lede: "A good nobody-dares-oppose story lands in your lap. The only risk is how visibly you enjoy it.",
-          known: [
-            "National mood is up, and for one week dissent has no microphone.",
-            "The local affiliate wants a reaction. Two sentences, anyone could say them.",
-            "Nothing is being withdrawn from Afghanistan. The veterans' files are still stacked."
-          ],
-          rumor: [
-            "Some say the intel arrived weeks ago and the date was chosen.",
-            "Some say the compound was twenty minutes from the capital's garrison."
-          ],
-          unknown: [
-            "How long this lift survives the news cycle.",
-            "Whether anyone remembers who rode it."
-          ],
-          terms: [{ k: "SEAL Team Six", v: "The Navy special unit that ran the raid." }]
-        },
+          "By morning the questions are local: nothing is being withdrawn from Afghanistan, and the veterans' files are still stacked on your desk.\n" +
+          "The affiliate wants a reaction — two sentences, anyone could say them. Some say the intel arrived weeks ago and the date was chosen.\n" +
+          "How long this lift survives the news cycle, nobody will tell you tonight.",
         choices: [
           {
             id: "vision",
@@ -86,26 +70,10 @@ POTUS.define("l10n", {
       {
         id: "ln11_debt",
         title: "Ten days into the debt standoff, America loses its AAA rating",
-        body: "Two parties spend eight weeks arguing over the borrowing limit, and on a Friday after the close Standard & Poor's takes one notch off the United States.\n" +
-          "Cable calls it the end of the world. Your switchboard is local: a lumber yard, a dentist, two retirees whose pension is a bond index.\n" +
-          "The Treasury says the checks still clear. Congress says it is the other side's fault. The camera asks you one question: who pays.",
-        brief: {
-          lede: "Both parties claim to have been the one pressing the brake. You only need a position where you don't get hit.",
-          known: [
-            "The rating is cut; the dollar has not broken. Markets may recover by Monday.",
-            "Two local lenders have already tightened credit lines and started asking about layoffs.",
-            "The party wants you for a responsible plan. Your ward wants you against any deal."
-          ],
-          rumor: [
-            "Some say the White House had a fallback ready all along.",
-            "Some say the cuts were written around one contractor's spread."
-          ],
-          unknown: [
-            "Whether this ends in cuts or in a trigger.",
-            "Whether tonight's sentence survives the primary."
-          ],
-          terms: [{ k: "Debt ceiling", v: "The borrowing limit Congress sets for itself." }]
-        },
+        body: "Two parties spend eight weeks arguing over the debt ceiling — the borrowing limit Congress sets for itself — and on a Friday after the close Standard & Poor's takes one notch off the United States.\n" +
+          "Cable calls it the end of the world. Your switchboard is local: a lumber yard, a dentist, two retirees whose pension is a bond index, and two lenders already tightening credit lines and asking about layoffs.\n" +
+          "The rating is cut; the dollar has not broken, and markets may recover by Monday. The Treasury says the checks still clear. Congress says it is the other side's fault. The camera asks you one question: who pays.\n" +
+          "The party wants you for a responsible plan. Your ward wants you against any deal. Some say the cut list was written around one contractor's spread — and whatever you say tonight gets replayed in the primary.",
         choices: [
           {
             id: "fiscal_deal",
@@ -151,25 +119,9 @@ POTUS.define("l10n", {
         id: "ln12_benghazi",
         title: "The consulate in Benghazi is attacked; four Americans are dead",
         body: "At 10:30 at night a rocket lands in an aging compound on the desert's edge, and then nine hours of gunfire and of calls for help that do not arrive.\n" +
-          "The ambassador dies. By the next morning the official account blames a protest video, and the security detail that was requested had been declined.\n" +
-          "Cable asks the same question all week: in those nine hours, who called whom.",
-        brief: {
-          lede: "A tragedy is turning into an accountability fight. Early labels are cheap; late labels are expensive.",
-          known: [
-            "This same compound had been hit before, and a security request had been turned down.",
-            "Six weeks before the election, anything you call procedure will be replayed nightly.",
-            "The retired intelligence and military people in your county are waiting to hear how you open."
-          ],
-          rumor: [
-            "Some say it was a planned target, not a mob that improvised.",
-            "Some say a quick-reaction element was in range in the first hours."
-          ],
-          unknown: [
-            "Whether the facts only matter after the election.",
-            "Whether you want the facts or the team."
-          ],
-          terms: [{ k: "Six-month rule", v: "The threshold for stationing extra embassy security." }]
-        },
+          "The ambassador dies. By the next morning the official account blames a protest video — though this same compound had been hit before, and its request for more security had been declined. That approval chain can be read out, one declined paper at a time.\n" +
+          "Cable asks the same question all week: in those nine hours, who called whom. It is six weeks before the election, and anything you call procedure will be replayed nightly.\n" +
+          "Some say a quick-reaction element was in range in the first hours. Decide whether you want the facts or the team.",
         choices: [
           {
             id: "demand_probe",
@@ -251,24 +203,8 @@ POTUS.define("l10n", {
         title: "Hurricane Sandy floods the shore districts and blows the transformers",
         body: "The surge goes into the tunnel and the basements. Seven boroughs lose power, heating oil cannot get across the bridges, and people queue all night at a pump that is dry.\n" +
           "Somebody keeps insulin in a cooler with a flashlight on it. It is one week before the election.\n" +
-          "Federal aid needs forms, the governor has quotas, and the camera wants mud on your shoes.",
-        brief: {
-          lede: "A disaster one week before a vote. Relief is a ledger, and so is the coverage.",
-          known: [
-            "Federal assistance runs on procedure; the earliest money lands in weeks, not days.",
-            "The grid here is private. Restoration follows contract, not need.",
-            "Your office has a generator, ice, and open phone lines."
-          ],
-          rumor: [
-            "Some say the power gets fixed wherever the money is.",
-            "Some say the state already spent the emergency line."
-          ],
-          unknown: [
-            "Who the rebuilding money finally reaches.",
-            "Whether this week gets remembered at all."
-          ],
-          terms: [{ k: "Federal disaster declaration", v: "The precondition for federal disaster money." }]
-        },
+          "Relief money has to pass a federal disaster declaration — the state files it, Washington approves it, and only then does cash move — which means weeks, not days. The grid here is private: restoration follows contract, not need.\n" +
+          "The camera wants mud on your shoes. Some say the power gets fixed wherever the money is. Who the rebuilding money finally reaches is not visible yet.",
         choices: [
           {
             id: "frontline",
@@ -313,25 +249,9 @@ POTUS.define("l10n", {
         id: "ln12_election",
         title: "Election night ends early, and the winner starts lining up the next term",
         body: "The count is done by two in the morning. The incumbent keeps a second term; the loser's phone is not answered.\n" +
-          "Your party settles two questions in one night: who stays, and who is blamed. Local television wants to know what this means for the district.\n" +
-          "The real question is whose list your name is on by Friday.",
-        brief: {
-          lede: "Everyone else is celebrating or mourning. You have six hours to decide which side you were always on.",
-          known: [
-            "The winner is re-elected; patronage and committee posts reset from tonight.",
-            "This district's returns did not match the national direction.",
-            "Both factions are recruiting, and both lists are due Friday."
-          ],
-          rumor: [
-            "Some say the loss will be pinned on a few state leaders.",
-            "Some say a seat has already been kept for you."
-          ],
-          unknown: [
-            "Where tonight's choice puts you in five years.",
-            "Which side the next election is on."
-          ],
-          terms: [{ k: "Transition team", v: "The President's staff before inauguration." }]
-        },
+          "Your party settles two questions in one night: who stays, and who is blamed. Patronage and committee posts reset from tonight.\n" +
+          "Local television wants to know what this means for the district — a district whose returns did not match the national direction. Both factions are recruiting, and both lists are due Friday.\n" +
+          "Some say a seat has already been kept for you on the transition team, the incoming president's staff before inauguration. Where tonight's choice puts you in five years is the only question worth answering.",
         choices: [
           {
             id: "bandwagon",
@@ -390,24 +310,9 @@ POTUS.define("l10n", {
         title: "A Connecticut elementary school is shot into; twenty children are dead",
         body: "On a Friday morning a rural school spends two hours under gunfire. Twenty children and six adults.\n" +
           "By afternoon the country has moved from shock to the next thing: which law gets changed. Parents gather in a church that can only hold half of them,\n" +
-          "and the names being read aloud belong to a town in another state. Your party is split before the candles go out.",
-        brief: {
-          lede: "In two weeks the country moves from wreaths to drafts. You get one public sentence.",
-          known: [
-            "Schools in your district reopen tomorrow; there are not enough counselors or guards.",
-            "A background-check bill is already being drafted at the state capitol.",
-            "Gun voters still decide the next election in your party's math."
-          ],
-          rumor: [
-            "Some say it will be amended down to symbolism.",
-            "Some say one big name already pulled his co-sponsorship."
-          ],
-          unknown: [
-            "Whether anything actually becomes law.",
-            "What your sentence is worth in votes."
-          ],
-          terms: [{ k: "Background check", v: "Mandatory buyer screening before a purchase." }]
-        },
+          "and the names being read aloud belong to a town in another state. Your party is split before the candles go out.\n" +
+          "Schools in your district reopen tomorrow and there are not enough counselors or guards. A bill requiring a background check — mandatory screening of a buyer before a purchase — is already being drafted at the capitol, while gun voters still decide the next election in your party's math.\n" +
+          "Some say it will be amended down to symbolism. You get one public sentence.",
         choices: [
           {
             id: "push_laws",
@@ -452,25 +357,10 @@ POTUS.define("l10n", {
         id: "ln13_boston",
         title: "Two blasts at the marathon finish line; three dead, hundreds injured",
         body: "At 2:49 in the afternoon two homemade pressure cookers go off on both sides of the finish line. Seventeen hours later a police officer is killed,\n" +
-          "and the city is told to stay home. By day three, strangers on the internet are naming suspects —\n" +
-          "including one dead man who had nothing to do with it. Your phone stops asking about casualties and starts asking who we can believe.",
-        brief: {
-          lede: "One city is investigating and simultaneously guessing, and the guessing gets charged to whoever speaks.",
-          known: [
-            "The leads are real and the released portion is tiny; outlets hate a blank.",
-            "Two minority-owned storefronts nearby have already been treated as targets.",
-            "Businesses are ordered to close and transit has stopped."
-          ],
-          rumor: [
-            "Some have posted names online from no visible source.",
-            "Some say the second blast was meant to erase the first one's evidence."
-          ],
-          unknown: [
-            "Whether a second cell is still outside.",
-            "How many people the online manhunt ruins first."
-          ],
-          terms: [{ k: "Shelter-in-place", v: "An emergency order to stay indoors." }]
-        },
+          "and a shelter-in-place order keeps the whole city indoors: shops shut, transit stopped. By day three, strangers on the internet are naming suspects —\n" +
+          "including one dead man who had nothing to do with it. Your phone stops asking about casualties and starts asking who we can believe.\n" +
+          "The leads are real and the released portion is tiny, and the outlets hate a blank. Two minority-owned storefronts nearby have already been treated as targets.\n" +
+          "Whether a second cell is still outside, nobody will say tonight.",
         choices: [
           {
             id: "surge",
@@ -515,25 +405,9 @@ POTUS.define("l10n", {
         id: "ln13_snowden",
         title: "A contractor's documents expose bulk phone and internet collection",
         body: "In the first week of June two newspapers publish court orders: bulk telephone records, and internet data pulled at the switch. Within a month,\n" +
-          "how many calls did you make is a national refrain. The agencies say it is lawful and has saved lives.\n" +
-          "The technology sector says its contracts are done. Your local lawyers have one question: when a client talks to me, are you listening.",
-        brief: {
-          lede: "The same files are called treason by one side and public interest by the other. Pick a word and be remembered for it.",
-          known: [
-            "The programs were approved by the Foreign Intelligence Surveillance Court; disclosure is the executive's call.",
-            "Two local firms report stalled contracts; the security contractors are nervous.",
-            "Your own office runs its phones and files on subcontracted cloud services."
-          ],
-          rumor: [
-            "Some say far more was collected than was reported.",
-            "Some say one senior member approved all of it in person."
-          ],
-          unknown: [
-            "Whether reform reaches the statute.",
-            "What this becomes written down in five years."
-          ],
-          terms: [{ k: "FISA court", v: "The secret court that signs surveillance orders." }]
-        },
+          "how many calls did you make is a national refrain. The programs were approved by the FISA court, the secret bench that signs surveillance orders, and how much gets disclosed is the executive's call.\n" +
+          "The agencies say it is lawful and has saved lives. Two local firms report stalled contracts, and your own office runs its phones and files on subcontracted cloud services.\n" +
+          "Your local lawyers have one question: when a client talks to me, are you listening. Some say far more was collected than was reported.",
         choices: [
           {
             id: "oversee",
@@ -614,26 +488,10 @@ POTUS.define("l10n", {
       {
         id: "ln13_shutdown",
         title: "The healthcare funding standoff shuts the federal government for seventeen days",
-        body: "Federal employees who cannot be paid are sent home. Park gates are chained, visa queues double, inspections stop.\n" +
-          "A year before the midterms, your phone is half questions about park access and half about whether a small-business loan can close.\n" +
-          "The same seventeen days have two descriptions: holding a principle, or using somebody's paycheck as a hostage.",
-        brief: {
-          lede: "A shutdown turns an argument about law into a line of people. Whoever speaks for the line takes the next round.",
-          known: [
-            "Hundreds of local shops live on federal contracts and small-business loans.",
-            "Both parties' approval is falling, and voters are looking for somebody to blame.",
-            "A continuing resolution only buys until December. This comes back."
-          ],
-          rumor: [
-            "Somebody is already drafting the blame-deflection statement.",
-            "Some say by week three someone on one side will blink."
-          ],
-          unknown: [
-            "Whose ledger this shutdown lands in.",
-            "Whether your district repeats it."
-          ],
-          terms: [{ k: "Shutdown", v: "Non-essential agencies stop when funding lapses." }]
-        },
+        body: "A shutdown means non-essential agencies stop the day funding lapses. Federal employees who cannot be paid are sent home. Park gates are chained, visa queues double, inspections stop.\n" +
+          "A year before the midterms, your phone is half questions about park access and half about whether a small-business loan can close — hundreds of local shops live on federal contracts.\n" +
+          "The same seventeen days have two descriptions: holding a principle, or using somebody's paycheck as a hostage.\n" +
+          "Both parties' approval is falling and voters are looking for somebody to blame; a continuing resolution only buys until December. Somebody is already drafting the statement that blames the other side.",
         choices: [
           {
             id: "pressure",
@@ -678,25 +536,9 @@ POTUS.define("l10n", {
         id: "ln14_ferguson",
         title: "A young man is shot by an officer, and one street burns for ten days",
         body: "After the midday gunfire, that street becomes two countries inside ten days: one carrying his name in a march, the other a line of armored vehicles and flash-bangs.\n" +
-          "The National Guard is called in, reporters are detained, and the grand jury will not decide until autumn.\n" +
-          "Your phone is one side saying he was unarmed, and the other side saying: dare not to trust the police.",
-        brief: {
-          lede: "Between a verdict and a procedure there is a crowd of angry people. Every early word looks like an answer, and like a side.",
-          known: [
-            "The autopsy and ballistics exist, but the file is sealed to everyone but the grand jury.",
-            "The police force's makeup does not resemble the population it patrols.",
-            "Two peaceful marches were interrupted by three smashed storefronts."
-          ],
-          rumor: [
-            "Some say the officer had complaints nobody processed.",
-            "Some say out-of-town organizers turned this into fundraising."
-          ],
-          unknown: [
-            "Either verdict costs a street.",
-            "What your words are worth in three months."
-          ],
-          terms: [{ k: "Grand jury", v: "The citizen panel that decides whether to indict." }]
-        },
+          "The National Guard is called in, reporters are detained. The autopsy and the ballistics exist, but the file is sealed to everyone except the grand jury, the citizen panel that decides whether to indict — and it will not decide until autumn.\n" +
+          "Your phone is one side saying he was unarmed, and the other side saying: dare not to trust the police. The force's makeup does not resemble the population it patrols.\n" +
+          "Some say the officer had complaints nobody processed. Either verdict costs a street, and that is true of your words too.",
         choices: [
           {
             id: "march",

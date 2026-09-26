@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件、选项按 id 对齐；terms 不带 id，按数组下标对齐，条数与中文一致。
- *   · known / rumor / unknown 是纯字符串数组，整体替换，条数与中文完全一致。
  *   · 结构性键（id / era / tierMin / weight / base / mods / effects / flags /
  *     req / cost / contacts / minRep …）受引擎保护，本文件一律不写。
  *
@@ -22,28 +21,9 @@ POTUS.define("l10n", {
       {
         id: "enc_preacher",
         title: "The pastor offers you ten minutes at the pulpit",
-        body: "Four hundred people fill the South Side Baptist church every Sunday morning. The pastor owns their Sundays — and the week of talk that follows about whoever he mentions. He gives you ten minutes, said very politely: a few words after the hymn. What he does not say: how many eyes are in the room during those ten minutes, and which word the community will use for you when others speak in your place.",
-        brief: {
-          lede: "In a country that is not yours, the week's most valuable ten minutes are not in a council chamber. They are on a church pulpit.",
-          known: [
-            "A third of these four hundred will vote, and they will ask the pastor for whom.",
-            "He backs no party, only this community. Your words must not cut against his.",
-            "He did not offer the ten minutes for your sake. Someone asked him to.",
-            "Three elders sit in the third row. They are the ones who keep the community's ledger."
-          ],
-          rumor: [
-            "They say the last man the pastor vouched for had promised to fix the roof.",
-            "They say the community is fighting over something, and he can afford to offend neither side."
-          ],
-          unknown: [
-            "Why you — and not someone else.",
-            "Which sentence of yours the three elders will remember."
-          ],
-          terms: [
-            { k: "The pulpit", v: "The one place in the community where four hundred hear you at once, free." },
-            { k: "The pastor", v: "He does not vote for you. He decides whether others vote for you." }
-          ]
-        },
+        body: "Four hundred people fill the South Side Baptist church every Sunday morning. The pastor owns their Sundays — and the week of talk that follows about whoever he mentions. He gives you ten minutes, said very politely: a few words after the hymn. What he does not say: how many eyes are in the room during those ten minutes, and which word the community will use for you when others speak in your place.\n" +
+          "A third of these four hundred will vote, and they will ask the pastor for whom. Three elders sit in the third row; they are the ones who keep this community's ledger. " +
+          "He did not offer the ten minutes for your sake — someone asked him to.",
         choices: [
           {
             id: "speak",
@@ -85,28 +65,9 @@ POTUS.define("l10n", {
       {
         id: "enc_elders",
         title: "The guild's seven elders invite you to tea",
-        body: "The merchants' guild on the old-town street has seven elders. They do not care about your election. They care about who may open a shop on their street, whose rent can still be negotiated, whose child gets a seat at the weekend school. They invite you to tea — old leaves, glass cups worn smooth by other families' hands. Seven men sit across from you. Nobody speaks first. Their rule: the guest talks first.",
-        brief: {
-          lede: "Eight hundred people live on this street, two hundred of them voters — but what they care about is whether you can get one thing done.",
-          known: [
-            "The seven run seven trades, and their grudges with each other are older than you.",
-            "They poured the tea because some job needs doing, and only an outsider can do it.",
-            "They will not say what the job is. You have to draw it out of them.",
-            "Their memories are long. One favor done twenty years ago still gets mentioned."
-          ],
-          rumor: [
-            "They say the seven are clashing over a city block-improvement grant.",
-            "They say two of the seven have stopped speaking to each other."
-          ],
-          unknown: [
-            "Whether the job they want offends the other half of the street.",
-            "If you refuse, whether they simply stop counting you as present."
-          ],
-          terms: [
-            { k: "The guild", v: "No charter, no elections. Its authority is that this is how it has always been done." },
-            { k: "The right gift", v: "What the community calls a donation. Not a bribe — an entry fee." }
-          ]
-        },
+        body: "The merchants' guild on the old-town street has seven elders. They do not care about your election. They care about who may open a shop on their street, whose rent can still be negotiated, whose child gets a seat at the weekend school. They invite you to tea — old leaves, glass cups worn smooth by other families' hands. Seven men sit across from you. Nobody speaks first. Their rule: the guest talks first.\n" +
+          "Eight hundred people live on this street and two hundred of them vote; what they care about is whether you can get one thing done. They will not say which job — you have to draw it out of them. " +
+          "The guild has no charter and no elections; its authority is that this is how it has always been done.",
         choices: [
           {
             id: "ask",
@@ -148,28 +109,9 @@ POTUS.define("l10n", {
       {
         id: "enc_ballot",
         title: "The elections office is dropping bilingual ballots at three polling places",
-        body: "This year the elections office will withdraw bilingual ballots from three polling places. The stated reason: low utilization. The counting rule: only voters who asked for the bilingual form at the counter count as users. In those three precincts live seventeen hundred registered voters who never speak English. They do not lack the need. They were never asked to ask.",
-        brief: {
-          lede: "Seventeen hundred votes do not vanish on their own. They only become people who never learned what happened.",
-          known: [
-            "The three targeted are Old Town's densest, lowest-turnout precincts.",
-            "The elections director is no villain — he was told to press costs down.",
-            "No paper has run it yet. Right now it is only an administrative decision.",
-            "You have twenty days, then the commission's regular meeting."
-          ],
-          rumor: [
-            "They say the plan came from a candidate's office.",
-            "They say two elders are already planning a sit-in on the City Hall steps."
-          ],
-          unknown: [
-            "Whether the papers call this civil rights or a management detail.",
-            "How many of the seventeen hundred will remember you."
-          ],
-          terms: [
-            { k: "Bilingual ballot", v: "One sheet of paper that decides who can choose without being translated." },
-            { k: "Utilization", v: "A counting rule. Change the rule and the finding flips." }
-          ]
-        },
+        body: "This year the elections office will withdraw bilingual ballots from three polling places. The stated reason: low utilization. The counting rule: only voters who asked for the bilingual form at the counter count as users. In those three precincts live seventeen hundred registered voters who never speak English. They do not lack the need. They were never asked to ask.\n" +
+          "The three are Old Town's densest and lowest-turnout precincts. You have twenty days before the commission's regular meeting, and no paper has run the story yet — right now it is only an administrative decision. " +
+          "They say the plan came out of a candidate's office.",
         choices: [
           {
             id: "public",
@@ -222,28 +164,9 @@ POTUS.define("l10n", {
       {
         id: "enc_street",
         title: "The shopkeepers want to run their own night watch",
-        body: "Four robberies on this street in three months — all after ten at night, all within eight blocks of a patrol car that never comes. The wait for a response has gone from nine minutes to thirty-seven. The owners of twenty-three shops hold a meeting, and someone proposes a watch of their own. Two men in uniform are sitting in the room. They plainly dislike the idea.",
-        brief: {
-          lede: "There is no right answer here. Whichever side you choose, you lose the other half's trust. The only difference is how much.",
-          known: [
-            "Watches work — that is how other cities cut their robbery counts.",
-            "But once one forms, within three months someone gets hurt, or someone oversteps.",
-            "The police's real worry is not crime. It is who runs this street.",
-            "Nine of the twenty-three renew leases next year, and the landlords are locals."
-          ],
-          rumor: [
-            "Some say a few young men on the block are already walking the nights themselves.",
-            "Some say this precinct lost seven officers to other assignments this year."
-          ],
-          unknown: [
-            "If something goes badly wrong, whose name gets called first.",
-            "Which of these two sides actually turns out to vote next year."
-          ],
-          terms: [
-            { k: "The watch", v: "The community's own night eyes: effective, and uncontrollable." },
-            { k: "Patrol allocation", v: "A number on a budget sheet. Move it and response times move with it." }
-          ]
-        },
+        body: "Four robberies on this street in three months — all after ten at night, all within eight blocks of a patrol car that never comes. The wait for a response has gone from nine minutes to thirty-seven. The owners of twenty-three shops hold a meeting, and someone proposes a watch of their own. Two men in uniform are sitting in the room. They plainly dislike the idea.\n" +
+          "Watches work; that is how other cities cut their robbery counts. But once one forms, within three months somebody gets hurt or somebody oversteps. The police's real worry is not crime, it is who runs this street. " +
+          "They say the precinct lost seven officers to other assignments this year, and nine of the twenty-three owners renew leases next year.",
         choices: [
           {
             id: "support",
@@ -296,28 +219,9 @@ POTUS.define("l10n", {
       {
         id: "enc_first",
         title: "The community meets to send one of its own up a tier",
-        body: "Three dozen people, that night, in a borrowed basement. The pastor speaks first, then three elders, then the names start. At the fourth name, somebody says yours — and the room goes quiet for two or three seconds. Those seconds are the whole decision. They need one person to run for the next seat up. They do not lack people. They lack someone who can be accepted outside.",
-        brief: {
-          lede: "The community is meeting to field one of its own for the next seat up. They have chosen you.",
-          known: [
-            "This community can turn out four thousand votes. In a local race, that takes a seat.",
-            "They do not expect you to win. They expect a familiar face standing at the door on registration day.",
-            "Accepting is taking a side: the party will file you as the community's man.",
-            "They hate being a stepping stone. If you start acting like a politician, they will notice."
-          ],
-          rumor: [
-            "They say there was a second name until last year; it offended the elders.",
-            "They say someone in the party is already asking what was said in that room."
-          ],
-          unknown: [
-            "If you lose, whether they still count you as one of theirs.",
-            "If you decline, whether whoever takes it remembers to step aside for you."
-          ],
-          terms: [
-            { k: "To field", v: "A community moving as one: no money, only a name." },
-            { k: "Acceptable", v: "Trusted inside the neighborhood, and not read as a threat outside it." }
-          ]
-        },
+        body: "Three dozen people, that night, in a borrowed basement. The pastor speaks first, then three elders, then the names start. At the fourth name, somebody says yours — and the room goes quiet for two or three seconds. Those seconds are the whole decision. They need one person to run for the next seat up. They do not lack people. They lack someone who can be accepted outside.\n" +
+          "This community can turn out about four thousand votes, which in a local race takes a seat. They do not expect you to win; they expect a familiar face at the door on registration day. " +
+          "Accepting is taking a side — the party files you as the community's man the same week.",
         choices: [
           {
             id: "accept",

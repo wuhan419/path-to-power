@@ -4,8 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3/§4）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的字段；事件按 id 定位。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，元素个数必须与中文严格一致
- *     （卡一 3/2/2/1、卡二 3/2/2/2、卡三 3/2/2/2）；terms 为 {k,v} 数组，按下标对齐。
  *   · 结构性键（id / base / mods / cost / stake / effects / flags …）由引擎保护，本文件不写。
  *   · 英文按第二人称、现在时、短句重写；「」不直译，改英文引号或句式。
  *   · 标题一律 sentence case：只首词与专有名词（House / Supreme Court / Congress）大写。
@@ -21,24 +19,7 @@ POTUS.define("l10n", {
       {
         id: "ln19_gnd",
         title: "A ten-year climate and industry resolution lands in the House",
-        body: "In February a ten-year 'climate and industrial mobilization' resolution hits the House floor: near-zero-carbon power, infrastructure and job retraining bundled into one appropriation. It is no bill that can pass — yet it cleaves the party in two. Coastal newcomers jostle to co-sponsor; lawmakers from fossil-fuel states get caught between a ringing phone and a hearing room. A brand-new caucus of a handful of seats becomes, overnight, both ally and target.",
-        brief: {
-          lede: "This is no vote — it is a roll call on the route. Whether you sign reweighs your price in the primary.",
-          known: [
-            "It is only a joint resolution — no vote, it just nails the issue to the agenda.",
-            "Co-sponsor early: hesitate and the tiny caucus files you under the other side.",
-            "Energy-state calls and factory donations fill your mailbox the very same day."
-          ],
-          rumor: [
-            "Some say the Senate never meant to give this a schedule.",
-            "Some say the White House already has a softer draft ready to brake with."
-          ],
-          unknown: [
-            "Where you stand today gets re-counted in the fall.",
-            "You have not learned all the caucus's names; they have learned yours."
-          ],
-          terms: [{ k: "Joint resolution", v: "States a position; never goes to the executive to sign." }]
-        },
+        body: "In February a ten-year 'climate and industrial mobilization' joint resolution — a statement of position that never goes to the executive to sign, no vote, it just nails the issue to the agenda — hits the House floor: near-zero-carbon power, infrastructure and job retraining bundled into one appropriation. It is no bill that can pass — yet it cleaves the party in two. Coastal newcomers jostle to co-sponsor; lawmakers from fossil-fuel states get caught between a ringing phone and a hearing room. A brand-new caucus of a handful of seats becomes, overnight, both ally and target.\nCo-sponsor early: hesitate one day and the tiny caucus files you under the other side. You have not learned all their names — they have already learned yours.",
         choices: [
           {
             id: "back_plan",
@@ -82,27 +63,7 @@ POTUS.define("l10n", {
       {
         id: "ln23_indict",
         title: "A former president is charged by federal and state prosecutors",
-        body: "From midsummer into fall, a former president is indicted first by a federal special counsel, then separately by one state's prosecutors for interfering in an election: documents, classified files, ballots — dozens of counts landing on the same dates as his campaign rallies. His own party cries 'persecution'; the opposition calls it 'accountability'. Article III and Section 3 of the Fourteenth Amendment are raised, for the first time, as a primary-eligibility question.",
-        brief: {
-          lede: "Indictments and rally posters go up on the same wall: how you name it is how you register.",
-          known: [
-            "Two cases, two tracks — federal and state — each advancing on its own.",
-            "The party's primary has been re-lit by these two pieces of paper.",
-            "On whether Section 3 can apply, scholars now back both answers at once."
-          ],
-          rumor: [
-            "Some say the state case is waiting on a pre-election schedule.",
-            "Some say the party's fundraising mails have made 'persecution' its signboard."
-          ],
-          unknown: [
-            "The word you choose now will be quoted in court filings.",
-            "When the eligibility clause is truly invoked, nobody has costed it."
-          ],
-          terms: [
-            { k: "Section 3, Fourteenth Amendment", v: "Bars anyone who engaged in insurrection from office." },
-            { k: "Special counsel", v: "A prosecutor independent of the ordinary line." }
-          ]
-        },
+        body: "From midsummer into fall, a former president is indicted first by a federal special counsel — a prosecutor outside the ordinary line — then separately by one state's prosecutors for interfering in an election: documents, classified files, ballots — dozens of counts landing on the same dates as his campaign rallies. His own party cries 'persecution'; the opposition calls it 'accountability'. Article III and Section 3 of the Fourteenth Amendment — the clause that bars anyone who engaged in insurrection from office — are raised, for the first time, as a primary-eligibility question, and scholars are currently backing both answers at once.\nThe two cases run on separate tracks. How you name them now is how the court filings will quote you.",
         choices: [
           {
             id: "defend",
@@ -146,27 +107,7 @@ POTUS.define("l10n", {
       {
         id: "ln24_immune",
         title: "The Supreme Court draws an immunity line around a president's official acts",
-        body: "In July, the Supreme Court rules six to three: a president's official acts carry criminal-prosecution immunity, and whether he can be charged now turns on a lower court's line between 'official' and 'private' — the case is remanded. The same month, the governing party suffers a rare election-year switch: the incumbent withdraws, his vice president takes the baton. An immunity line drawn, a nomination gate opened — both threads press into the fall ballot.",
-        brief: {
-          lede: "Immunity redrawn, the ticket switched: two tonics this summer, both repricing the autumn election.",
-          known: [
-            "The ruling is six to three: core official acts absolutely immune, the rest reviewable.",
-            "The case is remanded; whether it reaches trial before the vote, nobody guarantees.",
-            "The new nomination is not locked until the August convention."
-          ],
-          rumor: [
-            "Some say the new nominee's staff list has already been quietly screened.",
-            "Some say the call to withdraw was placed before the debate stage."
-          ],
-          unknown: [
-            "The words you use for the ruling tonight get quoted in reverse by fall.",
-            "How long the switch's surge holds — nobody has run the numbers."
-          ],
-          terms: [
-            { k: "Remand", v: "A higher court sends a case back down for a new ruling." },
-            { k: "Official acts", v: "What a president does by office, set apart from private conduct." }
-          ]
-        },
+        body: "In July, the Supreme Court rules six to three: a president's official acts — what he does by office, set apart from private conduct — carry criminal-prosecution immunity. The core of official behavior is absolutely immune; the rest is reviewable, and whether he can be charged now turns on a lower court's line between 'official' and 'private' — the case is remanded, sent back down for a new ruling, and nobody guarantees a hearing before the vote. The same month, the governing party suffers a rare election-year switch: the incumbent withdraws, his vice president takes the baton — yet the new nomination is not locked until the August convention.\nSome say the successor's staff list has already been quietly screened. The words you choose for this ruling tonight get quoted in reverse by fall.",
         choices: [
           {
             id: "ride_change",

@@ -4,7 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件/选项按 id 定位；known/rumor/unknown 整体替换、条数给全。
  *   · 结构性键（id / era / tierMin / countMin / grade / category / base / mods /
  *     cost / effects …）受引擎保护，本文件一律不写。
  *   · wrath 群体展示名走 en/reg/01-config.js，这里不重复。
@@ -23,23 +22,7 @@ POTUS.define("l10n", {
       {
         id: "reck_press_dossier",
         title: "Two reporters are digging into your past at the same time",
-        body: "The calls reach the office. Polite voices, impolite questions.\nYou picked fights with the press too often — now they are assembling a file on you.",
-        brief: {
-          lede: "Two newspapers that never cooperate are investigating the same old story in the same week. That is not a coincidence.",
-          known: [
-            "A reporter asked to \"talk about the old days\" — and every question touched something you thought nobody remembered.",
-            "The columnist you humiliated in public has suddenly written about you four times this month.",
-            "The newsroom is waiting to see how you react this time. The reaction itself is the story."
-          ],
-          rumor: [
-            "Somebody said at a dinner: \"His scandals, collected properly, fill a book.\"",
-            "Your former chief of staff has been visited about a \"book deal.\""
-          ],
-          unknown: [
-            "Whether they actually have anything, or just want you to start explaining.",
-            "Whether this is a probe — or the opening act of a takedown."
-          ]
-        },
+        body: "The calls reach the office. Polite voices, impolite questions.\nYou picked fights with the press too often — now they are assembling a file on you.\nThe reporter who asked to \"talk about the old days\" touched only details you thought nobody remembered. The columnist you humiliated in public has written about you four times this month. The newsroom is waiting to see how you react this time — the reaction itself is the story. Whether they hold real dirt or just want you to start explaining, you cannot tell.",
         choices: [
           {
             id: "appease",
@@ -82,23 +65,7 @@ POTUS.define("l10n", {
       {
         id: "reck_press_crusade",
         title: "The press launches a crusade: a four-week series to finish you",
-        body: "This is not one story, it is a campaign: unified layout, unified line, double firepower.\\nThey are not covering you — they are closing you out.",
-        brief: {
-          lede: "Monday, three front pages, same theme, same day. This was scheduled.",
-          known: [
-            "A four-part investigative series is already laid out by week. Your name is episode one.",
-            "The chain's owner said at a industry party: \"It is time to turn his page.\"",
-            "Advertisers have started pulling from your affiliated projects — the money flees faster than the copy runs."
-          ],
-          rumor: [
-            "The final installment is holding a document you have never seen.",
-            "Somebody in the newsroom said: this is not reporting, it is an execution."
-          ],
-          unknown: [
-            "Fighting back wins martyrs or confessions — the difference is a few points of luck.",
-            "Whether silence can outlast the news cycle. This country never runs short of new stories."
-          ]
-        },
+        body: "This is not one story, it is a campaign: unified layout, unified line, double firepower.\\nThey are not covering you — they are closing you out.\\nThe four-week series is already laid out by page; your name is episode one. The chain's owner said at an industry party that it is time to turn your page. Advertisers have started pulling from your affiliated projects — the money flees faster than the copy runs. Some say the final installment holds a document you have never seen.",
         choices: [
           {
             id: "fight",
@@ -145,23 +112,7 @@ POTUS.define("l10n", {
       {
         id: "reck_est_summons",
         title: "The party sends you a hearing subpoena",
-        body: "The subject line reads \"improper influence,\" the scope has no border, and they set the hour.\\nThe chair's secretary helpfully advises: \"attitude matters more than testimony.\"",
-        brief: {
-          lede: "At the caucus breakfast the chair mispronounced your name on purpose. Everyone at the table understood.",
-          known: [
-            "A \"voluntary\" hearing invitation arrived: the topic is your \"improper influence.\"",
-            "Two senior members said publicly \"someone should rein him in.\" No names. Everyone knew.",
-            "On the next appropriations and endorsements calendar, your seat moved three rows back."
-          ],
-          rumor: [
-            "The hearing isn't about you — it's a message: the party still tolerates you, if you behave.",
-            "Somebody has already been scouting where you might \"step down to.\""
-          ],
-          unknown: [
-            "Whether this establishment wants to co-opt you or remove you.",
-            "Whether bowing buys a real reinstatement — or just a suspended sentence."
-          ]
-        },
+        body: "The subject line reads \"improper influence,\" the scope has no border, and they set the hour.\\nThe chair's secretary helpfully advises: \"attitude matters more than testimony.\"\\nTwo senior members say publicly that someone should rein you in — no names; everyone knew. On the next appropriations calendar your seat moved three rows back. Whether this establishment wants to co-opt you or remove you, nobody will say.",
         choices: [
           {
             id: "heel",
@@ -204,23 +155,7 @@ POTUS.define("l10n", {
       {
         id: "reck_est_blacklist",
         title: "The party establishment puts the uncooperative on a blacklist",
-        body: "No memo, no official notice — yet the whole party is circulating the same list.\nThe machine doesn't ignite when it grinds people. It closes valves: money, doors, calendar slots — overnight, all \"in process.\"",
-        brief: {
-          lede: "A party list is circulating — titled \"people who cannot stay.\" It is not long. You are second.",
-          known: [
-            "Your office moved from the main building to leased space. All paperwork correct; the reason is \"renovations.\"",
-            "Three resources you were negotiating hit \"process hold\" simultaneously. Individually coincidences; together a deployment.",
-            "A young \"rising star\" has started \"speaking for\" your district's old constituents."
-          ],
-          rumor: [
-            "The list was built by outside consultants in a slide deck — they call it \"structural realignment.\"",
-            "The chair's exact words: \"First let him learn what life looks like without us.\""
-          ],
-          unknown: [
-            "This machine has more patience than you can imagine.",
-            "Whether defiance is martyrdom or self-destruction depends on whether your voters still recognize you."
-          ]
-        },
+        body: "No memo, no official notice — yet the whole party is circulating the same list.\nThe machine doesn't ignite when it grinds people. It closes valves: money, doors, calendar slots — overnight, all \"in process.\"\nYour office moved to a leased floor; the paperwork is clean and the reason is \"renovations.\" A young \"rising star\" has started speaking for your district's old constituents. The list is not long — you are second. Defiance is martyrdom or self-destruction, depending on whether your voters still recognize you.",
         choices: [
           {
             id: "break",
@@ -267,23 +202,7 @@ POTUS.define("l10n", {
       {
         id: "reck_money_cold",
         title: "The donors go cold on you: no dinner invites, renewals paused",
-        body: "The money never said it was leaving you. The money merely started \"reassessing.\"\nIn Washington those are the same sentence.",
-        brief: {
-          lede: "The fundraising calendar looks clean. Too clean — as if somebody erased it.",
-          known: [
-            "Three dinners that always invited you sent nothing this year.",
-            "The bankers' circle repeats one line: \"his projects need reassessing\" — every one of those three words is a euphemism.",
-            "Your PAC's renewal talks now come with a precondition: \"let's see the year-end polls first.\""
-          ],
-          rumor: [
-            "At a dinner one donor said: \"I'm not saying anything against him — I'm choosing not to say anything.\"",
-            "Someone is testing the donation pool for \"a steadier option.\" The name on the deck sounds like your successor."
-          ],
-          unknown: [
-            "Whether the money is only holding back — or already loading someone else's gun.",
-            "Donors' memory is shorter than voters'. Their patience is longer."
-          ]
-        },
+        body: "The money never said it was leaving you. The money merely started \"reassessing.\"\nIn Washington those are the same sentence.\nThree dinners that always invited you sent nothing this year; your PAC's renewal talks now open with \"let's see the year-end polls first.\" Somebody is already testing the donation pool for a steadier option. Is the money only holding back — or already loading someone else's gun?",
         choices: [
           {
             id: "makeup",
@@ -326,23 +245,7 @@ POTUS.define("l10n", {
       {
         id: "reck_money_bounty",
         title: "The donors bankrolled a ringer, purpose-built to carry you off",
-        body: "New campaigner, new reports, new credit line — they didn't stop backing you. They backed your replacement.\nMoney never says goodbye. Money makes a budget. Your career became a budget line.",
-        brief: {
-          lede: "Someone you have never heard of announced a run. His platform copies yours; his war chest is triple yours.",
-          known: [
-            "Three lead donors wrote checks in the same quarter, all flowing one direction.",
-            "An \"independent research institute\" began issuing reports about you — titles shorter, covers thicker, one release at a time.",
-            "The bank extended your rival a \"credit facility,\" and floated your renewal rate up one point."
-          ],
-          rumor: [
-            "At a closed meeting somebody said: \"Whatever he's worth to them, we'll pay it — to buy him off the table.\"",
-            "The newcomer's strategist just jumped from your former team."
-          ],
-          unknown: [
-            "Whether this is a hunt — or a severance negotiation.",
-            "Money can't buy dignity, but it can buy the wrapping paper."
-          ]
-        },
+        body: "New campaigner, new reports, new credit line — they didn't stop backing you. They backed your replacement.\nMoney never says goodbye. Money makes a budget. Your career became a budget line.\nSomeone you have never heard of announced a run: his platform copies yours, his war chest is triple yours, and the bank lends to him more easily than it renews you. At a closed meeting somebody said: whatever he is worth to them, they will pay it — to buy him off the table. Is this a hunt, or a severance negotiation?",
         choices: [
           {
             id: "counter",
@@ -389,23 +292,7 @@ POTUS.define("l10n", {
       {
         id: "reck_oppo_list",
         title: "Your rivals are assembling a list of ways to deal with you",
-        body: "Dark ledgers, surveillance, false-flag bills — the opposition's intelligence service exists, nobody just voted its budget.\nPage one of the list carries a single line: how he falls, and who we pick for it.",
-        brief: {
-          lede: "Your office got \"routine maintenance\" for the second time. The first was right after you said the hard thing.",
-          known: [
-            "The rival's chief of staff said it out loud: \"Dealing with him takes unconventional methods.\"",
-            "Your aide reports being photographed while parking — two nights running, same car, different angles.",
-            "A \"priority targets list\" leaked inside the opposition camp. You're in the top five."
-          ],
-          rumor: [
-            "Beside the list is a column titled \"usable resources\" — every entry an unclean channel.",
-            "They hired a fixer infamous for dirty work. His business card only says \"consulting.\""
-          ],
-          unknown: [
-            "How long a framed operation takes to stage — you'd like to know, but not too late.",
-            "Whether that list is a threat list or a task list."
-          ]
-        },
+        body: "Dark ledgers, surveillance, false-flag bills — the opposition's intelligence service exists, nobody just voted its budget.\nPage one of the list carries a single line: how he falls, and who we pick for it.\nYour aide has been photographed in the parking lot two nights running — same car, different angles. Their new consultant is infamous for dirty work; his card only says \"consulting.\" A \"priority targets list\" leaked inside the rival camp: you are in the top five, with a column beside it headed \"usable resources.\" Threat list — or task list?",
         choices: [
           {
             id: "truce",
@@ -448,23 +335,7 @@ POTUS.define("l10n", {
       {
         id: "reck_oppo_gun",
         title: "An assassination threat reaches the desk: are you still holding the rally?",
-        body: "A rally you cannot cancel, a route everybody knows, and the phrase \"credible threat.\"\nPolitical assassination is this country's traditional craft — it only counts as an accident when someone decides to try.",
-        brief: {
-          lede: "Page three of the security briefing: \"Credible threat received against a public figure.\" Your name is in the appendix.",
-          known: [
-            "The rally was announced two weeks ago: open venue, public route, guest list compromised.",
-            "The security chief asked whether you'd still go — he said \"recommend cancelling\" so softly, as if saying it for you.",
-            "Inside the rival camp someone is already discussing \"who takes over if something happens.\" They've even drafted the successor."
-          ],
-          rumor: [
-            "The threat's paper trail reaches one name, then stops after one \"insufficient information.\"",
-            "Someone paid, someone passed word, someone bought the ticket — the three may never have met."
-          ],
-          unknown: [
-            "Cancelling buys you once. Going or not decides something larger: whether, from today on, you are afraid.",
-            "What happens after the shots depends entirely on who the first one finds."
-          ]
-        },
+        body: "A rally you cannot cancel, a route everybody knows, and the phrase \"credible threat.\"\nPolitical assassination is this country's traditional craft — it only counts as an accident when someone decides to try.\nThe rally was announced two weeks ago: open venue, public route, guest list compromised. The security chief asked whether you would still go — he said \"recommend cancelling\" so softly, as if saying it for you. In the rival camp, somebody is already discussing who takes over if something happens. Cancelling buys you once; going or not decides whether, from today on, you are afraid.",
         choices: [
           {
             id: "rally",
@@ -511,23 +382,7 @@ POTUS.define("l10n", {
       {
         id: "reck_agy_file",
         title: "Somebody wrote your name into an internal file",
-        body: "Vetting reopened, phones swapped, ex-staff interviewed — this is not investigation. It is documentation.\nThe system's pen is slower than a rival's knife; but once the sentence is written, the knife has coordinates.",
-        brief: {
-          lede: "Your security clearance was \"restarted.\" You last passed it before this system had any doubts.",
-          known: [
-            "A former aide was interviewed by two \"background researchers,\" and came back describing every question verbatim — which is itself alarming.",
-            "Your office switchboard was quietly replaced. The work order says \"routine.\"",
-            "The vetting form gained a new field: \"external contacts disclosure.\" The box is exactly three lines tall."
-          ],
-          rumor: [
-            "A \"risk figures\" list circulates inside the building. You're on it. The annotation reads four words: exploitable, or destroyable.",
-            "An unfamiliar case number is describing your schedule in a report for somebody."
-          ],
-          unknown: [
-            "When the file began to exist matters more than what is in it.",
-            "Whether the file was written to protect you or to prepare your ruin — the system can't be bothered to tell those apart."
-          ]
-        },
+        body: "Vetting reopened, phones swapped, ex-staff interviewed — this is not investigation. It is documentation.\nThe system's pen is slower than a rival's knife; but once the sentence is written, the knife has coordinates.\nYou last passed this vetting before the system had any doubts about you; the form now carries a new field, external contacts disclosure. A \"risk figures\" list circulates inside the building; you are on it, annotated in four words: exploitable, or destroyable. When the file began to exist matters more than what is in it.",
         choices: [
           {
             id: "comply",
@@ -570,23 +425,7 @@ POTUS.define("l10n", {
       {
         id: "reck_agy_frame",
         title: "Somebody drafted a case that never happened and filed it under your name",
-        body: "The informant has a number, the details have timestamps, and the file awaits one signature — yours.\nThe highest form of a frame-up is writing \"never happened\" into a shape that passes every procedure.",
-        brief: {
-          lede: "A draft indictment is circulating in the corridor — case number blank, charges complete.",
-          known: [
-            "An \"informant\" describes three meetings you never attended, with terrifying precision of detail.",
-            "Two staff you know were separately taken in to \"assist the inquiry\" — different rooms, identical questions.",
-            "Your travel records have been tabulated: every cell marked \"nothing unusual\"; the whole reads \"highly consistent.\""
-          ],
-          rumor: [
-            "A new electronic case file exists in the records system. The author field says: backfilled.",
-            "Somebody fed two reporters an \"unnamed law-enforcement source\" — the charges aren't final, but the coverage is already running."
-          ],
-          unknown: [
-            "Proving a non-event requires not innocence but clearance.",
-            "A system's mistakes can be corrected; a system's decisions cannot. Your task is telling which one you're facing."
-          ]
-        },
+        body: "The informant has a number, the details have timestamps, and the file awaits one signature — yours.\nThe highest form of a frame-up is writing \"never happened\" into a shape that passes every procedure.\nAn \"informant\" you have never seen describes three meetings you never attended, with terrifying precision of detail; two staff you know were taken in separately to \"assist the inquiry\" — different rooms, identical questions. Proving a non-event requires not innocence, but clearance.",
         choices: [
           {
             id: "fight",

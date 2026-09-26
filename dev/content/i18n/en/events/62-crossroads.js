@@ -6,7 +6,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices 按 id 对齐；terms 不带 id，按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是**整体替换**，条数与中文一致。
  *   · 结构性键（id / era / tracks / tierMin / weight / base / mods / effects /
  *     flags / cost …）受保护，本文件一个都不写。setTrack 在 effects 里，不动。
  *
@@ -26,28 +25,12 @@ POTUS.define("l10n", {
       {
         id: "cross_first_fork",
         title: "The first fork: your name on a ballot, or a badge on someone else's ticket",
-        body: "A year in, two doors open at once. Print your own name on a ballot — or learn how someone else " +
-          "wins. You can only pick one.",
-        brief: {
-          lede: "Two roads open at the same time: a ballot and a paycheck.",
-          known: [
-            "A school board seat is open: the lowest rung, but every vote is walked door to door.",
-            "A state senator's team is hiring a regional organizer: modest pay, but you see the machine's people daily.",
-            "You can't do both. Campaign season runs twenty-four seven."
-          ],
-          rumor: [
-            "Word is the senator is a heavy favorite, and his people get slices of it two years out.",
-            "Word is the school board is a nothing job — but somebody used it as a step to city council."
-          ],
-          unknown: [
-            "Which road you take decides who you meet and whose favors you owe for five years.",
-            "Choices get forgotten. The circles they form don't."
-          ],
-          terms: [
-            { k: "School board", v: "The most local elected office in America; it sets school budgets." },
-            { k: "Regional organizer", v: "A campaign field operative driving volunteers and turnout." }
-          ]
-        },
+        body: "A year in, two doors open at once. A school board seat is empty — the most local elected office " +
+          "in America, and it sets school budgets: a low rung, but every vote is walked door to door. A state " +
+          "senator's team is hiring a regional organizer, a field operative working volunteers and turnout: modest " +
+          "pay, but you see the machine's people daily. You cannot do both — campaign season runs twenty-four " +
+          "seven. Print your own name on a ballot, or learn how someone else wins. Pick one. Whichever road you " +
+          "take decides who you meet and whose favors you owe for five years.",
         choices: [
           {
             id: "run",
@@ -106,27 +89,12 @@ POTUS.define("l10n", {
       {
         id: "cross_ngo_machine",
         title: "The issue group's name, or a slot inside the party",
-        body: "You got real things done under the group's banner, and the party machine is waving you over. " +
-          "Conviction buys clean hands; the system buys leverage. Decide where to place yourself.",
-        brief: {
-          lede: "One side offers an ideal's business card. The other, a keycard to power.",
-          known: [
-            "The issue group you run has delivered two local wins. The board is talking expansion.",
-            "The state machine offers an olive branch: a paid job over three counties, on condition of 'coordination.'",
-            "The co-founder says it straight: go and she won't stop you, but the signature page loses a name."
-          ],
-          rumor: [
-            "Word is the party post is a springboard — two people rode it to state appointments inside two years.",
-            "Word is foundation money arrives holding a foundation's agenda."
-          ],
-          unknown: [
-            "What the machine offers isn't a job. It's a coordinate system.",
-            "Nobody can say what you'd become once you leave the group."
-          ],
-          terms: [
-            { k: "Party machine", v: "A party's permanent organization: its jobs, endorsements, money." }
-          ]
-        },
+        body: "The issue group you run has delivered two local wins, and the board has started talking expansion. " +
+          "The state party machine — a party's permanent organization, its jobs, endorsements and money — offers " +
+          "an olive branch: a paid post over three counties, on condition of \"coordination.\" The co-founder says " +
+          "it straight: go, she won't stop you, but the signature page loses a name. Conviction buys clean hands; " +
+          "the system buys leverage. Decide where to place yourself. What the machine hands you is not a post. " +
+          "It is a coordinate system.",
         choices: [
           {
             id: "stay_ngo",
@@ -191,28 +159,12 @@ POTUS.define("l10n", {
       {
         id: "cross_state_federal",
         title: "A seat at the state capital, or a seat in Washington",
-        body: "Both roads open at once: the state senate is steady, the U.S. House is the high wire. You've " +
+        body: "Two seats open at once. A veteran state senator retires: a district you know, a real shot, and " +
+          "coverage that stops at the state line. Redistricting — the once-a-decade redraw of district lines from " +
+          "the census — cracks open a U.S. House seat: national eyes, national money, a two-year term that keeps " +
+          "you in permanent campaign. Your advisers put it plain: big fish, small pond, or small fish, big water. " +
+          "Word is the new map left that door open on purpose, for a donor's own person in Washington. You've " +
           "climbed to the place where you must choose — and this choice defines everything you'll meet for a decade.",
-        brief: {
-          lede: "Two seats open at once: one at the state capital, one in Washington.",
-          known: [
-            "A veteran state senator retires: a district you know, a real shot, but coverage stops at the state line.",
-            "Redistricting cracks open a U.S. House seat: national eyes, national money.",
-            "Your advisers put it plain: big fish, small pond — or small fish, big water."
-          ],
-          rumor: [
-            "Word is the new map left that seat open on purpose, for a donor's own person in Washington.",
-            "Word is the state senate seat belongs to a certain family. Go and you're crashing their party."
-          ],
-          unknown: [
-            "Go to Washington and live between two meat grinders from then on.",
-            "Stay at the capital: the power you hold is budgets and maps — the real kind."
-          ],
-          terms: [
-            { k: "Redistricting", v: "Every ten years, census data redraws district lines." },
-            { k: "U.S. House", v: "The federal chamber: two-year terms, always in campaign mode." }
-          ]
-        },
         choices: [
           {
             id: "state",
@@ -273,27 +225,12 @@ POTUS.define("l10n", {
       {
         id: "cross_wh_governor",
         title: "Board the jet for the presidential race, or run for governor in your own name",
-        body: "One door is a senior post on a presidential campaign: bet two years, buy a one-way ticket into " +
-          "the inner circle. The other is a governor's race: your name on top, the win and the loss all yours.",
-        brief: {
-          lede: "Two flights board at once: one to the primary battlefield, one back to your state.",
-          known: [
-            "The likely presidential nominee wants you on his national team: a senior title, a seat on the plane.",
-            "The same week, your state's governor's seat opens: you poll second; first is the incumbent's heir.",
-            "The campaign manager slaps two pages on the table: one says 'lend yourself,' one says 'bet yourself.'"
-          ],
-          rumor: [
-            "Word is you're third on the candidate's list of regional chairs — and the first two are already signed.",
-            "Word is the heir holds the party endorsements, but his numbers have bled for three straight months."
-          ],
-          unknown: [
-            "Pick the right man and the returns compound; pick the wrong one and you keep only the memoir.",
-            "A governorship is the presidency's proving ground — and its exile camp."
-          ],
-          terms: [
-            { k: "Presidential primary", v: "The state-by-state race in which parties pick their nominee." }
-          ]
-        },
+        body: "The likely presidential nominee wants you on his national team — a senior title, a seat on the " +
+          "plane, two years bet; his nomination still has to be won state by state in the primaries. The same week " +
+          "your state's governor's seat opens: you poll second, and first is the incumbent's heir, who holds the " +
+          "party endorsements and has bled support for three straight months. The campaign manager slaps two pages " +
+          "on the table: one says \"lend yourself,\" one says \"bet yourself.\" Lending buys a one-way ticket into " +
+          "the inner circle; betting puts your name on top, the win and the loss all yours.",
         choices: [
           {
             id: "join_wh",

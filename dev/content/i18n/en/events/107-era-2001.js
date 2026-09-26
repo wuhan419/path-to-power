@@ -6,8 +6,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
  *   · 事件按 id 定位；choices / terms 里带 id 的按 id 对齐，不带 id 的对象按数组下标对齐。
- *   · 纯字符串数组（known / rumor / unknown / texts）是**整体替换**，必须整条给全，
- *     少给一条就少一条 —— 不合并。
  *   · 结构性键（id / era / minYear / tierMin / weight / base / mods / effects /
  *     flags / req / cost …）由引擎保护，写了也不会生效，validate 会直接报错。
  *   · 缺译的字段自动留中文，所以可以一张一张补。
@@ -25,29 +23,13 @@ POTUS.define("l10n", {
       {
         id: "wt01_september",
         title: "Two planes hit, live, in every living room",
-        body: "The second tower falls before the smoke from the first has cleared. In a few hours, the assumption\n" +
-          "that home can never be struck is dead. Flags cover every pickup truck by nightfall. Both parties in\n" +
-          "Congress race to do something, and fear is picking the something. In your district, relatives are\n" +
-          "deployed, are in New York, and are among the communities that just became suspects.",
-        brief: {
-          lede: "A national disaster turns every choice into a side: safety, liberty, and who counts as one of us.",
-          known: [
-            "You are pushed to the front: comfort the military families while neighbors are being questioned.",
-            "Support for force and for surveillance runs sky-high. Saying slow down today looks like self-destruction.",
-            "An endless war on terror and a sweeping new law are taking shape at top speed."
-          ],
-          rumor: [
-            "Some say the intelligence clues existed; nobody simply connected them.",
-            "Some say the coming bill smuggles in powers that have nothing to do with terror."
-          ],
-          unknown: [
-            "How many years the war will run, and what it will ask of you.",
-            "The surveillance powers cheered today — in ten years, whose door do they point at?"
-          ],
-          terms: [
-            { k: "The Patriot Act", v: "The sweeping anti-terror law passed after 9/11; it loosened wiretaps and searches." }
-          ]
-        },
+        body: "The second tower falls before the smoke from the first has cleared. In a few hours, the assumption that home can\n" +
+          "never be struck is dead. Both parties in Congress race to do something, and support for force and for\n" +
+          "surveillance runs sky-high — saying slow down today looks like self-destruction. An endless war on terror and a\n" +
+          "law loosening wiretaps and searches, the Patriot Act, are taking shape at top speed. Flags cover every pickup\n" +
+          "truck by nightfall. In your district, neighbors are being questioned without cause while others stand at the\n" +
+          "recruiting office. Some say the intelligence clues existed; nobody simply connected them. The surveillance\n" +
+          "powers you cheer today — in ten years, whose door do they point at?",
         choices: [
           {
             id: "rally",
@@ -124,28 +106,12 @@ POTUS.define("l10n", {
       {
         id: "wt02_patriot",
         title: "Federal agents want records from your district",
-        body: "The new law lets a single signed order take library loans, bank statements, medical files. This time the\n" +
-          "order lands in your district. A line comes down from above: don't ask questions, just cooperate. But\n" +
-          "among your voters, someone is wondering whether they are the file being pulled.",
-        brief: {
-          lede: "A high-sounding law reaches the ground as one concrete act — with names, favors, and risk attached.",
-          known: [
-            "It lands on you because compliance and budget in your district run through your desk. You must sign.",
-            "Cooperating buys federal trust and an anti-terror grant; resisting gets logged as uncooperative.",
-            "The orders sweep wide — today's pulled records may belong to your oldest donor."
-          ],
-          rumor: [
-            "Some say the harvested records end up with data firms as targeting material.",
-            "Some say few are truly watched; most of it is going through the motions."
-          ],
-          unknown: [
-            "The door you open today — will they walk through it to search you later?",
-            "Whether the anti-terror grant becomes a rope tied around you."
-          ],
-          terms: [
-            { k: "Access order", v: "The new law's demand for personal records — no judge, no review." }
-          ]
-        },
+        body: "The new law lets one signed order — an access order, no judge, no review — take library loans, bank statements,\n" +
+          "medical files. This time the order lands in your district, and compliance and budget here both run through your\n" +
+          "desk, so your name goes on the signature line. A word comes down from above: don't ask questions, just\n" +
+          "cooperate. Cooperating buys federal trust and an anti-terror grant; resisting gets logged as uncooperative. But\n" +
+          "the orders sweep wide: today's pulled file may belong to your oldest donor, and some of your voters are wondering\n" +
+          "whether it is theirs. The door you open today may be the one walked through to search you.",
         choices: [
           {
             id: "cooperate",
@@ -187,29 +153,12 @@ POTUS.define("l10n", {
       {
         id: "wt03_wmd",
         title: "They ask you to endorse a war that has not started",
-        body: "The intelligence brief lies open: weapons possibly hidden, a regime possibly tied to terrorists.\n" +
-          "Under every possibly sits the line not yet confirmed. But the decision is already counting down, and\n" +
-          "all it wants is a local stamp of support as well. Sign, and you become one of the early pushers of a\n" +
-          "war that history later overturns.",
-        brief: {
-          lede: "A war history will re-examine now needs your nod — you cannot decide it, but you can stamp it.",
-          known: [
-            "They want your endorsement because your line delivers a pretty picture of local unanimity.",
-            "Approval is still at its peak; opposing this war is politically expensive right now.",
-            "On the key intelligence judgments, even the intelligence officers privately shake their heads."
-          ],
-          rumor: [
-            "Some say the people who want this war never finished the last one.",
-            "Some say intelligence from the region is always half true; nobody can swear to it."
-          ],
-          unknown: [
-            "What you believed today, and which report will write it down.",
-            "Whether this war will end in days, exactly as promised."
-          ],
-          terms: [
-            { k: "Weapons of mass destruction", v: "The stated reason for the Iraq war — shown after the invasion to have been misleading." }
-          ]
-        },
+        body: "The intelligence brief lies open: weapons of mass destruction possibly hidden, a regime possibly tied to\n" +
+          "terrorists. Under every possibly sits the line not yet confirmed. The officers reading it to you shake their\n" +
+          "heads privately, but the decision is already counting down. Approval is still at its peak and the cost of\n" +
+          "opposing this war is more than anyone here will pay — what they want from your line is one page of local\n" +
+          "unanimity. Some say the men who want this war never finished the last one. What you believed today, and who\n" +
+          "made you believe it, will be written down somewhere.",
         choices: [
           {
             id: "endorse",
@@ -251,28 +200,11 @@ POTUS.define("l10n", {
       {
         id: "wt02_alert",
         title: "The threat level goes orange again",
-        body: "A five-color threat board now hangs in every newscast, bouncing between High and Elevated. The local\n" +
-          "airport adds police; signs ask you to report anything suspicious. The genuinely suspicious part: this\n" +
-          "alert never comes back down to blue.",
-        brief: {
-          lede: "When fear becomes routine management, a politician either feeds on it or is worn down by it.",
-          known: [
-            "Airport security money comes down your line. Every step up the color scale squeezes your budget.",
-            "Orange means elevated watch — and weeks of the same smoke on every channel.",
-            "Locals who live off tourism are complaining: orange every week, guests staying away."
-          ],
-          rumor: [
-            "Some say the alert carries no information; it only shows a government doing something.",
-            "Some say real warnings get drowned out — the public is numb to orange by now."
-          ],
-          unknown: [
-            "When the cooperation bought with alarm turns back into crying wolf.",
-            "Whether the security money you won under orange still counts in a few years."
-          ],
-          terms: [
-            { k: "Color-coded alert", v: "The post-9/11 five-level threat scale — vague by design." }
-          ]
-        },
+        body: "A five-color threat board — the post-9/11 scale, vague by design — now hangs in every newscast, bouncing between\n" +
+          "High and Elevated, never coming back down to blue. Orange means elevated watch: the local airport adds police,\n" +
+          "signs ask you to report anything suspicious. Airport security money comes down your line, and every step up the\n" +
+          "scale squeezes your budget, while the shops that live off tourism start complaining. Some say the alert carries\n" +
+          "no information at all; it only shows a government doing something. Keep crying wolf, and see who believes you next time.",
         choices: [
           {
             id: "alert",

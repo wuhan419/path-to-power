@@ -7,8 +7,6 @@
  *   · 结构性键（id / base / mods / cost / req / stake / effects / flags / grade /
  *     category / weight / minYear / photo / unique / pace …）由引擎保护，
  *     除定位用的 id 外本文件一概不写。
- *   · known / rumor / unknown 为纯字符串数组，整体替换，元素个数与中文严格一致
- *     （本包六张卡均为 3/2/2；terms 按下的 {k,v} 与中文对齐：每卡 2 条）。
  *   · 「」不直译，英文句内改用直式单引号；全文件字符串零汉字（注释除外，从 137 覆盖层先例）。
  *   · 英文按第二人称、现在时、短句重写，语气干而带刺；标题一律 sentence case。
  *   · 金融口径：funMul 是对押入本金的比例倍数；req.fun 是入场费（账上必须有这么多钱），
@@ -26,27 +24,8 @@ POTUS.define("l10n", {
         id: "sp85_plaza",
         title: "The weekend the communique came out, you were holding a pile of dollars",
         body: "Word that five finance ministers had pinned the dollar arrives Saturday night. The bank counters stay shut until Monday, and the broker is in your living room tonight.\n" +
-          "His pitch is plain: everyone will buy yen and marks. Move first and you are the one buying cheap. A month late, the same money buys half.",
-        brief: {
-          lede: "One official sentence and the exchange board changes face overnight. The fast get paid; the slow hold someone else's bags.",
-          known: [
-            "The communique is written and signed in five names — the rates move whether they want to or not.",
-            "The broker has channels, but only once you turn your money into a form he can move.",
-            "Your cash sits in a time deposit at the local bank; breaking it early costs the interest."
-          ],
-          rumor: [
-            "Some say a man inside the treasury knew the communique was coming two weeks early.",
-            "Some say the import-export boss next door already traded three times and made money nobody believes."
-          ],
-          unknown: [
-            "Whether this is policy, or again the well-informed getting rich first.",
-            "If the yen does not rise, who eats the loss — you, or the man who passed you the word."
-          ],
-          terms: [
-            { k: "Currency position", v: "Money bet on another currency; you earn the rate gap, not interest." },
-            { k: "Channel fee", v: "The broker does not run for free: pay up front, nothing back after." }
-          ]
-        },
+          "His pitch is plain: everyone will buy yen and marks. Move first and you are the one buying cheap. A month late, the same money buys half.\n" +
+          "The communique is already signed in five names; the rate moves whether anyone wants it to. The broker needs your money in a form he can move first — his channel fee is paid up front, nothing back after — and your cash sits in a time deposit at the local bank; breaking it early costs the interest. Some say a man inside the treasury heard of this communique two weeks early. If the yen does not rise, who eats the loss — you, or the man who passed you the word?",
         choices: [
           {
             id: "all_in",
@@ -92,27 +71,8 @@ POTUS.define("l10n", {
         id: "sp87_monday",
         title: "The index falls twenty percent in a day, and your broker calls seventeen times",
         body: "Twenty minutes after the open, the numbers on the tape stop looking real. Everyone you know sits in the same state: holding cash, not knowing how to spend it.\n" +
-          "At two in the afternoon a contact from institutional clearing calls: some trusts are dumping well-collateralized positions at thirty cents, and unless someone takes them before noon tomorrow, they get liquidated.",
-        brief: {
-          lede: "A crash is not prices falling; it is nobody bidding. On this day the people with cash decide things for years afterward.",
-          known: [
-            "Quotes lag, trades run on shouting, and the exchange itself cannot say which prints are real.",
-            "The positions being forced out sit on solid collateral — nobody simply dares take them.",
-            "Your cash could swallow one of these blocks, but once swallowed it does not come back out."
-          ],
-          rumor: [
-            "Some say several big banks closed their books internally days ago, leaving only retail holding the fall.",
-            "Some say the Federal Reserve will promise liquidity tonight."
-          ],
-          unknown: [
-            "Whether this is the bottom of prices or the opening of a larger liquidation.",
-            "Whether bargain-hunting on this day will later be counted as 'getting rich off other people's disaster.'"
-          ],
-          terms: [
-            { k: "Forced liquidation", v: "Your holdings get sold when the margin falls short; price has nothing to do with value." },
-            { k: "Discount takeover", v: "Cash trades for someone's necessity — the profit comes from their running out of time." }
-          ]
-        },
+          "At two in the afternoon a contact from institutional clearing calls: some trusts are dumping well-collateralized positions at thirty cents, and unless someone takes them before noon tomorrow, they get liquidated — margin falls short, holdings get sold, price has nothing to do with value.\n" +
+          "The collateral is real; nobody simply dares take it. Your cash could swallow one of these blocks — and once swallowed, it does not come back out. Some say the Federal Reserve will promise liquidity tonight. Whether this is the bottom or the opening of a larger liquidation, nobody can say; and a bargain picked up today may later be booked as getting rich off other people's disaster.",
         choices: [
           {
             id: "buy_dip",
@@ -158,27 +118,8 @@ POTUS.define("l10n", {
         id: "sp97_currency",
         title: "Someone is selling at the edges, daring you to spend the reserves dry",
         body: "The business channels use a polite phrase: 'international speculative capital.' The version you hear is blunter — several funds are hammering one currency on the exchange market, day after day, betting your officials will not hold.\n" +
-          "Your seat sits exactly between two forces: one says let the rate go, the other says hold it. And you personally have money you could move.",
-        brief: {
-          lede: "A currency attack is not a war; it is a contest of who breaks first: the reserves, the companies' foreign debt, and political nerve.",
-          known: [
-            "The central bank's dollar reserves dropped hard in two weeks, and they keep draining.",
-            "Local companies borrowed in foreign currency; every fall in the local money grows their debt by itself.",
-            "One fund calls this rate 'unsustainable' in public, then keeps selling."
-          ],
-          rumor: [
-            "Some say a big local money has account traffic with those funds.",
-            "Some say the neighboring country already dropped its peg quietly and only waits for us to follow."
-          ],
-          unknown: [
-            "Holding the rate spends the reserves; abandoning it writes the loss into the companies — which bill is bigger.",
-            "Whether pointing at 'foreign speculators' is analysis or a shield."
-          ],
-          terms: [
-            { k: "Currency attack", v: "Concentrated selling of one money, forcing it down so it can be bought back cheap." },
-            { k: "Foreign-currency debt", v: "You borrow in their money and repay in yours — devaluation means more debt." }
-          ]
-        },
+          "Your seat sits exactly between two forces: one says let the rate go, the other says hold it. And you personally have money you could move.\n" +
+          "The central bank's dollar reserves dropped hard in two weeks and keep draining; the companies here borrowed in foreign currency, so every fall in your own money grows their debt by itself. Holding the rate burns the reserves; abandoning it writes the loss into those companies — which bill is bigger, nobody dares compute. And pointing at 'foreign speculators': is that analysis, or a shield?",
         choices: [
           {
             id: "ride_short",
@@ -224,27 +165,8 @@ POTUS.define("l10n", {
         id: "sp07_cracks",
         title: "Two mortgage companies folded, and your dividend still arrived on time",
         body: "The first-quarter check comes at the old number, drawn on a management company you have never seen.\n" +
-          "Your money was sold to you as 'a little more yield than Treasuries.' Now you turn to page eight of the prospectus and read one line: the credit quality of the underlying assets is not re-reviewed.",
-        brief: {
-          lede: "The frightening thing about structured products is not the complexity. It is that they pay on time — so punctually nobody wants to check what the payments rest on.",
-          known: [
-            "Two subprime lenders are down in a row; the papers call it 'liquidity problems.'",
-            "Your product mixes in the loans they wrote, and nobody will give the exact share.",
-            "Your account manager advises you not to sell: right now is the lowest price."
-          ],
-          rumor: [
-            "Some say the big houses disposed of the same positions half a year ago, leaving only local accounts.",
-            "Some say the rating agencies move next week, but a few big clients got word first."
-          ],
-          unknown: [
-            "Whether this is one niche's accident, or every house tied to the same rope.",
-            "Selling now amounts to admitting you never read those eight pages."
-          ],
-          terms: [
-            { k: "Underlying assets", v: "Unwrap this security and at the back sit home mortgages, one by one." },
-            { k: "No re-review", v: "After issuance, nobody looks again at whether the borrowers can pay." }
-          ]
-        },
+          "Your money was sold to you as 'a little more yield than Treasuries.' Now you turn to page eight of the prospectus and read one line: the credit quality of the underlying assets — unwrap this security and home mortgages sit at the back, one by one — is not re-reviewed.\n" +
+          "Your product mixes in loans those two failed lenders wrote, and nobody will give the exact share. Your account manager advises you not to move: selling now means the lowest price. But selling now also admits you never read those eight pages.",
         choices: [
           {
             id: "exit",
@@ -290,27 +212,8 @@ POTUS.define("l10n", {
         id: "sp08_liquidity",
         title: "Interbank lending stops, and the people asking you for money line up at the door",
         body: "The banks cut off the money they used to lend each other. The best hardware store on the street, the contractor who feeds the schools, and a print shop forty years open all come to you in the same week.\n" +
-          "They are not asking for investment; they need ninety bridge days. You can write the rate yourself — few enough can put money on the table now.",
-        brief: {
-          lede: "In a crisis the costliest thing is not an asset. It is the phrase 'money on the table today.'",
-          known: [
-            "The official channels are shut to everyone this week, including the best credit on the street.",
-            "Among the callers are your old voters, and supporters of the rival you once ran against.",
-            "Your cash can go out to them, or you can watch them get taken by someone else."
-          ],
-          rumor: [
-            "Some say a local rich man already offered four times the bank rate last week and signed two deals.",
-            "Some say the regulators are waiting to see who lends first at loan-shark rates, so they can make an example."
-          ],
-          unknown: [
-            "How many of these firms still stand after ninety days — that decides whether you are a benefactor or a creditor.",
-            "Money lent to the wrong names: whose bankruptcy file carries you."
-          ],
-          terms: [
-            { k: "Bridge loan", v: "Short money due inside ninety days; the bet is the borrower lasts until the next raise." },
-            { k: "Crisis rate", v: "The price of money when money is scarce. High enough, and it gets another name." }
-          ]
-        },
+          "They are not asking for investment; they need ninety bridge days — short money, betting the borrower lasts until the next raise. You can write the rate yourself: the official channels shut on everyone this week, even the best credit on the street, and few enough can put money on the table now.\n" +
+          "Among the callers are old voters of yours, and supporters of a rival you once ran against. Some say a local rich man has already offered four times the bank rate. How many of these signs still stand after ninety days decides whether you are a benefactor or a creditor.",
         choices: [
           {
             id: "predatory",
@@ -355,28 +258,9 @@ POTUS.define("l10n", {
       {
         id: "sp22_run",
         title: "A post is shared ten thousand times in two hours, and one of your banks starts shedding deposits",
-        body: "This bank is not failing. It simply holds bonds nobody wants. At nine in the morning a finance account runs the numbers; by three in the afternoon, customers are queuing on their phones to move money out.\n" +
-          "You have deposits here, and people you know work here. You now have about one day to decide which kind of person you are.",
-        brief: {
-          lede: "A run in the phone era needs no line at the door. It needs one number an algorithm is willing to spread.",
-          known: [
-            "The regulators know about the paper loss and are negotiating a bridge plan. The talks are not finished.",
-            "Deposit insurance covers up to a limit; above it, you wait.",
-            "Your balance sits just above that limit, and moving it takes two minutes."
-          ],
-          rumor: [
-            "Some say two institutional clients moved large sums before dawn today.",
-            "Some say whoever shared the post runs a hedge fund."
-          ],
-          unknown: [
-            "Whether the bridge plan gets signed — that depends on how much money pushes for the exit today.",
-            "What it is worth to say 'I trust this bank' — and what it is worth if you say it late."
-          ],
-          terms: [
-            { k: "Paper loss", v: "Unsold means unrealized — but the market realizes it for you at any hour." },
-            { k: "Digital run", v: "Transfers move by the second; panic needs nobody on site." }
-          ]
-        },
+        body: "This bank is not failing. It simply holds bonds nobody wants — unrealized until sold, yet the market realizes them for you at any hour. At nine in the morning a finance account runs the numbers; by three in the afternoon, customers are queuing on their phones to move money out. A run needs nobody at the door now.\n" +
+          "You have deposits here, and people you know work here. You now have about one day to decide which kind of person you are.\n" +
+          "The regulators know about the paper loss and are still negotiating a bridge plan. Deposit insurance covers up to a limit; above it, you wait — and your balance sits just above that limit, two minutes from gone. What is it worth to stay and say 'I trust this bank'? What is it worth if you say it late?",
         choices: [
           {
             id: "first_out",

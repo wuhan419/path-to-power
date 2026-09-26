@@ -4,7 +4,6 @@
  *
  * 契约（详见 docs/I18N.md §3–§5）：
  *   · 原中文文件一个字不动，本文件只放**要覆盖的字段**。
- *   · 事件/选项按 id 定位；terms 按下标对齐；known/rumor/unknown 整体替换、条数给全。
  *   · 结构性键（id / era / after / flags / req / base / mods / cost / stake /
  *     effects …）受引擎保护，本文件一律不写。
  *   · 本链无 choices[].note、无 tag/label 字段，故不覆盖。
@@ -25,28 +24,9 @@ POTUS.define("l10n", {
         body: "You think you are chasing a small thing: a land deal misfiled ten years ago.\n" +
           "The records clerk is at lunch; a spare key hangs on the wall. Far down the third aisle sits a box marked Miscellaneous. Inside: one file, no number. " +
           "Someone pulled it out of the official series.\n" +
-          "Page one holds a name and one line. You know that name. At a dinner last month, he clapped you on the shoulder.",
-        brief: {
-          lede: "You can close it right now. Close it, and you are still the man who knows nothing.",
-          known: [
-            "The file is not in the official series — the archive's own catalog cannot find it.",
-            "Someone pulled it out on purpose: kept it in the system, but off the trail.",
-            "Three signatures inside. One belongs to an elder of your own party.",
-            "The clerk returns at 2:30. You have one hour and ten minutes."
-          ],
-          rumor: [
-            "They say two men on this street have been waiting for someone to open this file.",
-            "They say it survives because whoever was meant to destroy it wanted a copy."
-          ],
-          unknown: [
-            "Whether these signatures can actually prove anything.",
-            "What became of the first person who opened this file."
-          ],
-          terms: [
-            { k: "Unnumbered file", v: "Exists, but off the catalog — findable only by whoever needs it." },
-            { k: "Photocopy", v: "Paper in your hand, liability on your head." }
-          ]
-        },
+          "Page one holds a name and one line. You know that name. At a dinner last month, he clapped you on the shoulder.\n" +
+          "It is off the catalog - the archive's own ledger cannot find it. Three signatures inside, one of them an elder of your own party. " +
+          "The clerk is back at 2:30. You have one hour and ten minutes.",
         choices: [
           {
             id: "copy",
@@ -91,28 +71,9 @@ POTUS.define("l10n", {
         body: "It starts with a wrong-number call. In week two, a car parks across from your space and someone sits in it for forty minutes.\n" +
           "In week three, a woman running an \"industry survey\" asks you over coffee. Seven questions — six about the city's transit plans. The seventh:\n" +
           "\"What is your view on how records should be kept?\"\n" +
-          "Your photocopy is still locked in a drawer. You have never used it.",
-        brief: {
-          lede: "The first cost of leverage is not using it. It is carrying it.",
-          known: [
-            "She is no reporter — reporters leave their notebooks open. Hers stays closed.",
-            "Her questions have no subject. She knows you touched something, not which one.",
-            "The clerk lost a job two years ago. He badly needs this one.",
-            "No third person has seen your copy. That is your only chip."
-          ],
-          rumor: [
-            "They say her last interview target resigned from public office three months later.",
-            "They say the copier's counter is read once a quarter."
-          ],
-          unknown: [
-            "Who stands behind her — or if she is just another hunter.",
-            "If she knows nothing yet, will she wait for you to move first?"
-          ],
-          terms: [
-            { k: "Bite back", v: "While you dig into them, someone digs into who has been digging." },
-            { k: "Go cold", v: "Put it away, pause every move. Often the strongest play." }
-          ]
-        },
+          "Your photocopy is still locked in a drawer. You have never used it.\n" +
+          "She is no reporter — reporters leave their notebooks open, hers stays closed. She knows you touched something, not which file. " +
+          "No third pair of eyes has seen your copy, and that is your only chip; what she may really be waiting for is the first move from you.",
         choices: [
           {
             id: "counter",
@@ -169,28 +130,9 @@ POTUS.define("l10n", {
           "He pours two glasses of water himself, then says: \"What you want — I won't ask where you got it.\n" +
           "I ask only one thing: what do you want?\"\n" +
           "You leave two hours later. It is still daylight.\n" +
-          "The photocopy inside your jacket is still warm.",
-        brief: {
-          lede: "This file can buy one thing, once. Name your price — there is no second trade.",
-          known: [
-            "He cannot be scared — he has seen worse papers than this in one lifetime.",
-            "One thing he truly guards: his son is running for the same seat next year.",
-            "He can offer three things: a seat, money, or to leave you alone.",
-            "Published, the file burns more than him. Two of the three names still hold office."
-          ],
-          rumor: [
-            "They say he always knew where the file sat, and waited for someone to move first.",
-            "They say he has two envelopes ready: one for you, one for his lawyer."
-          ],
-          unknown: [
-            "If you ask for nothing, will he think you kept a card up your sleeve?",
-            "The two names still in office: will they press this down or dig it up?"
-          ],
-          terms: [
-            { k: "Showdown", v: "Both sides turn their cards face up. Ends the guessing, not the fight." },
-            { k: "One-shot trade", v: "Leverage buys one concession, once. Say it clearly now." }
-          ]
-        },
+          "The photocopy inside your jacket is still warm.\n" +
+          "He has seen worse paper than this in one lifetime; scaring him is out. What he actually guards is a son running for the same seat next year. " +
+          "He can give you three things: a seat, money, or being left alone. Published, this burns more than him — two of the three names still hold office.",
         choices: [
           {
             id: "deal",
@@ -246,23 +188,9 @@ POTUS.define("l10n", {
         body: "What you thought was closed returns with a receipt.\n" +
           "It asks nothing about regret. It only sets the bill on the table:\n" +
           "one man rose, one retired, one moved away, one still sits in the same chair — and remembers your name.\n" +
-          "One decision is left: how you carry this from here.",
-        brief: {
-          lede: "What remains after the deed is done — that part is called the consequence.",
-          known: [
-            "There is no such thing as playing a card and putting it back in the deck.",
-            "People already know what you handled. They do not ask. They remember.",
-            "This will be raised again someday — only the way it is raised will change."
-          ],
-          rumor: [
-            "They say the original file still exists — it just changed drawers.",
-            "They say the man you met back then is writing his memoirs."
-          ],
-          unknown: [
-            "Whose version the story will use in ten years.",
-            "Which of your identities this ends up charging."
-          ]
-        },
+          "One decision is left: how you carry this from here.\n" +
+          "There is no putting a played card back in the deck. People already know what you handled; they do not ask, they remember. " +
+          "They say the man you met back then is writing his memoirs. Whichever version of this gets told in ten years is still not decided.",
         choices: [
           {
             id: "after_deal",

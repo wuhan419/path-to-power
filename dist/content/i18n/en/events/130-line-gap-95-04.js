@@ -5,7 +5,6 @@
  * 契约（详见 docs/I18N.md）：
  *   · 原中文文件一个字不动，本文件只放要覆盖的文案字段。
  *   · 事件按 id 定位；choices / terms 按 id / 下标对齐。
- *   · 纯字符串数组（known / rumor / unknown）是整体替换，条数必须与中文严格一致。
  *   · 结构性键（minYear / tierMin / weight / base / mods / cost / req / stake /
  *     effects / flags / grade / category / valence / photo / month …）由引擎保护，写了会报 validate 错。
  *   · 英文按英语重写，不逐字翻：第二人称、现在时、短句；「」改英文引号；
@@ -19,25 +18,9 @@ POTUS.define("l10n", {
       {
         id: "ln95_shutdown",
         title: "The federal government shuts down twice in a budget standoff",
-        body: "To force steep cuts to Medicare and education spending, Congress and the White House let the budget talks collapse: the federal government shut its doors again in mid-December and stayed shut for over three weeks.\n" +
-          "National museums closed, passport and immigration services stopped, hundreds of thousands of workers went home unpaid. Both sides bet the other would blink first — and that bill would not come due until next year's ballots.",
-        brief: {
-          lede: "A shutdown turned into a partisan hostage: whoever cracks first looks like he lost the election year.",
-          known: [
-            "Medicare and education cuts are the real stake in this standoff.",
-            "Museums closed; passport and immigration services halted.",
-            "Hundreds of thousands of federal workers are furloughed, and furious."
-          ],
-          rumor: [
-            "Some say party leaders plan to ride the shutdown past the new year.",
-            "Some say the White House is quietly drafting a way to concede."
-          ],
-          unknown: [
-            "Who carries the blame won't be tallied until next year's votes.",
-            "How the side you bet on tonight gets re-priced later."
-          ],
-          terms: [{ k: "shutdown", v: "Agencies halt operations when no budget passes." }]
-        },
+        body: "To force steep cuts to Medicare and education spending, Congress and the White House let the budget talks collapse. A shutdown — agencies halt operations when no budget passes — took the federal government dark again in mid-December, for over three weeks.\n" +
+          "National museums closed, passport and immigration services stopped, hundreds of thousands of workers went home unpaid. Both sides bet the other would blink first — and that bill would not come due until next year's ballots.\n" +
+          "Some say the White House is quietly drafting a way to concede.",
         choices: [
           {
             id: "holdline",
@@ -80,25 +63,9 @@ POTUS.define("l10n", {
       {
         id: "ln97_tobacco",
         title: "Tobacco industry files go public as lawsuits and settlements close in",
-        body: "Forced by litigation, decades of the tobacco industry's internal memos and testimony were released in batches: in black and white, they had engineered addiction.\n" +
-          "The federal government had already sued; the states followed. A settlement too large for anyone to say aloud was being negotiated on and off. Trial lawyers, health insurers and deficit-starved state treasuries all crowded the table, waiting for a cut.",
-        brief: {
-          lede: "Piles of sealed documents land on the table: take them to court, or split the settlement.",
-          known: [
-            "The Justice Department has sued over concealed addiction.",
-            "States and the industry are negotiating an enormous settlement.",
-            "Lawyers, insurers and state budgets are all in the room."
-          ],
-          rumor: [
-            "Some say one state already signed a fatter side deal.",
-            "Some say the industry means to buy immunity with the payout."
-          ],
-          unknown: [
-            "Whether the settlement reads as triumph or as a IOU in five years.",
-            "What the money you take — and the words you say — are each worth in votes."
-          ],
-          terms: [{ k: "internal documents", v: "Tobacco-industry secrets unsealed in litigation." }]
-        },
+        body: "Forced by litigation, decades of the tobacco industry's internal memos and testimony — its own sealed secrets, opened by court order — were released in batches: in black and white, they had engineered addiction.\n" +
+          "The federal government had already sued; the states followed. A settlement too large for anyone to say aloud was being negotiated on and off. Trial lawyers, health insurers and deficit-starved state treasuries all crowded the table, waiting for a cut.\n" +
+          "Some say the industry means to buy immunity with the payout. In five years this settlement reads as triumph or as IOU — it will be priced by the money you take and the words you say now.",
         choices: [
           {
             id: "prosecute",
@@ -142,24 +109,8 @@ POTUS.define("l10n", {
         id: "ln02_sniper",
         title: "A sniper terrorizes the commuter highways around the capital",
         body: "Along several interstate highways around the capital, gunfire rang out again and again over three weeks: ten dead, many more wounded, the targets seemingly random commuters.\n" +
-          "Federal agents poured in, schools closed one after another, state troopers set checkpoints on the highways. Everyone rolled up windows and drove around the gas stations. Soon the panic became a political question: who can keep you safe?",
-        brief: {
-          lede: "A sniper on the highway: the panic is becoming a test of who can guarantee safety.",
-          known: [
-            "Over a dozen attacks and ten deaths in three weeks.",
-            "Federal agents moved in; schools closed, troopers set checkpoints.",
-            "The probe points to two drifting gunmen."
-          ],
-          rumor: [
-            "Some say the next target is a school gate.",
-            "Some say controlling the news beats closing the roads."
-          ],
-          unknown: [
-            "When the case breaks — and whether that's too late.",
-            "How the 'safety' you promise will be tested later."
-          ],
-          terms: [{ k: "sniper scare", v: "A serial shooting aimed at random highway targets." }]
-        },
+          "Federal agents poured in, schools closed one after another, state troopers set checkpoints on the highways; the hunt has already narrowed to two gunmen drifting across jurisdictions. Everyone rolled up windows and drove around the gas stations. Soon the panic became a political question: who can keep you safe?\n" +
+          "When the case breaks — and whether that will already be too late — nobody hands out dates.",
         choices: [
           {
             id: "securitize",
@@ -202,25 +153,9 @@ POTUS.define("l10n", {
       {
         id: "ln04_report",
         title: "A bipartisan commission blames the 9/11 attacks on failures inside the government",
-        body: "After nearly twenty months of hearings, a bipartisan commission delivered its final report, attributing 9/11 to a chain of failures that 'could have been stopped': agencies that wouldn't share intelligence, and a threat-grading system in name only.\n" +
-          "Six weeks before the election, the report owned the front pages. The White House's first move was to fight back: overstated, misleading. At your level, three outlets have booked tomorrow morning's question: how do you read this report?",
-        brief: {
-          lede: "Six weeks before the election, a report recasts 9/11 as a run of institutional failures.",
-          known: [
-            "The report indicts un-shared intelligence and dead-letter threat grading.",
-            "Both parties' commissioners signed it — a bipartisan stamp.",
-            "The White House has already called it misleading."
-          ],
-          rumor: [
-            "Some say the commission was timed to land after the vote.",
-            "Some say the reform list will be swallowed by the campaign."
-          ],
-          unknown: [
-            "Whether this report is accountability or campaign fuel.",
-            "The stance you set tonight comes due in six weeks."
-          ],
-          terms: [{ k: "investigative commission", v: "A bipartisan independent body probing the attacks' causes." }]
-        },
+        body: "After nearly twenty months of hearings, a bipartisan investigative commission — an independent, cross-party body probing the attacks' causes — delivered its final report, attributing 9/11 to a chain of failures that 'could have been stopped': agencies that wouldn't share intelligence, and a threat-grading system in name only.\n" +
+          "Six weeks before the election, the report owned the front pages; both parties' commissioners signed it, so no one could wave it off as an opposition paper. The White House's first move was to fight back: overstated, misleading. At your level, three outlets have booked tomorrow morning's question: how do you read this report?\n" +
+          "Accountability or campaign fuel — nobody has played that card openly yet, and the line you set tonight comes due in six weeks.",
         choices: [
           {
             id: "account",

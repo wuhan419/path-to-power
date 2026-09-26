@@ -149,7 +149,7 @@
 │       ├── smoke-ui.js       ★ UI 冒烟（jsdom 真跑点击流程），需 jsdom
 │       ├── audit.js          全面事件审计（一览 / flag 闭环 / 链 / 时代×三值性覆盖 / 闸门自洽）
 │       ├── choice-audit.js   选项取舍探测器（占优/过平/同轴单调——"闭眼都会选"检测）
-│       ├── text-audit.js     文字审计（标题通顺度 / body ≤200 字 / 缺 brief 清单）
+│       ├── text-audit.js     文字审计（标题通顺度 / 标题+正文 ≤250 字 / 残留 brief 清单）
 │       ├── density-scan.js   年度大事密度（逐年 Σ=fixed+钉年卡，偏薄年份退出码 1）
 │       ├── i18n-coverage.js  逐屏语言探针（英文屏中文占比 >5% 退出码 1，可当门禁）
 │       ├── i18n-events.js    逐卡缺译探针（zh/en 两次 boot 逐叶子比对）
@@ -214,9 +214,10 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
 
 - **建角 = 三步向导**（`engine/view/create.js`，v0.12 #20 → #37② 收口）：
   ① **难度 + 姓名** —— 五档难度（传奇/简单/普通/困难/炼狱）绑**出身**与**可选卡数**，年份锁 1980、党派随机、家乡默认俄亥俄（扬斯敦，摇摆州锚点）；**难度不再发属性也不发开局资金**（#37②/#36），`DIFFS[*].bonus` 只剩 声望/人情/派系；
-  ② **天赋抽卡** —— 四档稀有度（白/蓝/紫/橙 = 1/2/3/4），每个卡位独立掷档，权重随**周目**递增，**橙卡从第 2 周目才进池**（`gacha.orangeLoop: 2`，首局绝无橙卡；`woshishabiN` 作弊码就是把周目抬到 N+1 的口径，明牌输入框在这一页），本步允许**刷新一次**；
+  ② **天赋抽卡** —— 四档稀有度（白/蓝/紫/金（界面标「橙」）= 1/2/3/4），每个卡位独立掷档，权重随**周目**递增，**金卡从第 2 周目才进池**（`gacha.orangeLoop: 2`，首局绝无金卡；`woshishabiN` 作弊码就是把周目抬到 N+1 的口径，明牌输入框在这一页），本步允许**刷新一次**。卡池走**自己的一把尺（#40）：卡面 1 属性点 = $1k**，单位 **白 1 / 蓝 3 / 紫 6 / 金 15** —— 即白 = 单系 +1（或「+2 并别维 −1」）或 $1k，蓝 = 单系 +3 或三围各 +1，紫 = 三围各 +2，金 = 三围各 +5 再加特效（`spare` 免死那一类）；
   ③ **自由点分配 + 开始游戏** —— 额度 = `freePoints(12) +（当前周目 − 1）× loopFreeBonus(1)`，**1 点 = +10 属性 = +$2k**（`freeFunPerPoint`，#36 的统一钱标尺），单维最多 `freeCapPerAttr(10)` 点（随周目按 `freeCapGrow` 微涨），属性本身 0—100 硬顶。第 3 步的表把**所有**来源摊开：`startAttr 打底 + 自由点 + 已选卡`，卡给的属性另挂 `卡+N` 角标。
   **属性从此只有两条门：自由点 + 天赋卡池**（后天再涨只走事件卡，且同卡只首次生效）——出身/起点/州/难度都不再写 `attr`，见 §5.5 与 CONTENT-SCHEMA §6 的属性纪律。
+  **注意这两条门用的是两把不同的尺**（#40）：自由点那把是 1 点 = +10 属性 = $2k，卡池那把是 1 属性点 = $1k，**相差一个数量级** —— 一张金卡（+15 点）只等于建角池子的 13%。这么定是为了让开局卡退回"风味与特效"，成长预算留给自由点和事件卡；改任何一侧的数字前先确认自己在动哪把尺（validate 的「卡池标尺」节按卡面尺逐卡断言）。
   旧的"定命一掷"（四属性各掷 35—55 + 全量重分配）已**整条删除**：`create.js` 不再掷骰，
   `balance.rollAttrs / vipCodes` 两个键随之从引擎与内容里摘干净（validate 现在反向断言它们**不存在**）。
 - **10 级权力阶梯**：引擎内部 `tier 0..9`，界面显示"等级 1..10"。旧的 `tierBand`（0/2/4/5/7/9 六档近似映射）仅用于**没标 `tierRaw`** 的普通事件；**2026 年后的新内容一律 `tierRaw: true` 按真实 0..9 直写**。
@@ -279,16 +280,9 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
   minYear: 1995, maxYear: 1997,      // ← 绝对年窗（新内容的"时代"就是年份）
   scoped: true,                      // ← 年带/定点内容标 scoped
   tierRaw: true, tierMin: 1, tierMax: 5,   // ← 10 级直写（§3.1 硬规矩）
-  medium: ["tv", "social"],          // ← 可选：这件事靠哪种"说话方式"
+  medium: ["tv", "social"],          // ← 可选：这件事靠哪种"说话方式"（只做触发门控，卡面不显示徽章）
   title: "标题",
-  brief: {                           // ← 背景卡：主角此刻知道多少
-    lede: "折叠时显示的一行",
-    known:   ["他读到的数字、他认识的人、他手上的文件……"],
-    rumor:   ["有人说…（真假不明）"],
-    unknown: ["他不知道的事——点出后果的位置，不要点出后果"],
-    terms:   [{ k: "救市", v: "名词解释" }]
-  },
-  body: "事件正文……（≤200 字，规范见 tools/text-audit.js）",
+  body: "事件正文……（标题 + 正文合计 ≤250 字，规范见 tools/text-audit.js）",
   weight: 10,                        // 越大越容易被抽到（默认 10）
   choices: [
     { id: "a", text: "选项文案", base: 0.5,
@@ -312,7 +306,7 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
 
 **必须遵守**：五档结果 `crit/ok/meh/fail/critfail` 一个都不能少；`valence` + `dyn` 必填；`dyn` 卡里的 `fun/rep` 与 `cost.fun` 等经济字段是**系数**（不是绝对金额，见 §1.5.2）；新内容 `tierRaw: true`；每个选项的 `outcomes` 用**多行格式**写，不要压成一行手数括号（详见 §7）。
 
-### 5.2 写背景卡与日期：别把玩家丢进一个他看不懂的局面
+### 5.2 写清局面与日期：别把玩家丢进一个他看不懂的局面
 
 这是踩过的最实在的一个坑。原来的"救市"事件全文是这样：
 
@@ -321,10 +315,10 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
 
 测试者的第一反应是：**"什么是救市？为什么要救市？谁发动的？背后是什么情况？"** ——三个选项摆在面前，一个都判断不了。这不是玩家的问题，是内容的问题。
 
-**修法是两块，缺一不可：**
+**修法一直是两块，只是两块现在都压在 `body` 一个人肩上（#41 起背景卡 `brief` 已下线，字段也删了）：**
 
 **（1）给出精确日期。** 事件卡顶部显示 `2008 年 9 月 24 日`。日期不是装饰——**它是给"懂历史的玩家"的信息通道**。主角不知道四天后会发生什么，但玩家知道。
-如今带日期的内容已经不是稀罕物：全库 300 余张卡里约 **131 张带日期**（2026-09-24 快照，准确数以 `validate.js` 输出为准），大头就是钉在 exact 年月上的定点大事件。现行口径是：
+如今带日期的内容已经不是稀罕物：全库 360 张卡里约 **136 张带日期**（2026-09-26 快照，准确数以 `validate.js` 输出为准），大头就是钉在 exact 年月上的定点大事件。现行口径是：
 
 | 你要什么 | 写法 |
 |---|---|
@@ -334,18 +328,19 @@ cd dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules node tools
 
 > 旧文档说的 `era.scheduled` 只剩 2008 时代三场（`2008_crash_offer / 2008_tea_party / 2008_primary`）作为兼容层保留，引擎把它与 `fixed` **合并生效**。新内容一律走 `fixed`，别往 era 里加。
 
-**（2）给出主角视角的背景卡。** 三层，折叠可展开，默认展开、折叠状态被记住：
+**（2）让正文自己把局面说清楚。** 卡面上只剩「标题 + 正文 + 头条图」，所以原来背景卡承担的三件事现在要写进 `body`（预算见 `CONTENT-SCHEMA.md` §11.7）：
 
-- **你确知的** —— 主角**真的能看到**的东西：他手上的文件、他认识的人、报纸上印着的数字。**不是上帝视角的历史总结。**
-- **你听到的 · 真假不明** —— 传闻。用「有人说…」「有律师朋友在饭局上压低声音说…」。其中可以有真话，也可以是别人故意放出来的假消息，**不要用语气暗示真假**。
-- **你尚不知道的** —— **这一层是灵魂**。它明确告诉玩家"这里有信息差，你可以占便宜"。写法是点出**后果的位置**，不是点出后果本身：
-  - ✅ `你读不懂的那几条授权条款，将来会成为对手手里的刀。`
+- **局面** —— 发生了什么、主角为什么被卷进来、他手上有什么（文件、数字、来电话的人）。**不是上帝视角的历史总结。**
+- **名词** —— 需要时顺手解释一个词（救市 / TARP / 初选 / 弹劾条款），**不解释剧情**。让不熟悉这段历史的玩家也能跟上。
+- **信息差的位置** —— 让玩家知道"这里有一块他不知道的东西，可以占便宜或者踩雷"。写法是点出**后果的位置**，不是点出后果本身：
+  - ✅ `那几条你没读懂的授权条款，将来会成为对手手里的刀。`
   - ❌ `两个月后国会会否决这个法案，你会因此丢掉席位。`（这是剧透，不是信息差）
-- **名词**（可选）—— 只解释名词（救市 / TARP / 初选 / 弹劾条款），**不解释剧情**。让不熟悉这段历史的玩家也能跟上。
 
-写完自检一句话：**这份背景卡里，有没有主角此刻不可能知道的事？有就删掉或挪进 `unknown`。** 标题/正文的编辑规范（标题一句看懂、body ≤200 字）用 `node tools/text-audit.js` 量化。
+写正文时仍然不许越界：**主角此刻不可能知道的事，不要写成他知道的。** 一句自检：这段正文里有主角不该看见的信息吗？有就改写成传闻、或者干脆删掉。
 
-当前全库事件 **全部**配齐了背景卡、量级、类型、三值性（迁移完成后可开 `validate.js --val-strict` 硬验收）。写新事件时直接抄 `content/events/50-era-2008.js` 里的 `2008_crash_offer`；定点大事件抄 `110-line-1980s.js`。
+标题/正文的编辑规范（标题一句看懂、标题 + 正文合计 ≤250 字）用 `node tools/text-audit.js` 量化，`--trim` 可以只自查正在改的那一个文件。
+
+当前全库事件 **全部**配齐了量级、类型、三值性（迁移完成后可开 `validate.js --val-strict` 硬验收）。写新事件时直接抄 `content/events/50-era-2008.js` 里的 `2008_crash_offer`；定点大事件抄 `110-line-1980s.js`。
 
 ### 5.3 用资源做设计：代价（cost）与投注（stake）
 
@@ -762,16 +757,15 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 
 ### 6.2 不可破坏的契约（破坏 = 所有内容失效）
 1. `POTUS.define(kind, payload)` 的 kind 与 payload 形状（新增 kind 走契约评审）
-2. 事件的字段名与语义：`id/title/body/weight/tierMin/tierMax/tracks/parties/flags/notFlags/cond/choices/month/day/brief` + 现行时间/分层字段 `minYear/maxYear/scoped/tierRaw/valence/dyn/unique/after/chore/count*门槛`；`era` 仅作兼容层
+2. 事件的字段名与语义：`id/title/body/weight/tierMin/tierMax/tracks/parties/flags/notFlags/cond/choices/month/day` + 现行时间/分层字段 `minYear/maxYear/scoped/tierRaw/valence/dyn/unique/after/chore/count*门槛`；`era` 仅作兼容层
 3. 选项：`id/text/base/mods/req/cost/stake/note/outcomes`，且 `outcomes` 五档键名固定为 `crit/ok/meh/fail/critfail`
 4. `effects` 的键名与取值范围（含 `count` 仇恨计数、`camp` 选情、`fall`、`hardEnd`、`setTrack/setStance`、`contact/forget`）
 5. `mods` 的 `src` 枚举与计算公式
 6. 结局规则的 `when` 字段与 `priority` 语义；`reason` 词汇（含 `career_end` 与清算/学贷各死因）
 7. 存档结构 `POTUS.G` 的字段名（含 `counters` / 学贷组 `debt/debtAccr/loanLate/loanCaps/forbear*/pslf*` / 选民池 / `saveVer` 存档格式戳），存档兼容性依赖它；破坏性变更走 §6.5 的硬零版本门禁（`balance.studentLoan` 参数则归 CONTENT-SCHEMA §10/§15 管）
 8. 资源键名固定为 `fun / fav / rep / lev`（`ap` 精力、`hp` 健康为**休眠字段**，效果空操作），投注键名固定为 `fun / fav`（`POTUS.stakeSpec/stakeInfo/computeP` 的入参契约）
-9. `brief` 的分段键名固定为 `lede / known / rumor / unknown / terms`；`terms` 元素形状固定为 `{k, v}`
-10. `month` 取值 1-12、`day` 取值 1-31；引擎的日期口径 `POTUS.dateText(ev)` 与报头/状态面板同步
-11. i18n 契约：`P.t(key, 中文默认值)` 的 key 稳定性——英文覆盖层按 key 合并，**改了 key 等于删了翻译**（`tools/i18n-coverage.js` 会报缺口）
+9. `month` 取值 1-12、`day` 取值 1-31；引擎的日期口径 `POTUS.dateText(ev)` 与报头/状态面板同步
+10. i18n 契约：`P.t(key, 中文默认值)` 的 key 稳定性——英文覆盖层按 key 合并，**改了 key 等于删了翻译**（`tools/i18n-coverage.js` 会报缺口）
 
 ### 6.3 允许的兼容性变更方式
 | 想做的事 | 正确做法 |
@@ -827,7 +821,7 @@ choices: [
 - `id` 全局唯一，加前缀（`2008_` / `prog_` / `rg87_` / `reck_` / `chore_`）
 - 事件里**不写逻辑**；需要条件用 `cond(G)`，需要门槛用 `req` / `when` 词汇
 - 事件里不引用不存在的 `track/party/faction/medium/contact/wrath` 键（校验脚本会报错）
-- **标题是一句看懂"发生了什么"的陈述句**，文学性放 body；body ≤200 字（`tools/text-audit.js` 会量）
+- **标题是一句看懂"发生了什么"的陈述句**，文学性放 body；标题 + body 合计 ≤250 字（`tools/text-audit.js` 会量）
 - **新 CN 内容必须同交付 EN 镜像**（§5.14）
 
 ### 7.3 数值设计参考
@@ -890,7 +884,7 @@ choices: [
 - [ ] `node tools/validate.js` 全部通过（改了平衡/汇率/曲线 → 加跑 `--games=300`）
 - [ ] 新增文件 → 跑 `node tools/gen-manifest.js` 登记（**没有手改 index.html 托管区**）
 - [ ] 新增事件：五档结果齐全、`id` 唯一、`grade/category/valence/dyn` 都写了、新内容带 `tierRaw`
-- [ ] 新增事件：**`brief` 写了**（玩家不该被丢进看不懂的局面）；标题通顺、body ≤200 字（`tools/text-audit.js`）
+- [ ] 新增事件：**正文自己说清局面**（#41 起卡面只剩「标题 + 正文 + 头条图」，`brief` 背景卡已下线、字段也删了，写了会被 `validate.js` 判红）；标题通顺、标题 + body ≤250 字（`tools/text-audit.js --trim --file=<你的文件>` 自查）
 - [ ] 写了 `month` 的话，确认它是**史实锚点**（不是"随便挑个季节"）；年代大事走 `fixed` 定点表
 - [ ] 依赖某种媒介的事件，写了 `medium`（而不是硬编码 `fromYear`）
 - [ ] 补/改年带内容 → `node tools/density-scan.js` 不报偏薄年份
@@ -930,9 +924,9 @@ choices: [
 | 用法 | `node tools/validate.js`（快速档）；`--games=N --seed=N`（全量口径固定种子：`--games=300 --seed=N`）；`--diff=normal\|hard\|brutal`（锁定难度跑模拟，**学贷断供校准面板**用）；`--lang=en`（双语各跑一遍）；`--val-strict`（三值性全库硬验收）；`--tune`（valenceWeights 网格搜索） |
 | 语法 | 逐文件解析（等价 `node --check`），文件缺失也报错 |
 | 加载 | 按 `index.html` 清单顺序执行，捕获启动崩溃 |
-| 引用完整性 | 事件/填充/黑天鹅引用的 track、party、faction、entry、medium 是否存在；event id 是否重复；`grade`/`category` 齐备且在注册表内；`fromYear/toYear/years`/年窗是否自洽；五档结果齐全；`base` 0-1；`cost`/`stake` 键与形状（`cap ÷ w ≥ 1`）；`month/day` 范围；`brief` 四段与 `terms` 形状；`fixed` 引用的事件存在；结局有兜底；`recentCap < 事件总数`；**每个事件都有「无 cost 且无 req」的保底选项** |
+| 引用完整性 | 事件/填充/黑天鹅引用的 track、party、faction、entry、medium 是否存在；event id 是否重复；`grade`/`category` 齐备且在注册表内；`fromYear/toYear/years`/年窗是否自洽；五档结果齐全；`base` 0-1；`cost`/`stake` 键与形状（`cap ÷ w ≥ 1`）；`month/day` 范围；`fixed` 引用的事件存在；结局有兜底；`recentCap < 事件总数`；**每个事件都有「无 cost 且无 req」的保底选项** |
 | 三值性 / 系数 | 逐卡核对 `valence` 语义与系数区间（`fun` 放宽到 `coefMaxFun`）；语义违规默认只报清单、`--val-strict` 下硬判 |
-| 背景卡 / 时间 | 统计 `brief` 与带日期覆盖率（快照口径）；低压力年份能抽到平静月 |
+| 卡面文字 / 时间 | **#41 反向断言**：逐卡禁 `brief`/`standfirst` 字段（残留计数必须为 0）、缺正文判红、**标题 + 正文 ≤250 字**（中文按非空白字符、英文按词 ×0.5 同一把尺）；统计带日期覆盖率（快照口径）；低压力年份能抽到平静月 |
 | 月度回合 / 量级 / 媒介 | 压力→档期数与量级分布的单调性；`fixed`（含兼容的 `era.scheduled`）定点必发且约束生效；媒介时间轴门控；每年档期数统计 |
 | 掷骰分布 | 1 万次投掷，验证 crit≈15%、critfail≈3% |
 | 资源经济 | 投注加值/花费计算、余额夹取、95% 封顶、advantage 分布优于单次；**投注级别价（单价随身位·不随钱包）**（`stakeFunPer` 随层级单调升、同一身位下余额 2 万/200 万与"事件写没写钱"都不改单价、`stakeMax = min(ceil(cap÷w)=8 档, floor(余额÷per))`、major 一档贵过 minor、T0 家底 $10k 投得起第一档、写死 `per` 原样保留且 `source==="content"`、per 是 500 的整数倍且落在 `[perMin,perMax]`、`stakeRateNote` 文案交代「按身位定价 + 家底只决定档数」）；**#28② 的 `funMul` 吃 INT**（收益随 INT 递增、INT50 不缩放、翻车时高 INT 亏得少、无本金声明不许凭空生钱）与事件经济闸（`funMul ∈ [-1,+3]`、每个 `funMul` 选项必须有 `cost.fun`/`req.fun` 本金）；**回款必须先归还本金**（⑨ 重写：非负倍率**绝不许净亏**，`0.2/0.6/0.8/1.5/2` 五档逐个断言净赚 = 本金×倍率；`-1.0` 正好亏光、不许倒欠；只当资格闸的 `req.fun` 计进参照本金但不扣款） |
@@ -941,6 +935,7 @@ choices: [
 | 竞选：判负口径与资源入场券 | `abortBelow` **只允许 momentum**（#35⑤：钱退出胜负手）+ 各链起步天花板不得低于播种下限；投票日 `ballot` 选项与 `tier` 授予一一对应；**#39 八条硬断言**：州级以上每条链既要有的砸钱幕也要有欠人情幕、带加码的幕必须留一条零资源通路、`req.camp` 只能挂在有 `meters.warchest` 的链上、带金库闸的卡不许整卡都要金库、竞选幕资金加成 ≤ `+42%`、`ballot:true` 的选项**不得**声明 `stake`，外加**金库闸的两端**——闸值必须**高过**该链起步金库（否则一开场就白送，是第二张只写不读的表）、也必须**挣得回来**（≤ 起步 + 前置各幕最好进项，否则那是永远打不开的死锁）；外加**软门槛读数**（同一人 家底 0 / 8 档 / 80 档 / 8000 档 → 种子选情，对称于 `seed.funRef` 且上下各封 `±perFun`，再多钱也不白送第 6 点）。逐链覆盖率面板（非投票日幕数 / 可砸钱 / 可欠人情）与**金库闸面板**（每条闸：要多少 ｜ 起步多少 ｜ 走到那一幕最多攒到多少）随节打印 |
 | 总统授予硬闸与全国选区 | 跨进 `balance.tierMax` 的那一步**只认投票日来源**：非投票日 `tier:+1` 与破格 `tier:+2` 都进不了总统级、`isPresident()` 仍为假，拦下时**折 +3 声望**（与资历闸同表达），而 `tierMax` 以下的晋升**不受误伤**；喂满资历闸再测，确保拦下的一定是总统闸。总统级的基本盘卡面**不得**出现家乡州名、必须改口「美利坚」（`voterBase.nationalTier`）；生涯模拟与 `stage.js` 同一口径（`applyEffects(eff, {election:!!ch.ballot})`），否则模拟会替内容绕过这道闸 |
 | 升职庆典（`view/fanfare.js`） | **入队判定**：`tier:+1` 入队一条、资历闸拦住的**不**入队、`tier:+3` 跳级只入队一条（span=3）且 `served_*` 只记起点级（跳过的中间级留白＝资历债）、`fall` 不入队；**载荷口径**：`size0 < size1`、`die1 > 0`、`promoteCount` 同步 +1；**纯函数 `fanfareHTML`**：10 格阶梯 + `now`/`past`/`skip`、三行对比、非顶点出「下一级」而顶点出专属措辞；**环境容错**：`popFanfare` 在没有 `appendChild` 的 DOM 桩上安静跳过并把队列清空（不抛、不谎报弹成）；**旧档兼容**：`fanfareQ`/`promoteCount` 字段缺失时 `applyEffects` 就地建队、`migrate()` 清空 `fanfareQ` 但保住 `promoteCount` |
+| 卡池标尺（#40 · 卡面尺） | 开局天赋卡池走**自己的一把尺**：1 属性点 = $1k，档位单位 **白1 / 蓝3 / 紫6 / 金15**。三条断言：净值（Σ正 − Σ负）≤ 档位、**正项 ≤ 档位 + 负项**（只许拿"还给池子的点"换超额单项 —— 于是白卡「+2 并 −1」合法、白卡「+6/−1」判红）、钱卡 `fun = 单位 × $1k`；白/蓝还要求净值**恰好等于**档位（钱卡无正项则跳过这条）。面板逐卡打印「档位/单位/净/正负/最大单维」，末行给一句**换算对照**：一张金卡（15 点）= 建角 12 点池（120 属性点）的 13% —— 这句话就是"卡池不再是成长预算的一大块"的读数。**派系 / 声望 / 人情 / 被动不占这把尺**（`mods/crit/luck/hpDecay/voterDrift/spare` 一律不校验），所以纯被动卡本轮原样未动 |
 | 静好岁月 / 每月的账 | 片段注册完整性、时令 12 月覆盖、槽位兜底、极端处境都拼得出文字；`settleQuietMonth` 幂等、成长不越界且随年龄衰减；**#37③ 成长预算**（`attrChance ≤ 0.10`、`attrCap < 100` 自由点硬顶、`attrKeys` 不含 INTG、`funChance/funRate/trackBonus.*.fun` 必须**不存在**＝资金暗账已删）；`monthlyLedger` 入账与幂等（工资/开销/学贷/选民单点结算） |
 | 事件配图（照片层） | 登记类型 key 在 `reg.category` 内；**`fs.existsSync` 逐文件检查照片在磁盘上**；缺图退 SVG；`ev.photo` 覆盖与关闭 |
 | i18n | 多语言覆盖层自检：`--lang=en` 下至少有一张卡变英文（覆盖层没生效会响）；l10n 定义形状合法 |
@@ -949,7 +944,7 @@ choices: [
 
 ### 9.2 `tools/smoke-ui.js`（jsdom，改 UI/机制时跑）
 
-真的起一个 DOM，把「标题 → **建角三步向导（难度+姓名 → 天赋抽卡 → 自由点）** → 年卡 → 事件/平静 → 日期/量级/类型/媒介 → 事件配图（照片 + 缺图退 SVG）→ 背景卡折叠 → 代价标签 → 缺资源变灰 → D&D 投注面板 → 投注上限护栏 → **投注级别价（单价随身位·不随钱包）** → 死局保护 → 确认判定 → 掷骰结算 → **升职庆典弹窗** → 收益面板/职位卡 → 把柄 / 人脉 / 「承前」条 → **上班的账 + 静好岁月合并卡** → 悬浮说明气泡 → 选民动态 → 跨年直进（无年终屏）」整套点击一遍。
+真的起一个 DOM，把「标题 → **建角三步向导（难度+姓名 → 天赋抽卡 → 自由点）** → 年卡 → 事件/平静 → 日期/量级/类型 → 事件配图（照片 + 缺图退 SVG）→ **卡面只剩标题 + 正文**（#41：无导语、无背景卡、无媒介徽章）→ 代价标签 → 缺资源变灰 → D&D 投注面板 → 投注上限护栏 → **投注级别价（单价随身位·不随钱包）** → 死局保护 → 确认判定 → 掷骰结算 → **升职庆典弹窗** → 收益面板/职位卡 → 把柄 / 人脉 / 「承前」条 → **上班的账 + 静好岁月合并卡** → 悬浮说明气泡 → 选民动态 → 跨年直进（无年终屏）」整套点击一遍。
 （历史上"AI 设置面板/润色按钮"的断言已随 llm.js 下架全部移除；不要把它们加回来。）
 
 其中容易被改坏的断言（节选）：
@@ -958,7 +953,7 @@ choices: [
 - **竞选幕的加码与金库闸（#39）**：金库 3 时「买广告、打空中战」必须置灰且按钮文案里写明「竞选金库…现在 3」，而草根那一面仍可点；金库 20 解除；基层链（`meters` 没有 `warchest`）自动放行；点可砸钱的选项真的弹出 `#stake` 面板，`stakeCapPct("fun")===42`、7 档押满后加号禁用、加成从 50% 顶到 92%；`prog_council`（投票日）面板上**不许**出现「可投入资源」，其所有选项 `stakeSpec()` 必须为 `null`。⚠️ 这里必须用 `P.realize(...)` 拿卡——直接 `presentEvent` 原始事件会让 `cost.funLevel` 永远实现不了、选项恒灰、面板根本不开（曾被误判成"加码坏了"）。
 - **静好 / 每月的账**：合并卡真的报出工资/开销/结余与选民变化；静好成长**不再重复结选民**（voterDrift 已归 monthlyLedger 单点）。
 - **升职庆典**：走**真实的 `resolveChoice`**（不是手搓 DOM）——结算页必须仍在庆典窗底下（庆祝不吃叙事）、阶梯画满 10 格且 `now`/`past` 各就各位、大标题是真头衔而不是「等级 N」、三行对比里必须有 `$`、非顶点要预告下一级；**点背景 + 等 1.2 秒都不许关**（唯一出口是「就任 →」）；`afterEvent` 的兜底 flush 要能把漏网的晋升弹出来，而 `fall` 之后队列必须还是空的。
-- **版式**：v0.10 头版社论顺序——配图在正文之前（标题→导语→图→正文）；晋升类选项自动吃「选民底气」修正。
+- **版式**：头版社论顺序——配图在正文之前（#41 起为 标题→图→正文，导语行已删）；晋升类选项自动吃「选民底气」修正。
 - **遗留路径**：旧全量建角（掷骰/VIP/选州）的引擎函数仍须可调用（回退保险），但现行入口是三步向导（`view/create.js`）。
 - **建角预览**：第 3 步属性行必须等于 `startAttr + 自由点×10 + 已选卡`，且**零白送**——难度/出身/起点/州都不加三围（#37②，`balance.startAttr` 0/0/0、诚信 50）。
 
@@ -988,7 +983,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | `smoke-ui.js` | 动过 UI/机制 | jsdom 真点击，§9.2 |
 | `audit.js` | 内容体检 | 五节报告：一览 / flag 供需闭环 / after 链完整性 / 时代×三值性覆盖 / 财富闸门自洽 |
 | `choice-audit.js` | 手感体检 | 找"闭眼都会选"的选项：占优 / 过平 / 同轴单调 |
-| `text-audit.js` | 文字体检 | 标题通顺度 / body 超 200 字 / 缺 brief 清单 |
+| `text-audit.js` | 文字体检 | 默认模式＝融合总表（超尺 / 缺正文 / 残留 brief 三项任一为红即退出码 1）；`--trim --file=X` 是给并行 worker 的单文件自查口；`--titles` / `--tcase` / `--lang=en` |
 | `density-scan.js` | 铺年带后 | 年度大事密度（Σ=fixed+钉年卡 vs 1980—1988 基准），偏薄退出码 1 |
 | `i18n-coverage.js` | 双语门禁 | 逐屏中文占比（英文屏 >5% 中文退出码 1） |
 | `i18n-events.js` | 补翻译 | 逐卡缺译探针（zh/en 双 boot 逐叶子比对） |
@@ -1001,7 +996,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 
 ## 10. 已知限制与路线图
 
-**规模快照（2026-09-26，易漂移计数一律以 validate/density-scan 输出为准）**：事件 **360** 张（其中带背景卡 360/360、带日期 136/360）、结局规则 27 条、时代仅 5 个（pre-1980 已冻结进 `deprecated/`）、`fixed` 定点 147 条（1991—2024 触发率 100%）、事件类型 13 ｜ 量级 3 ｜ 时代媒介 8、填充包 2、出身 4 / 天赋 6 / 起点 6 / 轨道 5 / 党派 3 / 派系 11、**竞选链 11 条（9 条晋升 + 2 条在任）/ 幕事件 31 张**、白宫月决策卡 24 张、静好素材 58 条、照片 13 张（13 类全覆盖）、州 10 个。年均档期：demo 6.8 / 全生涯 5.4。
+**规模快照（2026-09-26，易漂移计数一律以 validate/density-scan 输出为准）**：事件 **360** 张（#41 融合后**零**背景卡、带日期 136/360；卡均文字量 中文 170.8 字 / 英文 53.5 词·单位，超尺 0）、结局规则 27 条、时代仅 5 个（pre-1980 已冻结进 `deprecated/`）、`fixed` 定点 147 条（1991—2024 触发率 100%）、事件类型 13 ｜ 量级 3 ｜ 时代媒介 8、填充包 2、出身 4 / 天赋 6 / 起点 6 / 轨道 5 / 党派 3 / 派系 11、**竞选链 11 条（9 条晋升 + 2 条在任）/ 幕事件 31 张**、白宫月决策卡 24 张、静好素材 58 条、照片 13 张（13 类全覆盖）、州 10 个。年均档期：demo 6.8 / 全生涯 5.4。
 
 **当前真实限制（v0.12）**
 - **内容量已不是主要瓶颈**（360 张卡 + 全年代线），质量瓶颈换成了**选项权衡**与**文字打磨**：`tools/choice-audit.js` 报出的"占优/过平"选项仍是逐卡回炉清单，`tools/text-audit.js` 的长 body 同理。
@@ -1028,6 +1023,8 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.12 升职庆典 | **`engine/view/fanfare.js`**：层级只要往上走就盖一层典礼窗。触发缝在 `effects.js` 的 `tier` handler（唯一写 `G.tier` 处）——晋升/跳级/当选/转轨全自动吃到，资历闸拦住的与 `fall` 下跌不弹；`core.js` 抽出 `salaryAt(tier)`/`electorateAt(tier)` 两个纯查表版本供窗子复用；`G.fanfareQ` 是**一次性 UI 交接件**（`migrate()` 一律清空），`G.promoteCount` 才是账本；两个字段纯 additive，**不升 SAVE_FORMAT** | 新增 `ui.fanfare.*` 13 键 + `ui.effects.promoted`（EN 覆盖同步）；validate 庆典节 + smoke-ui 真点击一屏 | ✅ |
 | v0.12 #39 | **竞选：资源是入场券**——把"钱/人情/把柄"真接进竞选幕。三条病因：① 全库 130+ 处 `stake` 里竞选幕 30 张 **0 处**（面板永不弹出）② 内容侧 64 处 `camp.warchest` 而引擎侧**零读者**（只写不读的表是装饰）③ 越往高越好赢（种子选情 tier≥3 顶格）。落点：`req.camp` 新 req 词汇给金库第一个读者（`view/stage.js`）+ 州级三链补 `meters.warchest` 与共用筹款幕 `camp_raise_state`（幕数 4→5）+ 26 个选项接加码（15 投钱 `CAMP_FUN` 6%/档 · +42% 封顶，11 欠人情 `CAMP_FAV`）+ `seedMomentum` 第五项「家底」软门槛（对数、对称于 `funRef=8` 档、±`perFun=5`）。**金库要咬得住**：初版四道闸（6/10/14/18）全低于各链起步金库 → 探针读出 17 次出场 **0 次拦截**，等于又造了一张只写不读的表；重调为**起步金库下调**（10/12/14/16/18/24）+ **每幕定额拨款 `metersDelta:{warchest:3}`** + 6 道闸位（20/20/22/24/26/34）+ 三处新增进项（初选宣传片、辩论、党代会交易），实测 40 局拦 20%（不是墙、也不是空气）；`camp_vp`/`camp_reelect`/`camp_midterm` 干脆**删掉 warchest**（没有需要金库的一幕就不写这张表）。**红线**：基层两链整体不接、每张带加码卡留一条零资源通路、`ballot` 选项永不接 stake（并剥掉 `prog_city.run` 那处遗留） | `65-campaign-acts.js`（+1 卡、26 个 stake、6 处 `req.camp`）、`61-campaigns.js`（六链 meters 重排 + 新幕 + 19 幕拨款 + `balance.campaign.seed.perFun/funRef`）、`i18n/en/reg/61-campaigns.js` 幕名 + `en/events/65-campaign-acts-b.js` 正文；validate 新增「资源是入场券」节 8 断言（含闸值两端）+ 软门槛读数 + 金库闸面板、smoke-ui 14 断言（闸值从内容读、不写死）；探针 `tools/out/campres-probe.js`（30—40 局入场家底 / 押得起档数分布 / 闸拦截率 / 面板弹出次数 / 投票日胜率带）与 `campmap-probe.js`（逐卡 stake 清单） | ✅ |
 | v0.12 总统门槛与平衡两修（分支 `dev/presidency-guard`，已并入本支） | **白宫只认票数**：`P.applyEffects(eff, ctx)` 多一个上下文参，`tier` 处理器在「跨过 `balance.tierMax` 且缺 `ctx.election`」时拦下（与资历闸同表达：位子不动、折 +3 声望）；放行口只有两处 —— `view/stage.js` 按 `ch.ballot` 传、`campaign.js` 的链 `onWin` 打 `{election:true}`（副总统继任**仍未实现**，将来要开得用显式继任卡）。**声望门槛**：`scale.js` 新增 `ruler.repGate = repBase[量级] × tierF`（**不吃 attrF** —— 旧口径把 6 倍系数在 T8 展成 148，超过声望上限 100 等于把那张卡唯一的升位选项永久锁死，还造成"魅力越高入场券越难拿"的反向闸门），再夹 `balance.econ.repGateMax = 80`；内容侧系数回落（`prog_senate` 4.5→2.8 等）。**投资回款先还本金**：`effects.js` 的 `funMul` 用新增 `G.__stakePaid` 区分「参照本金」（cost + 只当资格闸的 req.fun + 投注，收益按它乘倍率）与「真扣走的那截」（cost + 投注），结果夹 0（`funMul:-1` 的语义是本金全亏，不许倒欠）。**总统级选区地名**：`voterBase.nationalTier: 9` → `topbar.js` 改口「美利坚 · 全国选民」，不再挂家乡州 | `60-progression.js` 8 张 `prog_*` 末幕按**开票夜**口径重写（中英含 known/rumor/unknown 条数对齐，`base/mods/req/outcomes` 数值一字未改；`prog_senate` 的"参议员/州长二选一"留给链侧一起改）；validate 新增 ④b 声望门槛守卫 + 重写 ⑨ 投资结算回归闸 + 总统闸五条 + 全国选区卡面断言。**与本支改动的接缝**：`effects.js` 的总统闸排在资历闸之前 `return`，所以被拦下的那一步**不进升职庆典队列**（`58c4a49`）；两侧共用 `ballot` 词汇但各查各的（#39 查它不许接 `stake`，总统闸查它给不给授级），合并零文本冲突、以上八道门禁在合并后的树上全绿 | ✅ |
+| v0.12 #40 卡池重标（卡面尺） | **把开局天赋卡池从自由点尺上摘下来**：旧口径把两把尺合成一把（1 单位 = +10 属性 = $2k），于是金卡一次送 +40 属性、一次 major 事件才 +10~20 —— 开局几牌顶半打重大事件，卡池变成了成长预算的一大块。现定**卡面尺 = 1 属性点 = $1k**，档位单位 **白 1 / 蓝 3 / 紫 6 / 金 15**：白 = 单系+1（或「+2 并别维 −1」）或 $1k、蓝 = +3 或三围各 +1 或 $3k、紫 = 三围各 +2（= $6k）、金 = 三围各 +5（= $15k）**加特效**。一把金卡的属性面只等于建角 12 点池的 **13%** —— 卡池退回风味倾斜，稀缺的只剩 `spare` 免死 / `critMul` / `hpDecayMul` / 派系人情这些**只有池子给得出**的东西 | `15-cards.js` 21 张里动 13 张的 attr/fun（其余 8 张按裁定「被动原样不动」：`union_kin`/`press_buddy`/`iron_stomach`/`gambler_card`/`koi`/`magnetic`/`immortal`，外加 `old_money` —— 它的 $6k 恰好落在新尺上，一字未改即达标）；`validate.js` 卡池节由「单维 ≤ 稀有度×10」重写为**三条**（净值 ≤ 档位、正项 ≤ 档位+负项、钱 = 单位×$1k）＋逐卡面板与「金卡 ≈ 建角池 13%」对照行；中英文案 13 条 desc 同步（另有两个 EN 卡名 `destiny`/`immortal` 顺手改掉直译） | ✅ |
+| v0.12 #41 卡面瘦身 | **一张卡只剩「标题 + 正文 + 头条图」**：`stage.js` 删掉 `briefHTML/toggleBrief/briefCollapsed` 与机器派生的 `standfirstOf()`，报头 chip 压到「三值性 + 量级 + 类型」三枚（**媒介徽章移除但 `medium` 触发门控照旧**），`events.js` 的 `generateFiller` 不再合成 `brief`，`style.css` 删掉 `.brief-slot/.standfirst/.cchip.medium` 全套规则（桌面 + `.oval` + 竖屏折叠列表）。`SAVE_FORMAT` **仍为 13** —— `brief` 是静态注册表字段、从不进 `G`，无需迁移（`potus_brief_collapsed` 这个 localStorage 键就此废弃） | **全量融合重写 360 张**（中英同步，108 文件 +1695/−12204）：把「你确知的/传闻/尚不知道的/名词」四层压进正文，正文从 ~90 字升到能独立交代局面；卡均文字量 **170.8 字**（旧口径阅读成本 ~278 字/卡，降约 39%），超尺 0、缺正文 0、残留 `known/rumor/unknown` 键 0。**门禁口径反转**：`validate.js` 由"必须有 brief"改为逐卡**禁** `brief`/`standfirst` + 标题+正文 ≤250 字（中文非空白字符 / 英文词×0.5 同一把尺），`text-audit.js` 默认模式变成真闸（超尺/缺正文/残留任一为红退出码 1）、`--trim --file=X` 作并行 worker 的单文件自查口 | ✅ |
 | 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
@@ -1039,7 +1036,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 机制 | 内容包怎么写 | 引擎在哪 |
 |---|---|---|
 | 快速开局（现行） | 无需配置：五档难度（传奇/简单/普通/困难/炼狱）+ 姓名；年份锁 1980、党派随机、家乡默认 OH；**难度只发卡数与非属性补偿**（rep/fav/fac），三围一律从 `balance.startAttr`（0/0/0、诚信 50）打底（#37②） | view/create.js `DIFFS`/`fillDefaults` |
-| 建角三步向导（v0.12 #20，现行） | ①难度+姓名 → ②天赋抽卡（四稀有度 1/2/3/4，可选张数 = 难度 `picks` 1→5，权重随周目递增，**橙卡第 2 周目起进池**，本步可刷新一次；`woshishabiN` 作弊码输入框也在这一屏）→ ③自由点分配（额度 `freePoints 12 +（周目−1）×1`，**1 点 = +10 属性 = +$2k**，单维 ≤`freeCapPerAttr 10` 点，属性 0—100 硬顶；这一页必须把**全部**剩余来源摊开：`startAttr` + 自由点 + 已选卡） | view/create.js（`gachaHTML`/`allocHTML`）、core.js `freePool/attrCapPerAttr/gachaCfg/rarityWForLoop/orangeUnlocked` |
+| 建角三步向导（v0.12 #20，现行；卡面尺 #40） | ①难度+姓名 → ②天赋抽卡（四稀有度 1/2/3/4，可选张数 = 难度 `picks` 1→5，权重随周目递增，**金卡（界面标「橙」）第 2 周目起进池**，本步可刷新一次；`woshishabiN` 作弊码输入框也在这一屏。**卡池尺 = 1 属性点 $1k，单位 白1/蓝3/紫6/金15**，与③的自由点尺不同源）→ ③自由点分配（额度 `freePoints 12 +（周目−1）×1`，**1 点 = +10 属性 = +$2k**，单维 ≤`freeCapPerAttr 10` 点，属性 0—100 硬顶；这一页必须把**全部**剩余来源摊开：`startAttr` + 自由点 + 已选卡） | view/create.js（`gachaHTML`/`allocHTML`）、core.js `freePool/attrCapPerAttr/gachaCfg/rarityWForLoop/orangeUnlocked`、content/15-cards.js |
 | ~~定命一掷（旧建角）~~ | **已整条删除**：不再掷骰/重掷，VIP 码不再加自由点；`balance.rollAttrs/vipCodes` 已从引擎与内容移除（validate 反向断言其不存在） | —— |
 | 周目（loop）成长（v0.12 #31） | 每局结束周目 +1（无条件），额度与高稀有概率随之上涨；`woshishabiN` 作弊码 = 本局按第 N+1 周目口径建角（不落盘） | core.js `currentLoop/readBonusFree/applyCheat`、结算屏保卡 |
 | 生涯线 1980→2025 | 无需配置：`balance.endYear: 2025` 硬墙 → `career_end` 结算 7 条 `career_*`；`president_done` 区分前总统，当总统不再即时结束 | view/stage.js `endYear/nextYear`、progression.js、40-endings.js |
@@ -1065,7 +1062,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | i18n 双语 | `P.t(key, 中文)` + `content/i18n/en/` 覆盖层；语言切换在标题屏 / `?lang=en` | engine/i18n.js、docs/I18N.md |
 | 竖屏/移动 | 无需配置；断点 1000/820/600 + 竖屏专区（三区竖排、顶栏横滚），`#app` 上限 1600px | style.css L784+ |
 
-**事件卡现行顺序（v0.10 头版社论版式）**：标题 → 导语 → 配图 → 正文 →（背景卡折叠）→ 选项（note 折叠）。结算顺序：结果叙事 → 收益筹码 → 判定明细（折叠）。
+**事件卡现行顺序（#41 瘦身后的头版社论版式）**：报头（档案号 + 日期 + 量级/类型 chip）→ 结算/承前条 → 标题 → 配图 → 正文 → 选项（note 折叠）。导语行、背景卡折叠区、媒介徽章均已移除。结算顺序：结果叙事 → 收益筹码 → 判定明细（折叠）。
 
 **并行开发的边界**（常被问）：引擎机制改动必须串行（`engine/view/*` 被多个机制共用，并行必冲突）；**内容扩充天然可并行**——不同的人写不同的 `content/events/*.js`（按年带/主题切片），文件互不重叠，靠 `gen-manifest` 托管区 + `merge-worker.sh` 门禁串行入库。边界与号段规则见 [`PARALLEL-CONTENT-WORK.md`](./PARALLEL-CONTENT-WORK.md)。
 

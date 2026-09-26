@@ -515,11 +515,6 @@
       unique: false, grade: grade, category: P.pick(cats), valence: (slot && slot.valence) || "risk",
       title: topic,
       body: tpl.replace("{act}", act).replace("{topic}", topic),
-      brief: pack.brief ? {
-        known: [].concat(pack.brief.known || []),
-        rumor: [].concat(pack.brief.rumor || []),
-        unknown: [].concat(pack.brief.unknown || [])
-      } : undefined,
       choices: pack.choices || P._safetyFiller(grade).choices
     };
   };
