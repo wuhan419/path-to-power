@@ -3415,8 +3415,9 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(!attrSin.length, "#37② 属性纪律：出身/州不得给属性、起点只许给负诚信 —— 越界：" + attrSin.join("、"));
 
     /* 建角一次性资金也上这把尺：出身/起点/州的 `fun` 是**绝对额**，折成自由点单位
-       不得超过 4 点（= $8k · 一张橙卡的钱）。v0.5.2 遗留在商人起点的 $1.5M（=750 点）
-       能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。 */
+       不得超过 4 点（= $8k，仍高于卡池最贵的那张钱卡「老钱家族」$6k）。v0.5.2 遗留在商人起点的
+       $1.5M（=750 点）能在 1980 年一次性买断学贷与「断供 20 月破产」两条线，#37 文档核对口径时收回。
+       注意这条闸走的是**自由点尺**，与 #40 之后卡池自带的卡面尺（1 属性点 = $1k）不同源。 */
     const funUnit = bStart.freeFunPerPoint == null ? 2000 : bStart.freeFunPerPoint;
     const funSin = [];
     const scanFun = function (src, label) {
@@ -3443,22 +3444,40 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(b5.freeCapPerAttr === Math.floor(100 / b5.freeAttrPerPoint),
     "单维上限 = 点到属性 100 所需点数（" + b5.freeCapPerAttr + " 点）");
 
-  /* 卡池标尺（#20 收尾 · #36 重标）：1 单位 = +10 属性 = $2k，钱卡 = 稀有度 × $2k；
-     白/蓝的属性增益严格 = 稀有度 × 10（紫/橙只要求不超过档位，多维合计另算）。
-     被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
+  /* 卡池标尺（#40 重标 · **卡面尺**，与自由点尺不同源）：1 属性点 = $1k，
+     档位单位 {白1, 蓝3, 紫6, 金15}。三条纪律：
+       ① 净值（Σ正 − Σ负）≤ 单位；
+       ② 正项 ≤ 单位 + Σ负 —— 只许用"还给池子的那点"换超额单项（放行「+2 并 -1」，挡住 +6/-1 的白卡）；
+       ③ 钱卡 peg 恒定：fun = 单位 × $1k。
+     白/蓝另要求净值**恰好等于**档位（单系样板卡不许留空），紫/金只要求不超（多维合计）。
+     派系 / 声望 / 人情与被动（mods/crit/luck/hpDecay/voterDrift/spare）不占这把尺，不校验。 */
   const CARDS = P.reg.card || {};
+  const CARD_UNITS = { 1: 1, 2: 3, 3: 6, 4: 15 };
+  const cardRows = [];
   Object.keys(CARDS).forEach(function (id) {
-    const c = CARDS[id], r = c.rarity || 1, fx = c.effects || {};
+    const c = CARDS[id], r = c.rarity || 1, u = CARD_UNITS[r], fx = c.effects || {};
     if (typeof fx.fun === "number" && fx.fun > 0) {
-      check(fx.fun === r * 2000, "卡 " + id + "（" + r + " 档）钱 = 稀有度 × $2k：" + fx.fun);
+      check(fx.fun === u * 1000, "卡 " + id + "（" + r + " 档 " + u + " 单位）钱 = 单位 × $1k = $" + (u * 1000 / 1000) + "k，实为 $" + fx.fun);
     }
     const av = fx.attr || {};
-    const pos = Object.keys(av).map(function (k) { return av[k]; }).filter(function (v) { return v > 0; });
-    if (!pos.length) return;
-    const mx = Math.max.apply(null, pos);
-    check(mx <= r * 10, "卡 " + id + "（" + r + " 档）单维属性增益 ≤ 稀有度 × 10：" + mx);
-    if (r <= 2) check(mx === r * 10, "白/蓝卡属性增益严格对齐标尺（" + r + " 档 = +" + (r * 10) + "）：" + id);
+    const ks = Object.keys(av);
+    if (!ks.length) return;
+    let pos = 0, neg = 0, mx = 0;
+    ks.forEach(function (k) {
+      const v = av[k];
+      if (v > 0) { pos += v; if (v > mx) mx = v; } else neg += -v;
+    });
+    check(pos - neg <= u, "卡 " + id + "（" + r + " 档 " + u + " 单位）净属性 " + (pos - neg) + " 超档");
+    check(pos <= u + neg, "卡 " + id + " 正项 " + pos + " 超过 单位+负项 " + (u + neg) + "（超额单项只能拿还回池子的点换）");
+    if (r <= 2 && pos > 0) check(pos - neg === u, "白/蓝属性卡净属性必须恰好对齐档位（" + r + " 档 = " + u + " 点）：" + id);
+    cardRows.push("  卡 " + id.padEnd(14) + "r" + r + " " + String(u).padStart(2) + "单位" +
+      " 净" + String(pos - neg).padStart(2) + "（正" + pos + (neg ? "/负" + neg : "") + "）最大单维 +" + mx);
   });
+  console.log("== 卡池标尺（#40 · 卡面尺 1 属性点 = $1k · 档位 白1/蓝3/紫6/金15）==");
+  cardRows.forEach(function (s) { console.log(s); });
+  console.log("  对照：自由点尺 1 点 = +" + b5.freeAttrPerPoint + " 属性 = $" + (b5.freeFunPerPoint / 1000) +
+    "k，建角 " + b5.freePoints + " 点 = " + (b5.freePoints * b5.freeAttrPerPoint) + " 属性 —— 一张金卡（15 点）≈ 建角池的 " +
+    Math.round(15 / (b5.freePoints * b5.freeAttrPerPoint) * 100) + "%");
 
   /* 周目 meta（#31：周目数是唯一的成长账本 —— 自由点 = 基础 12 + 已完成周目 × 1） */
   const _loopRaw = (function () { try { const v = localStorage.getItem(P.metaLoopKey); localStorage.removeItem(P.metaLoopKey); return v; } catch (e) { return null; } })();
