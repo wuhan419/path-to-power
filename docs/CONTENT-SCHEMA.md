@@ -1391,7 +1391,7 @@ POTUS.define("blackswan", {
 | `vignette` | 见 §4.13 | **静好岁月**成长曲线（`attrChance .08`（#37③，原 .20→.14→.08）/ `attrKeys [CHA,INT,CUN]`（**不含 INTG**：诚信只能由选择涨）/ `attrCap 88`（< 自由点硬顶 100）/ `hpChance 0` / `repChance .06` / `contactChance .20` / `trackBonus` 按轨道分化（**不许写 `fun`**）/ ~~`funChance .30`~~ **整条删除**：平静月不再产生资金，见 §4.13 / `attrDeclineAge 65` 起 CHA/INT 月 6% 掉点、下限 30…） |
 | `quietWorks` | 见配置 | 平静月"这个月做了什么"的日常颗粒素材（按轨道/层级筛选，动词开头不抒情） |
 | `quietAccount` | `{salaryBase:2000, salaryPerTier:2.2, livingMin:500, livingMax:1400, livingTierCoef:0.6}` | 平静月工资与开销（v0.11 曲线重配：基层不再无声长期倒亏） |
-| `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:42000, brutal:28000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
+| `studentLoan` | 见 §15 | **学贷系统**：`startDebt {normal:65000, hard:90000, brutal:115000}`（easy/legendary 无贷）、`interestAnnual 0.045` 单利+年度资本化、`payShare 0.25`、`minPayment 120`、`lateMonths 12`、`lateLimit {normal:20, hard:20, brutal:20}`（**#19 定稿：三档统一 20**，旧口径 6/4/3 已废——难度只决定欠多少，不再决定"银行给几天脸"）、`forbear {maxMonths:24, perMonths:6, repCost:3}`、`pslf {months:120, minTier:1}` |
 | `debtFloor` | `{depth:6000, perTier:1.2, restore:2500, repCost:4}` | **负债谷底**：钱掉到 `-depth×(1+perTier×tier)` 以下 → 家人凑钱托底（资金回正、声望 -4），把静默死亡螺旋变成有代价的戏剧点（`core.js enforceDebtFloor`） |
 | `voterBase` | 见配置 | 选民池 10 级选区规模 `[5000 … 240000000]`、`carryKeep 0.35`（升位带过来的旧选民比例）、`carryStepDecay 0.66`（跳级带得更少）、`winShare 0.08`（当选基本盘占比）、`nationalTier 9`（从这一级起选区就是整个国家：状态面板的基本盘卡不再挂家乡州名，改口「美利坚 · 全国选民 …」，见 `view/topbar.js`） |
 | `voterDynamic` | 见配置 | **选民会呼吸**（v0.6）：平静月自然收敛（`monthly 0.05` 朝 `targetShare/diehardTargetShare/opposeTargetShare` 三档目标）、事件成败自动增减（`eventBase × byOutcome × categoryMul`，显式 `effects.voters` 优先）、底气反噬判定（`voterEdge()×contestW 0.08`，中心 `edgeCenter 27`、跨度 `edgeSpan 35`） |
@@ -1904,9 +1904,11 @@ POTUS.define("balance", { campaign: {
 | 难度 | 起步债务 |
 |---|---|
 | normal | $65,000 |
-| hard | $42,000 |
-| brutal | $28,000 |
+| hard | $90,000 |
+| brutal | $115,000 |
 | easy / legendary | 无贷（世家不背学贷） |
+
+> **#42 修正方向**：旧口径是 `normal 65k > hard 42k > brutal 28k`——越难的档位负债越轻，与本节末句"难度差异只体现在负债起点"自相矛盾（玩家在建角向导里一眼看出顺序倒了）。现在改成**越难背得越多**，且只抬高不降低：**normal 钉在 $65k 不动**，因为 #19 那轮"前期约一半局不该死于学贷"的定标就是量在 normal 这一档的；hard/brutal 分别抬到 $90k / $115k。三档宽限期仍同为 20 个月，难度差异只走负债一条轴（#19②的纪律不变）。
 
 **月计规则**（loanStep 逐步语义）：
 - 月息 = `debt × interestAnnual(0.045) / 12`，进欠息桶 `G.debtAccr`——**单利**：桶内欠息当月起不再生息；每年 1 月桶资本化一次（计入本金）。
@@ -1926,7 +1928,7 @@ POTUS.define("balance", { campaign: {
 即原 6/4/3 会让八成局在前期死于学贷（且越穷宽限期越短，方向反了），故改为 **20/20/20**：
 定稿后实测 `--games=100`（normal）**信用破产 41/100 局**、每局最长连续断供中位 14 / p90 20（撞闸即停）——
 即约六成活过学贷关，落在「前期有一半局不该因学贷出局」这条口径内。
-难度差异只体现在**负债起点**（65k/42k/28k）而不体现在宽限期上，断供 12 月起先由催收/征信事件报警。
+难度差异只体现在**负债起点**（65k/90k/115k）而不体现在宽限期上，断供 12 月起先由催收/征信事件报警。
 50% 存活率是按「前期不该有一半局因学贷出局」这条产品口径取的，不是几何最优——
 调整前先跑一次 `--late-cap=99` 重取换算表。
 
@@ -1952,6 +1954,6 @@ POTUS.define("balance", { campaign: {
   **卡池有自己的一把尺（#40 重标）：卡面 1 属性点 = $1k**，档位单位 **白 1 / 蓝 3 / 紫 6 / 金 15**，形态：白 = 单系 +1 或「+2 并别维 −1」或 $1k；蓝 = 单系 +3 或三围各 +1 或 $3k；紫 = 三围各 +2（或单系 +6）或 $6k；金 = 三围各 +5（或单系 +15）或 $15k，外加**特效**（`spare` 免死一类）。
   它**故意比自由点尺（1 点 = +10 属性 = $2k）小一个数量级**：一张金卡的属性面只有建角 12 点池（120 属性点）的 13%，卡池于是从"成长预算的一大块"退回成**风味倾斜 + 只有池子给得出的被动**（免死 / 大成功翻倍 / 健康衰减 / 派系 / 人情）。
   三条纪律由 validate 的「卡池标尺」节钉住：**净值 ≤ 档位单位**、**正项 ≤ 单位 + 负项**（只许用"还给池子的点"换超额单项，于是 +2/−1 合法而 +6/−1 的白卡判红）、**钱卡 = 单位 × $1k**；白/蓝另要求净值**恰好等于**档位（紫/金只要求不超，多维合计）。派系点 / 声望 / 人情 / `mods / crit / luck / hpDecay / voterDrift / spare` 不占这把尺。
-- normal/hard/brutal 开局挂学贷（§15，`startDebt 65k/42k/28k`）；easy/legendary 无贷。断供闸三档同宽（`lateLimit 20/20/20`），不"越穷宽限期越短"。
+- normal/hard/brutal 开局挂学贷（§15，`startDebt 65k/90k/115k`）；easy/legendary 无贷。断供闸三档同宽（`lateLimit 20/20/20`），不"越穷宽限期越短"。
 - **作弊码**在建角页（第 2 步天赋墙旁，`#cheatcode` 输入框 + 键盘连打两条路）：`woshishabiN` 把本局当"第 N+1 周目"开——自由点额度与高稀有卡概率一起抬（夹到 `cheatMax: 10`，可累加，只影响本次建角、不写 localStorage）。已掷过的牌面不变脸，要看橙卡得「换一批」。
 - 「定命一掷」（掷骰/重掷/VIP 码加点）已在 #20 **整条删除**，`balance` 里不再有 `rollAttrs`；写内容契约与文案时按上面的三步向导口径说话。

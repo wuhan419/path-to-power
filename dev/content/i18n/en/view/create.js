@@ -31,15 +31,15 @@ POTUS.define("l10n", {
 
     /* ---- 难度名 + 难度说明（DIFFS，取用点提取，key = ui.create.diff.<id>.label/note） ---- */
     "ui.create.diff.legendary.label": "Legendary",
-    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +12 reputation, +4 favors, +20 establishment, +10 business — the deepest pockets and the most cards to spend.",
+    "ui.create.diff.legendary.note": "Political dynasty · pick 5 talent cards · +12 reputation, +4 favors, +20 establishment, +10 business — the deepest pockets, the most cards to spend, and no student loan.",
     "ui.create.diff.easy.label": "Easy",
-    "ui.create.diff.easy.note": "Political family · pick 4 talent cards · +30 establishment contacts, +8 reputation — someone has already cleared the path for you.",
+    "ui.create.diff.easy.note": "Political family · pick 4 talent cards · +30 establishment contacts, +8 reputation — someone already cleared the path, and they paid off the loans too.",
     "ui.create.diff.normal.label": "Normal",
-    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +40 business, +2 favors, but the grassroots don't trust you.",
+    "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +40 business, +2 favors, but the grassroots don't trust you · starts $65k in student loans.",
     "ui.create.diff.hard.label": "Hard",
-    "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit.",
+    "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit · starts $90k in student loans.",
     "ui.create.diff.brutal.label": "Brutal",
-    "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing.",
+    "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing · starts $115k in student loans.",
 
     /* ---- 开局抽卡卡墙（gachaHTML · #31 周目门槛 + 一次刷新 + 作弊码入口） ---- */
     "ui.create.gachaHeading": "Talent Draw (difficulty = number of picks)",
