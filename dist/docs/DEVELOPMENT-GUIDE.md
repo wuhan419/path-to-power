@@ -159,7 +159,7 @@
 │       ├── preview-photos.html  配图预览页（浏览器打开）
 │       └── out/              工具产物目录（草稿/截图，非事实源）
 ├── dist/                     ★ package.sh 的产物：可分发游戏本体（双击 index.html 即玩）
-├── path-to-power-v0.12.zip   ★ package.sh 的产物：itch.io 上传包（index.html 在压缩包根目录，不入库）
+├── path-to-power-v0.12.1.zip ★ package.sh 的产物：itch.io 上传包（index.html 在压缩包根目录 + 带目录条目，不入库）
 ├── docs/                     DESIGN / CONTENT-SCHEMA / DEVELOPMENT-GUIDE / I18N / PARALLEL-CONTENT-WORK
 ├── README.md · CONTRIBUTING.md
 └── deprecated/               ★ pre-1980 死内容冻结归档（1912/1929/1941… 时代包与快照，不再加载）
@@ -979,7 +979,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 工具 | 什么时候跑 | 一句话 |
 |---|---|---|
 | `validate.js` | 每次提交 | 一键校验 + 生涯模拟（默认 20 局），§9.1 |
-| `package.sh` | 发布 | `bash dev/tools/package.sh` = validate 30 局 + 同步 dist/（含把仓库根 docs/ 复制进 dist/docs）+ 在项目根打 itch.io 上传包 `path-to-power-$VERSION.zip`（`VERSION` 常量在脚本顶部，发新版时改）。压缩包**根目录直接是 index.html**（脚本会验条目表，套一层文件夹的包在 itch 上是白屏）；`--full`=300 局深验、`--fast`=只打包、`--check`=只自检、`--no-zip`=不出压缩包。**dist/ 与 zip 都是产物，禁止手改；zip 不入库** |
+| `package.sh` | 发布 | `bash dev/tools/package.sh` = validate 30 局 + 同步 dist/（含把仓库根 docs/ 复制进 dist/docs）+ 在项目根打 itch.io 上传包 `path-to-power-$VERSION.zip`（`VERSION` 常量在脚本顶部，发新版时改）。压缩包有两条硬结构要求，`verify_zip` 逐条验：**① 根目录直接是 index.html**（不能套一层 dist/ 文件夹）；**② 必须带目录条目**（`engine/` 这类以 `/` 结尾的条目）。打包器优先 Info-ZIP 的 `zip`，本机没有则退回 `python` 逐条写入并补目录条目——**Windows 自带的 `Compress-Archive` 一个目录条目都不写，itch 的解压器会静默跳过文件，线上半站 404 + 白屏（v0.12.1 踩过）**，所以绝不能用它替手。另验：条目名不得含反斜杠、包内文件数须等于 dist/ 文件数。`--full`=300 局深验、`--fast`=只打包、`--check`=只自检、`--no-zip`=不出压缩包。**dist/ 与 zip 都是产物，禁止手改；zip 不入库** |
 | `gen-manifest.js` | 新增内容/i18n 文件后 | 重写 index.html 两个托管区；`--check` 可当门禁 |
 | `smoke-ui.js` | 动过 UI/机制 | jsdom 真点击，§9.2 |
 | `audit.js` | 内容体检 | 五节报告：一览 / flag 供需闭环 / after 链完整性 / 时代×三值性覆盖 / 财富闸门自洽 |

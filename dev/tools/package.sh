@@ -37,6 +37,17 @@ VALIDATE="$DEV_ROOT/tools/validate.js"
 VERSION="v0.12.1"                  # 发布包版本号：只影响压缩包文件名，发新版时改这里
 ZIP="$PROJ_ROOT/path-to-power-$VERSION.zip"        # itch.io 上传包（项目根，不入库）
 
+# 打包器：优先 Info-ZIP 的 zip（-r 自带目录条目），没有则用 python 逐条写入。
+# 挑 python 时要求它真能跑：Windows 的 python3 可能是「Microsoft Store 转发桩」，
+# 只会在被调用时弹商店，所以用 -c pass 实测过才算数。
+PY=""
+for _cand in python3 python; do
+  if command -v "$_cand" >/dev/null 2>&1 && "$_cand" -c 'pass' >/dev/null 2>&1; then
+    PY="$(command -v "$_cand")"; break
+  fi
+done
+unset _cand
+
 # ---------- 参数解析 ----------
 MODE="all"
 VGAMES="30"                      # 自检生涯模拟局数：默认 30（快速放行，日常默认走这档），--full 走 300
@@ -146,32 +157,80 @@ EOF
 }
 
 # ---------- itch.io 上传包 ----------
-# itch.io 的「在浏览器中游玩」要求 index.html 位于压缩包根目录：解压出来直接是
-# index.html + engine/ + content/ + assets/，而不是套一层 dist/ 文件夹。
-# 所以在 dist 里打包（zip 的相对路径 = 条目名），打完立刻验条目表——
-# 一个传错结构的包在 itch 上是 404 白屏，本地看不出来。
+# itch.io 的「在浏览器中游玩」要求两件事，缺任何一条都是线上 404 白屏、本地双击却一切正常：
+#   1) index.html 位于压缩包根目录 —— 解压出来直接是 index.html + engine/ + content/ +
+#      assets/，不能套一层 dist/ 文件夹。
+#   2) 归档里必须带**目录条目**（engine/、content/i18n/en/view/ 这些以 / 结尾的条目）。
+#      Windows 自带的压缩（PowerShell Compress-Archive / 资源管理器「发送到 → 压缩文件夹」）
+#      只写文件条目、一个目录条目都不写；itch 的解压器遇到"父目录还没建"的文件会静默跳过，
+#      结果半站 js/css 404、engine/core.js 缺席 → 白屏 + "POTUS is not defined"（v0.12.1 实测）。
+# 所以优先用 Info-ZIP 的 zip（-r 自带目录条目），没有就用 python 逐条写入并补目录条目。
+# 两条打包路径共用同一份条目表校验 —— 结构问题只有在这里拦得住。
 build_zip() {
-  if ! command -v zip >/dev/null 2>&1; then
-    echo "✗ 未找到 zip，无法生成 itch.io 上传包" >&2; exit 1
-  fi
   # 护栏：ZIP 必须是「项目根/path-to-power-*.zip」才允许删
   if [ "$(dirname "$ZIP")" != "$PROJ_ROOT" ] || [ "${ZIP#"$PROJ_ROOT/path-to-power-"}" = "$ZIP" ]; then
     echo "✗ ZIP 路径异常：$ZIP，中止" >&2; exit 1
   fi
   rm -f -- "$ZIP"                       # zip 是追加语义，旧包不清掉会越打越大
   echo "▶ 打 itch.io 包：$ZIP"
-  ( cd "$DIST" && zip -q -r -X "$ZIP" . )
-
-  local entries
-  entries="$(unzip -Z1 "$ZIP")"
-  if ! printf '%s\n' "$entries" | grep -qx 'index.html'; then
-    echo "✗ 压缩包根目录没有 index.html（itch 要求解压即玩），条目首行：$(printf '%s\n' "$entries" | head -1)" >&2
+  if command -v zip >/dev/null 2>&1; then
+    ( cd "$DIST" && zip -q -r -X "$ZIP" . )
+  elif [ -n "$PY" ]; then
+    echo "  （本机无 zip，改用 $PY 打包：逐条写入并补目录条目）"
+    ( cd "$DIST" && "$PY" - "$ZIP" <<'PYZIP'
+import os, sys, zipfile
+out = os.path.abspath(sys.argv[1])
+zf = zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED, compresslevel=9)
+for root, dirs, files in os.walk('.'):
+    dirs.sort(); files.sort()
+    rel = os.path.relpath(root, '.').replace(os.sep, '/')
+    if rel != '.':
+        zf.writestr(rel + '/', b'')     # 目录条目：itch 的解压器靠它建目录
+    for f in files:
+        zf.write(os.path.join(root, f), (rel + '/' if rel != '.' else '') + f)
+zf.close()
+PYZIP
+    )
+  else
+    echo "✗ 既没有 zip 也没有 python，无法生成 itch.io 上传包。" >&2
+    echo "  dist/ 已就绪，手动压缩时注意：index.html 必须在压缩包根目录，且要保留目录条目。" >&2
     exit 1
   fi
-  if printf '%s\n' "$entries" | grep -q '^dist/'; then
+  verify_zip
+}
+
+# 条目表校验：两种打包实现共用，任一不合格直接非零退出（set -e 会中断整条发布）
+verify_zip() {
+  local list want have
+  if [ -n "$PY" ]; then
+    list="$("$PY" -c 'import sys,zipfile;[print(x) for x in zipfile.ZipFile(sys.argv[1]).namelist()]' "$ZIP")"
+  elif command -v unzip >/dev/null 2>&1; then
+    list="$(unzip -Z1 "$ZIP")"
+  else
+    echo "⚠ 无 python/unzip，跳过压缩包条目校验（结构问题线上才会暴露，慎用）" >&2
+    return 0
+  fi
+
+  if ! printf '%s\n' "$list" | grep -qx 'index.html'; then
+    echo "✗ 压缩包根目录没有 index.html（itch 要求解压即玩），条目首行：$(printf '%s\n' "$list" | head -1)" >&2
+    exit 1
+  fi
+  if printf '%s\n' "$list" | grep -q '^dist/'; then
     echo "✗ 压缩包里套了一层 dist/ 目录，不符合 itch.io 要求" >&2; exit 1
   fi
-  echo "  ✓ 根目录即 index.html ｜ $(printf '%s\n' "$entries" | grep -cv '/$') 个文件 ｜ $(du -h "$ZIP" | cut -f1 | tr -d ' ') ｜ itch 上传后勾选「This file will be played in the browser」"
+  if printf '%s\n' "$list" | grep -q '[\\]'; then
+    echo "✗ 条目名里有反斜杠（Windows 自带压缩的老毛病），非 Windows 解压器会当成一整个文件名" >&2; exit 1
+  fi
+  if ! printf '%s\n' "$list" | grep -q '/$'; then
+    echo "✗ 压缩包里一个目录条目都没有 —— itch 的解压器会静默跳过文件，线上表现为半站 404 + 白屏" >&2
+    exit 1
+  fi
+  want="$(find "$DIST" -type f | wc -l | tr -d ' ')"
+  have="$(printf '%s\n' "$list" | grep -cv '/$')"
+  if [ "$want" != "$have" ]; then
+    echo "✗ 压缩包文件数 $have ≠ dist/ 的 $want，有文件没进包" >&2; exit 1
+  fi
+  echo "  ✓ 根目录即 index.html ｜ $have 个文件 + $(printf '%s\n' "$list" | grep -c '/$') 个目录条目 ｜ $(du -h "$ZIP" | cut -f1 | tr -d ' ') ｜ itch 上传后勾选「This file will be played in the browser」"
 }
 
 case "$MODE" in
