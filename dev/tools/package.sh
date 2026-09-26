@@ -34,7 +34,7 @@ DEV_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"           # dev/
 PROJ_ROOT="$(cd "$DEV_ROOT/.." && pwd)"            # 项目根
 DIST="$PROJ_ROOT/dist"                             # 唯一可被本脚本删/写的目标
 VALIDATE="$DEV_ROOT/tools/validate.js"
-VERSION="v0.12"                    # 发布包版本号：只影响压缩包文件名，发新版时改这里
+VERSION="v0.12.1"                  # 发布包版本号：只影响压缩包文件名，发新版时改这里
 ZIP="$PROJ_ROOT/path-to-power-$VERSION.zip"        # itch.io 上传包（项目根，不入库）
 
 # ---------- 参数解析 ----------
