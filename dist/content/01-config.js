@@ -20,7 +20,9 @@ POTUS.define("balance", {
      ⚠ 单维上限 = 「能点到属性值 100 为止」，不再按点数封顶：
        三围从 startAttr(0) 起步、1 点 = +10，所以加到 100 正好 10 点 ——
        freeCapPerAttr / freeCapMax 都定成 10，即单维最多洒 10 点（属性上限 100 的等价点数）。
-       freeCapGrow 仍保留：周目/作弊送的点继续抬【总额度】，单维这 10 点已够灌满一维。 */
+       freeCapGrow 仍保留：周目/作弊送的点继续抬【总额度】，单维这 10 点已够灌满一维。
+     ⚠ 这个 100 只卡【自己点的】那一截：卡面加成与局内成长从 100 之上继续长
+       （engine/effects.js 的 attr 处理器只夹下限 0），平静月的被动成长另有 attrCap（见下）。 */
   freePoints: 12, freeCapPerAttr: 10, freeCapMax: 10, freeCapGrow: 6,
   /* #31：周目成长的唯一系数 —— 每完成一个周目 +1 自由点（保卡不再是它的替代品，随时可挑）。 */
   loopFreeBonus: 1,
@@ -241,6 +243,17 @@ POTUS.define("balance", {
     repGateMax: 80       /* dyn 卡 req.rep 门槛展开后的天花板：声望 0—100 有界，门槛不许顶出可达区 */
   },
 
+  /* ---------- 声望溢出折算（engine/effects.js addRep 消费）----------
+   * 20 局实测（seed 20260927）：生涯月里 11.5% 停在声望 100，正向声望有 18.2%（941/5160 点）
+   * 被上限静默吃掉 —— 玩家视角就是"赢了大事，声望条一动不动"。
+   * 这里**不抬 100 这个顶**：req.rep 门槛、支持率播种、voterDrift 的声望系数全按 0—100 定标，
+   * 抬顶等于偷偷重标整条选举曲线（300 局基线必歪）。改成顶后折成人：
+   * 1 点溢出 = 当前选区规模 × warmShare 个好感选民。
+   * 0.0004 的锚：约等于半张中型卡打赢所带的自然好感（voterDynamic.eventBase.mid=0.0025），
+   * 且好感会被 monthly 均值回归抽回目标位 —— 是"一段顺风"，不是永久复利。
+   * 置 0 = 关掉折算，溢出重新被静默吃掉（validate 的守恒闸会当场红）。 */
+  repOverflow: { warmShare: 0.0004 },
+
   midtermCycle: 2,
 
   /* 年度结算 */
@@ -270,8 +283,9 @@ POTUS.define("balance", {
   vignette: {
     enabled: true,
     maxShown: 4,
-    /* #37③：0.20→0.14→0.08。岁月仍然长本事，但一辈子靠平静月堆不满一个维度。 */
-    attrChance: 0.08, attrGain: 1, attrCap: 88,
+    /* #37③：0.20→0.14→0.08。岁月仍然长本事，但一辈子靠平静月堆不满一个维度。
+       attrCap = 100：被动成长填到建角加点的硬顶为止，再往上的那一截只有卡和事件给得了。 */
+    attrChance: 0.08, attrGain: 1, attrCap: 100,
     /* v0.5.2：INTG（诚信）不进自然成长池——诚信是选择塑造的，不是岁月。
        事件 outcomes 里的 attr.INTG 照常生效（那是"你做了什么"的结果）。 */
     attrKeys: ["CHA", "INT", "CUN"],

@@ -105,7 +105,7 @@
     if (v.enabled === false || n <= 0 || !G) return { notes: [], n: n, tally: tally };
 
     const startAge = b.startAge == null ? 24 : b.startAge;
-    const attrCap = v.attrCap == null ? 88 : v.attrCap;
+    const attrCap = v.attrCap == null ? 100 : v.attrCap;
     const attrKeys = v.attrKeys || ["CHA", "INT", "CUN", "INTG"];
     const trackKey = (P.reg.track[G.track] || {}).key;
     /* 按轨道分化：你做的那件事，决定平静的日子里什么在自然生长。
@@ -160,7 +160,11 @@
       if (tb.rep) pRep *= tb.rep;
       if (P.chance(pRep)) {
         const g = v.repGain == null ? 1 : v.repGain;
-        G.rep = P.clamp(G.rep + g, 0, 100); tally.rep += g;
+        /* 走声望唯一入口：满值时涨的点数转成好感选民，随笔按【实际到账】写声望、
+           并把折算的人数并进选民行 —— 旧代码记的是原始点数，满值时等于凭空多写一笔。 */
+        const r = P.addRep(g, G, true);
+        tally.rep += r.gained;
+        if (r.warm) tally.voters.warm = (tally.voters.warm || 0) + r.warm;
       }
       /* 资金：#37③ 起平静月不再产生钱 —— 见 content/01-config.js vignette 注释。
          生息只在年终结算（stage.js 的 interestRate），月度进出只在 P.monthlyLedger。 */

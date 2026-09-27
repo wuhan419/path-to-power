@@ -308,7 +308,7 @@
         P.t("ui.topbar.tipAppr", "全国民意调查。白宫每个月的决策都吃它（判定加成按 50% 为零点），每月还会向自然水位回归、缓慢流失；跌到危险区时党内会有人来敲门。"),
         "appr", ap.value);
     return '<div class="topstat"><div class="tsrow statgrid">' +
-        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。"), "rep", G.rep) +
+        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。顶到 100 之后涨的名气不会白涨——自动折成基层支持者。"), "rep", G.rep) +
         stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。"), "fun", G.fun) +
         stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。"), "fav", G.fav) +
         stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。"), "lev", G.lev || 0) +
