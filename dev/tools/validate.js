@@ -1850,15 +1850,28 @@ console.log("\n== 总统 legacy 三档（#21 M3）==");
     const r = P.evaluateEnding("career_end");
     return r && r.id;
   };
-  check(pick({ term: 2, appr: 55, months: 80 }) === "career_president_great", "两届 + 收在 55% 该是 S 档");
-  check(pick({ term: 2, appr: 55, months: 80 }, ["impeached"]) !== "career_president_great",
+  /* 账本里现在还得带一只 left：presidencyTick 的离场分支写它，S/A 两档的文案都说
+     「走的时候 / 任期结束时」。2025 硬上限会在人还坐在白宫里那个月收杆，left 为空。 */
+  const twoTerms = { term: 2, appr: 55, months: 93, left: 93 };
+  check(pick(twoTerms) === "career_president_great", "干满两届 + 离任 55% 该是 S 档");
+  check(pick(twoTerms, ["impeached"]) !== "career_president_great",
     "被弹劾过的人不该拿 S 档（无论支持率收在多高）");
-  check(pick({ term: 2, appr: 55, months: 80 }, ["scandal_4"]) !== "career_president_great",
+  check(pick(twoTerms, ["scandal_4"]) !== "career_president_great",
     "四级丑闻在场时 S 档必须让位");
-  check(pick({ term: 2, appr: 45, months: 80 }) === "career_president_adequate",
+  check(pick({ term: 2, appr: 55, months: 60, left: 60 }) !== "career_president_great",
+    "赢下连任却没干完第二届（months 84 以下）别给他「坐满八年」——term 只证明赢过，不证明坐满");
+  check(pick({ term: 2, appr: 55, months: 93 }) === "career_president",
+    "2025 收杆时人还在位（left 为空）：S/A 都写着「走的时候」，这一档没有走的时候，只落陈述事实的兜底");
+  check(pick({ term: 2, appr: 45, months: 93, left: 93 }) === "career_president_adequate",
     "两届但收在 45%（过了四年线却不到中线）→ A 档：S 档要的是体面地走");
-  check(pick({ term: 1, appr: 48, months: 48 }) === "career_president_adequate", "干满一届、离任 48% → A 档");
-  check(pick({ term: 1, appr: 30, months: 10 }) === "career_president_flawed", "提前下野 → B 档");
+  check(pick({ term: 1, appr: 48, months: 48, left: 48 }) === "career_president_adequate", "干满一届、离任 48% → A 档");
+  check(pick({ term: 1, appr: 50, months: 24, left: null }) === "career_president",
+    "刚入主两年就撞上 2025：既没「守住四年」也没「走的时候」，两句话都不许替他讲");
+  check(pick({ term: 1, appr: 45, months: 30, left: 30 }) === "career_president",
+    "清白但一届没干完的离任者不该被 B 档骂成消耗战——它点名的三件事（支持率下滑、丑闻、调查）一件都没发生");
+  check(pick({ term: 1, appr: 30, months: 10, left: 10 }) === "career_president_flawed", "提前下野、离任 30% → B 档");
+  check(pick({ term: 1, appr: 45, months: 30, left: 30 }, ["investigation_open"]) === "career_president_flawed",
+    "调查开着的时候 B 档那句「调查替你占据了版面」就是真话，可以判");
   check(pick(null) === "career_president",
     "没有白宫账本（逐月化之前的旧档）应落到 career_president 兜底，而不是混进三档");
   Object.assign(G, bak);
@@ -1923,6 +1936,111 @@ console.log("\n== 卸任清算喂料与弹劾开门（#21 M3）==");
     G.flags = [];
     check(P.when(ic, P.snap()) === false, "闸关掉之后弹劾卡还开着（它会被普通白宫月份抽走）");
   }
+  Object.assign(G, bak);
+}
+
+/* ---------- #21 M3 补：干满两届即终局 ----------
+ * 模拟器里几乎没人活着走到第二届届满，所以这条出口只能由断言守着。要钉的是**两条离任的分工**：
+ *   · 一届下台（败选 / 被赶下来）→ 只走出白宫，game 继续，党内的账留给 140 清算池；
+ *   · 干满两届 → 履历写完了，挂 presidency_end 当场收杆。
+ * 修之前两条都只做 tier:-1，于是"坐满八年"的玩家看到的是「副总统 / 总统候选人」那格职位名 +
+ * 一个还在继续的月引擎（用户实测报错）。终局走的是既有 pendingHardEnd 收口管线，所以这里断言
+ * 挂上没有、挂的理由对不对，而不是断言结局屏画出来了没有。 */
+console.log("\n== 干满两届即终局（#21 M3 补）==");
+{
+  const G = P.G;
+  /* leaveOffice 的 tier:-1 会经 rescaleVoters 改写选民池，所以这一份也要还回去 */
+  const bak = {
+    tier: G.tier, pres: G.pres, presExit: G.presExit, year: G.year, month: G.month,
+    flags: G.flags, counters: G.counters, campaign: G.campaign, log: G.log.slice(),
+    endingReason: G.endingReason, pendingHardEnd: G.pendingHardEnd,
+    voters: Object.assign({}, G.voters)
+  };
+  const cc = P.presCfg(), tierMax = P.balance().tierMax;
+  /* 届满那月的最后一次 tick：48 月一到就该走出白宫 */
+  const expire = function (term) {
+    G.tier = tierMax; G.campaign = null; G.pendingHardEnd = null; G.presExit = null;
+    G.flags = ["president_done"]; G.counters = {}; G.year = 2000; G.month = 6;
+    G.pres = { since: 0, appr: 55, prev: 55, term: term, months: cc.termMonths - 1, famIdx: 0,
+      lowStreak: 0, termStart: 0, raceDue: null, midDone: 1 };
+    P.presidencyTick(7);
+  };
+  expire(1);
+  check(G.tier === tierMax - 1 && G.presExit === "termEnd", "一届届满没走出白宫（tier " + G.tier + "／" + G.presExit + "）");
+  check(!G.pendingHardEnd, "一届届满就判终局 → 输掉连任的人再没有清算可演：" + G.pendingHardEnd);
+  expire(2);
+  check(G.presExit === "limit", "第二届届满的离任理由应是 limit（实际 " + G.presExit + "）");
+  check(G.pendingHardEnd === "presidency_end",
+    "干满两届必须当场收杆（这就是用户报的「连任之后任期结束却没结算，还退回副总统继续玩」）：" + G.pendingHardEnd);
+  { /* 这道门是宪法给的，不该有一张橙卡能绕过去。免死卡只列它该救的那些死法；
+       谁把 presidency_end 加进 spare，上面的断言就红一次 —— 也顺便守住届数上限的意义。 */
+    const spared = Object.keys(P.reg.card || {}).filter(function (id) {
+      return (((P.reg.card[id] || {}).spare) || []).indexOf("presidency_end") >= 0;
+    });
+    check(spared.length === 0, "免死卡能豁免两届收官（" + spared.join(", ") + "）→ 宪法上限成了可购买的东西");
+  }
+  { /* 档期挂着、链却没开演：宽限期一到必须收口。否则 step 3 因为 !p.raceDue 不再开第二个档期、
+       step 4 又被 raceDue==="reelect" 挡住，白宫就成了终身制 —— 两届届满的收口永远轮不到。 */
+    G.tier = tierMax; G.campaign = null; G.pendingHardEnd = null; G.presExit = null;
+    G.flags = ["president_done"]; G.counters = {}; G.year = 2000; G.month = 6;
+    G.pres = { appr: 55, prev: 55, term: 1, months: cc.termMonths - 1, famIdx: 0, lowStreak: 0,
+      termStart: 0, raceDue: "reelect", midDone: 1 };
+    P.presidencyTick(7);
+    check(G.tier === tierMax && !G.presExit,
+      "宽限期内挂着连任档期就被赶下台（" + G.presExit + "）→ 链还没开跑就判他没能连任");
+    for (let m = 8; m < 8 + cc.raceGrace + 2; m++) { G.month = m; P.presidencyTick(m); }
+    check(P.isPresident() === false, "连任档期挂了 " + cc.raceGrace + " 个月还没开演，人还赖在白宫的月决策通道上");
+    check(G.presExit === "termEnd" && !G.pendingHardEnd,
+      "没开打的连任战按「一届下台」收口，不是终局（" + G.presExit + "／" + G.pendingHardEnd + "）");
+  }
+  const pick = function (appr, extra) {
+    G.tier = tierMax - 1;                    // 人已经走出白宫：终局按 peakTier 与账本评，不按现档
+    G.pres = { appr: appr, months: cc.termMonths * 2, term: 2 };
+    G.flags = ["president_done"].concat(extra || []);
+    return P.evaluateEnding("presidency_end");
+  };
+  const ids = ["pres_end_great", "pres_end_steady", "pres_end_flawed"];
+  ids.forEach(function (id) {
+    const r = (P.reg.ending || []).filter(function (x) { return x.id === id; })[0];
+    check(!!r, "缺少两届收官结局规则：" + id);
+    if (!r) return;
+    check((r.when || {}).reason === "presidency_end", id + " 只该挂在 presidency_end 上（否则会顶掉别的终局）");
+    check("SAB".indexOf(String(r.grade)) >= 0, id + " 的 grade 应是 S/A/B 之一，实际 " + r.grade);
+  });
+  check(pick(58).id === "pres_end_great", "两届 + 收在 58% 应是 S 档");
+  check(pick(45).id === "pres_end_steady", "两届但收在 45%（过了四成线却不到中线）→ A 档");
+  check(pick(31).id === "pres_end_flawed", "收在 31% → B 档");
+  check(pick(58, ["impeached"]).id !== "pres_end_great", "被弹劾过的人不该拿 S 档（无论收在多高）");
+  check(pick(58, ["scandal_4"]).id !== "pres_end_great", "四级丑闻在场时 S 档必须让位");
+  check(ids.indexOf(P.evaluateEnding("retire").id) < 0, "presidency_end 三档漏到了别的终局理由上");
+  /* 卸任者的身份：tier 8 那格的名字是给往上爬的台阶写的，不是给他的 */
+  G.tier = tierMax - 1; G.presExit = "limit";
+  check(P.isPresident() === false && P.isExPresident() === true, "走出白宫后 isPresident/isExPresident 应一转假一转真");
+  const nm = ZH(() => P.officeName());
+  check(nm === "前总统", "卸任总统的职位名不该照层级查表（那格写的是「副总统 / 总统候选人」），实际「" + nm + "」");
+  { /* 走出白宫有两条腿，身份凭据必须两条都认：
+       · 届满 → leaveOffice 落 presExit；
+       · 连任败选 / 弹劾定罪 / 辞职 → 内容的 `fall:1`（153-incumbent-reelect.js、151-impeachment.js），
+         它只降层级、根本不经过 leaveOffice，presExit 全程是空 —— 这时只剩 president_done 那面旗可认。
+       修这条之前，被抬出白宫的人打开界面看到的仍是「副总统 / 总统候选人」，跟用户报的是同一个病。 */
+    const f = {
+      tier: G.tier, tierSince: G.tierSince, rep: G.rep, flags: G.flags, pres: G.pres,
+      presExit: G.presExit, fallenCount: G.fallenCount, fallenShieldUntil: G.fallenShieldUntil,
+      fallenThisTurn: G.fallenThisTurn, log: G.log.slice()
+    };
+    G.tier = tierMax; G.presExit = null; G.fallenShieldUntil = 0;
+    G.flags = ["president_done"]; G.pres = { appr: 33, months: 60, term: 1 };
+    P.applyEffects({ fall: 1 });
+    check(G.tier < tierMax && !G.presExit,
+      "fall:1 该把总统摔出白宫、又不冒充 leaveOffice 的离任理由（tier " + G.tier + "／" + G.presExit + "）");
+    check(P.isExPresident() === true, "被抬出白宫的人查不出「前总统」身份 → 职位名又念成副总统");
+    const nm2 = ZH(() => P.officeName());
+    check(nm2 === "前总统", "fall 出口的职位名应是「前总统」，实际「" + nm2 + "」");
+    Object.assign(G, f);
+  }
+  G.presExit = null; G.flags = [];
+  check(P.isExPresident() === false && P.officeName() === P.officeNameAt(tierMax - 1),
+    "没进过白宫的 tier " + (tierMax - 1) + " 仍要按层级表报名");
   Object.assign(G, bak);
 }
 
@@ -3586,7 +3704,10 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(P.CSEL.cheatLoops === 3, "作弊周目累加进本局建角：" + P.CSEL.cheatLoops);
   check(P.freePool() === POOL1 + 3 * b5.loopFreeBonus, "额度随作弊周目变大：" + P.freePool());
   check(/3/.test(P.CSEL.cheatMsg || ""), "兑换给得出反馈（不再静默）：" + P.CSEL.cheatMsg);
-  check(P.submitCheat("nope") === 0 && /不对/.test(P.CSEL.cheatMsg || ""), "错码给出提示且不加分：" + P.CSEL.cheatMsg);
+  /* 错码的反馈写进 ZH 里再断言：--lang=en 下覆盖层会把它翻成 "That code doesn't work…"，
+     在外面比对硬编码中文就只剩假红。错码这一支除了 cheatMsg 不落任何状态，重放一次无害。 */
+  check(ZH(() => P.submitCheat("nope")) === 0 && ZH(() => /不对/.test(P.CSEL.cheatMsg || "")),
+    "错码给出提示且不加分：" + P.CSEL.cheatMsg);
   check(P.CSEL.cheatLoops === 3, "错码不动计数器：" + P.CSEL.cheatLoops);
   /* 连打：woshishabi10 不能被读成 woshishabi1 + 残 0——数字攒着，settle 一次才结算 */
   P.cheatReset();
@@ -3812,14 +3933,19 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     return P.reg.ending.some(function (r) { return r.id === id; });
   }), "career_end 成就结局规则应全部注册（7 条）");
   /* #21 M3：逐月化之后「任满」不再是 flags 里的一面旗，而是一份可核对的账
-     （term / months / appr）。所以这一组用例必须把账本摆进去，判据才与内容同源。 */
-  const twoTerms = { term: 2, appr: 55, months: 80 };
+     （term / months / appr，外加离场那个月由 presidencyTick 补上的 left）。
+     所以这一组用例必须把整本账摆进去，判据才与内容同源。 */
+  const twoTerms = { term: 2, appr: 55, months: 93, left: 93 };
   check(careerAt(9, ["president_done"], twoTerms) === "career_president_great",
     "干满两届、离任 55% 且清白 → S 档（载入史册的总统）");
-  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 80, lowStreak: 0 }) === "career_president_great",
+  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 93, left: 93, lowStreak: 0 }) === "career_president_great",
     "S 档只看账本三件事，别让 lowStreak 之类的野字段悄悄改判");
-  /* 带大丑闻时不再直接掉回通用兜底：M3 给了它一档专属的 B（S/A 两档都不收 scandal_4），
-     career_president 从此只兜「逐月化之前、没有白宫账本」的旧档。 */
+  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 60, left: 60 }) !== "career_president_great",
+    "term=2 但 months 只有 60（第二届没干完）→ S 档那句「坐满了八年」是假话，必须让位");
+  check(careerAt(9, ["president_done"], { term: 2, appr: 55, months: 93 }) === "career_president",
+    "2025 硬上限收在白宫里（left 为空）：S/A 的「走的时候」没兑现，只落那条陈述事实的兜底");
+  /* 带大丑闻时不再直接掉回通用兜底：M3 给了它一档专属的 B（判据读的就是文案点名的那三件事），
+     career_president 从此兜两类：逐月化之前的旧档，以及账本撑不起 S/A/B 任何一句话的档案。 */
   check(careerAt(9, ["president_done", "scandal_4"], twoTerms) === "career_president_flawed",
     "任满+四级丑闻 → B 档（档案比讲话更厚的总统）");
   check(careerAt(9, ["president_done", "impeached"], twoTerms) !== "career_president_great",
@@ -3832,7 +3958,7 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   check(careerAt(1, []) === "career_local", "终局 1 级应结算为地方深耕者");
   check(careerAt(0, []) === "career_quiet", "终局 0 级应结算为无声的四十一年");
   /* 曾任总统且清白：2025 结算按总统账本收口（不看终局档位）—— 下野后重爬到 2 级也一样 */
-  check(careerAt(2, ["president_done"], { term: 1, appr: 48, months: 48 }) === "career_president_adequate",
+  check(careerAt(2, ["president_done"], { term: 1, appr: 48, months: 48, left: 48 }) === "career_president_adequate",
     "曾任总统+清白，哪怕下野后只剩 2 级，2025 仍以总统账本收口（A 档）");
   P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason; P.G.pres = _svPres;
 
@@ -4147,7 +4273,8 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     check(htmlMid.indexOf("ff-go") >= 0, "必须有「就任 →」按钮（唯一出口）");
     const htmlSkip = P.fanfareHTML({ from: 3, to: 6, n: 2, size0: P.electorateAt(3), size1: P.electorateAt(6), die0: 100, die1: 400 });
     check(htmlSkip.indexOf("ff-skip") >= 0 && htmlSkip.indexOf("skip") >= 0, "跳级要在窗子里说明资历债");
-    const htmlTop = P.fanfareHTML({ from: 8, to: tMax, n: 9, size0: P.electorateAt(8), size1: P.electorateAt(tMax), die0: 100, die1: 400 });
+    /* 顶点那一窗比对的是中文按钮文案，整段渲染放进 ZH：英文模式下这句本就是 "Take the oath →" */
+    const htmlTop = ZH(() => P.fanfareHTML({ from: 8, to: tMax, n: 9, size0: P.electorateAt(8), size1: P.electorateAt(tMax), die0: 100, die1: 400 }));
     check(htmlTop.indexOf("ff-next max") >= 0 && htmlTop.indexOf("宣誓就职") >= 0, "顶点那一窗换专属措辞与按钮");
 
     /* ---- 无真 DOM 的环境（本脚本的 document 是桩）：只清队列，不抛 ---- */

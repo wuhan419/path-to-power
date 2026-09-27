@@ -119,12 +119,25 @@ POTUS.define("ending", [
    *   + impeached / scandal_4·5 这两面羞辱旗。
    * 判据一律走 when.js 的 cond 逃生口（第一个参数是真的 G，不是快照——快照里没有 pres），
    * 于是"遗产分档"不新增任何数值系统：引擎已有的四张账，直接换成四档评语。
-   * 最后那条 career_president 兜的是**逐月化之前的旧档**：没有白宫账本，就没有资格被分档。 */
+   * 反过来也成立：**每一档的文案只说它的判据担保得了的话**。2025 收杆时人可能还坐在白宫里
+   * （晚期入主），也可能只干了两届中的头一届 —— 这些账本对不上话的档案一律落最后那条
+   * career_president：它只陈述"你当过总统、这局打到了 2025"，两句都担保得了。
+   * 那条同时兜**逐月化之前的旧档**：没有白宫账本，就没有资格被分档。 */
   {
     id: "career_president_great", priority: 97,
     when: {
       reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5", "impeached"],
-      cond: function (G) { const p = G.pres; return !!(p && (p.term || 1) >= 2 && (p.appr || 0) >= 50); }
+      /* 两道文案诚实闸：
+         · months —— `term >= 2` 只证明赢下过连任，不证明坐满八年。
+           #21 M3 补之后干满两届会当场收杆（presidency_end），所以这一档现在主要兜旧引擎留下的档
+           —— 届满没结算、人还在 tier 8 继续玩的那种，他们的 months 停在两届全长附近。
+         · left —— 「走的时候支持率还在中线以上」需要一个"走的时候"。2025 硬上限会在人还坐在
+           白宫里那个月收杆（晚期入主就是这种局），那种档案交给最下面那条通用兜底评。 */
+      cond: function (G, P) {
+        const p = G.pres; if (!p || p.left == null) return false;
+        const c = (P.presCfg && P.presCfg()) || { termMonths: 48 };
+        return (p.term || 1) >= 2 && (p.months || 0) >= c.termMonths * 2 - 12 && (p.appr || 0) >= 50;
+      }
     },
     title: "干满两届的总统", grade: "S",
     body: "你赢下连任，把白宫的椅子坐满了八年，走的时候支持率还在中线以上——这三件事同时成立的人，两只手数得过来。从 1980 走到 2025，你的名字早就进了教科书，而且是干净地进去的。"
@@ -132,23 +145,73 @@ POTUS.define("ending", [
   {
     id: "career_president_adequate", priority: 96,
     when: {
-      reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5"],
-      cond: function (G) { const p = G.pres; return !!(p && (p.months || 0) >= 24 && (p.appr || 0) >= 42); }
+      /* impeached 必须进 notFlags：这句文案当面说了「没有把自己的名字写进弹劾条款」。
+         弹劾卡无论定罪还是无罪都插那面旗（151-impeachment.js），所以被审过的人一律让给 B 档。
+         months 与 left 两道闸同 S 档：标题写着「守住了四年」，正文写着「任期结束时」——
+         2025 收杆时刚入主两年的人两样都没兑现，不能让他顶着这两句话结算。 */
+      reason: "career_end", flags: ["president_done"], notFlags: ["scandal_4", "scandal_5", "impeached"],
+      cond: function (G, P) {
+        const p = G.pres; if (!p || p.left == null) return false;
+        const c = (P.presCfg && P.presCfg()) || { termMonths: 48 };
+        return (p.months || 0) >= c.termMonths - 6 && (p.appr || 0) >= 42;
+      }
     },
     title: "守住了四年的总统", grade: "A",
     body: "你在白宫熬过了最难的两年一验货，没有中途被人抬走，也没有把自己的名字写进弹劾条款。任期结束时你的支持率仍在四成以上——在这个国家，这已经算一场成功的执政。"
   },
   {
     id: "career_president_flawed", priority: 95,
-    when: { reason: "career_end", flags: ["president_done"], cond: function (G) { return !!G.pres; } },
+    /* B 档的文案点名了三件事：一路往下的支持率、丑闻、调查。所以它的判据也只能是这三件事
+       （外加 S/A 两档用 notFlags 推过来的同一批标记）。之前它只要求"有账本"，于是把一届没干完
+       的清白离任者一起骂成了消耗战。判据收紧后，那种人落到下面那条通用兜底 —— 那条只陈述事实。 */
+    when: {
+      reason: "career_end", flags: ["president_done"],
+      cond: function (G, P) {
+        const p = G.pres; if (!p) return false;
+        return (p.appr || 0) < 42 || P.hasFlag("impeached") || P.hasFlag("scandal_4") ||
+          P.hasFlag("scandal_5") || P.hasFlag("investigation_open");
+      }
+    },
     title: "档案比讲话更厚的总统", grade: "B",
-    body: "你确实当过这个国家的总统，也确实把这几年过成了一场消耗战：支持率一路往下，丑闻和调查替你占据了版面。历史没有否定你来过，只是把你的名字排在那些守住了位子的总统后面。"
+    /* 判据是四个"或"，文案就不许写成"且"：被审过但无罪、支持率却收在 55% 的人没被抬走，
+       也没输掉民调，他只是那四年里一直有份档案跟着走。 */
+    body: "你确实当过这个国家的总统，也确实没能把这几年过成一场胜利：要么民调一路往下，要么弹劾条款、旧账和调查替你占了去版面。历史没有否定你来过，只是把你的名字排在那些守住了位子的总统后面。"
   },
   {
     id: "career_president", priority: 94,
     when: { reason: "career_end", flags: ["president_done"] },
     title: "留下印记的总统", grade: "A",
     body: "你当过这个国家的总统，也把这一局打到了 2025。任期的功过至今仍在酒吧和社论里吵架，但没人再假装你没来过。从 1980 到收杆这天，权力这座山你翻到了另一面。"
+  },
+  /* ---- #21 M3 补：干满两届就是终局 ----
+   * 修之前：第二届届满只 tier −1，人退回 tier 8 那一格（职位名写着「副总统 / 总统候选人」），
+   * 于是"坐满八年"的玩家看到的是"我又去当了副总统"，而且游戏还在继续。宪法能给你的最后一道门
+   * 已经走完，再往后只是在余温里空转 —— 所以引擎在届满那月挂 reason:"presidency_end"。
+   * 三档判据与 career_president_* 同一把尺（白宫账本 + 两面羞辱旗），只是这里不必再等 2025。
+   * 输掉连任、被弹劾下台的人走的仍是「离任 → 清算」那条通道，游戏照旧继续，别把他们算进来。 */
+  {
+    id: "pres_end_great", priority: 101,
+    when: {
+      reason: "presidency_end", notFlags: ["scandal_4", "scandal_5", "impeached"],
+      cond: function (G) { const p = G.pres; return !!(p && (p.appr || 0) >= 50); }
+    },
+    title: "站着走出白宫的人", grade: "S",
+    body: "八年、两场总统大选，开票夜你一次都没输——最后这道门是别人替你关的，不是你撞上的。离职那天你的支持率还在中线以上，这在美国总统里是能数得出来的成绩。台阶下面停着车队，乐队奏的是你自己挑的那首歌。你签名过的每一份文件都还在生效，而你已经不必再为它们中的任何一个解释第二遍。"
+  },
+  {
+    id: "pres_end_steady", priority: 100,
+    when: {
+      reason: "presidency_end", notFlags: ["scandal_4", "scandal_5"],
+      cond: function (G) { const p = G.pres; return !!(p && (p.appr || 0) >= 42); }
+    },
+    title: "把两届走完的人", grade: "A",
+    body: "你在白宫坐满了八年，中途没被谁抬走——包括没被你自己的党抬走。离任时支持率没过中线，可也没跌破四成：对一个总统来说，「他把事情办完了，而且没搞砸」已经是能求到的第二种好话。回忆录的预付款会在你落笔之前到账，评论会在你落笔之后决定怎么称呼你。"
+  },
+  {
+    id: "pres_end_flawed", priority: 99,
+    when: { reason: "presidency_end" },
+    title: "第二任的尾声", grade: "B",
+    body: "两届任期都走完了——单这一条就已经赢过大多数没能站到终点的人，只是后半程你一直在自己的余温里办事。民调一路往下，报纸开始替你整理旧账，党内有人已经改口叫你「前任」。你把名字签在了这个国家的文件上，文件会替你保留位置，但不会替你辩护。"
   },
   {
     id: "career_heavyweight", priority: 75,
