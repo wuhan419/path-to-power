@@ -82,6 +82,23 @@ try {
   }
 }
 
+/* #42 校准专用覆盖：--debt=hard:75000,brutal:85000 临时改各难度开局学贷本金，
+   用来在"越难背得越多"这条方向上找不落成活墙的幅度；只影响本次读数。 */
+{
+  const debtArg = process.argv.find(a => /^--debt=/.test(a));
+  if (debtArg) {
+    const sd = (P.reg.balance.studentLoan || {});
+    if (sd.startDebt) {
+      const shown = [];
+      debtArg.split("=")[1].split(",").forEach(function (pair) {
+        const kv = pair.split(":"), d = (kv[0] || "").trim(), v = Math.max(0, Math.round(Number(kv[1])));
+        if (d && sd.startDebt[d] != null && Number.isFinite(v)) { sd.startDebt[d] = v; shown.push(d + "→" + v); }
+      });
+      console.log("⚠ --debt：startDebt 已临时覆盖 " + shown.join("、") + "（仅校准读数用）");
+    }
+  }
+}
+
 let fail = 0;
 const check = (c, m) => { if (!c) { console.log("  ✗ " + m); fail++; } };
 /* 断言"界面有没有交代某件事"时按中文措辞取串：引擎串提取成 P.t(key, "中文") 之后，
@@ -939,6 +956,13 @@ console.log("\n== 投注级别价（单价随身位·不随钱包）==");
     ["normal", "hard", "brutal"].forEach(function (d) {
       check(((sl.startDebt || {})[d] || 0) > 0, d + " 难度应有开局学贷（>0）");
     });
+    /* #42 方向闸：难度轴上"越难背得越多"。旧口径 65k>42k>28k 把顺序倒了，
+       与「难度差异只体现在负债起点」自相矛盾，且玩家在建角向导一眼看得出。 */
+    {
+      const sd = sl.startDebt || {};
+      check((sd.normal || 0) <= (sd.hard || 0) && (sd.hard || 0) <= (sd.brutal || 0),
+        "学贷本金应随难度递增（normal ≤ hard ≤ brutal，实际 " + [sd.normal, sd.hard, sd.brutal].join("/") + "）");
+    }
     /* 无贷 → loanStep 返回 null、余额恒 0 */
     P.G.debt = 0; P.G.fun = 500000; P.G.tier = 2; P.G.track = "electoral";
     check(P.loanStep() === null, "余额为 0 时 loanStep 应返回 null（不产生任何扣款）");
