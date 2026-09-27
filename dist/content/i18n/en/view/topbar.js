@@ -33,6 +33,7 @@ POTUS.define("l10n", {
     "ui.topbar.fbHeavy": "Heavyweight",
 
     /* 职位卡：光谱 / 在位 / 选区基本盘 */
+    "ui.topbar.exPresident": "Former President",
     "ui.topbar.noParty": "Independent",
     "ui.topbar.wingOutsider": " (anti-establishment)",
     "ui.topbar.wingShort": " · Anti-Est.",

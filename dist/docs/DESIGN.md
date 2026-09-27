@@ -424,13 +424,29 @@ validate 的「卡池标尺」节按后者逐卡断言（净值 ≤ 档位、正
 
 支持率连续 `pressureMonths` 月低于 `pressureBelow`，**且**（丑闻 ≥2 级 或 调查未结）才成立。它排在轮转之前占同一个月度名额（不推游标），卡自带 `cond: P.impeachmentDue()`，于是即便有人把它当普通卡抽，也只有该演的那个月抽得到。三条出路（硬扛 / 切割 / 辞职）的定罪分支同样只落 `fall:1`；演过一次插 `impeached`，`retryMonths` 内不再敲同一扇门。
 
-### ⑤ 离任不是终点，是清算的入口
+### ⑤ 离任分两条出口：一届下台进清算，干满两届就收杆
 
-`presExitSettle` 在走出白宫那个月结一次账（幂等：`p.left` 一旦落定就不再重复）：低支持率或长期危险线以下 → `wrath_establishment`；带着丑闻 → `wrath_press`；调查未结或被弹劾 → `wrath_agency`；并插 `president_left`。这些正是核心系统八那套 `countMin:{wrath_*:25/55}` 的入口——**卸任之后真的有人来算账**，且没有新增任何数值系统。探针跑满 96 个月的实测：在任期间攒下的恨 + 离任补记 = `wrath_establishment 36`，清算池 10 张卡当场有 1 张可出场。
+**只有"没能连任"才把离任当成分号。**`presExitSettle` 在走出白宫那个月结一次账（幂等：`p.left` 一旦落定就不再重复）：低支持率或长期危险线以下 → `wrath_establishment`；带着丑闻 → `wrath_press`；调查未结或被弹劾 → `wrath_agency`；并插 `president_left`。这些正是核心系统八那套 `countMin:{wrath_*:25/55}` 的入口——**卸任之后真的有人来算账**，且没有新增任何数值系统。探针跑满 96 个月的实测：在任期间攒下的恨 + 离任补记 = `wrath_establishment 36`，清算池 10 张卡当场有 1 张可出场。
+
+**干满两届是句号。**第二届届满那月，`presRaces` 在 `leaveOffice("limit")` 之后挂 `G.pendingHardEnd = "presidency_end"`，走既有硬终局收口管线（`view/stage.js` 的 `nextMonth` / `afterEvent` 两处消费点）直接进结算屏。修之前这里只有 `tier:-1`，于是"坐满八年"的玩家看到的下一幕是自己去当了副总统、游戏照旧——宪法能给的最后一道门已经走完，再往后只剩"重量级人物"那一格空转，而 140 清算池的入口本来也不该由胜利者来踩。**为什么不直接调 `P.ending()`**：`presidencyTick` 正站在 `advanceMonth` 的月循环里，当场画结局屏会把结算压在还没走完的时间轴下面。**为什么不复用 `career_end`**：那三条 `career_president_*` 的文案写的是"从 1980 打到 2025"，八年年中收杆套不上。结算屏上那行「政治生涯 19xx—19xx（n 年）」的显示条件同步放宽到这两种"整条履历写完"的终局（`career_end` / `presidency_end`），破产、入狱那些半道折戟仍然不报跨度。
+
+### ⑤·补 职位名查不出"前总统"
+
+卸任后人在 tier 8，而 `reg.office` 那一格写的是「副总统 / 总统候选人」——那是给正在往上爬的台阶用的名字，不是给刚走出白宫的人的身份（`president_left` 与 `prog_president` 的 unique 已经封死回锅路）。**走出白宫有两条腿，凭据得两条都认**：届满由 `leaveOffice` 同步落 `G.presExit`（比 `p.left` 早一个月）；而连任败选、弹劾定罪、辞职这三条内容分支写的是 `fall:1`（`153-incumbent-reelect.js`、`151-impeachment.js`），它只降层级、根本不经过 `leaveOffice`，`presExit` 全程是空——所以 `P.isExPresident(G)` 认 `presExit ‖ president_done 旗`（后者由 `view/stage.js` 在登顶那刻插上）。它在 `P.officeName()` 与档名 `officeNameFor()` 两处短路层级查表，改报「前总统」。结局屏不受影响：那里按 `peakTier` 查，仍是「总统」。
 
 ### ⑥ 遗产分档：账本直接换成评语
 
-"当过总统"不再是一个布尔，而是 `term / months / appr` 三行账，所以结局不需要新机制——`40-endings.js` 里插三条 `career_president_great/adequate/flawed`（S/A/B），判据走 `when` 的 `cond` 逃生口（第一个参数是真 `G`，快照里没有 `pres`）：干满两届且离任 ≥50% 且没被弹劾/没四级丑闻 = S；熬过四年、收在 42% 以上 = A；其余带着账本的 = B；**没有账本的旧档才落到通用兜底 `career_president`**。结算屏上那行「离任支持率／在任月数／届数」与这三档读的是同一份数据。
+"当过总统"不再是一个布尔，而是 `term / months / appr` 三行账（外加离场那个月由 `presidencyTick` 补上的 `left`），所以结局不需要新机制——`40-endings.js` 里插三条 `career_president_great/adequate/flawed`（S/A/B），判据走 `when` 的 `cond` 逃生口（第一个参数是真 `G`，快照里没有 `pres`）：干满两届且离任 ≥50% 且没被弹劾/没四级丑闻 = S；熬过四年、收在 42% 以上 = A；带着污渍的 = B；**账本撑不起任何一句话的档案落到通用兜底 `career_president`**（它只陈述"你当过总统、这局打到了 2025"）。结算屏上那行「离任支持率／在任月数／届数」与这三档读的是同一份数据。同一把尺另开了一条 `reason:"presidency_end"` 的三支（`pres_end_great/steady/flawed`，判据只差在届数已由引擎保证）：干满两届的人当场领评语，不必再熬到 2025 才等到那句「干满两届的总统」。
+
+### ⑥·补 判据不许越过文案：`months` 与 `left` 两道闸
+
+结局分级最容易出的错不是判不过，而是**判过了**——评语替账本讲了账本没记的话。三条闸都是这一类：
+
+- **`term >= 2` 只证明赢过连任，不证明坐满八年**。S 档那句「把白宫的椅子坐满了八年」因此要 `months >= termMonths*2 - 12`（默认口径 84）：赢下连任却在第二届中途被赶下来的人，`term` 一样是 2。
+- **`left` 是"走的时候"存在与否的唯一凭据**。S/A 两档的正文分别写着「走的时候支持率…」「任期结束时…」，而 2025 硬上限会在人还坐在白宫里那个月直接收杆（晚期入主：`endYear` 的年度收尾调 `P.careerEnd()`，谁也不会替他离任），这种局 `p.left == null`、`P.isPresident()` 仍为真——两档都不许命中。同一口径也管结算屏那行账本：`progression.js` 按 `P.isPresident()` 切换「离任支持率」/「在任支持率 ｜ 收杆时人还在白宫」。
+- **B 档的判据是四个"或"，文案就不许写成"且"**。它原先只要求"有账本"，于是一届没干完却清白离任的人被一并骂成"消耗战"。现在它只认自己点名的那三件事（`appr < 42` ‖ `impeached` ‖ `scandal_4/5` ‖ `investigation_open`），正文也改成了"要么民调一路往下，要么弹劾条款、旧账和调查替你占了去版面"。
+
+A 档同理补了 `months >= termMonths - 6`：标题写着「守住了四年」，`months: 24` 的档案不能顶它。**注意 `presidency_end` 三支不看 `left`**：那条理由正是在 `leaveOffice` 当月挂上的，`p.left` 要等下一个月才落笔，用它会漏判掉自己唯一想收的那批人。
 
 ### ⑦ 观感与历史锚点
 
@@ -438,7 +454,7 @@ validate 的「卡池标尺」节按后者逐卡断言（净值 ≤ 档位、正
 
 ### 验证口径
 
-模拟器里几乎没有人能活着走到 tier 9，所以这条通道**不能靠 `--games` 分布把关**，一律由专用断言负责：validate 的六节（M1 核心循环 / M2 池容量与次任 / M2 连任与中期链可开 / M3 legacy 三档 / M3 清算喂料与弹劾开门 / M4 oval 与总统视角选项）+ 探针 `tools/out/presprobe.js` 连跑 96 个月（把每月档期**真的结算**成效果，而不是只数档期）：每族命中、同族连刷、两条链开闸与末幕、届数推进、次任卡登场、离任后清算池可出场，逐项打印 PASS/FAIL。
+模拟器里几乎没有人能活着走到 tier 9，所以这条通道**不能靠 `--games` 分布把关**，一律由专用断言负责：validate 的七节（M1 核心循环 / M2 池容量与次任 / M2 连任与中期链可开 / M3 legacy 三档 / M3 清算喂料与弹劾开门 / M3 补·干满两届即终局 / M4 oval 与总统视角选项）+ 探针 `tools/out/presprobe.js` 连跑 96 个月（把每月档期**真的结算**成效果，而不是只数档期）：每族命中、同族连刷、两条链开闸与末幕、届数推进、次任卡登场、离任后清算池可出场，逐项打印 PASS/FAIL。
 
 ---
 

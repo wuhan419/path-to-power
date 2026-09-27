@@ -106,7 +106,9 @@
       '<div class="grade">' + (rule.grade || "C") + "</div>" +
       '<div class="news"><div class="dateline">' + P.t("ui.progression.historian", "史学家评语") + '</div><div class="body">' + body + "</div></div>" +
       '<div class="news"><div class="dateline">' + P.t("ui.progression.scoreTitle", "评分") + '</div><div class="body">' +
-      (P.G.endingReason === "career_end"
+      /* 生涯跨度只在「整条履历写完」的两种终局里报：打到 2025 硬上限，或干满两届被宪法收杆。
+         破产 / 入狱 / 身败名裂那些是半道折戟，报跨度反而怪。见 docs/DESIGN.md §⑤。 */
+      (P.G.endingReason === "career_end" || P.G.endingReason === "presidency_end"
         ? P.t("ui.progression.careerSpan", "政治生涯 {y0}—{y1}（{n} 年）", { y0: startYear, y1: P.G.year, n: P.G.year - startYear + 1 }) + "<br>"
         : "") +
       P.t("ui.progression.scoreLine", "权力分数 {power} ｜ 道德分数 {moral}", { power: s.power, moral: s.moral }) + "<br>" +
@@ -115,9 +117,14 @@
       P.t(wasPresident ? "ui.progression.wasPresident" : "ui.progression.noPresident",
         wasPresident ? "✓ 曾入主白宫" : "— 未入白宫") + "<br>" +
       /* #21 M1：曾任总统就要交代「支持率收在多少、坐了几个月」——
-         这三行账本就是 M3 结局分档（40-endings.js 的 S/A/B 三档）的同一份数据源。 */
+         这三行账本就是 M3 结局分档（40-endings.js 的 S/A/B 三档）的同一份数据源。
+         2025 硬上限会连着人一起收杆（晚期入主的总统到期时还在位），那种局没有"离任"可读，
+         账本行换成在任口径：同一个 P.isPresident() 判据，与 40-endings.js 那道 left 闸同源。 */
       (wasPresident && P.G.pres
-        ? P.t("ui.progression.presidencyLine", "白宫记账：离任支持率 {a}% ｜ 在任 {m} 个月 ｜ 第 {t} 届<br>",
+        ? P.t(P.isPresident() ? "ui.progression.presidencyLineSitting" : "ui.progression.presidencyLine",
+          P.isPresident()
+            ? "白宫记账：在任支持率 {a}% ｜ 已坐 {m} 个月 ｜ 第 {t} 届（收杆时人还在白宫）<br>"
+            : "白宫记账：离任支持率 {a}% ｜ 在任 {m} 个月 ｜ 第 {t} 届<br>",
           {
             a: Math.round(P.G.pres.appr || 0), m: P.G.pres.months || 0,
             t: P.G.pres.term || 1
