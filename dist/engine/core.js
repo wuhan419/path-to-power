@@ -1388,6 +1388,7 @@ function safeSetItem(k, v) {
 function officeNameFor(G) {
   const oTable = POTUS.reg.office || {};
   const fb = POTUS.balance().officeFallback || [];
+  if (POTUS.isExPresident(G)) return POTUS.t("ui.topbar.exPresident", "前总统");
   const hit = oTable[(G.track || "*") + "_" + (G.tier || 0)] || oTable["*_" + (G.tier || 0)];
   return hit ? (typeof hit === "string" ? hit : hit.name) : (fb[G.tier || 0] || "");
 }

@@ -62,6 +62,18 @@
     return G.tier >= fnum(P.balance().tierMax, 9);
   };
 
+  /* 走出过白宫的人。层级表查不出这个身份 —— 总统下面那一格（tier 8）的名字是给正在往上爬
+     的台阶写的（「副总统 / 总统候选人」），卸任者照层级报会把"我当过总统"念成"我又回去当副总统"。
+     凭据要认两扇门：届满离任由 leaveOffice 同步落 presExit；而**连任败选与弹劾定罪走的是
+     `fall:1`**（153-incumbent-reelect.js / 151-impeachment.js），那只改层级、不经过 leaveOffice，
+     presExit 永远是空 —— 所以还得认 stage.js 在登顶那刻插的 president_done 旗。
+     收一个可选的存档对象：core.js 那边拿的是存档里的 G，不是场上这位。 */
+  P.isExPresident = function (g) {
+    const G = g || P.G;
+    if (!G || (G.tier || 0) >= fnum(P.balance().tierMax, 9)) return false;
+    return !!(G.presExit || (G.flags && G.flags.indexOf("president_done") >= 0));
+  };
+
   /* ---------- 就职月播种 ----------
    * 与 P.seedMomentum() 同一纪律：起手不到中线，余下要一事一事挣。
    * 三项来源：执政资本（声望）+ 选民底气（voterEdge，自然均衡点处为 0）。 */
@@ -176,11 +188,25 @@
       }
     }
     /* 4) 届满离任：没能连任（或已干满第二届）就走。链还在演时宽限 raceGrace 月，
-          超过就按"没能连任"收口——绝不能让一个人永远赖在白宫的月决策通道上。 */
+          超过就按"没能连任"收口——绝不能让一个人永远赖在白宫的月决策通道上。
+       两条出口的下游不一样，而且是刻意的：
+         · 干满两届 = 这条履历已经写完 → 挂终局，由 40-endings.js 的 presidency_end 三档按白宫账本结算。
+           现实里宪法也只让你走到这里；再往下玩只剩"重量级人物"这一格空转。
+         · 一届下台（败选 / 被赶下来）→ 只是走出白宫，党内的账还没算完，游戏继续（离任是清算的入口）。
+       终局走既有 pendingHardEnd 收口管线（stage.js 的 nextMonth / afterEvent 两处消费点）：这里正站在
+       advanceMonth 的月循环里，直接 P.ending() 会把结局屏画在还没走完的时间轴下面。 */
     const race = racing();
-    const overdue = mt >= c.termMonths && (!race || mt >= c.termMonths + c.raceGrace);
-    if (overdue && p.raceDue !== "reelect") {
-      P.leaveOffice(p.term === 2 ? "limit" : "termEnd");
+    const graceOver = mt >= c.termMonths + c.raceGrace;
+    const overdue = mt >= c.termMonths && (!race || graceOver);
+    /* 「还欠着一场连任战」只在两种情况下值得把白宫的门继续开着：链真的在演（各幕自己的
+       maxMonths 闸会在十四个月内把它演完或演崩，中途赶人走等于抢判），或者还处在宽限期内等它开跑。
+       链根本没起来、又过了宽限，还死攥着 raceDue 不放 = 永久总统：step 3 因为 !p.raceDue
+       不会再开第二个档期，step 4 又被这个条件挡住，两届届满的收口也就永远轮不到。 */
+    const holdDoor = p.raceDue === "reelect" && (!!race || !graceOver);
+    if (overdue && !holdDoor) {
+      const limit = (p.term || 1) >= 2;
+      P.leaveOffice(limit ? "limit" : "termEnd");
+      if (limit && !G.pendingHardEnd) G.pendingHardEnd = "presidency_end";
     }
   }
 

@@ -32,6 +32,8 @@ POTUS.define("l10n", {
 
     /* #21 M1：结算屏上的白宫记账行 */
     "ui.progression.presidencyLine": "The White House books: left office at {a}% approval | {m} months in office | term {t}<br>",
+    /* 2025 硬上限收到还在任的总统：没有"left office"这一笔，读数口径跟着改 */
+    "ui.progression.presidencyLineSitting": "The White House books: sitting at {a}% approval | {m} months in office | term {t} (still in the White House when the clock ran out)<br>",
   }
 
 });

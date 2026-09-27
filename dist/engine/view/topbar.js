@@ -139,7 +139,12 @@
       P.t("ui.topbar.fbStateFig", "州级人物"), P.t("ui.topbar.fbFed", "联邦官员"), P.t("ui.topbar.fbNational", "全国性人物"), P.t("ui.topbar.fbHeavy", "重量级人物"), P.t("ui.topbar.peak", "权力顶点")
     ])[tier] || P.t("ui.topbar.tierLevel", "等级 {n}", { n: tier + 1 });
   };
-  P.officeName = function () { return P.officeNameAt(P.G.tier); };
+  P.officeName = function () {
+    /* 卸任总统不按层级查表：tier 8 那格的名字是「副总统 / 总统候选人」，那是给正在往上爬的
+       人的台阶，不是给刚走出白宫的人的身份。见 presidency.js 的 P.isExPresident()。 */
+    if (P.isExPresident()) return P.t("ui.topbar.exPresident", "前总统");
+    return P.officeNameAt(P.G.tier);
+  };
   /* ---------------- 晋升进度条（v0.5.2 用户设计） ----------------
    * 进度不是"经验值"，是"你准备好了吗"的综合读数：
    *   在位时长（熬）40% + 声望 25% + 选民底气 20% + 组织关系 15%

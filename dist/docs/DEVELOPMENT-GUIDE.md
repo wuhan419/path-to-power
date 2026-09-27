@@ -167,7 +167,7 @@
 
 **为什么是普通 `<script>` 而不是 ES module**：ES module 在 `file://` 下会被浏览器 CORS 拦截，导致"双击打不开"。用普通 script + 全局注册表，**双击 `index.html` 就能玩**，这也是内容侧最省事的分发方式。
 
-**界面适配**：`engine/style.css` 的响应式断点在 1000 / 820 / 600px，`#app` 最大宽 1600px；L784 起是 v0.12 的**竖屏专区**（`@media(max-width:820px) and (orientation:portrait)`，三区竖排 + 顶栏横滚 + 高度预算），该块必须留在文件最末，否则会被同特异度基础样式级联吃掉。
+**界面适配**：`engine/style.css` 的响应式断点在 1000 / 820 / 600px，`#app` 最大宽 1600px；文件末尾是 v0.12 的**竖屏专区**（`@media(max-width:820px) and (orientation:portrait)`）。v0.12.1 起该专区改为**整页正常流 + 上下 sticky**（顶栏钉在可见顶部、操作栏钉在可见底部、主按钮「继续」再 sticky 到操作栏底边），弃用了旧的「100dvh 锁高 + 各区内部滚」——后者假设游戏独占视口，挂进 itch 手机 iframe 时（iframe 高 ≠ 手机可见高）会把顶栏和「继续」整块顶出可见区。竖屏下高度预算重新分配过：正文 11.5px、本月结算 9.5~10.5px、头条图 `max-height:15vh` 都往下压，省出来的空间补给操作栏（选项 `min-height:44px`、主按钮 48px）——玩家真正要按的东西保持好按。安全区靠 `index.html` 的 `viewport-fit=cover` + `env(safe-area-inset-*)`。该块必须留在文件最末，否则会被同特异度基础样式级联吃掉。
 
 ---
 
@@ -1064,7 +1064,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 职位卡 | `content/14-offices.js`（轨道×层级 → 职位名 + 月薪表，月薪是经济口径的单一来源） | core.js `reg.office/officeSalary` |
 | 静好轨道分化 | `balance.vignette.trackBonus:{electoral:{rep:1.6}, operative:{contact:1.5}, appointment:{attr:1.3}, celebrity:{rep:1.3}}`（只加正向乘子；**不许写 `fun`**，#37③ 后钱只从月账与事件卡进；改完重跑 --games=300） | vignette.js |
 | i18n 双语 | `P.t(key, 中文)` + `content/i18n/en/` 覆盖层；语言切换在标题屏 / `?lang=en` | engine/i18n.js、docs/I18N.md |
-| 竖屏/移动 | 无需配置；断点 1000/820/600 + 竖屏专区（三区竖排、顶栏横滚），`#app` 上限 1600px | style.css L784+ |
+| 竖屏/移动 | 无需配置；断点 1000/820/600 + 竖屏专区（整页流 + 顶栏/操作栏 sticky、字号间距收紧、`viewport-fit=cover` 安全区），`#app` 上限 1600px | style.css 末尾竖屏专区 |
 
 **事件卡现行顺序（#41 瘦身后的头版社论版式）**：报头（档案号 + 日期 + 量级/类型 chip）→ 结算/承前条 → 标题 → 配图 → 正文 → 选项（note 折叠）。导语行、背景卡折叠区、媒介徽章均已移除。结算顺序：结果叙事 → 收益筹码 → 判定明细（折叠）。
 

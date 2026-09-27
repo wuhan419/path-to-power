@@ -911,34 +911,56 @@
   .create-nav .btn{flex:1 1 0;margin:0}
   .createmsg{margin-top:8px;font-size:12.5px;color:var(--bad)}
 
-  /* ================= 手机竖屏（portrait）：三区竖排 + 信息密度收窄 =================
+  /* ================= 手机竖屏（portrait）：整页正常流 + 上下钉栏 + 信息密度收窄 =================
    * 目标（真机反馈版）：上=状态栏（两行内：头像·姓名｜资源，职位·等级另起一行）、
    * 中=事件栏（默认只标题，点标题才展开 正文/本月结算/档案头）、下=选择栏（回报只给
-   * 模糊强度，见 stage.js 的紧凑预览）；顶部游戏级操作按钮必须常驻可见。
+   * 模糊强度，见 stage.js 的紧凑预览）；顶部游戏级按钮与底部「继续」必须常驻可见。
    * ⚠ 本块必须留在文件最末：.news.editorial 等基础样式定义在文件后段，同特异度的
-   * 竖屏覆盖若写在它们前面会被级联吃掉（真机实测：标题不缩、橡皮章仍外露）。 */
+   * 竖屏覆盖若写在它们前面会被级联吃掉（真机实测：标题不缩、橡皮章仍外露）。
+   * ⚠ v0.12.1 改「整页正常流 + 上下 sticky」，弃用旧的 100dvh 锁高 + 各区内部滚：
+   *   那套假设游戏独占视口；一旦挂在 itch 手机 iframe 里（iframe 高 ≠ 手机可见高、
+   *   上方还有 itch 页头），钉在 100dvh 底边的「继续」和顶栏会整块落到可见区之外，
+   *   玩家得连 itch 那层页一起滚才够得着（真机实测）。sticky 贴的是「可见视口」，
+   *   只要 iframe 自身是滚动容器就稳，不依赖它到底多高。 */
   @media(max-width:820px) and (orientation:portrait){
-    /* ---- 顶栏：操作条单行横向滚动，绝不换行吃掉竖向空间（硬性：按钮始终可达） ---- */
-    .kicker-band{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px}
+    /* ---- 三区仍按 状态→事件→操作 排（display:contents 把 #statusbox/.actbar 提升进 .grid），
+       但整页随 iframe/页面自滚，各区高度随内容自然展开，不再各自内部滚、不再锁 100dvh。
+       #app 去掉上下内边距，让顶栏/操作栏能贴边、各自用 padding 让开刘海与手势条。 ---- */
+    body.game{overflow:auto}
+    #app{--pt-kbh:38px}                          /* 顶栏行高（不含安全区）；状态栏 sticky 靠它对齐顶栏底边 */
+    body.game #app{display:block;height:auto;overflow:visible;padding:0 18px}
+    .grid{display:flex;flex-direction:column;gap:7px;min-height:0}
+    .col-right{display:contents}
+
+    /* ---- 顶栏（游戏级操作）：单行横向滚动 + 钉在可见顶部最上层，左右出血贴边、顶部让开刘海 ---- */
+    .kicker-band{position:sticky;top:0;z-index:7;flex-wrap:nowrap;overflow-x:auto;
+      -webkit-overflow-scrolling:touch;gap:8px;align-items:center;box-sizing:border-box;
+      height:calc(var(--pt-kbh) + env(safe-area-inset-top));
+      margin:0 -18px;border-left:0;border-right:0;border-radius:0;
+      padding:env(safe-area-inset-top) 18px 0}
     .kicker-band .kb-l,.kicker-band .kb-r,.kicker-band .kb-ops{flex:0 0 auto;white-space:nowrap}
     .kicker-band .kb-l{font-size:10px}
-    .kicker-band .kb-ops .btn{padding:5px 7px;font-size:11px}
+    .kicker-band .kb-ops .btn{padding:4px 7px;font-size:10.5px}
 
-    /* ---- 三区竖排：display:contents 把 #statusbox / .actbar 提升进 .grid，order 排 状态→事件→选择。
-       ⚠ display:flex 必须显式恢复：≤820px 通用窄屏块把 body.game #app 改回 display:block
-       （整页滚动模式），只补高度不补 flex 时 .grid{flex:1} 失效——事件栏按内容撑高，
-       操作栏被顶出 100dvh 又被 overflow:hidden 裁掉，玩家够不着「继续」（真机实测）。
-       高度预算（合计 ≤100dvh，各区内部自滚，谁超长都挤不掉别人）：
-         顶栏 auto ｜ 状态 ≤28vh ｜ 事件 44vh 基准可伸缩(≥30vh) ｜ 操作 ≤42vh 且保底 128px。 ---- */
-    body.game{overflow:hidden}
-    body.game #app{display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0}
-    .kicker-band{flex:0 0 auto}
-    .grid{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0}
-    .col-right{display:contents}
-    #statusbox{order:1;flex:0 0 auto;max-height:28vh;overflow:auto;overscroll-behavior:contain}
-    .col-event{order:2;flex:1 1 44vh;min-height:30vh;overflow:auto;padding-right:2px;
-      -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-    .actbar{order:3;flex:0 1 auto;min-height:128px;max-height:42vh;overflow:auto;overscroll-behavior:contain}
+    /* ---- 状态栏（头像·姓名·资源·等级）：单独钉在顶栏正下方常驻，事件从它下面滚过 ---- */
+    #statusbox{order:1;flex:0 0 auto;position:sticky;z-index:6;
+      top:calc(var(--pt-kbh) + env(safe-area-inset-top));
+      margin:0 -18px;padding:6px 18px;background:var(--paper);
+      border-bottom:1px solid var(--line);box-shadow:0 5px 8px -6px rgba(0,0,0,.28)}
+
+    /* ---- 事件栏：正常流，是唯一的滚动主体（夹在固定顶栏/状态栏与固定操作栏之间） ---- */
+    .col-event{order:2;flex:0 0 auto}
+
+    /* ---- 操作栏：贴在可见视口底部常驻（「继续」永远够得着），超高才内部滚；左右出血贴边、
+       不透明底遮住其下滚过的正文。选项与「结算+继续」互斥、不同时出现，故常态很矮；
+       万一超长，主按钮再 sticky 到操作栏底边兜底。底部让开手势条。 ---- */
+    .actbar{order:3;position:sticky;bottom:0;z-index:6;flex:0 0 auto;
+      max-height:62vh;overflow:auto;overscroll-behavior:contain;
+      margin:0 -18px;padding:7px 18px 0;
+      background:var(--paper);border-top:1px solid var(--line);
+      box-shadow:0 -6px 12px -8px rgba(0,0,0,.28)}
+    #actbody{padding-bottom:calc(7px + env(safe-area-inset-bottom))}
+    .actbar .actbtn{position:sticky;bottom:calc(7px + env(safe-area-inset-bottom));z-index:1}
 
     /* ---- 状态栏压成两行：
        行1 = 小头像·姓名（左） + 四枚资源瓷贴（右，自适应 2×2/3+1）；
@@ -949,75 +971,78 @@
     .idc-chips .sbrow{display:none}
     .idc-chips.open .sbrow{display:flex}
     .idc-chip-toggle{display:inline-block}
-    .idc{padding:6px 8px}
-    .idc-flow{gap:4px 8px;align-items:center}
+    .idc{padding:5px 7px}
+    .idc-flow{gap:3px 8px;align-items:center}
     /* 左边整块解除占位：identity 与 officeprog 直接作为 .idc-flow 的 flex 项参与排布 */
     .idc-left{display:contents}
-    .idc-ident{order:1;flex:0 0 auto;width:auto;flex-direction:row;align-items:center;gap:7px}
+    .idc-ident{order:1;flex:0 0 auto;width:auto;flex-direction:row;align-items:center;gap:6px}
     .idc-info{align-items:flex-start;text-align:left}
-    .idc-portrait{width:42px;height:48px;padding:2px}
-    .idc-name{font-size:13px;text-align:left}
+    .idc-portrait{width:36px;height:42px;padding:2px}
+    .idc-name{font-size:12px;text-align:left}
     .idc-facts{order:2;flex:1 1 150px;gap:4px}
-    .idc-facts .statgrid{grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:4px 6px}
+    .idc-facts .statgrid{grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:3px 6px}
     .idc-facts .stat .sicon{display:none}
-    .idc-facts .stat .slab{font-size:9.5px}
-    .idc-facts .stat .sval{font-size:12px}
+    .idc-facts .stat .slab{font-size:9px}
+    .idc-facts .stat .sval{font-size:11.5px}
     .idc-officeprog{order:3;flex:1 1 100%;width:auto;flex-direction:row;
-      justify-content:center;align-items:center;gap:7px;border-top:0;padding-top:1px}
-    .idc-office{width:auto;border-top:0;padding-top:0;font-size:11.5px;text-align:center}
+      justify-content:center;align-items:center;gap:6px;border-top:0;padding-top:1px}
+    .idc-office{width:auto;border-top:0;padding-top:0;font-size:11px;text-align:center}
     .idc-tier{font-size:8.5px;padding:1px 6px;letter-spacing:1px}
     .idc-chips{order:4;flex:1 1 100%}
 
     /* ---- 事件卡：默认只标题，点标题展开；本月结算不折（全折了玩家看不到账，不像话），
        只压成 11px 紧凑版常驻标题下方 ---- */
-    .news.editorial{padding:9px 11px;margin:0}
+    .news.editorial{padding:7px 10px;margin:0}
     .news.editorial .stamp,.news.editorial .dossier-head{display:none}
-    .news.editorial .gainbox{font-size:11px;margin:8px 0 0}
-    .news.editorial h1.headline{font-size:16px;margin:0;padding-right:0;line-height:1.35;
+    .news.editorial .gainbox{font-size:9.5px;margin:4px 0 0}
+    .news.editorial h1.headline{font-size:15px;margin:0;padding-right:0;line-height:1.3;
       cursor:pointer;-webkit-tap-highlight-color:transparent}
     .news.editorial h1.headline::after{content:" ▾";font-family:inherit;font-weight:700;
-      font-size:13px;letter-spacing:0;color:var(--muted)}
+      font-size:12px;letter-spacing:0;color:var(--muted)}
     .news.editorial .body,.news.editorial .chain{display:none}
     .news.editorial.expanded .body,.news.editorial.expanded .chain{display:block}
     .news.editorial.expanded h1.headline::after{content:" ▴"}
-    .news.editorial.expanded h1.headline{margin-bottom:8px}
-    .news.editorial .body{font-size:13.5px;line-height:1.8}
-    .art-press{margin:10px 0}
-    .art-press img{height:auto;max-height:24vh;object-fit:contain;width:100%}
-    .ledgerbox,.ledger{font-size:11px}
+    .news.editorial.expanded h1.headline{margin-bottom:5px}
+    .news.editorial .body{font-size:11.5px;line-height:1.5}
+    .art-press{margin:6px 0}
+    .art-press img{height:auto;max-height:15vh;object-fit:contain;width:100%}
+    .ledgerbox,.ledger{font-size:10.5px}
 
     /* ---- 平静月卡（monthcard/quietcard）：与事件卡同一套折叠 ——
        默认留 标题+这个月的账（紧凑），点标题展开 月历条/静好岁月随笔。
        用 :not(.expanded) 隐藏，恢复时不必逐条重宣各子块原本的 display。 ---- */
-    .monthcard{padding:9px 11px;margin:0}
-    .monthcard h2{font-size:16px;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .monthcard{padding:7px 10px;margin:0}
+    .monthcard h2{font-size:15px;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
     .monthcard h2::after{content:" ▾";font-family:inherit;font-weight:700;
-      font-size:13px;letter-spacing:0;color:var(--muted)}
+      font-size:12px;letter-spacing:0;color:var(--muted)}
     .monthcard.expanded h2::after{content:" ▴"}
-    .monthcard.expanded h2{margin-bottom:8px}
+    .monthcard.expanded h2{margin-bottom:6px}
     .monthcard:not(.expanded) .dateline,
     .monthcard:not(.expanded) .mstrip,
     .monthcard:not(.expanded) .quietwork,
     .monthcard:not(.expanded) .vig,
     .monthcard:not(.expanded) .yearbar{display:none}
-    .monthcard .gainbox{font-size:11px}
-    .monthcard .quietwork,.monthcard .vig-body{font-size:13.5px;line-height:1.8}
+    .monthcard .gainbox{font-size:9.5px}
+    .monthcard .quietwork,.monthcard .vig-body{font-size:11.5px;line-height:1.5}
 
-    /* ---- 选择栏：压缩字号 + 模糊回报（stage.js 紧凑预览产出 +/++/+++ 强度） ---- */
-    .acthead{font-size:10.5px;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:3px}
+    /* ---- 选择栏：这里的字可以小，但按钮必须好按（44pt 触点下限）。
+       正文与结算让出来的高度全部补给操作栏 —— 选项是玩家真正要决策的东西。
+       回报只给模糊强度（+/++/+++，由 stage.js 的紧凑预览产出），故小字不丢决策信息。 ---- */
+    .acthead{font-size:10.5px;letter-spacing:1.5px;margin-bottom:5px;padding-bottom:2px}
     .acthead .ah-hint{display:block;font-size:10px;font-weight:400;letter-spacing:.3px;
-      color:var(--muted);text-transform:none;margin-top:3px}
+      color:var(--muted);text-transform:none;margin-top:2px}
     .choices{gap:7px}
-    .col-right .choice,.choices .choice{font-size:13px;padding:8px 10px}
+    .col-right .choice,.choices .choice{font-size:13px;padding:10px 11px;min-height:44px}
     .choices .choice .req,.choices .choice .costtag,
     .choices .choice .odds,.choices .choice .rewline{font-size:10.5px}
-    .result{font-size:13px;margin:8px 0}
-    .result .rbody{font-size:13px;line-height:1.7}
-    .actbtn{padding:10px;margin-top:8px}
+    .result{font-size:12px;margin:6px 0}
+    .result .rbody{font-size:12px;line-height:1.55}
+    .actbtn{padding:13px;margin-top:8px;font-size:15px;min-height:48px}
 
-    /* ---- 建角三步向导：一屏一步，导航钉在底部常驻可达（硬性要求同顶栏） ---- */
-    .create{padding-bottom:78px}                 /* 让开底部导航的高度，末屏不被遮 */
-    .create-nav{position:sticky;bottom:0;z-index:5;margin-top:12px;padding:8px 0 2px;
+    /* ---- 建角三步向导：一屏一步，导航钉在底部常驻可达（硬性要求同顶栏），底部让开手势条 ---- */
+    .create{padding-bottom:calc(78px + env(safe-area-inset-bottom))}   /* 让开底部导航的高度，末屏不被遮 */
+    .create-nav{position:sticky;bottom:0;z-index:5;margin-top:12px;
+      padding:8px 0 calc(2px + env(safe-area-inset-bottom));
       background:linear-gradient(to top,var(--paper) 68%,rgba(255,255,255,0))}
     .create-nav .btn{flex:1 1 0;min-height:44px;font-size:14.5px}
     .stepbar{flex-wrap:nowrap;gap:4px}
