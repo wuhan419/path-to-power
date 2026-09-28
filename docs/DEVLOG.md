@@ -3,6 +3,7 @@
 一条版本一条账：**改了什么（玩家看得见的）／为什么（实测数字）／落地在哪（文件与门禁）**。
 发布页（[Releases](https://github.com/wuhan419/path2power/releases)）是给外面看的说明，这一份是给自己人看的底账——
 数字怎么量出来的、哪条结论后来被推翻，都记在这里。倒序，最新在最上。
+要发到 itch.io 的中英双语发布稿在 [`../promo/DEVLOG-ITCH.md`](../promo/DEVLOG-ITCH.md)（放在 `promo/` 是为了不被 `package.sh` 烤进 `dist/`）。
 
 ---
 
