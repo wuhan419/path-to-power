@@ -1,6 +1,7 @@
 /* ============================================================================
  * POTUS ENGINE · i18n.js
  * 多语言层：语言状态 + 界面文案查表 + 内容覆盖层。
+ * 【默认语言 = en】（见下方 DEFAULT_LANG）：外网首发，中文靠语言开关，不是靠系统语言。
  *
  * 两类文本，两条路：
  *   ① 引擎里硬编码的界面串 → P.t("ui.topbar.date", "{y}年{m}月", {y, m})
@@ -25,6 +26,11 @@ var POTUS = window.POTUS = window.POTUS || {};
   const P = POTUS;
   const LS_KEY = "potus_lang";
   const LANGS = { zh: "简体中文", en: "English" };
+  /* 默认英文：游戏发在外网，没有偏好记录的新玩家第一眼看到的是 English，中文走标题屏与
+     顶栏的语言开关（写 localStorage 后重载）。这只是【默认值】，不是【主语言】——
+     内容原文与 P.t 的兜底串照旧是中文，所以缺英文覆盖层的地方会露出中文，
+     缺译闸（i18n-coverage / i18n-events）由此从"锦上添花"变成"默认门面"。 */
+  const DEFAULT_LANG = "en";
 
   /* 覆盖层不许改写的键：结构与引用键。改了就断事件链 / 断存档 / 断条件。 */
   const PROTECT = {};
@@ -83,7 +89,7 @@ var POTUS = window.POTUS = window.POTUS || {};
 
   /* 把一份覆盖层并到活注册表上（单向，不还原） */
   function applyLang(lang) {
-    if (lang !== "zh" && !LANGS[lang]) lang = "zh";
+    if (!LANGS[lang]) lang = DEFAULT_LANG;
     const content = srcs[lang] || {}, ui = dicts[lang] || {};
     for (const kind in content) {
       const patch = content[kind];
@@ -120,12 +126,12 @@ var POTUS = window.POTUS = window.POTUS || {};
     const q = (search.match(/[?&]lang=(\w+)/) || [])[1];
     if (q && LANGS[q]) return q;
     try { const v = localStorage.getItem(LS_KEY); if (v && LANGS[v]) return v; } catch (e) { }
-    return "zh";
+    return DEFAULT_LANG;
   }
 
-  P.locale = { lang: "zh", ui: {}, langs: LANGS };
+  P.locale = { lang: DEFAULT_LANG, ui: {}, langs: LANGS };
   P.i18n = {
-    LANGS, report,
+    LANGS, report, DEFAULT_LANG,
     /* 内容加载阶段（boot 之前）只收载荷 */
     ingest(lang, payload) {
       if (payload.ui) Object.assign(dicts[lang], payload.ui);

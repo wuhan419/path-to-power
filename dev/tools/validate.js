@@ -33,9 +33,11 @@ global.localStorage = {
   get length() { return Object.keys(_store).length; }
 };
 /* --lang=en：把语言预置进存根 localStorage，boot 时 engine/i18n.js 会套用英文覆盖层，
-   于是同一套断言可以在两种语言下各跑一遍。 */
-const L10N_LANG = ((process.argv.find(a => /^--lang=/.test(a)) || "").split("=")[1] || "").trim();
-if (L10N_LANG) _store.potus_lang = L10N_LANG;
+   于是同一套断言可以在两种语言下各跑一遍。
+   不写 --lang 时【显式钉 zh】：游戏本身默认已是 en（engine/i18n.js 的 DEFAULT_LANG），
+   而这套断言的措辞按中文原文写，让默认语言飘移动会把整轮跑成另一种语言。 */
+const L10N_LANG = ((process.argv.find(a => /^--lang=/.test(a)) || "").split("=")[1] || "").trim() || "zh";
+_store.potus_lang = L10N_LANG;
 global.getComputedStyle = () => ({ getPropertyValue: () => "" });global.alert = () => { }; global.confirm = () => true; global.prompt = () => "x";
 global.setTimeout = () => 0; global.setInterval = () => 1; global.clearInterval = () => { };
 /* URL/Blob/FileReader 桩：必须是可实例化的函数（不能是普通对象）——
@@ -117,6 +119,20 @@ const ZH = P.i18n.withZh;
   check(R.missed.length === 0, "覆盖层指向不存在的目标（id 拼错 / 字段路径不对 / 数组没对齐）：" +
     R.missed.slice(0, 8).join(", ") + (R.missed.length > 8 ? " …共 " + R.missed.length + " 处" : ""));
   check(R.unknownKind.length === 0, "覆盖层用了注册表里不存在的类别：" + R.unknownKind.join(", "));
+  /* 默认语言是产品口径，不是实现细节：游戏发在外网，没存过偏好的新玩家第一眼必须是英文，
+     中文走标题屏/顶栏的语言开关。翻回 zh 没人会当 bug 报，所以钉在这里。
+     同时预置必须仍然赢过默认 —— 否则「双语各跑一遍」是两遍同一种语言。 */
+  check(P.i18n.DEFAULT_LANG === "en",
+    "游戏默认语言应为 en（engine/i18n.js 的 DEFAULT_LANG），当前是 " + P.i18n.DEFAULT_LANG);
+  check(P.locale.lang === L10N_LANG,
+    "存根 localStorage 的语言预置没生效：本次跑 " + P.locale.lang + "，预置 " + L10N_LANG +
+    " —— 双语门禁会变成同一语言跑两遍");
+  {
+    const staticTitle = ((htmlRaw.match(/<title>([^<]*)<\/title>/) || ["", ""])[1]);
+    check(/<html\s+lang="en"/.test(htmlRaw) && !/[一-鿿]/.test(staticTitle),
+      "index.html 的静态 <html lang> 与 <title> 要按默认语言写成英文（首屏与抓取看的是它们，boot 之后才由 applyLang 覆写）：" +
+      staticTitle);
+  }
   console.log("  多语言层：当前语言 " + P.locale.lang + " ｜ 界面串 " + Object.keys(P.locale.ui).length +
     " 条 ｜ 内容覆盖 en " + (R.applied.en || 0) + " 条" + (L10N_LANG === "en" ? "（已套用）" : "（本次未套用）"));
   if (L10N_LANG === "en") {

@@ -747,6 +747,8 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 - **英文走镜像覆盖层**：新建 `content/i18n/en/events/<同名>.js`（或 `lines/`、`reg/`）写 `POTUS.define("l10n", {lang:"en", content:{…}})`，原内容文件一个字不改。
 - **落完镜像跑** `node tools/gen-manifest.js`（重写 i18n-manifest 托管区），再跑 `node tools/validate.js --lang=en` 与 `node tools/i18n-events.js --file=<文件>` 查缺译。
 - **新 CN 内容不配 EN 镜像 = 交付不完整**：并行门禁（`i18n-coverage.js` 逐屏中文占比 >5% 退出码 1）会拦住。
+- **默认语言是 `en`**（`engine/i18n.js` 的 `DEFAULT_LANG`，游戏主要发在外网）：没存过偏好的新玩家第一眼是英文，中文走标题屏/顶栏的语言开关（写 `localStorage.potus_lang` 后整页重载）。**「默认」不等于「主语言」**——`P.t` 的兜底串照旧是中文，中文侧依然零词典。缺译因此从边角变成**默认门面**，两条 i18n 探针是首屏闸而不是收尾闸。
+- **校验工具自己要把语言钉死**：`validate.js`（不写 `--lang` 时）、`text-audit.js`、`smoke-ui.js` 在 boot 前显式把 `potus_lang` 塞成 `zh`（断言措辞按中文原文写）。靠引擎默认值跑 = 悄悄换了一种语言跑，双语门禁会变成同一种语言跑两遍。
 
 ---
 
@@ -767,7 +769,7 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 7. 存档结构 `POTUS.G` 的字段名（含 `counters` / 学贷组 `debt/debtAccr/loanLate/loanCaps/forbear*/pslf*` / 选民池 / `saveVer` 存档格式戳），存档兼容性依赖它；破坏性变更走 §6.5 的硬零版本门禁（`balance.studentLoan` 参数则归 CONTENT-SCHEMA §10/§15 管）
 8. 资源键名固定为 `fun / fav / rep / lev`（`ap` 精力、`hp` 健康为**休眠字段**，效果空操作），投注键名固定为 `fun / fav`（`POTUS.stakeSpec/stakeInfo/computeP` 的入参契约）
 9. `month` 取值 1-12、`day` 取值 1-31；引擎的日期口径 `POTUS.dateText(ev)` 与报头/状态面板同步
-10. i18n 契约：`P.t(key, 中文默认值)` 的 key 稳定性——英文覆盖层按 key 合并，**改了 key 等于删了翻译**（`tools/i18n-coverage.js` 会报缺口）
+10. i18n 契约：`P.t(key, 中文默认值)` 的 key 稳定性——英文覆盖层按 key 合并，**改了 key 等于删了翻译**（`tools/i18n-coverage.js` 会报缺口）；`P.i18n.DEFAULT_LANG = "en"` 是**产品口径**（外网首发，没存过偏好的第一眼必须是英文），翻它等于改发布策略，validate 有断言钉住
 
 ### 6.3 允许的兼容性变更方式
 | 想做的事 | 正确做法 |
@@ -940,7 +942,7 @@ choices: [
 | 卡池标尺（#40 · 卡面尺） | 开局天赋卡池走**自己的一把尺**：1 属性点 = $1k，档位单位 **白1 / 蓝3 / 紫6 / 金15**。三条断言：净值（Σ正 − Σ负）≤ 档位、**正项 ≤ 档位 + 负项**（只许拿"还给池子的点"换超额单项 —— 于是白卡「+2 并 −1」合法、白卡「+6/−1」判红）、钱卡 `fun = 单位 × $1k`；白/蓝还要求净值**恰好等于**档位（钱卡无正项则跳过这条）。面板逐卡打印「档位/单位/净/正负/最大单维」，末行给一句**换算对照**：一张金卡（15 点）= 建角 12 点池（120 属性点）的 13% —— 这句话就是"卡池不再是成长预算的一大块"的读数。**派系 / 声望 / 人情 / 被动不占这把尺**（`mods/crit/luck/hpDecay/voterDrift/spare` 一律不校验），所以纯被动卡本轮原样未动 |
 | 静好岁月 / 每月的账 | 片段注册完整性、时令 12 月覆盖、槽位兜底、极端处境都拼得出文字；`settleQuietMonth` 幂等、成长不越界且随年龄衰减；**#37③ 成长预算**（`attrChance ≤ 0.10`、`attrCap ≤ 100`（= 建角加点硬顶）、`attrKeys` 不含 INTG、`funChance/funRate/trackBonus.*.fun` 必须**不存在**＝资金暗账已删）；`monthlyLedger` 入账与幂等（工资/开销/学贷/选民单点结算） |
 | 事件配图（照片层） | 登记类型 key 在 `reg.category` 内；**`fs.existsSync` 逐文件检查照片在磁盘上**；缺图退 SVG；`ev.photo` 覆盖与关闭 |
-| i18n | 多语言覆盖层自检：`--lang=en` 下至少有一张卡变英文（覆盖层没生效会响）；l10n 定义形状合法 |
+| i18n | 多语言覆盖层自检：`--lang=en` 下至少有一张卡变英文（覆盖层没生效会响）；l10n 定义形状合法；**默认语言三条**（`P.i18n.DEFAULT_LANG === "en"`（外网首发＝新玩家第一眼是英文）、本次跑的语言必须等于 `--lang=` 的预置值（预置没生效＝双语门禁跑成同一种语言）、`index.html` 静态 `<html lang="en">` 与英文 `<title>`（首屏与搜索引擎看的是它们））。注意校验工具自己**显式把 `potus_lang` 钉成 zh**，不再靠引擎默认值 —— 见 `docs/I18N.md` §7 |
 | 模拟对局 | 默认 20 局全自动跑通（**走真实的 `advanceMonth` 月度推进**，每局真实支付 cost、下注、经手学贷），检查运行时错误、层级分布、结局多样性（含清算/破产/career_end）、每年档期数、量级/类型分布、时代专属占比、填充占比；**四大类年均**（#32 额度：随机 ≤ `pace.yearRandomMax`、灰产/豁免 ≤ `pace.grayMax`）、同月重复卡回归。**统计型断言的门槛要卡在观测带中间，不是卡在实测值上**：20 局随机样本连局时长都会变（同码两跑 428 年／530 年），占比类读数有 ±1pp 抖动——#37 因此把「时代专属占比 ≥15%」下调为 ≥12%（实测带 14—15%·1980 时代最低 11.6%），并把「建角最富组合 ≥$1M」反转为「一次性资金 ≤4×`freeFunPerPoint`」 |
 | 引擎/内容契约 | 运行期动态注册新 event/effect 键，验证引擎自动接纳 |
 
@@ -1032,6 +1034,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | v0.12 学贷方向修正（随 #42 同支入库） | **越难的档位不该负债越轻**：`balance.studentLoan.startDebt` 旧值 `normal 65k > hard 42k > brutal 28k` 与 §15 末句「难度差异只体现在负债起点」直接打架（玩家在建角向导一眼看出顺序倒了）。改成**只抬高不降低**：normal 仍 $65k（#19 的「前期约一半局不该死于学贷」就是量在这一档上的，动它等于重做定标），hard → $90k、brutal → $115k，easy/legendary 仍无贷；三档宽限期照旧同为 20 个月（#19②「难度只决定欠多少、不决定银行给几天脸」的纪律不动）。**顺手补了向导的可见性**：五档 `DIFFS.note` 与 EN 覆盖层各写上学贷数额（含「世家替你交了」那句），难度补偿不再只藏在建角之后的日志里 —— 这是 #37②「预览看不见的补偿会被玩家记成 bug」的同一条课 | `01-config.js` 的 startDebt + 两处注释、`view/create.js` 的 5 条 note、`content/i18n/en/view/create.js` 同步；CONTENT-SCHEMA §15 表与四份文档口径随迁；`--diff=hard` / `--diff=brutal` 各 30 局读断供与破产率（定标口径见 CONTENT-SCHEMA §15） | ✅ |
 | v0.12 属性上限口径拆开 | **100 是【建角加点】的顶，不是【属性】的顶**：旧口径三处一起夹 0—100（`effects.js` 的 `attr` handler 对卡片加成与事件成长一律夹回 100），于是顶格人物在建角页第 3 步看到「打底+自由点+已选卡 = 106」而落地只有 100 —— 账面虚高，正是 #37② 禁止的那类不一致。现拆两条门：加点仍 0—100（`create.js ATTR_HARD_MAX` 一字未动），卡面加成与局内成长**只夹下限 0、不设上顶**；平静月被动成长 `vignette.attrCap` 由 88 抬到 **100**（填到玩家自己点得满的高度收口，再往上只有卡和事件给得了）；诚信 INTG 同口径（handler 只有一处，不按键分叉）。**不设新硬顶的代价已知**：判定加成 `(属性−50)/100 × w` 与 `ruler` 的 `attrF`（`attrLean .40`）随属性线性走，100→1.20、115→1.26 —— 越线幅度小是因为内容增量本来就小（事件 1—6、金卡一次 15） | `effects.js` attr handler 去上夹、`core.js`/`01-config.js`/`vignette.js` 的 attrCap 88→100、`create.js` 注释口径；validate 由 `attrCap < 100` 改 `≤ 100`，并新增「卡片/事件加成应突破 100 ＋ 属性下限仍是 0」回归闸；DESIGN / CONTENT-SCHEMA / DEVELOPMENT-GUIDE 四处口径随迁 | ✅ |
 | v0.12 声望满格不作废（溢出折算） | 玩家实测「声望很容易满，满了之后赢大事像什么都没发生」。20 局量下来（seed 20260927）：生涯月 **11.5%** 停在 100、正向声望 **18.2%**（941/5160 点）被上限静默吃掉、最饱和一局 40.3% 的月份顶格；但中位局首次触顶在第 293 个月（≈24 年）、终局=100 只 3/20 —— 是长线顺风局的专属问题，不是全局通胀。**故不抬 100 这个顶**（`req.rep` 展开、支持率播种、`voterDrift` 的声望系数共用这把尺，抬顶＝重标整条选举曲线、要 300 局重看），改成顶后折算：1 点溢出 = 当前选区规模 × `repOverflow.warmShare`（0.0004）个好感选民 + 一条 `ui.effects.repOverflow` 日志。选 `warm` 是因为它**天然有界** —— 被 `voterDynamic.monthly` 均值回归抽回该层级目标位，买来的是一段顺风不是永久复利。**同种子复测（20 局）**：顶格后又被掷出的 941.5 点全部折成 **1,309,662** 个好感选民（10/20 局碰过顶，一局独占 121 万 —— 只发给本来就在顶上的长线局）、`静默归零 = 0`；顶格月占比照旧 11.5%（上限没抬）、每局顶到的月份数、层级分布与终局分布与折算前**逐字相同** —— 折算没有推歪任何一条分布 | `effects.js` 新增唯一入口 `P.addRep(v, G, silent)`（返回 `{gained, over, warm}`）、`rep` handler 与两处资历闸折抵改走它、`vignette.js` 被动声望走同一入口并**顺手修掉随笔虚报**（旧代码记原始点数，满值时写"声望 +1"其实 0 到账；折算后溢出的人数并进随笔的选民行）；`core.js BALANCE_DEFAULTS.repOverflow` + `01-config.js` 同键（带定标理由）；validate 四条新闸（折算开着 / 满值折出人 / 未满值不双给 / 顶格后"掉 20 再涨 30"须切成到账 20·溢出 10）+ 源码级 `G.rep =` allowlist + en 下点名四条折算播报不许吐中文（这些串只在顶格时现身，`i18n-coverage` 扫不到）；`i18n/en/view/effects.js` 补 `ui.effects.repOverflow`，两条资历闸播报的「声望+3」改成「声望+{R}」按实际到账播报（中英同步）；DESIGN 新增一节、CONTENT-SCHEMA 三行、DEVELOPMENT-GUIDE §标尺一条 | ✅ |
+| v0.12 默认语言改英文 | **新玩家第一眼是英文**（游戏主要发在外网）：`engine/i18n.js` 的 `DEFAULT_LANG` 由 `zh` 翻成 `en`，中文退回「玩家显式选择」的位置（标题屏/顶栏开关 → 写 `localStorage.potus_lang` → 整页重载）。**「默认」≠「主语言」**——内容原文与 `P.t(key, 中文兜底)` 一个字不动，中文侧照旧零词典；翻的只是**没有偏好时兜哪一边**。改前的顾虑只有一条成立：缺译从此不是边角而是**默认门面**，所以 `i18n-coverage.js`（十屏 CJK >5% 退 1）与 `i18n-events.js`（逐卡缺译）由收尾闸升成首屏闸 | `i18n.js` 三处（非法值回落、无偏好兜底、`P.locale` 初值）+ 导出 `P.i18n.DEFAULT_LANG` 供门禁读；`index.html` 静态 `<html lang="en">` 与英文 `<title>`（只为首屏与爬虫一致，boot 后 `applyLang` 按活语言覆写）；**校验工具的语言由隐式改显式**（`validate.js` 不写 `--lang` 时钉 zh、`text-audit.js`、`smoke-ui.js` 同）—— 旧行为靠引擎默认值，默认一翻就有整类断言被悄悄换语言跑；validate 新增**默认语言三条**（`DEFAULT_LANG === "en"`、本次跑的语言必须等于预置值、静态壳是英文）；`i18n-coverage` 在 en 下逐屏中文占比实测 **0%**；I18N.md 首段 + 新增小节 + §7 工具口径，DEVELOPMENT-GUIDE §5.14 两条 | ✅ |
 | 下一步 | 政策推进玩法（法案/政策池作载体，`src:"voters"` 目前只是修正钩子）；数值再平衡（`--tune` + 300 局口径复核清算/学贷死亡率） | 缺译回补（`i18n-events` 清零） | ⏳ |
 
 ---
