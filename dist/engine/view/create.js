@@ -37,8 +37,8 @@
       bonus: { rep: 12, fav: 4, fac: { establishment: 20, commercial: 10 } } },
     easy:   { label: "简单", origin: "dynasty", note: "政治世家 · 可选 4 张天赋卡 · 建制人脉 +30、声望 +8 —— 有人替你开好路，学贷家里也替你交了" },
     normal: { label: "普通", origin: "elite",   note: "商学院／法学院精英 · 可选 3 张天赋卡 · 商业 +40、人情 +2，但基层不信任你 · 开局背 $65k 学贷" },
-    hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 可选 2 张天赋卡 · 基层 +20 但建制 -20，全凭一股韧劲往上爬 · 开局背 $90k 学贷" },
-    brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 只能选 1 张天赋卡 · 只有工会与基层，起步声望更低、建制更冷 —— 真正的从零开始 · 开局背 $115k 学贷",
+    hard:   { label: "困难", origin: "immigrant", note: "移民二代 · 可选 2 张天赋卡 · 基层 +20 但建制 -20，全凭一股韧劲往上爬 · 开局一样背 $65k 学贷" },
+    brutal: { label: "炼狱", origin: "labor",   note: "蓝领工人 · 只能选 1 张天赋卡 · 只有工会与基层，起步声望更低、建制更冷 —— 真正的从零开始 · 开局一样背 $65k 学贷，而这回没人帮你还",
       bonus: { rep: -6, fav: -1, fac: { establishment: -10 } } }
   };
   P.DIFFS = DIFFS;      /* #37②：validate 要逐档扫 bonus 里有没有偷偷发属性 */
