@@ -956,12 +956,13 @@ console.log("\n== 投注级别价（单价随身位·不随钱包）==");
     ["normal", "hard", "brutal"].forEach(function (d) {
       check(((sl.startDebt || {})[d] || 0) > 0, d + " 难度应有开局学贷（>0）");
     });
-    /* #42 方向闸：难度轴上"越难背得越多"。旧口径 65k>42k>28k 把顺序倒了，
-       与「难度差异只体现在负债起点」自相矛盾，且玩家在建角向导一眼看得出。 */
+    /* #42 方向闸：学贷本金**不许随难度递减**。旧口径 65k>42k>28k 把顺序倒了，
+       玩家在建角向导一眼看得出。同值是 #42 的定稿（三档一律 65k）——这条轴实测没有
+       余量（65k 下断供中位已顶到 19/20 月），所以"越难越苦"改由 picks 与出身承担。 */
     {
       const sd = sl.startDebt || {};
       check((sd.normal || 0) <= (sd.hard || 0) && (sd.hard || 0) <= (sd.brutal || 0),
-        "学贷本金应随难度递增（normal ≤ hard ≤ brutal，实际 " + [sd.normal, sd.hard, sd.brutal].join("/") + "）");
+        "学贷本金不许随难度递减（normal ≤ hard ≤ brutal，实际 " + [sd.normal, sd.hard, sd.brutal].join("/") + "）");
     }
     /* 无贷 → loanStep 返回 null、余额恒 0 */
     P.G.debt = 0; P.G.fun = 500000; P.G.tier = 2; P.G.track = "electoral";
