@@ -3371,7 +3371,7 @@ console.log("\n== 权重管线（身份 / 资源 → 抽中什么） ==");
   const crazy = { when: {}, cats: { shady: 1000 } };
   const savedId = b.identityBias, savedRes = b.resourceBias;
   const probeSnap = { era: "2008_CRASH", year: 2010, month: 6, age: 40, track: "operative", party: "D",
-    stance: "outsider", origin: "labor", entry: "operative", talent: "orator", tier: 2,
+    stance: "populist", origin: "labor", entry: "operative", talent: "orator", tier: 2,
     rep: 50, hp: 80, fun: 100000, fav: 0, lev: 0, contactN: 0, knownIds: {}, scandal: 0, tenure: 10, flags: [] };
   b.identityBias = [crazy, crazy, crazy, crazy, crazy];
   let d = P.weightBreakdown(extreme, probeSnap, { counts: {} });
@@ -3420,7 +3420,7 @@ console.log("\n== 权重管线（身份 / 资源 → 抽中什么） ==");
     { label: "名人轨道 T2", patch: { track: "celebrity", entry: "celebrity" } },
     { label: "财富轨道 T2", patch: { track: "wealth", entry: "business" } },
     { label: "委任轨道 T2", patch: { track: "appointment", entry: "pro" } },
-    { label: "穷 T0 反建制", patch: { tier: 0, stance: "outsider", fun: 20000, rep: 8, origin: "labor" } },
+    { label: "穷 T0 民粹", patch: { tier: 0, stance: "populist", fun: 20000, rep: 8, origin: "labor" } },
     { label: "富 T4 把柄 5 财力足", patch: { tier: 4, fun: 5000000, rep: 70, lev: 5, contacts: { a: 1, b: 1, c: 1, d: 1, e: 1, f: 1 } } },
     { label: "病重 hp20 T2", patch: { hp: 20 } }
   ];
@@ -4100,16 +4100,29 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     "曾任总统+清白，哪怕下野后只剩 2 级，2025 仍以总统账本收口（A 档）");
   P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason; P.G.pres = _svPres;
 
-  /* --- 效果键 setTrack / setStance --- */
+  /* --- 效果键 setTrack --- */
   const track0 = P.G.track;
   P.applyEffects({ setTrack: "operative" });
   check(P.G.track === "operative", "setTrack 应改轨道（" + track0 + "→operative）");
   P.applyEffects({ setTrack: "不存在的轨道" });
   check(P.G.track === "operative", "setTrack 对不存在的轨道应忽略");
-  const stance0 = P.G.stance;
-  P.applyEffects({ setStance: K(P.reg.stance).find(function (x) { return x !== stance0; }) });
-  check(P.G.stance !== stance0, "setStance 应改姿态");
-  P.G.track = track0; P.G.stance = stance0;
+  P.G.track = track0;
+
+  /* --- #43 底色是走出来的：creed_* 计数器 → P.creedRecompute → G.stance ---
+     没有 setStance 效果键了：直接写 G.stance 会在下一次结算被推导覆盖。 */
+  const stance0 = P.G.stance, counters0 = P.G.counters;
+  P.G.counters = {};
+  P.applyEffects({ count: { creed_populist: 2 } });
+  check(P.G.stance === "establishment", "民粹只攒 2 分（未到 creed.min=3）不该封底色，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_populist: 1 } });
+  check(P.G.stance === "populist", "民粹攒到 3 分应改封底色，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_progressive: 5 } });
+  check(P.G.stance === "progressive", "另一路领先 2 分，底色应能改换门庭，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_conservative: 5 } });
+  check(P.G.stance === "establishment", "两条路并列领先（lead<2）该退回未贴标签，实际 " + P.G.stance);
+  P.G.counters = {}; P.creedRecompute();
+  check(P.G.stance === "establishment", "计数器清零应退回未贴标签的建制，实际 " + P.G.stance);
+  P.G.counters = counters0; P.G.stance = stance0;
 
   /* --- 收益结算面板：effects → 玩家语言 ---
      词条名取自派系/属性/状态注册表，en 覆盖层一翻就会被当成断言失败，所以整段按中文取词。 */

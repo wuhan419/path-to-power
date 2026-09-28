@@ -17,7 +17,7 @@ POTUS.define("l10n", {
     "ui.dice.modTalent": "Talent: {v}",
     "ui.dice.modTrack": "Track: {v}",
     "ui.dice.modParty": "Party: {v}",
-    "ui.dice.modStance": "Stance: {v}",
+    "ui.dice.modStance": "Creed: {v}",
     "ui.dice.modFunOk": "Well funded",
     "ui.dice.modVoters": "Voter backing {pct}%",
     "ui.dice.baseOdds": "Base odds",

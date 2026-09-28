@@ -98,12 +98,12 @@
   /* 开局就定死、一局之内**再也不会变**的身份维度。
    * 这些是唯一能拿来"判死一件事件"的字段 —— 其余一切（层级 / 声望 / 把柄 / 健康 /
    * 资金 / 人脉 / 在位时长 / 标记 / 前情 / 月份）都会随时间变，拿它们判死是错的。
-   * 依据：全线搜索过，G.track / party / stance / origin / entry / talent 只在建角时赋值，
-   * 之后只读不写。 */
+   * 依据：全线搜索过，G.track / party / origin / entry / talent 只在建角时赋值，之后只读不写。
+   * ⚠ stance（政治底色）**不在此列**：#43 起底色是局内走出来的（creedRecompute 可转向），
+   * 拿它判死会把"现在还不是民粹"误判成"永远不会是"。 */
   const PERM = ["era", "eras", "notEra", "notEras",
     "tracks", "trackIn", "notTracks", "notTrack",
     "parties", "partyIn", "notParties", "notParty",
-    "stances", "notStances", "notStance",
     "origins", "originIn", "notOrigins",
     "entries", "entryIn", "notEntries",
     "talents", "notTalents"];
@@ -165,7 +165,7 @@
    *   ④ 你已经爬过了这扇门          —— 事件的 tierMax 是它的天花板（"第一次把名字放上
    *      选票"这种给新人的事件），你比天花板还高就再也抽不到了。
    *   ⑤ 身份维度对不上              —— 事件写 tracks:["appointment"] 而你在 electoral 上，
-   *      党派/姿态/出身/起点/天赋同理，全是建角时定死的。
+   *      党派/出身/起点/天赋同理，全是建角时定死的（底色 stance 是例外：局内走出来，见 PERM 注）。
    *   ⑥ 它接的那一幕永远演不到了    —— after 前情链断了（前情已永久死亡，或窗口 maxMonthsAfter 已过）。
    *   ⑦ 它要的标记永远没人发了      —— ev.flags 是"玩家必须已有这个标记"，而所有会产生这个
    *      标记的事件都已经死透（典型：archive_bite 要 archive_taken，只有 archive_get 会发，
@@ -576,7 +576,7 @@
     const out = [], g = cur.def.gate || {};
     const NAME = {
       tracks: P.t("ui.arc.dimTracks", "轨道"), parties: P.t("ui.arc.dimParties", "党派"),
-      stances: P.t("ui.arc.dimStances", "姿态"), origins: P.t("ui.arc.dimOrigins", "出身"),
+      stances: P.t("ui.arc.dimStances", "底色"), origins: P.t("ui.arc.dimOrigins", "出身"),
       entries: P.t("ui.arc.dimEntries", "起点"), talents: P.t("ui.arc.dimTalents", "天赋"),
       tiers: P.t("ui.arc.dimTiers", "层级")
     };

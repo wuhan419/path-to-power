@@ -111,7 +111,7 @@
 │   │   └── view/             ★ 界面层：原 render.js 按职责拆分为 8 片（shell/title/create/
 │   │                            topbar/leftbar/stage/actions/fanfare.js；shell.js 最先加载，定义 P.boot）
 │   ├── content/              ☆ 内容：随便加，引擎自动适配
-│   │   ├── 01-config.js      平衡参数 / 投注级别价 / 派系 / 仇家(wrath) / 学贷(studentLoan) / 轨道 / 党派 / 姿态 / 词条名 / 静好成长曲线
+│   │   ├── 01-config.js      平衡参数 / 投注级别价 / 派系 / 仇家(wrath) / 学贷(studentLoan) / 轨道 / 党派 / 底色 / 词条名 / 静好成长曲线
 │   │   ├── 05-categories.js  ★ 事件类型 13 个（每个自带默认配图与配色）+ 量级定义
 │   │   ├── 06-media.js       ★ 时代媒介时间轴（报纸/广播/电视/互联网/短视频… 各自起始年）
 │   │   ├── 07-contacts.js    ★ 人脉登记表（这一局里能反复出场的那些"人"）
@@ -531,7 +531,7 @@ POTUS.define("fixed", [
 - **频率 = 加权随机 0–1 + 空月保底 1**：本月若已被 `fixed`/`campaignForceSlot` 占满则不注入；否则按 `emptyFillChance` 保底 1 条、空闲档按 `chance` 概率补 1 条。
 - **开关**：`balance.choreDynamic = { enabled, chance, emptyFillChance }`；`enabled:false` 即完全回到现状。删掉 `111-chores.js` 并跑 gen-manifest 重生成（或从白名单移除）也可整体回退。
 
-### 5.5 加派系 / 仇家 / 轨道 / 党派 / 姿态 / 出身 / 天赋 / 起点
+### 5.5 加派系 / 仇家 / 轨道 / 党派 / 底色 / 出身 / 天赋 / 起点
 
 全部只改 `content/01-config.js` 与 `content/10-characters.js`，**界面会自动多出选项**，不需要动引擎。
 
@@ -763,7 +763,7 @@ v0.11 起游戏是**中英双语**。契约全文见 [`I18N.md`](./I18N.md)，�
 1. `POTUS.define(kind, payload)` 的 kind 与 payload 形状（新增 kind 走契约评审）
 2. 事件的字段名与语义：`id/title/body/weight/tierMin/tierMax/tracks/parties/flags/notFlags/cond/choices/month/day` + 现行时间/分层字段 `minYear/maxYear/scoped/tierRaw/valence/dyn/unique/after/chore/count*门槛`；`era` 仅作兼容层
 3. 选项：`id/text/base/mods/req/cost/stake/note/outcomes`，且 `outcomes` 五档键名固定为 `crit/ok/meh/fail/critfail`
-4. `effects` 的键名与取值范围（含 `count` 仇恨计数、`camp` 选情、`fall`、`hardEnd`、`setTrack/setStance`、`contact/forget`）
+4. `effects` 的键名与取值范围（含 `count` 仇恨/底色计数器、`camp` 选情、`fall`、`hardEnd`、`setTrack`、`contact/forget`；底色没有转向键，见 §5.5）
 5. `mods` 的 `src` 枚举与计算公式
 6. 结局规则的 `when` 字段与 `priority` 语义；`reason` 词汇（含 `career_end` 与清算/学贷各死因）
 7. 存档结构 `POTUS.G` 的字段名（含 `counters` / 学贷组 `debt/debtAccr/loanLate/loanCaps/forbear*/pslf*` / 选民池 / `saveVer` 存档格式戳），存档兼容性依赖它；破坏性变更走 §6.5 的硬零版本门禁（`balance.studentLoan` 参数则归 CONTENT-SCHEMA §10/§15 管）
@@ -1051,6 +1051,7 @@ cd <game>/dev && NODE_PATH=~/.workbuddy/binaries/node/workspace/node_modules nod
 | 周目（loop）成长（v0.12 #31） | 每局结束周目 +1（无条件），额度与高稀有概率随之上涨；`woshishabiN` 作弊码 = 本局按第 N+1 周目口径建角（不落盘） | core.js `currentLoop/readBonusFree/applyCheat`、结算屏保卡 |
 | 生涯线 1980→2025 | 无需配置：`balance.endYear: 2025` 硬墙 → `career_end` 结算 7 条 `career_*`；`president_done` 区分前总统，当总统不再即时结束 | view/stage.js `endYear/nextYear`、progression.js、40-endings.js |
 | 清算线（v0.12） | 效果 `count: { wrath_<组>: +n }` 攒恨；门槛 `countMin/countMax/countEq`；仇家登记 `POTUS.define("wrath")`；死因 `hardEnd: "assassinated"\|"framed"\|"ruined"\|"purged"` | core.js `reg.wrath`、effects.js `count`、when.js、140-reckoning.js |
+| 政治底色（v0.12 #43） | **建角不选底色**：内容侧只写 `count: { creed_populist: 1 }`（三档运动力量攒分），判定侧写 `mods: [{src:"stance",key:"populist",w:0.15}]`（`w` 可负 = 异底色扣分）。没有 `setStance` 效果键（直接写 `G.stance` 会被下次结算覆盖） | effects.js `P.creedRecompute`、`balance.creed{min:3,lead:2}`、dice.js `evalMod`、01-config.js `POTUS.define("stance")` |
 | 学贷螺旋（v0.12，#25 新物理） | 无需配置：`balance.studentLoan`（startDebt 按难度 65k/90k/115k；**单利**月息进欠息桶、1 月资本化；断供=当月还款<当月新息；连续断供 ≥lateLimit 20/20/20 → `bankrupt`；`forbear` 缓交额度、`pslf` 公职豁免门槛）；长期违约压力事件走 flag | core.js `P.loanStep/forbearInfo/startForbear`、topbar 贷款面板、validate `--diff` 校准面板 |
 | 投注级别价（#28①） | 一般不用配：一档 = 你这个位子的月薪 × 量级系数（`perSalaryMonths:1` × `gradeMul{.6/1/1.8}`），**与余额无关**；特例 `{ per, w, cap }` 覆盖（写死 per = 剧情定价） | dice.js `stakeFunPer/stakeMax`、view/actions.js `stakeRateNote` |
 | 投机收益吃 INT（#28②） | 无需配置：`funMul` 的倍率 × `1+(INT-50)/100×balance.funMulIntLev`（默认 0.4；盈按 k、亏按 1/k）。**必须有本金**（`cost.fun` / `req.fun` / 投注），否则空转告警 | effects.js `funMulIntMul` |
@@ -1185,7 +1186,7 @@ A：可以（`python3 -m http.server`），但**不必要**。设计目标就是
 | **层级（Tier T0–T9）** | 权力高度（引擎 `tier 0..9`，界面显示"等级 1..10"）；多轨道在此收敛（T0 无名 → T9 白宫）。旧内容经 `LEGACY_TIER_BAND` 六档近似映射；**新内容一律 `tierRaw:true` 按 0..9 直写**。**胜利线 = T6 联邦众议员**，之后仍可冲参议员/副总统/白宫，直到 2025 收线 |
 | **轨道（track）** | 晋升方式：选举 / 委任 / 名人 / 操盘 / 财富 |
 | **起点（entry）** | 进入政坛的方式，决定开局资源与建议轨道（快速开局里固定 insider） |
-| **姿态（stance）** | 建制派 / 反建制 |
+| **底色（stance）** | 建制 / 民粹 / 进步 / 保守。**建角不选**：由 `creed_*` 计数器按选择累积推导（#43），可以改换门庭 |
 | **标记（flag）** | 状态位，驱动条件与结局（如 `scandal_2`、`investigation_open`、`president_done`） |
 | **把柄（leverage / `lev`）** | 用脏手段换来的"胁迫本钱"。可加、可花（`cost:{lev:n}`）、不可为负；持有 ≥3 份时会顶活跃度（`bonusPressure.leverage`），每年有 `leverageDecayChance` 概率烂掉 1 份。**只当消耗品，不当存款** |
 | **人脉（contact）** | 有名字、有好感度的常驻 NPC。首次通过 `effects.contact` 认识，好感区间 -100~100；`req.contact` 门控选项、`effects.forget` 断交。注册表在 `content/07-contacts.js` |

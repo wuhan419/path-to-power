@@ -273,7 +273,7 @@
         case "score": s += num(v) / 40; break;
         case "fall": s -= 2.5 * Math.max(1, num(v)); break;
         case "hardEnd": s -= 99; break;
-        /* flags / notFlags / voters / setTrack / setStance：结构性，不计净值 */
+        /* flags / notFlags / voters / setTrack / count：结构性，不计净值 */
       }
     }
     return s;

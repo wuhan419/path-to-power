@@ -16,6 +16,15 @@
  *   ① 基层两链（council/city）整体不接 —— 入场家底 $0—1k，给了只是一排按不动的按钮；
  *   ② 每张卡至少留一个**无加码**的选项（草根/稳守那一面）—— 投不投是真选择，不是默认最优；
  *   ③ 投票日的 prog_* 一概不接（validate 有断言）—— 钱只买声势，买不到开盘夜那张票。
+ *
+ * #43 快线（煽动选项）：vp/president 两链各幕新增一个高胜算、零资源代价的煽动选项——
+ *   收益前置（momentum/diehard 大头），代价后置（count:wrath_<组> +16 起，五组轮换：
+ *   党机器/新闻界/金主/政敌/情报系统）。快刀玩家 3—4 次点燃 140-reckoning 的清算生死局。
+ *   底色不对称：populist +0.15 / conservative +0.08~0.10 / establishment −0.10~0.12，
+ *   同时给 creed_populist 记数（底色是选出来的，见 effects.js creedRecompute）。
+ *   历史原型：休伊·朗广播控诉（burn_the_boomers/burn_pacs）· 尼克松敌人名单与"悄悄喊话"
+ *   （victory_purge_speech/dark_hand_rally）· 1992 独立候选人式往死里打（scorch_debate）·
+ *   1987 哈特「跟踪我啊」（witch_hunt）。
  * ==========================================================================*/
 
 /* 竞选幕的加码规格。比日常事件（4%/档、30% 封顶）更陡：这几场竞选本就是要花钱办事的，
@@ -935,6 +944,17 @@ POTUS.define("event", [
           fail: { body: "忠诚换不来提名，你只是个好帮手。", effects: { camp: { momentum: -5 } } },
           critfail: { body: "你被当成随叫随到的工具人。", effects: { rep: -1.5, camp: { momentum: -10 } } }
         }
+      },
+      {
+        id: "burn_the_boomers", text: "直播里点名党机器：「把话筒对准那些替你决定人选的人」", base: 0.64, note: "快线。仇恨记在党机器账上，攒三四次就是一场生死清算。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "那段指名道姓的讲话被剪成竞选广告循环播放。基层把你们当自己人，党魁们把对讲机摔了。", effects: { rep: 3, fac: { base: 10, establishment: -14 }, voters: { diehard: 600 }, camp: { momentum: 20 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          ok: { body: "「谁在替你选人」成了你未来三个月的口号。集会一票难求，筹款晚宴没你的请柬。", effects: { rep: 1.5, fac: { base: 6, establishment: -10 }, voters: { diehard: 300 }, camp: { momentum: 12 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          meh: { body: "骂是骂了，水花不大。党机器懒得回应——他们习惯等你自己摔跟头。", effects: { camp: { momentum: 4 }, fac: { establishment: -6 }, count: { wrath_establishment: 10, creed_populist: 1 } } },
+          fail: { body: "你点名的那位反手放出你早年求他办事的邮件。「翻脸比翻书快」上了第二天早报。", effects: { rep: -2, camp: { momentum: -8 }, fac: { establishment: -12 }, count: { wrath_establishment: 20, creed_populist: 1 } } },
+          critfail: { body: "你把一位元老的私事喊成了公共议题。全党联合声明谴责你，而那个人在电视上抹泪。", effects: { rep: -3.5, camp: { momentum: -15 }, fac: { establishment: -16 }, flags: ["boomer_backfire"], count: { wrath_establishment: 22, creed_populist: 1 } } }
+        }
       }
     ]
   },
@@ -975,6 +995,17 @@ POTUS.define("event", [
           meh: { body: "无功无过，没留下把柄。", effects: { camp: { momentum: 1 } } },
           fail: { body: "回答不够坦荡，惹得对方多疑。", effects: { camp: { momentum: -1 } } },
           critfail: { body: "你含含糊糊，印象分小跌。", effects: { camp: { momentum: -2 } } }
+        }
+      },
+      {
+        id: "witch_hunt", text: "不答审查答媒体：开记者会指控「猎巫式泄密」", base: 0.62, note: "快线。把审讯室搬到镜头前你占便宜，但新闻界会把这笔账记很多年。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "记者会开成控诉大会，「谁在给媒体递材料」反而成了他们的问题。支持率不降反升。", effects: { rep: 2.5, fac: { base: 8, press: -12 }, voters: { diehard: 500 }, camp: { momentum: 18 }, count: { wrath_press: 16, creed_populist: 1 } } },
+          ok: { body: "议题被你拧了一个方向。审查暂时收敛，但报社记下了你拒答的每一个问题。", effects: { rep: 1, fac: { press: -8 }, camp: { momentum: 11 }, count: { wrath_press: 16, creed_populist: 1 } } },
+          meh: { body: "各说各话。你没有吓退谁，只是让他们决定换个更狠的时间再发。", effects: { camp: { momentum: 3 }, fac: { press: -4 }, count: { wrath_press: 10, creed_populist: 1 } } },
+          fail: { body: "你指控「猎巫」，第二天他们放出了材料原件——全是真的。撒谎护短比旧账更好写。", effects: { rep: -2.5, camp: { momentum: -9 }, fac: { press: -14 }, count: { wrath_press: 20, creed_populist: 1 } } },
+          critfail: { body: "你在镜头前说出了「跟踪我啊」。四十八小时里，两家报社真的跟出了新东西。", effects: { rep: -4, camp: { momentum: -16 }, fac: { press: -16 }, flags: ["scandal_1"], count: { wrath_press: 22, creed_populist: 1 } } }
         }
       }
     ]
@@ -1122,6 +1153,17 @@ POTUS.define("event", [
           fail: { body: "缺乏连胜，媒体忘了你。", effects: { camp: { momentum: -6 } } },
           critfail: { body: "你的'长线'被当成'没戏'。", effects: { camp: { momentum: -11 } } }
         }
+      },
+      {
+        id: "burn_pacs", text: "在金主晚宴直播上烧掉游说团体的支票：「你们管这叫捐款，我管这叫欠条」", base: 0.64, note: "快线。小额捐款会像潮水，金主的账本也会。断供的恨记在 money 组。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.10 }, { src: "stance", key: "establishment", w: -0.12 }],
+        outcomes: {
+          crit: { body: "那张烧掉的支票成了本季最贵的政治广告——你一分钱没花。当晚小额捐款刷新纪录，各州 grassroots 支部开始替你拉票。", effects: { rep: 3, fac: { base: 10, commercial: -14 }, voters: { diehard: 800 }, camp: { momentum: 20, warchest: 6 }, count: { wrath_money: 16, creed_populist: 1 } } },
+          ok: { body: "「欠条」这句话上了所有转播台。金主协会撤了赞助，你的筹款邮件服务器差点被小额捐款挤爆。", effects: { rep: 1.5, fac: { base: 6, commercial: -10 }, voters: { diehard: 400 }, camp: { momentum: 13 }, count: { wrath_money: 16, creed_populist: 1 } } },
+          meh: { body: "动作很大，声浪一般。金主们互相通气：这一场，不给他钱。", effects: { camp: { momentum: 4 }, fac: { commercial: -6 }, count: { wrath_money: 10, creed_populist: 1 } } },
+          fail: { body: "有记者追问你自己的捐款来源，你晚宴入场费的收据被挖了出来。言行不一比要钱更难堪。", effects: { rep: -2.5, camp: { momentum: -8, warchest: -6 }, fac: { commercial: -12, base: -4 }, count: { wrath_money: 20, creed_populist: 1 } } },
+          critfail: { body: "你烧的那张支票后来被证实是你姻亲公司的。银行开始「重新评估」你竞选办的每一笔钱。", effects: { rep: -4, camp: { momentum: -15, warchest: -12 }, fac: { commercial: -16 }, flags: ["scandal_1"], count: { wrath_money: 22, creed_populist: 1 } } }
+        }
       }
     ]
   },
@@ -1163,6 +1205,17 @@ POTUS.define("event", [
           fail: { body: "提名靠的是主动交易，你太被动。", effects: { camp: { momentum: -1 } } },
           critfail: { body: "你在大会后台被人遗忘，选情小跌。", effects: { camp: { momentum: -2 } } }
         }
+      },
+      {
+        id: "victory_purge_speech", text: "提名演说变成清算清单：逐个点名这一路使过绊子的党元老", base: 0.62, note: "快线。全场基层起立鼓掌的那几秒很值——但党的钱和委员会席位从此另有安排。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.12 }],
+        outcomes: {
+          crit: { body: "你数着手指头点名，每点一个，全场就炸一次。直播收视压过了对手的同台记者会。党机器当晚开会，会议名称叫「如何处置这场胜利」。", effects: { rep: 3, fac: { base: 12, establishment: -15 }, voters: { diehard: 700 }, camp: { momentum: 19 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          ok: { body: "「这份提名不属于委员会」上了全网热榜。筹款晚宴的请柬没再来，但你已经不需要它们。", effects: { rep: 1.5, fac: { establishment: -10 }, camp: { momentum: 12 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          meh: { body: "你点了三个名字，第四个说情了。大会礼貌地沉默着——那种沉默你听过，是机器在记账。", effects: { camp: { momentum: 4 }, fac: { establishment: -6 }, count: { wrath_establishment: 10, creed_populist: 1 } } },
+          fail: { body: "你点到的那位元老手里有你竞选办的旧账，他当场要求大会念一段。掌声变成了咳嗽声。", effects: { rep: -2.5, camp: { momentum: -9, warchest: -6 }, fac: { establishment: -12 }, count: { wrath_establishment: 20, creed_populist: 1 } } },
+          critfail: { body: "你的清算清单被党内反驳提案原样退回，附了一行字：提名可以，资源免谈。全国代表大会第一次为你静音。", effects: { rep: -4, camp: { momentum: -15 }, fac: { establishment: -16, base: -4 }, flags: ["scandal_1"], count: { wrath_establishment: 22, creed_populist: 1 } } }
+        }
       }
     ]
   },
@@ -1192,6 +1245,17 @@ POTUS.define("event", [
           meh: { body: "你够狠，但选民怕你'过头'。", effects: { camp: { momentum: 1 } } },
           fail: { body: "你显得偏刻薄，选民同情对手。", effects: { rep: -1.5, camp: { momentum: -8 } } },
           critfail: { body: "你的攻击被反转，自己成了靶心。", effects: { rep: -3, camp: { momentum: -14 } } }
+        }
+      },
+      {
+        id: "scorch_debate", text: "往死里打：把对手家人的旧账一条一条念给全国听", base: 0.62, note: "快线。民调当场起飞，但对手阵营会把你写进必须消灭的名单。",
+        mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "你念到第三条时对手已经放弃提纲。第二天民调跳了六个点，对手阵营的募款邮件全是你的截图——他们越急，你越像赢了。", effects: { rep: 2, voters: { diehard: 700, oppose: -400 }, camp: { momentum: 19 }, count: { wrath_opposition: 16, creed_populist: 1 } } },
+          ok: { body: "对手在台上失态，镜头全给了你。当晚辩论复盘节目只讨论一个问题：他怎么下台。", effects: { camp: { momentum: 12 }, voters: { diehard: 350 }, count: { wrath_opposition: 16, creed_populist: 1 } } },
+          meh: { body: "你打了，对手也挨了，但没打出崩盘。对方的幕僚长对着镜头笑：我们记住了。", effects: { camp: { momentum: 4 }, count: { wrath_opposition: 10, creed_populist: 1 } } },
+          fail: { body: "你念的那条旧账里有一个刚过世的名字。对手哽咽着回应，全国换了台都在同情他。", effects: { rep: -2.5, camp: { momentum: -10 }, voters: { oppose: 500 }, count: { wrath_opposition: 20, creed_populist: 1 } } },
+          critfail: { body: "你公开了一个对手的医疗隐私。一周后他起诉，两党一致谴责——你赢得了一场没人愿意赢的辩论。", effects: { rep: -4, camp: { momentum: -16 }, flags: ["scandal_1"], count: { wrath_opposition: 24, creed_populist: 1 } } }
         }
       }
     ]
@@ -1225,6 +1289,17 @@ POTUS.define("event", [
           meh: { body: "你跑断了腿，选情持平。", effects: { camp: { momentum: 3 } } },
           fail: { body: "人力难回天，身体也亮红灯。", effects: { camp: { momentum: -6 } } },
           critfail: { body: "冲刺途中你病倒，选情失控。", effects: { rep: -2, camp: { momentum: -14 } } }
+        }
+      },
+      {
+        id: "dark_hand_rally", text: "压轴集会放话：「对手身后站着那些替你们决定选举的人——我当选第一天，就让档案见光」", base: 0.63, note: "快线。集会山呼海啸，但情报与执法系统里有的是不会见光的档案，也有的是会泄密的人。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.10 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "三个摇摆州的集会同步起立喊那句话。对手阵营紧急开会切割，民调里「想换掉华盛顿」一项暴涨。", effects: { rep: 2.5, fac: { base: 10 }, voters: { diehard: 800, oppose: -300 }, camp: { momentum: 19 }, count: { wrath_agency: 16, creed_populist: 1 } } },
+          ok: { body: "那句话被印上横幅。你的选情在最后两周爬过中线，而某份关于你的旧备忘录开始「流动」。", effects: { rep: 1, camp: { momentum: 12 }, voters: { diehard: 400 }, count: { wrath_agency: 16, creed_populist: 1 } } },
+          meh: { body: "台下喊了，台上看戏的没动。系统里的人只是把录音笔又往前挪了挪。", effects: { camp: { momentum: 3 }, count: { wrath_agency: 10, creed_populist: 1 } } },
+          fail: { body: "你没能说出档案里有什么，第二天倒有媒体拿到了关于你的那一份。指控变成了自首。", effects: { rep: -2.5, camp: { momentum: -9 }, flags: ["leaker_suspect"], count: { wrath_agency: 20, creed_populist: 1 } } },
+          critfail: { body: "你点名的机构罕见地集体发声澄清——每一条都带着你没预料到的细节。选情与嫌疑一起上了头条。", effects: { rep: -4, camp: { momentum: -15 }, flags: ["scandal_1", "investigation_open"], count: { wrath_agency: 24, creed_populist: 1 } } }
         }
       },
       {

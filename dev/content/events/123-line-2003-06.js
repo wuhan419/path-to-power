@@ -299,7 +299,7 @@ POTUS.define("event", [
         note: "赌的是事后清算站在你这边。风险：当下这顶「抹黑美军」的帽子很沉。",
         base: 0.42, mods: [{ src: "attr", key: "INTG", w: 0.5 }, { src: "fac", key: "press", w: 0.2 }],
         outcomes: {
-          crit: { body: "数月后听证层层上收，你那句「链条失守」被引用成「当时少数敢讲的」。媒体、教会与反战选民都记了你这一笔。", effects: { rep: 1.8, fac: { press: 8, base: 6, church: 5, military: -8, establishment: -6 } } },
+          crit: { body: "数月后听证层层上收，你那句「链条失守」被引用成「当时少数敢讲的」。媒体、教会与反战选民都记了你这一笔。", effects: { rep: 1.8, fac: { press: 8, base: 6, church: 5, military: -8, establishment: -6 }, count: { creed_progressive: 1 } } },
           ok: { body: "你说了重话，挨了骂，也在某份「先醒者」名单上占了一行。", effects: { rep: 0.7, fac: { press: 3, military: -3 } } },
           meh: { body: "你的谴责淹没在辩论节目里，没人引用，也没人追责。", effects: { rep: -0.2 } },
           fail: { body: "「他在这个月羞辱自己的军队」被做成传单，发在征兵办公室门口。", effects: { rep: -1.6, fac: { military: -8, establishment: -5 } } },

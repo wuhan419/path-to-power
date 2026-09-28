@@ -16,7 +16,7 @@ POTUS.define("l10n", {
     /* 风向：命中 gate 的身份维度（ui.arc.whyRow 的 label 用） */
     "ui.arc.dimTracks": "Track",
     "ui.arc.dimParties": "Party",
-    "ui.arc.dimStances": "Stance",
+    "ui.arc.dimStances": "Creed",
     "ui.arc.dimOrigins": "Origin",
     "ui.arc.dimEntries": "Entry",
     "ui.arc.dimTalents": "Talent",
