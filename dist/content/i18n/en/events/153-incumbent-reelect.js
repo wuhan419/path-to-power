@@ -73,6 +73,18 @@ POTUS.define("l10n", {
             }
           },
           {
+            id: "steal_the_anger",
+            text: "Turn the fire around: rally as hard as he does, only swapping the list to \"the people who decide for the party\"",
+            note: "Fast lane. A challenger's anger cannot burn you down provided you are willing to set the machine's roof on fire yourself.",
+            outcomes: {
+              crit: { body: "At the rally you throw his own line back at him - a previous generation's business - aimed now at primary gatekeepers and the donors' club. The young people turn and chant for you, and nobody asks the challenger a question at his own press conference." },
+              ok: { body: "You borrow the fury. Intra-party rally attendance sets a record, and the bosses wish you good luck on television - the word is exact: luck." },
+              meh: { body: "You shouted, the crowd obliged, but the same line from a president's mouth just lands flat. The challenger is still there, and so are the bosses." },
+              fail: { body: "A sitting president working up his own party's base - that sentence cuts sharper than any primary ad. The other side and your own caucus use it together." },
+              critfail: { body: "The gatekeeper you named produces evidence: your own first-campaign office appears on the \"donors' club\" list. The fire starts at your cuff." }
+            }
+          },
+          {
             id: "only_general",
             text: "Refuse the fight: change the schedule not a word, keep all your fire across the aisle",
             outcomes: {

@@ -67,7 +67,7 @@
           note: "赌你的支持者比记者更饿。赢了他们缩回去，输了恨 +8，直接给清算铺路。",
           base: 0.45, mods: [{ src: "attr", key: "CHA", w: 0.4 }],
           outcomes: {
-            crit: out("你把记者会开成了控诉大会，「猎巫」两个字上了当天头条。第二天起，约稿信少了一半——他们要挑更硬的目标。", { rep: 0.9, voters: { diehard: 250 }, fac: { press: -6 }, count: { wrath_press: -8 } }),
+            crit: out("你把记者会开成了控诉大会，「猎巫」两个字上了当天头条。第二天起，约稿信少了一半——他们要挑更硬的目标。", { rep: 0.9, voters: { diehard: 250 }, fac: { press: -6 }, count: { wrath_press: -8, creed_populist: 1 } }),
             ok: out("你骂得很解气。报社发了篇措辞克制的回应，暂时消停了。消停不等于算了。", { rep: 0.4, count: { wrath_press: -3 } }),
             meh: out("记者会和记者们打了平手：各说各话，谁也没抓住谁的错处。", {}),
             fail: out("你的「猎巫」指控被逐条打脸——他们查到的每样东西都是真的。撒谎护短，比旧账本身更好写。", Object.assign({ rep: -0.8, fac: { press: -8 } }, { count: { wrath_press: 8 } })),

@@ -37,9 +37,9 @@ POTUS.define("l10n", {
     "ui.create.diff.normal.label": "Normal",
     "ui.create.diff.normal.note": "Business / law school elite · pick 3 talent cards · +40 business, +2 favors, but the grassroots don't trust you · starts $65k in student loans.",
     "ui.create.diff.hard.label": "Hard",
-    "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit · starts $90k in student loans.",
+    "ui.create.diff.hard.note": "Second-generation immigrant · pick 2 talent cards · +20 base but -20 establishment — climbing purely on grit · the same $65k loan to start.",
     "ui.create.diff.brutal.label": "Brutal",
-    "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing · starts $115k in student loans.",
+    "ui.create.diff.brutal.note": "Blue-collar worker · only 1 talent card · just the union and the base, with lower starting reputation and a colder establishment — a true start from nothing · the same $65k loan to start, and this time nobody pays it for you.",
 
     /* ---- 开局抽卡卡墙（gachaHTML · #31 周目门槛 + 一次刷新 + 作弊码入口） ---- */
     "ui.create.gachaHeading": "Talent Draw (difficulty = number of picks)",

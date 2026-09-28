@@ -375,6 +375,12 @@
     /* 变化量为 0 的项一律不列：结算条是给玩家看「这一手改变了什么」，
        堆一串「声望 0」只会把真正有变化的项淹掉。 */
     if (eff.rep) out.push({ k: P.t("ui.stage.res.rep", "声望"), v: eff.rep, sign: eff.rep });
+    /* 声望满格折算：账面写 +6、声望条却一格没动 —— 那一截变成了人，得当着玩家面交代，
+       否则就是 #37② 禁的那类"账面与实际两张皮"。点数由 effects.js addRep 记在本笔结算上。 */
+    if (eff.rep > 0 && G.__repConv && G.__repConv.voters) {
+      out.push({ k: P.t("ui.stage.voterWarm", "好感选民"), v: "+" + fmtVoterNum(G.__repConv.voters), sign: 1,
+        tip: P.t("ui.stage.repConvTip", "声望顶格了：这 {R} 点名气折成了基层支持者，不是白赢。", { R: G.__repConv.pts }) });
+    }
     if (eff.fun) {
       const k = Math.round(eff.fun / 1000);
       if (k) out.push({ k: P.t("ui.stage.res.fun", "资金"), v: (k >= 0 ? "+$" : "-$") + Math.abs(k) + "k", sign: eff.fun });
@@ -833,6 +839,7 @@
        三者全空的 funMul 在 effects.js 空转告警，绝不再拿总余额乘倍数。 */
     const stPaid = (ch.cost && ch.cost.fun ? ch.cost.fun : 0) + (info && info.cost ? (info.cost.fun || 0) : 0);
     G_stakeBase(stPaid + (ch.req && ch.req.fun ? ch.req.fun : 0), stPaid);
+    P.G.__repConv = null;                  /* 满格折算的读数只属于这一笔：结算前清零，渲染时读走 */
     const paid = payCost(ch, info && info.cost);
     const cbox = P.$("#choices"); if (cbox) cbox.style.display = "none";
     /* 掷骰在后台完成（rollTier 已算出 res.tier），界面上不再演骰子、不报点数、

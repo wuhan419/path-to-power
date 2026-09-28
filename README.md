@@ -210,6 +210,7 @@ node dev/tools/audit.js
 | [`docs/CONTENT-SCHEMA.md`](docs/CONTENT-SCHEMA.md) | 内容作者 | 字段级契约：事件 / 选项 / 代价 / 投注 / 三值性 / 系数经济 / 事件链 / 人脉 / 结局 / **竞选链**；并含事件写作规范与铁律 |
 | [`docs/I18N.md`](docs/I18N.md) | 内容作者 / 翻译 | 中英双语机制：`P.t` 界面串、i18n 覆盖层镜像路径、sentence case 体例、语言探针工具链 |
 | [`docs/PARALLEL-CONTENT-WORK.md`](docs/PARALLEL-CONTENT-WORK.md) | 并行 worker | 多人同时灌内容的分片规则、防冲突纪律、密度门禁 |
+| [`docs/DEVLOG.md`](docs/DEVLOG.md) | 所有人 | 开发日志：一条版本一条账——改了什么、为什么（实测数字）、落地在哪，连被后续版本推翻的结论一起记 |
 | [`deprecated/README.md`](deprecated/README.md) | 好奇的人 | pre-1980 废案的冻结归档纪律与清单（为什么它们不在 `dev/` 里） |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 社区贡献者 | 贡献流程与提交前五连自检 |
 

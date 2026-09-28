@@ -21,8 +21,41 @@
   }
   P.funMulIntMul = funMulIntMul;      /* 界面解释与门禁断言共用同一口径 */
 
+  /* 声望的唯一入口。夹在 0—100 不变（门槛、支持率播种、选民增速系数全按这把尺定标），
+     但**满值之后涨的每一点都不作废**：名气装不下了，就把它变成看得见的人 ——
+     按当前选区规模折算成好感选民（warm）。玩家实测「声望很容易满，满了之后赢事件像什么都没发生」。
+     溢出只走 warm 这一条：warm 会被 monthly 均值回归抽回目标位，所以它是"一段顺风"而不是永久复利。
+     返回 { gained, over, warm }：调用方按【实际到账】gained 播报，静好岁月拿它写随笔
+     （旧代码记的是原始点数，满值时凭空多写一笔），溢出的一截由这里折成人并补一行日志。 */
+  function addRep(v, G, silent) {
+    const before = (G.rep || 0);
+    const after = P.clamp(before + v, 0, 100);
+    G.rep = after;
+    const gained = after - before;
+    const over = v > 0 ? v - gained : 0;
+    const out = { gained: gained, over: over, warm: 0 };
+    if (over <= 0) return out;
+    const ov = (P.balance() || {}).repOverflow || {};
+    const share = Number(ov.warmShare);
+    if (!(share > 0) || !P.applyVoters) return out;
+    const size = (P.electorateSize && P.electorateSize()) || 0;
+    const n = Math.max(1, Math.round(size * share * over));
+    P.applyVoters({ warm: n });
+    out.warm = n;
+    /* 结算条得能交代"账面写了 +6、声望条怎么没动"：与 __stakeBase 同一纪律，
+       resolveChoice 在结算前清零、渲染时读走（见 view/stage.js gainSummary）。 */
+    const prev = G.__repConv || { pts: 0, voters: 0 };
+    G.__repConv = { pts: prev.pts + over, voters: prev.voters + n };
+    if (!silent && P.pushLog) P.pushLog(P.t("ui.effects.repOverflow",
+      "名声已经满到装不下：{R} 点名气变成 {N} 个愿意为你跑腿的人。", { R: over, N: (P.fmtVoterNum ? P.fmtVoterNum(n) : n) }));
+    return out;
+  }
+  P.addRep = addRep;
+
   P.effectHandlers = {
-    attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = P.clamp(G.attr[k] + v[k], 0, 100); },
+    /* 属性只夹下限 0、**不夹上限**：100 是【建角自由点】的硬顶（view/create.js ATTR_HARD_MAX），
+       卡面加成与局内成长从它之上继续往上走 —— 建角页第 3 步把卡加成原样摊在账面上，落地必须同数。 */
+    attr: function (v, G) { for (const k in v) if (G.attr[k] != null) G.attr[k] = Math.max(0, G.attr[k] + v[k]); },
     fac: function (v, G) { for (const k in v) G.faction[k] = P.clamp((G.faction[k] || 0) + v[k], -100, 100); },
     fun: function (v, G) { G.fun += v; },
     /* 学生贷款本金：事件里用 debt:-N 一次性抹平一笔欠款（不受标尺缩放，保持绝对额）。
@@ -65,7 +98,7 @@
       const paid = (G.__stakePaid != null && G.__stakePaid > 0) ? G.__stakePaid : 0;
       G.fun += Math.max(0, Math.round(paid + base * (v >= 0 ? v * k : v / k)));
     },
-    rep: function (v, G) { G.rep = P.clamp(G.rep + v, 0, 100); },
+    rep: function (v, G) { P.addRep(v, G); },
     /* v0.9 退役：健康/精力不再是玩家可感资源。事件里残留的 hp/ap 增减一律**空操**（保留 handler 入口
        以免“未知效果键”告警刷屏）。健康仍由 endYear 的年度老化直接结算（驱动生病/死亡结局），
        但不再被任何事件影响；精力彻底退出玩法。要恢复：把下面两个空函数改回原实现即可。 */
@@ -85,8 +118,8 @@
          破格直提（v>=2）也照样拦 —— 越级直登白宫更不可能不经选举。 */
       const TOP = b.tierMax == null ? 9 : b.tierMax;
       if (v > 0 && before < TOP && before + v >= TOP && !(ctx && ctx.election)) {
-        G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
-        if (P.pushLog) P.pushLog(P.t("ui.effects.tierNoBallot", "最高的那把椅子要数票才坐得上：这一步没有把你送进总统级（声望+3）。"));
+        const r = P.addRep(3, G);
+        if (P.pushLog) P.pushLog(P.t("ui.effects.tierNoBallot", "最高的那把椅子要数票才坐得上：这一步没有把你送进总统级（声望+{R}）。", { R: r.gained }));
         return;
       }
       /* 全局年限闸：正常晋升（一步一级）要在当前层级熬够月数（不满足 → tier 不动，
@@ -97,8 +130,8 @@
       const need = GATES[Math.min(before, GATES.length - 1)];
       const bypass = v >= 2;
       if (v > 0 && !bypass && P.monthsAtTier && P.monthsAtTier() < need) {
-        G.rep = P.clamp((G.rep || 0) + 3, 0, 100);
-        if (P.pushLog) P.pushLog(P.t("ui.effects.tierGate", "资历还差着：{have}/{need} 个月——位子的事再等等（声望+3）。", { have: P.monthsAtTier(), need: need }));
+        const r = P.addRep(3, G);
+        if (P.pushLog) P.pushLog(P.t("ui.effects.tierGate", "资历还差着：{have}/{need} 个月——位子的事再等等（声望+{R}）。", { have: P.monthsAtTier(), need: need, R: r.gained }));
         return;
       }
       /* 离开本级前登记：你确实坐过这一级（跳级时只登记起点，中间级留白 → 资历债） */
@@ -210,9 +243,10 @@
       G.pendingHardEnd = String(v || "disgrace");
     },
 
-    /* 路线转向：选项直接把玩家挪到另一条轨道/姿态（代价已经写在剧情里） */
-    setTrack: function (v, G) { if (POTUS.reg.track[v]) G.track = v; },
-    setStance: function (v, G) { if (POTUS.reg.stance[v]) G.stance = v; }
+    /* 路线转向：选项直接把玩家挪到另一条轨道（代价已经写在剧情里）。
+     * 底色不在这张表里：#43 起底色是 creed_* 计数器推出来的（见文件尾 creedRecompute），
+     * 直接写 G.stance 会被下一次结算覆盖，所以不提供 setStance 效果键。 */
+    setTrack: function (v, G) { if (POTUS.reg.track[v]) G.track = v; }
   };
 
   /* 内容注册自定义效果键 */
@@ -252,5 +286,33 @@
       if (h) h(eff[k], G, ctx);
       else console.warn("[POTUS] 未知效果键: " + k + "（可用 POTUS.effect() 注册）");
     }
+    /* 底色是走出来的：每一笔效果落账后重读 creed_* 计数器（成本 = 三次查表）。 */
+    if (P.creedRecompute) P.creedRecompute();
+  };
+
+  /* ---------- 政治底色推导（creed 计数器 → G.stance） ----------
+   * 内容侧只写 count:{creed_populist:1,...}；这里在每次结算后问一句"现在攒起来的
+   * 是哪股力量"：三档运动力量取 argmax，须同时过 min（立得住）与 lead（甩开次高）
+   * 两道闸，谁都不过就沉回建制派。建制没有计数器 —— 没掀过桌子的人就是机器的人。
+   * 转向可以往回走也可以横着走（运动政客会换教门），每次都只推一条日志。 */
+  const CREEDS = ["populist", "progressive", "conservative"];
+  P.creedRecompute = function () {
+    const G = P.G;
+    if (!G) return "establishment";
+    const cfg = (P.balance && P.balance().creed) || { min: 3, lead: 2 };
+    const c = G.counters || {};
+    let best = null, bv = 0, second = 0;
+    for (let i = 0; i < CREEDS.length; i++) {
+      const v = c["creed_" + CREEDS[i]] || 0;
+      if (v > bv) { second = bv; bv = v; best = CREEDS[i]; }
+      else if (v > second) second = v;
+    }
+    const want = (best && bv >= cfg.min && bv - second >= cfg.lead) ? best : "establishment";
+    if (want !== G.stance) {
+      G.stance = want;
+      const nm = (POTUS.reg.stance[want] || {}).name || want;
+      if (P.pushLog) P.pushLog(P.t("ui.effects.creedShift", "一路走下来，人们给你的路起了名字：你现在是「{n}」。", { n: nm }));
+    }
+    return want;
   };
 })();

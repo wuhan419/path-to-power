@@ -120,7 +120,7 @@
       gate: {
         any: [
           { origins: ["labor", "immigrant"] },
-          { stances: ["outsider"] },
+          { stances: ["populist", "progressive"] },
           { entries: ["ngo"] },
           { all: [{ tracks: ["electoral"] }, { maxTier: 2 }] }
         ]

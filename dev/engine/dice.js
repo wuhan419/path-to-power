@@ -22,7 +22,7 @@
     if (m.src === "talent") { const v = G.talent === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modTalent", "天赋·{v}", { v: m.key }) }; }
     if (m.src === "track") { const v = G.track === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modTrack", "轨道·{v}", { v: m.key }) }; }
     if (m.src === "party") { const v = G.party === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modParty", "党派·{v}", { v: m.key }) }; }
-    if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modStance", "姿态·{v}", { v: m.key }) }; }
+    if (m.src === "stance") { const v = G.stance === m.key ? m.w : 0; return { v: v, label: P.t("ui.dice.modStance", "底色·{v}", { v: (POTUS.reg.stance[m.key] || {}).name || m.key }) }; }
     if (m.src === "tier") { const v = G.tier * m.w; return { v: v, label: P.t("ui.tier.level", "等级 {n}", { n: G.tier + 1 }) }; }
     if (m.src === "res" && m.key === "fun") { const v = G.fun >= (m.min || 0) ? m.w : 0; return { v: v, label: P.t("ui.dice.modFunOk", "资金充足") }; }
     /* v0.6 选民底气：voterEdge() ∈ [-1,1]（自然均衡点处为 0）。

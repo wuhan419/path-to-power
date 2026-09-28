@@ -311,8 +311,8 @@ POTUS.define("event", [
         base: 0.44, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         stake: { fav: true },
         outcomes: {
-          crit: { body: "你跪在队伍最前面那张照片传遍全国，本地条例真过了委会。年轻人头一回把你当「自己人」。", effects: { rep: 1.6, voters: { warm: 600 }, fac: { base: 10, press: 5, establishment: -6 }, flags: ["reform_side"] } },
-          ok: { body: "你站到了街对面，条例还没影，但名单上有了你。老支持者觉得你太急。", effects: { rep: 0.7, voters: { warm: 200 }, fac: { base: 6, establishment: -3 } } },
+          crit: { body: "你跪在队伍最前面那张照片传遍全国，本地条例真过了委会。年轻人头一回把你当「自己人」。", effects: { rep: 1.6, voters: { warm: 600 }, fac: { base: 10, press: 5, establishment: -6 }, flags: ["reform_side"], count: { creed_progressive: 2 } } },
+          ok: { body: "你站到了街对面，条例还没影，但名单上有了你。老支持者觉得你太急。", effects: { rep: 0.7, voters: { warm: 200 }, fac: { base: 6, establishment: -3 }, count: { creed_progressive: 1 } } },
           meh: { body: "你跪了，镜头没找到你。运动不需要多一个跪着的人。", effects: { rep: 0.1, fac: { establishment: -2 } } },
           fail: { body: "几场失控的游行把你的镜头剪成「鼓动暴乱」。郊区业主开始给对手捐款。", effects: { rep: -1.75, fac: { military: -6, establishment: -5, base: -4 } } },
           critfail: { body: "你所在街区也失了火，而你上午刚在火上浇过话。两边同一天把你上了通缉级的骂。", effects: { rep: -2.75, fac: { base: -6, press: -8, establishment: -8 }, flags: ["scandal_2"] } }
@@ -324,8 +324,8 @@ POTUS.define("event", [
         base: 0.46, mods: [{ src: "fac", key: "military", w: 0.35 }, { src: "attr", key: "CUN", w: 0.3 }],
         cost: { fav: 1 },
         outcomes: {
-          crit: { body: "宵禁生效那晚街道真静了，商户联名登报道谢。警员协会把你当成「敢说我们也是受害者的人」。", effects: { rep: 1.5, voters: { warm: 400 }, fac: { military: 10, establishment: 6, base: -8 } } },
-          ok: { body: "你守住了商户与老主顾，年轻人从此不再进你的门。", effects: { rep: 0.6, fac: { military: 5, base: -4 } } },
+          crit: { body: "宵禁生效那晚街道真静了，商户联名登报道谢。警员协会把你当成「敢说我们也是受害者的人」。", effects: { rep: 1.5, voters: { warm: 400 }, fac: { military: 10, establishment: 6, base: -8 }, count: { creed_conservative: 2 } } },
+          ok: { body: "你守住了商户与老主顾，年轻人从此不再进你的门。", effects: { rep: 0.6, fac: { military: 5, base: -4 }, count: { creed_conservative: 1 } } },
           meh: { body: "你喊了秩序，街面自己凉了。功劳轮不到你，骂名倒是先挂上了。", effects: { rep: -0.2, fac: { base: -3 } } },
           fail: { body: "清场中有人受伤，画面比你那句「恢复秩序」传得快十倍。", effects: { rep: -2, fac: { base: -8, press: -6 } } },
           critfail: { body: "你协调来的镇暴支援与一张警棍特写同屏滚动。你的选区办公室第一次被人围住讨说法。", effects: { rep: -3, fac: { base: -10, press: -8, church: -6 }, flags: ["scandal_2"] } }

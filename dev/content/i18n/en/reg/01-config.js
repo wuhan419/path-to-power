@@ -67,10 +67,12 @@ POTUS.define("l10n", {
       I: { name: "Independent" }
     },
 
-    /* ---------- 姿态 ---------- */
+    /* ---------- 政治底色（stance · 局内走出，非建角选定） ---------- */
     stance: {
-      establishment: { name: "Establishment", desc: "Back the party line and collect its endorsements and resources — on its orders." },
-      outsider: { name: "Outsider", desc: "Fight the party setup: high autonomy, high hostility, a base on fire." }
+      establishment: { name: "Establishment", desc: "Back the party line and collect its endorsements and resources — a machine man, riding no wind." },
+      populist: { name: "Populist", desc: "Voice the street's rage: base on fire, press and party machine both see you as the flame." },
+      progressive: { name: "Progressive", desc: "Stand inside the civil-rights and anti-war tide — donors and agencies remember your name." },
+      conservative: { name: "Conservative", desc: "Limited government and the moral majority: the tea wave, the party's old grudges." }
     },
 
     /* ---------- 全局配置里的玩家可见词条 ----------

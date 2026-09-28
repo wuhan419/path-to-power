@@ -155,7 +155,8 @@ const BALANCE_DEFAULTS = {
    * ⚠ freePoints 是【第 1 周目】的池子，不是常量：每完成一个周目永久送 loopFreeBonus 点，
    *   实际额度 = freePoints + 已完成周目数 × loopFreeBonus（见 freePool / currentLoop）。
    * ⚠ 单维上限也随额度伸缩（软上限）：min(freeCapMax,
-   *   freeCapPerAttr + floor(额外点 / freeCapGrow))；属性本身另有 100 硬顶（view/create.js）。 */
+   *   freeCapPerAttr + floor(额外点 / freeCapGrow))；建角加点另有 100 硬顶（view/create.js），
+   *   它只卡【自己点的】—— 卡面加成与局内成长从 100 之上继续长（effects.js 的 attr 不夹上限）。 */
   freePoints: 12, freeCapPerAttr: 10, freeCapMax: 10, freeCapGrow: 6,
   freeAttrPerPoint: 10, freeFunPerPoint: 2000,   /* #36：1 点 = +10 属性 = $2k */
   /* #31：周目成长系数 —— 每完成一个周目 +1 自由点（旧的「加点 / 保卡二选一」已废，保卡改为随时可选）。 */
@@ -333,6 +334,15 @@ const BALANCE_DEFAULTS = {
   aiCallCap: 80, fuzzBands: [0.15, 0.35, 0.55, 0.75, 0.90],
   fuzzLabels: ["渺茫", "不利", "五五开", "有利", "稳操胜券", "几乎必胜"],
 
+  /* ---- 声望溢出折算：名声满到 100 之后涨的点数不作废，按选区规模折成好感选民 ----
+     20 局实测（seed 20260927）：生涯月里 11.5% 停在 100，正向声望有 18.2% 被上限吃掉
+     —— 玩家视角就是"赢了大事，声望条一动不动"。抬上限会连带把 req.rep 门槛、
+     支持率播种、voterDrift 的声望系数一起重标（300 局基线必歪），所以改走折算。
+     语义：1 点溢出 = 当前选区规模 × warmShare 个好感选民。0.0004 ≈ 半张中型卡
+     打赢所带的自然好感，且好感会被 monthly 均值回归抽回目标位（一段顺风，不是永久复利）。
+     置 0 = 关掉折算，溢出重新被静默吃掉。见 effects.js addRep。 */
+  repOverflow: { warmShare: 0.0004 },
+
   /* ---- 静好岁月：平静的月份里，主角照样在过日子、按部就班地长 ----
    * 叙事片段库在 content/08-vignettes.js；这里的数字只管"成长曲线"。
    * 年轻的年头学得快（attrAgeFade），年纪上去之后渐渐定型；
@@ -342,7 +352,8 @@ const BALANCE_DEFAULTS = {
     maxShown: 4,             // 一次最多展开几段随笔（平静太久的年月只记一句"另有多月"）
     /* 属性成长 */
     attrChance: 0.20,        // 每个平静月的基准概率（再乘年龄衰减）
-    attrGain: 1, attrCap: 88,
+    /* 被动成长的封顶 = 建角加点的硬顶 100。卡片与事件的加成不受这条管（effects.js 不夹上限）。 */
+    attrGain: 1, attrCap: 100,
     attrKeys: ["CHA", "INT", "CUN", "INTG"],
     attrAgeFade: true,       // 越老越长不动：×(1 - 已从政年数/60)，下限 0.25
     /* 健康 / 声望 / 人脉 / 资金
@@ -1297,6 +1308,8 @@ POTUS.migrate = function (G) {
   if (G.bailouts == null) G.bailouts = 0;                 // v0.11 负债设底：本局被接济次数
   /* v0.12 #20 天赋卡墙：旧档没有卡墙 = 空墙（单卡天赋继续按 legacy 生效），不升存档版本 */
   if (!Array.isArray(G.cards)) G.cards = [];
+  /* #43 底色四档化：旧档的反建制(outsider)就近入民粹档；不升存档版本 */
+  if (G.stance === "outsider") G.stance = "populist";
   if (!Array.isArray(G.spentCards)) G.spentCards = [];
   if (G.peakTier == null) G.peakTier = G.tier || 0;       // v0.11 P1：生涯峰值层级（成就结算用）
   if (G.contacts == null) G.contacts = {};                // 人脉好感表

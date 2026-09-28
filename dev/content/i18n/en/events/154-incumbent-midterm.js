@@ -80,6 +80,18 @@ POTUS.define("l10n", {
             }
           },
           {
+            id: "denounce_tour",
+            text: "Turn the six rallies into six indictments: bring the list onstage and read the other side's names, state by state",
+            note: "Fast lane. Anger lifts turnout, and the members you name will think of you for the rest of their term.",
+            outcomes: {
+              crit: { body: "The list becomes support banners in six states. Early turnout leads county by county, and the opposition's national committee rewrites its ad script overnight - in your tone." },
+              ok: { body: "The fury works. Local candidates dare to share your stage again, except every rally now carries an extra stretch of hatred you arranged for them." },
+              meh: { body: "The crowd shouts; the banked votes are the same banked votes. The opposition cuts your indictments into a \"president loses it\" reel and runs it back state by state." },
+              fail: { body: "One service list you read names the wrong district, and that loser's widow spends the evening in the front row of the opposition's debate seat." },
+              critfail: { body: "At the last rally the crowd burns the list - the page printed with the opposition's photographs, all cameras rolling. Both parties condemn you, and for the first time persuadable voters feel the fire is aimed at them." }
+            }
+          },
+          {
             id: "record_launch",
             text: "Hold a launch event on your own record; take no local questions",
             outcomes: {

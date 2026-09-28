@@ -58,7 +58,7 @@ const ONLY_FILE = arg("file", null);
 const LANG = (arg("lang", "zh") || "zh").trim().toLowerCase();
 
 const ROOT = path.resolve(__dirname, "..");
-if (LANG === "en") _store.potus_lang = "en";
+_store.potus_lang = LANG;   /* 两种语言都显式预置：游戏默认已是 en，靠默认值会把 --lang=zh 那轮跑成英文 */
 const srcs = [...fs.readFileSync(path.join(ROOT, "index.html"), "utf8").replace(/<!--[\s\S]*?-->/g, "")
   .matchAll(/<script\s+src="([^"]+)"><\/script>/g)].map(m => m[1]);
 const code = srcs.map(s => fs.readFileSync(path.join(ROOT, s), "utf8")).join("\n;\n");

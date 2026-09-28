@@ -80,6 +80,17 @@ POTUS.define("event", [
         }
       },
       {
+        id: "steal_the_anger", text: "把火掉转枪口：开集会跟他喊得一样狠，只是名单上换成「替党做决定的人」", base: 0.64, note: "快线。挑战者的怒火烧不死你，前提是你肯亲手点着党机器的屋顶。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "集会上你把「上一代人的事」原句奉还，对象换成初选守门人和金主俱乐部。年轻人调头替你喊口号，挑战者在自己的记者会上无人提问。", effects: { rep: 2.5, fac: { base: 10, establishment: -14 }, voters: { diehard: 900 }, camp: { momentum: 19 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          ok: { body: "怒火被你借走。党内集会到场人数创纪录，党魁们在电视上礼貌地祝你好运——那个词很准：运气。", effects: { rep: 1, camp: { momentum: 12 }, fac: { establishment: -10 }, count: { wrath_establishment: 16, creed_populist: 1 } } },
+          meh: { body: "你喊了，人群配合了，但同一句话从总统嘴里说出来就是没意思。挑战者还在，党魁们也还在。", effects: { camp: { momentum: 3 }, count: { wrath_establishment: 10, creed_populist: 1 } } },
+          fail: { body: "在任总统煽动自己党内基层——这句话比任何初选广告都锋利。对岸和你自己的党团一起用了它。", effects: { rep: -2.5, camp: { momentum: -9 }, fac: { establishment: -12 }, count: { wrath_establishment: 20, creed_populist: 1 } } },
+          critfail: { body: "你点名的守门人放出证据：所谓「金主俱乐部」的名单里，有你第一任竞选办的名字。火从你袖口烧起来。", effects: { rep: -4, camp: { momentum: -15 }, flags: ["scandal_1"], count: { wrath_establishment: 22, creed_populist: 1 } } }
+        }
+      },
+      {
         id: "only_general", text: "不接招：日程一个字不改，火力全对着对岸", base: 0.6,
         outcomes: {
           crit: { body: "你全程只谈对岸那位，年轻挑战者追着打你却打到一面墙——三个月后没人再提他的名字。", effects: { camp: { momentum: 5 } } },

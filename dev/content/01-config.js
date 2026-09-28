@@ -1,6 +1,6 @@
 /* ============================================================================
  * CONTENT · 01-config.js
- * 全局配置：平衡参数、派系、轨道、党派、姿态、状态词条名。
+ * 全局配置：平衡参数、派系、轨道、党派、底色、状态词条名。
  * 想调数值、加派系、加轨道/党派 —— 只改这个文件，引擎自动适配。
  * ==========================================================================*/
 POTUS.define("balance", {
@@ -20,7 +20,9 @@ POTUS.define("balance", {
      ⚠ 单维上限 = 「能点到属性值 100 为止」，不再按点数封顶：
        三围从 startAttr(0) 起步、1 点 = +10，所以加到 100 正好 10 点 ——
        freeCapPerAttr / freeCapMax 都定成 10，即单维最多洒 10 点（属性上限 100 的等价点数）。
-       freeCapGrow 仍保留：周目/作弊送的点继续抬【总额度】，单维这 10 点已够灌满一维。 */
+       freeCapGrow 仍保留：周目/作弊送的点继续抬【总额度】，单维这 10 点已够灌满一维。
+     ⚠ 这个 100 只卡【自己点的】那一截：卡面加成与局内成长从 100 之上继续长
+       （engine/effects.js 的 attr 处理器只夹下限 0），平静月的被动成长另有 attrCap（见下）。 */
   freePoints: 12, freeCapPerAttr: 10, freeCapMax: 10, freeCapGrow: 6,
   /* #31：周目成长的唯一系数 —— 每完成一个周目 +1 自由点（保卡不再是它的替代品，随时可挑）。 */
   loopFreeBonus: 1,
@@ -63,6 +65,10 @@ POTUS.define("balance", {
      够到等级 7：累计到 tier6 约 92 月，留 ~14 月缓冲去等一个空缺 + 选战。
      级越低升得越快（幕僚→地方快），级越高越要熬（联邦→全国一步好几年）。 */
   tierGates: [8, 10, 12, 18, 20, 24, 28, 34, 40, 0],
+  /* 政治底色推导闸（P.creedRecompute）：creed_<档> 计数器攒到 min 分、且领先次高
+     至少 lead 分，才算你成为了那一档；否则沉回建制派。+1 是最小锚点单位——
+     min 3 ≈ 连续三四次同向的选择才能立住一个底色。 */
+  creed: { min: 3, lead: 2 },
 
   /* ---- 时间：一个月一回合，一年 12 个月 ----
    * 不是每个月都有事件。平静的月份会被自动跳过，只留一行月历记录。
@@ -131,9 +137,15 @@ POTUS.define("balance", {
     { when: { tracks: ["celebrity"] }, cats: { media: 2.0, romance: 1.4, scandal: 1.3, political: 0.7 } },
     { when: { tracks: ["operative"] }, cats: { shady: 2.0, political: 1.4, career: 0.8 } },
     { when: { tracks: ["wealth"] }, cats: { finance: 2.0, shady: 1.3, political: 1.3, civil: 0.7 } },
-    /* 党派与姿态：独立参选 / 反建制 → 更靠舆论和街头，更少靠党内机器 */
+    /* 党派与底色：独立参选 → 更靠舆论和街头，更少靠党内机器 */
     { when: { parties: ["I"] }, cats: { media: 1.3, civil: 1.3, political: 0.7 } },
-    { when: { stances: ["outsider"] }, cats: { civil: 1.5, media: 1.3, scandal: 1.2, political: 0.7 } },
+    /* 底色四档：你是哪种人，就活在哪种新闻里（#43）。
+       民粹=街头与话筒（建制的机器事绕着你走）；进步=浪潮与街头（金主的饭局没有你）；
+       保守=党务与宗教多数基层（媒体的镁光灯先照别人）；建制=党内机器的世界（街头的事找到你头上少）。 */
+    { when: { stances: ["populist"] }, cats: { media: 1.4, civil: 1.3, scandal: 1.2, political: 0.7 } },
+    { when: { stances: ["progressive"] }, cats: { civil: 1.6, foreign: 1.3, finance: 0.7 } },
+    { when: { stances: ["conservative"] }, cats: { political: 1.35, civil: 0.8, media: 0.85 } },
+    { when: { stances: ["establishment"] }, cats: { political: 1.2, civil: 0.8 } },
     /* 出身（origin id：dynasty 政治世家 / immigrant 移民二代 / labor 蓝领工人 / elite 精英） */
     { when: { origins: ["labor"] }, cats: { civil: 1.6, finance: 0.8 } },
     { when: { origins: ["dynasty"] }, cats: { political: 1.4, career: 1.3, civil: 0.8 } },
@@ -241,6 +253,17 @@ POTUS.define("balance", {
     repGateMax: 80       /* dyn 卡 req.rep 门槛展开后的天花板：声望 0—100 有界，门槛不许顶出可达区 */
   },
 
+  /* ---------- 声望溢出折算（engine/effects.js addRep 消费）----------
+   * 20 局实测（seed 20260927）：生涯月里 11.5% 停在声望 100，正向声望有 18.2%（941/5160 点）
+   * 被上限静默吃掉 —— 玩家视角就是"赢了大事，声望条一动不动"。
+   * 这里**不抬 100 这个顶**：req.rep 门槛、支持率播种、voterDrift 的声望系数全按 0—100 定标，
+   * 抬顶等于偷偷重标整条选举曲线（300 局基线必歪）。改成顶后折成人：
+   * 1 点溢出 = 当前选区规模 × warmShare 个好感选民。
+   * 0.0004 的锚：约等于半张中型卡打赢所带的自然好感（voterDynamic.eventBase.mid=0.0025），
+   * 且好感会被 monthly 均值回归抽回目标位 —— 是"一段顺风"，不是永久复利。
+   * 置 0 = 关掉折算，溢出重新被静默吃掉（validate 的守恒闸会当场红）。 */
+  repOverflow: { warmShare: 0.0004 },
+
   midtermCycle: 2,
 
   /* 年度结算 */
@@ -270,8 +293,9 @@ POTUS.define("balance", {
   vignette: {
     enabled: true,
     maxShown: 4,
-    /* #37③：0.20→0.14→0.08。岁月仍然长本事，但一辈子靠平静月堆不满一个维度。 */
-    attrChance: 0.08, attrGain: 1, attrCap: 88,
+    /* #37③：0.20→0.14→0.08。岁月仍然长本事，但一辈子靠平静月堆不满一个维度。
+       attrCap = 100：被动成长填到建角加点的硬顶为止，再往上的那一截只有卡和事件给得了。 */
+    attrChance: 0.08, attrGain: 1, attrCap: 100,
     /* v0.5.2：INTG（诚信）不进自然成长池——诚信是选择塑造的，不是岁月。
        事件 outcomes 里的 attr.INTG 照常生效（那是"你做了什么"的结果）。 */
     attrKeys: ["CHA", "INT", "CUN"],
@@ -375,9 +399,13 @@ POTUS.define("balance", {
      v0.12 改制：按月复利改「单利 + 年度资本化」—— 每月利息进 G.debtAccr 欠息桶、
      不滚本金，每年 1 月（loanStep 内）才把桶并入本金。利息不再无声利滚利，
      「缓交几个月」和「拖一整年」是两种量级的决定，玩家读得懂、也算得清。
-     · startDebt：按难度给本金，**越难背得越多**（normal 65k → hard 90k → brutal 115k），
-       未列出的难度（easy/legendary）= 0（世家替你交了）。normal 钉在 65k 不动，
-       因为 #19 的「前期约一半局不该死于学贷」是量在这一档上的。
+     · startDebt：**三档同值 65k**（#42 定稿）。旧口径是 65k/42k/28k——越难背得越轻，
+       与"难度"自相矛盾；本想改成越难越重，实测这条轴没有余量：65k 下「每局最长连续
+       断供」中位已经顶到 19/20 月（中位那局离破产差一个月），抬到 85k 就是 70% 信用破产、
+       且 retire_high/kingmaker 这类生涯结局**整批归零**——那不是更难，是生涯不再发生。
+       所以方向掰正的方式是**拉平**：难度不该在负债起点上加码，"越难越苦"由
+       picks（炼狱 1 张 / 普通 3 张天赋卡）与出身底子那两根轴承担。
+       未列出的难度（easy/legendary）= 0（世家替你交了）。
      · interestAnnual：年利率，按单利月度计提（进欠息桶，年内不滚）。
      · payShare：月供目标 ≈ 职位月薪 × payShare —— 收入越高还得越快，联邦高层才还得清。
      · minPayment：每月最低还款额（现金见底则本月少还、绝不扣成负）。
@@ -389,7 +417,7 @@ POTUS.define("balance", {
          并解锁成就；minTier 起才算合格（基层志愿不算数）。 */
   studentLoan: {
     enabled: true,
-    startDebt: { normal: 65000, hard: 90000, brutal: 115000 },
+    startDebt: { normal: 65000, hard: 65000, brutal: 65000 },
     interestAnnual: 0.045, payShare: 0.25, minPayment: 120,
     /* lateMonths：连续逾期多少个月仍还不上，才引来「催收/征信」压力事件。
        长期违约 + 现金持续见底 → 提高负面事件概率，但仍不直接 BE（艰难度日）。 */
@@ -402,8 +430,8 @@ POTUS.define("balance", {
           5→85%、6→80%、10→70%、12→65%、16→60%、20→50%）。定 20 → 破产率 ≈50%，
           而且那是**上界**：模拟器不会主动用缓交（forbear）泄压，真人玩家会。
        ② 旧口径还"越穷宽限期越短"（normal 6 / hard 4 / brutal 3）——难度本该只决定
-          欠多少（学贷本金已承担这件事；#42 起本金也排成越难越重：65k/90k/115k），
-          不该再叠一层"银行给几天脸"。
+          "能选几张卡"，不该再叠一层"银行给几天脸"。#42 更进一步：连欠多少都拉平了
+          （三档同 65k，见上面 startDebt），难度只走 picks 与出身两根轴，学贷不再当刑罚。
        12 个月起有「催收/征信」压力事件（lateMonths）先警告，20 个月才判死：放任必死，但不是一脚踩死。 */
     lateLimit: { normal: 20, hard: 20, brutal: 20 },
     forbear: { maxMonths: 24, perMonths: 6, repCost: 3 },
@@ -594,13 +622,23 @@ POTUS.define("track", {
   wealth: { name: "财富轨道", desc: "用钱买影响力", key: "FUN" }
 });
 
-/* ---------- 党派与姿态 ---------- */
+/* ---------- 党派 ---------- */
 POTUS.define("party", {
   D: { name: "民主党" },
   R: { name: "共和党" },
   I: { name: "独立参选" }
 });
+/* ---------- 政治底色 ----------
+ * 底色（stance）不再于建角时选定，而是**一局里走出来的**：内容选项往
+ * G.counters["creed_<档>"] 记一笔（count 效果键，见各锚点卡），引擎在每次效果
+ * 结算后跑 P.creedRecompute() —— 三股运动力量里攒得最多、且过 balance.creed
+ * 的 min/lead 双闸的那一股就是你现在是谁；谁都没攒起来 = 建制派（机器的人）。
+ * 建制是默认沉底档，不是计数器：没掀过桌子的人就是党内的人。
+ * 历史谱系：establishment=艾森豪威尔/尼克松的党务机器；populist=休伊·朗→特朗普的
+ * 基层控诉；progressive=民权/反战的街头运动；conservative=戈德华特→里根的运动保守派。 */
 POTUS.define("stance", {
-  establishment: { name: "建制派", desc: "入党获背书与资源，须服从党意" },
-  outsider: { name: "反建制", desc: "掀翻党内建制，高自主高敌意，基层狂热" }
+  establishment: { name: "建制派", desc: "服从党意换背书与资源——机器的人，哪股风都不站" },
+  populist: { name: "民粹派", desc: "替街头怒气说话，基层狂热，新闻界与党机器都视你为火" },
+  progressive: { name: "进步派", desc: "站进民权与反战的浪潮，金主和情报系统记得你的名字" },
+  conservative: { name: "保守派", desc: "反大政府与道德多数——茶党的浪、党建制的旧怨" }
 });

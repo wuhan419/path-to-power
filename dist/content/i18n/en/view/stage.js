@@ -79,6 +79,7 @@ POTUS.define("l10n", {
     "ui.stage.attr.CUN": "Guile",
     "ui.stage.attr.INTG": "Integrity",
     "ui.stage.voterWarm": "Supporters",
+    "ui.stage.repConvTip": "Reputation is already maxed: those {R} points of fame turned into grassroots supporters instead of a bar that can't move.",
     "ui.stage.voterDiehard": "Die-hards",
     "ui.stage.voterOppose": "Opponents",
     "ui.stage.numWan": "{n} ×10K",

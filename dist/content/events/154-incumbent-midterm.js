@@ -77,6 +77,17 @@ POTUS.define("event", [
         }
       },
       {
+        id: "denounce_tour", text: "把六场助选集会开成六场控诉大会：名单带上台，逐州念对岸的名字", base: 0.63, note: "快线。投票率会被怒气抬起来，被点名的一整届国会任期都会想着你。",
+        mods: [{ src: "attr", key: "CHA", w: 0.3 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.10 }, { src: "stance", key: "establishment", w: -0.10 }],
+        outcomes: {
+          crit: { body: "那份名单成了六州的应援横幅。提前投票率在你们的县一路领先，对手全国委员会连夜改广告剧本——用的还是你的语气。", effects: { rep: 2.5, voters: { diehard: 1000, oppose: -400 }, camp: { momentum: 18 }, count: { wrath_opposition: 16, creed_populist: 1 } } },
+          ok: { body: "怒气有效。地方候选人又开始敢跟你同台，只是每场集会都多了一段你替他们安排的仇恨。", effects: { rep: 1, camp: { momentum: 11 }, voters: { diehard: 500 }, count: { wrath_opposition: 16, creed_populist: 1 } } },
+          meh: { body: "台下喊得响，票仓还是那些票仓。对手把控诉剪成「总统失态」合集，在各州反着播。", effects: { camp: { momentum: 3 }, count: { wrath_opposition: 10, creed_populist: 1 } } },
+          fail: { body: "你在名单里念错了一个选区的服务名单，那位落选者的遗孀当晚坐在了对手辩论席第一排。", effects: { rep: -2.5, camp: { momentum: -8 }, voters: { oppose: 500 }, count: { wrath_opposition: 20, creed_populist: 1 } } },
+          critfail: { body: "最后一场集会上人群把名单烧了——烧的是印有对手照片的页张，镜头全在。两党同声谴责，中间选民第一次觉得这场火是往他们身上烧的。", effects: { rep: -4, camp: { momentum: -14 }, fac: { base: -5 }, flags: ["scandal_1"], count: { wrath_opposition: 24, creed_populist: 1 } } }
+        }
+      },
+      {
         id: "record_launch", text: "办一场自己政绩的发布会，不接本地提问", base: 0.6,
         outcomes: {
           crit: { body: "你把这两年讲成一份能拿出手的成绩单，地方党部照着它印传单。", effects: { rep: 4, camp: { momentum: 13 }, score: 0.3 } },

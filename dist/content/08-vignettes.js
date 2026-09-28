@@ -272,7 +272,7 @@ POTUS.define("vignette", {
       "有一阵子你什么都不想。窗外的光从桌子的这头挪到那头，你没动。",
       "你把手里的事一件一件地做完。没有想法，也没有野心，就是做完。"
     ] },
-    { id: "sf_outsider", slot: "self", stances: ["outsider"], weight: 2, texts: [
+    { id: "sf_outsider", slot: "self", stances: ["populist", "progressive", "conservative"], weight: 2, texts: [
       "你还是坐在同一间屋子里，但你知道，那屋子里的人已经不当你是自己人了。",
       "你选择不跟他们玩，代价是每一件事都要自己一个人推。"
     ] },
