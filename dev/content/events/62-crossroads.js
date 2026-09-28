@@ -3,7 +3,7 @@
  * 路线抉择：政治生涯的分岔口。参选还是给人打下手、NGO 还是体制内、
  * 州参议院还是联邦众议院、进竞选团队还是自己选州长。
  *
- * 这些事件的选项用 setTrack / setStance 效果键直接改轨道，用 flags
+ * 这些事件的选项用 setTrack 效果键直接改轨道，用 flags
  * （cross_*）给后续 identityBias 倾斜 —— 抉择之后，你会遇到的世界不一样。
  *
  * 写作注意：每个事件必须有保底选项（无 cost 无 req）；标题 + 正文 ≤250 字。
@@ -85,8 +85,8 @@ POTUS.define("event", [
         note: "基层与议题派系的信用继续涨；党内机器的大门缓缓合上。清白是一种资产，也是一种上限。",
         base: 0.6, mods: [{ src: "attr", key: "INTG", w: 0.4 }],
         outcomes: {
-          crit: { body: "你们把议题推上了州议程：一场听证、两个法案、和一批把你的名字挂在嘴边的志愿者。", effects: { rep: 1.5, fac: { base: 12, press: 6, establishment: -3 }, flags: ["cross_ngo"] } },
-          ok: { body: "组织又壮大一圈。你的名字和议题绑在了一起——这是资产，也是标签。", effects: { rep: 1, fac: { base: 8, establishment: -2 }, flags: ["cross_ngo"] } },
+          crit: { body: "你们把议题推上了州议程：一场听证、两个法案、和一批把你的名字挂在嘴边的志愿者。", effects: { rep: 1.5, fac: { base: 12, press: 6, establishment: -3 }, count: { creed_progressive: 1 }, flags: ["cross_ngo"] } },
+          ok: { body: "组织又壮大一圈。你的名字和议题绑在了一起——这是资产，也是标签。", effects: { rep: 1, fac: { base: 8, establishment: -2 }, count: { creed_progressive: 1 }, flags: ["cross_ngo"] } },
           meh: { body: "日子照旧：写报告、见议员、等回电。理想主义的折旧比你想的快。", effects: { rep: 0.4, fac: { base: 4 } } },
           fail: { body: "基金会的拨款改了方向，你们的项目砍了一半。你在裁员名单上划掉了别人的名字，从此组织里有人觉得你欠他们一句话。", effects: { rep: 0.2, fac: { base: 3, press: -2 }, fav: -1 } },
           critfail: { body: "一篇调查报道指出你们的理事会里坐着一家有利益的公司。你不知情——但签名页上有你。", effects: { rep: -1.25, fac: { base: -8, press: -6 }, flags: ["scandal_2"] } }
@@ -208,8 +208,8 @@ POTUS.define("event", [
         base: 0.4, mods: [{ src: "attr", key: "CHA", w: 0.5 }, { src: "fac", key: "base", w: 0.3 }],
         cost: { fun: 4 },
         outcomes: {
-          crit: { body: "你在辩论夜一句「这个州的账我来算」被剪成广告循环了一个月。当选夜，全州的地图一色是你的颜色。", effects: { tier: 1, rep: 2, fac: { base: 14, establishment: 6 }, flags: ["cross_gov_road"] } },
-          ok: { body: "你赢了州长官邸。钥匙交接那天，前任握着你的手说：现在你懂了。", effects: { tier: 1, rep: 1.25, fac: { base: 10 }, flags: ["cross_gov_road"] } },
+          crit: { body: "你在辩论夜一句「这个州的账我来算」被剪成广告循环了一个月。当选夜，全州的地图一色是你的颜色。", effects: { tier: 1, rep: 2, fac: { base: 14, establishment: 6 }, count: { creed_populist: 1 }, flags: ["cross_gov_road"] } },
+          ok: { body: "你赢了州长官邸。钥匙交接那天，前任握着你的手说：现在你懂了。", effects: { tier: 1, rep: 1.25, fac: { base: 10 }, count: { creed_populist: 1 }, flags: ["cross_gov_road"] } },
           meh: { body: "险胜。一半的州投了你，另一半会提醒你四年。", effects: { tier: 1, rep: 0.9, fac: { base: 6 }, fav: -2 } },
           fail: { body: "你输了。竞选债是实的，教训是虚的，两者都要时间消化。", effects: { rep: 0.3, fac: { base: 4 }, fav: -3 } },
           critfail: { body: "大选前两周，一段你三年前的私下讲话录音流出。你输得很惨，而且是被自己说倒的。", effects: { rep: -1, fac: { base: -10, press: -8 }, flags: ["scandal_3"], fall: 1 } }

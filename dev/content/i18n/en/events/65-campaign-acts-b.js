@@ -287,6 +287,18 @@ POTUS.define("l10n", {
               fail: { body: "Loyalty buys no nomination — just a reputation as a good helper." },
               critfail: { body: "You are filed away as the go-to fixer, not the pick." }
             }
+          },
+          {
+            id: "burn_the_boomers",
+            text: "On live camera, name the machine: \"Point the microphone at the people who pick for you\"",
+            note: "Fast lane. The wrath lands on the party machine's ledger; bank three or four of these and you have a reckoning.",
+            outcomes: {
+              crit: { body: "The named-and-shamed speech is cut into an ad and looped for a season. The base calls you one of theirs; the bosses throw their radios." },
+              ok: { body: "\"Who picks for you\" becomes your slogan for the next three months. Rallies sell out; the fundraising dinners stop sending invitations." },
+              meh: { body: "You said it; the splash stayed small. The machine does not even answer — they are used to waiting for you to trip." },
+              fail: { body: "One of the elders you named releases the emails from when you came asking him for favors. \"Flipped faster than a page\" tops next morning's paper." },
+              critfail: { body: "You shouted an elder's private business onto the public agenda. The whole party issues a joint condemnation, and the man is on television wiping tears." }
+            }
           }
         ]
       },
@@ -328,6 +340,18 @@ POTUS.define("l10n", {
               meh: { body: "Unremarkable. You leave them nothing to hold." },
               fail: { body: "Answers short of candid feed their suspicion." },
               critfail: { body: "You hedge too much. Your standing dips." }
+            }
+          },
+          {
+            id: "witch_hunt",
+            text: "Answer the vetting with the press: hold a conference accusing a \"witch-hunt leak\"",
+            note: "Fast lane. Moving the interrogation room on camera favors you, but the press keeps this ledger for years.",
+            outcomes: {
+              crit: { body: "The conference turns into a prosecution, and \"who is feeding the media\" becomes their problem. Your numbers rise instead of falling." },
+              ok: { body: "You twist the story's axis. The vetting pauses, but the newsrooms note every question you refused." },
+              meh: { body: "Each side talks past the other. You scared no one; they only decided on a crueler hour to publish." },
+              fail: { body: "You cry witch hunt; the next day they publish the source documents — all true. A lie to cover a file reads better than the file." },
+              critfail: { body: "On camera you say the words \"follow me\". Within forty-eight hours, two papers actually have." }
             }
           }
         ]
@@ -475,6 +499,18 @@ POTUS.define("l10n", {
               fail: { body: "No string of wins, and the press forgets you." },
               critfail: { body: "Your 'long game' is shorthand for 'no path.'" }
             }
+          },
+          {
+            id: "burn_pacs",
+            text: "Burn the lobbyists' checks on the donors' dinner livestream: \"You call it a donation. I call it an IOU\"",
+            note: "Fast lane. Small-donor money will come like tide — so will the donors' ledgers. The cut-off fury is filed under money.",
+            outcomes: {
+              crit: { body: "The burning check becomes the season's most effective political ad, and you spent nothing on it. Small donations break the record that night; county grassroots offices start canvassing for you." },
+              ok: { body: "The word \"IOU\" runs on every channel. The trade associations pull their sponsors, and your email server nearly drowns in small donations." },
+              meh: { body: "Big gesture, modest wave. The donors compare notes: this round, we give him nothing." },
+              fail: { body: "A reporter asks about your own donation sources, and the receipt for your dinner table is dug up. Doing-as-I-say-not-as-I-do reads worse than asking for money." },
+              critfail: { body: "The check you burned turns out to belong to a relative's firm. Banks begin \"reassessing\" every dollar your campaign has touched." }
+            }
           }
         ]
       },
@@ -517,6 +553,18 @@ POTUS.define("l10n", {
               fail: { body: "Nominations are built, not awaited. Too passive." },
               critfail: { body: "The back rooms forget you. Momentum slips." }
             }
+          },
+          {
+            id: "victory_purge_speech",
+            text: "Turn the acceptance speech into a reckoning list: name, one by one, the elders who tripped you",
+            note: "Fast lane. Those seconds of the base on its feet are worth a lot — but the party's money and committee seats now have other plans.",
+            outcomes: {
+              crit: { body: "You count names on your fingers, and the hall detonates each time. Your speech outscores the rival's same-night press conference. The machine meets that evening; the minutes title it \"handling this victory\"." },
+              ok: { body: "\"This nomination does not belong to the committees\" trends everywhere. The dinner invitations stop coming; you no longer need them." },
+              meh: { body: "You named three; the fourth asked for mercy. The convention sits in polite silence — you have heard that silence before. It is the machine keeping books." },
+              fail: { body: "One elder you named holds the old ledgers of your own campaign office, and he asks the convention to read a passage. The applause turns into coughing." },
+              critfail: { body: "Your reckoning list comes back verbatim as a counter-resolution, with one line attached: the nomination yes, the resources no. The national convention mutes you for the first time." }
+            }
           }
         ]
       },
@@ -548,6 +596,18 @@ POTUS.define("l10n", {
               fail: { body: "You look mean. Voters side with your rival." },
               critfail: { body: "Your attack flips midair. You become the target." }
             }
+          },
+          {
+            id: "scorch_debate",
+            text: "Hit to kill: read your rival's family ledger out to the nation, line by line",
+            note: "Fast lane. The polls jump live, but the opposition camp writes you onto its must-defeat list.",
+            outcomes: {
+              crit: { body: "By your third line the rival has abandoned his notes. Next morning the poll moves six points, and his camp's fundraising emails are all screenshots of you — the more frantic they get, the more you look like the winner." },
+              ok: { body: "Your rival loses his composure and every camera finds you. That night's panel shows discuss one question only: how he gets out of this." },
+              meh: { body: "You swung, he took it, but nothing broke. His chief of staff smiles at the camera: noted." },
+              fail: { body: "One line you read concerns a name that recently died. Your rival answers through tears, and every channel left the story to pity him." },
+              critfail: { body: "You disclosed your rival's private medical record. A week later he sues, both parties condemn you — you won a debate nobody wanted to win." }
+            }
           }
         ]
       },
@@ -578,6 +638,18 @@ POTUS.define("l10n", {
               meh: { body: "You run yourself ragged. The race stays level." },
               fail: { body: "Cannot muscle the map alone — and your health flashes red." },
               critfail: { body: "You collapse mid-sprint. The race slips out of control." }
+            }
+          },
+          {
+            id: "dark_hand_rally",
+            text: "At the finale rally, promise the files: \"Behind my rival stand the people who decide elections for you. Day one, the files come into the light\"",
+            note: "Fast lane. The crowds roar back — but the intelligence and law-enforcement systems hold plenty of files that never see light, and plenty of people who leak them.",
+            outcomes: {
+              crit: { body: "Three swing-state rallies rise and shout the line in unison. The rival's camp scrambles to cut him loose, and the poll item \"want to change Washington\" leaps." },
+              ok: { body: "The line gets printed on banners. Your race crosses the midpoint in the last two weeks — and an old memo about you begins to \"circulate\"." },
+              meh: { body: "The crowd shouted; the watchers didn't move. Inside the system, someone only nudges the recorder a little closer." },
+              fail: { body: "You never said which files; the next day a reporter has the one about you. The accusation turns into a confession." },
+              critfail: { body: "The agency you named issues a rare joint denial — every paragraph carrying details you had not expected. Your race, and the suspicion, top the news together." }
             }
           },
           {

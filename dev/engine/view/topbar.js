@@ -127,7 +127,7 @@
   /* ---------------- 职位卡：我现在是谁（状态面板顶部的一块） ----------------
    * 参考真实政治人物的履历表述：职务 → 选区/机构 → 基本盘 → 光谱定位。
    * 机制在引擎，名词表在内容（reg.office：按 track×tier 查，miss 就用 officeFallback）。
-   * 铁杆选民 = 声望 × 基层派系好感 的量纲换算（千人）；光谱 = 党派 + 姿态 + 关键标记。 */
+   * 铁杆选民 = 声望 × 基层派系好感 的量纲换算（千人）；光谱 = 党派 + 底色 + 关键标记。 */
   P.officeNameAt = function (tier) {
     const G = P.G;
     const table = P.reg.office || {};
@@ -186,9 +186,12 @@
     const diehardTxt = fmtNum(vp.diehard) + " " + P.t("ui.topbar.vtDie", "死忠") + " · "
       + fmtNum(vp.warm) + " " + P.t("ui.topbar.vtWarm", "有好感") + " · "
       + fmtNum(vp.oppose) + " " + P.t("ui.topbar.vtOppose", "反对");
-    /* 政治光谱：党派打底，姿态偏移，关键标记再拉 */
+    /* 政治光谱：党派打底，底色偏移（#43 四档，局内走出），关键标记再拉 */
     const partyName = (P.reg.party[G.party] || {}).name || P.t("ui.topbar.noParty", "无党派");
-    let wing = G.stance === "outsider" ? P.t("ui.topbar.wingOutsider", "（反建制）") : "";
+    const creedShort = (function (s) { const n = (P.reg.stance[s] || {}).name || ""; return n.replace(/派$/, ""); })(G.stance);
+    /* 括号交给词条：中文用全角，英文覆盖层给半角 */
+    let wing = (G.stance && G.stance !== "establishment")
+      ? P.t("ui.topbar.wingCreed", "（{v}）", { v: creedShort }) : "";
     let spectrum = partyName + wing;
     if (P.hasFlag("wave_tea")) spectrum += P.t("ui.topbar.mTea", "·茶党底色");
     if (P.hasFlag("wave_occupy")) spectrum += P.t("ui.topbar.mOccupy", "·占领底色");
@@ -209,13 +212,13 @@
        与顶部条原来的「职务 / 在位」两个 chip 重复 —— 合并成一行：职位 · T层级（在位 N 个月）。 */
     /* v0.8 压高度：选区规模+光谱缩略进标题行；晋升进度上移到顶栏身份徒章（identityHTML）。
        卡体只留最关键的「选民三档 + 底气」一行。 */
-    let specShort = partyName + (G.stance === "outsider" ? P.t("ui.topbar.wingShort", "·反建制") : "");
+    let specShort = partyName + (G.stance && G.stance !== "establishment" ? "·" + creedShort : "");
     const specMarks = [["wave_tea", P.t("ui.topbar.sTea", "茶党")], ["wave_occupy", P.t("ui.topbar.sOccupy", "占领")], ["wave_antiwar", P.t("ui.topbar.sAntiwar", "反战")], ["cross_insider", P.t("ui.topbar.sMachine", "机器")], ["fallen", P.t("ui.topbar.sFallen", "下野")]];
     specShort += specMarks.filter(function (m) { return P.hasFlag(m[0]); }).map(function (m) { return "·" + m[1]; }).join("");
     const metaTxt = (stateTxt ? stateTxt + " · " : "") + (national
       ? P.t("ui.topbar.districtNat", "全国选民 {n}", { n: fmtNum(es.size) })
       : P.t("ui.topbar.district", "选区 {n}", { n: fmtNum(es.size) })) + " · " + specShort;
-    const spectrumTip = P.t("ui.topbar.spectrumTip", "选区规模：层级越高盘子越大。光谱=党派打底+姿态偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。");
+    const spectrumTip = P.t("ui.topbar.spectrumTip", "选区规模：层级越高盘子越大。光谱=党派打底+底色偏移+时代印记，决定哪些事件与派系对你友好、哪些把你当异类。");
     /* 选民三档是本卡的核心读数 → 数字做大、按语义配色（死忠绿/好感金/反对红），标签小字退到上方 */
     const voterLine = '<span class="vt vt-die"><i>' + P.t("ui.topbar.vtDie", "死忠") + '</i><b>' + fmtNum(vp.diehard) + '</b></span>' +
       '<span class="vt vt-warm"><i>' + P.t("ui.topbar.vtWarm", "有好感") + '</i><b>' + fmtNum(vp.warm) + '</b></span>' +
@@ -308,7 +311,7 @@
         P.t("ui.topbar.tipAppr", "全国民意调查。白宫每个月的决策都吃它（判定加成按 50% 为零点），每月还会向自然水位回归、缓慢流失；跌到危险区时党内会有人来敲门。"),
         "appr", ap.value);
     return '<div class="topstat"><div class="tsrow statgrid">' +
-        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。"), "rep", G.rep) +
+        stat(P.t("ui.topbar.resRep", "声望"), G.rep, 's-rep', ICON.rep, false, P.t("ui.topbar.tipRep", "名望与曝光度（含风评与丑闻）。很多事件的门槛、派系态度与晋升都看它；太低会被人当无名小卒。顶到 100 之后涨的名气不会白涨——自动折成基层支持者。"), "rep", G.rep) +
         stat(P.t("ui.topbar.resFun", "资金"), P.fmtMoney(G.fun), 's-fun', ICON.fun, false, P.t("ui.topbar.tipFun", "竞选与运作的钱。多数关键行动都要烧钱，投注加码也吃它；归零会寸步难行。"), "fun", G.fun) +
         stat(P.t("ui.topbar.resFav", "人情"), G.fav, 's-fav', ICON.fav, false, P.t("ui.topbar.tipFav", "攒下与欠下的人脉关照。可动用关系换取助力，也会被旧账反噬。"), "fav", G.fav) +
         stat(P.t("ui.topbar.resLev", "把柄"), G.lev, 's-lev', ICON.lev, false, P.t("ui.topbar.tipLev", "别人见不得光的事，单位是「份」——握着就能在关键时刻要挟、换取让步；但会随时间失效（当事人下台或事情过去）。"), "lev", G.lev || 0) +

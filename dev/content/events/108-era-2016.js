@@ -28,9 +28,9 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你看穿了这不是闹一阵就散，抢先一步把自己讲成「听得见老百姓声音的人」。老机器骂你投机，新浪潮却把你推到了台前。",
-            effects: { rep: 1.25, tier: 1, fac: { base: 12, establishment: -8, press: -4 }, flags: ["attention_player"] } },
+            effects: { rep: 1.25, tier: 1, fac: { base: 12, establishment: -8, press: -4 }, flags: ["attention_player"], count: { creed_populist: 2 } } },
           ok: { body: "你顺着这股气说了话，基层觉得你「不装」。上层对你多了几分提防，但你的位置更稳了。",
-            effects: { rep: 0.7, fac: { base: 8, establishment: -4 } } },
+            effects: { rep: 0.7, fac: { base: 8, establishment: -4 }, count: { creed_populist: 1 } } },
           meh: { body: "你两头押、两头浅。基层觉得你不够狠，建制觉得你不忠心，谁都没把你当自己人。",
             effects: { rep: 0.2, fac: { establishment: -3 } } },
           fail: { body: "你抢着拥抱浪头，浪却没到你这边来。你既丢了建制的支持，也没捞到民粹的掌声。",
@@ -250,15 +250,15 @@ POTUS.define("event", [
         stake: { fun: true },
         outcomes: {
           crit: { body: "你抢在最前面喊「停」，群里瞬间把你当自己人。短期人气爆表，只是你已经上了这辆不知道开向哪的车。",
-            effects: { rep: 1.5, voters: { warm: 500 }, fac: { base: 8, establishment: -8 } } },
+            effects: { rep: 1.5, voters: { warm: 500 }, fac: { base: 8, establishment: -8 }, count: { creed_populist: 2 } } },
           ok: { body: "你跟着喊了几句，自己这边的情绪被你稳住了。法理与体面，你悄悄往回收了一点。",
-            effects: { rep: 0.8, voters: { warm: 200 }, fac: { base: 5, establishment: -4 } } },
+            effects: { rep: 0.8, voters: { warm: 200 }, fac: { base: 5, establishment: -4 }, count: { creed_populist: 1 } } },
           meh: { body: "你想借火，火却没全朝你这边照。喊也喊了，没落下多少好处。",
             effects: { rep: 0.4, fac: { establishment: -3 } } },
           fail: { body: "你带头质疑计票，最后清点结果却毫无问题。「他自己都说不清在闹什么」写进了第二天的报道。",
             effects: { rep: -2, fac: { establishment: -6, press: -5 } } },
           critfail: { body: "你点的这把火，最后烧到了一场你兜不住的场面。事后追责名单上，你喊的那一嗓子被逐字回放。",
-            effects: { rep: -4.5, fac: { establishment: -10, press: -8, base: -4 }, flags: ["denier", "scandal_3"] } }
+            effects: { rep: -4.5, fac: { establishment: -10, press: -8, base: -4 }, flags: ["denier", "scandal_3"], count: { creed_populist: 1 } } }
         }
       },
       {

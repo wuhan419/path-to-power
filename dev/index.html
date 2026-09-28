@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>权力之路 · 一个美国小伙的从政之路</title>
+<title>Path to Power · An American Kid's Road to Office</title>
 <link rel="stylesheet" href="engine/style.css">
 </head>
 <body>
@@ -14,7 +14,9 @@
      ======================================================================= -->
 <script src="engine/core.js"></script>
 <!-- 本地化地基：P.t(key, 中文原文) 取串 + POTUS.define("l10n") 覆盖层按结构合并。
-     中文无需字典（内联字面量即兜底），英文只写覆盖层，见 docs/I18N.md -->
+     中文无需字典（内联字面量即兜底），英文只写覆盖层，见 docs/I18N.md。
+     默认语言 = en（engine/i18n.js 的 DEFAULT_LANG）：中文走标题屏/顶栏的语言开关；
+     页面顶部的静态 lang 与 <title> 按英文写死，只为首屏与抓取一致，boot 后由 applyLang 覆写。 -->
 <script src="engine/i18n.js"></script>
 <!-- 统一的声明式条件求值器：事件门槛 / 结局规则 / 静好片段 / 主线 gate 共用这一套词汇 -->
 <script src="engine/when.js"></script>

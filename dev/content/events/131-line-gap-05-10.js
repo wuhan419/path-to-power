@@ -166,7 +166,7 @@ POTUS.define("event", [
         base: 0.38, mods: [{ src: "attr", key: "CUN", w: 0.4 }, { src: "fac", key: "base", w: 0.3 }],
         req: { fac: "base", min: 18 },
         outcomes: {
-          crit: { body: "你那句「该让国民自己算这笔账」被反战阵营接住。秋天的征兵数字又低了一截，你的电话却被打爆了。", effects: { rep: 1.4, fac: { base: 9, press: 5, military: -10 }, voters: { warm: 500 }, flags: ["war_skeptic"] } },
+          crit: { body: "你那句「该让国民自己算这笔账」被反战阵营接住。秋天的征兵数字又低了一截，你的电话却被打爆了。", effects: { rep: 1.4, fac: { base: 9, press: 5, military: -10 }, voters: { warm: 500 }, flags: ["war_skeptic"], count: { creed_progressive: 1 } } },
           ok: { body: "你把那句话说出口了。一半选区写信骂你，一半写信谢你。", effects: { rep: 0.7, fac: { base: 5, military: -5 } } },
           meh: { body: "你说晚了。首都那几位比你先说了，而且说得更响。", effects: { rep: -0.1 } },
           fail: { body: "老兵团体把你的话印在追思墙页面上。明年阵亡将士纪念日，那一页就是你对手的弹药。", effects: { rep: -1.4, fac: { military: -8, base: -3 } } },

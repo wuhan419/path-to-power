@@ -51,7 +51,8 @@
    * 诚信 INTG 不在其中：它只能靠游戏内选择后天涨跌（内容里 239 处判定权重照常生效）。 */
   const ATTR_TARG = ["CHA", "INT", "CUN"];           // 吃属性点、受单维软上限约束
   const ALLOC_TARG = ["CHA", "INT", "CUN", "FUN"];   // 四个分配去处（FUN=金钱，不受 cap）
-  /* 属性硬顶：三围从 startAttr 打底、1 点 = +10，能一路点到 100（旧口径 99 已放宽到满值）。 */
+  /* 加点硬顶：三围从 startAttr 打底、1 点 = +10，能一路点到 100（旧口径 99 已放宽到满值）。
+   * 它只管【自己点的】那一截 —— 卡面加成与局内成长从 100 之上继续长（effects.js 不夹上限）。 */
   const ATTR_HARD_MAX = 100;
   /* 家乡标签：把州定义里的 city / district 拼成一句人话（扬斯敦 · 俄亥俄 · 第 17 选区）。
      缺市/选区就退回州名，保证任何州都能显示；与 engine/flavor.js 的 {HOME}/{CITY}/{DISTRICT} 同源。 */
@@ -124,7 +125,7 @@
    * P.spendPoint(k, d)：给某去处加/退 d 点。夹在三道闸之间——
    *   ① 剩余额度（P.freePool = 首局基础 + 已完成周目 × loopFreeBonus；作弊码兑的周目也算进来）
    *   ② 单维软上限 P.freeCap（只卡属性三格；金钱是不受 cap 的溢出池）
-   *   ③ 属性本身 0-100 硬顶（startAttr 打底 + 点×每点属性，越顶的点自动退回）
+   *   ③ 属性 0-100 硬顶（只卡加点：startAttr 打底 + 点×每点属性，越顶的点自动退回）
    * 保留旧名 spendAttr 作别名（validate/smoke 与老调用方沿用）。 */
   function usedPoints(C) {
     const sp = C.spent || {};

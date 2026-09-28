@@ -33,6 +33,9 @@ const dom = new JSDOM("<!DOCTYPE html><html><body><div id='app'></div></body></h
   url: "http://localhost/", runScripts: "dangerously", pretendToBeVisual: true
 });
 const w = dom.window;
+/* 这套冒烟断言的措辞按中文界面写，所以显式钉住 zh —— 游戏本身的默认语言已是 en
+   （外网首发），让默认值飘到这里会把整轮点检跑成英文。默认语言由下面那条断言单独盯。 */
+w.localStorage.setItem("potus_lang", "zh");
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 let fail = 0;

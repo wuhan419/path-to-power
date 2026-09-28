@@ -33,9 +33,11 @@ global.localStorage = {
   get length() { return Object.keys(_store).length; }
 };
 /* --lang=en：把语言预置进存根 localStorage，boot 时 engine/i18n.js 会套用英文覆盖层，
-   于是同一套断言可以在两种语言下各跑一遍。 */
-const L10N_LANG = ((process.argv.find(a => /^--lang=/.test(a)) || "").split("=")[1] || "").trim();
-if (L10N_LANG) _store.potus_lang = L10N_LANG;
+   于是同一套断言可以在两种语言下各跑一遍。
+   不写 --lang 时【显式钉 zh】：游戏本身默认已是 en（engine/i18n.js 的 DEFAULT_LANG），
+   而这套断言的措辞按中文原文写，让默认语言飘移动会把整轮跑成另一种语言。 */
+const L10N_LANG = ((process.argv.find(a => /^--lang=/.test(a)) || "").split("=")[1] || "").trim() || "zh";
+_store.potus_lang = L10N_LANG;
 global.getComputedStyle = () => ({ getPropertyValue: () => "" });global.alert = () => { }; global.confirm = () => true; global.prompt = () => "x";
 global.setTimeout = () => 0; global.setInterval = () => 1; global.clearInterval = () => { };
 /* URL/Blob/FileReader 桩：必须是可实例化的函数（不能是普通对象）——
@@ -117,6 +119,20 @@ const ZH = P.i18n.withZh;
   check(R.missed.length === 0, "覆盖层指向不存在的目标（id 拼错 / 字段路径不对 / 数组没对齐）：" +
     R.missed.slice(0, 8).join(", ") + (R.missed.length > 8 ? " …共 " + R.missed.length + " 处" : ""));
   check(R.unknownKind.length === 0, "覆盖层用了注册表里不存在的类别：" + R.unknownKind.join(", "));
+  /* 默认语言是产品口径，不是实现细节：游戏发在外网，没存过偏好的新玩家第一眼必须是英文，
+     中文走标题屏/顶栏的语言开关。翻回 zh 没人会当 bug 报，所以钉在这里。
+     同时预置必须仍然赢过默认 —— 否则「双语各跑一遍」是两遍同一种语言。 */
+  check(P.i18n.DEFAULT_LANG === "en",
+    "游戏默认语言应为 en（engine/i18n.js 的 DEFAULT_LANG），当前是 " + P.i18n.DEFAULT_LANG);
+  check(P.locale.lang === L10N_LANG,
+    "存根 localStorage 的语言预置没生效：本次跑 " + P.locale.lang + "，预置 " + L10N_LANG +
+    " —— 双语门禁会变成同一语言跑两遍");
+  {
+    const staticTitle = ((htmlRaw.match(/<title>([^<]*)<\/title>/) || ["", ""])[1]);
+    check(/<html\s+lang="en"/.test(htmlRaw) && !/[一-鿿]/.test(staticTitle),
+      "index.html 的静态 <html lang> 与 <title> 要按默认语言写成英文（首屏与抓取看的是它们，boot 之后才由 applyLang 覆写）：" +
+      staticTitle);
+  }
   console.log("  多语言层：当前语言 " + P.locale.lang + " ｜ 界面串 " + Object.keys(P.locale.ui).length +
     " 条 ｜ 内容覆盖 en " + (R.applied.en || 0) + " 条" + (L10N_LANG === "en" ? "（已套用）" : "（本次未套用）"));
   if (L10N_LANG === "en") {
@@ -3190,7 +3206,7 @@ console.log("\n== 静好岁月 ==");
 
   /* --- 6) 成长：不越界、年纪大了长得慢 --- */
   const bv = P.balance().vignette;
-  const capAttr = bv.attrCap == null ? 88 : bv.attrCap;
+  const capAttr = bv.attrCap == null ? 100 : bv.attrCap;
   GV.attr = { CHA: capAttr, INT: capAttr, CUN: capAttr, INTG: capAttr };
   GV.age = 25; GV.rep = 100; GV.contacts = { fixer: 100 }; GV.hp = 100;
   for (let i = 0; i < 500; i++) P.vignetteGrowth(1);
@@ -3198,11 +3214,12 @@ console.log("\n== 静好岁月 ==");
     "属性成长不应突破 attrCap（" + capAttr + "），实际 " + JSON.stringify(GV.attr));
   /* --- #37③ 静好岁月的成长预算 ---
    * ① 抽中属性的概率压到 0.08（原 0.20）；
-   * ② attrCap 必须低于自由点硬顶 100 —— 平静月永远不该把点推到「玩家自己分配不满」的高度，
+   * ② attrCap 不该高过建角加点硬顶 100 —— 岁月填到「玩家自己点得满」的高度就收口，
+   *    再往上的那一截只留给卡面和事件（effects.js 的 attr 不夹上限）；
    *    撞在上限上的结果就是 G.attr[k] < attrCap 这条判断直接不再成长（不会倒扣）；
    * ③ 资金暗账整条删除：钱只有【月账】+【事件卡】两条门，随笔侧不许再写 G.fun。 */
   check(bv.attrChance <= 0.10, "#37③ 静好抽属性概率应 ≤0.10（当前 " + bv.attrChance + "）——岁月长本事，但不是传送带");
-  check(capAttr < 100, "静好 attrCap（" + capAttr + "）应低于自由点硬顶 100");
+  check(capAttr <= 100, "静好 attrCap（" + capAttr + "）不应高于建角加点硬顶 100");
   check((bv.attrKeys || []).indexOf("INTG") < 0, "诚信只能由选择塑造，不该进自然成长池");
   check(bv.funChance == null && bv.funRate == null, "#37③ 静好岁月的资金通道应已删除，实际 " +
     JSON.stringify({ funChance: bv.funChance, funRate: bv.funRate }));
@@ -3354,7 +3371,7 @@ console.log("\n== 权重管线（身份 / 资源 → 抽中什么） ==");
   const crazy = { when: {}, cats: { shady: 1000 } };
   const savedId = b.identityBias, savedRes = b.resourceBias;
   const probeSnap = { era: "2008_CRASH", year: 2010, month: 6, age: 40, track: "operative", party: "D",
-    stance: "outsider", origin: "labor", entry: "operative", talent: "orator", tier: 2,
+    stance: "populist", origin: "labor", entry: "operative", talent: "orator", tier: 2,
     rep: 50, hp: 80, fun: 100000, fav: 0, lev: 0, contactN: 0, knownIds: {}, scandal: 0, tenure: 10, flags: [] };
   b.identityBias = [crazy, crazy, crazy, crazy, crazy];
   let d = P.weightBreakdown(extreme, probeSnap, { counts: {} });
@@ -3403,7 +3420,7 @@ console.log("\n== 权重管线（身份 / 资源 → 抽中什么） ==");
     { label: "名人轨道 T2", patch: { track: "celebrity", entry: "celebrity" } },
     { label: "财富轨道 T2", patch: { track: "wealth", entry: "business" } },
     { label: "委任轨道 T2", patch: { track: "appointment", entry: "pro" } },
-    { label: "穷 T0 反建制", patch: { tier: 0, stance: "outsider", fun: 20000, rep: 8, origin: "labor" } },
+    { label: "穷 T0 民粹", patch: { tier: 0, stance: "populist", fun: 20000, rep: 8, origin: "labor" } },
     { label: "富 T4 把柄 5 财力足", patch: { tier: 4, fun: 5000000, rep: 70, lev: 5, contacts: { a: 1, b: 1, c: 1, d: 1, e: 1, f: 1 } } },
     { label: "病重 hp20 T2", patch: { hp: 20 } }
   ];
@@ -3701,6 +3718,103 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
   for (let i = 0; i < 300; i++) P.spendPoint("FUN", -1);
   check(P.CSEL.spent.FUN >= 0, "减点不应为负：" + P.CSEL.spent.FUN);
 
+  /* 属性的两道门分开：上面那条 100 只卡【建角加点】；卡面加成与局内成长从 100 之上继续走。
+     建角页第 3 步把卡加成原样摊在账面上（不夹），落地若被 effects 夹回 100 就成了账面虚高。 */
+  {
+    const Gbak = P.G;
+    P.G = { attr: { CHA: 100, INT: 100, CUN: 100, INTG: 50 }, faction: {}, flags: [], cards: [], log: [] };
+    P.applyEffects({ attr: { CHA: 6, INT: 15, INTG: 20 } });
+    check(P.G.attr.CHA === 106 && P.G.attr.INT === 115 && P.G.attr.INTG === 70,
+      "卡片/事件的属性加成应能突破建角硬顶 100，实际 " + JSON.stringify(P.G.attr));
+    P.applyEffects({ attr: { CHA: -500 } });
+    check(P.G.attr.CHA === 0, "属性下限仍是 0，实际 " + P.G.attr.CHA);
+    P.G = Gbak;
+  }
+
+  /* 声望：顶不抬（0—100 是 req.rep 门槛、支持率播种、选民增速系数共同的定标尺），
+     但顶后**不许静默吞点**。20 局实测：生涯月里 11.5% 停在 100，18.2%（941/5160 点）
+     的正向声望砸在满值上蒸发 —— 玩家看到的就是"赢了大事，声望条一动不动"。
+     现在的口径是溢出折成好感选民，所以这里钉三件事：折算开着、满值时确实折出人、
+     未满值时不许顺手发人（否则等于给声望收益再叠一层，300 局基线要歪）。 */
+  {
+    const Gbak = P.G;
+    check(Number(((P.balance() || {}).repOverflow || {}).warmShare) > 0,
+      "balance.repOverflow.warmShare 必须 > 0：关掉折算就是把满值后的声望收益静默吞掉");
+    P.G = { rep: 100, tier: 6, voters: { warm: 0, diehard: 0, oppose: 0 },
+      attr: { CHA: 50, INT: 50, CUN: 50, INTG: 50 }, faction: {}, flags: [], cards: [], log: [] };
+    const r1 = P.addRep(6, P.G, true);
+    check(P.G.rep === 100, "满值后涨声望不得顶破 100，实际 " + P.G.rep);
+    check(r1.gained === 0 && r1.over === 6, "满值时 6 点声望应整笔计入溢出（实际 到账 " + r1.gained + "／溢出 " + r1.over + "）");
+    check(P.G.voters.warm > 0, "溢出必须折出好感选民，不得凭空消失（warm=" + P.G.voters.warm + "）");
+    P.G.rep = 60;
+    const wBefore = P.G.voters.warm;
+    const r2 = P.addRep(6, P.G, true);
+    check(P.G.rep === 66 && r2.over === 0 && P.G.voters.warm === wBefore,
+      "未满值时只涨声望、不得顺手发选民（双给）：" + P.G.rep + "／溢出 " + r2.over +
+      "／选民 " + wBefore + "→" + P.G.voters.warm);
+    P.applyEffects({ rep: 4 });                     /* 事件/卡那条门路也必须走同一入口 */
+    check(P.G.rep === 70, "未满值时 effects 的 rep 应照常到账，实际 " + P.G.rep);
+    /* 入口必须是【导出的那一个】：handler 若绕回闭包里的 addRep，量具与门禁就都看不见这笔账 */
+    const _entry = P.addRep;
+    let seen = 0;
+    P.addRep = function (v, G, silent) { seen++; return _entry(v, G, silent); };
+    P.applyEffects({ rep: 3 });
+    P.addRep = _entry;
+    check(seen === 1 && P.G.rep === 73, "rep handler 必须经导出的 P.addRep（实际经过 " + seen +
+      " 次、声望 " + P.G.rep + "）—— 否则溢出折算对这条门路是瞎的");
+    P.G.rep = 100; P.G.tier = 8;
+    const w4 = P.G.voters.warm;
+    P.applyEffects({ tier: 1 });                    /* 总统闸拦下 → 折 3 点声望 → 满值 → 该折成人 */
+    check(P.G.tier === 8 && P.G.voters.warm > w4,
+      "被总统闸折抵的 +3 声望在满值时同样要折算成人（tier " + P.G.tier + "／选民 " + w4 + "→" + P.G.voters.warm + "）");
+    P.G = Gbak;
+  }
+
+  /* G.rep 的写权必须收口：只许 addRep 与四把【往下砸】的刀。
+     多一条正向直写就绕过折算 —— 正是玩家投诉的那个"静默归零"。allowlist 逐条写明为什么允许。 */
+  {
+    const ALLOW = [
+      /^G\.rep = after;$/,                                                          /* addRep 自己（effects.js） */
+      /^if \(repCost > 0\) G\.rep = POTUS\.clamp\(\(G\.rep \|\| 0\) - repCost, 0, 100\);$/,  /* 缓交期满 / 被托底：扣一笔声望 */
+      /^if \(rp > 0\) G\.rep = POTUS\.clamp\(\(G\.rep \|\| 0\) - rp, 0, 100\);$/,    /* 免死豁免：烧卡换的代价 */
+      /^G\.rep = P\.clamp\(Math\.round\(G\.rep \* \(depth >= 2 \? 0\.45 : 0\.65\)\), 0, 100\);$/  /* 下野：按比例摔，只会向下 */
+    ];
+    const bad = [];
+    srcs.filter(s => s.indexOf("engine/") === 0).forEach(function (s) {
+      fs.readFileSync(path.join(ROOT, s), "utf8").split(/\r?\n/).forEach(function (line, i) {
+        if (!/\bG\.rep\s*=[^=]/.test(line)) return;
+        const t = line.trim();
+        if (ALLOW.some(function (re) { return re.test(t); })) return;
+        bad.push(s + ":" + (i + 1) + " " + t.slice(0, 56));
+      });
+    });
+    check(!bad.length, "G.rep 只能由 addRep 入口写（正向收益要靠它溢出折算），未登记的直写：" + bad.join(" ｜ "));
+  }
+  /* 顶格【只是顶格，不是封死】：掉一截声望必须立刻把额度还回来，且 addRep 的
+     「到账 / 溢出」切分必须跟着额度走 —— 否则折算会把本该回到条上的点数白送给选民。 */
+  {
+    const Gbak = P.G;
+    P.G = { rep: 100, tier: 6, voters: { warm: 500000, diehard: 0, oppose: 0 },
+      attr: { CHA: 50, INT: 50, CUN: 50, INTG: 50 }, faction: {}, flags: [], cards: [], log: [] };
+    check(P.G.rep === 100, "起点须是顶格，否则下面切的额度不成立，实际 " + P.G.rep);
+    P.applyEffects({ rep: -20 });                    /* 丑闻 / 被砸：向下也走同一入口 */
+    check(P.G.rep === 80, "顶格之后掉 20 点必须真掉（顶格不是锁死），实际 " + P.G.rep);
+    const r3 = P.addRep(30, P.G, true);
+    check(r3.gained === 20 && r3.over === 10 && P.G.rep === 100,
+      "30 点声望应按额度切成 到账 20 ／ 溢出 10，实际 " + r3.gained + "／" + r3.over + "（rep " + P.G.rep + "）");
+    P.G = Gbak;
+  }
+
+  /* 折算这条路的几条播报只在【顶格时】才现身，i18n-coverage 扫屏幕扫不到 ——
+     en 下漏一条就是往英文界面吐中文。逐个点名，缺译时用中文占位串把它逼出来。 */
+  if (P.isEn && P.isEn()) {
+    ["ui.effects.repOverflow", "ui.stage.repConvTip", "ui.stage.voterWarm", "ui.topbar.tipRep"].forEach(function (k) {
+      const s = P.t(k, "中文占位串" + k, { R: 1, N: 2 });
+      check(!/[\u3400-\u9fff]/.test(s), "英文界面下 " + k + " 没有译文，正在吐中文：" + s);
+    });
+  }
+
+
   /* 真实周目（结算记的那笔 +1）同样把额度与单维上限一起抬起来 */
   P.bumpLoop(); P.bumpLoop();
   check(P.currentLoop() === 3, "完成两局后进入第 3 周目：" + P.currentLoop());
@@ -3986,16 +4100,29 @@ console.log("\n== v0.5 出生州 / 掷骰建角 / 下野 / 收益结算 / 年终
     "曾任总统+清白，哪怕下野后只剩 2 级，2025 仍以总统账本收口（A 档）");
   P.G.tier = _svTier; P.G.flags = _svFlags; P.G.endingReason = _svReason; P.G.pres = _svPres;
 
-  /* --- 效果键 setTrack / setStance --- */
+  /* --- 效果键 setTrack --- */
   const track0 = P.G.track;
   P.applyEffects({ setTrack: "operative" });
   check(P.G.track === "operative", "setTrack 应改轨道（" + track0 + "→operative）");
   P.applyEffects({ setTrack: "不存在的轨道" });
   check(P.G.track === "operative", "setTrack 对不存在的轨道应忽略");
-  const stance0 = P.G.stance;
-  P.applyEffects({ setStance: K(P.reg.stance).find(function (x) { return x !== stance0; }) });
-  check(P.G.stance !== stance0, "setStance 应改姿态");
-  P.G.track = track0; P.G.stance = stance0;
+  P.G.track = track0;
+
+  /* --- #43 底色是走出来的：creed_* 计数器 → P.creedRecompute → G.stance ---
+     没有 setStance 效果键了：直接写 G.stance 会在下一次结算被推导覆盖。 */
+  const stance0 = P.G.stance, counters0 = P.G.counters;
+  P.G.counters = {};
+  P.applyEffects({ count: { creed_populist: 2 } });
+  check(P.G.stance === "establishment", "民粹只攒 2 分（未到 creed.min=3）不该封底色，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_populist: 1 } });
+  check(P.G.stance === "populist", "民粹攒到 3 分应改封底色，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_progressive: 5 } });
+  check(P.G.stance === "progressive", "另一路领先 2 分，底色应能改换门庭，实际 " + P.G.stance);
+  P.applyEffects({ count: { creed_conservative: 5 } });
+  check(P.G.stance === "establishment", "两条路并列领先（lead<2）该退回未贴标签，实际 " + P.G.stance);
+  P.G.counters = {}; P.creedRecompute();
+  check(P.G.stance === "establishment", "计数器清零应退回未贴标签的建制，实际 " + P.G.stance);
+  P.G.counters = counters0; P.G.stance = stance0;
 
   /* --- 收益结算面板：effects → 玩家语言 ---
      词条名取自派系/属性/状态注册表，en 覆盖层一翻就会被当成断言失败，所以整段按中文取词。 */

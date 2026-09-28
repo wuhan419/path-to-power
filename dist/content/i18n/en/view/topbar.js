@@ -76,7 +76,7 @@ POTUS.define("l10n", {
     "ui.topbar.resFun": "Cash",
     "ui.topbar.resFav": "Favors",
     "ui.topbar.resLev": "Dirt",
-    "ui.topbar.tipRep": "Standing and exposure, press tone and scandals included. Event gates, faction attitudes and promotions all watch it; too low and nobody takes you seriously.",
+    "ui.topbar.tipRep": "Standing and exposure, press tone and scandals included. Event gates, faction attitudes and promotions all watch it; too low and nobody takes you seriously. Once it tops out at 100 the fame you keep winning isn't lost — it turns into grassroots supporters.",
     "ui.topbar.tipFun": "Money for campaigning and back-room work. Most key actions burn cash, and so does raising the stakes; at zero you can barely move.",
     "ui.topbar.tipFav": "Connections banked and owed. Call in favors for help — or get called in by old debts.",
     "ui.topbar.tipLev": "Secrets others cannot afford to surface, counted in pieces. Hold them and you can force concessions at the worst possible moment — but they expire once the person falls or the story dies down.",
