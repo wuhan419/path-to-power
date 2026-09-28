@@ -177,6 +177,18 @@ POTUS.define("l10n", {
               fail: { body: "Your chief of staff and a whip get into it in front of the cameras, and the next day's story is about a White House that cannot stay on message." },
               critfail: { body: "The talks collapse, and the hallway microphone catches the collapse. The shutdown runs a month, and the full tape plays in every candidate's ad." }
             }
+          },
+          {
+            id: "streets",
+            text: "Go around the whips: address the nation from the South Lawn and tell voters to knock on the swing members' office doors themselves",
+            note: "Fast lane. The doors may open overnight — onto you. Mobilize Congress as the enemy, and Congress will remember who said it on camera.",
+            outcomes: {
+              crit: { body: "The offices' phone lines jam; two swing members flip to the White House version that same night. The bill opens on your terms, and afterward the whip holds the roll-call list and says nothing." },
+              ok: { body: "The pressure moves three or four votes and the rider loses most of its text. You win one night in front of the country and a whole term in front of your own caucus." },
+              meh: { body: "Plenty of calls, and the whips only close ranks. What finally opens the doors is the very draft you could have signed at the start." },
+              fail: { body: "The members you named appear on television as a group to defend themselves, and the cut titled \"the president stirred a mob into the halls of Congress\" lands louder than the bill itself." },
+              critfail: { body: "A loosely signed call to action has supporters block a state capitol door. Both parties condemn you, and for the first time the Senate majority leader says your name on camera." }
+            }
           }
         ]
       }

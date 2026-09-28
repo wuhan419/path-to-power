@@ -35,8 +35,7 @@ POTUS.define("l10n", {
     /* 职位卡：光谱 / 在位 / 选区基本盘 */
     "ui.topbar.exPresident": "Former President",
     "ui.topbar.noParty": "Independent",
-    "ui.topbar.wingOutsider": " (anti-establishment)",
-    "ui.topbar.wingShort": " · Anti-Est.",
+    "ui.topbar.wingCreed": " ({v})",
     "ui.topbar.mTea": " · Tea Party roots",
     "ui.topbar.mOccupy": " · Occupy roots",
     "ui.topbar.mAntiwar": " · Antiwar badge",
@@ -58,7 +57,7 @@ POTUS.define("l10n", {
     "ui.topbar.numYi": "{n} ×100M",
     "ui.topbar.numWan": "{n} ×10K",
     "ui.topbar.numKilo": "{n}K",
-    "ui.topbar.spectrumTip": "Electorate size: the higher the office, the bigger the pool. Spectrum = party base + stance shift + era marks; it decides which events and factions are friendly to you — and which treat you as an outlier.",
+    "ui.topbar.spectrumTip": "Electorate size: the higher the office, the bigger the pool. Spectrum = party base + creed drift + era marks; it decides which events and factions are friendly to you — and which treat you as an outlier.",
     "ui.topbar.vtDie": "Loyal",
     "ui.topbar.vtWarm": "Warm",
     "ui.topbar.vtOppose": "Opposed",

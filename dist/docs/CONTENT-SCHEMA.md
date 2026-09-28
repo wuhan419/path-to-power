@@ -21,7 +21,7 @@ POTUS.define(kind, payload);
 | `"entry"` | `{ id: {...} }` | 起点路径 |
 | `"track"` | `{ id: {...} }` | 晋升轨道 |
 | `"party"` | `{ id: {...} }` | 党派 |
-| `"stance"` | `{ id: {...} }` | 政治姿态 |
+| `"stance"` | `{ id: {...} }` | 政治底色（建制/民粹/进步/保守，局内走出来的，非建角选项，§3） |
 | `"state"` | `{ id: {...} }` | **出生州登记表**（州名/倾向 lean/铁杆强度 strength/城市选区/entryEffects），`content/12-states.js`，建角与州联动事件用 |
 | `"office"` | `{ "track_tier": 职位名 }` | **各层级职位名**（字符串或 `{name}`），`content/14-offices.js`，界面按 轨道_层级 查 |
 | `"officeSalary"` | `{ "track_tier": 月薪 }` | **职位月薪表**（美元/月），`content/14-offices.js`；`core.js officeSalary()` 解析顺序：轨道_层级 → `*_层级` 通配 → 兜底。**它是"这个身位值多少钱"的唯一口径**：平静月工资、投注级别价（每档 ≈ 一档月薪，§4.16.3）、`scale.js` 的人物钱标尺（§4.16.2）都从这里派生 |
@@ -227,11 +227,18 @@ POTUS.define("entry", {
 ```js
 POTUS.define("track",   { name:"选举轨道", desc:"…", key:"CHA" });   // key 仅作展示
 POTUS.define("party",   { D:{ name:"民主党" }, R:{…}, I:{…} });
-POTUS.define("stance",  { establishment:{ name:"建制派", desc:"…" }, outsider:{…} });
+POTUS.define("stance",  { establishment:{ name:"建制派" }, populist:{ name:"民粹派" }, progressive:{ name:"进步派" }, conservative:{ name:"保守派" } });
 POTUS.define("faction", { base:{ name:"基层组织" }, establishment:{ name:"党建制派" }, /* 共 11 家，见 01-config.js */ });
 ```
 
 > **faction 的键**同时是 `effects.fac` 与事件条件里的键。增删派系只改这里，状态面板会自动适配。
+
+> **stance 是走出来的，不是选出来的（#43）**：建角没有底色选项，`G.stance` 由隐藏计数器
+> `G.counters["creed_populist" / "creed_progressive" / "creed_conservative"]` 推导 —— 每次效果结算后
+> `P.creedRecompute()`（`engine/effects.js`）取 argmax：最高分 ≥ `balance.creed.min`（3）且领先次高
+> ≥ `balance.creed.lead`（2）才封底色，否则（含并列）退回 `establishment`。建制派没有计数器。
+> 所以内容侧只有 `count: { creed_<档>: 1 }` 一种写法，**没有 `setStance` 效果键**（直接写 `G.stance`
+> 会被下一次结算覆盖）。判定侧用 `mods: [{ src:"stance", key:"populist", w:0.15 }]`，`w` 可为负（异底色扣分）。
 
 ## 4. event（事件）
 
@@ -995,7 +1002,11 @@ v0.12 的顶层交换率：**生存率是拿升官速度换的**。大收益选�
 
 **攒恨**：效果写 `count: { wrath_press: 8 }`（§6，累加、下限 0、**永不衰减**）。
 刻意不上状态面板——玩家在决策预览里看到的是红色「⚠ 树敌：媒体」角标（stage.js 扫全 outcome 档的 `count.wrath_*`）。
-**全游戏只有约 15 处精选树敌点**：只标真正结仇的选择，不许遍地开花，更不许逢晋升就记恨。
+**全游戏约 24 处精选树敌点**：约 15 处存量（真正"赢麻了"的选择）+ #43 新增的 9 处**快线**煽动选项
+（T7 副手视野/审查、T8 初选/提名/辩论/摇摆州、T9 白宫停摆与连任中期）。快线的手感是「容易成功、
+当场大涨选情、狠狠结仇」：`base` 0.62—0.64 + 同底色 +15 百分点（民粹/保守吃正、建制吃 −10~−12），
+不花资源、无 req；代价是单次 +16 恨（meh +10、fail +20、critfail +22~24），三到四次同组点火就进清算。
+不许遍地开花，更不许逢晋升就记恨。
 
 **两拍节奏**（`events/140-reckoning.js` 清算包，10 张卡 = 5 组 × 两拍）：
 
@@ -1191,7 +1202,7 @@ earlyCalm: { enabled: true, months: 24, activeMul: 0.8, choreMul: 0.6, quotaMul:
 | `"talent"` | 天赋 | `key`(天赋 id), `w` | 命中则 `+w` |
 | `"track"` | 轨道 | `key`, `w` | 命中则 `+w` |
 | `"party"` | 党派 | `key`, `w` | 命中则 `+w` |
-| `"stance"` | 姿态 | `key`, `w` | 命中则 `+w` |
+| `"stance"` | 底色 | `key`(四档之一), `w` | 命中则 `+w`（`w` 可写负值：异底色扣分） |
 | `"tier"` | 层级 | `w`(每层加值) | `层级 × w` |
 | `"res"` | 资源 | `key:"fun"`, `min`, `w` | 资金 ≥ min 时 `+w` |
 | `"voters"` | 选民底气 | `w`(默认 0.06) | `voterEdge()`(∈[-1,1]，均衡点为 0)`× w`（`dice.js`）。晋升/连任类选项（`isContestChoice`）由 `computeP` **自动附加**（`balance.voterDynamic.contestW`，默认 0.08），政策推进类才需显式声明 |
@@ -1231,7 +1242,7 @@ effects: { attr:{CHA:5}, fac:{base:10,press:-8}, fun:400000, rep:6, fav:-1, lev:
 | `count` | **隐藏计数器**：`{ wrath_press: 8, cap_legal: 1 }` → 累加，**下限 0**（`effects.js`）。与 flags 分工：flags 记"有没有"，counters 记"攒了多少"。刻意不上状态面板——后续事件用 `countMin/countMax/countEq` 读它（见 §4.18） | — |
 | `fall` | 软 BE「下野」：`v` = 下野深度 1~2，降层级、按比例摔声望、丑闻降级、清 `investigation_open`、挂 `fallen` 标记。**12 个月保护期**内不叠加；之后仍有东山再起（`fallen_return` 结局认账） | — |
 | `hardEnd` | 硬 BE：只写 `G.pendingHardEnd`，终局判定由 `view/stage.js` 的 afterEvent 统一收口。取值见 §12.5（`prison`/`disgrace` + 清算四新值 `ruined`/`purged`/`framed`/`assassinated` + `bankrupt`，见 §4.18/§15） | — |
-| `setTrack` / `setStance` | 路线转向：把玩家直接挪到另一条轨道/姿态（键必须存在于注册表；代价应写在剧情里） | — |
+| `setTrack` | 路线转向：把玩家直接挪到另一条轨道（键必须存在于注册表；代价应写在剧情里）。**底色没有转向键**：`G.stance` 由 `creed_*` 计数器推导，直接写会被下次结算覆盖（§3） | — |
 | `camp` | **竞选选情增减** `{momentum:±x, warchest:±y}`：只用在竞选各幕事件里，撬动当前 campaign 的选情表（见 §14）。**不计入三值性净值、不上状态资源条**（`campaign.js` 经 `P.effect("camp")` 注册；无活跃竞选时静默忽略） | — |
 | `score` | 自定义累计分（供结局条件用） | — |
 | `flags` | 增加状态标记 | — |
@@ -1368,7 +1379,7 @@ POTUS.define("blackswan", {
 | `valenceDefault` | `"risk"` | 漏标 `valence` 的旧内容兜底类 |
 | `econ` | 见 §4.16.2 | **动态经济标尺参数**：`funMonths {1.5,6,20}`/`repBase {2.5,5,9}`/`hpBase {2,4,7}`/`smallBase`/`tierLean .30`/`hpTierLean .12`/`attrLean .40`/`coefMin -8`/`coefMax 8`/`coefMaxFun 150`/`repGateMax 80`（`req.rep` 门槛的硬顶，见 §4.2 与 `ruler.repGate`：门槛口径不吃属性系数，且不得顶破声望上限 100） |
 | `repOverflow` | `{ warmShare: 0.0004 }` | **声望溢出折算**：`G.rep` 满 100 之后涨到的点数不再静默归零，按「1 点 = 当前选区规模 × `warmShare` 个好感选民」落地（至少 1 人），并播一条 `ui.effects.repOverflow`。消费方只有 `effects.js addRep`（`req.rep` 门槛与 `repGateMax` 都不吃它 —— 那是量级×身位的固定门槛）。**不抬 100 这个顶**：顶一抬，门槛展开、支持率播种、`voterDrift` 的声望系数三处定标一起歪。`warmShare: 0` ＝ 关掉折算（validate 的「溢出必须折出人」当场红） |
-| `identityBias` / `resourceBias` | 见 `01-config.js` | **权重管线两张表**：身份（轨道/党派/姿态/出身/起点/州/路线旗/浪潮旗）与资源（缺钱/有钱/有名/把柄/病重/人脉/蹲太久）→ 哪类事件更容易找上他。规则形状 `{when, ids/cats/tags, mul}`；单因子夹 ±3、整条 tilt 封顶 ±8（`weightFactorMin/Max`、`weightTiltCap`）。事件也可自带 `ev.bias` |
+| `identityBias` / `resourceBias` | 见 `01-config.js` | **权重管线两张表**：身份（轨道/党派/底色/出身/起点/州/路线旗/浪潮旗）与资源（缺钱/有钱/有名/把柄/病重/人脉/蹲太久）→ 哪类事件更容易找上他。规则形状 `{when, ids/cats/tags, mul}`；单因子夹 ±3、整条 tilt 封顶 ±8（`weightFactorMin/Max`、`weightTiltCap`）。事件也可自带 `ev.bias` |
 | `eraWeightMul` | 3 | 分期专属事件的权重倍数（防通用内容淹没时代内容；`scoped:true` 同样吃，见 §4.8） |
 | `chainWeightMul` | 9 | **已解锁续集**的权重倍数（让一条故事线在几百个档期里连得起来，见 §4.11） |
 | `repeatBias` | 1 | 旧"类型级重复惩罚"，默认关（1=关）。开它会拉平类型分布但牵动死亡/晋升曲线 |
@@ -1408,7 +1419,7 @@ POTUS.define("blackswan", {
 
 > 本节是**事件写作规范的唯一出处**（早先拆单的《事件包写作规范》已并入这里）。可直接复制的最小交付骨架见 §13，六条铁律的完整论述见 §11.6。写新事件前，先照抄一个范例定风格：`content/events/80-shady.js` 的 `shady_union` / `shady_union_collect`（前因后果 + `after` 余波链 + 保底选项 + 经济诚实），以及 `content/events/62-crossroads.js`（`note` 字段范例）。
 >
-> **可用效果键速查**：`attr:{CHA,INT,CUN,INTG}` `fac:{base,establishment,commercial,labor,press,military,church,agency,foreign,tech,criminal}` `fun` `rep` `fav` `lev` `tier(±1)` `debt:-N`（还学贷） `funMul`（按本金算回报，须有 cost.fun/req.fun/投注；倍率再吃 INT 修正，见 §6） `voters:{warm,diehard,oppose}` `count:{wrath_press:8, ...}`（隐藏计数器，清算用，见 §4.18） `camp:{momentum,warchest}`（仅竞选各幕，见 §14） `appr:±n`（总统支持率，仅白宫卡，见 §4.22） `score` `flags:[...]` `notFlags:[...]` `contact:{人id}` `forget:[人id]` `fall:1|2`（下野） `hardEnd:"prison"|"disgrace"|"ruined"|"purged"|"framed"|"assassinated"|"bankrupt"`（硬结局，慎用，见 §12.5） `setTrack` `setStance`。**`hp`/`ap` 已退役为空操**（v0.9，见 §6），别再写。
+> **可用效果键速查**：`attr:{CHA,INT,CUN,INTG}` `fac:{base,establishment,commercial,labor,press,military,church,agency,foreign,tech,criminal}` `fun` `rep` `fav` `lev` `tier(±1)` `debt:-N`（还学贷） `funMul`（按本金算回报，须有 cost.fun/req.fun/投注；倍率再吃 INT 修正，见 §6） `voters:{warm,diehard,oppose}` `count:{wrath_press:8, ...}`（隐藏计数器：`wrath_*` 清算用见 §4.18，`creed_*` 底色推导用见 §3） `camp:{momentum,warchest}`（仅竞选各幕，见 §14） `appr:±n`（总统支持率，仅白宫卡，见 §4.22） `score` `flags:[...]` `notFlags:[...]` `contact:{人id}` `forget:[人id]` `fall:1|2`（下野） `hardEnd:"prison"|"disgrace"|"ruined"|"purged"|"framed"|"assassinated"|"bankrupt"`（硬结局，慎用，见 §12.5） `setTrack`（**底色没有转向键**：`G.stance` 由 `count:{creed_<档>}` 计数器推导，见 §3）。**`hp`/`ap` 已退役为空操**（v0.9，见 §6），别再写。
 >
 > **已登记人脉 id**：`brother`(家里人) `fixer`(掮客) `shark`(放贷人) `doctor`(诊所医生) `union_boss`(工会头目) `pastor`(牧师) `columnist`(专栏作家) `producer`(电视制作人) `lobbyist`(游说客) `agent`(联邦探员)。
 >
@@ -1628,7 +1639,7 @@ vignette: { trackBonus: { electoral: { rep: 1.6 }, … } }  // 静好岁月按�
 | `fall` | 1 或 2 | 软 BE 下野：降 1-2 级、声望 ×0.65/×0.45、调查了结、丑闻降 2 档、fallen 标记、12 个月保护期（期内不叠加） |
 | `hardEnd` | `"prison"` \| `"disgrace"` \| `"ruined"` \| `"purged"` \| `"framed"` \| `"assassinated"` \| `"bankrupt"` | 硬结局：终局直接收口（入狱 / 身败名裂 / 清算四值，见 §4.18 / 信用破产，见 §15）。界面归类在 `stage.js hardEndLabel`：prison/framed→"入狱"，disgrace/ruined/purged→"身败名裂"，bankrupt→"信用破产"，其余→"丧命" |
 | `setTrack` | `"operative"` 等 | 选项直接切换轨道（值必须是 reg.track 里存在的 key） |
-| `setStance` | `"outsider"` 等 | 选项直接切换姿态 |
+| `count` | `{ creed_populist: 1 }` | 底色计数器（#43）：`creed_populist` / `creed_progressive` / `creed_conservative` 三档攒分，结算后 `P.creedRecompute()` 推导 `G.stance`（阈值 `balance.creed`）。没有 `setStance` 效果键 |
 
 ### 选项新字段
 ```js

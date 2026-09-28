@@ -195,6 +195,18 @@ POTUS.define("event", [
           fail: { body: "幕僚长和党鞭在镜头前吵了起来，第二天新闻讲的是白宫不会说话。", effects: { rep: -0.25, appr: -5 } },
           critfail: { body: "谈崩了，而崩的那一段被走廊话筒录了下来。关门一个月，录音完整版在每一个候选人的广告里。", effects: { rep: -0.55, appr: -9, hp: -0.3, flags: ["shutdown_blamed"] } }
         }
+      },
+      {
+        id: "streets", text: "绕开党鞭：在白宫南草坪直播讲话，号召选民自己去敲摇摆议员办公室的门",
+        base: 0.64, mods: [{ src: "approval", w: 0.25 }, { src: "attr", key: "CHA", w: 0.25 }, { src: "stance", key: "populist", w: 0.15 }, { src: "stance", key: "conservative", w: 0.08 }, { src: "stance", key: "establishment", w: -0.10 }],
+        note: "快线。门可能一夜就开，也可能砸你一身——把国会当敌人动员，国会会记住是谁在镜头前这么说的。",
+        outcomes: {
+          crit: { body: "议员办公室的电话被打爆，两个摇摆议员当晚倒向白宫版。法案按你的条件开门，党鞭事后握着那份点名单一句话没说。", effects: { rep: 0.45, appr: 5, fac: { base: 8, establishment: -12 }, voters: { diehard: 1200 }, count: { wrath_establishment: 18, creed_populist: 1 } } },
+          ok: { body: "舆论压力拧动了三四票，附加条款删了大半。你在全国面前赢了一夜，在党团面前输了一整届。", effects: { rep: 0.25, appr: 2, fac: { establishment: -8 }, count: { wrath_establishment: 18, creed_populist: 1 } } },
+          meh: { body: "电话是打了不少，党鞭们反而抱团了。开门的还是那份你本来就能签的草稿。", effects: { appr: -2, rep: 0, count: { wrath_establishment: 10, creed_populist: 1 } } },
+          fail: { body: "被点名的议员集体上电视自辩，「总统煽动暴民冲进国会走廊」的剪辑版比法案本身响。", effects: { rep: -0.3, appr: -6, fac: { establishment: -12 }, count: { wrath_establishment: 22, creed_populist: 1 } } },
+          critfail: { body: "一个落款含糊的呼吁信引发支持者堵了州议会大楼的门。两党联合谴责你，而参院多数党领袖第一次直呼你的名字。", effects: { rep: -0.6, appr: -10, fac: { establishment: -15, base: -4 }, flags: ["mob_backlash"], count: { wrath_establishment: 24, creed_populist: 1 } } }
+        }
       }
     ]
   },

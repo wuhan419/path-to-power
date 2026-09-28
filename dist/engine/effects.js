@@ -243,9 +243,10 @@
       G.pendingHardEnd = String(v || "disgrace");
     },
 
-    /* 路线转向：选项直接把玩家挪到另一条轨道/姿态（代价已经写在剧情里） */
-    setTrack: function (v, G) { if (POTUS.reg.track[v]) G.track = v; },
-    setStance: function (v, G) { if (POTUS.reg.stance[v]) G.stance = v; }
+    /* 路线转向：选项直接把玩家挪到另一条轨道（代价已经写在剧情里）。
+     * 底色不在这张表里：#43 起底色是 creed_* 计数器推出来的（见文件尾 creedRecompute），
+     * 直接写 G.stance 会被下一次结算覆盖，所以不提供 setStance 效果键。 */
+    setTrack: function (v, G) { if (POTUS.reg.track[v]) G.track = v; }
   };
 
   /* 内容注册自定义效果键 */
@@ -285,5 +286,33 @@
       if (h) h(eff[k], G, ctx);
       else console.warn("[POTUS] 未知效果键: " + k + "（可用 POTUS.effect() 注册）");
     }
+    /* 底色是走出来的：每一笔效果落账后重读 creed_* 计数器（成本 = 三次查表）。 */
+    if (P.creedRecompute) P.creedRecompute();
+  };
+
+  /* ---------- 政治底色推导（creed 计数器 → G.stance） ----------
+   * 内容侧只写 count:{creed_populist:1,...}；这里在每次结算后问一句"现在攒起来的
+   * 是哪股力量"：三档运动力量取 argmax，须同时过 min（立得住）与 lead（甩开次高）
+   * 两道闸，谁都不过就沉回建制派。建制没有计数器 —— 没掀过桌子的人就是机器的人。
+   * 转向可以往回走也可以横着走（运动政客会换教门），每次都只推一条日志。 */
+  const CREEDS = ["populist", "progressive", "conservative"];
+  P.creedRecompute = function () {
+    const G = P.G;
+    if (!G) return "establishment";
+    const cfg = (P.balance && P.balance().creed) || { min: 3, lead: 2 };
+    const c = G.counters || {};
+    let best = null, bv = 0, second = 0;
+    for (let i = 0; i < CREEDS.length; i++) {
+      const v = c["creed_" + CREEDS[i]] || 0;
+      if (v > bv) { second = bv; bv = v; best = CREEDS[i]; }
+      else if (v > second) second = v;
+    }
+    const want = (best && bv >= cfg.min && bv - second >= cfg.lead) ? best : "establishment";
+    if (want !== G.stance) {
+      G.stance = want;
+      const nm = (POTUS.reg.stance[want] || {}).name || want;
+      if (P.pushLog) P.pushLog(P.t("ui.effects.creedShift", "一路走下来，人们给你的路起了名字：你现在是「{n}」。", { n: nm }));
+    }
+    return want;
   };
 })();

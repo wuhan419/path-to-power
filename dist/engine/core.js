@@ -1308,6 +1308,8 @@ POTUS.migrate = function (G) {
   if (G.bailouts == null) G.bailouts = 0;                 // v0.11 负债设底：本局被接济次数
   /* v0.12 #20 天赋卡墙：旧档没有卡墙 = 空墙（单卡天赋继续按 legacy 生效），不升存档版本 */
   if (!Array.isArray(G.cards)) G.cards = [];
+  /* #43 底色四档化：旧档的反建制(outsider)就近入民粹档；不升存档版本 */
+  if (G.stance === "outsider") G.stance = "populist";
   if (!Array.isArray(G.spentCards)) G.spentCards = [];
   if (G.peakTier == null) G.peakTier = G.tier || 0;       // v0.11 P1：生涯峰值层级（成就结算用）
   if (G.contacts == null) G.contacts = {};                // 人脉好感表

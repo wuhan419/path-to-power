@@ -6,7 +6,7 @@
  *   同一个历史时刻，T0 的人在征兵队列里，T3 的人在投票席上 —— 所以同一个
  *   历史节点写成两条独立事件，各带各的 tierMin/tierMax，引擎自动按层级分流。
  *
- * 「投入浪潮」：没有政府背景的人（低 tier / ngo / outsider）可以选择站进
+ * 「投入浪潮」：没有政府背景的人（低 tier / ngo / 民粹·进步·保守底色）可以选择站进
  *   浪潮里 —— 用时间换政治资本（rep/基层/工会好感），拿到 wave_* 标记，
  *   后续事件认这些标记给更高的起点（政治资本兑现）。
  *
@@ -45,9 +45,9 @@ POTUS.define("event", [
         note: "把生活搬进去。「亲历者」三个字在未来的选举里对抗任何精英履历。代价：档案、时间和接下来的每个冬天。",
         base: 0.55, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "fac", key: "base", w: 0.2 }],
         outcomes: {
-          crit: { body: "你成了帐篷城的声音之一：镜头找你，捐款经你，警方的档案也给你立了页。冬天来之前，你已经把运动里认识的两百个人存进了自己的通讯录。", effects: { rep: 3, fac: { base: 16, labor: 8, commercial: -10, agency: -6 }, flags: ["wave_occupy"] } },
-          ok: { body: "你在帐篷里过了六个星期。清场那天你被抬走的样子上了地区新闻——没有名字，但你的选区都看见了。", effects: { rep: 1.75, fac: { base: 12, commercial: -6, agency: -4 }, flags: ["wave_occupy"] } },
-          meh: { body: "你参与了，也看清了：一群好人、无领袖、和无限延长的大会。你带着笔记本离开。", effects: { rep: 1, fac: { base: 8, commercial: -4 }, attr: { INT: 2 }, flags: ["wave_occupy"] } },
+          crit: { body: "你成了帐篷城的声音之一：镜头找你，捐款经你，警方的档案也给你立了页。冬天来之前，你已经把运动里认识的两百个人存进了自己的通讯录。", effects: { rep: 3, fac: { base: 16, labor: 8, commercial: -10, agency: -6 }, flags: ["wave_occupy"], count: { creed_progressive: 2 } } },
+          ok: { body: "你在帐篷里过了六个星期。清场那天你被抬走的样子上了地区新闻——没有名字，但你的选区都看见了。", effects: { rep: 1.75, fac: { base: 12, commercial: -6, agency: -4 }, flags: ["wave_occupy"], count: { creed_progressive: 1 } } },
+          meh: { body: "你参与了，也看清了：一群好人、无领袖、和无限延长的大会。你带着笔记本离开。", effects: { rep: 1, fac: { base: 8, commercial: -4 }, attr: { INT: 2 }, flags: ["wave_occupy"], count: { creed_progressive: 1 } } },
           fail: { body: "清场那晚你不在。第二天你去收拾东西，公园已经冲洗干净，像什么都没发生过。", effects: { rep: 0.4, fac: { base: 4 } } },
           critfail: { body: "一段你的发言视频被剪了：掐头去尾之后，你像在号召冲击银行。原视频三千播放，剪辑版三十万。", effects: { rep: -1.5, fac: { base: 6, press: -10, commercial: -12 }, flags: ["scandal_2", "wave_occupy"] } }
         }
@@ -57,7 +57,7 @@ POTUS.define("event", [
         note: "不上帐篷也不旁观：把组织资源（工会、教会）和街头热情连起来。两边都讨好，两边都怀疑你。",
         base: 0.5, mods: [{ src: "attr", key: "CUN", w: 0.3 }, { src: "fac", key: "labor", w: 0.3 }],
         outcomes: {
-          crit: { body: "工会的大巴开进了公园：食物、热水、和几百个有编制的抗议者。两个月的松散运动第一次有了后勤。所有人都记住了是谁牵的线。", effects: { rep: 2, fac: { base: 8, labor: 14 }, flags: ["wave_occupy"] } },
+          crit: { body: "工会的大巴开进了公园：食物、热水、和几百个有编制的抗议者。两个月的松散运动第一次有了后勤。所有人都记住了是谁牵的线。", effects: { rep: 2, fac: { base: 8, labor: 14 }, flags: ["wave_occupy"], count: { creed_progressive: 1 } } },
           ok: { body: "牵线成功了一半：工会出了声援声明，但没出大巴。已经比大多数「联盟」走得远。", effects: { rep: 1.25, fac: { labor: 9, base: 4 } } },
           meh: { body: "工会的人听完说「有意思」，然后去开了别的会。你学会了听懂「有意思」。", effects: { fac: { labor: 3 } } },
           fail: { body: "帐篷城里有人指你是「工会的特务」，工会那边则嫌你太出风头。两头不是人。", effects: { fac: { labor: -4, base: -4 } } },
@@ -96,10 +96,10 @@ POTUS.define("event", [
       {
         id: "ride", text: "站上讲台，把这股怒气接住",
         note: "替人群说话，人群就会把你抬起来。茶党的浪最高的时候，浪尖上连无名之辈都能起飞。",
-        base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "stance", key: "outsider", w: 0.2 }],
+        base: 0.5, mods: [{ src: "attr", key: "CHA", w: 0.4 }, { src: "stance", key: "populist", w: 0.2 }, { src: "stance", key: "conservative", w: 0.12 }],
         outcomes: {
-          crit: { body: "你的三分钟发言被拍了竖屏，一周五十万播放。三个月后，你被邀请在州级集会上压轴。", effects: { rep: 2.75, fac: { base: 14, commercial: -6, establishment: -10 }, flags: ["wave_tea"] } },
-          ok: { body: "会议室的人站起来为你鼓掌。商会的邀请函第二天被撤回了。", effects: { rep: 1.5, fac: { base: 10, establishment: -6, commercial: -4 }, flags: ["wave_tea"] } },
+          crit: { body: "你的三分钟发言被拍了竖屏，一周五十万播放。三个月后，你被邀请在州级集会上压轴。", effects: { rep: 2.75, fac: { base: 14, commercial: -6, establishment: -10 }, flags: ["wave_tea"], count: { creed_conservative: 2 } } },
+          ok: { body: "会议室的人站起来为你鼓掌。商会的邀请函第二天被撤回了。", effects: { rep: 1.5, fac: { base: 10, establishment: -6, commercial: -4 }, flags: ["wave_tea"], count: { creed_conservative: 1 } } },
           meh: { body: "你讲得不错。人群激动的原因你理解了七成——剩下三成你不敢深想。", effects: { rep: 0.8, fac: { base: 6, establishment: -3 } } },
           fail: { body: "你被起哄了：人群要的是怒吼，你给的是分析。有人喊「下一个」。", effects: { rep: -0.4, fac: { base: -4 } } },
           critfail: { body: "你引用的一组数据被当场戳穿是错的。竖屏照样传了五十万——配的标题是「精英的傲慢」。", effects: { rep: -1.75, fac: { base: -8, press: -8 }, flags: ["scandal_2"] } }
